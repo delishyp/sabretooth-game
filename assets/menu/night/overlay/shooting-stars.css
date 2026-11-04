@@ -1,0 +1,3 @@
+/* Optional: the JS sets these inline already; this file lets you override placement. */
+.shooting-stars-canvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:1}
+@media (prefers-reduced-motion: reduce){.shooting-stars-canvas{display:none}}

@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tundra layout 2 – Banner logo + button strip</title>
+<link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="common.css">
+<style>
+.logo{position:absolute;left:760px;top:46px;width:1100px;text-align:center}
+.logo .sub{margin-top:8px}
+.strip{position:absolute;left:770px;top:330px;width:1080px;padding:18px 22px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px 16px}
+.card{position:absolute;left:1290px;top:520px;width:560px;padding:16px 24px}
+.card:before{inset:6px}
+</style></head><body>
+<div class="logo"><div class="wt">Working Title</div><h1>SABRETOOTH</h1>
+ <div class="sub"><span class="rule"></span>An Ice Age Pride<span class="rule r"></span></div></div>
+<div class="strip panel">
+ <div class="btn hot">New Pride</div>
+ <div class="btn">Continue<small>Day 34</small></div>
+ <div class="btn">Load Pride</div>
+ <div class="btn">Settings</div>
+ <div class="btn">Credits</div>
+ <div class="btn dim">Quit</div>
+</div>
+<div class="card panel"><h3>Last Saved</h3>
+ <p><b>Pride of the Long Valley</b>: Greyshoulder watches the elk from the ridge.</p>
+ <div class="meta">Late Summer · Day 34 · 5 cats · 1 cub</div></div>
+<div class="guide" style="left:10px;top:180px;width:680px;height:740px">Keep clear: cat</div>
+<div class="guide" style="left:560px;top:660px;width:1340px;height:350px">Keep clear: herd</div>
+<div class="foot">Prototype v0.1 · Layout mockup over stand-in art, not final</div>
+<div class="tag">Tundra · Layout 2 · Banner + Strip</div>
+<script>if(location.search.includes('uionly'))document.body.className='uionly';if(location.search.includes('noguide'))document.querySelectorAll('.guide').forEach(e=>e.remove())</script>
+</body></html>

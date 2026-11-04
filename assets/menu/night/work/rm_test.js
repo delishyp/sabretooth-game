@@ -1,0 +1,13 @@
+const puppeteer=require('puppeteer-core');
+(async()=>{const b=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
+const p=await b.newPage();await p.setViewport({width:1920,height:1080});
+await p.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
+await p.goto(`file://${process.cwd()}/../html/menu-night.html?v=2&min=100&max=200`);
+await p.evaluate(()=>stars.fire()); await new Promise(r=>setTimeout(r,1500));
+const n=await p.evaluate(()=>{const c=stars.canvas,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let s=0;for(let i=3;i<d.length;i+=4)s+=d[i];return s});
+console.log('reduced-motion alpha sum (fire() is manual, timer spawns must be 0 besides it):',n);
+await p.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);
+await p.goto(`file://${process.cwd()}/../html/menu-night.html?v=2&min=100&max=200`);
+await new Promise(r=>setTimeout(r,700));
+const m=await p.evaluate(()=>{const c=stars.canvas,d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let s=0;for(let i=3;i<d.length;i+=4)s+=d[i];return s});
+console.log('normal alpha sum:',m);await b.close();})();

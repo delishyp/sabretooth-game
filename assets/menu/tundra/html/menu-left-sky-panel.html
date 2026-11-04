@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tundra main menu – left sky panel</title>
+<link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="common.css">
+<style>
+.panel{position:absolute;left:84px;top:40px;width:560px;padding:24px 42px 20px;text-align:center}
+.logo h1{font-size:70px;-webkit-text-stroke-width:2.5px;text-shadow:0 4px 0 #4a2a12,0 6px 12px rgba(40,20,5,.35);margin-top:6px}
+.logo .sub{font-size:24px;margin-top:4px;color:#7a3f17;text-shadow:none}
+.menu{margin-top:18px;display:flex;flex-direction:column;gap:9px}
+.btn{height:48px;font-size:23px}
+.card{margin-top:14px;text-align:left;border-top:2px dotted rgba(107,66,36,.5);padding-top:10px}
+</style></head><body>
+<div class="panel">
+ <div class="logo"><div class="wt">Working Title</div><h1>SABRETOOTH</h1>
+  <div class="sub"><span class="rule"></span>An Ice Age Pride<span class="rule r"></span></div></div>
+ <div class="menu">
+  <div class="btn hot">New Pride</div>
+  <div class="btn">Continue<small>Day 34</small></div>
+  <div class="btn">Load Pride</div>
+  <div class="btn">Settings</div>
+  <div class="btn">Credits</div>
+  <div class="btn dim">Quit</div>
+ </div>
+ <div class="card"><h3>Last Saved</h3>
+  <p><b>Pride of the Long Valley</b> · Late Summer, Day 34</p></div>
+</div>
+<div class="guide" style="left:1090px;top:250px;width:810px;height:690px">Keep clear: cat</div>
+<div class="guide" style="left:20px;top:790px;width:1180px;height:280px">Keep clear: herd</div>
+<div class="foot" style="left:auto;right:28px;bottom:52px">Prototype v0.1 · Layout mockup, not final</div>
+<script>if(location.search.includes('uionly'))document.body.className='uionly';if(location.search.includes('noguide'))document.querySelectorAll('.guide').forEach(e=>e.remove())</script>
+</body></html>

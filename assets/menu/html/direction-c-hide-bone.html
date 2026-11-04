@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Mockup C – Hide &amp; Bone</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1920px;height:1080px;overflow:hidden;background:#0a1030 url(../backgrounds/bg-c-aurora.png) center/cover;font-family:'Lora',serif;color:#3a2716}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,8,25,.55),rgba(5,8,25,0) 50%)}
+.hide{position:absolute;left:90px;top:60px;width:700px;height:960px;padding:56px 62px;
+ background:radial-gradient(ellipse at 40% 30%,#ecd9b0,#d9bd8a 60%,#b9945e);
+ border-radius:38px 52px 44px 30px / 60px 40px 70px 50px;
+ box-shadow:0 18px 50px rgba(0,0,0,.6),inset 0 0 60px rgba(110,70,30,.45)}
+.hide:before{content:"";position:absolute;inset:18px;border:3px dashed rgba(110,66,30,.55);border-radius:30px 44px 36px 24px / 50px 32px 60px 42px}
+.hide:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;mix-blend-mode:multiply;opacity:.55;
+ background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.012 .03' numOctaves='4'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .38  0 0 0 0 .2  0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.in{position:relative;z-index:1;text-align:center}
+.wt{display:inline-block;font:600 13px 'Lora';letter-spacing:.3em;text-transform:uppercase;color:#7a4a22;border-top:1px solid #7a4a22;border-bottom:1px solid #7a4a22;padding:3px 10px}
+h1{font:400 92px 'IM Fell English SC';color:#4a2a12;letter-spacing:.06em;margin-top:12px;line-height:1;text-shadow:0 1px 0 rgba(255,240,210,.6)}
+.fang{position:relative;width:360px;height:44px;margin:4px auto 0;display:flex;justify-content:center;gap:40px}
+.fang:before{content:"";position:absolute;left:0;right:0;top:0;height:9px;border-radius:5px;background:linear-gradient(#fbf4e2,#d8c7a2);box-shadow:0 1px 0 #7a5a38}
+.fang:after{content:"";position:absolute;left:-8px;right:-8px;top:-4px;height:17px;background:radial-gradient(circle at 8px 50%,#f6eedb 8px,transparent 9px),radial-gradient(circle at calc(100% - 8px) 50%,#f6eedb 8px,transparent 9px)}
+.fang span{margin-top:7px;width:13px;height:36px;background:linear-gradient(#fffaf0,#e9dcc2);clip-path:polygon(0 0,100% 0,60% 100%,40% 100%);filter:drop-shadow(0 1px 0 #7a5a38)}
+.sub{font:italic 600 30px 'Lora';color:#8a3a1a;margin-top:6px}
+.menu{margin:34px auto 0;width:440px;display:flex;flex-direction:column;gap:14px}
+.btn{position:relative;height:58px;display:flex;align-items:center;justify-content:center;font:600 24px 'Lora';color:#f6ead2;letter-spacing:.03em;
+ background:linear-gradient(180deg,#7a4e2c,#5c3820);border-radius:6px;margin:0 22px;box-shadow:0 3px 0 #3a2312,inset 0 1px 0 rgba(255,220,170,.25)}
+.btn:before,.btn:after{content:"";position:absolute;top:50%;width:38px;height:20px;margin-top:-10px;background:radial-gradient(circle at 25% 50%,#f8f0dc 9px,transparent 10px),radial-gradient(circle at 75% 50%,#f8f0dc 9px,transparent 10px),linear-gradient(#efe3c6,#d9c9a6);background-size:100% 100%,100% 100%,60% 46%;background-repeat:no-repeat;background-position:0 0,0 0,center;filter:drop-shadow(0 1px 1px rgba(60,30,10,.6))}
+.btn:before{left:-26px}.btn:after{right:-26px}
+.btn.hot{background:linear-gradient(180deg,#b4512a,#8b3618);box-shadow:0 3px 0 #5a200c,0 0 0 3px rgba(248,240,220,.7)}
+.btn small{position:absolute;right:20px;font:italic 400 15px 'Lora';color:#e6cfaa}
+.btn.dim{background:linear-gradient(180deg,#8f6a49,#6f4f33);color:#ecdcc0}
+.chron{margin-top:34px;text-align:left;background:rgba(255,248,230,.5);border:1px solid rgba(122,74,34,.4);border-radius:8px;padding:16px 20px}
+.chron h3{font:400 22px 'IM Fell English SC';color:#7a3a18;letter-spacing:.05em;margin-bottom:6px}
+.chron p{font-size:18px;line-height:1.5;color:#3a2716}
+.chron .meta{font-size:15px;color:#6e5030;margin-top:8px;font-style:italic}
+.tag{position:absolute;right:36px;bottom:30px;font:600 14px 'Lora';letter-spacing:.2em;color:rgba(255,245,225,.8);background:rgba(0,0,20,.45);padding:6px 12px;border-radius:4px;text-transform:uppercase}
+.foot{position:absolute;left:840px;bottom:34px;font:italic 16px 'Lora';color:#c9d2ee}
+</style></head><body>
+<div class="shade"></div>
+<div class="hide"><div class="in">
+ <div class="wt">Working Title</div>
+ <h1>Sabretooth</h1>
+ <div class="fang"><span></span><span></span></div>
+ <div class="sub">An Ice Age Pride</div>
+ <div class="menu">
+  <div class="btn hot">New Pride</div>
+  <div class="btn">Continue<small>Day 34</small></div>
+  <div class="btn">Load Pride</div>
+  <div class="btn">Settings</div>
+  <div class="btn">Credits</div>
+  <div class="btn dim">Quit</div>
+ </div>
+ <div class="chron">
+  <h3>From the Pride Chronicle</h3>
+  <p>Under the green sky-fire, <b>Emberclaw</b> led the hunt and brought down a young mammoth. The pride will eat well tonight.</p>
+  <div class="meta">Pride of the Ember Stone · Early Spring, Day 34 · 7 members</div>
+ </div>
+</div></div>
+<div class="foot">Prototype v0.1 · Main menu mockup — not final</div>
+<div class="tag">Direction C · Hide &amp; Bone</div>
+</body></html>

@@ -1,0 +1,70 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Mockup B Night – Frost Steppe, painted Smilodon</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1920px;height:1080px;overflow:hidden;background:#0d1530 var(--bg) center/cover;font-family:'Nunito Sans',sans-serif;color:#eef3ff}
+.shade{position:absolute;z-index:0;inset:0;background:linear-gradient(90deg,rgba(8,12,32,.7) 0%,rgba(8,12,32,.35) 38%,rgba(8,12,32,0) 58%),linear-gradient(0deg,rgba(8,12,32,.35),transparent 30%)}
+.logo{position:absolute;left:130px;top:110px}
+.wt{font:700 14px 'Nunito Sans';letter-spacing:.35em;color:#a9c4ff;text-transform:uppercase;margin-bottom:10px}
+h1{font:700 104px 'Cinzel';letter-spacing:.16em;color:#f4f8ff;text-shadow:0 0 24px rgba(160,190,255,.55),0 2px 2px rgba(0,0,30,.6)}
+.sub{display:flex;align-items:center;gap:18px;font:500 28px 'Cinzel';letter-spacing:.32em;color:#c9d8ff;margin-top:4px}
+.sub i{flex:0 0 70px;height:1px;background:linear-gradient(90deg,transparent,#c9d8ff)}
+.sub i:last-child{background:linear-gradient(90deg,#c9d8ff,transparent)}
+.paint{display:inline-flex;gap:6px;margin-left:6px}
+.paint span{width:7px;height:7px;border-radius:50%;background:#c4543a;opacity:.85}
+.menu{position:absolute;left:130px;top:400px;width:420px;display:flex;flex-direction:column;gap:12px}
+.btn{height:62px;display:flex;align-items:center;padding:0 26px;font:600 25px 'Nunito Sans';letter-spacing:.04em;color:#f2f6ff;
+ background:rgba(190,210,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+ border:1px solid rgba(220,232,255,.38);border-radius:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.btn small{margin-left:auto;font:400 16px 'Nunito Sans';color:#b8c8ec}
+.btn.hot{background:linear-gradient(90deg,rgba(196,84,58,.85),rgba(196,84,58,.45));border-color:rgba(255,200,180,.7);box-shadow:0 0 22px rgba(196,84,58,.35),inset 0 1px 0 rgba(255,255,255,.3)}
+.btn.dim{color:#aebcdc}
+.panel{position:absolute;left:600px;top:400px;width:500px;padding:24px 28px;background:rgba(170,195,255,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ border:1px solid rgba(220,232,255,.3);border-radius:16px}
+.panel h3{font:700 15px 'Nunito Sans';letter-spacing:.28em;text-transform:uppercase;color:#a9c4ff;margin-bottom:12px}
+.panel .name{font:700 30px 'Cinzel';letter-spacing:.06em;color:#fff}
+.panel p{font-size:19px;line-height:1.55;color:#dde6fb;margin-top:10px}
+.stats{display:flex;gap:10px;margin-top:16px}
+.stats div{flex:1;background:rgba(10,18,45,.45);border-radius:10px;padding:10px 12px;font-size:14px;color:#a9badf;letter-spacing:.05em}
+.stats b{display:block;font-size:20px;white-space:nowrap;color:#fff;font-weight:700;margin-top:2px}
+.tip{margin-top:16px;padding-top:14px;border-top:1px solid rgba(220,232,255,.2);font-size:17px;color:#c3d1f0;line-height:1.45}
+.tip b{color:#f0b8a8}
+.foot{position:absolute;left:130px;bottom:40px;font-size:16px;color:#9fb0d6;letter-spacing:.06em}
+.tag{position:absolute;right:36px;bottom:30px;font:700 14px 'Nunito Sans';letter-spacing:.2em;color:rgba(235,242,255,.75);background:rgba(0,0,20,.45);padding:6px 12px;border-radius:4px;text-transform:uppercase}
+.logo,.menu,.panel,.foot,.tag{z-index:2}
+</style>
+<link rel="stylesheet" href="../overlay/shooting-stars.css"></head><body>
+<div class="shade"></div>
+<div class="logo">
+ <div class="wt">Working Title</div>
+ <h1>SABRETOOTH</h1>
+ <div class="sub"><i></i>An Ice Age Pride<span class="paint"><span></span><span></span><span></span></span><i></i></div>
+</div>
+<div class="menu">
+ <div class="btn hot">New Pride</div>
+ <div class="btn">Continue<small>Day 34</small></div>
+ <div class="btn">Load Pride</div>
+ <div class="btn">Settings</div>
+ <div class="btn">Credits</div>
+ <div class="btn dim">Quit</div>
+</div>
+<div class="panel">
+ <h3>Continue your story</h3>
+ <div class="name">Pride of the Moon Ridge</div>
+ <p>A cold wind carries the scent of horses from the river valley. Your lead male, <b>Frostjaw</b>, has not eaten in three days.</p>
+ <div class="stats"><div>Season<b>Deep Winter</b></div><div>Members<b>5</b></div><div>Cubs<b>1</b></div></div>
+ <div class="tip"><b>Tip:</b> Cubs grow faster in seasons with plentiful prey. Scout the steppe before the snows deepen.</div>
+</div>
+<div class="foot">Prototype v0.1 · Main menu mockup — not final</div>
+<div class="tag">Direction B · Night · __TAG__</div>
+<script src="../overlay/shooting-stars.js"></script>
+<script>
+var q=new URLSearchParams(location.search), v=q.get('v')||'2';
+var CFG={'1':{bg:'../night-bg-v1-moongaze.png',tag:'Moon gaze',ex:[{x0:0.66,y0:0.20,x1:0.98,y1:1}]},
+         '2':{bg:'../night-bg-v2-skygaze.png', tag:'Sky gaze', ex:[{x0:0.62,y0:0.17,x1:0.97,y1:1}]}}[v];
+document.body.style.setProperty('--bg','url('+CFG.bg+')');
+document.querySelector('.tag').textContent=document.querySelector('.tag').textContent.replace('__TAG__',CFG.tag);
+if(!q.has('nostars')) window.stars=ShootingStars.start({sky:{x0:0,y0:0,x1:1,y1:0.46},exclude:CFG.ex,
+  minDelay:+(q.get('min')||2500),maxDelay:+(q.get('max')||7000)});
+</script>
+</body></html>

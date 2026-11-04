@@ -1,0 +1,39 @@
+{
+  "name": "sabretooth",
+  "productName": "Sabretooth",
+  "version": "0.1.0",
+  "description": "Sabretooth (working title): single-player Ice Age Smilodon pride game. Main menu only.",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:linux-dev": "electron . --no-sandbox",
+    "screenshots": "electron . --no-sandbox --screenshots",
+    "sync-copy": "node scripts/sync-copy.js",
+    "test": "node --test test/*.test.js",
+    "dist:win": "electron-builder --win nsis",
+    "test:e2e": "node test/e2e/menu.e2e.js"
+  },
+  "author": "Anna Kremer",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "playwright-core": "^1.64.1"
+  },
+  "build": {
+    "appId": "com.annakremer.sabretooth",
+    "productName": "Sabretooth",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

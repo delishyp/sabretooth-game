@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+<title>Sabretooth</title>
+<link rel="stylesheet" href="styles/theme.css">
+<link rel="stylesheet" href="styles/menu.css">
+</head>
+<!-- All visible text is filled from copy ids via data-t (see js/i18n.js). Credits names are data. -->
+<body>
+<div id="bg"></div><div id="snow"></div>
+<div id="stage">
+  <section class="screen" data-screen="root">
+    <header class="title">
+      <img id="logo" alt="" hidden>
+      <h1 id="logo-text" data-t="app.titleLogo"></h1>
+      <div class="wt" data-t="app.workingTitle"></div>
+      <p id="tagline"></p>
+    </header>
+    <nav class="menu">
+      <button data-action="continue" id="btn-continue" data-t="root.continue"></button>
+      <button data-action="newGame" data-t="root.newGame"></button>
+      <button data-action="load" id="btn-load" data-t="root.load"></button>
+      <button data-action="settings" data-t="root.settings"></button>
+      <button data-action="credits" data-t="root.credits"></button>
+      <button data-action="quit" data-t="root.quit"></button>
+    </nav>
+  </section>
+  <!-- difficulty: focus never selects; Enter/A/click selects (js/nav.js) -->
+  <section class="screen" data-screen="difficulty">
+    <h2 data-t="difficulty.title"></h2><p class="sub" id="difficulty-sub"></p>
+    <div class="diff-layout">
+      <div class="cards" id="difficulty-cards"></div>
+      <div id="sandbox-panel" hidden><h3 id="sandbox-title"></h3><div id="sandbox-rows"></div><p class="note" id="sandbox-note"></p>
+        <button data-nav="panelBegin" class="primary panel-begin" data-t="difficulty.begin"></button></div>
+    </div>
+    <div class="row"><button data-nav="back" data-t="common.back"></button><button data-nav="begin" class="primary" id="begin-main" data-t="difficulty.begin"></button></div>
+  </section>
+  <section class="screen" data-screen="slotsFull">
+    <h2 data-t="slotsFull.title"></h2><p class="sub" data-t="slotsFull.subtitle"></p>
+    <div class="runs" id="replace-runs"></div>
+    <div class="row"><button data-action="back" data-t="common.cancel"></button></div>
+  </section>
+  <section class="screen" data-screen="placeholder">
+    <h2 data-t="placeholder.title"></h2><p class="sub" id="placeholder-detail"></p>
+    <div class="row"><button data-action="back" data-t="common.backToMenu"></button></div>
+  </section>
+  <section class="screen" data-screen="legacy">
+    <h2 data-t="legacy.title"></h2><p class="sub" data-t="legacy.body"></p>
+    <div class="row"><button data-action="newLineage" class="primary" data-t="legacy.newLineage"></button><button data-action="back" data-t="common.mainMenu"></button></div>
+  </section>
+  <section class="screen" data-screen="load">
+    <h2 data-t="load.title"></h2>
+    <div class="runs" id="run-list"></div>
+    <div class="row"><button data-action="back" data-t="common.back"></button></div>
+  </section>
+  <section class="screen" data-screen="settings">
+    <h2 data-t="settings.title"></h2>
+    <div class="tabs" id="tabs">
+      <button data-tab="audio" data-t="settings.tab.audio"></button><button data-tab="display" data-t="settings.tab.display"></button>
+      <button data-tab="controls" data-t="settings.tab.controls"></button><button data-tab="storyteller" data-t="settings.tab.storyteller"></button>
+    </div>
+    <div id="tab-body"></div>
+    <div class="row"><button data-action="back" data-t="common.back"></button><button data-action="resetTab" data-t="settings.resetTab"></button></div>
+  </section>
+  <section class="screen" data-screen="credits">
+    <div class="credits-roll" id="credits-roll">
+      <h2 data-t="credits.title"></h2><p data-t="credits.workingTitle"></p>
+      <h3 data-t="credits.createdBy"></h3><p>Anna Kremer</p>
+      <h3 data-t="credits.design"></h3><p>Tundra</p><h3 data-t="credits.narrative"></h3><p>Saga</p>
+      <h3 data-t="credits.art"></h3><p>Ochre</p><h3 data-t="credits.engineering"></h3><p>Flint</p>
+      <h3 data-t="credits.inspiredBy"></h3><p>Lioden &middot; WolfQuest</p>
+      <p class="sub" data-t="credits.placeholderNote"></p>
+    </div>
+    <div class="row"><button data-action="back" data-t="common.back"></button></div>
+  </section>
+</div>
+<div id="dialog" hidden><div class="box"><p id="dialog-text"></p>
+  <div class="row"><button id="dialog-ok"></button><button id="dialog-cancel" data-t="common.cancel"></button></div></div></div>
+<div id="toasts"></div>
+<div id="version"></div>
+<script src="js/i18n.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/input.js"></script>
+<script src="js/menu.js"></script>
+</body>
+</html>

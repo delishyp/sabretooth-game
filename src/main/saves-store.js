@@ -1,0 +1,141 @@
+/**
+ * Save model (spec v1.0 §2, §5): 2 run slots × up to 3 manual saves per run.
+ *   saves/run-<slotIndex>/run.json                    RunRecord
+ *   saves/run-<slotIndex>/save-<saveIndex>/meta.json  SaveRecord
+ * Pure Node (no Electron) so it is unit-testable. Unreadable records are flagged `damaged`, never thrown.
+ * Difficulty / sandboxOptions are fixed at createRun; there is intentionally no API to change them.
+ */
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const RUN_SLOTS = 2;
+const SAVES_PER_RUN = 3;
+const DIFFICULTIES = ['permadeath', 'heir', 'sandbox'];
+const SANDBOX_OPTIONS = Object.freeze({
+  needsDrain: { values: ['off', 'low', 'normal'], default: 'normal' },
+  threatFrequency: { values: ['off', 'low', 'normal'], default: 'normal' },
+  startingReputation: { values: ['low', 'normal', 'high'], default: 'normal' },
+  freeCustomization: { values: [true, false], default: true }
+});
+const defaultSandboxOptions = () => Object.fromEntries(Object.entries(SANDBOX_OPTIONS).map(([k, v]) => [k, v.default]));
+
+/** Unknown keys dropped, invalid values replaced by defaults. */
+function normalizeSandboxOptions(o = {}) {
+  const out = defaultSandboxOptions();
+  for (const [k, def] of Object.entries(SANDBOX_OPTIONS)) if (o && def.values.includes(o[k])) out[k] = o[k];
+  return out;
+}
+
+class SaveCapError extends Error {}
+
+function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = () => new Date() } = {}) {
+  const runDir = (i) => path.join(dir, `run-${i}`);
+  const saveDir = (i, s) => path.join(runDir(i), `save-${s}`);
+  const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
+  const writeJson = (f, o) => { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f + '.tmp', JSON.stringify(o, null, 2)); fs.renameSync(f + '.tmp', f); };
+  const validDate = (s) => typeof s === 'string' && !isNaN(Date.parse(s));
+
+  function readSaves(i, runId) {
+    const saves = [];
+    for (let s = 0; s < SAVES_PER_RUN; s++) {
+      const d = saveDir(i, s);
+      if (!fs.existsSync(d)) continue;
+      try {
+        const m = readJson(path.join(d, 'meta.json'));
+        if (!validDate(m.writtenAt)) throw new Error('bad writtenAt');
+        saves.push({ ...m, runId, saveIndex: s, damaged: false });
+      } catch (e) {
+        log(`damaged save run-${i}/save-${s}: ${e.message}`);
+        saves.push({ saveId: `damaged-${i}-${s}`, runId, saveIndex: s, damaged: true });
+      }
+    }
+    return saves.sort((a, b) => (a.damaged - b.damaged) || (Date.parse(b.writtenAt) - Date.parse(a.writtenAt)));
+  }
+
+  function readRun(i) {
+    if (!fs.existsSync(runDir(i))) return null;
+    let run;
+    try {
+      run = readJson(path.join(runDir(i), 'run.json'));
+      if (!run.runId || !DIFFICULTIES.includes(run.difficulty)) throw new Error('invalid run record');
+      run = { ...run, slotIndex: i, damaged: false };
+    } catch (e) {
+      log(`damaged run run-${i}: ${e.message}`);
+      run = { runId: `damaged-run-${i}`, slotIndex: i, damaged: true };
+    }
+    run.saves = readSaves(i, run.runId);
+    return run;
+  }
+
+  /** Always RUN_SLOTS entries, null for empty (spec saves:list). */
+  const list = () => ({ runs: Array.from({ length: RUN_SLOTS }, (_, i) => readRun(i)) });
+  const findRun = (runId) => list().runs.find((r) => r && r.runId === runId) || null;
+
+  return {
+    RUN_SLOTS, SAVES_PER_RUN,
+    list,
+    findRun,
+    /** First empty slot index, or -1 when both are full. */
+    freeSlot: () => list().runs.findIndex((r) => r === null),
+    /** Most recently written valid save across both runs (Continue), or null. */
+    latestSave() {
+      const all = list().runs.filter((r) => r && !r.damaged).flatMap((r) => r.saves.filter((s) => !s.damaged));
+      return all.sort((a, b) => Date.parse(b.writtenAt) - Date.parse(a.writtenAt))[0] || null;
+    },
+    /**
+     * Create a run. Uses the first free slot, or replaces `replaceRunId` (deleting it and all its saves).
+     * Throws if no slot is free and no replacement was given.
+     */
+    createRun({ difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride' } = {}) {
+      if (!DIFFICULTIES.includes(difficulty)) throw new Error(`invalid difficulty ${difficulty}`);
+      let slotIndex;
+      if (replaceRunId) {
+        const old = findRun(replaceRunId); if (!old) throw new Error('run to replace not found');
+        slotIndex = old.slotIndex; fs.rmSync(runDir(slotIndex), { recursive: true, force: true });
+      } else {
+        slotIndex = this.freeSlot(); if (slotIndex < 0) throw new SaveCapError('both run slots are full');
+      }
+      const t = now().toISOString();
+      const run = {
+        runId: crypto.randomUUID(), slotIndex, catName, prideName, difficulty,
+        sandboxOptions: difficulty === 'sandbox' ? normalizeSandboxOptions(sandboxOptions) : null,
+        storytellerMode, generation: 1, createdAt: t, lastPlayedAt: t, gameVersion
+      };
+      writeJson(path.join(runDir(slotIndex), 'run.json'), run);
+      return { ...run, saves: [] };
+    },
+    /**
+     * Write a manual save. Without `overwriteSaveIndex`, uses the first free index and throws SaveCapError
+     * when the run already has SAVES_PER_RUN saves (the in-game UI must then ask which one to overwrite).
+     */
+    writeSave(runId, { inGameDate = { year: 1, season: 'spring', day: 1 }, playTimeSec = 0, overwriteSaveIndex } = {}) {
+      const run = findRun(runId); if (!run || run.damaged) throw new Error('run not found');
+      let idx = overwriteSaveIndex;
+      if (idx === undefined) {
+        const used = new Set(run.saves.map((s) => s.saveIndex));
+        idx = [...Array(SAVES_PER_RUN).keys()].find((i) => !used.has(i));
+        if (idx === undefined) throw new SaveCapError(`run already has ${SAVES_PER_RUN} saves`);
+      } else if (!Number.isInteger(idx) || idx < 0 || idx >= SAVES_PER_RUN) throw new Error('invalid save index');
+      const t = now().toISOString();
+      const meta = { saveId: crypto.randomUUID(), runId, saveIndex: idx, writtenAt: t, inGameDate, playTimeSec, saveVersion: 1 };
+      fs.rmSync(saveDir(run.slotIndex, idx), { recursive: true, force: true });
+      writeJson(path.join(saveDir(run.slotIndex, idx), 'meta.json'), meta);
+      const rec = readJson(path.join(runDir(run.slotIndex), 'run.json'));
+      writeJson(path.join(runDir(run.slotIndex), 'run.json'), { ...rec, lastPlayedAt: t });
+      return meta;
+    },
+    findSave(runId, saveId) { const r = findRun(runId); return (r && r.saves.find((s) => s.saveId === saveId)) || null; },
+    deleteSave(runId, saveId) {
+      const r = findRun(runId); const s = r && r.saves.find((x) => x.saveId === saveId);
+      if (!s) return false;
+      fs.rmSync(saveDir(r.slotIndex, s.saveIndex), { recursive: true, force: true }); return true;
+    },
+    deleteRun(runId) {
+      const r = findRun(runId); if (!r) return false;
+      fs.rmSync(runDir(r.slotIndex), { recursive: true, force: true }); return true;
+    }
+  };
+}
+
+module.exports = { createSavesStore, SaveCapError, SANDBOX_OPTIONS, normalizeSandboxOptions, defaultSandboxOptions, RUN_SLOTS, SAVES_PER_RUN };

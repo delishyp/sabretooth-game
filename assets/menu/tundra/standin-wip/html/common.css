@@ -1,0 +1,30 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden}
+body{background:#7fb2e5 url(../scene/tundra-scene-1920.png) center/cover;font-family:'Alegreya Sans',sans-serif;color:#3b2614}
+body.uionly{background:transparent!important}
+body.uionly .guide{display:none}
+.wt{display:inline-block;font:800 14px 'Alegreya Sans SC';letter-spacing:.24em;color:#7a3f17;background:#f6e7c8;border:1.5px solid #8b5a2b;padding:3px 12px;border-radius:20px}
+.logo h1{font:900 112px 'Alegreya SC';letter-spacing:.04em;line-height:1;color:#fbf1dc;
+ -webkit-text-stroke:3px #4a2a12;paint-order:stroke fill;text-shadow:0 5px 0 #4a2a12,0 8px 18px rgba(40,20,5,.45)}
+.logo .sub{font:800 32px 'Alegreya Sans SC';letter-spacing:.2em;color:#fff6e4;text-shadow:0 2px 0 #4a2a12,0 0 10px rgba(40,20,5,.6),0 0 2px #4a2a12}
+.fangs{display:inline-flex;gap:14px;vertical-align:middle;margin:0 12px}
+.fangs i{display:block;width:9px;height:24px;background:#fbf1dc;border:2px solid #4a2a12;border-top:none;clip-path:polygon(0 0,100% 0,62% 100%,38% 100%)}
+.btn{position:relative;display:flex;align-items:center;justify-content:center;height:56px;font:700 25px 'Alegreya Sans SC';letter-spacing:.06em;color:#fbf1dc;
+ background:linear-gradient(180deg,#8a5a33,#6b4224 55%,#5a361c);border:2px solid #3e2410;border-radius:10px;
+ box-shadow:inset 0 2px 0 rgba(255,225,180,.35),inset 0 -3px 0 rgba(0,0,0,.2),0 3px 0 #3e2410,0 6px 12px rgba(30,15,5,.3)}
+.btn.hot{background:linear-gradient(180deg,#d9803c,#b85d24 55%,#9c4a1a);border-color:#5a2a0c;box-shadow:0 0 0 3px #fbe6b8,inset 0 2px 0 rgba(255,235,200,.5),0 3px 0 #5a2a0c,0 8px 16px rgba(30,15,5,.35)}
+.btn small{position:absolute;right:16px;font:500 16px 'Alegreya Sans';letter-spacing:0;color:#f1d9b4}
+.btn.dim{background:linear-gradient(180deg,#a08368,#86684c);color:#f6ead6}
+.panel{background:rgba(251,243,226,.94);border:3px solid #6b4224;border-radius:18px;box-shadow:0 0 0 6px rgba(251,243,226,.5),0 16px 40px rgba(30,40,70,.35)}
+.panel:before{content:"";position:absolute;inset:8px;border:1.5px dashed rgba(107,66,36,.45);border-radius:12px;pointer-events:none}
+.card h3{font:800 17px 'Alegreya Sans SC';letter-spacing:.14em;color:#9c4a1a;margin-bottom:4px}
+.card p{font-size:19px;line-height:1.42;color:#3b2614}
+.card b{color:#7a3f17}
+.card .meta{font-size:15.5px;color:#6e5236;margin-top:6px}
+.foot{position:absolute;left:28px;bottom:20px;font:500 16px 'Alegreya Sans';color:#fff;text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.7)}
+.tag{position:absolute;right:24px;bottom:18px;font:800 14px 'Alegreya Sans SC';letter-spacing:.18em;color:#fff;background:rgba(40,25,10,.6);padding:5px 12px;border-radius:4px}
+/* layout guides: dashed boxes marking the cat and herd keep-clear zones */
+.guide{position:absolute;border:3px dashed rgba(255,60,60,.9);border-radius:6px;font:800 15px 'Alegreya Sans SC';letter-spacing:.1em;color:#fff;padding:4px 8px;text-shadow:0 1px 2px #000}
+.logo .sub{display:flex;align-items:center;justify-content:center;gap:16px}
+.rule{width:60px;height:4px;border-radius:2px;background:linear-gradient(90deg,transparent,currentColor)}
+.rule.r{background:linear-gradient(90deg,currentColor,transparent)}

@@ -1,0 +1,15 @@
+/*
+ * THEME / ART SLOTS — the one place to change look and art paths.
+ * Art: drop assets/menu/background.(png|jpg|webp) and assets/menu/logo.png.
+ * js/assets.js probes these paths; if a file is missing, the gradient / text logo below is used.
+ */
+:root {
+  /* Background art: assets/menu/background.(png|jpg|webp), probed by js/assets.js; gradient below is the fallback. */
+  --bg-fallback: radial-gradient(ellipse at 30% 40%, #2a4256 0%, #16232f 55%, #0b121a 100%);
+  --ice: #cfe6f2; --ice-dim: #8fb0c2; --frost: #e9f6fb; --deep: #0d1620;
+  --accent: #7fd0ec; --danger: #e48a7a;
+  --panel: rgba(16, 30, 42, 0.72); --panel-border: rgba(160, 210, 235, 0.25);
+  --focus-ring: #ffffff;
+  --font-title: "Cinzel", "Trajan Pro", Georgia, serif;
+  --font-ui: "Segoe UI", system-ui, sans-serif;
+}
