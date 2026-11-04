@@ -108,6 +108,46 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
       });
     } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
   }
+  {
+    // N1: at every UI scale, every visible control on every menu screen stays inside the 1600×900 window.
+    const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-e2e-'));
+    require('child_process').execFileSync(process.execPath, [path.join(root, 'scripts', 'seed-demo-saves.js'), ud]);
+    const { app, page } = await launch(ud);
+    try {
+      const SCREENS = ['root', 'newGame', 'newGame:sandbox', 'slotsFull', 'load', 'load:expanded', 'settings:audio', 'settings:display'];
+      const setSize = async (w, h) => { await app.evaluate(({ BrowserWindow }, [w, h]) => BrowserWindow.getAllWindows()[0].setContentSize(w, h), [w, h]);
+        await page.waitForFunction(([w, h]) => innerWidth === w && innerHeight === h, [w, h], { timeout: 3000 }).catch(() => {}); await page.waitForTimeout(150); };
+      const offWindow = () => page.evaluate(() => {
+        const W = innerWidth, H = innerHeight, out = [];
+        for (const el of document.querySelectorAll('#stage button, #stage h1, #stage h2, #stage p, #stage label, #stage img')) {
+          const r = el.getBoundingClientRect(); if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;
+          if (r.left < -0.5 || r.top < -0.5 || r.right > W + 0.5 || r.bottom > H + 0.5) out.push(`${el.tagName}.${el.className}#${el.id} [${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.right)},${Math.round(r.bottom)}]`);
+        }
+        return out;
+      });
+      const fitAll = async (u, screens = SCREENS) => {
+        await page.evaluate((v) => window.__menuDebug.setUiScale(v), u);
+        for (const screen of screens) {
+          await page.evaluate((sc) => window.__menuDebug.show(sc), screen); await page.waitForTimeout(150);
+          const bad = await offWindow(); assert.deepStrictEqual(bad, [], `${screen}: off-window ${bad.join('; ')}`);
+        }
+      };
+      for (const [w, h, scales] of [[1600, 900, [0.8, 1.0, 1.1, 1.25, 1.5]], [1280, 720, [1.0, 1.25, 1.5]]]) {
+        await setSize(w, h);
+        for (const u of scales) await check(`${w}×${h} UI scale ${Math.round(u * 100)}%: all screens fit the window (N1)`, () => fitAll(u));
+      }
+      await check('resize 1600×900 → 1280×720 at UI scale 125% keeps New Game + Sandbox panel in the window (N1)', async () => {
+        await setSize(1600, 900); await page.evaluate(() => window.__menuDebug.setUiScale(1.25));
+        await page.evaluate(() => window.__menuDebug.show('newGame:sandbox')); await page.waitForTimeout(150);
+        assert.deepStrictEqual(await offWindow(), []);
+        await setSize(1280, 720);                                  // resize handler → scale() → fitActive()
+        const bad = await offWindow(); assert.deepStrictEqual(bad, [], `after resize: ${bad.join('; ')}`);
+      });
+      await setSize(1600, 900);
+      await page.evaluate(() => window.__menuDebug.setUiScale(1.25)); await page.evaluate(() => window.__menuDebug.show('newGame:sandbox'));
+      await page.waitForTimeout(150); await page.screenshot({ path: path.join(root, 'screenshots', 'new-game-sandbox-scale125.png') });
+    } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
+  }
   console.log(failures ? `${failures} FAILED` : 'all e2e passed');
   process.exit(failures ? 1 : 0);
 })();

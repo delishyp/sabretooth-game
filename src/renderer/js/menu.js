@@ -30,10 +30,34 @@
   $('#logo').alt = t('app.titleLogo');
 
   // ---------- scaling: min(w/1920, h/1080) × settings uiScale, applied live (B6) ----------
+  // N1: uiScale enlarges the UI but must never push it off-window. The stage's logical size shrinks by
+  // uiScale (1920/u × 1080/u) and the fit scale grows by uiScale, so the stage always fits the window exactly
+  // and its anchored/flex content reflows into the smaller logical area.
   function scale() {
-    const s = Math.min(innerWidth / 1920, innerHeight / 1080) * (Number(settings.display.uiScale) || 1);
-    $('#stage').style.transform = `translate(-50%, -50%) scale(${s})`;
+    const u = Math.min(Math.max(Number(settings.display.uiScale) || 1, 0.5), 2);
+    const w = 1920 / u, h = 1080 / u;
+    const s = Math.min(innerWidth / w, innerHeight / h);
+    const stage = $('#stage');
+    stage.style.width = `${w}px`;
+    stage.style.height = `${h}px`;
+    stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+    fitActive();
   }
+  /** N1 safety net: if a screen's content is still larger than the (scaled) stage, shrink just that screen to fit. */
+  function fitActive() {
+    const sc = document.querySelector('.screen.active'); if (!sc) return;
+    sc.style.zoom = '';
+    const R = $('#stage').getBoundingClientRect(), k = R.height / $('#stage').offsetHeight;  // screen px per logical px
+    const margin = 24 * k;
+    let right = 0, bottom = 0;
+    for (const el of sc.querySelectorAll('*')) {
+      const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+      right = Math.max(right, r.right - R.left); bottom = Math.max(bottom, r.bottom - R.top);
+    }
+    const need = Math.max((right + margin) / R.width, (bottom + margin) / R.height);
+    if (need > 1.001) sc.style.zoom = String(1 / need);
+  }
+  if (document.fonts) document.fonts.ready.then(() => fitActive());
   addEventListener('resize', scale);
 
   // ---------- toast ----------
@@ -75,6 +99,7 @@
     if (screen === 'load' || screen === 'loadRunExpanded') renderLoad();
     if (screen === 'slotsFull') renderReplace();
     if (screen === 'credits') startCredits();
+    fitActive();
     if (typeof focusTarget === 'string') focusTarget = $(focusTarget);
     // B9: never land on a removed or disabled control; fall back to the screen's default.
     if (focusTarget && (!focusTarget.isConnected || focusTarget.disabled)) focusTarget = null;
@@ -167,6 +192,7 @@
     const target = replaceRunId && runs.find((r) => r && r.runId === replaceRunId);
     const vars = { styleName: styleName(setup.style), deathRuleName: diffName(setup.death) };
     $('#setup-summary').textContent = target ? t('newGame.summaryReplacing', { ...vars, runLabel: runLabel(target) }) : t('newGame.summary', vars);
+    fitActive();
     focus($(`${SCREEN} [data-nav="${setup.focus}"]`));
   }
   function setupDispatch(action, arg) {
@@ -404,6 +430,7 @@
   // Dev hook used by `--screenshots`; harmless in production.
   window.__menuDebug = {
     state: () => ({ state, setup, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
+    setUiScale: (v) => { settings.display.uiScale = v; scale(); },
     show: async (s) => {
       if (dialog) closeDialog();
       await refreshSlots();
