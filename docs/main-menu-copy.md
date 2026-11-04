@@ -485,6 +485,7 @@ Decisions:
     "creator.hint.keyboard": "Up/Down: row · Left/Right: change · Enter: select · Esc: back",
     "creator.hint.gamepad": "D-pad: row and change · A: select · A on Name: new name · B: back",
     "creator.hint.mouse": "Click the arrows to change a row, then Next.",
+    "creator.hint.mousePersonality": "Drag a slider or pick a preset, then Start.",
 
     "creator.preview.alt": "Portrait of {catName}, a {sex} sabrecat with a {coat} coat, {markings}, and {eyes} eyes.",
     "creator.preview.markings.none": "no markings",
