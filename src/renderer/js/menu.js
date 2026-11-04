@@ -52,13 +52,20 @@
     sc.style.zoom = '';
     const R = $('#stage').getBoundingClientRect(), k = R.height / $('#stage').offsetHeight;  // screen px per logical px
     const margin = 24 * k;
-    let right = 0, bottom = 0;
-    for (const el of sc.querySelectorAll('*')) {
-      const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
-      right = Math.max(right, r.right - R.left); bottom = Math.max(bottom, r.bottom - R.top);
+    const extent = () => {
+      let right = 0, bottom = 0;
+      for (const el of sc.querySelectorAll('*')) {
+        const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+        right = Math.max(right, r.right - R.left); bottom = Math.max(bottom, r.bottom - R.top);
+      }
+      return Math.max((right + margin) / R.width, (bottom + margin) / R.height);
+    };
+    // Zoomed text doesn't always shrink exactly in proportion (font hinting, min sizes, wraps), so re-measure and tighten a few times.
+    let zoom = 1;
+    for (let i = 0; i < 4; i++) {
+      const need = extent(); if (need <= 1.001) break;
+      zoom /= need; sc.style.zoom = String(zoom);
     }
-    const need = Math.max((right + margin) / R.width, (bottom + margin) / R.height);
-    if (need > 1.001) sc.style.zoom = String(1 / need);
   }
   if (document.fonts) document.fonts.ready.then(() => fitActive());
   addEventListener('resize', scale);
@@ -212,7 +219,7 @@
     const b = ev.target.closest('[data-nav]'); if (b && !dialog) setupDispatch('click', b.dataset.nav);
   });
 
-  // ---------- Make Your Sabrecat (cat-creator-spec v0.2; model = pure js/creator.js) ----------
+  // ---------- Make Your Sabrecat (cat-creator-spec v0.3.1; model = pure js/creator.js) ----------
   const CSCREEN = '.screen[data-screen="creator"]';
   let creator = null;               // Creator model
   let pendingSetup = null;          // {style, difficulty, sandboxOptions?} from Begin
@@ -222,6 +229,12 @@
   const device = () => document.body.dataset.device || 'keyboard';
   const creatorEnv = () => ({ names: creatorNames(), device: device() });
   const optLabel = (row, id) => t(`creator.${row}.${id}`);
+  // §3c rows: Left/Right Eye show eye names and reuse the Eyes help line; Odd Eyes has no help copy (Saga gave none), so none is shown.
+  const valueOf = (c, id) => (id === 'eyeLeft' ? optLabel('eyes', c.eyes) : id === 'eyeRight' ? optLabel('eyes', c.eyeRight) : optLabel(id, c[id]));
+  const HELP_ID = { eyeLeft: 'eyes', eyeRight: 'eyes', oddEyes: null };
+  const helpText = (row) => { const id = row in HELP_ID ? HELP_ID[row] : row; return id ? t(`creator.help.${id}`) : ''; };
+  /** Small "Rare" tag on Sandbox-only options (§3c): the Odd Eyes row and the pale/ash coats. */
+  const isRareOption = (c, id) => id === 'oddEyes' || (id === 'coat' && Creator.RARE_COATS.includes(c.coat));
 
   function openCreator(effect) {
     pendingSetup = { style: effect.style, difficulty: effect.difficulty, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
@@ -237,7 +250,8 @@
     const l = el('button', 'arrow', '◀'); l.dataset.arrow = '-1';
     const v = el('button', 'crow-val'); v.dataset.cnav = id;
     const r = el('button', 'arrow', '▶'); r.dataset.arrow = '1';
-    ctl.append(l, v, r);
+    const tag = el('span', 'rare-tag', t('creator.rareTag')); tag.hidden = true;
+    ctl.append(l, v, r, tag);
     row.append(head, ctl, el('p', 'crow-help'));
     return row;
   }
@@ -269,12 +283,13 @@
     row.append(head, ctl);
     return row;
   }
-  /** Builds the right panel for the current step (only when the step changes, so the Name field keeps its caret). */
+  /** Builds the right panel when its row list changes (step, or the §3c odd-eyes split), so the Name field otherwise keeps its caret. */
+  const panelKey = (c) => `${c.step}:${Creator.ROWS(c).join(',')}`;
   function buildCreatorPanel() {
     const panel = $('#creator-panel');
-    if (creator.step === 1) panel.replaceChildren(nameRow(), ...['sex', 'coat', 'markings', 'eyes'].map(optionRow));
+    if (creator.step === 1) panel.replaceChildren(nameRow(), ...Creator.ROWS(creator).slice(1).map(optionRow));
     else panel.replaceChildren(optionRow('preset'), ...Creator.TRAITS.map(sliderRow));
-    panel.dataset.step = String(creator.step);
+    panel.dataset.step = String(creator.step); panel.dataset.rows = panelKey(creator);
     if (creator.step === 1) $('#creator-name').value = creator.name;
   }
   function renderCreator() { buildCreatorPanel(); applyCreator(); renderPreview(); }
@@ -286,7 +301,7 @@
   }
   function applyCreator() {
     const c = creator; const sc = $(CSCREEN);
-    if (sc.querySelector('#creator-panel').dataset.step !== String(c.step)) buildCreatorPanel();
+    if (sc.querySelector('#creator-panel').dataset.rows !== panelKey(c)) buildCreatorPanel();
     $('#creator-step').textContent = t('creator.step.indicator', { n: c.step, total: 2, stepName: t(c.step === 1 ? 'creator.step.look' : 'creator.step.personality') });
     for (const row of $$('#creator-panel .crow')) {
       const id = row.dataset.row; const help = row.querySelector('.crow-help');
@@ -304,8 +319,9 @@
         row.querySelector('.knob').style.left = `${pctOf(v, c.range)}%`;
         row.dataset.value = String(v);
       } else {
-        row.querySelector('.crow-val').textContent = optLabel(id, c[id]);
-        help.textContent = t(`creator.help.${id}`);
+        row.querySelector('.crow-val').textContent = valueOf(c, id);
+        row.querySelector('.rare-tag').hidden = !isRareOption(c, id);
+        help.textContent = helpText(id);
       }
     }
     $('#creator-actions [data-cnav="next"]').hidden = c.step !== 1;
@@ -316,7 +332,7 @@
     $('#creator-hint').textContent = t(hintKey);
     const nm = Creator.normalizeName(c.name) || t('run.defaultCatName');
     $('#creator-canvas').setAttribute('aria-label', t('creator.preview.alt', { catName: nm, sex: optLabel('sex', c.sex).toLowerCase(),
-      coat: optLabel('coat', c.coat).toLowerCase(), markings: t(`creator.preview.markings.${c.markings}`), eyes: optLabel('eyes', c.eyes).toLowerCase() }));
+      coat: optLabel('coat', c.coat).toLowerCase(), markings: t(`creator.preview.markings.${c.markings}`), eyes: (c.oddEyes === 'on' && c.eyeRight ? `${optLabel('eyes', c.eyes)}/${optLabel('eyes', c.eyeRight)}` : optLabel('eyes', c.eyes)).toLowerCase() }));
     // Real DOM focus: the Name field takes it so typing works; everything else focuses its control (never the text field).
     const target = c.focus === 'name' ? $('#creator-name')
       : $(`#creator-actions [data-cnav="${c.focus}"]`) || $(`#creator-panel [data-row="${c.focus}"] .crow-val`) || $(`#creator-panel [data-row="${c.focus}"] .arrow[data-arrow="1"]`);
@@ -336,7 +352,7 @@
     return p;
   }
   async function renderPreview() {
-    const c = creator; const key = [c.sex, c.coat, c.markings, c.eyes].join('|');
+    const c = creator; const key = [c.sex, c.coat, c.markings, c.eyes, c.oddEyes, c.eyeRight].join('|');
     if (key === preview.key) return;
     preview.key = key; const token = ++preview.token; const t0 = performance.now();
     try {
@@ -615,7 +631,7 @@
     music: () => music.debug(),
     state: () => ({ state, setup, creator, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
     /** Sets a look on the open creator and waits for its preview (e2e check 1: all 72 looks render with no missing layer). */
-    creatorLook: async (look) => { creator = { ...creator, ...look }; applyCreator(); await renderPreview(); return { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered }; },
+    creatorLook: async (look) => { creator = Creator.coerceLook({ ...creator, ...look }); applyCreator(); await renderPreview(); return { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered }; },
     creator: () => ({ model: creator, pending: pendingSetup, replaceRunId, preview: { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered } }),
     setUiScale: (v) => { settings.display.uiScale = v; scale(); },
     show: async (s) => {
@@ -631,6 +647,9 @@
       if (s === 'creator') { openSetup(); return setupDispatch('click', 'begin'); }                                   // Standard + Heir, step 1
       if (s === 'creator:personality') { openSetup(); setupDispatch('click', 'begin'); return creatorDispatch('click', 'next'); }
       if (s === 'creator:sandbox') { openSetup(); setupDispatch('click', 'death:sandbox'); setupDispatch('click', 'begin'); return creatorDispatch('click', 'next'); } // Free Customization On → 0–100
+      if (s === 'creator:sandbox-look') { openSetup(); setupDispatch('click', 'death:sandbox'); setupDispatch('click', 'begin');                 // §3c: ash + odd eyes
+        creator = Creator.coerceLook({ ...creator, name: 'Larchwind', sex: 'female', coat: 'ash', markings: 'spotted', eyes: 'amber', oddEyes: 'on', eyeRight: 'green', focus: 'eyeRight' });
+        applyCreator(); return renderPreview(); }
       if (s === 'slotsFull') return show('slotsFull');
       if (s === 'load') { expandedRunId = null; return show('load'); }
       if (s === 'load:expanded') { const r = runs.find((x) => x && !x.damaged); expandedRunId = r.runId; show('loadRunExpanded'); return focus($('.saves button')); }

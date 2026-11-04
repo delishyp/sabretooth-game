@@ -26,7 +26,7 @@ Player-facing text (taglines, storyteller modes, difficulties, Sandbox panel) li
 generated from all JSON blocks in Saga's `docs/main-menu-copy.md` (§1–§5, §5 = `strings` map): `npm run sync-copy`. Never hand-edit the JSON.
 Code looks strings up with `t(id, vars)` (`src/renderer/js/i18n.js`). Ids Saga hasn't written yet live in `PLACEHOLDER_STRINGS` there, shown with a `[PH]` prefix; once Saga adds an id to §5 and you run sync-copy, delete the placeholder (a test enforces this).
 
-## Make Your Sabrecat (cat-creator-spec v0.2)
+## Make Your Sabrecat (cat-creator-spec v0.3.1)
 New Game setup → **Begin** → creator step 1 **Look** (Name, Sex, Coat, Markings, Eyes, live portrait) → **Next** → step 2 **Personality**
 (Preset + five 20–80 sliders, 0–100 for Sandbox with Free Customization On) → **Start** → `menu:newGame {…, mainCat}`.
 - Model is pure: `src/renderer/js/creator.js` (unit-tested in `test/creator.test.js`); the DOM lives in the creator section of `menu.js`.
@@ -36,8 +36,13 @@ New Game setup → **Begin** → creator step 1 **Look** (Name, Sex, Coat, Marki
   The run record gets `catName` and `playerCat` (full Cat record with `ageSeasons` and `birthSeason`).
 - Preview: `portraits:load {pose}` serves the pose manifest + layers as data URLs (keeps the canvas untainted); the renderer draws with
   `Compositor.compose` on `poseFor(sex, 'adult')` with a tint cache (redraws ≈ 10–35 ms).
+- Coats (every Style): Tan, Gray, Brown, Black (`melan/melan`), Sandy. **Sandbox with Free Customization On** also offers the rare
+  Pale (`leuc/leuc`) and Ash (`melan/leuc`) coats and an **Odd Eyes** row (off by default) that splits Eyes into Left Eye / Right Eye
+  (always different; genes `het: [het, het]` + `eyeRight`, otherwise `[Het, Het]` + null). These carry a small "Rare" tag. Sandbox Randomize gives
+  exactly one rare look 10% of the time (pale / ash / odd eyes, evenly); every other case rolls common looks only, and a restored model is coerced
+  back to common (`Creator.coerceLook`). Main rejects rare looks outside Sandbox + Free Customization and odd eyes with matching eyes.
 - Back on step 2 → step 1 (everything kept); Back on step 1 → New Game setup (no confirmation, setup and replacement kept).
-- Screenshots: `screenshots/creator-look.png`, `creator-personality.png`, `creator-personality-sandbox.png` (e2e and `npm run screenshots`).
+- Screenshots: `screenshots/creator-look.png`, `creator-personality.png`, `creator-personality-sandbox.png`, `creator-look-sandbox-ash-oddeyes.png` (e2e and `npm run screenshots`).
 
 ## Background art (for Ochre / Anna)
 The menu background is **one swappable file**: `assets/menu/background.png` (also accepted: `background.jpg`, `background.webp`;

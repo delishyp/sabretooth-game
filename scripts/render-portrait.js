@@ -4,10 +4,10 @@ const { app, BrowserWindow } = require('electron');
 const fs = require('fs'); const path = require('path'); const os = require('os');
 const root = path.join(__dirname, '..');
 const g = (coat, marking, eyes) => ({ v: 1, loci: { coat: [coat, coat], dilute: ['D', 'D'], marking: [marking, marking], dorsal: ['ds', 'ds'],
-  intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: [eyes, eyes], saber: ['ivory', 'ivory'] }, hetero: false, mutations: [] });
+  intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: [eyes, eyes], saber: ['ivory', 'ivory'], het: ['Het', 'Het'] }, eyeRight: null, mutations: [] });
 const samples = [];
 for (const sex of ['male', 'female']) {
-  for (const coat of ['tawny', 'greydun', 'russet', 'melan']) samples.push({ name: `${sex}-${coat}-plain-amber`, sex, genes: g(coat, 'plain', 'amber') });
+  for (const coat of ['tawny', 'greydun', 'russet', 'melan', 'sandy']) samples.push({ name: `${sex}-${coat}-plain-amber`, sex, genes: g(coat, 'plain', 'amber') });
   samples.push({ name: `${sex}-tawny-spotted-amber`, sex, genes: g('tawny', 'spotted', 'amber') });
   samples.push({ name: `${sex}-greydun-faintstripe-green`, sex, genes: g('greydun', 'faintstripe', 'green') });
   samples.push({ name: `${sex}-melan-spotted-gold`, sex, genes: g('melan', 'spotted', 'gold') });

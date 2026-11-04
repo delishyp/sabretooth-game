@@ -9,7 +9,8 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Compositor = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
-  // genetics-spec §2 placeholder tints (Ochre tunes; later moves to data/genetics.json per §6.2).
+  // genetics-spec v0.3.1 §2 tints (incl. sandy #D9BC8A, ash #7D776F = melan+leuc codominant, leucistic #EFE6D6, melanistic #3A332E;
+  // markings: melanistic #1E1A17 ghost markings, leucistic #D2C3A8, ash and every other coat = coat × 0.55) — placeholder (Ochre tunes; later moves to data/genetics.json per §6.2).
   const TINTS = {
     coat: { tawny: '#C8955A', sandy: '#D9BC8A', russet: '#B0623A', greydun: '#A39A88', ash: '#7D776F', melan: '#3A332E', leuc: '#EFE6D6' },
     eyes: { amber: '#C98A1E', gold: '#D9B43A', copper: '#B5652A', green: '#8FA34A', blue: '#8EB6D1' },
@@ -59,8 +60,19 @@
   const count = (pair, a) => (Array.isArray(pair) ? pair.filter((x) => x === a).length : 0);
 
   /**
+   * Pure: genetics-spec §2.5 eye resolver → {left, right}. left = the `eyes` phenotype; right = genes.eyeRight only when the cat
+   * shows odd eyes (`het`/`het`) and it differs, else right = left. Genotypes without a `het` locus (pre-v0.3) resolve to matching eyes.
+   */
+  function resolveEyes(genes) {
+    const L = (genes && genes.loci) || {};
+    const left = phen(L.eyes || ['amber', 'amber'], ['amber', 'gold', 'copper', 'green', 'blue']);
+    const odd = count(L.het, 'het') === 2 && genes.eyeRight && TINTS.eyes[genes.eyeRight] && genes.eyeRight !== left;
+    return { left, right: odd ? genes.eyeRight : left };
+  }
+  /**
    * Pure: genotype (genetics-spec §6) → { layerId: {tint, opacity} } for every layer to draw (shadow always).
    * opts.lifeStage 'elder' adds age_elder. opts.scars = [scarLayerId] adds those.
+   * opts.eyes = {left, right} overrides the resolved eyes (right defaults to left); eye_left/eye_right are tinted separately.
    */
   function genesToLayers(genes, opts = {}) {
     const L = (genes && genes.loci) || {};
@@ -77,9 +89,9 @@
     const w = L.white || ['none', 'none'];
     if (w.includes('piebald')) out.white_piebald = { tint: TINTS.white, opacity: 1 };
     else { if (w.includes('socks')) out.white_socks = { tint: TINTS.white, opacity: 1 }; if (w.includes('blaze')) out.white_blaze = { tint: TINTS.white, opacity: 1 }; }
-    const eye = phen(L.eyes || ['amber', 'amber'], ['amber', 'gold', 'copper', 'green', 'blue']);
-    out.eye_left = { tint: TINTS.eyes[eye], opacity: 1 };
-    out.eye_right = { tint: genes && genes.hetero ? TINTS.eyes[eye === 'blue' ? 'amber' : 'blue'] : TINTS.eyes[eye], opacity: 1 };
+    const eyes = opts.eyes && opts.eyes.left ? { left: opts.eyes.left, right: opts.eyes.right || opts.eyes.left } : resolveEyes(genes);
+    out.eye_left = { tint: TINTS.eyes[eyes.left], opacity: 1 };
+    out.eye_right = { tint: TINTS.eyes[eyes.right] || TINTS.eyes[eyes.left], opacity: 1 };
     let sab = TINTS.saber[phen(L.saber || ['ivory', 'ivory'], ['ivory', 'creamy', 'stained'])];
     if (opts.lifeStage === 'elder') sab = mix(sab, TINTS.saber.stained, ELDER_SABER_STAIN);
     out.sabers = { tint: sab, opacity: 1 };
@@ -140,5 +152,5 @@
     return { drawn, skipped };
   }
 
-  return { compose, genesToLayers, tintPixels, blendFor, stackOrder, poseFor, loadPoseManifest, TINTS, STACK, LIFE_STAGES, hexToRgb, mix };
+  return { compose, genesToLayers, resolveEyes, tintPixels, blendFor, stackOrder, poseFor, loadPoseManifest, TINTS, STACK, LIFE_STAGES, hexToRgb, mix };
 });

@@ -1,9 +1,12 @@
 /**
- * Make Your Sabrecat: pure model (no DOM) for cat-creator-spec v0.2 (+ v0.1.1 §5.2) and lifecycle-spec §1.3/§2.6.
+ * Make Your Sabrecat: pure model (no DOM) for cat-creator-spec v0.3.1 (+ v0.1.1 §5.2) and lifecycle-spec §1.3/§2.6.
  * UMD: window.Creator / require(). Unit-tested in test/creator.test.js.
  *
- * Model: { step: 1|2, focus, name, sex, coat, markings, eyes, traits{5}, preset, range:{min,max}, nameError }
- *   Step 1 (Look) focus ids:        name, sex, coat, markings, eyes, then the button row randomize · back · next
+ * Model: { step: 1|2, focus, name, sex, coat, markings, eyes, oddEyes:'off'|'on', eyeRight: null|eye, rare: bool, traits{5}, preset, range:{min,max}, nameError }
+ *   `eyes` is the (left) eye; `eyeRight` is set only while oddEyes is on, and always differs from `eyes`.
+ *   `rare` = §3c shown (Sandbox + Free Customization On): adds the `pale`/`ash` coats and the oddEyes row.
+ *   Step 1 (Look) focus ids:        name, sex, coat, markings, eyes, [oddEyes], then the button row randomize · back · next
+ *                                   (odd eyes on: …, markings, eyeLeft, eyeRight, oddEyes, buttons)
  *   Step 2 (Personality) focus ids: preset, trait:<id> ×5, then the button row randomize · back · start
  *   Up/Down move between rows and the button row (wrap; entering the button row lands on Next/Start).
  *   Left/Right cycle an option row / move a slider ±5 / move along the button row. Enter/Space/A also cycles an option row.
@@ -37,13 +40,52 @@
 
   // ---- cat-creator-spec §3 (option id → genetics allele) ----
   const SEXES = ['male', 'female'];
-  const COATS = ['tan', 'gray', 'brown', 'black'];
-  const COAT_ALLELE = Object.freeze({ tan: 'tawny', gray: 'greydun', brown: 'russet', black: 'melan' });
+  /** §3.3: the 5 coats of every Style (v0.3.1). §3c.2: rare coats, shown only in Sandbox with Free Customization On. */
+  const COATS = ['tan', 'gray', 'brown', 'black', 'sandy'];
+  const RARE_COATS = ['pale', 'ash'];
+  /** Option id → genetics allele pair (§3.3, §3c.2, §5.3). Ash is the only heterozygous coat (codominant melan/leuc). */
+  const COAT_GENES = Object.freeze({
+    tan: ['tawny', 'tawny'], gray: ['greydun', 'greydun'], brown: ['russet', 'russet'], black: ['melan', 'melan'], sandy: ['sandy', 'sandy'],
+    pale: ['leuc', 'leuc'], ash: ['melan', 'leuc']
+  });
+  const OFF_ON = ['off', 'on'];
+  /** The three rare looks Sandbox Randomize picks from (§3c.4). */
+  const RARE_LOOKS = ['pale', 'ash', 'oddEyes'];
+  const RARE_CHANCE = 0.10;
   const MARKINGS = ['none', 'spotted', 'faintstripe'];
   const MARKING_ALLELE = Object.freeze({ none: 'plain', spotted: 'spotted', faintstripe: 'faintstripe' });
   const EYES = ['amber', 'gold', 'green'];
   const EYE_ALLELE = Object.freeze({ amber: 'amber', gold: 'gold', green: 'green' });
-  const OPTIONS = { sex: SEXES, coat: COATS, markings: MARKINGS, eyes: EYES };
+  const OPTIONS = { sex: SEXES, coat: COATS, markings: MARKINGS, eyes: EYES, oddEyes: OFF_ON };
+  /** §3c.1: rare looks are shown only for Sandbox with Free Customization On. */
+  const rareAllowed = (difficulty, sandboxOptions) => difficulty === 'sandbox' && !!sandboxOptions && sandboxOptions.freeCustomization === true;
+  const coatsFor = (rare) => (rare ? [...COATS, ...RARE_COATS] : COATS);
+  /** Option list for a row; eyeRight skips the left eye (§3c.3). */
+  function optionsFor(s, row) {
+    if (row === 'coat') return coatsFor(s.rare);
+    if (row === 'eyeLeft') return EYES;
+    if (row === 'eyeRight') return EYES.filter((e) => e !== s.eyes);
+    return OPTIONS[row];
+  }
+  /** The first eye after `left` (cyclic) — the right eye when odd eyes are switched on or the left eye lands on it. */
+  const nextOtherEye = (left, from = left) => { let i = EYES.indexOf(from); do { i = (i + 1) % EYES.length; } while (EYES[i] === left); return EYES[i]; };
+  const isOdd = (s) => s.oddEyes === 'on' && !!s.eyeRight && s.eyeRight !== s.eyes;
+  /** True when the look uses any §3c option. */
+  const hasRare = (s) => RARE_COATS.includes(s.coat) || s.oddEyes === 'on';
+  /**
+   * Keeps a model inside what its Style allows (also for a restored/loaded model): without §3c every rare look is dropped
+   * (rare coat → a common coat, odd eyes off); odd eyes always keep a right eye that differs from the left.
+   */
+  function coerceLook(s, rng = Math.random) {
+    let st = s;
+    if (!st.rare && hasRare(st)) st = { ...st, coat: RARE_COATS.includes(st.coat) ? pick(COATS, rng) : st.coat, oddEyes: 'off', eyeRight: null };
+    if (!COATS.includes(st.coat) && !(st.rare && RARE_COATS.includes(st.coat))) st = { ...st, coat: pick(COATS, rng) };
+    if (st.oddEyes === 'on') { if (!EYES.includes(st.eyeRight) || st.eyeRight === st.eyes) st = { ...st, eyeRight: nextOtherEye(st.eyes) }; }
+    else if (st.oddEyes !== 'off' || st.eyeRight !== null) st = { ...st, oddEyes: 'off', eyeRight: null };
+    const ids = focusIds(st);
+    if (!ids.includes(st.focus)) st = { ...st, focus: st.focus === 'eyeLeft' || st.focus === 'eyeRight' ? 'eyes' : st.focus === 'eyes' && ids.includes('eyeLeft') ? 'eyeLeft' : ROWS(st)[0] };
+    return st;
+  }
 
   // ---- §3b personality ----
   const TRAITS = ['aggression', 'sociability', 'boldness', 'loyalty', 'curiosity'];
@@ -89,20 +131,35 @@
   }
 
   /** Fresh model on opening the creator (§3 defaults: random name, sex 50/50, coat/markings/eyes uniform; traits 50, Balanced). */
+  /** On open the look is always common (§3.3–3.5 defaults); §3c rare looks come from the rows or Randomize. */
   function init({ names, difficulty, sandboxOptions, rng = Math.random } = {}) {
     return {
       step: 1, focus: 'name', name: randomName(names, rng), sex: pick(SEXES, rng),
-      coat: pick(COATS, rng), markings: pick(MARKINGS, rng), eyes: pick(EYES, rng),
+      coat: pick(COATS, rng), markings: pick(MARKINGS, rng), eyes: pick(EYES, rng), oddEyes: 'off', eyeRight: null,
+      rare: rareAllowed(difficulty, sandboxOptions),
       traits: { ...PRESETS[DEFAULT_PRESET] }, preset: DEFAULT_PRESET, range: rangeFor(difficulty, sandboxOptions), nameError: null
     };
   }
 
-  /** §4.1: reroll Coat, Markings and Eyes (uniform); keeps Name, Sex and personality; never returns the same look. */
+  /**
+   * One Look roll (§4.1, §3c.4). Common options are uniform. With §3c shown, RARE_CHANCE of rolls carry exactly one rare look,
+   * picked uniformly from RARE_LOOKS (odd eyes get a uniformly random right eye that differs from the left). rng is injectable.
+   */
+  function rollLook(rare, rng = Math.random) {
+    const look = { coat: pick(COATS, rng), markings: pick(MARKINGS, rng), eyes: pick(EYES, rng), oddEyes: 'off', eyeRight: null };
+    if (rare && rng() < RARE_CHANCE) {
+      const which = pick(RARE_LOOKS, rng);
+      if (which === 'oddEyes') { look.oddEyes = 'on'; look.eyeRight = pick(EYES.filter((e) => e !== look.eyes), rng); }
+      else look.coat = which;
+    }
+    return look;
+  }
+  const sameLook = (a, b) => a.coat === b.coat && a.markings === b.markings && a.eyes === b.eyes && a.oddEyes === b.oddEyes && (a.eyeRight || null) === (b.eyeRight || null);
+  /** §4.1: reroll the look; keeps Name, Sex and personality; never returns the same look. */
   function randomizeLook(s, rng = Math.random) {
     let look;
-    do { look = { coat: pick(COATS, rng), markings: pick(MARKINGS, rng), eyes: pick(EYES, rng) }; }
-    while (look.coat === s.coat && look.markings === s.markings && look.eyes === s.eyes);
-    return { ...s, ...look };
+    do { look = rollLook(s.rare, rng); } while (sameLook(look, s));
+    return coerceLook({ ...s, ...look }, rng);
   }
   /** §3b.5: reroll only the five traits from Normal(50, 15), nearest 5, clamped to the range; Preset shows custom. */
   function randomizeTraits(s, rng = Math.random) {
@@ -127,19 +184,28 @@
       const j = i < 0 ? (dir > 0 ? 0 : PRESET_IDS.length - 1) : (i + dir + PRESET_IDS.length) % PRESET_IDS.length;
       return applyPreset(s, PRESET_IDS[j]);
     }
-    const list = OPTIONS[row]; return { ...s, [row]: list[(list.indexOf(s[row]) + dir + list.length) % list.length] };
+    const key = row === 'eyeLeft' ? 'eyes' : row;
+    const list = optionsFor(s, row); const i = list.indexOf(s[key]);
+    const v = list[((i < 0 ? (dir > 0 ? -1 : 0) : i) + dir + list.length) % list.length];
+    if (row === 'oddEyes') return v === 'on' ? { ...s, oddEyes: 'on', eyeRight: nextOtherEye(s.eyes) } : { ...s, oddEyes: 'off', eyeRight: null };
+    if (key === 'eyes' && s.oddEyes === 'on' && v === s.eyeRight) return { ...s, eyes: v, eyeRight: nextOtherEye(v, s.eyeRight) };  // Right moves on so the two still differ
+    return { ...s, [key]: v };
   }
 
-  /** genes per cat-creator-spec §5.3 + genetics-spec §6: chosen loci homozygous, fixed defaults otherwise. */
+  /**
+   * genes per cat-creator-spec §5.3/§3c.3 + genetics-spec §6/§2.5: chosen loci homozygous (ash = melan/leuc), fixed defaults otherwise.
+   * Odd eyes: het/het and eyeRight = the right eye; otherwise Het/Het and eyeRight null. No `hetero` flag (removed in genetics v0.3).
+   */
   function genesFor(s) {
-    const two = (a) => [a, a];
+    const two = (a) => [a, a]; const odd = isOdd(s);
     return {
       v: 1,
       loci: {
-        coat: two(COAT_ALLELE[s.coat]), dilute: ['D', 'D'], marking: two(MARKING_ALLELE[s.markings]), dorsal: ['ds', 'ds'],
-        intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: two(EYE_ALLELE[s.eyes]), saber: ['ivory', 'ivory']
+        coat: [...COAT_GENES[s.coat]], dilute: ['D', 'D'], marking: two(MARKING_ALLELE[s.markings]), dorsal: ['ds', 'ds'],
+        intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: two(EYE_ALLELE[s.eyes]), saber: ['ivory', 'ivory'],
+        het: odd ? ['het', 'het'] : ['Het', 'Het']
       },
-      hetero: false, mutations: [],
+      eyeRight: odd ? s.eyeRight : null, mutations: [],
       personality: Object.fromEntries(TRAITS.map((k) => [k, s.traits[k]]))
     };
   }
@@ -155,15 +221,23 @@
   }
 
   // ---- navigation ----
-  const ROWS = { 1: ['name', 'sex', 'coat', 'markings', 'eyes'], 2: ['preset', ...TRAITS.map((k) => `trait:${k}`)] };
+  /** Rows for a model (or a step number, giving the common rows): §3c adds oddEyes under Eyes; odd eyes on split Eyes into Left/Right. */
+  function ROWS(s) {
+    const st = typeof s === 'object' ? s : { step: s };
+    if (st.step === 2) return ['preset', ...TRAITS.map((k) => `trait:${k}`)];
+    const eyes = st.rare && st.oddEyes === 'on' ? ['eyeLeft', 'eyeRight'] : ['eyes'];
+    return ['name', 'sex', 'coat', 'markings', ...eyes, ...(st.rare ? ['oddEyes'] : [])];
+  }
   const BUTTONS = { 1: ['randomize', 'back', 'next'], 2: ['randomize', 'back', 'start'] };
-  const stops = (step) => [...ROWS[step].map((r) => [r]), BUTTONS[step]];
-  const focusIds = (step) => [...ROWS[step], ...BUTTONS[step]];
+  const stepOf = (s) => (typeof s === 'object' ? s.step : s);
+  const stops = (s) => [...ROWS(s).map((r) => [r]), BUTTONS[stepOf(s)]];
+  const focusIds = (s) => [...ROWS(s), ...BUTTONS[stepOf(s)]];
 
-  function reduce(s, action, arg, env = {}) {
+  function reduce(s0, action, arg, env = {}) {
     const rng = env.rng || Math.random;
+    const s = coerceLook(s0, rng);
     let st = s;
-    const out = (effect = null) => ({ state: st, effect });
+    const out = (effect = null) => ({ state: coerceLook(st, rng), effect });
     const f = s.focus;
     const goStep = (step, focus) => { st = { ...st, step, focus }; return out(); };
     const confirmButton = (id) => {
@@ -174,9 +248,9 @@
       return out();
     };
 
-    if (action === 'hover') { if (focusIds(s.step).includes(arg)) st = { ...s, focus: arg }; return out(); }
+    if (action === 'hover') { if (focusIds(s).includes(arg)) st = { ...s, focus: arg }; return out(); }
     if (action === 'click') {                                   // a click on a row value or a button
-      if (!focusIds(s.step).includes(arg)) return out();
+      if (!focusIds(s).includes(arg)) return out();
       st = { ...s, focus: arg };
       if (arg === 'name') return out();
       if (BUTTONS[s.step].includes(arg)) return confirmButton(arg);
@@ -185,7 +259,7 @@
     }
     if (action === 'arrow') {                                   // mouse on an option/slider arrow: arg = {id, dir}
       const { id, dir } = arg || {};
-      if (!ROWS[s.step].includes(id) || id === 'name') return out();
+      if (!ROWS(s).includes(id) || id === 'name') return out();
       st = { ...s, focus: id };
       st = id.startsWith('trait:') ? nudgeTrait(st, id.slice(6), dir) : cycleOption(st, id, dir); return out();
     }
@@ -195,8 +269,8 @@
     if (action === 'back') return s.step === 2 ? goStep(1, 'next') : out({ type: 'leave' });
     if (action === 'start') return s.step === 1 ? goStep(2, 'preset') : confirmButton('start');
 
-    const all = stops(s.step); let si = all.findIndex((x) => x.includes(f));
-    if (si < 0) { st = { ...s, focus: ROWS[s.step][0] }; return out(); }
+    const all = stops(s); let si = all.findIndex((x) => x.includes(f));
+    if (si < 0) { st = { ...s, focus: ROWS(s)[0] }; return out(); }
     if (action === 'up' || action === 'down') {
       si = (si + (action === 'up' ? -1 : 1) + all.length) % all.length;
       const stop = all[si]; st = { ...s, focus: stop.length > 1 ? stop[stop.length - 1] : stop[0] }; return out();
@@ -222,7 +296,8 @@
 
   return {
     RUN_START, PLAYER_START_AGE, STAGE_START, SEASONS, lifeStageFor, birthSeasonFor,
-    SEXES, COATS, MARKINGS, EYES, COAT_ALLELE, MARKING_ALLELE, EYE_ALLELE, OPTIONS,
+    SEXES, COATS, RARE_COATS, COAT_GENES, MARKINGS, EYES, MARKING_ALLELE, EYE_ALLELE, OPTIONS, OFF_ON,
+    RARE_LOOKS, RARE_CHANCE, rareAllowed, coatsFor, optionsFor, hasRare, coerceLook, rollLook,
     TRAITS, TRAIT_STEP, TRAIT_DEFAULT, RANGE_NORMAL, RANGE_FULL, PRESETS, PRESET_IDS, DEFAULT_PRESET, rangeFor,
     NAME_MAX, sanitizeName, normalizeName, randomName,
     init, randomizeLook, randomizeTraits, applyPreset, nudgeTrait, setTrait, genesFor, buildMainCat,

@@ -25,8 +25,8 @@ function usedIds() {
     'settings.audio.': ['master', 'music', 'sfx', 'ambient', 'mute'], 'settings.display.': ['mode', 'uiScale', 'reducedMotion', 'vsync'],
     'settings.controls.': ['controllerVibration', 'invertY'],
     // Make Your Sabrecat (menu.js creator section, ids built from js/creator.js option/trait/preset ids)
-    'creator.row.': ['name', 'sex', 'coat', 'markings', 'eyes', 'preset'], 'creator.help.': ['sex', 'coat', 'markings', 'eyes'],
-    'creator.sex.': C.SEXES, 'creator.coat.': C.COATS, 'creator.markings.': C.MARKINGS, 'creator.eyes.': C.EYES,
+    'creator.row.': ['name', 'sex', 'coat', 'markings', 'eyes', 'oddEyes', 'eyeLeft', 'eyeRight', 'preset'], 'creator.help.': ['sex', 'coat', 'markings', 'eyes'],
+    'creator.sex.': C.SEXES, 'creator.coat.': C.coatsFor(true), 'creator.oddEyes.': C.OFF_ON, 'creator.rareTag': [''], 'creator.markings.': C.MARKINGS, 'creator.eyes.': C.EYES,
     'creator.preview.markings.': C.MARKINGS,
     'creator.preset.': [...C.PRESET_IDS, 'custom'].flatMap((p) => [p, `${p}.desc`]),
     'creator.trait.': C.TRAITS.flatMap((k) => [k, `${k}.desc`, `${k}.low`, `${k}.high`]) };

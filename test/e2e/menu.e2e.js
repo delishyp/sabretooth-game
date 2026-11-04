@@ -121,7 +121,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
     require('child_process').execFileSync(process.execPath, [path.join(root, 'scripts', 'seed-demo-saves.js'), ud]);
     const { app, page } = await launch(ud);
     try {
-      const SCREENS = ['root', 'newGame', 'newGame:sandbox', 'creator', 'creator:personality', 'creator:sandbox', 'slotsFull', 'load', 'load:expanded', 'settings:audio', 'settings:display'];
+      const SCREENS = ['root', 'newGame', 'newGame:sandbox', 'creator', 'creator:personality', 'creator:sandbox', 'creator:sandbox-look', 'slotsFull', 'load', 'load:expanded', 'settings:audio', 'settings:display'];
       const setSize = async (w, h) => { await app.evaluate(({ BrowserWindow }, [w, h]) => BrowserWindow.getAllWindows()[0].setContentSize(w, h), [w, h]);
         await page.waitForFunction(([w, h]) => innerWidth === w && innerHeight === h, [w, h], { timeout: 3000 }).catch(() => {}); await page.waitForTimeout(150); };
       const offWindow = () => page.evaluate(() => {
@@ -172,7 +172,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
     const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-e2e-'));
     const { app, page } = await launch(ud);
     try {
-      await check('creator §7.1: all 72 looks render with no missing layer (adult pose per sex), each redraw < 100 ms', async () => {
+      await check('creator §7.1: all 90 common looks (5 coats) render with no missing layer (adult pose per sex), each redraw < 100 ms', async () => {
         await toCreator(page); const times = [];
         for (const sex of C.SEXES) for (const coat of C.COATS) for (const markings of C.MARKINGS) for (const eyes of C.EYES) {
           const p = await page.evaluate((l) => window.__menuDebug.creatorLook(l), { sex, coat, markings, eyes });
@@ -181,7 +181,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
           const want = ['shadow', 'base_coat', ...(markings === 'none' ? [] : [`markings_${markings}`]), 'eye_left', 'eye_right', 'sabers', 'lineart'];
           assert.deepStrictEqual(p.drawn, want); times.push(p.ms);
         }
-        const warm = times.filter((_, i) => i % 36 !== 0);   // first draw per pose includes the one-time asset load
+        const warm = times.filter((_, i) => i % 45 !== 0);   // first draw per pose includes the one-time asset load
         assert.ok(Math.max(...warm) < 100, `max redraw ${Math.max(...warm).toFixed(1)} ms`);
         console.log(`    preview redraw: max ${Math.max(...warm).toFixed(1)} ms, mean ${(warm.reduce((a, b) => a + b, 0) / warm.length).toFixed(1)} ms`);
       });
@@ -202,7 +202,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.notStrictEqual(m2.sex, m.sex); assert.deepStrictEqual({ coat: m2.coat, markings: m2.markings, eyes: m2.eyes }, look);   // check 2
         await page.waitForFunction((sx) => window.__menuDebug.creator().preview.pose === `portrait-${sx}`, m2.sex, { timeout: 2000 });
         await press(page, 'ArrowDown', 'ArrowRight');                                  // Coat cycles
-        assert.strictEqual((await model(page)).coat, C.COATS[(C.COATS.indexOf(look.coat) + 1) % 4]);
+        assert.strictEqual((await model(page)).coat, C.COATS[(C.COATS.indexOf(look.coat) + 1) % C.COATS.length]);
         await press(page, 'ArrowDown', 'ArrowDown', 'ArrowDown');                       // markings, eyes, button row (Next)
         assert.strictEqual((await model(page)).focus, 'next');
         await press(page, 'ArrowLeft', 'ArrowLeft'); assert.strictEqual((await model(page)).focus, 'randomize');
@@ -249,9 +249,9 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         const pc = run.playerCat;
         assert.deepStrictEqual(pc.genes.personality, traits);
         assert.deepStrictEqual([pc.sex, pc.ageSeasons, pc.birthSeason, pc.scars], [m.sex, 12, { year: -2, season: 'spring' }, []]);
-        assert.deepStrictEqual(pc.genes.loci, { coat: Array(2).fill(C.COAT_ALLELE[m.coat]), dilute: ['D', 'D'], marking: Array(2).fill(C.MARKING_ALLELE[m.markings]), dorsal: ['ds', 'ds'],
-          intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: Array(2).fill(C.EYE_ALLELE[m.eyes]), saber: ['ivory', 'ivory'] });
-        assert.deepStrictEqual([pc.genes.hetero, pc.genes.mutations], [false, []]);
+        assert.deepStrictEqual(pc.genes.loci, { coat: C.COAT_GENES[m.coat], dilute: ['D', 'D'], marking: Array(2).fill(C.MARKING_ALLELE[m.markings]), dorsal: ['ds', 'ds'],
+          intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: Array(2).fill(C.EYE_ALLELE[m.eyes]), saber: ['ivory', 'ivory'], het: ['Het', 'Het'] });
+        assert.deepStrictEqual([pc.genes.eyeRight, 'hetero' in pc.genes, pc.genes.mutations], [null, false, []]);
       });
       await check('M1: renderer console.warn / console.error / uncaught errors reach logs/menu.log', async () => {
         await page.evaluate(() => { console.warn('e2e-M1-warn', { a: 1 }); console.error('e2e-M1-error'); setTimeout(() => { throw new Error('e2e-M1-uncaught'); }); });
@@ -298,7 +298,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await page.screenshot({ path: path.join(root, 'screenshots', 'creator-look.png') });
         let m = await model(page);
         await page.locator('[data-row="coat"] .arrow[data-arrow="1"]').click();
-        assert.strictEqual((await model(page)).coat, C.COATS[(C.COATS.indexOf(m.coat) + 1) % 4]);
+        assert.strictEqual((await model(page)).coat, C.COATS[(C.COATS.indexOf(m.coat) + 1) % C.COATS.length]);
         await page.locator('[data-row="eyes"] .crow-val').click();
         assert.strictEqual((await model(page)).eyes, C.EYES[(C.EYES.indexOf(m.eyes) + 1) % 3]);
         await page.locator('[data-row="sex"] .arrow[data-arrow="-1"]').click();
@@ -366,6 +366,93 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.strictEqual((await st(page)).setup.opts.freeCustomization, false);
         await page.evaluate(() => document.querySelector('[data-nav="begin"]').click()); await waitState(page, 'creator');
         m = await model(page); assert.deepStrictEqual(m.range, { min: 20, max: 80 });
+      });
+      await check('creator §3c.1: Sandbox with Free Customization Off shows no rare looks (rows, coat cycle, Randomize, restored look)', async () => {
+        let m = await model(page); assert.deepStrictEqual([m.step, m.rare], [1, false]);
+        assert.strictEqual(await page.locator('[data-row="oddEyes"]').count(), 0);
+        assert.strictEqual(await page.locator('#creator-panel .rare-tag:not([hidden])').count(), 0);
+        const seen = new Set(); for (let i = 0; i < 7; i++) { await page.locator('[data-row="coat"] .arrow[data-arrow="1"]').click(); seen.add((await model(page)).coat); }
+        assert.deepStrictEqual([...seen].sort(), [...C.COATS].sort());
+        for (let i = 0; i < 60; i++) { await page.locator('[data-cnav="randomize"]').click(); m = await model(page); assert.ok(C.COATS.includes(m.coat) && m.oddEyes === 'off', JSON.stringify(m)); }
+        const p = await page.evaluate(() => window.__menuDebug.creatorLook({ coat: 'ash', oddEyes: 'on', eyeRight: 'green' }));
+        m = await model(page); assert.ok(C.COATS.includes(m.coat) && m.oddEyes === 'off' && m.eyeRight === null, 'restored rare look is dropped');
+        assert.deepStrictEqual(p.skipped, []);
+      });
+    } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
+  }
+  {
+    // cat-creator-spec v0.3.1 §3c: Sandbox + Free Customization On rare looks (pale, ash, odd eyes), fresh profile so Start creates run 1.
+    const C = require(path.join(root, 'src/renderer/js/creator.js'));
+    const model = async (page) => (await page.evaluate(() => window.__menuDebug.creator())).model;
+    const press = async (page, ...keys) => { for (const k of keys) await page.keyboard.press(k); };
+    const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-e2e-'));
+    const { app, page } = await launch(ud);
+    try {
+      await check('creator §3c / §7.1: Sandbox + FC On adds Pale/Ash (Rare tag) and Odd Eyes; Left/Right differ; rare looks render; Start writes het/het + eyeRight', async () => {
+        await page.evaluate(() => window.__menuDebug.show('creator:sandbox')); await waitState(page, 'creator');
+        await page.mouse.move(2, 2); await press(page, 'Escape');
+        let m = await model(page); assert.deepStrictEqual([m.step, m.rare, m.oddEyes, m.focus], [1, true, 'off', 'next']);
+        assert.ok(C.COATS.includes(m.coat), 'opens on a common look');
+        assert.deepStrictEqual(await page.locator('#creator-panel .crow').evaluateAll((r) => r.map((x) => x.dataset.row)), ['name', 'sex', 'coat', 'markings', 'eyes', 'oddEyes']);
+        assert.strictEqual(await page.locator('[data-row="oddEyes"] .crow-label').textContent(), 'Odd Eyes');
+        assert.strictEqual(await page.locator('[data-row="oddEyes"] .crow-val').textContent(), 'Off');
+        assert.strictEqual(await page.locator('[data-row="oddEyes"] .rare-tag').isVisible(), true);
+        assert.strictEqual(await page.locator('[data-row="oddEyes"] .rare-tag').textContent(), 'Rare');
+        // coat row: 7 options; Pale/Ash carry the Rare tag
+        await press(page, 'ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp'); assert.strictEqual((await model(page)).focus, 'coat');
+        const labels = {};
+        for (let i = 0; i < 7; i++) { await press(page, 'ArrowRight'); const c = (await model(page)).coat;
+          labels[c] = [await page.locator('[data-row="coat"] .crow-val').textContent(), await page.locator('[data-row="coat"] .rare-tag').isVisible()]; }
+        assert.deepStrictEqual(labels, { tan: ['Tan', false], gray: ['Gray', false], brown: ['Brown', false], black: ['Black', false], sandy: ['Sandy', false], pale: ['Pale', true], ash: ['Ash', true] });
+        // odd eyes on → Left Eye / Right Eye rows, always different
+        await press(page, 'ArrowDown', 'ArrowDown', 'ArrowDown'); assert.strictEqual((await model(page)).focus, 'oddEyes');
+        await press(page, 'Enter'); m = await model(page);
+        assert.ok(m.oddEyes === 'on' && m.eyeRight && m.eyeRight !== m.eyes, JSON.stringify(m));
+        assert.deepStrictEqual(await page.locator('#creator-panel .crow').evaluateAll((r) => r.map((x) => x.dataset.row)), ['name', 'sex', 'coat', 'markings', 'eyeLeft', 'eyeRight', 'oddEyes']);
+        assert.deepStrictEqual([await page.locator('[data-row="eyeLeft"] .crow-label').textContent(), await page.locator('[data-row="eyeRight"] .crow-label').textContent()], ['Left Eye', 'Right Eye']);
+        await press(page, 'ArrowUp'); assert.strictEqual((await model(page)).focus, 'eyeRight');
+        for (let i = 0; i < 4; i++) { await press(page, 'ArrowRight'); m = await model(page); assert.notStrictEqual(m.eyeRight, m.eyes); }
+        await press(page, 'ArrowUp'); for (let i = 0; i < 4; i++) { await press(page, 'ArrowRight'); m = await model(page); assert.notStrictEqual(m.eyeRight, m.eyes); }
+        assert.match(await page.locator('#creator-canvas').getAttribute('aria-label'), new RegExp(`${m.eyes}/${m.eyeRight} eyes`));
+        // every rare look renders on both bases with no missing layer
+        for (const sex of C.SEXES) { await page.evaluate((sx) => window.__menuDebug.creatorLook({ sex: sx }), sex);   // first draw per pose loads its assets
+        for (const coat of [...C.RARE_COATS, 'tan']) for (const [eyes, eyeRight] of [['amber', 'gold'], ['gold', 'green'], ['green', 'amber']]) for (const odd of ['on', 'off']) {
+          const p = await page.evaluate((l) => window.__menuDebug.creatorLook(l), { sex, coat, markings: 'spotted', eyes, oddEyes: odd, eyeRight: odd === 'on' ? eyeRight : null });
+          assert.deepStrictEqual(p.skipped, [], `${sex} ${coat} ${eyes}/${eyeRight}`);
+          assert.deepStrictEqual(p.drawn, ['shadow', 'base_coat', 'markings_spotted', 'eye_left', 'eye_right', 'sabers', 'lineart']);
+          assert.ok(p.ms < 100, `redraw ${p.ms.toFixed(1)} ms`);
+        } }
+        // the two eye layers really get different tints: read one pixel of each eye mask on the composed preview
+        const eyePx = await page.evaluate(async () => {
+          const look = (o) => window.__menuDebug.creatorLook({ sex: 'male', coat: 'tan', markings: 'none', eyes: 'amber', ...o });
+          const sample = () => { const cv = document.getElementById('creator-canvas'); return cv.toDataURL().length; };
+          await look({ oddEyes: 'off', eyeRight: null }); const same = sample();
+          await look({ oddEyes: 'on', eyeRight: 'green' }); const odd = sample();
+          return { same, odd };
+        });
+        assert.notStrictEqual(eyePx.same, eyePx.odd, 'odd eyes change the composed portrait');
+        // Randomize in Sandbox + FC: some rolls carry exactly one rare look (rate checked statistically in unit tests)
+        await page.evaluate(() => window.__menuDebug.creatorLook({ coat: 'tan', oddEyes: 'off', eyeRight: null }));
+        let rare = 0; const N = 300;
+        for (let i = 0; i < N; i++) {
+          await page.evaluate(() => document.querySelector('[data-cnav="randomize"]').click()); m = await model(page);
+          const k = (C.RARE_COATS.includes(m.coat) ? 1 : 0) + (m.oddEyes === 'on' ? 1 : 0); assert.ok(k <= 1, JSON.stringify(m)); rare += k;
+          if (m.oddEyes === 'on') assert.notStrictEqual(m.eyeRight, m.eyes);
+        }
+        assert.ok(rare >= 10 && rare <= 60, `rare ${rare}/${N}`);
+        console.log(`    Sandbox Randomize: ${rare}/${N} rolls with a rare look`);
+        // screenshot: Sandbox ash + odd eyes, then Start writes the §3c genes
+        await page.evaluate(() => window.__menuDebug.show('creator:sandbox-look')); await waitState(page, 'creator');
+        await page.waitForFunction(() => window.__menuDebug.creator().preview.rendered && window.__menuDebug.creator().preview.rendered.includes('|ash|'), null, { timeout: 3000 });
+        await page.waitForTimeout(150);
+        await page.screenshot({ path: path.join(root, 'screenshots', 'creator-look-sandbox-ash-oddeyes.png') });
+        m = await model(page); assert.deepStrictEqual([m.coat, m.eyes, m.oddEyes, m.eyeRight], ['ash', 'amber', 'on', 'green']);
+        assert.strictEqual(await page.locator('[data-row="coat"] .rare-tag').isVisible(), true);
+        await page.evaluate(() => document.querySelector('[data-cnav="next"]').click());
+        await page.evaluate(() => document.querySelector('[data-cnav="start"]').click()); await waitState(page, 'starting');
+        const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
+        assert.deepStrictEqual([run.difficulty, run.playerCat.genes.loci.coat, run.playerCat.genes.loci.het, run.playerCat.genes.loci.eyes, run.playerCat.genes.eyeRight],
+          ['sandbox', ['melan', 'leuc'], ['het', 'het'], ['amber', 'amber'], 'green']);
       });
     } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
   }

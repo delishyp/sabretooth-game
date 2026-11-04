@@ -103,6 +103,8 @@ button.primary { border-color: var(--accent); }
 .crow-ctl button.focused, .crow-ctl button:focus-visible { outline: none; background: var(--panel); }
 .crow-ctl .crow-val { min-width: 300px; text-align: center; color: var(--accent); }
 .crow-ctl .arrow { min-width: 48px; }
+.crow-ctl .rare-tag { font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 1px 6px; opacity: .85; }
+.crow-ctl .rare-tag[hidden] { display: none; }
 .crow-help { font-size: 17px; color: var(--ice-dim); margin: 4px 0 0; min-height: 22px; }
 .crow-help.error { color: var(--danger); }
 #creator-name { font: inherit; font-size: 24px; color: var(--ice); background: rgba(8, 16, 24, .7); border: 1px solid var(--panel-border); border-radius: 6px; padding: 6px 14px; width: 420px; min-height: 44px; }

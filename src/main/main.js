@@ -62,7 +62,7 @@ async function captureAll() {
   const only = process.env.SABRETOOTH_SHOTS; // comma list of file prefixes, optional
   const list = [
     ['root', 'main-menu.png'], ['newGame', 'new-game-setup.png'], ['newGame:sim', 'new-game-setup-sim-permadeath.png'], ['newGame:sandbox', 'new-game-sandbox-options.png'],
-    ['creator', 'creator-look.png'], ['creator:personality', 'creator-personality.png'], ['creator:sandbox', 'creator-personality-sandbox.png'],
+    ['creator', 'creator-look.png'], ['creator:personality', 'creator-personality.png'], ['creator:sandbox', 'creator-personality-sandbox.png'], ['creator:sandbox-look', 'creator-look-sandbox-ash-oddeyes.png'],
     ['slotsFull', 'new-game-slots-full.png'], ['load', 'load-runs.png'], ['load:expanded', 'load-run-expanded.png'],
     ['continue', 'continue-loading.png'], ['legacy', 'legacy-hook.png'],
     ['settings:storyteller', 'settings-storyteller.png'], ['settings:audio', 'settings-audio.png'], ['settings:display', 'settings-display.png'],

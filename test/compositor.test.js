@@ -5,7 +5,7 @@ const C = require('../src/renderer/js/compositor');
 const mf = require('../assets/portraits/portrait-male/manifest.json');
 
 const g = (coat, marking, eyes) => ({ v: 1, loci: { coat: [coat, coat], dilute: ['D', 'D'], marking: [marking, marking], dorsal: ['ds', 'ds'],
-  intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: [eyes, eyes], saber: ['ivory', 'ivory'] }, hetero: false, mutations: [] });
+  intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: [eyes, eyes], saber: ['ivory', 'ivory'], het: ['Het', 'Het'] }, eyeRight: null, mutations: [] });
 
 test('tint = color × shading, alpha kept', () => {
   const d = new Uint8ClampedArray([255, 255, 255, 200, 128, 128, 128, 17, 0, 0, 0, 255]);
@@ -55,7 +55,7 @@ test('missing layer file is skipped with a warning, not a crash', async () => {
   assert.ok(res.drawn.includes('eye_right')); assert.strictEqual(warns.length, 2);
 });
 test('genesToLayers covers every creator option (cat-creator-spec v0.1 §3)', () => {
-  const coats = { tawny: '#C8955A', greydun: '#A39A88', russet: '#B0623A', melan: '#3A332E' };
+  const coats = { tawny: '#C8955A', greydun: '#A39A88', russet: '#B0623A', melan: '#3A332E', sandy: '#D9BC8A', leuc: '#EFE6D6' };
   for (const [c, hex] of Object.entries(coats)) for (const m of ['plain', 'spotted', 'faintstripe']) for (const [e, eh] of [['amber', '#C98A1E'], ['gold', '#D9B43A'], ['green', '#8FA34A']]) {
     const L = C.genesToLayers(g(c, m, e));
     assert.strictEqual(L.base_coat.tint, hex); assert.strictEqual(L.eye_left.tint, eh); assert.strictEqual(L.eye_right.tint, eh);
@@ -63,10 +63,33 @@ test('genesToLayers covers every creator option (cat-creator-spec v0.1 §3)', ()
     const mk = Object.keys(L).filter((k) => k.startsWith('markings_'));
     if (m === 'plain') assert.deepStrictEqual(mk, []);
     else { assert.deepStrictEqual(mk, ['markings_' + m]); assert.strictEqual(L[mk[0]].opacity, 0.6);
-      assert.strictEqual(L[mk[0]].tint, c === 'melan' ? '#1E1A17' : C.mix(hex, '#000000', 0.45)); }
+      assert.strictEqual(L[mk[0]].tint, c === 'melan' ? '#1E1A17' : c === 'leuc' ? '#D2C3A8' : C.mix(hex, '#000000', 0.45)); }
     assert.ok(!Object.keys(L).some((k) => k.startsWith('white_') || k === 'age_elder'));
     for (const l of Object.keys(L)) if (l !== 'eye_right' || true) assert.ok(mf.layers.some((x) => x.id === l), `${l} in manifest`);
   }
+});
+test('genetics v0.3.1 §2: ash = melan/leuc codominant (#7D776F), coat-derived markings; Co order does not matter', () => {
+  for (const pair of [['melan', 'leuc'], ['leuc', 'melan']]) {
+    const L = C.genesToLayers({ ...g('tawny', 'spotted', 'amber'), loci: { ...g('tawny', 'spotted', 'amber').loci, coat: pair } });
+    assert.strictEqual(L.base_coat.tint, '#7D776F'); assert.strictEqual(L.markings_spotted.tint, C.mix('#7D776F', '#000000', 0.45));
+  }
+  assert.strictEqual(C.genesToLayers({ ...g('melan', 'plain', 'amber'), loci: { ...g('melan', 'plain', 'amber').loci, coat: ['tawny', 'melan'] } }).base_coat.tint, '#C8955A');
+  assert.deepStrictEqual([C.TINTS.coat.sandy, C.TINTS.coat.ash, C.TINTS.coat.leuc, C.TINTS.coat.melan], ['#D9BC8A', '#7D776F', '#EFE6D6', '#3A332E']);
+});
+test('genetics §2.5 odd eyes: eye_left/eye_right tinted separately only for het/het; back-compatible', () => {
+  const odd = (het, right) => ({ ...g('tawny', 'plain', 'amber'), loci: { ...g('tawny', 'plain', 'amber').loci, het }, eyeRight: right });
+  let L = C.genesToLayers(odd(['het', 'het'], 'green'));
+  assert.deepStrictEqual([L.eye_left.tint, L.eye_right.tint], ['#C98A1E', '#8FA34A']);
+  assert.deepStrictEqual(C.resolveEyes(odd(['het', 'het'], 'green')), { left: 'amber', right: 'green' });
+  for (const [het, right] of [[['Het', 'het'], 'green'], [['Het', 'Het'], 'green'], [['het', 'het'], null], [['het', 'het'], 'amber']]) {
+    L = C.genesToLayers(odd(het, right)); assert.strictEqual(L.eye_right.tint, L.eye_left.tint, JSON.stringify([het, right]));
+  }
+  const old = { ...g('gold', 'plain', 'gold') }; delete old.loci.het; delete old.eyeRight; old.hetero = true;   // pre-v0.3 genome: no het locus; hetero ignored
+  assert.deepStrictEqual(C.resolveEyes(old), { left: 'gold', right: 'gold' });
+  L = C.genesToLayers(g('tawny', 'plain', 'amber'), { eyes: { left: 'gold', right: 'green' } });
+  assert.deepStrictEqual([L.eye_left.tint, L.eye_right.tint], ['#D9B43A', '#8FA34A']);
+  L = C.genesToLayers(g('tawny', 'plain', 'amber'), { eyes: { left: 'gold' } });
+  assert.deepStrictEqual([L.eye_left.tint, L.eye_right.tint], ['#D9B43A', '#D9B43A']);
 });
 test('poseFor + fallback to adult pose', async () => {
   assert.strictEqual(C.poseFor('male', 'adult'), 'portrait-male');
