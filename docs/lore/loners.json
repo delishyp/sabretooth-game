@@ -62,8 +62,8 @@
       "bandAffinity": {}
     },
     {
-      "id": "brokentooth",
-      "name": "Brokentooth",
+      "id": "torncheek",
+      "name": "Torncheek",
       "originPrideId": "bonefield",
       "sex": "male",
       "ageStage": "adult",
@@ -146,7 +146,7 @@
       "narrativeLeaning": "Very easy to befriend (sociability: high). Never a rival (aggression: low). Hard to keep; likes to wander off. Band-eligible only if young adults count (open question).",
       "bandAffinity": {
         "coldwater": "likely",
-        "brokentooth": "unlikely",
+        "torncheek": "unlikely",
         "ashfall": "possible"
       }
     },
@@ -203,7 +203,7 @@
       "sampleLine": "I did what they said I did. Don't make me into anything better.",
       "narrativeLeaning": "Slow to trust, quick to retreat (sociability: low). Not a rival (aggression: medium). Steady once won over.",
       "bandAffinity": {
-        "brokentooth": "likely",
+        "torncheek": "likely",
         "duskrunner": "possible",
         "coldwater": "unlikely"
       }
@@ -261,7 +261,7 @@
       "narrativeLeaning": "Easy to befriend (sociability: high). Never a rival (aggression: low). Most likely to rejoin Mistwood by drift, or by a band's mates win.",
       "bandAffinity": {
         "duskrunner": "likely",
-        "brokentooth": "unlikely",
+        "torncheek": "unlikely",
         "ashfall": "unlikely"
       }
     }

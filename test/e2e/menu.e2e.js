@@ -14,6 +14,8 @@ async function launch(ud) {
   return { app, page };
 }
 const st = (page) => page.evaluate(() => window.__menuDebug.state());
+/** Wait (up to 3s) until the menu reaches `state`; avoids timing flakes from async IPC. */
+const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebug.state().state === s, state, { timeout: 3000 }).catch(() => {});
 
 (async () => {
   let failures = 0; const check = async (name, fn) => { try { await fn(); console.log('PASS', name); } catch (e) { failures++; console.log('FAIL', name, e.message); } };
@@ -30,28 +32,31 @@ const st = (page) => page.evaluate(() => window.__menuDebug.state());
       for (const [slot, [style, death]] of combos.slice(i, i + 2).entries()) {
         await check(`keyboard starts ${style} + ${death}`, async () => {
           await page.mouse.move(2, 2);
-          if ((await st(page)).state !== 'root') { await page.keyboard.press('Escape'); }
+          if ((await st(page)).state !== 'root') { await page.keyboard.press('Escape'); await waitState(page, 'root'); }
           await page.keyboard.press('Enter');                       // root default focus = New Game (no saves)
+          await waitState(page, 'newGameSetup');
           const s0 = await st(page);
           assert.strictEqual(s0.state, 'newGameSetup');
           assert.deepStrictEqual([s0.setup.style, s0.setup.death, s0.setup.focus], ['standard', 'heir', 'style:standard']); // defaults every time
           for (const k of keysFor(style, death)) await page.keyboard.press(k);
-          await page.waitForTimeout(300);
+          await waitState(page, 'starting');
           assert.strictEqual((await st(page)).state, 'starting');
           const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', `run-${slot}`, 'run.json'), 'utf8'));
           assert.deepStrictEqual([run.style, run.difficulty, run.sandboxOptions === null], [style, death, death !== 'sandbox']);
         });
       }
       if (i === 0) await check('both slots full → replace flow uses the summaryReplacing line', async () => {
-        await page.keyboard.press('Escape'); await page.keyboard.press('Enter');
+        await page.keyboard.press('Escape'); await waitState(page, 'root'); await page.keyboard.press('Enter');
+        await waitState(page, 'slotsFull');
         assert.strictEqual((await st(page)).state, 'slotsFull');
         await page.keyboard.press('Enter');                         // first run card → confirm dialog (focus Cancel)
         await page.keyboard.press('ArrowUp'); await page.keyboard.press('Enter');   // OK = Replace
+        await waitState(page, 'newGameSetup');
         assert.strictEqual((await st(page)).state, 'newGameSetup');
         const summary = await page.locator('#setup-summary').textContent();
         assert.ok(/Replaces/.test(summary), summary);
         await page.keyboard.press('ArrowUp'); await page.keyboard.press('Enter');   // Begin (Standard + Heir)
-        await page.waitForTimeout(300);
+        await waitState(page, 'starting');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
         assert.deepStrictEqual([run.style, run.difficulty], ['standard', 'heir']);
       });

@@ -109,8 +109,8 @@ Phenotype resolver output (resolve(genes, sex, lifeStage, scars[], pose)), shape
   "rarity": "common",
   "layers": [
     { "id": "base_coat",          "file": "assets/portraits/female_lying/base_coat.png",       "blend": "normal",          "tint": "#CEA26E", "opacity": 1.0 },
-    { "id": "white_socks",        "file": "assets/portraits/female_lying/white_socks.png",     "blend": "normal",          "tint": "#F7F4EE", "opacity": 1.0 },
     { "id": "markings_spotted",   "file": "assets/portraits/female_lying/markings_spotted.png","blend": "normal",          "tint": "#71593D", "opacity": 0.60 },
+    { "id": "white_socks",        "file": "assets/portraits/female_lying/white_socks.png",     "blend": "normal",          "tint": "#F7F4EE", "opacity": 1.0 },
     { "id": "eye_left",           "file": "assets/portraits/female_lying/eye_left.png",        "blend": "normal",          "tint": "#C98A1E", "opacity": 1.0 },
     { "id": "eye_right",          "file": "assets/portraits/female_lying/eye_right.png",       "blend": "normal",          "tint": "#C98A1E", "opacity": 1.0 },
     { "id": "sabers",             "file": "assets/portraits/female_lying/sabers.png",          "blend": "normal",          "tint": "#EFE7D2", "opacity": 1.0 } ] }

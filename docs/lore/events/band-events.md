@@ -5,7 +5,7 @@ Rules: `loners-spec.md` v0.4 §5b. Challenge frequency by Style is in `play-styl
 Format, tokens, and fields: see `exile-event.md`, "Event format".
 Lore: `loners.md`, "Bachelor bands".
 
-**Extra tokens:** `{band}` the band's members as a list ("Brokentooth and Ashfall"), `{a}` and `{b}` single members, `{target}` the target pride, `{zone}` the contested zone, `{lead}` the band's strongest member.
+**Extra tokens:** `{band}` the band's members as a list ("Torncheek and Ashfall"), `{a}` and `{b}` single members, `{target}` the target pride, `{zone}` the contested zone, `{lead}` the band's strongest member.
 
 ---
 
@@ -31,7 +31,7 @@ Lore: `loners.md`, "Bachelor bands".
 - **trigger:** §5b.7 conditions are met (male player, no pride yet, affinity with every member high enough, band not full). · **styles:** story, standard, sim · **mix:** story
 - **text by inviter** (use the member with the highest affinity to the player):
   - default: `{a} comes to meet you at the edge of the {zone}. "The hunting's better with three. You'd be the third."`
-  - Brokentooth: `"You fight well enough. I need cats who fight well enough. Walk with us, and when the Bonefield falls, there's a place in it for you."`
+  - Torncheek: `"You fight well enough. I need cats who fight well enough. Walk with us, and when the Bonefield falls, there's a place in it for you."`
   - Coldwater: `"It's quieter, with someone else breathing nearby. Stay a while, if you want."`
   - Duskrunner: `"Come with us! Or don't. But come with us."`
 
@@ -165,7 +165,7 @@ Lore: `loners.md`, "Bachelor bands".
 - **for each member who does not:**
   > {cat} sits at the edge of the new territory and watches for a while. "A pride's a heavy thing," {cat} says. "Carry it well." Then {cat} leaves.
 - Named lines (optional):
-  - Brokentooth follows: `"Good. Every king needs a tooth beside him. Mine's sharp enough."`
+  - Torncheek follows: `"Good. Every king needs a tooth beside him. Mine's sharp enough."`
   - Coldwater follows: `"I wanted a home. I didn't think it'd be this one."`
   - Duskrunner doesn't follow: `"I'll visit! Maybe. Probably not. Maybe."`
   - Ashfall follows: `He just lies down at the den mouth, facing out.`
