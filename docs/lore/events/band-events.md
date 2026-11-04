@@ -1,7 +1,7 @@
 # Events: Bachelor Bands ("wanderings")
 
 Owner: Saga. Status: **DRAFT v0.1**, design-only.
-Rules: `loners-spec.md` v0.4 §5b. Challenge frequency by Style is in `play-styles-spec.md` §2.10, and fight death chance by Style in §2.9. All odds, strength, and cohesion are Tundra's. Nothing here adds a number.
+Rules: `loners-spec.md` v0.8 §5b, with rulings in §10.1 (young adults can band; a male can band once he is an adult, lifecycle-spec v0.1 §3), §10.3 (quarrels), §10.5 (stakes and takeover), §10.6 (lured males), and §10 "Band answers" (warning choices, yield, witnessing a band form). Challenge frequency by Style is in `play-styles-spec.md` §2.10, and fight death chance by Style in §2.9. All odds, strength, and cohesion are Tundra's. Nothing here adds a number.
 Format, tokens, and fields: see `exile-event.md`, "Event format".
 Lore: `loners.md`, "Bachelor bands".
 
@@ -12,16 +12,23 @@ Lore: `loners.md`, "Bachelor bands".
 ## 1. Forming
 
 ### `band.form.world`
-- **trigger:** §5b.2 band forms. · **styles:** story, standard, sim · **mix:** story
-- **when:** the player is in or next to the band's home range, or has met a member.
-> Two scents in the {zone}, and they no longer cross. They run side by side. {band} have started hunting together.
+Which version fires follows §10 "Band answers" (the same rule as exiles, §10.2): `band.form.witness` if the player is in the band's home zone or an adjacent zone that season, otherwise `band.form.rumor` a few turns later.
+
+### `band.form.witness`
+- **trigger:** §5b.2 band forms, and the player is in the band's home zone or an adjacent one that season. · **styles:** story, standard, sim · **mix:** story
+> A carcass, half-eaten, and two toms on either side of it. A few days ago they would have fought over it. Tonight {a} lies down to eat, and {b} lies down beside {him}.
 >
 > The prides have a word for this: a wandering.
 - **choices:** none.
 
-### `band.form.witness` (variant)
-- **when:** the player is in the band's home zone that turn. **Pending Tundra** (no witness rule).
-> A carcass, half-eaten, and two toms on either side of it. A few days ago they would have fought over it. Tonight {a} lies down to eat, and {b} lies down beside {him}.
+### `band.form.rumor`
+- **trigger:** §5b.2 band forms and the player was not near enough to see it. Fires on the rumor delay in §10 "Band answers". · **styles:** story, standard, sim · **mix:** story
+- **text** (pick one):
+  - scent: `Two scents in the {zone}, and they no longer cross. They run side by side. {band} have started hunting together.`
+  - overheard: `At the border, two pride cats are muttering about the {zone}. "Two of them now," one says. "Hunting together." The other doesn't answer.`
+  - sign: `You find a kill in the {zone} picked clean by more than one mouth. Both scents on it are toms, and you know them: {band}.`
+- **closer:** `The prides have a word for this: a wandering.`
+- **choices:** none.
 
 ---
 
@@ -54,26 +61,44 @@ Lore: `loners.md`, "Bachelor bands".
 - **choices:** none. The outcome only shifts cohesion through §5b.6.
 
 ### `band.life.quarrel`
-- **trigger:** flavor, shown when cohesion is falling. Story-only beat; it adds no cohesion change of its own. **Pending Tundra** if it should.
-- **styles:** story, standard, sim · **mix:** story
+- **trigger:** a quarrel between two band members while the player is in the band (§10.3). · **styles:** story, standard, sim · **mix:** story
 > {a} and {b} have been circling each other all day. At the carcass, {a} shoulders {b} aside. Sabers come out. Then both look at you.
 
 | id | Label | Outcome text | effect |
 |---|---|---|---|
-| `side_a` | Stand with {a}. | {b} backs off and eats last, alone. | **Pending Tundra** |
-| `side_b` | Stand with {b}. | {a} stalks away from the kill and doesn't come back until dark. | **Pending Tundra** |
-| `between` | Step between them. | You take a swipe across the nose for it. Then all three of you eat. | **Pending Tundra** |
+| `side_a` | Stand with {a}. | You step to {a}'s shoulder. {b} backs off and eats last, alone, and doesn't look at either of you. | §10.3 side with one: affinity up with {a}, down with {b}, band cohesion down. |
+| `side_b` | Stand with {b}. | You step to {b}'s shoulder. {a} stalks away from the kill and doesn't come back until dark. | §10.3 side with one: affinity up with {b}, down with {a}, band cohesion down. |
+| `mediate` | Step between them. (only if the player is sociable enough or both trust him, §10.3) | Rolled under §10.3. See outcomes below. | §10.3 mediate |
+| `stay_out` | Let them settle it. | You lie down a little way off and wait. It's settled, in the end, with teeth. The band eats in silence. | §10.3 stay out: band cohesion down. |
+
+**`mediate` outcomes:**
+- success: `You push in between them, shoulder to shoulder, and take a swipe across the nose for it. Then {a} laughs, a short huff, and all three of you eat.` (§10.3: cohesion up)
+- failure: `You push in between them, and they both turn on you. When it's over, everyone eats apart, and nobody is happy with you.` (§10.3: cohesion down, both members like the player less)
 
 ### `band.life.decide`
 - **trigger:** a season in which the band could challenge (§5b.4) and the player is a member. Per §5b.7, the band never challenges on its own; the player decides.
 - **styles:** story, standard, sim · **mix:** threat
-> {lead} is watching {target}'s land from the ridge. "Their toms are slow this season," {lead} says. "We could take it. You say when."
-- The text names `mates` or `territory` as §5b.4 chooses: mates: `"Their queens could be ours."` · territory: `"The {zone} could be ours."`
+> {lead} is watching {target}'s land from the ridge. "Their toms are slow this season," {lead} says. "We could take it. You say what we fight for."
+
+The player picks the stake (§10.5). `mates` is offered only if {target} has resident males (§10.5).
 
 | id | Label | Outcome text | effect |
 |---|---|---|---|
-| `challenge` | Lead the challenge. | You go down the slope together, in the open, so they see you coming. | Start a challenge on {target} (§5b.4–5b.5). |
+| `challenge_mates` | Fight to take their pride. | "Their pride, then. We take their place." You go down the slope together, in the open, so they see you coming. | Challenge {target} with stake `mates` (§5b.4–5b.5, §10.5). |
+| `challenge_territory` | Fight for the {zone}. | "Just the land, then. For now." You go down the slope together, toward the {zone}. | Challenge {target} with stake `territory` (§5b.4–5b.5, §10.5). |
 | `wait` | Not this season. | {lead} growls but stays. "Next season, then." | none |
+
+### `band.result.takeover` (player's band wins `mates` before he has founded a pride)
+- **trigger:** §10.5. This counts as founding a pride: the band members become its resident males and the ousted males become loners. · **styles:** story, standard, sim · **mix:** story
+> When it's over, {target}'s old toms are limping toward the border. The rest of the pride watches you from the den mouth. They don't run, and they don't come closer.
+>
+> {lead} lies down beside you, breathing hard. "Well," {lead} says. "It's yours now. What do we call it?"
+- Ousted males: `{cat} looks back once from the border. Then {cat} is just another scent in the empty land.`
+- Then the normal pride-founding flow runs (pride naming and so on). §6 `band.follow` does not fire, since every band member is already a resident male.
+- Fallen fighters (`standard`, `sim` only) use the same line as below.
+
+### `band.result.lost_as_member` (player's band loses)
+> {target} holds. You run with the others, bleeding, and nobody speaks until the {zone} is far behind.
 
 ---
 
@@ -83,23 +108,44 @@ Lore: `loners.md`, "Bachelor bands".
 - **trigger:** §5b.4, the one-turn scent warning before a challenge on the player's pride. · **styles:** story, standard, sim · **mix:** threat
 > There are strange toms' scents on your border, more than one, laid over your marks on purpose. Your pride smells it too. The cubs won't leave the den.
 - Kind line by challenge type: mates: `They are not here for land.` · territory: `They are marking the {zone} as if it were already theirs.`
-- **choices:** none required. In Standard and Sim the player may set guards and patrols with the normal pride tools (play-styles §3.2). In Story those run automatically (§3.1).
-- Optional **proposed** choices (all **Pending Tundra**; §5b has no player options before the fight): `gather` (bring every adult to the den), `meet` (meet them at the border), `hide` (send queens and cubs deep into the territory).
+- **choices** (all Styles; §10 "Band answers", warning choices). The player picks one, or does nothing:
+
+| id | Label | Outcome text | effect |
+|---|---|---|---|
+| `gather` | Gather the whole pride at the den. | Every adult comes in and stays in. Nobody hunts. By nightfall the cubs are whining with hunger, and the grown cats snap at each other over nothing. But when the band comes, they will find all of you together. | §10 warning choice `gather` |
+| `meet` | Meet them at the border. | You lead your fighters out to the scent line and wait there in the open. If they want your land, they'll have to take it here. Beat them on their own ground, and they won't forget it soon. | §10 warning choice `meet` |
+| `hide` | Send the queens and cubs deep into the territory. | The queens carry the cubs away to the far dens, where no stranger has ever walked. Fewer of you will stand when the band comes. But whatever happens at the border, it won't reach the little ones. | §10 warning choice `hide` |
+| `nothing` | Do nothing. | You let the pride go about its day. Some of them keep looking at the border, then at you. | none (no warning choice, §10) |
+
+- Standard and Sim still allow normal guard and patrol orders (play-styles §3.2). In Story those run automatically (§3.1).
 
 ### `band.challenge.player`
 - **trigger:** §5b.4 challenge on the player's pride. · **styles:** story, standard, sim · **mix:** threat
+- If the band includes a male who left or was lured from the player's pride (§10.6), add: `{cat} is with them. {cat} doesn't look at you.`
 > They come at dawn: {band}, walking in a line, unhurried. {lead} stops at the edge of your land and roars, and the sound rolls around the valley.
 - **choices:**
 
 | id | Label | Outcome text | effect |
 |---|---|---|---|
 | `fight` | Stand and fight. | You go to meet them, and your pride comes with you. | Resolve the fight (§5b.5). |
-| `yield` | Let them have the {zone}. (territory only) | You call your pride back. {band} take the {zone} without a fight, and your cats see you do it. | **Pending Tundra** (no yield rule in §5b.5) |
+| `yield` | Let them have the {zone}. (**territory challenges only**; never offered for `mates`) | See `band.result.yielded`. | §10 "Band answers", yield |
 
 ### Outcomes (§5b.5)
 
-**`band.result.defended`** (band loses)
+**`band.result.defended`** (band loses; if the player chose `meet`, use `band.result.defended_border` instead)
 > {band} break first. {lead} backs away, bleeding, and the others follow. They'll keep away from your land for a while. Your cats are already grooming each other's wounds.
+
+**`band.result.yielded`** (player yields a territory challenge; §10 "Band answers")
+> You call your pride back from the border. {band} walk into the {zone} without a fight and lie down there as if they had always owned it. Nobody is hurt. Nobody looks at you, either.
+- **bitter beat** (shown for the pride's most aggressive cats; who counts is §10's rule):
+  > {cat} stays at the border long after the others have gone back. "We didn't even make them bleed," {cat} says, to no one, loud enough for you to hear.
+- **closer:** `The {zone} is theirs for now. Whatever you do, you won't be able to claim it back until the band moves on.`
+
+**`band.result.defended_border`** (band loses after the player chose `meet`)
+> You turn them at the scent line. {band} back off across your border, bleeding, and keep going. Your fighters walk home with their heads up. It will be a long time before that band tests you again.
+
+**`band.result.cubs_safe`** (add to any outcome when the player chose `hide`)
+> When it's over, the queens bring the cubs back from the far dens. Every one of them is whole.
 
 **`band.result.territory_lost`** (band wins territory)
 > When it's over, {band} lie down in the {zone} as if they had always been there. Your pride watches from the border. Nobody wants to be the first to look at you.
@@ -109,6 +155,7 @@ Lore: `loners.md`, "Bachelor bands".
 - Ousted males become loners (§5b.5). A short goodbye per ousted male: `{cat} looks back once from the border. Then {cat} is just another scent in the empty land.`
 
 **`band.result.player_ousted`** (band wins mates and the player cat is ousted; Death rule decides)
+- `{heir}` is the current designated heir (heir ranking per menu-spec §7, as used in loners-spec §10.8).
 - **permadeath:**
   > You are driven out of the pride you made. Behind you, {lead} is lying where you used to lie. The story of {player} ends here, at the edge of your own land.
 - **heir:**
@@ -159,19 +206,17 @@ Lore: `loners.md`, "Bachelor bands".
 ## 6. Following the player (§5b.7)
 
 ### `band.follow`
-- **trigger:** a male player cat in a band founds a pride. The band ends, and members who trust him enough follow him with no recruitment roll (§5b.7). · **styles:** story, standard, sim · **mix:** story
+- **trigger:** a male player cat in a band founds a pride in the normal way (not by a takeover, see `band.result.takeover`). The band ends, and members who trust him enough follow him with no recruitment roll (§5b.7). · **styles:** story, standard, sim · **mix:** story
 - **for each member who follows:**
   > {cat} has been watching you mark the new land. Now {cat} walks over and marks it too, right beside yours. No one asks. It's already decided.
 - **for each member who does not:**
   > {cat} sits at the edge of the new territory and watches for a while. "A pride's a heavy thing," {cat} says. "Carry it well." Then {cat} leaves.
 - Named lines (optional):
-  - Torncheek follows: `"Good. Every king needs a tooth beside him. Mine's sharp enough."`
+  - Torncheek follows: `"Good. A pride needs a face the wolves remember. Mine will do."`
   - Coldwater follows: `"I wanted a home. I didn't think it'd be this one."`
   - Duskrunner doesn't follow: `"I'll visit! Maybe. Probably not. Maybe."`
   - Ashfall follows: `He just lies down at the den mouth, facing out.`
 - **choices:** none (the rule decides who follows).
 
 ## Open points
-- Whether the player can choose `mates` or `territory` for a challenge, or §5b.4 always picks. Text covers both.
-- Quarrel choices, warning-turn choices, and yielding a zone have no rules yet. All marked **Pending Tundra**.
-- `band.result.player_ousted` uses `{heir}`, which needs the Heir rule to name the successor.
+- None. The warning choices, yield, and band-forming witness rule now follow §10 "Band answers" (v0.7).

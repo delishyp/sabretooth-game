@@ -1,7 +1,7 @@
 # World and Prides
 
 Owner: Saga (narrative and lore). Status: **DRAFT v0.1**, design-only. Not in the build.
-Rules and numbers come from Tundra's specs (`docs/loners-spec.md` v0.4, `docs/play-styles-spec.md` v0.2). Where this doc and a spec disagree, the spec wins.
+Rules and numbers come from Tundra's specs (`docs/loners-spec.md` v0.8, `docs/play-styles-spec.md` v0.2). Where this doc and a spec disagree, the spec wins.
 Tone: quiet, cold, ancient, a little mythic. Plain English.
 
 ## 1. The valley: Greywater Vale
@@ -50,7 +50,7 @@ Zone ids are draft suggestions for Tundra and Flint. Tundra owns the real zone l
 
 ## 2. The three prides
 
-Locked sizes from `loners-spec.md` v0.4 §1. Every pride started at 13 cats.
+Locked sizes from `loners-spec.md` v0.8 §1. Every pride started at 13 cats.
 
 | Spec slot | Pride id | Pride | Cats now | Lost to loners |
 |---|---|---|---|---|
@@ -85,6 +85,7 @@ Locked sizes from `loners-spec.md` v0.4 §1. Every pride started at 13 cats.
 - **Toward outsiders:** a test. Strangers are met with a show of force, and the ones who stand their ground earn respect. Suitors must face a rival from the pride.
 - **Toward those who leave:** contempt. A Bonefield cat who leaves has "run". A cat who loses a challenge is driven out under the law, and Bonefield will fight them if they return.
 - **Story state:** strong, but brittle under the surface. Scarjaw's law has cost the pride a challenger, a hunter who would not kill cubs, and a young tom who simply walked away.
+- **The old guard (slot bf07, Director 2026-11-05):** Tallgrass's oldest guard. When Scarjaw took the pride, he bowed without a fight, and he has guarded Scarjaw ever since. Bonefield half respects him for surviving and half despises him for it. He has never challenged anyone, so the law has never driven him out.
 
 ### 2.3 Mistwood Pride (C, 9 cats)
 *"Walk soft. Say little. The fog keeps what it is given."*
@@ -99,7 +100,7 @@ Locked sizes from `loners-spec.md` v0.4 §1. Every pride started at 13 cats.
 
 ## 3. Loners and wanderings
 
-The Vale's nine loners are in `docs/lore/loners.md` (with `loners.json` for data). Their rules are Tundra's: `docs/loners-spec.md` v0.4.
+The Vale's nine loners are in `docs/lore/loners.md` (with `loners.json` for data). Their rules are Tundra's: `docs/loners-spec.md` v0.8.
 
 Lone toms sometimes hunt together for a while in what the prides call a **wandering**: a bachelor band with no land, den, or cubs (spec §5b). A wandering can challenge any pride for its queens or a strip of border land, and then it falls apart. Every pride has a story about the season a wandering came. Bonefield's leaders have all faced one. Highcrag claims it never has.
 

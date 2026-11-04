@@ -1,6 +1,6 @@
 {
-  "$comment": "DRAFT v0.1. Owner: Saga. Rules per docs/loners-spec.md v0.4. Story data only; trait levels in narrativeLeaning are suggestions for Tundra. bandAffinity is a narrative leaning toward other loners (likely|possible|unlikely), not mutual affinity numbers; empty for cats who cannot band (females, elders).",
-  "version": "0.1",
+  "$comment": "DRAFT v0.3. Owner: Saga. Rules per docs/loners-spec.md v0.8 (incl. §10) and lifecycle-spec.md v0.1. Story data only; trait levels in narrativeLeaning are suggestions for Tundra. bandAffinity is a narrative leaning toward other loners (likely|possible|unlikely), not mutual affinity numbers; empty for cats who cannot band (females, elders). looks uses genetics-spec v0.2 §1 phenotype ids (dilute = count of d, intensity = count of I+, null where marking is plain and no dorsal stripe); scar ids follow Ochre's scar set v0.1 (docs/art/scars.md); elder greying comes from the age layer. ageSeasons is the age at game start. birthSeason assumes the run starts in spring of Year 1, so earlier years are 0 or below (assumption for Tundra).",
+  "version": "0.3",
   "prides": [
     "highcrag",
     "bonefield",
@@ -13,7 +13,7 @@
       "originPrideId": "highcrag",
       "sex": "male",
       "ageStage": "elder",
-      "appearance": "Heavy grey tom gone white at the muzzle, one saber worn blunt, a deep old scar across both forelegs.",
+      "appearance": "A plain grey-dun tom greying at the muzzle and brow, with amber eyes, dark-stained sabers, and a deep old scar across both forelegs.",
       "traits": [
         "patient",
         "proud",
@@ -31,8 +31,29 @@
       ],
       "secret": "Knows Stonebrow let the cub fall and that Ashmane knows. Years ago he carried Nettle's rescued Bonefield cub (Thistle) into Highcrag.",
       "sampleLine": "They have taken my name out of the song. The stones still remember it.",
-      "narrativeLeaning": "Slow but steady to win over; respects courtesy and patience. Not a rival (aggression: low). Elder, so not band-eligible.",
-      "bandAffinity": {}
+      "narrativeLeaning": "Slow but steady to win over; respects courtesy and patience. Not a rival (aggression: low). Elder and past breeding age, so not band-eligible and joins as a non-breeder (§3.1).",
+      "bandAffinity": {},
+      "looks": {
+        "coat": "greydun",
+        "dilute": 0,
+        "marking": "plain",
+        "dorsal": false,
+        "intensity": null,
+        "white": [],
+        "eyes": "amber",
+        "hetero": false,
+        "saber": "stained",
+        "scars": [
+          "forelegs"
+        ]
+      },
+      "ageSeasons": 52,
+      "birthSeason": {
+        "year": -12,
+        "season": "spring"
+      },
+      "ageNote": "Elder, about thirteen winters. Past breeding age; his time is short, and he knows it.",
+      "fertilityNote": "Elder male, past breeding age (lifecycle-spec §2.4). Can still be courted if the run's attraction roll and the courtship gates allow; any bond has no cubs. Joins any pride as a non-breeder."
     },
     {
       "id": "sorrel",
@@ -40,7 +61,7 @@
       "originPrideId": "highcrag",
       "sex": "female",
       "ageStage": "young_adult",
-      "appearance": "Lean red-gold queen with dark ticked stripes along her back, pale amber eyes, sabers still a little short for her face.",
+      "appearance": "A red-gold russet queen, plain-coated except for a dark stripe down her spine, with amber eyes and bright ivory sabers.",
       "traits": [
         "warm",
         "headstrong",
@@ -48,9 +69,9 @@
       ],
       "departure": {
         "type": "left",
-        "reason": "Forbidden mate: Highcrag custom refused her bond with Redthroat of Bonefield, so she left to meet him. He has not come."
+        "reason": "Forbidden mate: Highcrag custom refused her bond with Redthroat of Bonefield (slot bf02); Ashmane and her mother (slot hc07) both refused her, so she left to meet him. He has not come."
       },
-      "attitudeToOrigin": "Homesick and angry in turns. Misses her mother and the caves, not the law.",
+      "attitudeToOrigin": "Homesick and angry in turns. Misses her mother (hc07) and the caves, not the law.",
       "range": "Greywater Ford and the Split Rock.",
       "homeZones": [
         "greywater_ford",
@@ -59,7 +80,29 @@
       "secret": "Redthroat's silence has a reason she doesn't know; Scarjaw may have forbidden him, or worse.",
       "sampleLine": "I'm not waiting for him. I just happen to like this rock.",
       "narrativeLeaning": "Easy to win over (sociability: high). Never a rival (aggression: low). Natural courtship candidate.",
-      "bandAffinity": {}
+      "bandAffinity": {},
+      "looks": {
+        "coat": "russet",
+        "dilute": 0,
+        "marking": "plain",
+        "dorsal": true,
+        "intensity": 2,
+        "white": [],
+        "eyes": "amber",
+        "hetero": false,
+        "saber": "ivory",
+        "scars": []
+      },
+      "ageSeasons": 15,
+      "birthSeason": {
+        "year": -3,
+        "season": "summer"
+      },
+      "ageNote": "Young adult, not quite four winters. Barely grown when she left.",
+      "historyCrush": {
+        "target": "bf02",
+        "seeded": "only if the run's attraction roll makes the pair compatible (Director 2026-11-05); text must not assume it exists"
+      }
     },
     {
       "id": "torncheek",
@@ -67,7 +110,7 @@
       "originPrideId": "bonefield",
       "sex": "male",
       "ageStage": "adult",
-      "appearance": "Massive dun tom with a snapped left saber, thick scarred forelimbs, and pale yellow eyes that rarely blink.",
+      "appearance": "A sandy tom with faint spots, gold eyes that don't blink much, a cheek torn open to the root of one saber, and forelegs crossed with scars.",
       "traits": [
         "ambitious",
         "ruthless",
@@ -84,13 +127,34 @@
         "bears_throat"
       ],
       "secret": "Counts the seasons until Scarjaw weakens. Would use any ally, the player included, to get close to Bonefield again.",
-      "sampleLine": "One tooth is enough. Ask Scarjaw how many he has left by spring.",
+      "sampleLine": "He gave me this face. Ask him what I'll give him back by spring.",
       "narrativeLeaning": "Hard to win over; respects only strength. Likely rival (aggression: high, sociability: low). Most likely band founder.",
       "bandAffinity": {
         "ashfall": "likely",
         "duskrunner": "unlikely",
         "coldwater": "unlikely"
-      }
+      },
+      "looks": {
+        "coat": "sandy",
+        "dilute": 0,
+        "marking": "spotted",
+        "dorsal": false,
+        "intensity": 0,
+        "white": [],
+        "eyes": "gold",
+        "hetero": false,
+        "saber": "ivory",
+        "scars": [
+          "cheek_torn",
+          "forelegs"
+        ]
+      },
+      "ageSeasons": 28,
+      "birthSeason": {
+        "year": -6,
+        "season": "spring"
+      },
+      "ageNote": "Adult, about seven winters. In his prime, which is why the loss still burns."
     },
     {
       "id": "nettle",
@@ -98,7 +162,7 @@
       "originPrideId": "bonefield",
       "sex": "female",
       "ageStage": "adult",
-      "appearance": "Dark brindle queen with a torn right ear, a white blaze on her chest, and long clean sabers.",
+      "appearance": "A tawny queen with bold dark brindle stripes, a white blaze, copper eyes, ivory sabers, and a scarred right ear.",
       "traits": [
         "fierce",
         "loyal",
@@ -117,7 +181,29 @@
       "secret": "The cub she saved lived: Thistle, now a young Highcrag cat and Tallgrass's son, with a blood claim to Bonefield.",
       "sampleLine": "I've killed for that pride. I won't kill cubs for it.",
       "narrativeLeaning": "Guarded, then very loyal once trust is earned. Fierce (aggression: high, sociability: medium) but a rival only if the player turns her against them. Kindness to cubs wins her fastest.",
-      "bandAffinity": {}
+      "bandAffinity": {},
+      "looks": {
+        "coat": "tawny",
+        "dilute": 0,
+        "marking": "faintstripe",
+        "dorsal": false,
+        "intensity": 2,
+        "white": [
+          "blaze"
+        ],
+        "eyes": "copper",
+        "hetero": false,
+        "saber": "ivory",
+        "scars": [
+          "ear_notch_right"
+        ]
+      },
+      "ageSeasons": 32,
+      "birthSeason": {
+        "year": -7,
+        "season": "spring"
+      },
+      "ageNote": "Adult, about eight winters. Still in her breeding years."
     },
     {
       "id": "duskrunner",
@@ -125,7 +211,7 @@
       "originPrideId": "bonefield",
       "sex": "male",
       "ageStage": "young_adult",
-      "appearance": "Long-legged tawny tom with faint dusk-grey spots, a nicked bobtail, and bright green eyes.",
+      "appearance": "A tawny tom with faint dark spots, white socks, bright green eyes, ivory sabers, and an old scar across his bobtail.",
       "traits": [
         "curious",
         "restless",
@@ -143,12 +229,34 @@
       ],
       "secret": "Has found a pass through the ice and seen scimitar cats on the far side. They saw him too.",
       "sampleLine": "Have you ever been past the ice? No? Neither has anyone. Except me.",
-      "narrativeLeaning": "Very easy to befriend (sociability: high). Never a rival (aggression: low). Hard to keep; likes to wander off. Band-eligible only if young adults count (open question).",
+      "narrativeLeaning": "Very easy to befriend (sociability: high). Never a rival (aggression: low). Hard to keep; likes to wander off. An adult, so band-eligible (lifecycle-spec §3).",
       "bandAffinity": {
         "coldwater": "likely",
         "torncheek": "unlikely",
         "ashfall": "possible"
-      }
+      },
+      "looks": {
+        "coat": "tawny",
+        "dilute": 0,
+        "marking": "spotted",
+        "dorsal": false,
+        "intensity": 0,
+        "white": [
+          "socks"
+        ],
+        "eyes": "green",
+        "hetero": false,
+        "saber": "ivory",
+        "scars": [
+          "tail"
+        ]
+      },
+      "ageSeasons": 16,
+      "birthSeason": {
+        "year": -3,
+        "season": "spring"
+      },
+      "ageNote": "Young adult, about four winters. Old enough to wander, and to band."
     },
     {
       "id": "lichen",
@@ -156,7 +264,7 @@
       "originPrideId": "mistwood",
       "sex": "female",
       "ageStage": "elder",
-      "appearance": "Small thin queen with a grey-green bark-mottled coat, a cloudy left eye, and sabers yellowed with age.",
+      "appearance": "A pale grey-dun queen with bold stripes like old bark, greying at the muzzle, with amber eyes, stained sabers, and a scar across her left eye, which barely sees now.",
       "traits": [
         "wise",
         "gentle",
@@ -174,8 +282,29 @@
       ],
       "secret": "She warned Longshadow the ice was rotten. She found Sedge's last cub dead on the shore and buried it.",
       "sampleLine": "The ice told me. It always tells you. Most cats don't listen.",
-      "narrativeLeaning": "Warm and quick to trust (sociability: high). Never a rival (aggression: low). Joins as a non-breeder if past fertile age.",
-      "bandAffinity": {}
+      "narrativeLeaning": "Warm and quick to trust (sociability: high). Never a rival (aggression: low). Past breeding age, so she joins as a non-breeder (§3.1).",
+      "bandAffinity": {},
+      "looks": {
+        "coat": "greydun",
+        "dilute": 1,
+        "marking": "faintstripe",
+        "dorsal": false,
+        "intensity": 2,
+        "white": [],
+        "eyes": "amber",
+        "hetero": false,
+        "saber": "stained",
+        "scars": [
+          "eye_left"
+        ]
+      },
+      "ageSeasons": 48,
+      "birthSeason": {
+        "year": -11,
+        "season": "spring"
+      },
+      "ageNote": "Elder, about twelve winters. Past breeding age.",
+      "fertilityNote": "Elder female, past breeding age (lifecycle-spec §2.4). Can still be courted if the run's attraction roll and the courtship gates allow; any bond has no cubs. Joins any pride as a non-breeder."
     },
     {
       "id": "ashfall",
@@ -183,7 +312,7 @@
       "originPrideId": "mistwood",
       "sex": "male",
       "ageStage": "adult",
-      "appearance": "Sooty black tom with smoke-grey rosettes, a white-scarred muzzle, and hollow, tired gold eyes.",
+      "appearance": "A black (melanistic) tom with ghost rosettes, slightly warmer matte marks that show only in raking light, with a scarred muzzle, cream-yellow sabers, and tired gold eyes.",
       "traits": [
         "guilt-ridden",
         "careful",
@@ -206,7 +335,27 @@
         "torncheek": "likely",
         "duskrunner": "possible",
         "coldwater": "unlikely"
-      }
+      },
+      "looks": {
+        "coat": "melan",
+        "dilute": 0,
+        "marking": "rosette",
+        "dorsal": false,
+        "intensity": 1,
+        "white": [],
+        "eyes": "gold",
+        "hetero": false,
+        "saber": "creamy",
+        "scars": [
+          "muzzle"
+        ]
+      },
+      "ageSeasons": 27,
+      "birthSeason": {
+        "year": -6,
+        "season": "summer"
+      },
+      "ageNote": "Adult, nearly seven winters."
     },
     {
       "id": "sedge",
@@ -214,7 +363,7 @@
       "originPrideId": "mistwood",
       "sex": "female",
       "ageStage": "adult",
-      "appearance": "Slender sand-colored queen with reed-thin dark leg stripes, a split lip over one saber, and pale blue-grey eyes.",
+      "appearance": "A sandy queen with faint thin stripes, a scar that splits her lip beside one saber, ivory sabers, and pale blue eyes.",
       "traits": [
         "sorrowful",
         "watchful",
@@ -232,7 +381,27 @@
       "secret": "Believes one cub lived and was taken by wolves. She is wrong, and Lichen knows.",
       "sampleLine": "The river took them. It's going to give something back.",
       "narrativeLeaning": "Distant at first, then deeply attached (sociability: medium). Not a rival (aggression: medium). Kindness to cubs matters most to her.",
-      "bandAffinity": {}
+      "bandAffinity": {},
+      "looks": {
+        "coat": "sandy",
+        "dilute": 0,
+        "marking": "faintstripe",
+        "dorsal": false,
+        "intensity": 0,
+        "white": [],
+        "eyes": "blue",
+        "hetero": false,
+        "saber": "ivory",
+        "scars": [
+          "lip_split"
+        ]
+      },
+      "ageSeasons": 24,
+      "birthSeason": {
+        "year": -5,
+        "season": "spring"
+      },
+      "ageNote": "Adult, about six winters. Still in her breeding years."
     },
     {
       "id": "coldwater",
@@ -240,7 +409,7 @@
       "originPrideId": "mistwood",
       "sex": "male",
       "ageStage": "adult",
-      "appearance": "Broad blue-grey tom with a pale belly, a stiff left hind leg, and a long flank scar where the ice opened him.",
+      "appearance": "A plain blue-grey tom (dilute grey-dun) with amber eyes, ivory sabers, a long scar where the ice opened his flank, and another on his left hind leg, which is still stiff.",
       "traits": [
         "loyal",
         "haunted",
@@ -263,7 +432,28 @@
         "duskrunner": "likely",
         "torncheek": "unlikely",
         "ashfall": "unlikely"
-      }
+      },
+      "looks": {
+        "coat": "greydun",
+        "dilute": 2,
+        "marking": "plain",
+        "dorsal": false,
+        "intensity": null,
+        "white": [],
+        "eyes": "amber",
+        "hetero": false,
+        "saber": "ivory",
+        "scars": [
+          "flank",
+          "hind_leg_left"
+        ]
+      },
+      "ageSeasons": 20,
+      "birthSeason": {
+        "year": -4,
+        "season": "spring"
+      },
+      "ageNote": "Adult, about five winters, only just past young."
     }
   ]
 }

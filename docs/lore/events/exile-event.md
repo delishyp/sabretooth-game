@@ -1,7 +1,7 @@
 # Event: A Cat Leaves a Pride (exile or departure)
 
 Owner: Saga. Status: **DRAFT v0.1**, design-only.
-Rule: `loners-spec.md` v0.4 §6.2. Each season an AI pride may lose one cat to exile or departure, and that cat becomes a new loner. The roll, the odds, and who is picked are Tundra's. This file is only what the player reads.
+Rules: `loners-spec.md` v0.8 §6.2 and §10.2 (witness or rumor). The same witness-or-rumor rule is used for bands forming (§10 "Band answers"; see `band-events.md`). Each season an AI pride may lose one cat to exile or departure, and that cat becomes a new loner. The roll, the odds, and who is picked are Tundra's. This file is only what the player reads.
 Player-pride departures are a different rule (§6.4) and live in `pride-departure-events.md`.
 
 ## Event format (shared by all files in `lore/events/`)
@@ -38,15 +38,18 @@ Saga picks the reason for the cat (spec §1.2 lets Saga choose). The reason pick
 
 ---
 
-## 1. `exile.news.<reason>` (always shown)
+## 1. `exile.rumor.<reason>` (player too far away to see it)
 
-- **trigger:** §6.2 roll succeeds for `{pride}`.
+- **trigger:** §6.2 roll succeeds for `{pride}` and the player is not close enough to witness it. The rumor fires on the delay set in §10.2, sooner if the player and `{cat}` are close (§10.2).
 - **styles:** story, standard, sim · **mix:** story
-- **when:** shown as a short note the next time the player is in or next to `{pride}`'s land, or immediately if the player has met `{cat}` before.
-- **text (shared opener):**
-  > The scent of {pride} has changed. One thread of it now runs away from the rest, toward the empty land.
-
-Then one line by reason:
+- **when:** not witnessed (see §2 below).
+- **text (opener, pick one):**
+  - scent: `The scent of {pride} has changed. One thread of it now runs away from the rest, toward the empty land.`
+  - overheard: `Two {pride} cats are arguing at the border, too busy to notice you. One name keeps coming up: {cat}.`
+  - sign: `At the Split Rock, a fresh scent mark from {pride} lies over an old one. It's {cat}'s, and it points away.`
+- **opener for a cat the player knows well** (the sooner rumor in §10.2):
+  > You hear it before the day is out, because you would have wanted to. {cat} is gone from {pride}.
+- **then one line by reason:**
 
 | Reason | Line |
 |---|---|
@@ -63,7 +66,7 @@ Pride flavor closer (pick by `{pride}`):
 - `[bonefield]` In the Bonefield they say {cat} ran. They say it loudly.
 - `[mistwood]` In the Mistwood no one speaks of it. Someone has left a scent mark on the trail out, the old sign for "come back".
 
-- **choices:** none. This is news.
+- **choices:** none. Afterwards {cat} appears as a loner (§10.2).
 
 ---
 
@@ -71,7 +74,7 @@ Pride flavor closer (pick by `{pride}`):
 
 - **trigger:** §6.2 roll succeeds for `{pride}`.
 - **styles:** story, standard, sim · **mix:** story
-- **when:** the player is in or next to `{pride}`'s land that turn. **Pending Tundra:** spec has no "witness" rule yet. Without one, use `exile.news` only.
+- **when:** the player cat is in the same zone as `{cat}` or an adjacent one that turn (§10.2). Otherwise use `exile.rumor`.
 
 **`exiled.crime`**
 > Snarls carry from {pride}'s ground. {cat} comes out of the long grass with the whole pride behind, ears flat, not running, not quite walking. {leader} stops at the scent line. {cat} does not look back until the last moment, and then only once.
@@ -99,7 +102,7 @@ Pride flavor closer (pick by `{pride}`):
 | id | Label | Outcome text | effect |
 |---|---|---|---|
 | `watch` | Stay hidden and watch. | You keep low until the scent of {cat} fades. You will know {him} again. | none |
-| `follow` | Follow at a distance. | You track {cat} to the empty land. {cat} knows you're there and lets you be. | Sets up a normal encounter (§2.3); the follow itself is **Pending Tundra**. |
+| `follow` | Follow at a distance. | You track {cat} to the empty land. {cat} knows you're there and lets you be. | none. {cat} appears as a loner (§10.2) and is met through normal encounters (§2.3). |
 | `leave` | It isn't your business. Go. | You turn away. The valley is full of cats who were once something else. | none |
 
 ---
@@ -123,5 +126,4 @@ Pride flavor closer (pick by `{pride}`):
 Groom (§2.4) is not offered at a first meeting because it needs affinity first. Recruit and courtship use their own systems (§3, §4).
 
 ## Open points
-- Exile witness scene needs a Tundra rule for when the player "sees" it.
 - A "speak for {cat}" choice during an exile would be good drama, but there's no rule for it. Proposal only.
