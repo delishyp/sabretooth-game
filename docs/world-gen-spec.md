@@ -231,7 +231,6 @@ All numbers are starting values to tune. Labels: **Anna** = decided, **Director*
    **Sources:**
    - Entries 1, 3 and 4 follow Director's and Saga's rulings.
    - Entries 2 and 5–10 come from `lore/loners.md` "Narrative relationships". Their values are my calls inside the bands Saga's text implies.
-   - Saga's own 10-entry list didn't reach this file, so Saga should diff her list against this table.
 
 ## 7. State init
 7.1 Needs per needs-spec at full: Health, Hunger, Thirst, Energy and Warmth all 100. Contentment is 60 for pride cats, 50 for loners and 40 for exiles.
