@@ -1,4 +1,4 @@
-# Sabretooth — Main Menu Spec (v1.3, FROZEN: changes only via Director)
+# Sabretooth — Main Menu Spec (v1.4.4, FROZEN: changes only via Director)
 
 Status: final, all questions decided by Anna (see §6 Decisions log).
 
@@ -27,7 +27,8 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
     - **Row 2, Death rule:** Permadeath / Play On as Heir / Sandbox. The default is Heir.
     - Descriptions come from the copy file (Saga). Below the rows is a summary line that names the chosen Style and Death rule, plus the **Begin** and Back buttons.
     - Style and Death rule are both **locked per run** and can't be changed later; neither appears in Settings. Rules are in `docs/play-styles-spec.md`.
-  - **Sandbox options panel** (shown only while Sandbox is focused/selected, right of the Death rule row): Needs drain (off/low/**normal**), Threat frequency (off/low/**normal**), Starting reputation (low/**normal**/high), Free cat customization at creation (**on**/off); defaults bold. Sandbox runs are tagged and can't be converted to other modes. Any replacement happens only after difficulty is confirmed. Emits `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?}` (`difficulty` = Death rule key, kept for compatibility) (`sandboxOptions` only when difficulty = sandbox); handler is a **placeholder** ("Gameplay coming soon" → root).
+  - **Sandbox options panel** (shown only while Sandbox is selected, right of the Death rule row): Needs drain (off/low/**normal**), Threat frequency (off/low/**normal**), Starting reputation (low/**normal**/high), Free cat customization at creation (**on**/off), Free perk respec (on/**off**, v1.4.3: swap perks at any rest, see skills-spec §7.6); defaults bold. Sandbox runs are tagged and can't be converted to other modes. Any replacement happens only after difficulty is confirmed. Emits `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, worldSeed?, mainCat}` (`difficulty` = Death rule key, kept for compatibility) (`sandboxOptions` only when difficulty = sandbox); handler is a **placeholder** ("Gameplay coming soon" → root). From v1.4, Begin opens **Make Your Sabrecat** (`docs/cat-creator-spec.md`), and `menu:newGame` is emitted from that screen's Start, carrying `mainCat`. A run chosen for replacement is only deleted on Start.
+  - **Advanced (world seed)** (v1.4.2, every Style and Death rule): a collapsed "Advanced" row below the Death rule row. Expanded, it shows one World seed field: blank by default (meaning random), digits only, 0–4294967295; an invalid value shows an inline error and blocks Begin. The value is carried to the creator's Start as `worldSeed` (omitted when blank, and main then generates one). See `docs/world-gen-spec.md`.
 - **Continue** → loads the most recently written save across both runs; emits `menu:loadSave {runId, saveId}` (placeholder handler).
 - **Load** → 2 run cards: cat name, pride name, style, death rule, generation, last played; an empty slot shows "Empty run" (not selectable). Selecting a run expands it to its 1-3 saves, newest first, each with real timestamp and in-game date/season. Actions: load save (`menu:loadSave`); delete save (confirm, default Cancel; `menu:deleteSave {runId, saveId}`); delete run (danger confirm naming the run, default Cancel; `menu:deleteRun {runId}`). Delete key / X = delete focused item; Back collapses the run.
 - **In-game save (future, outside menu scope):** saving when the run already has 3 saves asks which save to overwrite.
@@ -50,7 +51,7 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 - **Mouse:** hover moves focus; click confirms; right-click = back.
 - **Controller (Gamepad API, XInput layout):** D-pad/left stick navigate (repeat 150ms after 400ms hold, stick deadzone 0.4); A confirm; B back; Start = confirm on root; LB/RB switch Settings tabs; X = delete focused save/run in Load.
 - **New Game setup nav:** focus starts on the Style row at Standard. Left/Right (A/D, D-pad, or stick) moves within a row. Up/Down moves between the rows, the Sandbox panel (when shown), and Begin. Enter/Space/A selects a card. Esc/B goes back to root.
-- **Sandbox panel nav:** with Sandbox selected, Right/D (or D-pad/stick right) moves focus from the cards into the panel; Up/Down moves between toggles; Left/Right cycles a toggle's value (Enter/Space/A also cycles); Esc/B or Left on the first value column returns to the cards; Begin button sits at the bottom of the panel. Controller: LB/RB also cycle values.
+- **Sandbox panel nav:** with Sandbox selected, Right/D (or D-pad/stick right) moves focus from the cards into the panel; Up/Down moves between toggles; Left/Right cycles a toggle's value (Enter/Space/A also cycles); Esc/B or Left on the first value column returns to the cards. Controller: LB/RB also cycle values.
 - **Focus:** vertical lists wrap top↔bottom; disabled items skipped; always-visible focus ring (2px, high contrast) on the focused element; last input device decides whether hover prompts show keyboard or controller glyphs.
 
 ## 5. Data / events
@@ -66,10 +67,10 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
   "storyteller": { "mode": "offline", "localModelPath": null }
 }
 ```
-**Run record (`saves/run-<slotIndex>/run.json`):** `runId, slotIndex (0-1), catName, prideName, style (story|standard|sim), difficulty (death rule), sandboxOptions (null unless sandbox) {needsDrain, threatFrequency, startingReputation, freeCustomization}, storytellerMode, generation, createdAt, lastPlayedAt (ISO), gameVersion`.
+**Run record (`saves/run-<slotIndex>/run.json`):** `runId, slotIndex (0-1), catName, prideName, style (story|standard|sim), difficulty (death rule), sandboxOptions (null unless sandbox) {needsDrain, threatFrequency, startingReputation, freeCustomization, freePerkRespec}, storytellerMode, worldSeed (uint32, always set; also written to `logs/` at run start), generation, createdAt, lastPlayedAt (ISO), gameVersion`.
 **Save record (`saves/run-<slotIndex>/save-<saveIndex>/meta.json`):** `saveId, runId, saveIndex (0-2), writtenAt (ISO), inGameDate {year, season, day}, playTimeSec, saveVersion, thumbnail?, mainCat {catId, name, sex, lifeStage, genes, scars[]}`. The snapshot is written on every save so the menu cat renders without loading the full save.
 
-**IPC (renderer → main):** `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?}`, `menu:loadSave {runId, saveId}`, `menu:deleteSave {runId, saveId}`, `menu:deleteRun {runId}`, `saves:list → {runs: [RunRecord & {saves: SaveRecord[]}], continueTarget: {runId, saveId} | null}` (always 2 entries, null for empty; the menu cat reads `mainCat` from `continueTarget`), `settings:get`, `settings:set {patch}`, `storyteller:check {mode} → {available, reason}`, `app:quit`. Main → renderer: `toast {text}`.
+**IPC (renderer → main):** `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, worldSeed?, mainCat}`, `menu:loadSave {runId, saveId}`, `menu:deleteSave {runId, saveId}`, `menu:deleteRun {runId}`, `saves:list → {runs: [RunRecord & {saves: SaveRecord[]}], continueTarget: {runId, saveId} | null}` (always 2 entries, null for empty; the menu cat reads `mainCat` from `continueTarget`), `settings:get`, `settings:set {patch}`, `storyteller:check {mode} → {available, reason}`, `app:quit`. Main → renderer: `toast {text}`.
 
 ## 6. Decisions log (Anna, 2026-11-04)
 1. Save model: 2 run slots × 3 manual saves per run.
@@ -77,7 +78,7 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 3. Difficulty: locked per run, chosen at New Game, shown on run cards, not in Settings.
 4. Heir mode with no eligible heir: run ends on Legacy summary with "Begin a new lineage" (see §7).
 5. Sandbox: no game over + optional toggles panel (see §2, §7); runs tagged, not convertible.
-6. Menu music: none for now. Audio settings stay; menu music hook deferred.
+6. Menu music: none for now. Audio settings stay; menu music hook deferred. *(Superseded by v1.3.2: menu music added.)*
 
 **v1.1 designer calls (Tundra, not Anna's decisions):**
 7. `menu:newGame` payload order unified as `{difficulty, replaceRunId?, sandboxOptions?}` (§2, §5).
@@ -89,6 +90,20 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 
 **v1.3 (Director-approved, 2026-11-04):** New Game has two independent choices on one setup screen: Style (Story/Standard/Sim, default Standard) and Death rule (Permadeath/Heir/Sandbox, default Heir). Both are locked per run and shown on the run cards. `style` is added to `menu:newGame` and the run record, and `difficulty` stays as the Death rule key. The Sandbox panel now sits beside the Death rule row. Style rules are in `docs/play-styles-spec.md`. Director has approved Heir as the default Death rule and Sandbox with any Style. The menu cat (§1) is added: it shows the Continue save's player cat or a default cat, using layered art, with the build waiting on Anna's art pick. "Style" and "Death rule" are internal names only. On-screen headings and labels come from Saga's copy (§6).
 
+**v1.3.1 errata (Director-confirmed, 2026-11-04, wording only):** Sandbox panel shows only while Sandbox is *selected* (not focused). Removed the stale §4 line placing Begin inside the Sandbox panel; the single Begin sits under the summary line.
+
+**v1.3.2 (Director-confirmed, 2026-11-04):** menu music added. Anna's "Earthbound Pulse" replaces decision 6, which was no menu music. See §7 Menu music for trim, loop, fades, volume, mute and run-start behaviour. Loop crossfade set to 3.0s, Director-confirmed after Flint's test, because the song's own fade-in runs to about 2.4s. The trim stays at 1.0s.
+
+**v1.4 (Director-confirmed, 2026-11-04):** Begin now leads to the Make Your Sabrecat screen (cat-creator-spec v0.1). `menu:newGame` gains `mainCat`, emitted on that screen's Start. Replacing a run is deferred to Start.
+
+**v1.4.1 (Director-confirmed, 2026-11-04):** §7.2 loop crossfade uses an equal-power curve (trim 1.0s and crossfade 3.0s unchanged), per Tracker RETEST-2, where a linear curve dipped 6–8 dB for 1.5–2s at the loop. Mute keeps the track playing silently, and its position advances, as written. Anna will ear-test on Windows speakers with the next build.
+
+**v1.4.2 (Director-approved, 2026-11-04):** New Game gets a collapsed Advanced row with an optional World seed field, shown in every Style (§2). `menu:newGame` gains optional `worldSeed`, and the run record always stores `worldSeed`, which is also logged at run start. Generation rules are in world-gen-spec.
+
+**v1.4.3 (Director, 2026-11-04):** The Sandbox options panel gains a Free perk respec toggle, off by default. `sandboxOptions` gains `freePerkRespec`. Rules are in skills-spec §7.6.
+
+**v1.4.4 (Director, 2026-11-05):** §7 menu music item 5: the fade-out fires on the creator's Start, Continue or Load, not on Begin. Music keeps playing through Make Your Sabrecat. Per Tracker's creator report, `/workspace/qa/creator/REPORT.md`.
+
 ## 7. Design notes (decided)
 **Heir mode, no eligible heir:** an heir is any living pride member adolescent or older, ranked by blood relation to the player cat, then age. If none qualify, the run ends on a Legacy summary screen (as Permadeath) offering "Begin a new lineage": a fresh lone cat in the same world, where old-pride survivors may remain. Legacy screen is out of menu scope; menu hook only: `game:legacyEnd {runId}` → Legacy screen (future) → `menu:newLineage {runId}` or root.
 
@@ -96,4 +111,11 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 - *Starting reputation:* one equal baseline offset (low/normal/high) applied to all three prides; each pride's temperament and later events still move it from there.
 - *Free customization* (player cat at creation only): **Off** = standard rules as in Permadeath/Heir: common coats, markings, eyes only; no rare or mutation traits; personality sliders limited to a set range (placeholder 20-80%, tunable; final values in the future gameplay genetics spec). **On** = all appearance options incl. rare and mutation traits, sliders 0-100%. No in-game cheat/editing console in v1. Sandbox runs are tagged (`difficulty: "sandbox"`) and can't be converted.
 
-**Audio:** no menu music in v1.0; `audio.music` setting kept, menu music hook deferred.
+**Menu music (v1.3.2):** Anna's track "Earthbound Pulse", source file `assets/audio/menu/earthbound-pulse-original.mp3` (3:33).
+1. **Trim:** skip the 1.0s of leading silence. Flint decides whether to trim the asset or seek on load. The shipped file is `assets/audio/menu/earthbound-pulse.ogg`, and the original is kept.
+2. **Loop:** loop without a gap. Crossfade the tail into the start over 3.0s, overlapping the track's own tail fade. The song's own fade-in runs to about 2.4s, so a shorter crossfade dips at each loop. The crossfade uses an equal-power curve (v1.4.1).
+3. **Start:** fade in from 0 over 1.5s when the root menu first appears.
+4. **Volume:** output = `audio.master` × `audio.music`. Changes apply live from the Settings Audio tab, which already has the Music slider. `audio.mute` = silent. The track keeps its position while muted, so unmuting resumes rather than restarting.
+5. **Run start:** on Start (creator), Continue or Load, fade out over 1.0s, then stop (v1.4.4: music keeps playing through the creator). Gameplay audio is a separate spec.
+6. **Back to menu:** when a run is quit to the root menu, start the music again with the same 1.5s fade-in.
+7. **Errors:** if the file is missing or fails to decode, log a warning and run the menu silent. It must never block the menu.

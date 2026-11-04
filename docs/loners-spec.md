@@ -1,4 +1,4 @@
-# Sabretooth: Loners Spec (v0.6, DRAFT, design-only)
+# Sabretooth: Loners Spec (v0.9, DRAFT, design-only)
 Owner: Tundra (rules and numbers). Backstories and all player-facing text: Saga. Not in the build yet; the menu is still the active build task.
 All numbers are starting values to tune.
 
@@ -64,7 +64,7 @@ All numbers are starting values to tune.
 
 6.4 **Player-pride departures (decided by Anna via Director: depends on Style; numbers are designer calls).** Each cat has `contentment` from 0 to 100. Inputs:
    - fed this season +10, starving −15;
-   - has a mate or close bond +10;
+   - relationship ties: see relationships-spec §5.1 (v0.9 errata: this replaces the old "has a mate or close bond +10");
    - role fits personality +5;
    - recently injured in a pride fight −5;
    - groomed or favoured by the player +5;
@@ -74,7 +74,7 @@ All numbers are starting values to tune.
    - **Standard:** if contentment stays below 25 for 2 seasons in a row, warning signs fire for 1 season (Saga events: sleeping apart, eating last, gazing at the border). If contentment is still below 25 after that, the cat has a 30% chance per season to leave.
    - **Sim:** the threshold is below 35 for 1 season, warnings last 1 season, and then the chance is 40% per season. Two more rules apply:
      - **Lure:** if a rival pride, band, or loner has affinity ≥ 40 with an unhappy cat (contentment below 50), there's a 15% chance per season they lure it away. A warning event fires first.
-     - **Dispersal:** each young male reaching young-adult age has a 50% chance to disperse within 2 seasons. This doesn't apply if he's the designated heir or the pride has no other resident adult male.
+     - **Dispersal:** each young male reaching young-adult age (turning adult at 3 years; lifecycle-spec §5.1) has a 50% chance to disperse within 2 seasons. This doesn't apply if he's the designated heir or the pride has no other resident adult male.
    **Who is protected:** the player's mate and designated heir never leave in Standard. In Sim they leave only if their contentment is below 15.
    **Player responses:** during a warning, the player can groom, share food, change the cat's role, or confront it, at +5 to +15 contentment each, capped at once per season per cat.
    **After leaving:** a departed cat becomes a loner with `originPrideId` set to the player's pride and `departure: left`. It can be recruited back under §3, and its starting affinity is its contentment at departure minus 50.
@@ -136,5 +136,16 @@ Cat: { "status": "pride|loner", "originPrideId": "string|null", "departure": "le
 
 10.8 **Heir leaves in Sim:** the heir designation clears and the next-ranked heir is auto-designated (blood relation, then age; menu-spec §7). The player is notified and can redesignate. If no one qualifies, the rule for no eligible heir applies when the player cat dies.
 
+**Band answers for Saga (v0.7, designer calls, 2026-11-04):**
+- **Warning choices (§5b.4 warning turn, all Styles).** The player picks one of these, or none:
+  - `gather`: defender strength ×1.15. The pride doesn't hunt that turn, so every member gets −5 contentment.
+  - `meet`: the fight happens at the border zone. Strength doesn't change. If the pride wins, the band's cooldown is 4 seasons instead of 2, plus +5 morale.
+  - `hide`: defender strength ×0.9, because queens are away from the den. Cubs can't be hurt in the fight.
+- **Yield (territory challenges only).** The band takes the zone exactly as if it had won the fight (2 seasons, can't be claimed). There's no fight and no injuries, but morale is −15 instead of −10, and cats with aggression ≥70 get −5 contentment. A `mates` challenge can't be yielded.
+- **Witnessing a band form.** This uses the exile rule. If the player is in the band's home zone or an adjacent one that season, they see it happen. Otherwise a rumor arrives 1–3 turns later.
+
 ## Changelog
 - v0.6 (2026-11-04, Director OK): split the pride-loyalty state into `prideLoyalty`, separate from the personality trait `loyalty`. This touches §3.4, §6.4, §7 and §10 (confront).
+- v0.7 (2026-11-04, designer calls): band warning choices, yield, band-forming witness rule (§10).
+- v0.8 (2026-11-04): "young adult" now means an adult aged 3 to under 5, per lifecycle-spec §5.1. The dispersal trigger is turning adult.
+- v0.9 (2026-11-04, Director OK): the §6.4 contentment input for mates and close bonds now points to relationships-spec §5.1. §2.4 affinity is the relationships pair value.
