@@ -1,4 +1,4 @@
-# Sabretooth: Core Formulas Spec (v0.2.1, DRAFT, design-only)
+# Sabretooth: Core Formulas Spec (v0.2.2, DRAFT, design-only)
 Owner: Tundra (rules and numbers). Code: Flint. QA: Tracker. Resolves skills-spec §15.1.
 Related:
 - skills-spec v0.2.2: milestones M1–M4, perks.
@@ -197,11 +197,15 @@ Existing rules that I keep:
    - **Bonefield challenge losers:** driving out an AI challenge loser does not use up the pride's random exile/departure roll (loners §6.2). The loser becomes a loner through the normal loner path.
    - **Not-adult decline:** AI cats check every gate before they try to court, so they can never trip the not-adult decline. It's only a safety net for the player.
    - **Out of season:** there's only Saga's greyed-out Court hint, with no decline line.
-   - **Challenges in the player's own pride (PROPOSED, needs Director):**
+   - **Challenges in the player's own pride (APPROVED by Director 2026-11-05; the pride-loss outcome waits on Anna):**
      - An AI adult can challenge the player leader only if its loyalty is below 25 and its aggression is 70 or more. At most 1 challenge per season, using the fight formula (§4).
      - If the challenger loses, the player chooses whether to drive it out or keep it at loyalty −20.
-     - If the player loses, they step down to member or leave as a loner. This isn't a death, so permadeath doesn't trigger.
+     - If the player loses, it depends on the flag `challenge.playerCanLosePride`, which defaults to false until Anna answers.
+       - **When true:** the player steps down to member or leaves as a loner. This isn't a death, so permadeath doesn't trigger.
+       - **When false:** the player stays leader but takes the fight injuries. The challenger gets +10 standing in the pride, and no new challenge can start in this pride for 2 seasons.
      - Story: off, unless the player opts in.
+| challenge.playerCanLosePride | false |
+| challenge.ownPrideTrigger | loyalty < 25 and aggression >= 70, max 1 per season |
 
 ## 6. Test checklist (Tracker)
 1. **Hunt targets:** over 100k simulated hunts (fresh cat, small, solo, spring), success is 55 ± 1% in Standard, 70 ± 1% in Story and 45 ± 1% in Sim. The winter table in 1.7 also holds.
@@ -224,3 +228,4 @@ Existing rules that I keep:
 - v0.1.1 (2026-11-05, Director): §7.1, §7.3 and §7.4 answered with no number changes. §7.2 waits on Anna.
 - v0.2 (2026-11-05, Anna via Director): breeding season gate added (§2.1, §2.4) with `breedingSeasons` default spring. Attempts are now 1 per 5 days per target in season. The season modifier is removed, so the fresh-player example drops from 42% to 37%.
 - v0.2.1 (2026-11-05): §2.7 answers Saga's four questions; the rules for challenges in the player's pride are proposed and wait on Director.
+- v0.2.2 (2026-11-05, Director): the §2.7 challenge rules in the player's pride are approved. Losing the pride sits behind `challenge.playerCanLosePride` (default false) until Anna answers.
