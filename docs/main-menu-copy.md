@@ -325,3 +325,86 @@ Notes for Flint:
 - `newGame.title` and `difficulty.begin` ("Begin") still apply. `difficulty.subtitle` and `difficulty.subtitleReplacing` are replaced by the two summary lines, which sit above Begin.
 - Fill `{styleName}` and `{deathRuleName}` from the `name` fields, for example "Sim style, Play On as Heir. Both are locked for the whole run."
 - On run cards, put `run.modes` on its own line, with `run.sandboxTag` after it for Sandbox runs, for example "Standard · Sandbox · No game over".
+
+## 7. Make Your Sabrecat (cat-creator-spec v0.1)
+
+The cat creator opens after Begin (and the slots-full dialog, if needed) and before the run starts. Option ids match `cat-creator-spec.md` §3, which maps them to genetics-spec alleles. The player only ever sees the names below. Tone stays plain: one short line per row, nothing that reads as a rule.
+
+Decisions:
+- **Start label:** "Start", the same plain, single-verb tone as "Begin" (`difficulty.begin`). It's a new id so the two screens can change independently.
+- **Back label:** uses the existing `common.back`. No new id.
+- **Empty name:** the spec (§4.2) never blocks Start; a blank name gets a random default. So there is no empty-name error. `creator.name.emptyHint` is a gentle helper instead, shown while the field is blank.
+- **Back confirmation:** the spec doesn't ask for one. `creator.backConfirm.*` is written in case Flint or Tundra add one when the player has changed something. It follows the Quit and Replace pattern (body plus an OK label, Cancel from `common.cancel`, default focus Cancel). It says only the cat is dropped, because the setup choices and any run picked for replacing are untouched until Start (spec §1.2, §1.3).
+- **Default names:** `creator.defaultNames` is a top-level array, not inside `strings`, because `t()` expects every `strings` value to be text. Names are single words in the lore style, and none of them belong to a premade cat, a named lore cat, a pride, a place, or a teammate.
+
+```json
+{
+  "creator": {
+    "defaultNames": [
+      "Rimefall", "Emberhide", "Stormpelt", "Birchclaw", "Snowtrack", "Driftmane",
+      "Cragfoot", "Hailstrike", "Mossfang", "Wintermoon", "Thawsong", "Ridgerunner",
+      "Glacierheart", "Fernshadow", "Duneclaw", "Owlwhisker", "Bisonbane", "Sleetpaw",
+      "Starfrost", "Cinderwake", "Willowsnow", "Brightsaber", "Quietstone", "Ravenmark"
+    ]
+  },
+  "strings": {
+    "creator.title": "Make Your Sabrecat",
+    "creator.subtitle": "Every legend starts as one cat alone in the snow. This one is yours.",
+
+    "creator.row.name": "Name",
+    "creator.row.sex": "Sex",
+    "creator.row.coat": "Coat",
+    "creator.row.markings": "Markings",
+    "creator.row.eyes": "Eyes",
+
+    "creator.help.name": "What the valley will call you.",
+    "creator.help.nameGamepad": "Press A for another name.",
+    "creator.help.sex": "Your coat, markings and eyes stay the same.",
+    "creator.help.coat": "The colour of your fur.",
+    "creator.help.markings": "The pattern over your coat, if any.",
+    "creator.help.eyes": "The first thing your rivals will see.",
+
+    "creator.sex.male": "Male",
+    "creator.sex.female": "Female",
+    "creator.coat.tan": "Tan",
+    "creator.coat.gray": "Gray",
+    "creator.coat.brown": "Brown",
+    "creator.coat.black": "Black",
+    "creator.markings.none": "None",
+    "creator.markings.spotted": "Spotted",
+    "creator.markings.faintstripe": "Faint Stripe",
+    "creator.eyes.amber": "Amber",
+    "creator.eyes.gold": "Gold",
+    "creator.eyes.green": "Green",
+
+    "creator.name.placeholder": "Type a name",
+    "creator.name.emptyHint": "Leave it blank and the valley will name you.",
+    "creator.name.error.tooLong": "Names can be up to {max} characters.",
+    "creator.name.error.invalidChars": "Use only letters, spaces, hyphens and apostrophes.",
+
+    "creator.randomize": "Randomize",
+    "creator.help.randomize": "New coat, markings and eyes. Your name and sex stay.",
+    "creator.start": "Start",
+
+    "creator.hint.keyboard": "Up/Down: row · Left/Right: change · Enter: select · Esc: back",
+    "creator.hint.gamepad": "D-pad: row and change · A: select · A on Name: new name · B: back",
+    "creator.hint.mouse": "Click the arrows to change a row, then Start.",
+
+    "creator.preview.alt": "Portrait of {catName}, a {sex} sabrecat with a {coat} coat, {markings}, and {eyes} eyes.",
+    "creator.preview.markings.none": "no markings",
+    "creator.preview.markings.spotted": "spotted markings",
+    "creator.preview.markings.faintstripe": "faint stripes",
+
+    "creator.backConfirm.body": "Go back to New Game? The cat you made here won't be kept. Your setup and your saved runs stay as they are.",
+    "creator.backConfirm.ok": "Go back"
+  }
+}
+```
+
+Notes for Flint:
+- Option strings are keyed `creator.<row>.<optionId>` with the spec §3 ids (`tan`, `gray`, `brown`, `black`; `none`, `spotted`, `faintstripe`; `amber`, `gold`, `green`; `male`, `female`).
+- `creator.help.nameGamepad` replaces `creator.help.name` while a gamepad is the active input and Name has focus.
+- Hint lines: show the one for the active input device. The gamepad line leaves out Start because the Start button is on screen.
+- `creator.preview.alt`: fill `{sex}`, `{coat}` and `{eyes}` with the lowercased option names (for example "gray", "amber"). Fill `{markings}` from `creator.preview.markings.<id>`. If the name is blank, use `run.defaultCatName` for `{catName}`.
+- `{max}` comes from the spec's name limit, not from the copy.
+- `src/renderer/data/menu-copy.json` needs `npm run sync-copy`, or the copy-sync test will fail.
