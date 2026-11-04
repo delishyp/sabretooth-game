@@ -114,24 +114,24 @@ Shown to the right of the difficulty cards while Sandbox is selected (spec §2).
       {
         "id": "startingReputation",
         "name": "Starting Reputation",
-        "description": "How all three prides see you when you first arrive as a lone cat. Your choices change it from there.",
+        "description": "How the prides see you when you first arrive.",
         "values": ["low", "normal", "high"],
         "labels": ["Outcast", "Stranger", "Respected"],
         "descriptions": [
-          "The prides distrust you. Winning a mate or an ally will be hard.",
-          "The prides don't know you yet. Your choices will decide what they think.",
-          "Your name is already known and welcomed. Doors open easily."
+          "The prides distrust you. Mates and allies come hard.",
+          "The prides don't know you yet.",
+          "Your name is known and welcome."
         ]
       },
       {
         "id": "freeCustomization",
         "name": "Free Cat Customization",
-        "description": "Unlock every coat, marking, eye color, and personality option for your starting cat.",
+        "description": "Unlock every look and personality option for your cat.",
         "values": [true, false],
         "labels": ["On", "Off"],
         "descriptions": [
-          "Every option is unlocked, including rare and mutation traits and the full personality range.",
-          "Common coats, markings, and eyes only, and personality stays within the usual limits."
+          "All traits unlocked, including rare ones.",
+          "Common traits only, as in a normal run."
         ]
       }
     ]
@@ -219,7 +219,7 @@ Decisions on the B12 mismatches:
     "season.winter": "Winter",
 
     "placeholder.title": "Gameplay coming soon",
-    "placeholder.newRun": "A new {difficultyName} run begins in slot {slot}.",
+    "placeholder.newRun": "A new story begins in slot {slot}: {styleName} style, {deathRuleName}.",
     "placeholder.loading": "Loading {runLabel}…",
     "placeholder.loadingFallback": "Loading your save…",
     "placeholder.newLineage": "A new lineage begins.",

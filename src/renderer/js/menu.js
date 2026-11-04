@@ -328,7 +328,7 @@
     if (!res.ok) { toast(t('toast.startFailed')); return; }   // B12: raw error is logged by main only
     fallbackToast(res.storyteller?.preferred, res.storyteller?.effective);
     replaceRunId = null;
-    $('#placeholder-detail').textContent = t('placeholder.newRun', { difficultyName: t('run.modes', { styleName: styleName(style), deathRuleName: diffName(difficulty) }), slot: res.run.slotIndex + 1 });
+    $('#placeholder-detail').textContent = t('placeholder.newRun', { styleName: styleName(style), deathRuleName: diffName(difficulty), slot: res.run.slotIndex + 1 });
     show('starting');
   }
   async function loadSave(runId, saveId) {
@@ -409,7 +409,7 @@
       await refreshSlots();
       if (s.startsWith('settings:')) { settingsTab = s.split(':')[1]; return show('settings'); }
       if (s === 'quitConfirm') { show('root'); return quit(); }
-      if (s === 'starting') { $('#placeholder-detail').textContent = t('placeholder.newRun', { difficultyName: diffName('permadeath'), slot: 1 }); return show('starting'); }
+      if (s === 'starting') { $('#placeholder-detail').textContent = t('placeholder.newRun', { styleName: styleName('standard'), deathRuleName: diffName('permadeath'), slot: 1 }); return show('starting'); }
       if (s === 'root') return show('root');
       if (s === 'newGame') return openSetup();                                                             // defaults: Standard + Heir
       if (s === 'newGame:sim') { openSetup(); ['right', 'confirm', 'down', 'left', 'confirm'].forEach((a) => setupDispatch(a)); return; } // Sim + Permadeath
