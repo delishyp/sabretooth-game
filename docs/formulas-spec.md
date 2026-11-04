@@ -1,4 +1,4 @@
-# Sabretooth: Core Formulas Spec (v0.2.3, DRAFT, design-only)
+# Sabretooth: Core Formulas Spec (v0.2.4, DRAFT, design-only)
 Owner: Tundra (rules and numbers). Code: Flint. QA: Tracker. Resolves skills-spec §15.1.
 Related:
 - skills-spec v0.2.2: milestones M1–M4, perks.
@@ -200,15 +200,27 @@ Existing rules that I keep:
    - **Challenges in the player's own pride (APPROVED by Director; pride-loss outcome is Anna's call, 2026-11-05):**
      - An AI adult can challenge the player leader only if its loyalty is below 25 and its aggression is 70 or more. At most 1 challenge per season, using the fight formula (§4).
      - If the challenger loses, the player chooses whether to drive it out or keep it at loyalty −20.
-     - **If the player loses (Anna's call):** the winner becomes leader and decides what happens to the player.
-       - P(banish) = clamp(30 + (winner aggression − 50) / 2 − (winner's pair value with the player) / 2, 5, 95)%. Style: Story −15, Sim +10.
-       - **Banished:** the player leaves as a loner, keeping their mate bond. A mate in the pride may follow if pair value ≥ 50, using the loners join rules.
-       - **Allowed to stay:** the player chooses to stay as a plain member or to leave as a loner.
-       - Losing the pride is not a death, so permadeath doesn't trigger.
-       - Example: winner aggression 75, pair value −20 → 30 + 12.5 + 10 = **52.5%** banish.
+     - **If the player loses (Anna's call, 2026-11-05):** the winner becomes leader and picks one of three outcomes by personality.
+       - Threat T = (winner aggression − 50) / 2 − (winner's pair value with the player) / 2.
+       - **1. Kill attempt:** P = clamp(T − 20, 0, 50)%. Story halves this.
+       - **2. Banish:** if there's no kill attempt, P = clamp(30 + T, 5, 95)%, with Story −15 and Sim +10.
+       - **3. Allow stay:** otherwise. The player then chooses to stay as a plain member or leave as a loner.
+       - **Kill attempt resolution:** the player picks Fight or Flee.
+         - **Fight:** a lethal fight using §4, with current injuries applied. If the player wins, the winner is driven off wounded and the player takes leadership back. If the player loses, they die.
+         - **Flee:** P(escape) = clamp(40 + 5 × endurance milestone − 10 per serious-or-worse injury, 10, 90)%. On a success the player leaves as a loner with a serious injury. On a failure they're forced into the lethal Fight at −15.
+         - A death follows the mode's rules (permadeath or heir).
+         - **Story:** a kill attempt is never lethal. A lost fight or failed flee becomes a crippling injury and a banish.
+       - **Banished:** the player leaves as a loner and keeps their mate bond. A mate in the pride may follow if their pair value is 50 or more, using the loners join rules.
+       - Losing the pride itself is not a death.
+       - **Examples:**
+         - Aggression 75, value −20: T = 22.5, so a 2.5% kill attempt, else 52.5% banish.
+         - Aggression 90, value −50: T = 45, so 25% kill (12.5% in Story), else 75% banish.
+         - Aggression 70, value +20: T = 0, so no kill and 30% banish.
      - Story: off, unless the player opts in.
 | challenge.banishBase | 30 |
 | challenge.ownPrideTrigger | loyalty < 25 and aggression >= 70, max 1 per season |
+| challenge.killOffset / killCap | 20 / 50 |
+| challenge.fleeBase | 40 |
 
 ## 6. Test checklist (Tracker)
 1. **Hunt targets:** over 100k simulated hunts (fresh cat, small, solo, spring), success is 55 ± 1% in Standard, 70 ± 1% in Story and 45 ± 1% in Sim. The winter table in 1.7 also holds.
@@ -233,3 +245,4 @@ Existing rules that I keep:
 - v0.2.1 (2026-11-05): §2.7 answers Saga's four questions; the rules for challenges in the player's pride are proposed and wait on Director.
 - v0.2.2 (2026-11-05, Director): the §2.7 challenge rules in the player's pride are approved. Losing the pride sits behind `challenge.playerCanLosePride` (default false) until Anna answers.
 - v0.2.3 (2026-11-05, Anna via Director): when the player loses a challenge, the winner leads and decides by personality whether to banish the player or let them stay; if allowed to stay, the player chooses to stay or leave (§2.7). The flag is dropped.
+- v0.2.4 (2026-11-05, Anna via Director): a third outcome after the player loses a challenge: the winner may try to kill them. Fight or Flee, deaths follow the mode's rules, and in Story a kill attempt is never lethal and happens half as often (§2.7).
