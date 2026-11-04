@@ -1,7 +1,7 @@
 {
   "name": "sabretooth",
   "productName": "Sabretooth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Sabretooth (working title): single-player Ice Age Smilodon pride game. Main menu only.",
   "main": "src/main/main.js",
   "scripts": {
@@ -40,7 +40,8 @@
       "!**/*.{py,psd,kra,xcf,npy}",
       "!scripts/**",
       "!docs/**",
-      "!screenshots/**"
+      "!screenshots/**",
+      "node_modules/electron-updater/**/*"
     ],
     "win": {
       "target": "nsis"
@@ -48,6 +49,17 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "delishyp",
+        "repo": "sabretooth-game",
+        "private": false
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
   }
 }

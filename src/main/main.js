@@ -165,5 +165,6 @@ app.whenReady().then(() => {
   handlers = createMenuHandlers({ settings, saves, log, t, checkStoryteller });
   registerIpc();
   createWindow();
+  require('./updater').initUpdater((m) => { try { log(m); } catch (_) {} });
 });
 app.on('window-all-closed', () => app.quit());
