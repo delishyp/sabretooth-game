@@ -28,9 +28,9 @@ function make({ duration = 211.2, load, audio = { master: 0.8, music: 0.7, mute:
 }
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≈ ${b}`);
 
-test('config matches spec §7 (1.0s trim, ~2s crossfade, 1.5s in, 1.0s out)', () => {
+test('config matches spec §7 (1.0s trim, 3.0s crossfade, 1.5s in, 1.0s out)', () => {
   assert.strictEqual(cfg.trimStartSec, 1.0); assert.strictEqual(cfg.crossfadeSec, Music.DEFAULTS.crossfadeSec);
-  assert.strictEqual(Music.DEFAULTS.crossfadeSec, 2.0); assert.strictEqual(Music.DEFAULTS.fadeInSec, 1.5); assert.strictEqual(Music.DEFAULTS.fadeOutSec, 1.0);
+  assert.strictEqual(Music.DEFAULTS.crossfadeSec, 3.0); assert.strictEqual(Music.DEFAULTS.fadeInSec, 1.5); assert.strictEqual(Music.DEFAULTS.fadeOutSec, 1.0);
   assert.ok(Music.DEFAULTS.url.endsWith(cfg.file.split('/').pop()));
 });
 test('nextPassStart: next pass begins crossfade seconds before the end', () => {
@@ -52,10 +52,10 @@ test('play: fades in from 0 over 1.5s and schedules the seamless next pass', asy
   assert.strictEqual(await m.play(), 'playing');
   const d = m.debug(); assert.strictEqual(d.passes, 1); near(d.volumeGain, 0.56);
   assert.deepStrictEqual(ctx.sources[0].started, [5, 0]);
-  near(tm.q[0].ms, (5 + 209.2 - 4 - 5) * 1000);     // timer fires 4s ahead of the seam
+  near(tm.q[0].ms, (5 + 208.2 - 4 - 5) * 1000);     // timer fires 4s ahead of the seam (3.0s crossfade)
   ctx.currentTime = 210.5; tm.runNext();
   assert.strictEqual(ctx.sources.length, 2);
-  near(ctx.sources[1].started[0], 214.2);            // sample-accurate start on the ctx clock, no gap
+  near(ctx.sources[1].started[0], 213.2);            // sample-accurate start on the ctx clock, no gap
   near(ctx.sources[0].stopped, 216.25);              // outgoing pass stops after its fade
   assert.strictEqual(await m.play(), 'playing'); assert.strictEqual(ctx.sources.length, 2);   // idempotent
 });

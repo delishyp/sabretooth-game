@@ -8,7 +8,7 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Music = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
-  const DEFAULTS = { url: '../../assets/audio/menu/earthbound-pulse.ogg', crossfadeSec: 2.0, fadeInSec: 1.5, fadeOutSec: 1.0, scheduleAheadSec: 4 };
+  const DEFAULTS = { url: '../../assets/audio/menu/earthbound-pulse.ogg', crossfadeSec: 3.0, fadeInSec: 1.5, fadeOutSec: 1.0, scheduleAheadSec: 4 };
 
   /** Output gain from settings.audio. */
   function volumeFor(audio = {}) {
