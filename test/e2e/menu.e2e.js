@@ -171,6 +171,23 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await setSize(w, h);
         for (const u of scales) await check(`${w}×${h} UI scale ${Math.round(u * 100)}%: all screens fit the window (N1)`, () => fitAll(u));
       }
+      await check('V1: SABRETOOTH title ends inside the left 58% of the window (cat keep-out starts at 0.62) at UI 80–150%, several window sizes', async () => {
+        const shots = path.join(os.tmpdir(), 'sabretooth-v1'); fs.mkdirSync(shots, { recursive: true });
+        const worst = [];
+        for (const [w, h] of [[1280, 720], [1366, 768], [1600, 900], [1920, 1080]]) {
+          await setSize(w, h);
+          for (const u of [0.8, 1.0, 1.1, 1.25, 1.5]) {
+            await page.evaluate((v) => window.__menuDebug.setUiScale(v), u); await page.evaluate(() => window.__menuDebug.show('root')); await page.waitForTimeout(120);
+            const r = await page.evaluate(() => { const el = document.getElementById('logo-text'); const rg = document.createRange(); rg.selectNodeContents(el);
+              const b = rg.getBoundingClientRect(); return { right: b.right, left: b.left, W: innerWidth, H: innerHeight, text: el.textContent }; });
+            assert.ok(r.text.length > 0 && r.right > r.left, 'title rendered');
+            const frac = r.right / r.W; worst.push(`${r.W}×${r.H}@${u}:${frac.toFixed(3)}`);
+            assert.ok(frac <= 0.58, `${r.W}×${r.H} UI ${u}: title right edge at ${(frac * 100).toFixed(1)}% of the window`);
+            if ((u === 1.25 || u === 1.5) && w === 1280) await page.screenshot({ path: path.join(shots, `root-${r.W}x${r.H}-u${u}.png`) });
+          }
+        }
+        console.log(`    title right edge / window width: ${worst.join(' ')}`);
+      });
       await check('resize 1600×900 → 1280×720 at UI scale 125% keeps New Game + Sandbox panel in the window (N1)', async () => {
         await setSize(1600, 900); await page.evaluate(() => window.__menuDebug.setUiScale(1.25));
         await page.evaluate(() => window.__menuDebug.show('newGame:sandbox')); await page.waitForTimeout(150);

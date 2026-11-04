@@ -8,12 +8,15 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--deep);
 @keyframes snow { to { background-position: 60px 240px; } }
 body.reduced-motion #snow { animation: none; }
 /* 1920x1080 logical stage, uniformly scaled by JS (spec §1) */
-#stage { position: absolute; width: 1920px; height: 1080px; left: 50%; top: 50%; transform-origin: center; }
+#stage { position: absolute; width: 1920px; height: 1080px; left: 50%; top: 50%; transform-origin: center; container-type: inline-size; }
+/* V1 (Ochre keep-out): the cat starts at x = 0.62 of the background, so the title must end inside the left 58% at every UI scale.
+   cqw = % of the stage's logical width (1920/uiScale); the stage is scaled uniformly, so this is a fixed fraction of the background.
+   Title text box ≈ 8.9 × font-size (Cinzel, letter-spacing 0.16em incl. the trailing one); (58cqw − 160px screen padding − 24px) ÷ 9.2. */
 .screen { position: absolute; inset: 0; padding: 120px 160px; display: none; }
 .screen.active { display: block; }
 .title { margin-bottom: 70px; }
-#logo { max-width: 720px; max-height: 260px; }
-#logo-text { font-family: var(--font-title); font-size: 112px; letter-spacing: 18px; margin: 0; color: var(--frost); text-shadow: 0 0 30px rgba(127,208,236,.35); }
+#logo { max-width: min(720px, calc(58cqw - 184px)); max-height: 260px; }
+#logo-text { font-family: var(--font-title); font-size: min(112px, calc((58cqw - 184px) / 9.2)); letter-spacing: 0.16em; white-space: nowrap; margin: 0; color: var(--frost); text-shadow: 0 0 30px rgba(127,208,236,.35); }
 .wt { font-size: 22px; letter-spacing: 8px; text-transform: uppercase; color: var(--ice-dim); margin-top: -6px; }
 #tagline { font-size: 28px; font-style: italic; color: var(--ice); margin-top: 26px; max-width: 900px; }
 h2 { font-family: var(--font-title); font-size: 64px; margin: 0 0 10px; color: var(--frost); letter-spacing: 6px; }
