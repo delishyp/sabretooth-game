@@ -1,6 +1,7 @@
 # Architecture (main menu, built against main-menu-spec v1.3)
 
-- **Main process** (`src/main/main.js`): window (min 1280x720), IPC per spec §5, all file I/O. Logs: `<userData>/logs/menu.log`.
+- **Main process** (`src/main/main.js`): window (min 1280x720), IPC per spec §5, all file I/O. Logs: `<userData>/logs/menu.log`, which also receives
+  renderer warnings/errors (M1: `js/log.js` wraps `console.warn`/`console.error` and catches uncaught errors/rejections → preload `log(level, text)` → `ipcMain.on('log:renderer')`).
   - `settings-store.js`: pure Node; spec defaults (`storyteller.mode = "offline"`, shown as Classic); corrupt file → `settings.bad.json` + reset + toast. No difficulty setting.
   - `saves-store.js`: pure Node. 2 run slots × 3 saves.
     - `saves/run-<slotIndex>/run.json` = RunRecord `{runId, slotIndex, catName, prideName, style (story|standard|sim; missing → standard), difficulty (Death rule), sandboxOptions|null, storytellerMode, generation, createdAt, lastPlayedAt, gameVersion}`.
@@ -38,6 +39,8 @@
 `music.fadeOutAndStop()` in `show('starting'|'loading')`, and `music.setAudio(settings.audio)` from `applyLive()`. Main sets
 `autoplayPolicy: 'no-user-gesture-required'`; CSP adds `media-src 'self' blob:`. Audio is loaded via XHR (fetch rejects file://).
 Debug: `window.__menuDebug.music()`. Parameters/measurements: `src/renderer/data/menu-music.json`; see README "Menu music".
+**v1.4.1:** the loop seam is an equal-power crossfade (`equalPowerCurves()`: cos out / sin in, 128 points, applied with `setValueCurveAtTime`
+over the 3.0 s crossfade); menu fade in/out stay linear. Source mp3 moved to `audio-src/` (excluded from the build, M2).
 
 ## Planned (not built): menu cat (spec v1.3 §1)
 - Renderer reads `continueTarget` from `saves:list` → that save's `mainCat`; none / missing snapshot / layer load error → default cat from `data/menuDefaultCat.json` (fixed genome, look by Ochre), logged, never crashes.

@@ -1,4 +1,4 @@
-// Menu music (spec v1.3.2 §7): loop/crossfade math, volume × mute, fade-out on run start, missing-file path.
+// Menu music (spec v1.3.2 §7, v1.4.1 equal-power seam): loop/crossfade math, volume × mute, fade-out on run start, missing-file path.
 const test = require('node:test');
 const assert = require('node:assert');
 const Music = require('../src/renderer/js/music');
@@ -9,6 +9,7 @@ function fakeCtx() {
   const param = (v) => ({ value: v, events: [],
     setValueAtTime(x, t) { this.events.push(['set', x, t]); this.value = x; },
     linearRampToValueAtTime(x, t) { this.events.push(['ramp', x, t]); this.value = x; },
+    setValueCurveAtTime(c, t, d) { this.events.push(['curve', Array.from(c), t, d]); this.value = c[c.length - 1]; },
     cancelScheduledValues(t) { this.events.push(['cancel', t]); } });
   ctx.createGain = () => ({ gain: param(1), connect() {}, disconnect() {} });
   ctx.createBufferSource = () => { const s = { connect() {}, disconnect() {}, started: null, stopped: null,
@@ -38,8 +39,15 @@ test('nextPassStart: next pass begins crossfade seconds before the end', () => {
   near(Music.nextPassStart(10, 211.2, 2), 219.2);
   near(Music.nextPassStart(0, 3, 2), 1.5);            // crossfade clamped to half a short buffer
 });
-test('crossfadeRamps: outgoing 1→0 and incoming 0→1 over the same window', () => {
-  assert.deepStrictEqual(Music.crossfadeRamps(209.2, 2), { out: [[1, 209.2], [0, 211.2]], in: [[0, 209.2], [1, 211.2]] });
+test('equal-power seam curves: cos out / sin in, endpoints exact, out² + in² = 1 (no mid-seam dip)', () => {
+  const c = Music.equalPowerCurves(); const n = Music.SEAM_POINTS;
+  assert.strictEqual(c.out.length, n); assert.strictEqual(c.in.length, n);
+  assert.deepStrictEqual([c.out[0], c.out[n - 1], c.in[0], c.in[n - 1]], [1, 0, 0, 1]);
+  for (let i = 0; i < n; i++) {
+    assert.ok(Math.abs(c.out[i] ** 2 + c.in[i] ** 2 - 1) < 1e-6, `power at ${i}`);
+    if (i) assert.ok(c.out[i] <= c.out[i - 1] && c.in[i] >= c.in[i - 1], 'monotonic');
+  }
+  const mid = Music.equalPowerCurves(3); assert.ok(Math.abs(mid.out[1] - Math.SQRT1_2) < 1e-6 && Math.abs(mid.in[1] - Math.SQRT1_2) < 1e-6);   // −3 dB each at the middle
 });
 test('volumeFor: master × music, mute → 0, clamps', () => {
   near(Music.volumeFor({ master: 0.8, music: 0.7 }), 0.56);
@@ -57,6 +65,12 @@ test('play: fades in from 0 over 1.5s and schedules the seamless next pass', asy
   assert.strictEqual(ctx.sources.length, 2);
   near(ctx.sources[1].started[0], 213.2);            // sample-accurate start on the ctx clock, no gap
   near(ctx.sources[0].stopped, 216.25);              // outgoing pass stops after its fade
+  // v1.4.1: the seam uses equal-power curves over exactly 3.0s on both passes, no linear ramps on pass gains
+  const outEv = m.debug().passGains[0].filter((e) => e[0] === 'curve'); const inEv = m.debug().passGains[1].filter((e) => e[0] === 'curve');
+  assert.strictEqual(outEv.length, 1); assert.strictEqual(inEv.length, 1);
+  near(outEv[0][2], 213.2); near(outEv[0][3], 3.0); near(inEv[0][2], 213.2); near(inEv[0][3], 3.0);
+  assert.deepStrictEqual(outEv[0][1], Array.from(Music.equalPowerCurves().out)); assert.deepStrictEqual(inEv[0][1], Array.from(Music.equalPowerCurves().in));
+  assert.ok(m.debug().passGains.flat().every((e) => e[0] !== 'ramp'), 'seam has no linear ramps');
   assert.strictEqual(await m.play(), 'playing'); assert.strictEqual(ctx.sources.length, 2);   // idempotent
 });
 test('mute keeps playing silently (position kept); unmute restores volume without restarting', async () => {
@@ -90,4 +104,13 @@ test('missing file: warns, goes silent, never throws; later calls are no-ops', a
 test('undecodable file: warns and goes silent', async () => {
   const { m, warns } = make({ load: async () => ({ bad: true }) });
   assert.strictEqual(await m.play(), 'silent'); assert.match(warns[0], /decode/);
+});
+
+test('M2: original mp3 lives in audio-src/, is excluded from the build, and no mp3 ships under assets/', () => {
+  const fs = require('fs'); const path = require('path'); const root = path.join(__dirname, '..');
+  const pkg = require('../package.json');
+  assert.ok(pkg.build.files.includes('!audio-src/**'));
+  assert.strictEqual(cfg.source, 'audio-src/earthbound-pulse-original.mp3');
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
+  assert.deepStrictEqual(walk(path.join(root, 'assets', 'audio')).filter((f) => f.endsWith('.mp3')), []);
 });

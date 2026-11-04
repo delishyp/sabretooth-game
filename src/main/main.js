@@ -116,6 +116,8 @@ function registerIpc() {
   ipcMain.handle('storyteller:check', (_e, { mode } = {}) => checkStoryteller(mode));
   ipcMain.handle('storyteller:effective', async (_e, { mode } = {}) => ({ mode: await handlers.effectiveStoryteller(mode) }));
   ipcMain.handle('copy:get', () => copy);
+  // M1: renderer console.warn/error, uncaught errors and rejections (js/log.js) → logs/menu.log
+  ipcMain.on('log:renderer', (_e, { level, text } = {}) => log(`renderer ${level === 'error' ? 'error' : 'warn'}: ${String(text).slice(0, 4000)}`));
   ipcMain.handle('app:info', () => ({ version: app.getVersion(), build: process.env.SABRETOOTH_BUILD || 'dev' }));
   ipcMain.handle('app:quit', () => { flushStaged(); app.quit(); });
 }

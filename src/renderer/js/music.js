@@ -1,5 +1,5 @@
 /**
- * Menu music (spec v1.3.2 §7). Web Audio, renderer only. UMD so node tests can drive it with a fake AudioContext.
+ * Menu music (spec v1.3.2 §7, v1.4.1 equal-power loop seam). Web Audio, renderer only. UMD so node tests can drive it with a fake AudioContext.
  * Graph: pass source → pass gain (loop crossfade) → fade gain (fade in/out) → volume gain (master × music, 0 when muted) → out.
  * Mute only zeroes the volume gain, so the track keeps playing silently and unmuting resumes in place.
  * Missing/undecodable file → warn once, state 'silent', menu never blocked.
@@ -21,10 +21,19 @@
     const xf = Math.min(crossfade, duration / 2);
     return startAt + (duration - offset) - xf;
   }
-  /** Gain ramps for one loop seam starting at `t`: outgoing 1→0, incoming 0→1, both over `crossfade`. */
-  function crossfadeRamps(t, crossfade) {
-    return { out: [[1, t], [0, t + crossfade]], in: [[0, t], [1, t + crossfade]] };
+  /**
+   * Equal-power loop-seam curves (spec v1.4.1): outgoing cos(x·π/2) 1→0, incoming sin(x·π/2) 0→1, x = 0…1 over the crossfade.
+   * out² + in² = 1 at every point, so the summed power stays flat (a linear ramp dips ~3 dB mid-seam; Tracker measured 6–8 dB
+   * because the track's own tail fade overlaps it). Used for the loop seam only; menu fade-in/out stay linear.
+   */
+  const SEAM_POINTS = 128;
+  function equalPowerCurves(n = SEAM_POINTS) {
+    const out = new Float32Array(n), inc = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const x = i / (n - 1); out[i] = Math.cos(x * Math.PI / 2); inc[i] = Math.sin(x * Math.PI / 2); }
+    out[n - 1] = 0; inc[n - 1] = 1;
+    return { out, in: inc };
   }
+  const CURVES = equalPowerCurves();
 
   function loadArrayBuffer(url) {
     return new Promise((resolve, reject) => {   // XHR (fetch() refuses file:// in Electron)
@@ -72,7 +81,7 @@
       const src = ctx.createBufferSource(); src.buffer = buffer;
       const g = ctx.createGain(); src.connect(g); g.connect(fadeGain);
       const xf = Math.min(o.crossfadeSec, buffer.duration / 2);
-      if (fadeInSeam) { const r = crossfadeRamps(at, xf).in; g.gain.setValueAtTime(r[0][0], r[0][1]); g.gain.linearRampToValueAtTime(r[1][0], r[1][1]); }
+      if (fadeInSeam) g.gain.setValueCurveAtTime(CURVES.in, at, xf);   // equal-power 0→1 (v1.4.1)
       else g.gain.setValueAtTime(1, at);
       src.start(at, 0);
       const pass = { src, gain: g, startAt: at }; passes.push(pass);
@@ -84,8 +93,7 @@
       const delayMs = Math.max(0, (seam - o.scheduleAheadSec - ctx.currentTime) * 1000);
       timer = setT(() => {
         timer = null; if (state !== 'playing' && state !== 'fadingOut') return;
-        const r = crossfadeRamps(seam, xf).out;
-        pass.gain.gain.setValueAtTime(r[0][0], r[0][1]); pass.gain.gain.linearRampToValueAtTime(r[1][0], r[1][1]);
+        pass.gain.gain.setValueCurveAtTime(CURVES.out, seam, xf);        // equal-power 1→0 (v1.4.1)
         try { pass.src.stop(seam + xf + 0.05); } catch { /* already stopped */ }
         startPass(seam, true);
         setT(() => { passes = passes.filter((p) => p !== pass); }, (seam + xf + 0.1 - ctx.currentTime) * 1000);
@@ -132,9 +140,10 @@
     function debug() {
       return { state, volume: volGain ? volumeFor(audio) : null, volumeGain: volGain ? volGain.gain.value : null,
         fadeGain: fadeGain ? fadeGain.gain.value : null, passes: passes.length, duration: buffer ? buffer.duration : null,
-        ctxTime: ctx ? ctx.currentTime : null, ctxState: ctx ? ctx.state : null };
+        ctxTime: ctx ? ctx.currentTime : null, ctxState: ctx ? ctx.state : null,
+        passGains: passes.map((p) => (p.gain.gain.events ? p.gain.gain.events.slice() : null)) };
     }
     return { play, fadeOutAndStop, setAudio, debug, get state() { return state; }, config: o };
   }
-  return { create, volumeFor, nextPassStart, crossfadeRamps, DEFAULTS };
+  return { create, volumeFor, nextPassStart, equalPowerCurves, SEAM_POINTS, DEFAULTS };
 });

@@ -26,7 +26,8 @@
     "files": [
       "src/**/*",
       "assets/**/*",
-      "package.json"
+      "package.json",
+      "!audio-src/**"
     ],
     "win": {
       "target": "nsis"
