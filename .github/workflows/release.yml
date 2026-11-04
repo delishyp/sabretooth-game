@@ -1,0 +1,39 @@
+# Builds the Windows NSIS installer on GitHub and publishes it to the release
+# for the pushed tag, so electron-updater can find latest.yml + .blockmap.
+# Trigger: push a tag like v0.1.1 (must match package.json "version").
+name: Release (Windows)
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write   # create/upload the GitHub Release
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build and publish installer
+        run: npx electron-builder --win nsis --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # electron-builder publishes as a draft by default; updaters ignore drafts.
+      - name: Publish the release
+        shell: bash
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
