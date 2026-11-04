@@ -148,6 +148,46 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
       await page.waitForTimeout(150); await page.screenshot({ path: path.join(root, 'screenshots', 'new-game-sandbox-scale125.png') });
     } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
   }
+  {
+    // Menu music (spec v1.3.2 §7)
+    const mus = (page) => page.evaluate(() => window.__menuDebug.music());
+    const waitMusic = (page, st) => page.waitForFunction((s) => window.__menuDebug.music().state === s, st, { timeout: 8000 }).catch(() => {});
+    const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-e2e-'));
+    let { app, page } = await launch(ud);
+    try {
+      await check('music: plays on launch, fades in, ctx running (autoplay allowed)', async () => {
+        await waitMusic(page, 'playing'); const m = await mus(page);
+        assert.strictEqual(m.state, 'playing'); assert.strictEqual(m.ctxState, 'running'); assert.ok(Math.abs(m.duration - 211.2) < 0.1, m.duration);
+        // ctx clock can run slower than wall time on a headless box, so wait on the gain itself
+        await page.waitForFunction(() => window.__menuDebug.music().fadeGain > 0.95, null, { timeout: 8000 }).catch(() => {}); { const f = await mus(page); assert.ok(f.fadeGain > 0.95, 'fade-in complete ' + JSON.stringify(f)); }
+        assert.ok(Math.abs((await mus(page)).volumeGain - 0.56) < 0.01);
+      });
+      await check('music: Music slider changes gain live, mute → 0 and keeps playing', async () => {
+        await page.evaluate(() => window.__menuDebug.show('settings:audio')); await page.waitForTimeout(100);
+        await page.locator('[data-key="music"]').click(); await page.waitForTimeout(150);     // 0.70 → 0.75
+        assert.ok(Math.abs((await mus(page)).volumeGain - 0.6) < 0.01, String((await mus(page)).volumeGain));
+        await page.locator('[data-key="mute"]').click(); await page.waitForTimeout(150);
+        const m = await mus(page); assert.strictEqual(m.volumeGain, 0); assert.strictEqual(m.state, 'playing');
+        await page.locator('[data-key="mute"]').click(); await page.waitForTimeout(150);
+        assert.ok((await mus(page)).volumeGain > 0.59);
+      });
+      await check('music: starting a run fades out and stops; back to menu fades in', async () => {
+        await page.evaluate(() => window.__menuDebug.show('starting')); await page.waitForTimeout(400);
+        const mid = await mus(page); assert.strictEqual(mid.state, 'fadingOut'); assert.ok(mid.fadeGain < 0.9, String(mid.fadeGain));
+        await waitMusic(page, 'stopped'); assert.strictEqual((await mus(page)).state, 'stopped');
+        await page.keyboard.press('Escape'); await waitState(page, 'root'); await waitMusic(page, 'playing');
+        const m = await mus(page); assert.strictEqual(m.state, 'playing'); assert.ok(m.fadeGain < 0.9, 'restarts from a fade-in');
+      });
+      await app.close(); await new Promise((r) => setTimeout(r, 500));
+      const sp = path.join(ud, 'settings.json'); const sj = JSON.parse(fs.readFileSync(sp, 'utf8')); sj.audio.mute = true; fs.writeFileSync(sp, JSON.stringify(sj));
+      ({ app, page } = await launch(ud));
+      await check('music: launch while muted plays silently, music volume persisted', async () => {
+        await waitMusic(page, 'playing'); const m = await mus(page);
+        assert.strictEqual(m.state, 'playing'); assert.strictEqual(m.volumeGain, 0); assert.strictEqual(m.volume, 0);
+        assert.strictEqual(JSON.parse(fs.readFileSync(sp, 'utf8')).audio.music, 0.75);
+      });
+    } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
+  }
   console.log(failures ? `${failures} FAILED` : 'all e2e passed');
   process.exit(failures ? 1 : 0);
 })();

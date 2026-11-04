@@ -20,6 +20,8 @@
   let continueTarget = null;        // saves:list continueTarget {runId, saveId} | null
   let replaceRunId = null;
   let expandedRunId = null;
+  const music = Music.create();   // spec v1.3.2 §7 Menu music
+  music.setAudio(settings.audio);
   let legacyRunId = null;
   let settingsTab = 'audio';
   let settingsDirty = false;
@@ -93,7 +95,8 @@
     state = screen;
     const el = ['starting', 'loading'].includes(screen) ? 'placeholder' : screen === 'loadRunExpanded' ? 'load' : screen;
     $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === el));
-    if (screen === 'root') renderRoot();
+    if (screen === 'root') { renderRoot(); music.play(); }
+    if (screen === 'starting' || screen === 'loading') music.fadeOutAndStop();   // Begin / Continue / Load
     if (screen === 'newGameSetup') return renderSetup();
     if (screen === 'settings') renderSettings();
     if (screen === 'load' || screen === 'loadRunExpanded') renderLoad();
@@ -303,7 +306,7 @@
     settings[settingsTab][key] = v; changed();
     renderSettings(); focus($(`#tab-body [data-key="${key}"]`));
   }
-  function applyLive() { document.body.classList.toggle('reduced-motion', !!settings.display.reducedMotion); scale(); }
+  function applyLive() { music.setAudio(settings.audio); document.body.classList.toggle('reduced-motion', !!settings.display.reducedMotion); scale(); }
 
   async function fallbackToast(mode, effective) {
     if (effective && effective !== mode) toast(t('toast.storytellerFallback', { fromShort: t(`storyteller.shortName.${mode}`), toShort: t(`storyteller.shortName.${effective}`) }));
@@ -429,6 +432,7 @@
 
   // Dev hook used by `--screenshots`; harmless in production.
   window.__menuDebug = {
+    music: () => music.debug(),
     state: () => ({ state, setup, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
     setUiScale: (v) => { settings.display.uiScale = v; scale(); },
     show: async (s) => {

@@ -1,0 +1,11 @@
+{
+  "source": "assets/audio/menu/earthbound-pulse-original.mp3",
+  "file": "assets/audio/menu/earthbound-pulse.ogg",
+  "trimStartSec": 1.0,
+  "trimEndSec": 212.2,
+  "durationSec": 211.2,
+  "measured": "ffmpeg silencedetect n=-50dB: lead silence 0.014-0.807s; tail silence from 212.19s. Tail fade (RMS) starts ~210.0s orig = ~209.0s in game file.",
+  "crossfadeSec": 2.0,
+  "fadeInSec": 1.5,
+  "fadeOutSec": 1.0
+}

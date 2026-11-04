@@ -35,7 +35,8 @@ function createWindow() {
     title: 'Sabretooth',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true, nodeIntegration: false, sandbox: true
+      contextIsolation: true, nodeIntegration: false, sandbox: true,
+      autoplayPolicy: 'no-user-gesture-required'   // menu music fades in on launch (spec §7 Menu music)
     }
   });
   if (SHOTS) win.setContentSize(1600, 900);

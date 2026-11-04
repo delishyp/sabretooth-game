@@ -40,6 +40,16 @@ The cap is enforced in `src/main/saves-store.js` (`SaveCapError`). Continue = ne
 Seeded screenshots: `SABRETOOTH_USERDATA=$(mktemp -d) node scripts/seed-demo-saves.js <that dir>` then
 `SABRETOOTH_USERDATA=<that dir> npm run screenshots` (optional `SABRETOOTH_SHOTS=load,main-menu` filter). Delete the dir after.
 
+## Menu music (spec v1.3.2 §7)
+- Source (kept unchanged): `assets/audio/menu/earthbound-pulse-original.mp3` (3:33, 48 kHz stereo).
+- Game file: `assets/audio/menu/earthbound-pulse.ogg` (Vorbis q6, 211.2 s) = original 1.0 s → 212.2 s
+  (lead silence trimmed in the asset; tail silence after the fade dropped). Parameters in `src/renderer/data/menu-music.json`.
+- Measured (ffmpeg silencedetect −50 dB): lead silence 0.014–0.807 s, track fades in to full by ~2.0 s; tail fade starts ~210.0 s, silent from 212.19 s.
+- Loop: Web Audio, two buffer sources; next pass starts 2.0 s before the end (t = start + 209.2 s) with linear gain ramps 1→0 / 0→1 over 2.0 s, overlapping the track's own tail fade.
+- Fade in 1.5 s from 0 whenever the root menu appears; on Begin / Continue / Load ('starting'/'loading') fade out 1.0 s then stop.
+- Gain = `audio.master × audio.music`; `audio.mute` sets gain 0 but keeps playing (position kept). Applied live from the Audio tab.
+- Missing/undecodable file → one `console.warn`, menu runs silent. Reduced Motion doesn't affect audio.
+
 ## Settings
 Changes apply live and are saved on leaving Settings (and also when the window is closed mid-edit).
 Window mode: Fullscreen ↔ Windowed switch live. **Borderless is saved but not applied yet** (deferred; window stays as it is).

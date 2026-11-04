@@ -31,6 +31,14 @@
 - Run cards show `run.modes` ("{styleName} · {deathRuleName}") on their own line, `· run.sandboxTag` for Sandbox.
 - `styles.json` tunables (play-styles-spec §4) are gameplay-side and not built in the menu.
 
+## v1.3.2 Menu music
+`src/renderer/js/music.js` (UMD, unit-tested with a fake AudioContext in `test/music.test.js`). Graph: pass source → pass gain (loop crossfade)
+→ fade gain (menu fade in/out) → volume gain (master × music, 0 when muted) → destination. Loop seams are scheduled on the AudioContext clock
+(`nextPassStart`), with a timer firing 4 s ahead to create the next source. `menu.js` calls `music.play()` in `show('root')`,
+`music.fadeOutAndStop()` in `show('starting'|'loading')`, and `music.setAudio(settings.audio)` from `applyLive()`. Main sets
+`autoplayPolicy: 'no-user-gesture-required'`; CSP adds `media-src 'self' blob:`. Audio is loaded via XHR (fetch rejects file://).
+Debug: `window.__menuDebug.music()`. Parameters/measurements: `src/renderer/data/menu-music.json`; see README "Menu music".
+
 ## Planned (not built): menu cat (spec v1.3 §1)
 - Renderer reads `continueTarget` from `saves:list` → that save's `mainCat`; none / missing snapshot / layer load error → default cat from `data/menuDefaultCat.json` (fixed genome, look by Ochre), logged, never crashes.
 - Layered render like portraits: lying-pose lineart + gene layers (base coat, markings, eyes, sabers, scars, age variant from `lifeStage` adult/elder); pose by `sex`; files `assets/menu/cat/<sex>/<layer>.png` (Ochre owns paths).
