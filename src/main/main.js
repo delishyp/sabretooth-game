@@ -6,7 +6,7 @@ const { app, BrowserWindow, ipcMain, net } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { createSettingsStore } = require('./settings-store');
-const { createSavesStore, SANDBOX_OPTIONS } = require('./saves-store');
+const { createSavesStore, SANDBOX_OPTIONS, visibleSandboxOptions } = require('./saves-store');
 const { createMenuHandlers } = require('./menu-handlers');
 const I18n = require('../renderer/js/i18n');
 const { DEFAULTS: SETTINGS_DEFAULTS } = require('./settings-store');
@@ -151,7 +151,8 @@ function loadPortrait(pose) {
 /** Copy for renderer: Saga's generated JSON + option defaults from the store + settings defaults (for per-tab reset). */
 function loadCopy() {
   const c = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'renderer', 'data', 'menu-copy.json'), 'utf8'));
-  c.sandboxPanel.options = c.sandboxPanel.options.map((o) => ({ ...o, default: SANDBOX_OPTIONS[o.id].default }));
+  c.sandboxPanel.options = visibleSandboxOptions(c.sandboxPanel.options).map((o) =>   // deferred toggles (freePerkRespec) don't render
+    ({ ...o, default: SANDBOX_OPTIONS[o.id].default }));
   c.settingsDefaults = SETTINGS_DEFAULTS;
   return c;
 }

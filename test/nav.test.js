@@ -3,12 +3,12 @@ const test = require('node:test');
 const assert = require('node:assert');
 const Nav = require('../src/renderer/js/nav');
 const copy = require('../src/renderer/data/menu-copy.json');
-const { SANDBOX_OPTIONS } = require('../src/main/saves-store');
+const { SANDBOX_OPTIONS, visibleSandboxOptions } = require('../src/main/saves-store');
 
 const STYLES = copy.playStyles.map((d) => d.id);          // story, standard, sim
 const DEATHS = copy.difficulties.map((d) => d.id);        // permadeath, heir, sandbox
-const DEFS = copy.sandboxPanel.options.map((o) => ({ ...o, default: SANDBOX_OPTIONS[o.id].default }));
-const DEFAULT_OPTS = { needsDrain: 'normal', threatFrequency: 'normal', startingReputation: 'normal', freeCustomization: true, freePerkRespec: false };   // v1.4.3
+const DEFS = visibleSandboxOptions(copy.sandboxPanel.options).map((o) => ({ ...o, default: SANDBOX_OPTIONS[o.id].default }));
+const DEFAULT_OPTS = { needsDrain: 'normal', threatFrequency: 'normal', startingReputation: 'normal', freeCustomization: true };
 const init = () => Nav.setupInit(STYLES, DEATHS, DEFS);
 function run(actions, s = init()) {
   let effect = null;
@@ -83,7 +83,7 @@ test('Sandbox toggles: Left/Right/Enter and LB/RB cycle; Left at first value ret
   s = run(['tabPrev'], s).s; assert.strictEqual(s.opts.needsDrain, 'off');
   s = run(['left'], s).s; assert.strictEqual(s.focus, 'death:sandbox');
   s = run(['down', 'tabNext', 'right', 'confirm'], s).s; assert.strictEqual(s.opts.needsDrain, 'off'); // off→low→normal→off
-  const { effect } = run(['down', 'down', 'down', 'down', 'down', 'confirm'], s);   // 5 toggles (v1.4.3), then Begin
+  const { effect } = run(['down', 'down', 'down', 'down', 'confirm'], s);
   assert.deepStrictEqual(effect.sandboxOptions, { ...DEFAULT_OPTS, needsDrain: 'off' });
 });
 test('deselecting Sandbox hides the panel; focus never strands on a hidden toggle', () => {

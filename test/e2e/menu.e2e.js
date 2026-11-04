@@ -24,7 +24,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
   const STYLES = ['story', 'standard', 'sim']; const DEATHS = ['permadeath', 'heir', 'sandbox'];
   const horiz = (from, to, list) => { const d = list.indexOf(to) - list.indexOf(from); return Array(Math.abs(d)).fill(d < 0 ? 'ArrowLeft' : 'ArrowRight'); };
   const keysFor = (style, death) => [...horiz('standard', style, STYLES), 'Enter', 'ArrowDown', ...horiz('heir', death, DEATHS), 'Enter', 'ArrowDown',
-    ...(death === 'sandbox' ? Array(5).fill('ArrowDown') : []), 'Enter'];   // 5 Sandbox toggles (v1.4.3 adds Free perk respec)
+    ...(death === 'sandbox' ? Array(4).fill('ArrowDown') : []), 'Enter'];
   // All 9 Style × Death rule combinations, by keyboard, two per app instance (slot 0 then slot 1).
   const combos = STYLES.flatMap((st) => DEATHS.map((d) => [st, d]));
   for (let i = 0; i < combos.length; i += 2) {
@@ -359,6 +359,8 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.strictEqual((await model(page)).traits.aggression, 0);
         await page.screenshot({ path: path.join(root, 'screenshots', 'creator-personality-sandbox.png') });
         await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await waitState(page, 'newGameSetup');
+        assert.strictEqual(await page.locator('#sandbox-rows .opt').count(), 4, 'four Sandbox toggles');
+        assert.strictEqual(await page.locator('[data-opt="freePerkRespec"]').count(), 0, 'freePerkRespec hidden until respec exists');
         // Sandbox panel: Free Customization is the 4th toggle; turn it Off, then Begin again
         await page.evaluate(() => document.querySelector('[data-nav="opt:freeCustomization"]').click()); await page.waitForTimeout(50);
         assert.strictEqual((await st(page)).setup.opts.freeCustomization, false);

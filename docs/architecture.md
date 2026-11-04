@@ -76,8 +76,8 @@ current files are placeholders from `scripts/gen-placeholder-portraits.py`). Dev
   `Compositor.compose(..., {tintCache})` caches tinted layers per file+tint, so a change redraws in ≈10–35 ms (§2.3 asks ≤ 100 ms).
 - **Start:** `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, mainCat}`. `src/main/main-cat.js` `validateMainCat` re-checks every field
   (range per Death rule/Sandbox option) and returns the save-meta snapshot and the run's full Cat record (`playerCat`); invalid → `toast.startFailed`, no deletion.
-- **Sandbox options (v1.4.3):** the copy sync brought Saga's `freePerkRespec` toggle, so `SANDBOX_OPTIONS` gained `freePerkRespec {values: [true, false], default: false}`
-  (store/copy ids must match). The panel renders it from copy; nothing reads it yet (skills-spec §7.6 is gameplay).
+- **Sandbox options (v1.4.3):** Saga's `freePerkRespec` copy is synced but the toggle is **hidden** until perk respec exists (Director): it is listed in
+  `DEFERRED_SANDBOX_OPTIONS` (saves-store), `visibleSandboxOptions()` drops it from the panel in `main.js loadCopy`, it is never stored, and copy-sync skips it.
 - **Copy:** only `creator.*` / `common.back` / `run.defaultCatName` ids via `t()`; no `[PH]` strings. `test/strings.test.js` expands the creator templates.
 - **Tests:** `test/creator.test.js` (model + validator), `test/menu-handlers.test.js` (Start with mainCat, replacement only on Start),
   e2e creator blocks (§7 checks 1–11, keyboard/mouse/fake-gamepad, 72 looks, Sandbox 0–100) and the creator screens in the N1 fit block.

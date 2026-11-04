@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs'); const path = require('path');
 const { parseCopy } = require('../scripts/sync-copy');
-const { SANDBOX_OPTIONS } = require('../src/main/saves-store');
+const { SANDBOX_OPTIONS, DEFERRED_SANDBOX_OPTIONS } = require('../src/main/saves-store');
 const root = path.join(__dirname, '..');
 const parsed = parseCopy(fs.readFileSync(path.join(root, 'docs/main-menu-copy.md'), 'utf8'));
 
@@ -10,7 +10,8 @@ test('committed menu-copy.json is in sync with Saga\'s doc', () => {
   assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(root, 'src/renderer/data/menu-copy.json'), 'utf8')), parsed);
 });
 test('sandbox panel ids/values match the store; labels and descriptions per value', () => {
-  const opts = parsed.sandboxPanel.options;
+  // Deferred toggles keep their copy but don't ship (saves-store DEFERRED_SANDBOX_OPTIONS); any other unknown id still fails.
+  const opts = parsed.sandboxPanel.options.filter((o) => !DEFERRED_SANDBOX_OPTIONS.includes(o.id));
   assert.deepStrictEqual(opts.map((o) => o.id), Object.keys(SANDBOX_OPTIONS));
   for (const o of opts) {
     assert.deepStrictEqual(o.values, SANDBOX_OPTIONS[o.id].values);
@@ -25,4 +26,14 @@ test('parseCopy rejects missing sections and mismatched labels', () => {
   const bad = '```json\n' + JSON.stringify({ taglines: [], storytellerModes: [], difficulties: [], playStyles: [],
     sandboxPanel: { options: [{ id: 'x', values: [1, 2], labels: ['a'] }] }, strings: {} }) + '\n```';
   assert.throws(() => parseCopy(bad), /mismatch/);
+});
+test('deferred Sandbox toggles keep their copy but are not shipped (freePerkRespec hidden until respec exists)', () => {
+  const { visibleSandboxOptions, normalizeSandboxOptions } = require('../src/main/saves-store');
+  for (const id of DEFERRED_SANDBOX_OPTIONS) {
+    assert.ok(parsed.sandboxPanel.options.some((o) => o.id === id), `${id} copy still synced`);
+    assert.ok(!(id in SANDBOX_OPTIONS));
+    assert.ok(!visibleSandboxOptions(parsed.sandboxPanel.options).some((o) => o.id === id), `${id} not rendered`);
+    assert.ok(!(id in normalizeSandboxOptions({ [id]: true })), `${id} never stored`);
+  }
+  assert.strictEqual(visibleSandboxOptions(parsed.sandboxPanel.options).length, 4);
 });

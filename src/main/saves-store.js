@@ -18,9 +18,16 @@ const SANDBOX_OPTIONS = Object.freeze({
   needsDrain: { values: ['off', 'low', 'normal'], default: 'normal' },
   threatFrequency: { values: ['off', 'low', 'normal'], default: 'normal' },
   startingReputation: { values: ['low', 'normal', 'high'], default: 'normal' },
-  freeCustomization: { values: [true, false], default: true },
-  freePerkRespec: { values: [true, false], default: false }   // main-menu-spec v1.4.3, skills-spec §7.6 (off by default)
+  freeCustomization: { values: [true, false], default: true }
 });
+/**
+ * Sandbox options Saga has copy for that are hidden until something reads them (Director: no toggles that do nothing).
+ * They stay in menu-copy.json (copy-sync) but are filtered out of the panel and never stored. Move one into SANDBOX_OPTIONS to ship it.
+ *   freePerkRespec: main-menu-spec v1.4.3 / skills-spec §7.6 (default off), deferred until perk respec exists.
+ */
+const DEFERRED_SANDBOX_OPTIONS = Object.freeze(['freePerkRespec']);
+/** Copy option list → only the options the store ships (drops deferred ones). */
+const visibleSandboxOptions = (copyOptions) => copyOptions.filter((o) => Object.prototype.hasOwnProperty.call(SANDBOX_OPTIONS, o.id));
 const defaultSandboxOptions = () => Object.fromEntries(Object.entries(SANDBOX_OPTIONS).map(([k, v]) => [k, v.default]));
 
 /** Unknown keys dropped, invalid values replaced by defaults. */
@@ -163,4 +170,4 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
   };
 }
 
-module.exports = { normalizeMainCat, MAIN_CAT_FIELDS, STYLES, DIFFICULTIES, DEFAULT_STYLE, createSavesStore, SaveCapError, SANDBOX_OPTIONS, normalizeSandboxOptions, defaultSandboxOptions, RUN_SLOTS, SAVES_PER_RUN };
+module.exports = { DEFERRED_SANDBOX_OPTIONS, visibleSandboxOptions, normalizeMainCat, MAIN_CAT_FIELDS, STYLES, DIFFICULTIES, DEFAULT_STYLE, createSavesStore, SaveCapError, SANDBOX_OPTIONS, normalizeSandboxOptions, defaultSandboxOptions, RUN_SLOTS, SAVES_PER_RUN };
