@@ -28,6 +28,7 @@
       "package.json",
       "assets/audio/menu/*.ogg",
       "assets/menu/background.{png,jpg,webp}",
+      "assets/menu/background-1920.png",
       "assets/menu/logo.png",
       "assets/portraits/*/manifest.json",
       "assets/portraits/*/*.png",
