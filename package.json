@@ -1,7 +1,7 @@
 {
   "name": "sabretooth",
   "productName": "Sabretooth",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Sabretooth (working title): single-player Ice Age Smilodon pride game. Main menu only.",
   "main": "src/main/main.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "start:linux-dev": "electron . --no-sandbox",
     "screenshots": "electron . --no-sandbox --screenshots",
     "sync-copy": "node scripts/sync-copy.js",
-    "test": "node --test test/*.test.js",
+    "test": "node --test \"test/*.test.js\"",
     "dist:win": "electron-builder --win nsis",
     "test:e2e": "node test/e2e/menu.e2e.js"
   },
