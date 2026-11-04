@@ -44,3 +44,14 @@ Debug: `window.__menuDebug.music()`. Parameters/measurements: `src/renderer/data
 - Layered render like portraits: lying-pose lineart + gene layers (base coat, markings, eyes, sabers, scars, age variant from `lifeStage` adult/elder); pose by `sex`; files `assets/menu/cat/<sex>/<layer>.png` (Ochre owns paths).
 - Re-render when `continueTarget` changes (e.g. after delete) with a 300ms crossfade; instant under Reduced Motion. Optional idle breathing/tail flick, off under Reduced Motion.
 - Blocked on Anna's art pick; `menuDefaultCat.json`, rendering and crossfade intentionally not created yet.
+
+## Portrait compositor (engine only; creator screen not built yet)
+`src/renderer/js/compositor.js` (UMD, tests in `test/compositor.test.js`). `compose(manifest, genes, {canvas, loadImage, dir, lifeStage, scars, createCanvas?, warn?})`:
+each active layer is drawn to an offscreen canvas, tinted with `tintPixels` (rgb = geneColor × mean-gray shading, alpha kept), then drawn to the
+target with `blendFor(layer)` (`normal`→source-over default, `multiply`, `screen`; unknown → normal + warning) and the layer opacity. Order is
+`STACK`: shadow, base_coat, markings_*, white_*, eye_left, eye_right, sabers, scar*, age_elder; then `manifest.lineart`. A layer whose file fails to
+load is skipped with a warning. `genesToLayers(genes, {lifeStage, scars, elderOpacity})` is pure: genetics-spec §2 tints (dilution only changes the
+coat tint; markings = coat × 0.55, melan `#1E1A17`, leuc `#D2C3A8`; intensity → 0.35/0.60/0.85; elder adds `age_elder` at 0.5 and stains sabers 15%).
+`poseFor(sex, lifeStage)`: adult/elder → `portrait-<sex>` (elder is the overlay), cub/adolescent → `portrait-<sex>-<stage>`;
+`loadPoseManifest` falls back to the adult pose with a warning when that folder/manifest is missing. Assets: `assets/portraits/<pose>/` (see its README;
+current files are placeholders from `scripts/gen-placeholder-portraits.py`). Dev renders: `npx electron scripts/render-portrait.js` → `screenshots/portrait-*.png`.

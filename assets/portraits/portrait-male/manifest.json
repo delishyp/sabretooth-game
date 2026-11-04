@@ -1,0 +1,53 @@
+{
+  "pose": "portrait-male",
+  "size": [
+    1152,
+    864
+  ],
+  "placeholder": true,
+  "lineart": "lineart.png",
+  "layers": [
+    {
+      "id": "shadow",
+      "file": "shadow.png",
+      "blend": "multiply",
+      "tintFrom": null
+    },
+    {
+      "id": "base_coat",
+      "file": "base_coat.png",
+      "blend": "normal",
+      "tintFrom": "coat"
+    },
+    {
+      "id": "markings_spotted",
+      "file": "markings_spotted.png",
+      "blend": "normal",
+      "tintFrom": "marking"
+    },
+    {
+      "id": "markings_faintstripe",
+      "file": "markings_faintstripe.png",
+      "blend": "normal",
+      "tintFrom": "marking"
+    },
+    {
+      "id": "eye_left",
+      "file": "eye_left.png",
+      "blend": "normal",
+      "tintFrom": "eyes"
+    },
+    {
+      "id": "eye_right",
+      "file": "eye_right.png",
+      "blend": "normal",
+      "tintFrom": "eyes"
+    },
+    {
+      "id": "sabers",
+      "file": "sabers.png",
+      "blend": "normal",
+      "tintFrom": "saber"
+    }
+  ]
+}
