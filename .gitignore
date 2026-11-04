@@ -3,3 +3,7 @@ dist/
 out/
 logs/
 *.log
+release/
+*.env
+.env*
+update-token.txt
