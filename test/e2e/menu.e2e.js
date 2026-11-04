@@ -422,15 +422,13 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
           assert.deepStrictEqual(p.drawn, ['shadow', 'base_coat', 'markings_spotted', 'eye_left', 'eye_right', 'sabers', 'lineart']);
           assert.ok(p.ms < 100, `redraw ${p.ms.toFixed(1)} ms`);
         } }
-        // the two eye layers really get different tints: read one pixel of each eye mask on the composed preview
-        const eyePx = await page.evaluate(async () => {
-          const look = (o) => window.__menuDebug.creatorLook({ sex: 'male', coat: 'tan', markings: 'none', eyes: 'amber', ...o });
-          const sample = () => { const cv = document.getElementById('creator-canvas'); return cv.toDataURL().length; };
-          await look({ oddEyes: 'off', eyeRight: null }); const same = sample();
-          await look({ oddEyes: 'on', eyeRight: 'green' }); const odd = sample();
-          return { same, odd };
+        // the preview's genes tint eye_left and eye_right separately (pixels aren't compared: the committed placeholder far-eye mask is empty, genetics §2.5 art caveat)
+        const eyeTints = await page.evaluate(async () => {
+          await window.__menuDebug.creatorLook({ sex: 'male', coat: 'tan', markings: 'none', eyes: 'amber', oddEyes: 'on', eyeRight: 'green' });
+          const L = Compositor.genesToLayers(Creator.genesFor(window.__menuDebug.creator().model));
+          return [L.eye_left.tint, L.eye_right.tint, window.__menuDebug.creator().preview.drawn.includes('eye_right')];
         });
-        assert.notStrictEqual(eyePx.same, eyePx.odd, 'odd eyes change the composed portrait');
+        assert.deepStrictEqual(eyeTints, ['#C98A1E', '#8FA34A', true]);
         // Randomize in Sandbox + FC: some rolls carry exactly one rare look (rate checked statistically in unit tests)
         await page.evaluate(() => window.__menuDebug.creatorLook({ coat: 'tan', oddEyes: 'off', eyeRight: null }));
         let rare = 0; const N = 300;
