@@ -1,4 +1,4 @@
-# Sabretooth: Genetics & Inheritance Spec (v0.4.4, DRAFT)
+# Sabretooth: Genetics & Inheritance Spec (v0.4.5, DRAFT)
 Owner: Tundra (rules and numbers). Art, layer files and final tints: Ochre. Code: Flint. Player-facing names for traits: Saga (ids below are internal only).
 Not in the build yet. All numbers are starting values to tune. Probabilities checked in Python (scipy + 2M-sample Monte Carlo).
 Related: main-menu-spec v1.3 §1, §5 (`mainCat.genes`), §7 (Free Customization); play-styles-spec v0.2 §3.3 (Sim inbreeding); loners-spec v0.4.
@@ -42,7 +42,7 @@ Dominance: **C** = complete (series listed dominant → recessive), **D** = inco
 | `base_coat` | coat phenotype | `base_coat.png` (one mask) | tawny `#C8955A`, sandy `#D9BC8A`, russet `#B0623A`, grey-dun `#A39A88`, ash `#8A95A3`, melanistic `#141416`, leucistic `#EDE6DA` (Ochre coat-palette v1, `docs/art/coat-palette.md`) |
 | `base_coat` (dilution) | `dilute` count | same layer | tint = mix(coat, `#F3EBDD`, t), with t = 0 / 0.15 / 0.35 for 0/1/2 × `d` |
 | `undercoat` | `under` phenotype | `undercoat.png` (belly, chest, throat, inner legs, muzzle/chin; soft edge) | Per-coat undercoat hex (Ochre palette v1): tawny `#E6CFA6`, greydun `#CDC5B5`, russet `#DDB08C`, sandy `#EEDFC4`, melanistic `#1A1A1D`, leucistic `#F6F2EB`, ash `#BAC3CD`. **cream** = that hex; **pale** = mix(that hex, coat, 0.5) (subtler belly); **off** = no layer. Opacity comes from `underInt` (0.35 / 0.60 / 0.85) for bred and world cats. The creator fixes it at 0.85 (Director), the value Ochre tuned the palette at. Dilution mixes the undercoat toward `#F3EBDD` with the same t as the coat.. Opacity from `underInt`: 0.35 / 0.60 / 0.85 |
-| `markings` | body-pattern phenotype | `markings_spotted.png`, `markings_rosette.png`, `markings_barred.png`, `markings_faintstripe.png`; plain = no layer | tint = final coat tint × 0.55 (darker), except ghost markings: melanistic `#24211F` (slightly warm and matte, showing in raking light), leucistic `#D8CCBA` (Ochre palette v1). Melanistic: `#1E1A17` (ghost markings, rim-lit). Leucistic: `#D2C3A8` (nearly invisible by design) |
+| `markings` | body-pattern phenotype | `markings_spotted.png`, `markings_rosette.png`, `markings_barred.png`, `markings_faintstripe.png`; plain = no layer | multiply blend, placed below the shadow, rim and sheen layers. The tint is set per coat (Ochre palette v2): tan `#8A7661`, gray `#7C7872`, brown `#816455`, sandy `#908573`, ash `#73767C`, black `#6E6A66` (ghost markings), pale `#E6DED2` (nearly invisible by design). |
 | `ticking` / `points` / `mask` / `tearlines` | overlay present | `ticking.png`, `points.png`, `mask.png`, `tearlines.png` | marking tint rule; opacity from `intensity` (ticking × 0.6) |
 | `markings` (dorsal) | `Ds` present | `markings_dorsal.png` | same tint rule as markings |
 | `markings` (intensity) | `intensity` count | opacity on all marking layers | 0.35 / 0.60 / 0.85 for 0/1/2 × `I+` |
@@ -157,7 +157,7 @@ Phenotype resolver output (resolve(genes, sex, lifeStage, scars[], pose)), shape
 | mutation.perLocusPerCub | 0.5% |
 | het.rightEyeTable | 1.7 phenotype shares, reroll until ≠ left |
 | dilute.mixT (1×d / 2×d) / target | 0.15 / 0.35 / `#F3EBDD` |
-| markings.darken / intensity.opacity | ×0.55 / 0.35, 0.60, 0.85 |
+| markings.blend / intensity.opacity | multiply, per-coat tint (§2) / 0.35, 0.60, 0.85 |
 | rarity.common / uncommon threshold | ≥ 10% / ≥ 3% |
 | personality.cubSd / clamp | 8 / 0-100 |
 | personality.randomMean / sd / clamp | 50 / 15 / 5-95 |
@@ -185,3 +185,4 @@ Phenotype resolver output (resolve(genes, sex, lifeStage, scars[], pose)), shape
 - v0.4.1 (2026-11-05, Tundra): §2 hexes now come from Ochre's coat-palette v1 (black `#141416` with warm matte ghost marks, ash `#8A95A3` with a silver sheen, pale `#EDE6DA` with a pink-grey nose). Added per-coat undercoat, nose, claws, rim and sheen tints. The undercoat `cream` uses Ochre's hex, `pale` is mixed halfway toward the coat, and opacity comes from `underInt`.
 - v0.4.2 (2026-11-05, Tundra, per Ochre): `underInt` opacities raised to 0.65 / 0.75 / 0.85 so the undercoat always reads. The creator uses 0.85.
 - v0.4.3 (2026-11-05, Director ruling): reverts v0.4.2. `underInt` stays at 0.35 / 0.60 / 0.85 for bred and world cats, and only the creator fixes it at 0.85.
+- v0.4.5 (2026-11-05, Ochre): markings are now a multiply blend with a tint per coat, replacing the coat ×0.55 rule. The layer sits below shadow, rim and sheen. Coat, rim and sheen hexes are unchanged.
