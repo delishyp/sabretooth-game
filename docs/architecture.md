@@ -9,7 +9,7 @@
     - `mainCat` (optional, spec v1.3 §1/§5): `{catId, name, sex, lifeStage, genes, scars[]}` snapshot of the cat being played when the save was written (in Heir mode the current heir, not the founder). `null` until gameplay writes it; `normalizeMainCat()` keeps only these fields.
     - `list()` also returns `continueTarget: {runId, saveId} | null` = newest valid save in a valid run (what Continue loads; the menu cat will read its `mainCat`).
     - `list()` → `{runs:[run|null, run|null]}`, saves newest first; unreadable records → `damaged: true` (deletable, not loadable).
-    - `createRun()` uses first free slot or `replaceRunId` (deletes old run only at that point); throws `SaveCapError` if both full.
+    - `createRun()` uses first free slot or `replaceRunId` (deletes old run only at that point); throws `SaveCapError` if both full. Optional `playerCat` (creator) is stored on the run record.
     - `writeSave()` takes the first free index; throws `SaveCapError` at 3 unless `overwriteSaveIndex` (future in-game overwrite prompt).
     - Difficulty / sandboxOptions locked: no API changes them after `createRun`. Sandbox runs are tagged by `difficulty: "sandbox"`.
 - **Preload** (`preload.js`) → `window.sabretooth`: `menu.newGame({style, difficulty, replaceRunId, sandboxOptions})`, `menu.loadSave`, `menu.deleteSave`, `menu.deleteRun`, `menu.newLineage`, `game.legacyEnd`, `saves.list`, `settings.get/set/reset`, `storyteller.check`, `copy.get`, `app.info/quit`, `onToast`, `onLegacyEnd`. contextIsolation on, nodeIntegration off, sandbox on.
@@ -48,7 +48,7 @@ over the 3.0 s crossfade); menu fade in/out stay linear. Source mp3 moved to `au
 - Re-render when `continueTarget` changes (e.g. after delete) with a 300ms crossfade; instant under Reduced Motion. Optional idle breathing/tail flick, off under Reduced Motion.
 - Blocked on Anna's art pick; `menuDefaultCat.json`, rendering and crossfade intentionally not created yet.
 
-## Portrait compositor (engine only; creator screen not built yet)
+## Portrait compositor
 `src/renderer/js/compositor.js` (UMD, tests in `test/compositor.test.js`). `compose(manifest, genes, {canvas, loadImage, dir, lifeStage, scars, createCanvas?, warn?})`:
 each active layer is drawn to an offscreen canvas, tinted with `tintPixels` (rgb = geneColor × mean-gray shading, alpha kept), then drawn to the
 target with `blendFor(layer)` (`normal`→source-over default, `multiply`, `screen`; unknown → normal + warning) and the layer opacity. Order is
@@ -58,3 +58,26 @@ coat tint; markings = coat × 0.55, melan `#1E1A17`, leuc `#D2C3A8`; intensity �
 `poseFor(sex, lifeStage)`: adult/elder → `portrait-<sex>` (elder is the overlay), cub/adolescent → `portrait-<sex>-<stage>`;
 `loadPoseManifest` falls back to the adult pose with a warning when that folder/manifest is missing. Assets: `assets/portraits/<pose>/` (see its README;
 current files are placeholders from `scripts/gen-placeholder-portraits.py`). Dev renders: `npx electron scripts/render-portrait.js` → `screenshots/portrait-*.png`.
+
+## Make Your Sabrecat (cat-creator-spec v0.2, main-menu-spec v1.4)
+- **State machine:** `newGameSetup → creator` (Begin; the setup effect `{style, difficulty, sandboxOptions?}` is kept as `pendingSetup`) `→ starting` (Start).
+  `creator` back on step 1 → `newGameSetup` with the setup model and `replaceRunId` untouched (no confirmation, nothing deleted).
+- **Model** `src/renderer/js/creator.js` (UMD, pure): `init`, `reduce(state, action, arg, env) → {state, effect}`, `randomizeLook` (coat/markings/eyes only, never
+  the same look), `randomizeTraits` (Normal(50,15), nearest 5, clamped; preset → custom), `applyPreset`, `nudgeTrait`/`setTrait` (any change → custom),
+  `rangeFor(difficulty, sandboxOptions)` (20–80, or 0–100 for Sandbox + Free Customization On), `sanitizeName` (letters/space/hyphen/apostrophe, 16 max),
+  `genesFor` (homozygous chosen loci; `D/D`, `ds/ds`, `I+/I-`, `none/none`, `ivory/ivory`, hetero false, mutations []), `buildMainCat`.
+  Lifecycle: `RUN_START` (the one run-start constant), `PLAYER_START_AGE` 12, `birthSeasonFor`, `lifeStageFor` (stage starts 0/4/12/40).
+- **Focus ids:** step 1 `name, sex, coat, markings, eyes` + `randomize · back · next`; step 2 `preset, trait:<id>×5` + `randomize · back · start`.
+  Up/Down wrap (entering the button row lands on Next/Start), Left/Right cycle / ±5 / move along buttons, Enter/Space/A cycles a row.
+  Name: keyboard types into the field (input.js leaves letters, Space, Left/Right to it; Up/Down/Enter/Esc still navigate), keyboard Enter moves on to Sex,
+  gamepad A rerolls a default name. Esc/B/right-click = Back. Gamepad Start = Next on step 1, Start on step 2. Mouse: row arrows, value click, slider
+  track click/drag, buttons; hover follows real pointer movement only. Hints per last input device (keyboard / controller / mouse).
+- **Preview:** main `portraits:load {pose}` (pose ids validated, cub/adolescent → adult fallback, cached) returns manifest + data-URL layers;
+  `Compositor.compose(..., {tintCache})` caches tinted layers per file+tint, so a change redraws in ≈10–35 ms (§2.3 asks ≤ 100 ms).
+- **Start:** `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, mainCat}`. `src/main/main-cat.js` `validateMainCat` re-checks every field
+  (range per Death rule/Sandbox option) and returns the save-meta snapshot and the run's full Cat record (`playerCat`); invalid → `toast.startFailed`, no deletion.
+- **Sandbox options (v1.4.3):** the copy sync brought Saga's `freePerkRespec` toggle, so `SANDBOX_OPTIONS` gained `freePerkRespec {values: [true, false], default: false}`
+  (store/copy ids must match). The panel renders it from copy; nothing reads it yet (skills-spec §7.6 is gameplay).
+- **Copy:** only `creator.*` / `common.back` / `run.defaultCatName` ids via `t()`; no `[PH]` strings. `test/strings.test.js` expands the creator templates.
+- **Tests:** `test/creator.test.js` (model + validator), `test/menu-handlers.test.js` (Start with mainCat, replacement only on Start),
+  e2e creator blocks (§7 checks 1–11, keyboard/mouse/fake-gamepad, 72 looks, Sandbox 0–100) and the creator screens in the N1 fit block.

@@ -55,3 +55,19 @@ test('menu:newGame passes style through to the run record', async () => {
   assert.deepStrictEqual([r.style, r.difficulty, r.sandboxOptions.needsDrain], ['story', 'sandbox', 'off']);
   assert.strictEqual((await h.newGame({ style: 'hard', difficulty: 'heir' })).errorId, 'toast.startFailed');
 });
+
+test('menu:newGame with mainCat (v1.4): run takes the cat name + full playerCat; replaced run deleted only then; bad cat → nothing deleted', async () => {
+  const C = require('../src/renderer/js/creator');
+  const { h, saves, logs } = setup();
+  const a = (await h.newGame({ difficulty: 'heir' })).run; const b = (await h.newGame({ difficulty: 'permadeath' })).run;
+  const cat = C.buildMainCat({ ...C.init({ names: ['Rook'] }), name: 'Rook' }, { newId: () => 'cat_1' });
+  const bad = await h.newGame({ difficulty: 'heir', replaceRunId: a.runId, mainCat: { ...cat, ageSeasons: 3 } });
+  assert.strictEqual(bad.ok, false); assert.ok(saves.findRun(a.runId), 'replaced run survives a rejected Start');
+  assert.ok(logs.some((l) => l.includes('invalid mainCat')));
+  const res = await h.newGame({ style: 'sim', difficulty: 'heir', replaceRunId: a.runId, mainCat: cat });
+  assert.strictEqual(res.ok, true); assert.strictEqual(saves.findRun(a.runId), null); assert.ok(saves.findRun(b.runId));
+  const run = saves.findRun(res.run.runId);
+  assert.strictEqual(run.catName, 'Rook');
+  assert.deepStrictEqual(run.playerCat, { catId: 'cat_1', name: 'Rook', sex: cat.sex, ageSeasons: 12, birthSeason: { year: -2, season: 'spring' }, genes: cat.genes, scars: [] });
+  assert.deepStrictEqual(res.mainCat, { catId: 'cat_1', name: 'Rook', sex: cat.sex, lifeStage: 'adult', genes: cat.genes, scars: [] });
+});

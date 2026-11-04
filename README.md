@@ -1,13 +1,13 @@
 # Sabretooth (working title)
 
-Single-player Ice Age Smilodon pride game for Windows (Electron). **Current scope: main menu only.**
+Single-player Ice Age Smilodon pride game for Windows (Electron). **Current scope: main menu + Make Your Sabrecat (cat creator).**
 
 ## Install & run
 ```
 npm install
 npm start                 # Windows / macOS
 npm run start:linux-dev   # Linux dev box (adds --no-sandbox)
-npm test                  # unit tests (settings, slots + cap, copy/strings, navigation, gamepad, handlers)
+npm test                  # unit tests (settings, slots + cap, copy/strings, navigation, gamepad, handlers, music, compositor, creator)
 npm run test:e2e          # Electron smoke test via playwright-core (needs a display; own temp userData)
 npm run screenshots       # Linux dev: capture menu screens to ./screenshots and exit
 node scripts/seed-demo-saves.js <dir>   # dev: seed fake runs/saves into a temp userData
@@ -17,7 +17,7 @@ If `npm install` skips Electron's postinstall (npm install-scripts policy), run 
 
 ## Layout
 - `src/main/` – main process (`main.js`), `preload.js` bridge, `settings-store.js`, `saves-store.js` (runs/saves)
-- `src/renderer/` – `index.html`, `styles/theme.css` (palette/art slots), `styles/menu.css`, `js/` (`assets.js`, `input.js`, `menu.js`), `data/menu-copy.json` (generated from Saga's copy doc)
+- `src/renderer/` – `index.html`, `styles/theme.css` (palette/art slots), `styles/menu.css`, `js/` (`assets.js`, `input.js`, `menu.js`, `creator.js`, `compositor.js`, `music.js`, `log.js`), `data/menu-copy.json` (generated from Saga's copy doc)
 - `docs/` – `main-menu-spec.md` (Tundra), `main-menu-copy.md` (Saga), `architecture.md`
 - `assets/menu/` – menu art (see **Background art** below)
 
@@ -25,6 +25,19 @@ If `npm install` skips Electron's postinstall (npm install-scripts policy), run 
 Player-facing text (taglines, storyteller modes, difficulties, Sandbox panel) lives in `src/renderer/data/menu-copy.json`,
 generated from all JSON blocks in Saga's `docs/main-menu-copy.md` (§1–§5, §5 = `strings` map): `npm run sync-copy`. Never hand-edit the JSON.
 Code looks strings up with `t(id, vars)` (`src/renderer/js/i18n.js`). Ids Saga hasn't written yet live in `PLACEHOLDER_STRINGS` there, shown with a `[PH]` prefix; once Saga adds an id to §5 and you run sync-copy, delete the placeholder (a test enforces this).
+
+## Make Your Sabrecat (cat-creator-spec v0.2)
+New Game setup → **Begin** → creator step 1 **Look** (Name, Sex, Coat, Markings, Eyes, live portrait) → **Next** → step 2 **Personality**
+(Preset + five 20–80 sliders, 0–100 for Sandbox with Free Customization On) → **Start** → `menu:newGame {…, mainCat}`.
+- Model is pure: `src/renderer/js/creator.js` (unit-tested in `test/creator.test.js`); the DOM lives in the creator section of `menu.js`.
+- Start builds `mainCat` (`catId, name, sex, ageSeasons: 12, birthSeason: {year: -2, season: "spring"}, lifeStage: "adult", genes, scars: []`).
+  The run start date is the single constant `Creator.RUN_START` (day 1 of spring, Year 1; lifecycle-spec §1.3).
+- Main re-validates the cat (`src/main/main-cat.js`) before creating the run; a run picked for replacement is deleted only then.
+  The run record gets `catName` and `playerCat` (full Cat record with `ageSeasons` and `birthSeason`).
+- Preview: `portraits:load {pose}` serves the pose manifest + layers as data URLs (keeps the canvas untainted); the renderer draws with
+  `Compositor.compose` on `poseFor(sex, 'adult')` with a tint cache (redraws ≈ 10–35 ms).
+- Back on step 2 → step 1 (everything kept); Back on step 1 → New Game setup (no confirmation, setup and replacement kept).
+- Screenshots: `screenshots/creator-look.png`, `creator-personality.png`, `creator-personality-sandbox.png` (e2e and `npm run screenshots`).
 
 ## Background art (for Ochre / Anna)
 The menu background is **one swappable file**: `assets/menu/background.png` (also accepted: `background.jpg`, `background.webp`;
@@ -36,7 +49,7 @@ Other files in `assets/menu/` (e.g. `backgrounds/`, `refs/`, `html/`) are ignore
 ## Save model (spec v1.3)
 2 run slots × up to 3 manual saves each, under `<userData>/saves/`:
 `run-<0|1>/run.json` (run record: style, difficulty = Death rule, and sandboxOptions locked at New Game) and `run-<n>/save-<0..2>/meta.json`.
-The cap is enforced in `src/main/saves-store.js` (`SaveCapError`). Continue = newest valid save across both runs (`saves:list` → `continueTarget`). Save meta has an optional `mainCat` (null for now).
+The cap is enforced in `src/main/saves-store.js` (`SaveCapError`). Continue = newest valid save across both runs (`saves:list` → `continueTarget`). Save meta has an optional `mainCat` (null until gameplay writes saves). The run record carries `playerCat` from the creator.
 Seeded screenshots: `SABRETOOTH_USERDATA=$(mktemp -d) node scripts/seed-demo-saves.js <that dir>` then
 `SABRETOOTH_USERDATA=<that dir> npm run screenshots` (optional `SABRETOOTH_SHOTS=load,main-menu` filter). Delete the dir after.
 

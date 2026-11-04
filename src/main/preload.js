@@ -4,7 +4,7 @@ const call = (ch, payload) => ipcRenderer.invoke(ch, payload);
 
 contextBridge.exposeInMainWorld('sabretooth', {
   menu: {
-    newGame: ({ style, difficulty, replaceRunId, sandboxOptions }) => call('menu:newGame', { style, difficulty, replaceRunId, sandboxOptions }),
+    newGame: ({ style, difficulty, replaceRunId, sandboxOptions, mainCat }) => call('menu:newGame', { style, difficulty, replaceRunId, sandboxOptions, mainCat }),
     loadSave: (runId, saveId) => call('menu:loadSave', { runId, saveId }),
     deleteSave: (runId, saveId) => call('menu:deleteSave', { runId, saveId }),
     deleteRun: (runId) => call('menu:deleteRun', { runId }),
@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('sabretooth', {
   },
   game: { legacyEnd: (runId) => call('game:legacyEnd', { runId }) },
   saves: { list: () => call('saves:list') },
+  portraits: { load: (pose) => call('portraits:load', { pose }) },
   settings: {
     get: () => call('settings:get'),
     set: (patch) => call('settings:set', { patch }),

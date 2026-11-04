@@ -62,6 +62,7 @@ async function captureAll() {
   const only = process.env.SABRETOOTH_SHOTS; // comma list of file prefixes, optional
   const list = [
     ['root', 'main-menu.png'], ['newGame', 'new-game-setup.png'], ['newGame:sim', 'new-game-setup-sim-permadeath.png'], ['newGame:sandbox', 'new-game-sandbox-options.png'],
+    ['creator', 'creator-look.png'], ['creator:personality', 'creator-personality.png'], ['creator:sandbox', 'creator-personality-sandbox.png'],
     ['slotsFull', 'new-game-slots-full.png'], ['load', 'load-runs.png'], ['load:expanded', 'load-run-expanded.png'],
     ['continue', 'continue-loading.png'], ['legacy', 'legacy-hook.png'],
     ['settings:storyteller', 'settings-storyteller.png'], ['settings:audio', 'settings-audio.png'], ['settings:display', 'settings-display.png'],
@@ -118,8 +119,33 @@ function registerIpc() {
   ipcMain.handle('copy:get', () => copy);
   // M1: renderer console.warn/error, uncaught errors and rejections (js/log.js) → logs/menu.log
   ipcMain.on('log:renderer', (_e, { level, text } = {}) => log(`renderer ${level === 'error' ? 'error' : 'warn'}: ${String(text).slice(0, 4000)}`));
+  ipcMain.handle('portraits:load', (_e, { pose } = {}) => loadPortrait(pose));
   ipcMain.handle('app:info', () => ({ version: app.getVersion(), build: process.env.SABRETOOTH_BUILD || 'dev' }));
   ipcMain.handle('app:quit', () => { flushStaged(); app.quit(); });
+}
+
+/**
+ * portraits:load {pose} → {pose, manifest, images: {file: dataURL}} for the creator preview (cat-creator-spec §2.1).
+ * Images go over as data URLs so the renderer's canvas stays untainted (file:// images would block getImageData).
+ * Only known pose ids are served; a missing cub/adolescent pose falls back to the adult pose (lifecycle-spec §6.2). Cached.
+ */
+const POSE_RE = /^portrait-(male|female)(-(cub|adolescent))?$/;
+const portraitCache = new Map();
+function loadPortrait(pose) {
+  if (!POSE_RE.test(String(pose))) throw new Error(`unknown pose ${pose}`);
+  if (portraitCache.has(pose)) return portraitCache.get(pose);
+  const base = path.join(__dirname, '..', '..', 'assets', 'portraits');
+  let use = pose;
+  if (!fs.existsSync(path.join(base, use, 'manifest.json'))) { use = pose.replace(/-(cub|adolescent)$/, ''); log(`portraits: ${pose} missing, using ${use}`); }
+  const dir = path.join(base, use);
+  const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'));
+  const images = {};
+  for (const f of [...(manifest.layers || []).map((l) => l.file), manifest.lineart].filter(Boolean)) {
+    try { images[f] = 'data:image/png;base64,' + fs.readFileSync(path.join(dir, path.basename(f))).toString('base64'); } catch (e) { log(`portraits: ${use}/${f} missing: ${e.message}`); }
+  }
+  const out = { pose: use, manifest, images };
+  portraitCache.set(pose, out);
+  return out;
 }
 
 /** Copy for renderer: Saga's generated JSON + option defaults from the store + settings defaults (for per-tab reset). */

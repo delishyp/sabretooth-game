@@ -1,7 +1,8 @@
 /**
  * Main menu controller (spec v1.3). State machine (§5):
  *   boot → root; root → newGameSetup (slot free) | slotsFull (both full) | load | settings | credits | quitConfirm | loading (continue)
- *   slotsFull → replaceConfirm → newGameSetup (replaceRunId set) | root;  newGameSetup → starting → root (placeholder)
+ *   slotsFull → replaceConfirm → newGameSetup (replaceRunId set) | root;  newGameSetup → creator (Begin) → starting (Start) → root (placeholder)
+ *   creator: step 1 Look ⇄ step 2 Personality; Back on step 1 → newGameSetup (choices kept, replaceRunId kept, nothing deleted)
  *   load → loadRunExpanded → loading | deleteSaveConfirm → loadRunExpanded | deleteRunConfirm → load; back → load
  *   legacy (game:legacyEnd hook) → menu:newLineage | root
  * Text: t(id, vars) over Saga's copy (js/i18n.js). New Game setup navigation: pure Nav.setupReduce (js/nav.js).
@@ -85,8 +86,10 @@
     focus(f[j]);
   }
   document.addEventListener('mouseover', (ev) => {
+    if (state === 'creator') return;   // creator hover uses real mouse movement only (below)
     const b = ev.target.closest('button'); if (!b || b.disabled) return;
     if (!dialog && state === 'newGameSetup' && b.dataset.nav) return setupDispatch('hover', b.dataset.nav);
+    if (state === 'creator') return;
     if (focusables().includes(b)) focus(b);
   });
 
@@ -98,6 +101,7 @@
     if (screen === 'root') { renderRoot(); music.play(); }
     if (screen === 'starting' || screen === 'loading') music.fadeOutAndStop();   // Begin / Continue / Load
     if (screen === 'newGameSetup') return renderSetup();
+    if (screen === 'creator') return renderCreator();
     if (screen === 'settings') renderSettings();
     if (screen === 'load' || screen === 'loadRunExpanded') renderLoad();
     if (screen === 'slotsFull') renderReplace();
@@ -201,12 +205,185 @@
   function setupDispatch(action, arg) {
     const { state: next, effect } = Nav.setupReduce(setup, action, arg);
     setup = next; applySetup();
-    if (effect && effect.type === 'start') startNewGame(effect);
+    if (effect && effect.type === 'start') openCreator(effect);   // v1.4: Begin opens Make Your Sabrecat
     if (effect && effect.type === 'leave') goBack();
   }
   $(SCREEN).addEventListener('click', (ev) => {
     const b = ev.target.closest('[data-nav]'); if (b && !dialog) setupDispatch('click', b.dataset.nav);
   });
+
+  // ---------- Make Your Sabrecat (cat-creator-spec v0.2; model = pure js/creator.js) ----------
+  const CSCREEN = '.screen[data-screen="creator"]';
+  let creator = null;               // Creator model
+  let pendingSetup = null;          // {style, difficulty, sandboxOptions?} from Begin
+  let starting = false;             // guards a double Start
+  const preview = { token: 0, key: null, ms: null, drawn: [], skipped: [], pose: null, poses: new Map(), tints: new Map() };
+  const creatorNames = () => (copy.creator && copy.creator.defaultNames) || [];
+  const device = () => document.body.dataset.device || 'keyboard';
+  const creatorEnv = () => ({ names: creatorNames(), device: device() });
+  const optLabel = (row, id) => t(`creator.${row}.${id}`);
+
+  function openCreator(effect) {
+    pendingSetup = { style: effect.style, difficulty: effect.difficulty, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
+    creator = Creator.init({ names: creatorNames(), difficulty: effect.difficulty, sandboxOptions: effect.sandboxOptions });
+    starting = false; preview.key = null;
+    show('creator');
+  }
+  function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function optionRow(id) {
+    const row = el('div', 'crow'); row.dataset.row = id;
+    const head = el('div', 'crow-head'); head.append(el('span', 'crow-label', t(`creator.row.${id}`)));
+    const ctl = el('div', 'crow-ctl');
+    const l = el('button', 'arrow', '◀'); l.dataset.arrow = '-1';
+    const v = el('button', 'crow-val'); v.dataset.cnav = id;
+    const r = el('button', 'arrow', '▶'); r.dataset.arrow = '1';
+    ctl.append(l, v, r);
+    row.append(head, ctl, el('p', 'crow-help'));
+    return row;
+  }
+  function nameRow() {
+    const row = el('div', 'crow'); row.dataset.row = 'name';
+    const head = el('div', 'crow-head'); head.append(el('span', 'crow-label', t('creator.row.name')));
+    const ctl = el('div', 'crow-ctl');
+    const inp = el('input'); inp.type = 'text'; inp.id = 'creator-name'; inp.placeholder = t('creator.name.placeholder'); inp.spellcheck = false; inp.autocomplete = 'off';
+    inp.dataset.cnav = 'name';
+    inp.addEventListener('input', () => {
+      const pos = inp.selectionStart; const before = inp.value;
+      creatorDispatch('nameInput', before);
+      if (inp.value !== creator.name) { inp.value = creator.name; const p = Math.max(0, Math.min(creator.name.length, pos - (before.length - creator.name.length))); inp.setSelectionRange(p, p); }
+    });
+    ctl.append(inp);
+    row.append(head, ctl, el('p', 'crow-help'));
+    return row;
+  }
+  function sliderRow(trait) {
+    const id = `trait:${trait}`;
+    const row = el('div', 'crow slider'); row.dataset.row = id;
+    const head = el('div', 'crow-head');
+    head.append(el('span', 'crow-label', t(`creator.trait.${trait}`)), el('span', 'crow-desc', t(`creator.trait.${trait}.desc`)), el('span', 'sval'));
+    const ctl = el('div', 'crow-ctl');
+    const l = el('button', 'arrow', '◀'); l.dataset.arrow = '-1';
+    const r = el('button', 'arrow', '▶'); r.dataset.arrow = '1';
+    const track = el('div', 'track'); track.dataset.trait = trait; track.append(el('div', 'fill'), el('div', 'knob'));
+    ctl.append(l, el('span', 'end low', t(`creator.trait.${trait}.low`)), track, el('span', 'end high', t(`creator.trait.${trait}.high`)), r);
+    row.append(head, ctl);
+    return row;
+  }
+  /** Builds the right panel for the current step (only when the step changes, so the Name field keeps its caret). */
+  function buildCreatorPanel() {
+    const panel = $('#creator-panel');
+    if (creator.step === 1) panel.replaceChildren(nameRow(), ...['sex', 'coat', 'markings', 'eyes'].map(optionRow));
+    else panel.replaceChildren(optionRow('preset'), ...Creator.TRAITS.map(sliderRow));
+    panel.dataset.step = String(creator.step);
+    if (creator.step === 1) $('#creator-name').value = creator.name;
+  }
+  function renderCreator() { buildCreatorPanel(); applyCreator(); renderPreview(); }
+  const pctOf = (v, r) => ((v - r.min) / (r.max - r.min)) * 100;
+  function nameHelp() {
+    if (creator.nameError) return { text: t(creator.nameError, { max: Creator.NAME_MAX }), error: true };
+    if (!Creator.normalizeName(creator.name)) return { text: t('creator.name.emptyHint') };
+    return { text: t(device() === 'controller' && creator.focus === 'name' ? 'creator.help.nameGamepad' : 'creator.help.name') };
+  }
+  function applyCreator() {
+    const c = creator; const sc = $(CSCREEN);
+    if (sc.querySelector('#creator-panel').dataset.step !== String(c.step)) buildCreatorPanel();
+    $('#creator-step').textContent = t('creator.step.indicator', { n: c.step, total: 2, stepName: t(c.step === 1 ? 'creator.step.look' : 'creator.step.personality') });
+    for (const row of $$('#creator-panel .crow')) {
+      const id = row.dataset.row; const help = row.querySelector('.crow-help');
+      row.classList.toggle('focused', c.focus === id);
+      if (id === 'name') {
+        const inp = row.querySelector('input'); if (inp.value !== c.name) inp.value = c.name;
+        const h = nameHelp(); help.textContent = h.text; help.classList.toggle('error', !!h.error);
+      } else if (id === 'preset') {
+        row.querySelector('.crow-val').textContent = t(`creator.preset.${c.preset}`);
+        help.textContent = t(`creator.preset.${c.preset}.desc`);
+      } else if (id.startsWith('trait:')) {
+        const k = id.slice(6); const v = c.traits[k];
+        row.querySelector('.sval').textContent = String(v);
+        row.querySelector('.fill').style.width = `${pctOf(v, c.range)}%`;
+        row.querySelector('.knob').style.left = `${pctOf(v, c.range)}%`;
+        row.dataset.value = String(v);
+      } else {
+        row.querySelector('.crow-val').textContent = optLabel(id, c[id]);
+        help.textContent = t(`creator.help.${id}`);
+      }
+    }
+    $('#creator-actions [data-cnav="next"]').hidden = c.step !== 1;
+    $('#creator-actions [data-cnav="start"]').hidden = c.step !== 2;
+    $$('#creator-actions button').forEach((b) => b.classList.toggle('focused', b.dataset.cnav === c.focus));
+    $('#creator-rand-help').textContent = t(c.step === 1 ? 'creator.help.randomize' : 'creator.help.randomizePersonality');
+    const hintKey = { keyboard: 'creator.hint.keyboard', controller: 'creator.hint.gamepad', mouse: 'creator.hint.mouse' }[device()] || 'creator.hint.keyboard';
+    $('#creator-hint').textContent = t(hintKey);
+    const nm = Creator.normalizeName(c.name) || t('run.defaultCatName');
+    $('#creator-canvas').setAttribute('aria-label', t('creator.preview.alt', { catName: nm, sex: optLabel('sex', c.sex).toLowerCase(),
+      coat: optLabel('coat', c.coat).toLowerCase(), markings: t(`creator.preview.markings.${c.markings}`), eyes: optLabel('eyes', c.eyes).toLowerCase() }));
+    // Real DOM focus: the Name field takes it so typing works; everything else focuses its control (never the text field).
+    const target = c.focus === 'name' ? $('#creator-name')
+      : $(`#creator-actions [data-cnav="${c.focus}"]`) || $(`#creator-panel [data-row="${c.focus}"] .crow-val`) || $(`#creator-panel [data-row="${c.focus}"] .arrow[data-arrow="1"]`);
+    if (target && document.activeElement !== target) target.focus({ preventScroll: true });
+    fitActive();
+  }
+  /** Live preview (§2.1, §2.3): compositor.compose on poseFor(sex, 'adult'); redraws only when the look changes. */
+  async function poseAssets(pose) {
+    if (preview.poses.has(pose)) return preview.poses.get(pose);
+    const p = (async () => {
+      const data = await api.portraits.load(pose);
+      const imgs = {};
+      await Promise.all(Object.entries(data.images).map(([f, url]) => new Promise((ok) => { const i = new Image(); i.onload = () => { imgs[f] = i; ok(); }; i.onerror = () => ok(); i.src = url; })));
+      return { pose: data.pose, manifest: data.manifest, imgs };
+    })();
+    preview.poses.set(pose, p); p.catch(() => preview.poses.delete(pose));
+    return p;
+  }
+  async function renderPreview() {
+    const c = creator; const key = [c.sex, c.coat, c.markings, c.eyes].join('|');
+    if (key === preview.key) return;
+    preview.key = key; const token = ++preview.token; const t0 = performance.now();
+    try {
+      const a = await poseAssets(Compositor.poseFor(c.sex, 'adult'));
+      const off = document.createElement('canvas');
+      const res = await Compositor.compose(a.manifest, Creator.genesFor(c), { canvas: off, lifeStage: 'adult', scars: [], tintCache: preview.tints, dir: a.pose,
+        loadImage: (f) => { const k = f.slice(a.pose.length + 1); return a.imgs[k] ? Promise.resolve(a.imgs[k]) : Promise.reject(new Error(`missing ${k}`)); } });
+      if (token !== preview.token) return;
+      const cv = $('#creator-canvas'); cv.width = off.width; cv.height = off.height;
+      cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); cv.getContext('2d').drawImage(off, 0, 0);
+      Object.assign(preview, { ms: performance.now() - t0, drawn: res.drawn, skipped: res.skipped, pose: a.pose, rendered: key });
+    } catch (e) {
+      console.warn('creator preview failed', e);   // never blocks the creator
+      if (token === preview.token) Object.assign(preview, { ms: null, drawn: [], skipped: ['*'], rendered: key });
+    }
+  }
+  function creatorDispatch(action, arg) {
+    if (!creator || starting) return;
+    const { state: next, effect } = Creator.reduce(creator, action, arg, creatorEnv());
+    creator = next;
+    if (effect && effect.type === 'leave') { show('newGameSetup'); return; }   // §1.3: back to setup, its choices kept; no confirmation
+    applyCreator(); renderPreview();
+    if (effect && effect.type === 'start') { starting = true; startNewGame({ ...pendingSetup, mainCat: effect.mainCat }).finally(() => { starting = false; }); }
+  }
+  // Mouse: arrows change a row, a value click cycles it, the track sets a slider, buttons act; hover moves focus only.
+  $(CSCREEN).addEventListener('click', (ev) => {
+    if (dialog || state !== 'creator') return;
+    const arrow = ev.target.closest('.arrow');
+    if (arrow) return creatorDispatch('arrow', { id: arrow.closest('.crow').dataset.row, dir: Number(arrow.dataset.arrow) });
+    const b = ev.target.closest('[data-cnav]');
+    if (b) return creatorDispatch('click', b.dataset.cnav);
+  });
+  let dragTrack = null;
+  const trackValue = (track, x) => { const r = track.getBoundingClientRect(); const f = Math.min(1, Math.max(0, (x - r.left) / r.width)); return creator.range.min + f * (creator.range.max - creator.range.min); };
+  $(CSCREEN).addEventListener('mousedown', (ev) => {
+    const tr = ev.target.closest('.track'); if (!tr || ev.button !== 0 || state !== 'creator') return;
+    dragTrack = tr; creatorDispatch('setTrait', { trait: tr.dataset.trait, value: trackValue(tr, ev.clientX) });
+  });
+  addEventListener('mousemove', (ev) => { if (dragTrack && state === 'creator') creatorDispatch('setTrait', { trait: dragTrack.dataset.trait, value: trackValue(dragTrack, ev.clientX) }); });
+  addEventListener('mouseup', () => { dragTrack = null; });
+  // Hover follows actual pointer movement: a screen opening under a resting pointer fires mouseover, which must not steal focus.
+  addEventListener('mousemove', (ev) => { if (!dialog && state === 'creator' && creator && !dragTrack && (ev.movementX || ev.movementY)) creatorHover(ev.target); });
+  function creatorHover(target) {
+    const row = target.closest('#creator-panel .crow'); const b = target.closest('#creator-actions [data-cnav]');
+    const id = b ? b.dataset.cnav : row ? row.dataset.row : null;
+    if (id && id !== creator.focus) creatorDispatch('hover', id);
+  }
 
   function renderReplace() {
     const box = $('#replace-runs'); box.innerHTML = '';
@@ -352,11 +529,12 @@
   $('#dialog-cancel').addEventListener('click', closeDialog);
 
   // ---------- actions ----------
-  async function startNewGame({ style, difficulty, sandboxOptions }) {
-    const res = await api.menu.newGame({ style, difficulty, replaceRunId: replaceRunId || undefined, sandboxOptions });
+  /** Creator Start (v1.4): menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, mainCat}. The replaced run is deleted only now (main). */
+  async function startNewGame({ style, difficulty, sandboxOptions, mainCat }) {
+    const res = await api.menu.newGame({ style, difficulty, replaceRunId: replaceRunId || undefined, sandboxOptions, mainCat });
     if (!res.ok) { toast(t('toast.startFailed')); return; }   // B12: raw error is logged by main only
     fallbackToast(res.storyteller?.preferred, res.storyteller?.effective);
-    replaceRunId = null;
+    replaceRunId = null; creator = null;
     $('#placeholder-detail').textContent = t('placeholder.newRun', { styleName: styleName(style), deathRuleName: diffName(difficulty), slot: res.run.slotIndex + 1 });
     show('starting');
   }
@@ -399,6 +577,7 @@
     if (dialog) return closeDialog();
     if (state === 'settings') return leaveSettings();
     if (state === 'root') return quit();
+    if (state === 'creator') return creatorDispatch('back');
     if (state === 'loadRunExpanded') { const id = expandedRunId; expandedRunId = null; show('load', `.run[data-run-id="${id}"]`); return; }
     clearInterval(creditsTimer);
     if (state === 'newGameSetup') replaceRunId = null;
@@ -413,6 +592,7 @@
   Input.on((a) => {
     const el = current();
     if (!dialog && state === 'newGameSetup') return setupDispatch(a === 'start' ? 'confirm' : a);
+    if (!dialog && state === 'creator') return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);
     if (a === 'up') return move(-1);
     if (a === 'down') { if (state === 'credits') fastScroll = true; return move(1); }
     if (a === 'left' || a === 'right') {
@@ -433,7 +613,10 @@
   // Dev hook used by `--screenshots`; harmless in production.
   window.__menuDebug = {
     music: () => music.debug(),
-    state: () => ({ state, setup, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
+    state: () => ({ state, setup, creator, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
+    /** Sets a look on the open creator and waits for its preview (e2e check 1: all 72 looks render with no missing layer). */
+    creatorLook: async (look) => { creator = { ...creator, ...look }; applyCreator(); await renderPreview(); return { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered }; },
+    creator: () => ({ model: creator, pending: pendingSetup, replaceRunId, preview: { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered } }),
     setUiScale: (v) => { settings.display.uiScale = v; scale(); },
     show: async (s) => {
       if (dialog) closeDialog();
@@ -445,6 +628,9 @@
       if (s === 'newGame') return openSetup();                                                             // defaults: Standard + Heir
       if (s === 'newGame:sim') { openSetup(); ['right', 'confirm', 'down', 'left', 'confirm'].forEach((a) => setupDispatch(a)); return; } // Sim + Permadeath
       if (s === 'newGame:sandbox') { openSetup(); ['left', 'confirm', 'down', 'right', 'confirm', 'right'].forEach((a) => setupDispatch(a)); return; } // Story + Sandbox, focus in panel
+      if (s === 'creator') { openSetup(); return setupDispatch('click', 'begin'); }                                   // Standard + Heir, step 1
+      if (s === 'creator:personality') { openSetup(); setupDispatch('click', 'begin'); return creatorDispatch('click', 'next'); }
+      if (s === 'creator:sandbox') { openSetup(); setupDispatch('click', 'death:sandbox'); setupDispatch('click', 'begin'); return creatorDispatch('click', 'next'); } // Free Customization On → 0–100
       if (s === 'slotsFull') return show('slotsFull');
       if (s === 'load') { expandedRunId = null; return show('load'); }
       if (s === 'load:expanded') { const r = runs.find((x) => x && !x.damaged); expandedRunId = r.runId; show('loadRunExpanded'); return focus($('.saves button')); }

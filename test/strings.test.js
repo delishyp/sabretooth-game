@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs'); const path = require('path');
 const I18n = require('../src/renderer/js/i18n');
+const C = require('../src/renderer/js/creator');
 const copy = require('../src/renderer/data/menu-copy.json');
 const root = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
@@ -22,10 +23,18 @@ function usedIds() {
   const expand = { 'settings.tab.': ['audio', 'display', 'controls', 'storyteller'], 'season.': ['spring', 'summer', 'autumn', 'winter'],
     'storyteller.shortName.': ['online', 'local', 'offline'], 'settings.display.mode.': ['fullscreen', 'borderless', 'windowed'],
     'settings.audio.': ['master', 'music', 'sfx', 'ambient', 'mute'], 'settings.display.': ['mode', 'uiScale', 'reducedMotion', 'vsync'],
-    'settings.controls.': ['controllerVibration', 'invertY'] };
+    'settings.controls.': ['controllerVibration', 'invertY'],
+    // Make Your Sabrecat (menu.js creator section, ids built from js/creator.js option/trait/preset ids)
+    'creator.row.': ['name', 'sex', 'coat', 'markings', 'eyes', 'preset'], 'creator.help.': ['sex', 'coat', 'markings', 'eyes'],
+    'creator.sex.': C.SEXES, 'creator.coat.': C.COATS, 'creator.markings.': C.MARKINGS, 'creator.eyes.': C.EYES,
+    'creator.preview.markings.': C.MARKINGS,
+    'creator.preset.': [...C.PRESET_IDS, 'custom'].flatMap((p) => [p, `${p}.desc`]),
+    'creator.trait.': C.TRAITS.flatMap((k) => [k, `${k}.desc`, `${k}.low`, `${k}.high`]) };
   const menu = read('src/renderer/js/menu.js');
   assert.ok(menu.includes('t(`settings.${settingsTab}.${key}`)'), 'settings label template present');
   for (const [p, vals] of Object.entries(expand)) vals.forEach((v) => ids.add(p + v));
+  for (const tpl of ['t(`creator.row.${id}`)', 't(`creator.${row}.${id}`)', 't(`creator.trait.${trait}.low`)', 't(`creator.preset.${c.preset}.desc`)', 't(`creator.help.${id}`)'])
+    assert.ok(menu.includes(tpl), `creator template ${tpl} present`);
   return [...ids];
 }
 
@@ -33,6 +42,12 @@ test('every id used in code exists in Saga strings or a marked placeholder', () 
   const t = I18n.create(strings);
   const missing = usedIds().filter((id) => !t.has(id));
   assert.deepStrictEqual(missing, []);
+});
+test('creator: no [PH] placeholders left, default names list ≥ 20, unique', () => {
+  assert.deepStrictEqual(Object.keys(I18n.PLACEHOLDER_STRINGS).filter((k) => k.startsWith('creator.')), []);
+  const n = copy.creator.defaultNames; assert.ok(n.length >= 20); assert.strictEqual(new Set(n).size, n.length);
+  for (const x of n) assert.strictEqual(C.sanitizeName(x).value, x);
+  assert.ok(!('creator.backConfirm.body' in strings) && !read('src/renderer/js/menu.js').includes('backConfirm'));
 });
 test('placeholder ids are not also covered by Saga (remove them once she does)', () => {
   const overlap = Object.keys(I18n.PLACEHOLDER_STRINGS).filter((k) => k in strings);

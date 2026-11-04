@@ -124,6 +124,23 @@
           "All traits unlocked, including rare ones.",
           "Common traits only, as in a normal run."
         ]
+      },
+      {
+        "id": "freePerkRespec",
+        "name": "Free Perk Respec",
+        "description": "Swap your cat's perks whenever you rest, as often as you like.",
+        "values": [
+          true,
+          false
+        ],
+        "labels": [
+          "On",
+          "Off"
+        ],
+        "descriptions": [
+          "Swap any perk whenever you rest. Nothing is set in stone.",
+          "Perk choices are permanent, as in a normal run."
+        ]
       }
     ]
   },
@@ -229,6 +246,11 @@
     "newGame.summary": "{styleName} style, {deathRuleName}. Both are locked for the whole run.",
     "newGame.summaryReplacing": "{styleName} style, {deathRuleName}. Replaces {runLabel} when you begin.",
     "run.modes": "{styleName} · {deathRuleName}",
+    "newGame.advanced": "Advanced",
+    "newGame.seedLabel": "World seed",
+    "newGame.seedPlaceholder": "Random",
+    "newGame.seedHint": "Leave it blank for a random valley. Enter the same seed to roll the same world again.",
+    "newGame.seedInvalid": "Use digits only, from 0 to {max}.",
     "creator.title": "Make Your Sabrecat",
     "creator.subtitle": "Every legend starts as one cat alone in the snow. This one is yours.",
     "creator.row.name": "Name",
@@ -259,17 +281,54 @@
     "creator.name.error.tooLong": "Names can be up to {max} characters.",
     "creator.name.error.invalidChars": "Use only letters, spaces, hyphens and apostrophes.",
     "creator.randomize": "Randomize",
-    "creator.help.randomize": "New coat, markings and eyes. Your name and sex stay.",
+    "creator.help.randomize": "New coat, markings and eyes. Your name, sex and personality stay.",
+    "creator.help.randomizePersonality": "Rerolls personality only. Your look and name stay.",
+    "creator.next": "Next",
     "creator.start": "Start",
+    "creator.step.indicator": "Step {n} of {total}: {stepName}",
+    "creator.step.look": "Look",
+    "creator.step.personality": "Personality",
+    "creator.row.preset": "Preset",
+    "creator.help.preset": "A place to start. Move any slider to make it your own.",
+    "creator.preset.balanced": "Balanced",
+    "creator.preset.balanced.desc": "Even in every way, and free to become anything.",
+    "creator.preset.fighter": "Fighter",
+    "creator.preset.fighter.desc": "Quick to anger, slow to back down, and happiest alone.",
+    "creator.preset.peacemaker": "Peacemaker",
+    "creator.preset.peacemaker.desc": "Gentle, easy to like, and slow to pick a fight.",
+    "creator.preset.wanderer": "Wanderer",
+    "creator.preset.wanderer.desc": "Restless and curious, with little pull toward any pride.",
+    "creator.preset.guardian": "Guardian",
+    "creator.preset.guardian.desc": "Steady and devoted, never far from the pride and the den.",
+    "creator.preset.custom": "Custom",
+    "creator.preset.custom.desc": "Your own mix.",
+    "creator.trait.aggression": "Aggression",
+    "creator.trait.aggression.desc": "How quickly your cat turns to teeth and claws.",
+    "creator.trait.aggression.low": "Gentle",
+    "creator.trait.aggression.high": "Fierce",
+    "creator.trait.sociability": "Sociability",
+    "creator.trait.sociability.desc": "How easily your cat makes friends and allies.",
+    "creator.trait.sociability.low": "Solitary",
+    "creator.trait.sociability.high": "Friendly",
+    "creator.trait.boldness": "Boldness",
+    "creator.trait.boldness.desc": "Whether your cat stands its ground or slips away.",
+    "creator.trait.boldness.low": "Cautious",
+    "creator.trait.boldness.high": "Bold",
+    "creator.trait.loyalty": "Loyalty",
+    "creator.trait.loyalty.desc": "How tightly your cat holds to its pride and kin.",
+    "creator.trait.loyalty.low": "Independent",
+    "creator.trait.loyalty.high": "Devoted",
+    "creator.trait.curiosity": "Curiosity",
+    "creator.trait.curiosity.desc": "How strongly the unknown pulls at your cat.",
+    "creator.trait.curiosity.low": "Settled",
+    "creator.trait.curiosity.high": "Curious",
     "creator.hint.keyboard": "Up/Down: row · Left/Right: change · Enter: select · Esc: back",
     "creator.hint.gamepad": "D-pad: row and change · A: select · A on Name: new name · B: back",
     "creator.hint.mouse": "Click the arrows to change a row, then Start.",
     "creator.preview.alt": "Portrait of {catName}, a {sex} sabrecat with a {coat} coat, {markings}, and {eyes} eyes.",
     "creator.preview.markings.none": "no markings",
     "creator.preview.markings.spotted": "spotted markings",
-    "creator.preview.markings.faintstripe": "faint stripes",
-    "creator.backConfirm.body": "Go back to New Game? The cat you made here won't be kept. Your setup and your saved runs stay as they are.",
-    "creator.backConfirm.ok": "Go back"
+    "creator.preview.markings.faintstripe": "faint stripes"
   },
   "playStyles": [
     {
@@ -305,7 +364,7 @@
       "Glacierheart",
       "Fernshadow",
       "Duneclaw",
-      "Owlwhisker",
+      "Larchwind",
       "Bisonbane",
       "Sleetpaw",
       "Starfrost",

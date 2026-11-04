@@ -105,7 +105,7 @@
   }
 
   /**
-   * Draws the cat onto opts.canvas. opts: {canvas, loadImage(path)→Promise<img>, dir?, lifeStage?, scars?, createCanvas?(w,h), warn?}.
+   * Draws the cat onto opts.canvas. opts: {canvas, loadImage(path)→Promise<img>, dir?, lifeStage?, scars?, createCanvas?(w,h), warn?, tintCache?: Map}.
    * A layer whose file fails to load is skipped with a warning. Returns {drawn:[ids], skipped:[ids]}.
    */
   async function compose(manifest, genes, opts) {
@@ -118,11 +118,17 @@
     const imgs = await Promise.all(layers.map((l) => loadImage(path(l.file)).catch((e) => { warn(`compositor: skipping ${l.id} (${l.file}): ${e && e.message || e}`); return null; })));
     const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, w, h);
     const drawn = [], skipped = [];
+    const cache = opts.tintCache;   // optional Map: `${file}|${tint}|${w}x${h}` → tinted canvas (creator preview redraws < 100 ms)
     layers.forEach((l, i) => {
       if (!imgs[i]) { skipped.push(l.id); return; }
-      const off = mk(w, h); const o = off.getContext('2d');
-      o.drawImage(imgs[i], 0, 0, w, h);
-      const px = o.getImageData(0, 0, w, h); tintPixels(px.data, l.tint); o.putImageData(px, 0, 0);
+      const key = `${path(l.file)}|${l.tint}|${w}x${h}`;
+      let off = cache && cache.get(key);
+      if (!off) {
+        off = mk(w, h); const o = off.getContext('2d', { willReadFrequently: true });
+        o.drawImage(imgs[i], 0, 0, w, h);
+        const px = o.getImageData(0, 0, w, h); tintPixels(px.data, l.tint); o.putImageData(px, 0, 0);
+        if (cache) cache.set(key, off);
+      }
       ctx.globalCompositeOperation = blendFor(l, warn); ctx.globalAlpha = l.opacity != null ? l.opacity : 1;
       ctx.drawImage(off, 0, 0); drawn.push(l.id);
     });

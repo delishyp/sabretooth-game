@@ -40,6 +40,23 @@
     <p class="summary" id="setup-summary"></p>
     <div class="row setup-actions"><button data-nav="back" data-t="common.back"></button><button data-nav="begin" class="primary" data-t="difficulty.begin"></button></div>
   </section>
+  <!-- Make Your Sabrecat (cat-creator-spec v0.2): step 1 Look, step 2 Personality. Panel rows are built by menu.js from js/creator.js. -->
+  <section class="screen" data-screen="creator">
+    <h2 data-t="creator.title"></h2>
+    <p class="sub creator-sub" data-t="creator.subtitle"></p>
+    <p class="creator-step" id="creator-step"></p>
+    <div class="creator-body">
+      <div class="creator-preview"><canvas id="creator-canvas" role="img" width="1152" height="864"></canvas></div>
+      <div class="creator-side">
+        <div class="creator-panel" id="creator-panel"></div>
+        <div class="row creator-actions" id="creator-actions">
+          <button data-cnav="randomize" data-t="creator.randomize"></button><button data-cnav="back" data-t="common.back"></button><button data-cnav="next" class="primary" data-t="creator.next"></button><button data-cnav="start" class="primary" data-t="creator.start"></button>
+        </div>
+        <p class="crow-help" id="creator-rand-help"></p>
+      </div>
+    </div>
+    <p class="creator-hint" id="creator-hint"></p>
+  </section>
   <section class="screen" data-screen="slotsFull">
     <h2 data-t="slotsFull.title"></h2><p class="sub" data-t="slotsFull.subtitle"></p>
     <div class="runs" id="replace-runs"></div>
@@ -88,6 +105,8 @@
 <script src="js/nav.js"></script>
 <script src="js/assets.js"></script>
 <script src="js/music.js"></script>
+<script src="js/compositor.js"></script>
+<script src="js/creator.js"></script>
 <script src="js/input.js"></script>
 <script src="js/menu.js"></script>
 </body>

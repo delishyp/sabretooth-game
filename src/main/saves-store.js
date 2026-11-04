@@ -18,7 +18,8 @@ const SANDBOX_OPTIONS = Object.freeze({
   needsDrain: { values: ['off', 'low', 'normal'], default: 'normal' },
   threatFrequency: { values: ['off', 'low', 'normal'], default: 'normal' },
   startingReputation: { values: ['low', 'normal', 'high'], default: 'normal' },
-  freeCustomization: { values: [true, false], default: true }
+  freeCustomization: { values: [true, false], default: true },
+  freePerkRespec: { values: [true, false], default: false }   // main-menu-spec v1.4.3, skills-spec §7.6 (off by default)
 });
 const defaultSandboxOptions = () => Object.fromEntries(Object.entries(SANDBOX_OPTIONS).map(([k, v]) => [k, v.default]));
 
@@ -109,7 +110,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
      * Create a run. Uses the first free slot, or replaces `replaceRunId` (deleting it and all its saves).
      * Throws if no slot is free and no replacement was given.
      */
-    createRun({ style = DEFAULT_STYLE, difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride' } = {}) {
+    createRun({ style = DEFAULT_STYLE, difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride', playerCat = null } = {}) {
       if (!STYLES.includes(style)) throw new Error(`invalid style ${style}`);
       if (!DIFFICULTIES.includes(difficulty)) throw new Error(`invalid difficulty ${difficulty}`);
       let slotIndex;
@@ -123,7 +124,8 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
       const run = {
         runId: crypto.randomUUID(), slotIndex, catName, prideName, style, difficulty,
         sandboxOptions: difficulty === 'sandbox' ? normalizeSandboxOptions(sandboxOptions) : null,
-        storytellerMode, generation: 1, createdAt: t, lastPlayedAt: t, gameVersion
+        storytellerMode, generation: 1, createdAt: t, lastPlayedAt: t, gameVersion,
+        playerCat   // cat-creator-spec v0.2 §5.2: full Cat record of the player cat (ageSeasons, birthSeason; lifeStage derived), or null
       };
       writeJson(path.join(runDir(slotIndex), 'run.json'), run);
       return { ...run, saves: [] };
