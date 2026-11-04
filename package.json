@@ -25,9 +25,21 @@
     "productName": "Sabretooth",
     "files": [
       "src/**/*",
-      "assets/**/*",
       "package.json",
-      "!audio-src/**"
+      "assets/audio/menu/*.ogg",
+      "assets/menu/background.{png,jpg,webp}",
+      "assets/menu/logo.png",
+      "assets/portraits/*/manifest.json",
+      "assets/portraits/*/*.png",
+      "!audio-src/**",
+      "!assets/menu/night/**",
+      "!**/work/**",
+      "!**/rejected/**",
+      "!**/compare/**",
+      "!**/*.{py,psd,kra,xcf,npy}",
+      "!scripts/**",
+      "!docs/**",
+      "!screenshots/**"
     ],
     "win": {
       "target": "nsis"

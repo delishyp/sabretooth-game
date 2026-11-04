@@ -95,7 +95,8 @@
   document.addEventListener('mouseover', (ev) => {
     if (state === 'creator') return;   // creator hover uses real mouse movement only (below)
     const b = ev.target.closest('button'); if (!b || b.disabled) return;
-    if (!dialog && state === 'newGameSetup' && b.dataset.nav) return setupDispatch('hover', b.dataset.nav);
+    // C2: only a real focus change re-renders; repeated mouseover on the focused control does nothing.
+    if (!dialog && state === 'newGameSetup' && b.dataset.nav) return b.dataset.nav === setup.focus ? undefined : setupDispatch('hover', b.dataset.nav);
     if (state === 'creator') return;
     if (focusables().includes(b)) focus(b);
   });
@@ -106,7 +107,7 @@
     const el = ['starting', 'loading'].includes(screen) ? 'placeholder' : screen === 'loadRunExpanded' ? 'load' : screen;
     $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === el));
     if (screen === 'root') { renderRoot(); music.play(); }
-    if (screen === 'starting' || screen === 'loading') music.fadeOutAndStop();   // Begin / Continue / Load
+    if (screen === 'starting' || screen === 'loading') music.fadeOutAndStop();   // §7.5 v1.4.4: creator Start / Continue / Load (keeps playing through the creator)
     if (screen === 'newGameSetup') return renderSetup();
     if (screen === 'creator') return renderCreator();
     if (screen === 'settings') renderSettings();
@@ -179,15 +180,26 @@
     $('#sandbox-title').textContent = copy.sandboxPanel.title; $('#sandbox-note').textContent = copy.sandboxPanel.note;
     applySetup();
   }
+  /**
+   * Sandbox option rows. Built once per option list; later renders only update text, so the button under a resting pointer stays the same
+   * node (Tracker C2: rebuilding on hover detached it ~300×/s and real mouse clicks never landed).
+   */
   function renderSandboxRows() {
-    const box = $('#sandbox-rows'); box.innerHTML = '';
-    for (const o of optionDefs()) {
-      const vi = o.values.indexOf(setup.opts[o.id]);
-      const b = document.createElement('button'); b.className = 'setting opt'; b.dataset.opt = o.id; b.dataset.nav = `opt:${o.id}`;
-      b.innerHTML = '<span class="top"><span></span><span class="val"></span></span><span class="desc"></span>';
-      b.querySelector('.top').children[0].textContent = o.name; b.querySelector('.val').textContent = `◀ ${o.labels[vi]} ▶`;
-      b.querySelector('.desc').textContent = (o.descriptions && o.descriptions[vi]) || o.description || '';
-      box.appendChild(b);
+    const box = $('#sandbox-rows'); const defs = optionDefs();
+    const ids = defs.map((o) => o.id).join(',');
+    if (box.dataset.ids !== ids) {
+      box.replaceChildren(...defs.map((o) => {
+        const b = document.createElement('button'); b.className = 'setting opt'; b.dataset.opt = o.id; b.dataset.nav = `opt:${o.id}`;
+        b.innerHTML = '<span class="top"><span></span><span class="val"></span></span><span class="desc"></span>';
+        return b;
+      }));
+      box.dataset.ids = ids;
+    }
+    const set = (el, v) => { if (el.textContent !== v) el.textContent = v; };
+    for (const o of defs) {
+      const b = box.querySelector(`[data-opt="${o.id}"]`); const vi = o.values.indexOf(setup.opts[o.id]);
+      set(b.querySelector('.top').children[0], o.name); set(b.querySelector('.val'), `◀ ${o.labels[vi]} ▶`);
+      set(b.querySelector('.desc'), (o.descriptions && o.descriptions[vi]) || o.description || '');
     }
   }
   function fitSandboxDescs() {   // per-value line too long → general description
@@ -224,7 +236,7 @@
   let creator = null;               // Creator model
   let pendingSetup = null;          // {style, difficulty, sandboxOptions?} from Begin
   let starting = false;             // guards a double Start
-  const preview = { token: 0, key: null, ms: null, drawn: [], skipped: [], pose: null, poses: new Map(), tints: new Map() };
+  const preview = { token: 0, key: null, ms: null, drawn: [], skipped: [], pose: null, poses: new Map(), tints: new Map(), log: [], preloadMs: null };
   const creatorNames = () => (copy.creator && copy.creator.defaultNames) || [];
   const device = () => document.body.dataset.device || 'keyboard';
   const creatorEnv = () => ({ names: creatorNames(), device: device() });
@@ -328,7 +340,7 @@
     $('#creator-actions [data-cnav="start"]').hidden = c.step !== 2;
     $$('#creator-actions button').forEach((b) => b.classList.toggle('focused', b.dataset.cnav === c.focus));
     $('#creator-rand-help').textContent = t(c.step === 1 ? 'creator.help.randomize' : 'creator.help.randomizePersonality');
-    const hintKey = { keyboard: 'creator.hint.keyboard', controller: 'creator.hint.gamepad', mouse: 'creator.hint.mouse' }[device()] || 'creator.hint.keyboard';
+    const hintKey = { keyboard: 'creator.hint.keyboard', controller: 'creator.hint.gamepad', mouse: c.step === 2 ? 'creator.hint.mousePersonality' : 'creator.hint.mouse' }[device()] || 'creator.hint.keyboard';
     $('#creator-hint').textContent = t(hintKey);
     const nm = Creator.normalizeName(c.name) || t('run.defaultCatName');
     $('#creator-canvas').setAttribute('aria-label', t('creator.preview.alt', { catName: nm, sex: optLabel('sex', c.sex).toLowerCase(),
@@ -345,11 +357,35 @@
     const p = (async () => {
       const data = await api.portraits.load(pose);
       const imgs = {};
-      await Promise.all(Object.entries(data.images).map(([f, url]) => new Promise((ok) => { const i = new Image(); i.onload = () => { imgs[f] = i; ok(); }; i.onerror = () => ok(); i.src = url; })));
+      // decode() up front (Tracker C3) so the first compose doesn't pay for image decoding
+      await Promise.all(Object.entries(data.images).map(async ([f, url]) => { const i = new Image(); i.src = url; try { await i.decode(); imgs[f] = i; } catch { /* missing → skipped layer */ } }));
       return { pose: data.pose, manifest: data.manifest, imgs };
     })();
     preview.poses.set(pose, p); p.catch(() => preview.poses.delete(pose));
     return p;
+  }
+  const composeOpts = (a, canvas) => ({ canvas, lifeStage: 'adult', scars: [], tintCache: preview.tints, dir: a.pose,
+    loadImage: (f) => { const k = f.slice(a.pose.length + 1); return a.imgs[k] ? Promise.resolve(a.imgs[k]) : Promise.reject(new Error(`missing ${k}`)); } });
+  /**
+   * Tracker C3: at app start, load + decode both adult poses and warm the tint cache with every common coat on each (the layers that depend
+   * on the coat are the expensive tint misses), so the creator's first draw and first Sex swap hit the cache. Idle work; never blocks the menu.
+   */
+  let preloading = null;
+  function preloadPortraits() {
+    if (preloading) return preloading;
+    preloading = (async () => {
+      const t0 = performance.now();
+      const look = (sex, coat, markings, eyes) => ({ sex, coat, markings, eyes, oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced } });
+      const warm = async (a, s) => { await Compositor.compose(a.manifest, Creator.genesFor(s), composeOpts(a, document.createElement('canvas'))); await new Promise((r) => setTimeout(r, 0)); };
+      const poses = await Promise.all(Creator.SEXES.map((sex) => poseAssets(Compositor.poseFor(sex, 'adult'))));   // 1: load + decode both poses
+      for (let i = 0; i < poses.length; i++) await warm(poses[i], look(Creator.SEXES[i], 'tan', 'spotted', 'amber'));   // 2: fixed layers of each pose
+      for (let i = 0; i < poses.length; i++) {                                                                       // 3: every coat × marking, every eye
+        for (const coat of Creator.COATS) for (const markings of Creator.MARKINGS) { if (state === 'creator') break; await warm(poses[i], look(Creator.SEXES[i], coat, markings, 'amber')); }
+        for (const eyes of Creator.EYES) { if (state === 'creator') break; await warm(poses[i], look(Creator.SEXES[i], 'tan', 'none', eyes)); }
+      }
+      preview.preloadMs = performance.now() - t0;
+    })().catch((e) => console.warn('portrait preload failed', e));
+    return preloading;
   }
   async function renderPreview() {
     const c = creator; const key = [c.sex, c.coat, c.markings, c.eyes, c.oddEyes, c.eyeRight].join('|');
@@ -358,12 +394,12 @@
     try {
       const a = await poseAssets(Compositor.poseFor(c.sex, 'adult'));
       const off = document.createElement('canvas');
-      const res = await Compositor.compose(a.manifest, Creator.genesFor(c), { canvas: off, lifeStage: 'adult', scars: [], tintCache: preview.tints, dir: a.pose,
-        loadImage: (f) => { const k = f.slice(a.pose.length + 1); return a.imgs[k] ? Promise.resolve(a.imgs[k]) : Promise.reject(new Error(`missing ${k}`)); } });
+      const res = await Compositor.compose(a.manifest, Creator.genesFor(c), composeOpts(a, off));
       if (token !== preview.token) return;
       const cv = $('#creator-canvas'); cv.width = off.width; cv.height = off.height;
       cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); cv.getContext('2d').drawImage(off, 0, 0);
       Object.assign(preview, { ms: performance.now() - t0, drawn: res.drawn, skipped: res.skipped, pose: a.pose, rendered: key });
+      preview.log.push({ key, ms: preview.ms });
     } catch (e) {
       console.warn('creator preview failed', e);   // never blocks the creator
       if (token === preview.token) Object.assign(preview, { ms: null, drawn: [], skipped: ['*'], rendered: key });
@@ -632,7 +668,9 @@
     state: () => ({ state, setup, creator, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
     /** Sets a look on the open creator and waits for its preview (e2e check 1: all 72 looks render with no missing layer). */
     creatorLook: async (look) => { creator = Creator.coerceLook({ ...creator, ...look }); applyCreator(); await renderPreview(); return { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered }; },
-    creator: () => ({ model: creator, pending: pendingSetup, replaceRunId, preview: { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered } }),
+    creator: () => ({ model: creator, pending: pendingSetup, replaceRunId, preview: { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered, log: preview.log, preloadMs: preview.preloadMs } }),
+    /** Resolves when the app-start portrait preload (C3) has finished. */
+    portraitsReady: () => preloadPortraits().then(() => preview.preloadMs),
     setUiScale: (v) => { settings.display.uiScale = v; scale(); },
     show: async (s) => {
       if (dialog) closeDialog();
@@ -664,6 +702,7 @@
   const info = await api.app.info(); $('#version').textContent = t('app.version', { version: info.version, build: info.build });
   await refreshSlots();
   show('root');
+  setTimeout(preloadPortraits, 0);   // C3: decode both poses + warm tints while the player is on the root menu
   // B4: check the saved storyteller at boot; saved preference is never overwritten.
   fallbackToast(settings.storyteller.mode, (await api.storyteller.effective(settings.storyteller.mode)).mode);
 })();

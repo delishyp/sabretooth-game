@@ -84,6 +84,34 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.ok(await page.locator('#sandbox-panel').isVisible());
         await page.keyboard.press('Escape'); assert.strictEqual((await st(page)).state, 'root');
       });
+      await check('C2: real mouse clicks change Sandbox toggles; a resting pointer causes no re-render', async () => {
+        await page.evaluate(() => window.__menuDebug.show('root')); await waitState(page, 'root');
+        await page.locator('[data-action="newGame"]').click(); await waitState(page, 'newGameSetup');
+        await page.locator('[data-nav="death:sandbox"]').click(); await page.waitForTimeout(100);
+        assert.ok(await page.locator('#sandbox-panel').isVisible());
+        const row = page.locator('[data-opt="freeCustomization"]'); const b = await row.boundingBox();
+        await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 5 });
+        const mutations = await page.evaluate(() => new Promise((ok) => {
+          let n = 0; const mo = new MutationObserver((l) => { n += l.length; }); mo.observe(document.getElementById('sandbox-rows'), { subtree: true, childList: true, characterData: true });
+          setTimeout(() => { mo.disconnect(); ok(n); }, 500);
+        }));
+        assert.strictEqual(mutations, 0, `#sandbox-rows mutated ${mutations}× in 500 ms with the pointer resting`);
+        assert.strictEqual((await st(page)).setup.focus, 'opt:freeCustomization');
+        const node = await row.elementHandle();
+        assert.strictEqual((await st(page)).setup.opts.freeCustomization, true);
+        await page.mouse.down(); await page.mouse.up(); await page.waitForTimeout(100);                 // real pointer click, pointer never moves
+        assert.strictEqual((await st(page)).setup.opts.freeCustomization, false);
+        assert.match(await row.locator('.val').textContent(), /Off/);
+        assert.ok(await node.evaluate((n) => n.isConnected), 'the toggle node under the pointer was not rebuilt');
+        await row.click(); await page.waitForTimeout(100);                                               // Playwright actionability click (real pointer events)
+        assert.strictEqual((await st(page)).setup.opts.freeCustomization, true);
+        for (const id of ['needsDrain', 'threatFrequency']) {                                            // other toggles cycle with the mouse too
+          const r = page.locator(`[data-opt="${id}"]`); if (!(await r.count())) continue;
+          const before = (await st(page)).setup.opts[id]; await r.click(); await page.waitForTimeout(80);
+          assert.notStrictEqual((await st(page)).setup.opts[id], before, id);
+        }
+        await page.evaluate(() => window.__menuDebug.show('root')); await waitState(page, 'root');
+      });
     } finally { await app.close(); fs.rmSync(ud, { recursive: true, force: true }); }
   }
   {
@@ -304,11 +332,12 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await page.locator('[data-row="sex"] .arrow[data-arrow="-1"]').click();
         assert.notStrictEqual((await model(page)).sex, m.sex);
         await page.locator('[data-row="markings"]').hover(); m = await model(page); assert.strictEqual(m.focus, 'markings');
-        assert.strictEqual(await page.locator('#creator-hint').textContent(), 'Click the arrows to change a row, then Start.');
+        assert.strictEqual(await page.locator('#creator-hint').textContent(), 'Click the arrows to change a row, then Next.');
         await page.locator('[data-cnav="randomize"]').click(); const r = await model(page);
         assert.ok(r.coat !== m.coat || r.markings !== m.markings || r.eyes !== m.eyes);
         await page.locator('#creator-name').click(); await page.keyboard.press('Control+A'); await page.keyboard.type('Mouse Cat');
         await page.locator('[data-cnav="next"]').click(); assert.strictEqual((await model(page)).step, 2);
+        assert.strictEqual(await page.locator('#creator-hint').textContent(), 'Drag a slider or pick a preset, then Start.');   // C5
         await page.locator('[data-row="preset"] .arrow[data-arrow="-1"]').click(); assert.strictEqual((await model(page)).preset, 'guardian');
         const box = await page.locator('[data-row="trait:curiosity"] .track').boundingBox();
         await page.mouse.click(box.x + box.width - 1, box.y + box.height / 2);
@@ -388,6 +417,19 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
     const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-e2e-'));
     const { app, page } = await launch(ud);
     try {
+      await check('C3: both poses are preloaded and decoded at app start; first creator draw and first Sex swap < 100 ms', async () => {
+        const preloadMs = await page.evaluate(() => window.__menuDebug.portraitsReady());
+        await page.locator('[data-action="newGame"]').click(); await page.waitForFunction(() => window.__menuDebug.state().state === 'newGameSetup');
+        await page.locator('[data-nav="begin"]').click(); await waitState(page, 'creator');
+        await page.waitForFunction(() => window.__menuDebug.creator().preview.log.length >= 1, null, { timeout: 3000 });
+        const first = (await page.evaluate(() => window.__menuDebug.creator().preview.log))[0].ms;
+        await page.locator('[data-row="sex"] .arrow[data-arrow="1"]').click();
+        await page.waitForFunction(() => window.__menuDebug.creator().preview.log.length >= 2, null, { timeout: 3000 });
+        const swap = (await page.evaluate(() => window.__menuDebug.creator().preview.log))[1].ms;
+        console.log(`    preload ${preloadMs == null ? 'n/a' : preloadMs.toFixed(0)} ms; first creator draw ${first.toFixed(1)} ms; first Sex swap ${swap.toFixed(1)} ms`);
+        assert.ok(first < 100 && swap < 100, `first ${first.toFixed(1)} ms, swap ${swap.toFixed(1)} ms`);
+        await page.locator('#creator-actions [data-cnav="back"]').click(); await waitState(page, 'newGameSetup');
+      });
       await check('creator §3c / §7.1: Sandbox + FC On adds Pale/Ash (Rare tag) and Odd Eyes; Left/Right differ; rare looks render; Start writes het/het + eyeRight', async () => {
         await page.evaluate(() => window.__menuDebug.show('creator:sandbox')); await waitState(page, 'creator');
         await page.mouse.move(2, 2); await press(page, 'Escape');
