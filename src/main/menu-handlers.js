@@ -14,13 +14,13 @@ async function effectiveStoryteller(mode, check) {
 function createMenuHandlers({ settings, saves, log, t, checkStoryteller }) {
   return {
     effectiveStoryteller: (mode) => effectiveStoryteller(mode, checkStoryteller),
-    /** menu:newGame {difficulty, replaceRunId?, sandboxOptions?}. Records the EFFECTIVE storyteller (B4). Raw errors → log only (B12). */
+    /** menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?} (spec v1.3; difficulty = Death rule). Records the EFFECTIVE storyteller (B4). Raw errors → log only (B12). */
     async newGame(p = {}) {
       try {
         const preferred = settings.get().storyteller.mode;
         const effective = await effectiveStoryteller(preferred, checkStoryteller);
         const run = saves.createRun({
-          difficulty: p.difficulty, replaceRunId: p.replaceRunId, sandboxOptions: p.sandboxOptions, storytellerMode: effective,
+          style: p.style, difficulty: p.difficulty, replaceRunId: p.replaceRunId, sandboxOptions: p.sandboxOptions, storytellerMode: effective,
           catName: t('run.defaultCatName'), prideName: t('run.defaultPrideName')
         });
         log(`menu:newGame ${JSON.stringify(p)} -> run ${run.runId} slot ${run.slotIndex} storyteller ${effective} (placeholder)`);

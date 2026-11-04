@@ -3,7 +3,7 @@
  *   saves/run-<slotIndex>/run.json                    RunRecord
  *   saves/run-<slotIndex>/save-<saveIndex>/meta.json  SaveRecord
  * Pure Node (no Electron) so it is unit-testable. Unreadable records are flagged `damaged`, never thrown.
- * Difficulty / sandboxOptions are fixed at createRun; there is intentionally no API to change them.
+ * Style / difficulty (Death rule) / sandboxOptions are fixed at createRun; there is intentionally no API to change them.
  */
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +11,9 @@ const crypto = require('crypto');
 
 const RUN_SLOTS = 2;
 const SAVES_PER_RUN = 3;
-const DIFFICULTIES = ['permadeath', 'heir', 'sandbox'];
+const DIFFICULTIES = ['permadeath', 'heir', 'sandbox'];   // Death rule (spec v1.3 keeps the `difficulty` key)
+const STYLES = ['story', 'standard', 'sim'];
+const DEFAULT_STYLE = 'standard';
 const SANDBOX_OPTIONS = Object.freeze({
   needsDrain: { values: ['off', 'low', 'normal'], default: 'normal' },
   threatFrequency: { values: ['off', 'low', 'normal'], default: 'normal' },
@@ -28,6 +30,18 @@ function normalizeSandboxOptions(o = {}) {
 }
 
 class SaveCapError extends Error {}
+
+/**
+ * mainCat (spec v1.3 §1/§5): snapshot of the cat being played when the save was written (in Heir mode, the current heir).
+ * {catId, name, sex, lifeStage, genes, scars[]} or null. Gameplay doesn't exist yet, so it is null for now.
+ */
+const MAIN_CAT_FIELDS = ['catId', 'name', 'sex', 'lifeStage', 'genes', 'scars'];
+function normalizeMainCat(c) {
+  if (!c || typeof c !== 'object') return null;
+  const out = Object.fromEntries(MAIN_CAT_FIELDS.map((k) => [k, c[k] === undefined ? null : c[k]]));
+  out.scars = Array.isArray(c.scars) ? c.scars : [];
+  return out;
+}
 
 function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = () => new Date() } = {}) {
   const runDir = (i) => path.join(dir, `run-${i}`);
@@ -59,6 +73,8 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
     try {
       run = readJson(path.join(runDir(i), 'run.json'));
       if (!run.runId || !DIFFICULTIES.includes(run.difficulty)) throw new Error('invalid run record');
+      if (run.style === undefined) run.style = DEFAULT_STYLE;           // pre-v1.3 runs are Standard
+      if (!STYLES.includes(run.style)) throw new Error(`invalid style ${run.style}`);
       run = { ...run, slotIndex: i, damaged: false };
     } catch (e) {
       log(`damaged run run-${i}: ${e.message}`);
@@ -68,8 +84,14 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
     return run;
   }
 
-  /** Always RUN_SLOTS entries, null for empty (spec saves:list). */
-  const list = () => ({ runs: Array.from({ length: RUN_SLOTS }, (_, i) => readRun(i)) });
+  /** Newest valid save across valid runs → {runId, saveId} | null (spec v1.3 continueTarget). */
+  function pickContinueTarget(runs) {
+    const all = runs.filter((r) => r && !r.damaged).flatMap((r) => r.saves.filter((x) => !x.damaged));
+    const s = all.sort((a, b) => Date.parse(b.writtenAt) - Date.parse(a.writtenAt))[0];
+    return s ? { runId: s.runId, saveId: s.saveId } : null;
+  }
+  /** Always RUN_SLOTS entries, null for empty, plus continueTarget (spec saves:list). */
+  const list = () => { const runs = Array.from({ length: RUN_SLOTS }, (_, i) => readRun(i)); return { runs, continueTarget: pickContinueTarget(runs) }; };
   const findRun = (runId) => list().runs.find((r) => r && r.runId === runId) || null;
 
   return {
@@ -80,14 +102,15 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
     freeSlot: () => list().runs.findIndex((r) => r === null),
     /** Most recently written valid save across both runs (Continue), or null. */
     latestSave() {
-      const all = list().runs.filter((r) => r && !r.damaged).flatMap((r) => r.saves.filter((s) => !s.damaged));
-      return all.sort((a, b) => Date.parse(b.writtenAt) - Date.parse(a.writtenAt))[0] || null;
+      const { runs, continueTarget: c } = list();
+      return c ? runs.find((r) => r && r.runId === c.runId).saves.find((x) => x.saveId === c.saveId) : null;
     },
     /**
      * Create a run. Uses the first free slot, or replaces `replaceRunId` (deleting it and all its saves).
      * Throws if no slot is free and no replacement was given.
      */
-    createRun({ difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride' } = {}) {
+    createRun({ style = DEFAULT_STYLE, difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride' } = {}) {
+      if (!STYLES.includes(style)) throw new Error(`invalid style ${style}`);
       if (!DIFFICULTIES.includes(difficulty)) throw new Error(`invalid difficulty ${difficulty}`);
       let slotIndex;
       if (replaceRunId) {
@@ -98,7 +121,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
       }
       const t = now().toISOString();
       const run = {
-        runId: crypto.randomUUID(), slotIndex, catName, prideName, difficulty,
+        runId: crypto.randomUUID(), slotIndex, catName, prideName, style, difficulty,
         sandboxOptions: difficulty === 'sandbox' ? normalizeSandboxOptions(sandboxOptions) : null,
         storytellerMode, generation: 1, createdAt: t, lastPlayedAt: t, gameVersion
       };
@@ -109,7 +132,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
      * Write a manual save. Without `overwriteSaveIndex`, uses the first free index and throws SaveCapError
      * when the run already has SAVES_PER_RUN saves (the in-game UI must then ask which one to overwrite).
      */
-    writeSave(runId, { inGameDate = { year: 1, season: 'spring', day: 1 }, playTimeSec = 0, overwriteSaveIndex } = {}) {
+    writeSave(runId, { inGameDate = { year: 1, season: 'spring', day: 1 }, playTimeSec = 0, overwriteSaveIndex, mainCat = null } = {}) {
       const run = findRun(runId); if (!run || run.damaged) throw new Error('run not found');
       let idx = overwriteSaveIndex;
       if (idx === undefined) {
@@ -118,7 +141,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
         if (idx === undefined) throw new SaveCapError(`run already has ${SAVES_PER_RUN} saves`);
       } else if (!Number.isInteger(idx) || idx < 0 || idx >= SAVES_PER_RUN) throw new Error('invalid save index');
       const t = now().toISOString();
-      const meta = { saveId: crypto.randomUUID(), runId, saveIndex: idx, writtenAt: t, inGameDate, playTimeSec, saveVersion: 1 };
+      const meta = { saveId: crypto.randomUUID(), runId, saveIndex: idx, writtenAt: t, inGameDate, playTimeSec, saveVersion: 1, mainCat: normalizeMainCat(mainCat) };
       fs.rmSync(saveDir(run.slotIndex, idx), { recursive: true, force: true });
       writeJson(path.join(saveDir(run.slotIndex, idx), 'meta.json'), meta);
       const rec = readJson(path.join(runDir(run.slotIndex), 'run.json'));
@@ -138,4 +161,4 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
   };
 }
 
-module.exports = { createSavesStore, SaveCapError, SANDBOX_OPTIONS, normalizeSandboxOptions, defaultSandboxOptions, RUN_SLOTS, SAVES_PER_RUN };
+module.exports = { normalizeMainCat, MAIN_CAT_FIELDS, STYLES, DIFFICULTIES, DEFAULT_STYLE, createSavesStore, SaveCapError, SANDBOX_OPTIONS, normalizeSandboxOptions, defaultSandboxOptions, RUN_SLOTS, SAVES_PER_RUN };

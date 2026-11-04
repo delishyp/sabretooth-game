@@ -17,31 +17,59 @@ const st = (page) => page.evaluate(() => window.__menuDebug.state());
 
 (async () => {
   let failures = 0; const check = async (name, fn) => { try { await fn(); console.log('PASS', name); } catch (e) { failures++; console.log('FAIL', name, e.message); } };
-  for (const [id, keys] of Object.entries({
-    permadeath: ['Enter', 'ArrowUp', 'Enter'],
-    heir: ['ArrowDown', 'Enter', 'ArrowDown', 'ArrowDown', 'ArrowRight', 'Enter'],
-    sandbox: ['ArrowDown', 'ArrowDown', 'Enter', 'ArrowRight', 'ArrowUp', 'Enter']
-  })) {
+  const STYLES = ['story', 'standard', 'sim']; const DEATHS = ['permadeath', 'heir', 'sandbox'];
+  const horiz = (from, to, list) => { const d = list.indexOf(to) - list.indexOf(from); return Array(Math.abs(d)).fill(d < 0 ? 'ArrowLeft' : 'ArrowRight'); };
+  const keysFor = (style, death) => [...horiz('standard', style, STYLES), 'Enter', 'ArrowDown', ...horiz('heir', death, DEATHS), 'Enter', 'ArrowDown',
+    ...(death === 'sandbox' ? Array(4).fill('ArrowDown') : []), 'Enter'];
+  // All 9 Style × Death rule combinations, by keyboard, two per app instance (slot 0 then slot 1).
+  const combos = STYLES.flatMap((st) => DEATHS.map((d) => [st, d]));
+  for (let i = 0; i < combos.length; i += 2) {
     const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-e2e-'));
     const { app, page } = await launch(ud);
     try {
-      await check(`keyboard starts ${id}`, async () => {
-        await page.keyboard.press('Enter');                       // root → New Game (default focus, no saves)
-        await page.mouse.move(5, 5);
-        assert.strictEqual((await st(page)).state, 'difficulty');
-        for (const k of keys) await page.keyboard.press(k);
-        await page.waitForTimeout(300);
-        assert.strictEqual((await st(page)).state, 'starting');
-        const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
-        assert.strictEqual(run.difficulty, id);
-      });
-      if (id === 'heir') await check('hover does not change selection', async () => {
+      for (const [slot, [style, death]] of combos.slice(i, i + 2).entries()) {
+        await check(`keyboard starts ${style} + ${death}`, async () => {
+          await page.mouse.move(2, 2);
+          if ((await st(page)).state !== 'root') { await page.keyboard.press('Escape'); }
+          await page.keyboard.press('Enter');                       // root default focus = New Game (no saves)
+          const s0 = await st(page);
+          assert.strictEqual(s0.state, 'newGameSetup');
+          assert.deepStrictEqual([s0.setup.style, s0.setup.death, s0.setup.focus], ['standard', 'heir', 'style:standard']); // defaults every time
+          for (const k of keysFor(style, death)) await page.keyboard.press(k);
+          await page.waitForTimeout(300);
+          assert.strictEqual((await st(page)).state, 'starting');
+          const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', `run-${slot}`, 'run.json'), 'utf8'));
+          assert.deepStrictEqual([run.style, run.difficulty, run.sandboxOptions === null], [style, death, death !== 'sandbox']);
+        });
+      }
+      if (i === 0) await check('both slots full → replace flow uses the summaryReplacing line', async () => {
         await page.keyboard.press('Escape'); await page.keyboard.press('Enter');
-        const box = await page.locator('.card[data-difficulty="sandbox"]').boundingBox();
+        assert.strictEqual((await st(page)).state, 'slotsFull');
+        await page.keyboard.press('Enter');                         // first run card → confirm dialog (focus Cancel)
+        await page.keyboard.press('ArrowUp'); await page.keyboard.press('Enter');   // OK = Replace
+        assert.strictEqual((await st(page)).state, 'newGameSetup');
+        const summary = await page.locator('#setup-summary').textContent();
+        assert.ok(/Replaces/.test(summary), summary);
+        await page.keyboard.press('ArrowUp'); await page.keyboard.press('Enter');   // Begin (Standard + Heir)
+        await page.waitForTimeout(300);
+        const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
+        assert.deepStrictEqual([run.style, run.difficulty], ['standard', 'heir']);
+      });
+    } finally { await app.close(); fs.rmSync(ud, { recursive: true, force: true }); }
+  }
+  {
+    const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-e2e-'));
+    const { app, page } = await launch(ud);
+    try {
+      await check('hover moves focus only; Sandbox panel needs selection', async () => {
+        await page.mouse.move(2, 2); await page.keyboard.press('Enter');
+        const box = await page.locator('[data-nav="death:sandbox"]').boundingBox();
         await page.mouse.move(box.x + 20, box.y + 20); await page.waitForTimeout(100);
         const s = await st(page);
-        assert.strictEqual(s.diff.focus, 'card:sandbox'); assert.strictEqual(s.diff.selected, 'permadeath');
+        assert.strictEqual(s.setup.focus, 'death:sandbox'); assert.strictEqual(s.setup.death, 'heir');
         assert.ok(await page.locator('#sandbox-panel').isHidden());
+        await page.mouse.click(box.x + 20, box.y + 20); await page.waitForTimeout(100);
+        assert.ok(await page.locator('#sandbox-panel').isVisible());
         await page.keyboard.press('Escape'); assert.strictEqual((await st(page)).state, 'root');
       });
     } finally { await app.close(); fs.rmSync(ud, { recursive: true, force: true }); }

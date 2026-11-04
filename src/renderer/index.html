@@ -27,15 +27,18 @@
       <button data-action="quit" data-t="root.quit"></button>
     </nav>
   </section>
-  <!-- difficulty: focus never selects; Enter/A/click selects (js/nav.js) -->
-  <section class="screen" data-screen="difficulty">
-    <h2 data-t="difficulty.title"></h2><p class="sub" id="difficulty-sub"></p>
-    <div class="diff-layout">
-      <div class="cards" id="difficulty-cards"></div>
-      <div id="sandbox-panel" hidden><h3 id="sandbox-title"></h3><div id="sandbox-rows"></div><p class="note" id="sandbox-note"></p>
-        <button data-nav="panelBegin" class="primary panel-begin" data-t="difficulty.begin"></button></div>
+  <!-- New Game setup (spec v1.3): Style row + Death rule row (+ Sandbox panel), summary, Back/Begin.
+       Focus never selects; Enter/Space/A/click selects (js/nav.js setupReduce). -->
+  <section class="screen" data-screen="newGameSetup">
+    <h2 data-t="newGame.title"></h2>
+    <h3 class="row-title" data-t="newGame.styleRow"></h3>
+    <div class="cards-row" id="style-cards"></div>
+    <div class="setup-death">
+      <div><h3 class="row-title" data-t="newGame.deathRuleRow"></h3><div class="cards-row" id="death-cards"></div></div>
+      <div id="sandbox-panel" hidden><h3 id="sandbox-title"></h3><div id="sandbox-rows"></div><p class="note" id="sandbox-note"></p></div>
     </div>
-    <div class="row"><button data-nav="back" data-t="common.back"></button><button data-nav="begin" class="primary" id="begin-main" data-t="difficulty.begin"></button></div>
+    <p class="summary" id="setup-summary"></p>
+    <div class="row setup-actions"><button data-nav="back" data-t="common.back"></button><button data-nav="begin" class="primary" data-t="difficulty.begin"></button></div>
   </section>
   <section class="screen" data-screen="slotsFull">
     <h2 data-t="slotsFull.title"></h2><p class="sub" data-t="slotsFull.subtitle"></p>

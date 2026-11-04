@@ -225,7 +225,7 @@
     "toast.settingsReset": "Your settings file was damaged, so settings have been reset to defaults.",
     "newGame.title": "New Game",
     "newGame.styleRow": "Play Style",
-    "newGame.deathRuleRow": "Death Rule",
+    "newGame.deathRuleRow": "When Your Cat Dies",
     "newGame.summary": "{styleName} style, {deathRuleName}. Both are locked for the whole run.",
     "newGame.summaryReplacing": "{styleName} style, {deathRuleName}. Replaces {runLabel} when you begin.",
     "run.modes": "{styleName} · {deathRuleName}"

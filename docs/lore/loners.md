@@ -2,13 +2,14 @@
 
 Owner: Saga (narrative and lore). Status: **DRAFT v0.1**, design-only. Not in the build.
 Data version: `docs/lore/loners.json` (same nine cats; keep the two in sync).
-Rules: **Tundra, `docs/loners-spec.md` v0.2.** This doc gives story only. Where it disagrees with the spec, the spec wins.
+Rules: **Tundra, `docs/loners-spec.md` v0.4** (bands: §5b) and `docs/play-styles-spec.md` v0.2. This doc gives story only. Where it disagrees with the spec, the spec wins.
 
 ## How the rules apply (summary of the spec, not new rules)
 - **Origins (§1.2):** 2 from Highcrag, 3 from Bonefield, 4 from Mistwood. Mix is 5 male / 4 female; 2 young adult, 5 adult, 2 elder (§1.3).
 - **Departure (§1.2, §2.5):** `left`, `exiled`, or `survivor`. Starting pride affinity toward the origin pride is −30 if exiled, 0 if left, and +10 if survivor. At −30 or lower, a loner avoids that pride's land.
 - **Range (§2.1):** 1–2 home zones in neutral or border land. Draft zone ids are in `world-and-prides.md` §1.
 - **Trust, recruitment, mates (§2.4, §3, §4):** affinity starts at 0, shifted by sociability and aggression. Recruiting needs affinity ≥ 40. Recruiting an exile costs −15 relation with their origin pride, and a cat who left costs −5. A survivor costs nothing. Any loner can be courted as a mate.
+- **Range ids:** every loner's home zones are listed as `homeZones` in `loners.json`.
 - **Rivals (§5):** only a loner with aggression ≥ 70 *and* affinity ≤ −20 is a rival. Below 70 aggression, a loner is never a threat.
 
 Each cat's **Narrative leaning** line says how the story imagines them against those rules: how hard trust should feel, and whether they could plausibly become a rival. Trait levels in brackets (for example "aggression: high") are **suggestions for Tundra**, who owns the actual numbers.
@@ -49,7 +50,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** ambitious, ruthless, proud.
 - **Why he left:** Brokentooth challenged Scarjaw for leadership last autumn and nearly won. Scarjaw broke his saber against a mammoth jawbone and pinned him. Under Bonefield law the loser leaves. He went, but he has never accepted it.
 - **Toward Bonefield:** loves the pride, hates its leader, and means to take it back.
-- **Range:** the Tar Seeps and Greywater Ford, just outside Bonefield land, where trapped prey and drinking horses give him easy meals.
+- **Range:** the Tar Seeps and the Bear's Throat, just outside Bonefield land, where trapped prey and the bear's leavings give him easy meals.
 - **Secret / hook:** he watches Scarjaw age and counts the seasons. He would use any ally, including the player, to get close enough for a second challenge. (Spec §5.2 says rivals never challenge for leadership; if Tundra keeps that, this stays a story he tells, not a mechanic.)
 - **Sample line:** "One tooth is enough. Ask Scarjaw how many he has left by spring."
 - **Narrative leaning:** hard to win over; respects only strength. Likely rival (aggression: high, sociability: low). If affinity sinks to −20, he steals kills and stalks the player's cats.
@@ -97,7 +98,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** guilt-ridden, careful, kind in secret.
 - **Why he left:** in the hungry season after the Breaking, Hollowsong kept every kill for the nursing queens and cubs. Ashfall was caught dragging a goose away from the cubs' share. He would not say why. Hollowsong drove him out, and the pride agreed. It was a real crime, and he has never denied it.
 - **Toward Mistwood:** shame. He avoids their land and won't speak their names.
-- **Range:** the Ash Hills edge and the Bear's Throat. He lives where no cat wants to.
+- **Range:** the edge of the Ash Hills and the Bear's Throat. He lives where no cat wants to.
 - **Secret / hook:** the goose was for his mate, Reedsong, who was hurt in the Breaking and hidden from the pride so she wouldn't be left behind. She died anyway. No one in Mistwood knows she lived that long.
 - **Sample line:** "I did what they said I did. Don't make me into anything better."
 - **Narrative leaning:** slow to trust and quick to retreat (sociability: low). Not a rival (aggression: medium). Once won over, steady. Recruiting him costs relation with Mistwood (exile penalty).
@@ -108,7 +109,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** sorrowful, watchful, quietly dangerous.
 - **Why she left:** Sedge lost her mate, Rushwater, and both her cubs in the Breaking. She could not bear the dens where they had slept. She left in summer and walks the river looking for them.
 - **Toward Mistwood:** she doesn't blame them. She just can't go back.
-- **Range:** the Drowned Mere's shore and the lower Greywater.
+- **Range:** the shore of the Drowned Mere.
 - **Secret / hook:** she believes one cub lived and was carried off by wolves. She is wrong, and Lichen knows.
 - **Sample line:** "The river took them. It's going to give something back."
 - **Narrative leaning:** distant at first, then deeply attached (sociability: medium). Not a rival (aggression: medium). Player kindness to cubs should matter to her more than anything.
@@ -119,7 +120,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** loyal, haunted, earnest.
 - **Why he left:** the Breaking left Coldwater stranded on the far bank of the Mere with a torn leg. By the time he healed enough to walk the long way round, Hollowsong had led the pride to new dens he couldn't find. He wanders the marsh edge looking for their scent.
 - **Toward Mistwood:** he wants to go home more than anything.
-- **Range:** the north shore of the Drowned Mere and the Mistwood's outer edge.
+- **Range:** the north shore of the Drowned Mere and the Split Rock, where every pride's scent passes.
 - **Secret / hook:** on the ice he turned back instead of reaching for Longshadow. Longshadow was Rushwater's father, and Coldwater was Rushwater's brother. He thinks Sedge would never forgive him.
 - **Sample line:** "If you smell them, any of them, tell me which way."
 - **Narrative leaning:** easy to befriend (sociability: high). Never a rival (aggression: low). The cat most likely to rejoin Mistwood by world drift; the player helping him home could be a story in itself.
@@ -140,7 +141,54 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Ashfall and Hollowsong (Mistwood):** she exiled him. If Reedsong's story comes out, Mistwood might call him back.
 - **Lichen and Longshadow:** she warned him. The pride doesn't know that the Breaking was a choice.
 
+## Bachelor bands
+
+Rules: `loners-spec.md` v0.4 §5b (who can band, how often, strength, challenges, cohesion, breakup). Challenge frequency also scales by Style (`play-styles-spec.md` §2.10). This section is story only.
+
+### What a band is, in the Vale's words
+The prides have a word for it: a **wandering**. Two or three toms with no pride, no den, and no cubs, who hunt together because alone they are only meat for the wolves. Bonefield calls them "the hungry ones" and fears them more than it admits. Highcrag pretends they do not exist. Mistwood, after the Breaking, has reason to watch for them.
+
+A wandering is not a pride. It holds no land, keeps no den, and sings no names. It is a bargain between cats who need each other for a while.
+
+### How a band forms (story beats for §5b.2)
+- **Shared ground:** two lone toms keep crossing the same ground (a shared home zone). At first they warn each other off.
+- **A hunt neither could make alone:** a bison bogged in the Tar Seeps, a horse at the Ford, a carcass the bear wants. They take it together.
+- **The first shared night:** they sleep within sight of each other. After that, the Vale treats them as one thing.
+- Female loners never join a wandering (§5b.1). In the story, they see bands as trouble with long teeth.
+
+### How a band breaks up (story beats for §5b.6)
+- **Hunger and failure:** missed hunts and lost fights wear the bargain thin until one cat walks off in the night.
+- **One wants more than the other:** one wants a pride, the other only wants to eat.
+- **A member dies or leaves**, and one tom alone is no band.
+- **Victory:** a band that wins a pride's queens (a `mates` win) stops being a band. The bargain is finished; they are pride cats now.
+- **No reason at all:** sometimes cats just part (the random breakup roll).
+
+### Who would plausibly band together
+Only adult male loners can band (§5b.1). Of our nine, that is Brokentooth, Ashfall, and Coldwater, plus Duskrunner if young adults count (see open points). Greymantle is an elder and stays solitary.
+
+| Band (draft name) | Members | Shared zone | Why it works | Why it breaks |
+|---|---|---|---|---|
+| **The Broken Wandering** | Brokentooth + Ashfall | `bears_throat` | Brokentooth needs a second fighter to face Scarjaw. Ashfall has nothing left to lose and is good at surviving where others won't. | Ashfall won't hurt cubs and still has a conscience. If Brokentooth shows what he plans for Tallgrass's line (Thistle), Ashfall walks. |
+| **The Long Way Home** | Coldwater + Duskrunner | `split_rock` | Coldwater's leg makes hunting alone hard; Duskrunner likes company and has no grudges. | Duskrunner always wanders off eventually. Coldwater only wants Mistwood. |
+| Possible third member | Brokentooth + Duskrunner | none at start | Half-brothers. Blood pulls them together. | Duskrunner loves him and will not follow him into a war. Very unlikely without a shared zone and a reason. |
+| Unlikely | Coldwater + Ashfall | none | Both from Mistwood. | Ashfall avoids Mistwood names, and Coldwater would want to know who stole from the cubs. |
+
+### What each band would fight for
+- **The Broken Wandering** targets **Bonefield**. Brokentooth wants Scarjaw's pride. A `mates` challenge on Bonefield is the closest the rules let him come to the second challenge he dreams of. Spec §5b.4 picks `mates` only if the resident males are elders or injured, so the story waits for Scarjaw to weaken.
+- **The Long Way Home** would target **Mistwood**, and mostly by accident of the story. Mistwood lost toms in the Breaking. If its surviving males are hurt or old, a `mates` win would bring Coldwater home as a resident male. It would be a homecoming by force, and Sedge would be there.
+- Either band could turn on the **player's pride** if it looks weak. That is the threat the player is warned about by scent sign (§5b.4).
+
+### The player and bands
+A male player cat can join a band before founding a pride (§5b.7). The events in `events/band-events.md` cover the invitation, life in the band, and members following him when he founds a pride.
+- **Brokentooth** offers the player a place only if he thinks the player is useful against Scarjaw.
+- **Coldwater** offers because he is lonely and the player is kind.
+- **Duskrunner** offers because he invites everyone.
+- **Ashfall** never asks. He just stays nearby.
+
 ## Open points for Tundra / Director
 - Brokentooth's hope of a second challenge sits against spec §5.2 (rivals never challenge). Kept as story only.
 - Sedge's belief that wolves took a cub is a story thread only; no mechanic implied.
 - Pride-cat names reserved for rosters: Stonebrow, Thistle (Highcrag); Redthroat (Bonefield). Past cats: Tallgrass (Bonefield), Longshadow, Rushwater, Reedsong (Mistwood, dead).
+- Spec §5b.1 says bands are "adult male loners". Is a young adult (Duskrunner) allowed? If not, the Long Way Home band waits until he ages into an adult.
+- Draft band names ("the Broken Wandering", "the Long Way Home") are story labels only. In-game band names, if shown, are copy and will come from Saga.
+- Draft home zones were changed so no loner lives in claimed land (§2.1): Coldwater's range moved off the Mistwood edge to the Split Rock, and Brokentooth's moved from Greywater Ford to the Bear's Throat.

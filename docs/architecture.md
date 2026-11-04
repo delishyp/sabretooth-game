@@ -1,17 +1,19 @@
-# Architecture (main menu, built against main-menu-spec v1.2)
+# Architecture (main menu, built against main-menu-spec v1.3)
 
 - **Main process** (`src/main/main.js`): window (min 1280x720), IPC per spec §5, all file I/O. Logs: `<userData>/logs/menu.log`.
   - `settings-store.js`: pure Node; spec defaults (`storyteller.mode = "offline"`, shown as Classic); corrupt file → `settings.bad.json` + reset + toast. No difficulty setting.
   - `saves-store.js`: pure Node. 2 run slots × 3 saves.
-    - `saves/run-<slotIndex>/run.json` = RunRecord `{runId, slotIndex, catName, prideName, difficulty, sandboxOptions|null, storytellerMode, generation, createdAt, lastPlayedAt, gameVersion}`.
-    - `saves/run-<slotIndex>/save-<saveIndex>/meta.json` = SaveRecord `{saveId, runId, saveIndex, writtenAt, inGameDate{year,season,day}, playTimeSec, saveVersion}`.
+    - `saves/run-<slotIndex>/run.json` = RunRecord `{runId, slotIndex, catName, prideName, style (story|standard|sim; missing → standard), difficulty (Death rule), sandboxOptions|null, storytellerMode, generation, createdAt, lastPlayedAt, gameVersion}`.
+    - `saves/run-<slotIndex>/save-<saveIndex>/meta.json` = SaveRecord `{saveId, runId, saveIndex, writtenAt, inGameDate{year,season,day}, playTimeSec, saveVersion, mainCat}`.
+    - `mainCat` (optional, spec v1.3 §1/§5): `{catId, name, sex, lifeStage, genes, scars[]}` snapshot of the cat being played when the save was written (in Heir mode the current heir, not the founder). `null` until gameplay writes it; `normalizeMainCat()` keeps only these fields.
+    - `list()` also returns `continueTarget: {runId, saveId} | null` = newest valid save in a valid run (what Continue loads; the menu cat will read its `mainCat`).
     - `list()` → `{runs:[run|null, run|null]}`, saves newest first; unreadable records → `damaged: true` (deletable, not loadable).
     - `createRun()` uses first free slot or `replaceRunId` (deletes old run only at that point); throws `SaveCapError` if both full.
     - `writeSave()` takes the first free index; throws `SaveCapError` at 3 unless `overwriteSaveIndex` (future in-game overwrite prompt).
     - Difficulty / sandboxOptions locked: no API changes them after `createRun`. Sandbox runs are tagged by `difficulty: "sandbox"`.
-- **Preload** (`preload.js`) → `window.sabretooth`: `menu.newGame(difficulty,{sandboxOptions,replaceRunId})`, `menu.loadSave`, `menu.deleteSave`, `menu.deleteRun`, `menu.newLineage`, `game.legacyEnd`, `saves.list`, `settings.get/set/reset`, `storyteller.check`, `copy.get`, `app.info/quit`, `onToast`, `onLegacyEnd`. contextIsolation on, nodeIntegration off, sandbox on.
+- **Preload** (`preload.js`) → `window.sabretooth`: `menu.newGame({style, difficulty, replaceRunId, sandboxOptions})`, `menu.loadSave`, `menu.deleteSave`, `menu.deleteRun`, `menu.newLineage`, `game.legacyEnd`, `saves.list`, `settings.get/set/reset`, `storyteller.check`, `copy.get`, `app.info/quit`, `onToast`, `onLegacyEnd`. contextIsolation on, nodeIntegration off, sandbox on.
 - **Renderer**: plain HTML/CSS/JS. `menu.js` = spec state machine (root, difficulty + Sandbox panel, slotsFull → replaceConfirm, load / loadRunExpanded with delete confirms, settings, credits, legacy, starting/loading placeholders). `input.js` maps keyboard/mouse/Gamepad to actions (LB/RB = Settings tabs, or cycle Sandbox toggle values).
-- **IPC**: `menu:newGame {difficulty, replaceRunId?, sandboxOptions?}` (creates the run record; gameplay placeholder), `menu:loadSave {runId, saveId}`, `menu:deleteSave {runId, saveId}`, `menu:deleteRun {runId}`, `saves:list`, `settings:get`, `settings:set {patch}`, `storyteller:check {mode}`, `app:quit`; Legacy hook `game:legacyEnd {runId}` (main → renderer `legacyEnd` → Legacy placeholder) → `menu:newLineage {runId}` (placeholder). Extras: `settings:reset`, `copy:get`, `app:info`. Main → renderer: `toast {text}`.
+- **IPC**: `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?}` (creates the run record; gameplay placeholder), `menu:loadSave {runId, saveId}`, `menu:deleteSave {runId, saveId}`, `menu:deleteRun {runId}`, `saves:list`, `settings:get`, `settings:set {patch}`, `storyteller:check {mode}`, `app:quit`; Legacy hook `game:legacyEnd {runId}` (main → renderer `legacyEnd` → Legacy placeholder) → `menu:newLineage {runId}` (placeholder). Extras: `settings:reset`, `copy:get`, `app:info`. Main → renderer: `toast {text}`.
 - **Audio**: no menu music (spec §6.6); audio settings stored only.
 - **Art drop-in**: `js/assets.js` probes `assets/menu/background.{png,jpg,webp}` and `logo.png`; missing → gradient / text. Palette in `styles/theme.css`.
 - **Copy**: `scripts/sync-copy.js` (`parseCopy`) merges + validates the JSON blocks of `docs/main-menu-copy.md` into `src/renderer/data/menu-copy.json`.
@@ -22,3 +24,15 @@
 - `src/main/menu-handlers.js`: newGame (records the effective storyteller after fallback; raw errors → log, renderer gets `toast.startFailed`), loadSave (refuses damaged runs/saves).
 - Settings: renderer stages edits to main (`settings:stage`) so closing the window flushes them; window mode fullscreen/windowed applied live (borderless deferred); uiScale applied live; store validates types/enums/ranges.
 - `test/e2e/menu.e2e.js` (`npm run test:e2e`): real-app keyboard smoke via playwright-core.
+
+## v1.3 New Game setup
+- State `newGameSetup` replaces `difficulty`. One screen: Style row (copy `playStyles`, title `newGame.styleRow`), Death rule row (copy `difficulties`, title `newGame.deathRuleRow`), Sandbox panel beside the Death rule row (only while Sandbox is selected; any Style), summary line (`newGame.summary` / `newGame.summaryReplacing`), Back + Begin.
+- Model: `Nav.setupInit/setupReduce` (pure). Defaults every time: Standard + Heir + default Sandbox options. Focus never selects. Vertical stops: Style row → Death row → panel toggles → Back/Begin (wrap); entering a row focuses its selected card; Right on Sandbox card enters the panel; Esc/B or Left on a first value leaves the panel.
+- Run cards show `run.modes` ("{styleName} · {deathRuleName}") on their own line, `· run.sandboxTag` for Sandbox.
+- `styles.json` tunables (play-styles-spec §4) are gameplay-side and not built in the menu.
+
+## Planned (not built): menu cat (spec v1.3 §1)
+- Renderer reads `continueTarget` from `saves:list` → that save's `mainCat`; none / missing snapshot / layer load error → default cat from `data/menuDefaultCat.json` (fixed genome, look by Ochre), logged, never crashes.
+- Layered render like portraits: lying-pose lineart + gene layers (base coat, markings, eyes, sabers, scars, age variant from `lifeStage` adult/elder); pose by `sex`; files `assets/menu/cat/<sex>/<layer>.png` (Ochre owns paths).
+- Re-render when `continueTarget` changes (e.g. after delete) with a 300ms crossfade; instant under Reduced Motion. Optional idle breathing/tail flick, off under Reduced Motion.
+- Blocked on Anna's art pick; `menuDefaultCat.json`, rendering and crossfade intentionally not created yet.

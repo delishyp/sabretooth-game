@@ -33,10 +33,10 @@ sits on the left). Drop the file in and restart the app; no code change. If no f
 (`--bg-fallback` in `src/renderer/styles/theme.css`) is shown. Optional logo: `assets/menu/logo.png` (else text title).
 Other files in `assets/menu/` (e.g. `backgrounds/`, `refs/`, `html/`) are ignored by the app.
 
-## Save model (spec v1.0)
+## Save model (spec v1.3)
 2 run slots × up to 3 manual saves each, under `<userData>/saves/`:
-`run-<0|1>/run.json` (run record: difficulty and sandboxOptions locked at New Game) and `run-<n>/save-<0..2>/meta.json`.
-The cap is enforced in `src/main/saves-store.js` (`SaveCapError`). Continue = newest valid save across both runs.
+`run-<0|1>/run.json` (run record: style, difficulty = Death rule, and sandboxOptions locked at New Game) and `run-<n>/save-<0..2>/meta.json`.
+The cap is enforced in `src/main/saves-store.js` (`SaveCapError`). Continue = newest valid save across both runs (`saves:list` → `continueTarget`). Save meta has an optional `mainCat` (null for now).
 Seeded screenshots: `SABRETOOTH_USERDATA=$(mktemp -d) node scripts/seed-demo-saves.js <that dir>` then
 `SABRETOOTH_USERDATA=<that dir> npm run screenshots` (optional `SABRETOOTH_SHOTS=load,main-menu` filter). Delete the dir after.
 

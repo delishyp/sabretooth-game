@@ -1,10 +1,10 @@
 /**
- * Main menu controller (spec v1.2). State machine (§5):
- *   boot → root; root → difficulty (slot free) | slotsFull (both full) | load | settings | credits | quitConfirm | loading (continue)
- *   slotsFull → replaceConfirm → difficulty (replaceRunId set) | root;  difficulty → starting → root (placeholder)
+ * Main menu controller (spec v1.3). State machine (§5):
+ *   boot → root; root → newGameSetup (slot free) | slotsFull (both full) | load | settings | credits | quitConfirm | loading (continue)
+ *   slotsFull → replaceConfirm → newGameSetup (replaceRunId set) | root;  newGameSetup → starting → root (placeholder)
  *   load → loadRunExpanded → loading | deleteSaveConfirm → loadRunExpanded | deleteRunConfirm → load; back → load
  *   legacy (game:legacyEnd hook) → menu:newLineage | root
- * Text: t(id, vars) over Saga's copy (js/i18n.js). Difficulty-screen navigation: pure Nav.difficultyReduce (js/nav.js).
+ * Text: t(id, vars) over Saga's copy (js/i18n.js). New Game setup navigation: pure Nav.setupReduce (js/nav.js).
  */
 (async () => {
   const api = window.sabretooth;
@@ -16,7 +16,8 @@
   let runs = [null, null];
   let state = 'boot';
   let dialog = null;
-  let diff = null;                  // Nav difficulty model, fresh per New Game (B7)
+  let setup = null;                 // Nav New Game setup model, fresh per New Game (B7; defaults Standard + Heir)
+  let continueTarget = null;        // saves:list continueTarget {runId, saveId} | null
   let replaceRunId = null;
   let expandedRunId = null;
   let legacyRunId = null;
@@ -59,7 +60,7 @@
   }
   document.addEventListener('mouseover', (ev) => {
     const b = ev.target.closest('button'); if (!b || b.disabled) return;
-    if (!dialog && state === 'difficulty' && b.dataset.nav) return diffDispatch('hover', b.dataset.nav);
+    if (!dialog && state === 'newGameSetup' && b.dataset.nav) return setupDispatch('hover', b.dataset.nav);
     if (focusables().includes(b)) focus(b);
   });
 
@@ -69,7 +70,7 @@
     const el = ['starting', 'loading'].includes(screen) ? 'placeholder' : screen === 'loadRunExpanded' ? 'load' : screen;
     $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === el));
     if (screen === 'root') renderRoot();
-    if (screen === 'difficulty') return renderDifficulty();
+    if (screen === 'newGameSetup') return renderSetup();
     if (screen === 'settings') renderSettings();
     if (screen === 'load' || screen === 'loadRunExpanded') renderLoad();
     if (screen === 'slotsFull') renderReplace();
@@ -87,10 +88,12 @@
     $('#tagline').textContent = list[i];
   }
 
-  async function refreshSlots() { runs = (await api.saves.list()).runs; }
+  async function refreshSlots() { ({ runs, continueTarget } = await api.saves.list()); }
+  /** The save Continue would load (main's saves:list continueTarget), or null. Future menu cat reads its mainCat. */
   function latestValid() {
-    return runs.filter((r) => r && !r.damaged).flatMap((r) => r.saves.filter((x) => !x.damaged))
-      .sort((x, y) => Date.parse(y.writtenAt) - Date.parse(x.writtenAt))[0] || null;
+    if (!continueTarget) return null;
+    const r = runs.find((x) => x && x.runId === continueTarget.runId);
+    return (r && r.saves.find((x) => x.saveId === continueTarget.saveId)) || null;
   }
   const hasRuns = () => runs.some(Boolean);
   function renderRoot() {
@@ -101,6 +104,7 @@
 
   // ---------- labels ----------
   const diffName = (id) => copy.difficulties.find((d) => d.id === id)?.name || id;
+  const styleName = (id) => copy.playStyles.find((d) => d.id === id)?.name || id;
   const when = (iso) => new Date(iso).toLocaleString();
   const runLabel = (r) => (r.damaged ? t('run.damagedName') : t('run.label', { catName: r.catName, prideName: r.prideName }));
   function runCard(r, i) {
@@ -112,32 +116,34 @@
     else {
       b.dataset.runId = r.runId;
       name.textContent = runLabel(r);
-      meta.innerHTML = '<span class="tag"></span> · <span class="rest"></span>';
-      meta.querySelector('.tag').textContent = diffName(r.difficulty) + (r.difficulty === 'sandbox' ? ` · ${t('run.sandboxTag')}` : '');
-      meta.querySelector('.rest').textContent = t('run.meta', { generation: r.generation, lastPlayed: when(r.lastPlayedAt), saveCount: r.saves.length });
+      // run.modes on its own line, run.sandboxTag after it for Sandbox runs (copy §6 notes). Pre-v1.3 runs = Standard (store).
+      const modes = document.createElement('span'); modes.className = 'rmodes';
+      modes.textContent = t('run.modes', { styleName: styleName(r.style), deathRuleName: diffName(r.difficulty) }) + (r.difficulty === 'sandbox' ? ` · ${t('run.sandboxTag')}` : '');
+      meta.textContent = t('run.meta', { generation: r.generation, lastPlayed: when(r.lastPlayedAt), saveCount: r.saves.length });
+      b.append(name, modes, meta); return b;
     }
     b.append(name, meta); return b;
   }
 
-  // ---------- difficulty (B1/B2: focus ≠ selection, via Nav) ----------
+  // ---------- New Game setup (spec v1.3; B1/B2 focus ≠ selection, via Nav.setupReduce) ----------
   const optionDefs = () => copy.sandboxPanel.options;
-  function renderDifficulty() {
-    const target = replaceRunId && runs.find((r) => r && r.runId === replaceRunId);
-    $('#difficulty-sub').textContent = target ? t('difficulty.subtitleReplacing', { runLabel: runLabel(target) }) : t('difficulty.subtitle');
-    const box = $('#difficulty-cards'); box.innerHTML = '';
-    for (const d of copy.difficulties) {
-      const b = document.createElement('button'); b.className = 'card'; b.dataset.difficulty = d.id; b.dataset.nav = `card:${d.id}`;
-      b.innerHTML = '<span class="name"></span><span class="desc"></span>';
-      b.querySelector('.name').textContent = d.name; b.querySelector('.desc').textContent = d.description;
-      box.appendChild(b);
-    }
+  const SCREEN = '.screen[data-screen="newGameSetup"]';
+  function cardButton(kind, d) {
+    const b = document.createElement('button'); b.className = 'card'; b.dataset.nav = `${kind}:${d.id}`;
+    b.innerHTML = '<span class="name"></span><span class="desc"></span>';
+    b.querySelector('.name').textContent = d.name; b.querySelector('.desc').textContent = d.description;
+    return b;
+  }
+  function renderSetup() {
+    $('#style-cards').replaceChildren(...copy.playStyles.map((d) => cardButton('style', d)));
+    $('#death-cards').replaceChildren(...copy.difficulties.map((d) => cardButton('death', d)));
     $('#sandbox-title').textContent = copy.sandboxPanel.title; $('#sandbox-note').textContent = copy.sandboxPanel.note;
-    applyDiff();
+    applySetup();
   }
   function renderSandboxRows() {
     const box = $('#sandbox-rows'); box.innerHTML = '';
     for (const o of optionDefs()) {
-      const vi = o.values.indexOf(diff.opts[o.id]);
+      const vi = o.values.indexOf(setup.opts[o.id]);
       const b = document.createElement('button'); b.className = 'setting opt'; b.dataset.opt = o.id; b.dataset.nav = `opt:${o.id}`;
       b.innerHTML = '<span class="top"><span></span><span class="val"></span></span><span class="desc"></span>';
       b.querySelector('.top').children[0].textContent = o.name; b.querySelector('.val').textContent = `◀ ${o.labels[vi]} ▶`;
@@ -151,23 +157,26 @@
       if (d.clientWidth && d.scrollWidth > d.clientWidth && o.description) d.textContent = o.description;
     }
   }
-  /** Render the Nav model: selected card, panel only when Sandbox is SELECTED, focus ring on diff.focus. */
-  function applyDiff() {
-    const sandbox = diff.selected === 'sandbox';
-    $$('#difficulty-cards .card').forEach((c) => c.classList.toggle('selected', c.dataset.difficulty === diff.selected));
-    $('#sandbox-panel').hidden = !sandbox; $('#begin-main').hidden = sandbox;
-    $('.diff-layout').classList.toggle('sandbox', sandbox);
+  /** Render the Nav model: selected cards, panel only when Sandbox is SELECTED, summary line, focus ring. */
+  function applySetup() {
+    $$('#style-cards .card').forEach((c) => c.classList.toggle('selected', c.dataset.nav === `style:${setup.style}`));
+    $$('#death-cards .card').forEach((c) => c.classList.toggle('selected', c.dataset.nav === `death:${setup.death}`));
+    const sandbox = setup.death === 'sandbox';
+    $('#sandbox-panel').hidden = !sandbox;
     if (sandbox) { renderSandboxRows(); fitSandboxDescs(); }
-    focus($(`.screen[data-screen="difficulty"] [data-nav="${diff.focus}"]`));
+    const target = replaceRunId && runs.find((r) => r && r.runId === replaceRunId);
+    const vars = { styleName: styleName(setup.style), deathRuleName: diffName(setup.death) };
+    $('#setup-summary').textContent = target ? t('newGame.summaryReplacing', { ...vars, runLabel: runLabel(target) }) : t('newGame.summary', vars);
+    focus($(`${SCREEN} [data-nav="${setup.focus}"]`));
   }
-  function diffDispatch(action, arg) {
-    const { state: next, effect } = Nav.difficultyReduce(diff, action, arg);
-    diff = next; applyDiff();
+  function setupDispatch(action, arg) {
+    const { state: next, effect } = Nav.setupReduce(setup, action, arg);
+    setup = next; applySetup();
     if (effect && effect.type === 'start') startNewGame(effect);
     if (effect && effect.type === 'leave') goBack();
   }
-  $('.screen[data-screen="difficulty"]').addEventListener('click', (ev) => {
-    const b = ev.target.closest('[data-nav]'); if (b && !dialog) diffDispatch('click', b.dataset.nav);
+  $(SCREEN).addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-nav]'); if (b && !dialog) setupDispatch('click', b.dataset.nav);
   });
 
   function renderReplace() {
@@ -175,7 +184,7 @@
     runs.forEach((r, i) => {
       const b = runCard(r, i);
       b.addEventListener('click', () => confirmDialog(t('replaceConfirm.body', { runLabel: runLabel(r) }), t('replaceConfirm.ok'), () => {
-        replaceRunId = r.runId; openDifficulty();
+        replaceRunId = r.runId; openSetup();
       }));
       box.appendChild(b);
     });
@@ -308,18 +317,18 @@
   function closeDialog() {
     const d = dialog; dialog = null; $('#dialog').hidden = true;
     if (state === 'quitConfirm') state = 'root';
-    if (state === 'difficulty') applyDiff(); else focus(d && d.prev);
+    if (state === 'newGameSetup') applySetup(); else focus(d && d.prev);
   }
   $('#dialog-ok').addEventListener('click', () => { const fn = dialog.onOk; closeDialog(); fn(); });
   $('#dialog-cancel').addEventListener('click', closeDialog);
 
   // ---------- actions ----------
-  async function startNewGame({ difficulty, sandboxOptions }) {
-    const res = await api.menu.newGame(difficulty, { replaceRunId: replaceRunId || undefined, sandboxOptions });
+  async function startNewGame({ style, difficulty, sandboxOptions }) {
+    const res = await api.menu.newGame({ style, difficulty, replaceRunId: replaceRunId || undefined, sandboxOptions });
     if (!res.ok) { toast(t('toast.startFailed')); return; }   // B12: raw error is logged by main only
     fallbackToast(res.storyteller?.preferred, res.storyteller?.effective);
     replaceRunId = null;
-    $('#placeholder-detail').textContent = t('placeholder.newRun', { difficultyName: diffName(difficulty), slot: res.run.slotIndex + 1 });
+    $('#placeholder-detail').textContent = t('placeholder.newRun', { difficultyName: t('run.modes', { styleName: styleName(style), deathRuleName: diffName(difficulty) }), slot: res.run.slotIndex + 1 });
     show('starting');
   }
   async function loadSave(runId, saveId) {
@@ -329,14 +338,15 @@
     $('#placeholder-detail').textContent = r ? t('placeholder.loading', { runLabel: runLabel(r) }) : t('placeholder.loadingFallback');
     show('loading');
   }
-  function openDifficulty() {
-    diff = Nav.difficultyInit(copy.difficulties.map((d) => d.id), optionDefs());   // B7: fresh each time
-    show('difficulty');
+  function openSetup() {
+    // Every New Game resets to the defaults: Standard, Heir, default Sandbox options (B7, spec v1.3).
+    setup = Nav.setupInit(copy.playStyles.map((d) => d.id), copy.difficulties.map((d) => d.id), optionDefs());
+    show('newGameSetup');
   }
   const quit = () => confirmDialog(t('quitConfirm.body'), t('quitConfirm.ok'), () => api.app.quit());
   async function newGame() {
     await refreshSlots(); replaceRunId = null;
-    if (runs.some((r) => r === null)) return openDifficulty();
+    if (runs.some((r) => r === null)) return openSetup();
     show('slotsFull');
   }
   function showLegacy(runId) { legacyRunId = runId; show('legacy'); }
@@ -362,8 +372,8 @@
     if (state === 'root') return quit();
     if (state === 'loadRunExpanded') { const id = expandedRunId; expandedRunId = null; show('load', `.run[data-run-id="${id}"]`); return; }
     clearInterval(creditsTimer);
-    if (state === 'difficulty') replaceRunId = null;
-    const from = { difficulty: 'newGame', slotsFull: 'newGame', load: 'load', credits: 'credits' }[state];
+    if (state === 'newGameSetup') replaceRunId = null;
+    const from = { newGameSetup: 'newGame', slotsFull: 'newGame', load: 'load', credits: 'credits' }[state];
     await refreshSlots();
     show('root', from ? $(`[data-action="${from}"]`) : null);
   }
@@ -373,7 +383,7 @@
 
   Input.on((a) => {
     const el = current();
-    if (!dialog && state === 'difficulty') return diffDispatch(a === 'start' ? 'confirm' : a);
+    if (!dialog && state === 'newGameSetup') return setupDispatch(a === 'start' ? 'confirm' : a);
     if (a === 'up') return move(-1);
     if (a === 'down') { if (state === 'credits') fastScroll = true; return move(1); }
     if (a === 'left' || a === 'right') {
@@ -393,7 +403,7 @@
 
   // Dev hook used by `--screenshots`; harmless in production.
   window.__menuDebug = {
-    state: () => ({ state, diff, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
+    state: () => ({ state, setup, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
     show: async (s) => {
       if (dialog) closeDialog();
       await refreshSlots();
@@ -401,8 +411,9 @@
       if (s === 'quitConfirm') { show('root'); return quit(); }
       if (s === 'starting') { $('#placeholder-detail').textContent = t('placeholder.newRun', { difficultyName: diffName('permadeath'), slot: 1 }); return show('starting'); }
       if (s === 'root') return show('root');
-      if (s === 'difficulty') { openDifficulty(); diffDispatch('down'); return diffDispatch('confirm'); }       // Heir selected via keyboard
-      if (s === 'difficulty:sandbox') { openDifficulty(); ['down', 'down', 'confirm', 'right'].forEach((a) => diffDispatch(a)); return; }
+      if (s === 'newGame') return openSetup();                                                             // defaults: Standard + Heir
+      if (s === 'newGame:sim') { openSetup(); ['right', 'confirm', 'down', 'left', 'confirm'].forEach((a) => setupDispatch(a)); return; } // Sim + Permadeath
+      if (s === 'newGame:sandbox') { openSetup(); ['left', 'confirm', 'down', 'right', 'confirm', 'right'].forEach((a) => setupDispatch(a)); return; } // Story + Sandbox, focus in panel
       if (s === 'slotsFull') return show('slotsFull');
       if (s === 'load') { expandedRunId = null; return show('load'); }
       if (s === 'load:expanded') { const r = runs.find((x) => x && !x.damaged); expandedRunId = r.runId; show('loadRunExpanded'); return focus($('.saves button')); }

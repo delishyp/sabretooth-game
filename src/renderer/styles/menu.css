@@ -51,21 +51,29 @@ button.primary { border-color: var(--accent); }
 #toasts { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 20; }
 .toast { background: #1c3446; border: 1px solid var(--accent); padding: 12px 24px; border-radius: 6px; font-size: 18px; }
 #version { position: fixed; right: 16px; bottom: 10px; font-size: 13px; color: var(--ice-dim); opacity: .8; }
-/* difficulty + sandbox panel */
-.diff-layout { display: flex; gap: 40px; align-items: flex-start; }
-.diff-layout .cards { flex-direction: column; gap: 18px; }
-.diff-layout .card { width: 640px; min-height: 150px; }
-#sandbox-panel { width: 820px; background: var(--panel); border: 1px solid var(--accent); border-radius: 8px; padding: 26px 30px; }
-#sandbox-panel h3 { font-family: var(--font-title); font-size: 32px; margin: 0 0 18px; color: var(--frost); }
-#sandbox-rows { display: flex; flex-direction: column; gap: 10px; }
-#sandbox-panel .note { font-size: 18px; color: var(--ice-dim); margin: 16px 0; }
-#sandbox-panel .panel-begin { min-height: 56px; font-size: 26px; padding: 8px 40px; }
-#begin-main[hidden] { display: none; }
+/* New Game setup (v1.3) */
+.screen[data-screen="newGameSetup"] { padding: 60px 160px; }
+.screen[data-screen="newGameSetup"] h2 { font-size: 54px; margin-bottom: 4px; }
+.row-title { font-family: var(--font-title); font-size: 26px; letter-spacing: 3px; color: var(--ice-dim); margin: 14px 0 10px; text-transform: uppercase; }
+.cards-row { display: flex; gap: 20px; }
+.cards-row .card > span { flex-shrink: 0; }
+.cards-row .card { width: 300px; min-height: 215px; height: auto; padding: 18px 22px; gap: 8px; }
+.cards-row .card .name { font-size: 28px; }
+.cards-row .card .desc { font-size: 18px; line-height: 1.35; }
+.setup-death { display: flex; gap: 40px; align-items: flex-start; }
+#sandbox-panel { width: 620px; background: var(--panel); border: 1px solid var(--accent); border-radius: 8px; padding: 16px 22px; margin-top: 14px; }
+#sandbox-panel h3 { font-family: var(--font-title); font-size: 24px; margin: 0 0 10px; color: var(--frost); }
+#sandbox-rows { display: flex; flex-direction: column; gap: 6px; }
+#sandbox-rows .setting.opt { min-height: 0; font-size: 21px; }
+#sandbox-panel .note { font-size: 16px; color: var(--ice-dim); margin: 10px 0 0; }
+.summary { font-size: 24px; color: var(--ice); margin: 22px 0 0; }
+.setup-actions { margin-top: 16px; }
 /* runs */
 .runs { display: flex; flex-direction: column; gap: 16px; width: 1300px; }
 .run { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 18px 28px; min-height: 100px; }
 .run .rname { font-family: var(--font-title); font-size: 34px; color: var(--frost); }
 .run .rmeta { font-size: 21px; color: var(--ice-dim); }
+.run .rmodes { font-size: 22px; color: var(--accent); }
 .run.expanded { border-color: var(--accent); }
 .run .tag { color: var(--accent); }
 .saves { display: flex; flex-direction: column; gap: 10px; margin-left: 50px; }
@@ -73,4 +81,4 @@ button.primary { border-color: var(--accent); }
 .saves button.danger { color: var(--danger); border-color: var(--danger); }
 #sandbox-rows .setting.opt { flex-direction: column; align-items: stretch; gap: 4px; padding: 10px 22px; }
 #sandbox-rows .opt .top { display: flex; justify-content: space-between; }
-#sandbox-rows .opt .desc { font-size: 18px; color: var(--ice-dim); min-height: 22px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#sandbox-rows .opt .desc { font-size: 16px; color: var(--ice-dim); min-height: 22px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

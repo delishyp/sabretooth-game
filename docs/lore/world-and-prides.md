@@ -1,7 +1,7 @@
 # World and Prides
 
 Owner: Saga (narrative and lore). Status: **DRAFT v0.1**, design-only. Not in the build.
-Rules and numbers come from Tundra's specs (`docs/loners-spec.md` v0.2). Where this doc and a spec disagree, the spec wins.
+Rules and numbers come from Tundra's specs (`docs/loners-spec.md` v0.4, `docs/play-styles-spec.md` v0.2). Where this doc and a spec disagree, the spec wins.
 Tone: quiet, cold, ancient, a little mythic. Plain English.
 
 ## 1. The valley: Greywater Vale
@@ -50,7 +50,7 @@ Zone ids are draft suggestions for Tundra and Flint. Tundra owns the real zone l
 
 ## 2. The three prides
 
-Locked sizes from `loners-spec.md` v0.2 §1. Every pride started at 13 cats.
+Locked sizes from `loners-spec.md` v0.4 §1. Every pride started at 13 cats.
 
 | Spec slot | Pride id | Pride | Cats now | Lost to loners |
 |---|---|---|---|---|
@@ -95,11 +95,13 @@ Locked sizes from `loners-spec.md` v0.2 §1. Every pride started at 13 cats.
 - **Leader:** **Hollowsong**, an aging queen who took the lead after the Breaking because no one else would.
 - **Toward outsiders:** they hide first. A stranger in the Mistwood is watched and rarely greeted. Those who are patient and gentle may be let in. A suitor must earn the trust of the whole pride, not only the leader.
 - **Toward those who leave:** sorrow rather than anger. Mistwood leaves a door open. There is one exception: the cat they blame for stealing from the starving.
-- **Story state: broken.** Last spring, the old leader Longshadow led the pride across the Drowned Mere to reach the deer on the far shore. The ice gave way. Cats call it **the Breaking**. Longshadow and several others drowned. Others were swept downriver or stranded on the far bank. The hungry season that followed turned the survivors on each other. Mistwood is now the smallest pride in the Vale, and four of the Vale's nine loners are its own. Whether Mistwood heals, is absorbed, or fades is one of the valley's central stories.
+- **Story state: broken.** Last spring, the old leader Longshadow led the pride across the Drowned Mere to reach the deer on the far shore. The ice gave way. Cats call it **the Breaking**. Longshadow and several others drowned. Others were swept downriver or stranded on the far bank. The hungry season that followed turned the survivors on each other. Mistwood is now the smallest pride in the Vale, and four of the Vale's nine loners are its own. Whether Mistwood heals, is absorbed, or fades is one of the valley's central stories. Its toms took the worst of the ice, so wandering bands of loner males watch Mistwood closely (see `loners.md`, Bachelor bands). The roster must still meet the breeding floor (2 breeding-age males, 3 breeding-age females), so Mistwood's males should be few, scarred, or getting old, but not gone.
 
-## 3. Loners
+## 3. Loners and wanderings
 
-The Vale's nine loners are in `docs/lore/loners.md` (with `loners.json` for data). Their rules are Tundra's: `docs/loners-spec.md` v0.2.
+The Vale's nine loners are in `docs/lore/loners.md` (with `loners.json` for data). Their rules are Tundra's: `docs/loners-spec.md` v0.4.
+
+Lone toms sometimes hunt together for a while in what the prides call a **wandering**: a bachelor band with no land, den, or cubs (spec §5b). A wandering can challenge any pride for its queens or a strip of border land, and then it falls apart. Every pride has a story about the season a wandering came. Bonefield's leaders have all faced one. Highcrag claims it never has.
 
 ## 4. Open lore questions (for Director)
 - The scimitar cats are a draft idea for a rare threat. If Tundra doesn't want a second sabretooth species, they can be cut with no knock-on lore.

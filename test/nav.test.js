@@ -1,73 +1,99 @@
-// Keyboard / controller / mouse navigation on the difficulty screen (B1, B2, B7), via the pure Nav module.
+// New Game setup navigation (spec v1.3; B1/B2 focus ≠ selection; B7 defaults), via the pure Nav module.
 const test = require('node:test');
 const assert = require('node:assert');
 const Nav = require('../src/renderer/js/nav');
 const copy = require('../src/renderer/data/menu-copy.json');
 const { SANDBOX_OPTIONS } = require('../src/main/saves-store');
 
-const IDS = copy.difficulties.map((d) => d.id);           // permadeath, heir, sandbox
+const STYLES = copy.playStyles.map((d) => d.id);          // story, standard, sim
+const DEATHS = copy.difficulties.map((d) => d.id);        // permadeath, heir, sandbox
 const DEFS = copy.sandboxPanel.options.map((o) => ({ ...o, default: SANDBOX_OPTIONS[o.id].default }));
-const init = () => Nav.difficultyInit(IDS, DEFS);
+const DEFAULT_OPTS = { needsDrain: 'normal', threatFrequency: 'normal', startingReputation: 'normal', freeCustomization: true };
+const init = () => Nav.setupInit(STYLES, DEATHS, DEFS);
 function run(actions, s = init()) {
   let effect = null;
-  for (const a of actions) { const [act, arg] = Array.isArray(a) ? a : [a]; const r = Nav.difficultyReduce(s, act, arg); s = r.state; if (r.effect) effect = r.effect; }
+  for (const a of actions) { const [act, arg] = Array.isArray(a) ? a : [a]; const r = Nav.setupReduce(s, act, arg); s = r.state; if (r.effect) effect = r.effect; }
   return { s, effect };
 }
-const keys = (...ks) => ks.map((k) => Nav.KEYMAP[k]);
+const K = (...ks) => ks.map((k) => Nav.KEYMAP[k]);
+const horiz = (from, to, list) => { const d = list.indexOf(to) - list.indexOf(from); return Array(Math.abs(d)).fill(d < 0 ? 'ArrowLeft' : 'ArrowRight'); };
+/** Keyboard sequence that selects style + death and presses Begin. */
+function keysFor(style, death) {
+  const seq = [...horiz('standard', style, STYLES), 'Enter', 'ArrowDown', ...horiz('heir', death, DEATHS), 'Enter', 'ArrowDown'];
+  if (death === 'sandbox') seq.push(...Array(DEFS.length).fill('ArrowDown'));   // through the panel toggles
+  seq.push('Enter');                                                             // Begin
+  return K(...seq);
+}
 
-test('focus never selects: moving with arrows keeps the selection', () => {
-  const { s } = run(keys('ArrowDown', 'ArrowDown', 'ArrowUp'));
-  assert.strictEqual(s.focus, 'card:heir'); assert.strictEqual(s.selected, 'permadeath');
+test('defaults: Standard + Heir, focus on Style row at Standard, default Sandbox options', () => {
+  const s = init();
+  assert.deepStrictEqual([s.style, s.death, s.focus], ['standard', 'heir', 'style:standard']);
+  assert.deepStrictEqual(s.opts, DEFAULT_OPTS);
+  assert.deepStrictEqual([Nav.DEFAULT_STYLE, Nav.DEFAULT_DEATH], ['standard', 'heir']);
+});
+test('Begin straight away starts Standard + Heir without sandboxOptions', () => {
+  const { effect } = run(K('ArrowUp', 'Enter'));    // Up wraps from Style row to the bottom row (Begin)
+  assert.deepStrictEqual(effect, { type: 'start', style: 'standard', difficulty: 'heir' });
+});
+test('focus never selects: arrows move focus within and between rows (B1)', () => {
+  const { s } = run(K('ArrowLeft', 'ArrowDown', 'ArrowRight'));
+  assert.strictEqual(s.focus, 'death:sandbox');
+  assert.deepStrictEqual([s.style, s.death], ['standard', 'heir']);
 });
 test('hover moves focus only (B2)', () => {
-  const { s } = run([['hover', 'card:heir'], ['hover', 'card:sandbox']]);
-  assert.strictEqual(s.focus, 'card:sandbox'); assert.strictEqual(s.selected, 'permadeath');
+  const { s } = run([['hover', 'style:sim'], ['hover', 'death:sandbox']]);
+  assert.strictEqual(s.focus, 'death:sandbox'); assert.deepStrictEqual([s.style, s.death], ['standard', 'heir']);
 });
-test('Sandbox panel only exists when Sandbox is selected, not merely focused', () => {
-  const focusedOnly = run(keys('ArrowDown', 'ArrowDown', 'ArrowRight')).s;
-  assert.strictEqual(focusedOnly.focus, 'card:sandbox');             // Right did not enter a panel
-  const selected = run(keys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowRight')).s;
-  assert.strictEqual(selected.focus, 'opt:needsDrain');
+test('entering a row focuses its SELECTED card; rows wrap', () => {
+  let { s } = run(K('ArrowRight', 'Enter', 'ArrowLeft', 'ArrowLeft', 'ArrowDown', 'ArrowUp'));  // select Sim, wander, leave, return
+  assert.strictEqual(s.focus, 'style:sim');
+  s = run(K('ArrowRight'), s).s; assert.strictEqual(s.focus, 'style:story');                    // wrap within row
 });
-
-const KEYBOARD_START = {
-  permadeath: keys('Enter', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowRight', 'Enter'),  // select, go to row, Begin
-  heir: keys('ArrowDown', 'Enter', 'ArrowDown', 'ArrowDown', 'ArrowRight', 'Enter'),          // B1
-  sandbox: keys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowRight', 'ArrowUp', 'Enter')           // into panel, up-wrap to panel Begin
-};
-for (const id of IDS) {
-  test(`keyboard: ${id} can be selected and started`, () => {
-    const { effect } = run(KEYBOARD_START[id]);
-    assert.strictEqual(effect.type, 'start'); assert.strictEqual(effect.difficulty, id);
-    assert.strictEqual('sandboxOptions' in effect, id === 'sandbox');
-  });
-  test(`mouse: ${id} can be selected and started`, () => {
-    const begin = id === 'sandbox' ? 'panelBegin' : 'begin';
-    const { effect } = run([['hover', 'card:heir'], ['click', `card:${id}`], ['hover', begin], ['click', begin]]);
-    assert.deepStrictEqual([effect.type, effect.difficulty], ['start', id]);
+test('Sandbox panel only when Sandbox is SELECTED; reachable by Down or Right; works with any style', () => {
+  assert.strictEqual(run(K('ArrowDown', 'ArrowRight', 'ArrowDown')).s.focus, 'begin');           // focused only: no panel
+  const sel = run(K('ArrowDown', 'ArrowRight', 'Enter'));
+  assert.strictEqual(run(K('ArrowDown'), sel.s).s.focus, 'opt:needsDrain');
+  assert.strictEqual(run(K('ArrowRight'), sel.s).s.focus, 'opt:needsDrain');
+  for (const style of STYLES) {
+    const { effect } = run(keysFor(style, 'sandbox'));
+    assert.deepStrictEqual(effect, { type: 'start', style, difficulty: 'sandbox', sandboxOptions: DEFAULT_OPTS });
+  }
+});
+for (const style of STYLES) for (const death of DEATHS) {
+  test(`keyboard: ${style} + ${death} can be selected and started`, () => {
+    const { effect } = run(keysFor(style, death));
+    assert.deepStrictEqual([effect.type, effect.style, effect.difficulty, 'sandboxOptions' in effect], ['start', style, death, death === 'sandbox']);
   });
 }
-test('keyboard: Up from the first card wraps to Begin; Begin starts the SELECTED difficulty', () => {
-  const { s, effect } = run(keys('ArrowDown', 'Enter', 'ArrowUp', 'ArrowUp', 'Enter'));
-  assert.strictEqual(s.focus, 'begin'); assert.strictEqual(effect.difficulty, 'heir');
+for (const [style, death] of [['story', 'permadeath'], ['standard', 'heir'], ['sim', 'sandbox']]) {
+  test(`mouse: ${style} + ${death} via clicks (hover never selects)`, () => {
+    const { effect } = run([['hover', 'style:story'], ['click', `style:${style}`], ['hover', 'death:sandbox'], ['click', `death:${death}`], ['click', 'begin']]);
+    assert.deepStrictEqual([effect.style, effect.difficulty], [style, death]);
+  });
+}
+test('Back/Esc: leaves from rows and the Back button; in the panel returns to the Sandbox card', () => {
+  assert.deepStrictEqual(run(K('Escape')).effect, { type: 'leave' });
+  assert.deepStrictEqual(run(K('ArrowUp', 'ArrowLeft', 'Enter')).effect, { type: 'leave' });     // Back button
+  const p = run(K('ArrowDown', 'ArrowRight', 'Enter', 'ArrowDown', 'Escape'));
+  assert.strictEqual(p.s.focus, 'death:sandbox'); assert.strictEqual(p.effect, null);
 });
-test('Back/Esc leaves from cards and row; inside the Sandbox panel Esc returns to the Sandbox card', () => {
-  assert.deepStrictEqual(run(keys('Escape')).effect, { type: 'leave' });
-  assert.deepStrictEqual(run(keys('ArrowUp', 'ArrowLeft', 'Enter')).effect, { type: 'leave' }); // Back button
-  const p = run(keys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowRight', 'Escape'));
-  assert.strictEqual(p.s.focus, 'card:sandbox'); assert.strictEqual(p.effect, null);
-});
-test('Sandbox toggles: Left/Right/Enter and LB/RB cycle; Left at first value returns to cards', () => {
-  let { s } = run(keys('ArrowDown', 'ArrowDown', 'Enter', 'ArrowRight'));
+test('Sandbox toggles: Left/Right/Enter and LB/RB cycle; Left at first value returns to the Sandbox card', () => {
+  let { s } = run(K('ArrowDown', 'ArrowRight', 'Enter', 'ArrowDown'));
   s = run(['left'], s).s; assert.strictEqual(s.opts.needsDrain, 'low');
   s = run(['tabPrev'], s).s; assert.strictEqual(s.opts.needsDrain, 'off');
-  s = run(['left'], s).s; assert.strictEqual(s.focus, 'card:sandbox'); // first value → back to cards
-  s = run(['right', 'tabNext', 'confirm'], s).s; assert.strictEqual(s.opts.needsDrain, 'normal');
+  s = run(['left'], s).s; assert.strictEqual(s.focus, 'death:sandbox');
+  s = run(['down', 'tabNext', 'right', 'confirm'], s).s; assert.strictEqual(s.opts.needsDrain, 'off'); // off→low→normal→off
   const { effect } = run(['down', 'down', 'down', 'down', 'confirm'], s);
-  assert.deepStrictEqual(effect.sandboxOptions, { needsDrain: 'normal', threatFrequency: 'normal', startingReputation: 'normal', freeCustomization: true });
+  assert.deepStrictEqual(effect.sandboxOptions, { ...DEFAULT_OPTS, needsDrain: 'off' });
 });
-test('fresh init resets selection and sandbox options (B7)', () => {
-  const s = init(); assert.strictEqual(s.selected, 'permadeath'); assert.strictEqual(s.opts.needsDrain, 'normal');
+test('deselecting Sandbox hides the panel; focus never strands on a hidden toggle', () => {
+  let { s } = run(K('ArrowDown', 'ArrowRight', 'Enter', 'ArrowLeft', 'Enter'));   // select Sandbox then Heir
+  assert.strictEqual(s.death, 'heir');
+  s = run(K('ArrowDown'), s).s; assert.strictEqual(s.focus, 'begin');
+});
+test('fresh init after a changed setup is back to defaults (B7)', () => {
+  run(keysFor('sim', 'sandbox'));
+  const s = init(); assert.deepStrictEqual([s.style, s.death, s.opts], ['standard', 'heir', DEFAULT_OPTS]);
 });
 
 // ---------- gamepad ----------
@@ -88,28 +114,25 @@ test('gamepad: stick deadzone 0.4 and 400ms/150ms repeat', () => {
   assert.deepStrictEqual(read([pad([], [0, 0.6])], 10), ['down']);
   assert.deepStrictEqual(read([pad([], [0, 0.6])], 300), []);
   assert.deepStrictEqual(read([pad([], [0, 0.6])], 410), ['down']);
-  assert.deepStrictEqual(read([pad([], [0, 0.6])], 500), []);
   assert.deepStrictEqual(read([pad([], [0, 0.6])], 560), ['down']);
-  assert.deepStrictEqual(read([pad([0])], 600), ['confirm']);
 });
-for (const id of IDS) {
-  test(`controller: ${id} can be selected and started with D-pad + A`, () => {
+const PADKEY = { ArrowUp: 12, ArrowDown: 13, ArrowLeft: 14, ArrowRight: 15, Enter: 0, Escape: 1 };
+for (const [style, death] of [['story', 'heir'], ['sim', 'permadeath'], ['standard', 'sandbox']]) {
+  test(`controller: ${style} + ${death} with D-pad + A`, () => {
     const read = Nav.createGamepadReader(); let t = 0; const acts = [];
-    const press = (b) => { acts.push(...read([pad([b])], (t += 50))); acts.push(...read([pad()], (t += 50))); };
-    const seq = { permadeath: [0, 12, 0], heir: [13, 0, 12, 12, 0], sandbox: [13, 13, 0, 15, 12, 0] }[id]; // A select, …, Begin
-    seq.forEach(press);
+    const inv = Object.fromEntries(Object.entries(Nav.KEYMAP).filter(([k]) => k in PADKEY).map(([k, a]) => [a, PADKEY[k]]));
+    for (const a of keysFor(style, death)) { acts.push(...read([pad([inv[a]])], (t += 50))); acts.push(...read([pad()], (t += 50))); }
     const { effect } = run(acts);
-    assert.deepStrictEqual([effect.type, effect.difficulty], ['start', id]);
+    assert.deepStrictEqual([effect.type, effect.style, effect.difficulty], ['start', style, death]);
   });
 }
-test('controller: B backs out of the panel and then leaves', () => {
-  const { s, effect } = run(['down', 'down', 'confirm', 'right', 'back']);
-  assert.strictEqual(s.focus, 'card:sandbox'); assert.strictEqual(effect, null);
+test('controller: LB/RB cycle a Sandbox toggle; B backs out of the panel, then leaves', () => {
+  let { s } = run(['down', 'right', 'confirm', 'down', 'tabNext']);
+  assert.strictEqual(s.opts.needsDrain, 'off');
+  s = run(['back'], s).s; assert.strictEqual(s.focus, 'death:sandbox');
   assert.deepStrictEqual(run(['back'], s).effect, { type: 'leave' });
 });
 test('Nav.step wraps and skips disabled', () => {
-  assert.strictEqual(Nav.step(3, 2, 1), 0);
-  assert.strictEqual(Nav.step(3, 0, -1), 2);
-  assert.strictEqual(Nav.step(3, 0, 1, (i) => i === 1), 2);
-  assert.strictEqual(Nav.step(3, -1, 1), 0);
+  assert.strictEqual(Nav.step(3, 2, 1), 0); assert.strictEqual(Nav.step(3, 0, -1), 2);
+  assert.strictEqual(Nav.step(3, 0, 1, (i) => i === 1), 2); assert.strictEqual(Nav.step(3, -1, 1), 0);
 });

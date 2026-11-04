@@ -1,4 +1,4 @@
-# Sabretooth: Loners Spec (v0.4, DRAFT, design-only)
+# Sabretooth: Loners Spec (v0.6, DRAFT, design-only)
 Owner: Tundra (rules and numbers). Backstories and all player-facing text: Saga. Not in the build yet; the menu is still the active build task.
 All numbers are starting values to tune.
 
@@ -21,7 +21,7 @@ All numbers are starting values to tune.
 3.1 **Eligibility:** affinity ≥ 40, the loner is not an elder past their fertile age (elders may still join as non-breeders), and the pride is below its size cap.
 3.2 **Join chance per ask:** `clamp(20 + (affinity − 40) × 1.5 + (sociability − 50) × 0.5, 5, 90)`%. A failed ask costs −5 affinity, and the player can't ask that loner again for 1 season.
 3.3 **Consequence with the origin pride:** recruiting an exiled loner changes the player pride's relation with the loner's origin pride by −15. Recruiting a loner who left voluntarily changes it by −5. Recruiting a survivor changes nothing.
-3.4 **After joining:** a recruited loner starts with loyalty 50 (out of 100), compared with 70 for cats born into the pride.
+3.4 **After joining:** a recruited loner starts with `prideLoyalty` 50 (out of 100), compared with 70 for cats born into the pride, then adds (personality `loyalty` − 50) × 0.2, clamped to 0–100. `prideLoyalty` is a state toward the cat's current pride, separate from the inherited `loyalty` personality trait (genetics-spec §4.5). It changes with contentment: +2 per season at 60 or higher, −3 per season below 25. If the cat changes pride, it resets using the recruited formula.
 
 ## 4. Mates
 4.1 Loners are eligible mates before and after the player founds a pride, under the same courtship rules as pride cats.
@@ -38,7 +38,7 @@ All numbers are starting values to tune.
 5.4 A loner with aggression below 70 is never a threat. At worst it scavenges, sharing a carcass with no loss to the pride.
 
 ## 5b. Bachelor bands (decided by Anna via Director, 2026-11-04)
-5b.1 **What a band is:** a temporary group of 2–3 adult male loners, like a male lion coalition. A band is not a 4th pride: it has no territory, no den, and no cubs. Female loners stay solitary.
+5b.1 **What a band is:** a temporary group of 2–3 young-adult or adult male loners, like a male lion coalition. A band is not a 4th pride: it has no territory, no den, and no cubs. Female loners stay solitary.
 5b.2 **Forming:** each season, if 2 or more adult male loners share a home zone and have mutual affinity ≥ 30, there's a 20% chance they form a band. At most 2 bands exist at once. A band's home range is the union of its members' home zones.
 5b.3 **Band strength:** the sum of the members' fight stats × 1.1, a coordination bonus.
 5b.4 **Challenges:** each season, a band picks a target pride (an AI pride or the player's). It can only target a pride where band strength ≥ 0.8 × the strength of that pride's defending adults.
@@ -68,7 +68,7 @@ All numbers are starting values to tune.
    - role fits personality +5;
    - recently injured in a pride fight −5;
    - groomed or favoured by the player +5;
-   - low loyalty: (loyalty − 50) / 5.
+   - pride loyalty: (`prideLoyalty` − 50) / 5.
    **What each Style allows:**
    - **Story:** player-pride cats never leave.
    - **Standard:** if contentment stays below 25 for 2 seasons in a row, warning signs fire for 1 season (Saga events: sleeping apart, eating last, gazing at the border). If contentment is still below 25 after that, the cat has a 30% chance per season to leave.
@@ -82,7 +82,8 @@ All numbers are starting values to tune.
 ## 7. Data (additions)
 ```json
 Cat: { "status": "pride|loner", "originPrideId": "string|null", "departure": "left|exiled|survivor|null",
-       "homeZones": ["zoneId"], "affinityToPlayer": 0, "prideAffinity": { "prideId": 0 }, "isRival": false }
+       "homeZones": ["zoneId"], "affinityToPlayer": 0, "prideAffinity": { "prideId": 0 }, "isRival": false,
+       "prideLoyalty": 70 }
 ```
 
 ## 8. Tunables
@@ -103,9 +104,37 @@ Cat: { "status": "pride|loner", "originPrideId": "string|null", "departure": "le
 | leave.std threshold / seasons / chance | <25 / 2 / 30% |
 | leave.sim threshold / seasons / chance | <35 / 1 / 40% |
 | sim.lureChance / dispersalChance | 15% / 50% |
+| confront.base / clamp | 50 / 10-90% |
+| mediate.base | 50 + (soc-50)/2 |
 | drift.loneRejoin / prideExile per season | 8% / 5% |
 
 ## 9. Questions for Anna (via Director)
 9.1 (Decided: 11/10/9 + 9 loners.)
 9.2 (Decided: no 4th pride; temporary bachelor bands instead, see §5b.)
 9.3 (Decided: it depends on Style. See §6.4 and play-styles-spec §2.12.)
+
+## 10. Rules answers for Saga's lore questions (v0.5, designer calls)
+10.1 **Young adults in bands:** yes. Young-adult males such as Duskrunner can join or form bands (§5b.1 is updated).
+
+10.2 **Witnessing an exile:** the player witnesses it live if the player cat is in the same zone or an adjacent one that turn. If not, a rumor event fires within 1–3 turns, and fires on the next turn if the player has affinity ≥ 40 with the exiled cat. Either way the exiled cat then appears as a loner.
+
+10.3 **Band quarrel choices:**
+   - Side with A or side with B: +10 affinity with the cat you back, −10 with the other, band cohesion −10.
+   - Mediate: available if the player's sociability is ≥ 60 or the player has affinity ≥ 40 with both. Success chance is 50 + (sociability − 50) / 2. On success cohesion +10. On failure cohesion −10 and −5 affinity with both.
+   - Stay out: cohesion −15.
+
+10.4 **Warning-turn choices:** groom (+5), share food (+10), change role (+10, but only if the new role fits the cat's top trait, otherwise 0), confront (see 10.7), or ignore (0). That's one action per cat per season, as in §6.4.
+
+10.5 **Player leading a band challenge:** the player picks the stake, `mates` or `territory`. The `mates` stake needs the target pride to have resident males. If the player wins `mates` before founding a pride, the player takes over that pride. This counts as founding the pride: band members become its resident males and the ousted males become loners.
+
+10.6 **Lured cats:** if the lurer is a band and the cat is a young-adult or adult male, he joins the band directly, as long as the band has fewer than 3 members. Otherwise the cat joins the luring pride, or becomes a solo loner if a loner lured it.
+
+10.7 **Confront outcome:**
+   - Success chance is 50 + (player boldness − target boldness) / 2 + (target `prideLoyalty` − 50) / 2, clamped to 10–90%.
+   - Success gives +15 contentment.
+   - Failure gives −10 contentment. If the target's aggression is ≥ 70, it also starts a non-lethal scuffle: injury rolls use the Style multiplier, with no death.
+
+10.8 **Heir leaves in Sim:** the heir designation clears and the next-ranked heir is auto-designated (blood relation, then age; menu-spec §7). The player is notified and can redesignate. If no one qualifies, the rule for no eligible heir applies when the player cat dies.
+
+## Changelog
+- v0.6 (2026-11-04, Director OK): split the pride-loyalty state into `prideLoyalty`, separate from the personality trait `loyalty`. This touches §3.4, §6.4, §7 and §10 (confront).

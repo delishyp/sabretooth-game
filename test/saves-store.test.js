@@ -8,7 +8,7 @@ const now = () => new Date((clock += 60000));
 const fresh = () => createSavesStore(fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-saves-')), { now });
 
 test('list always has 2 entries, null when empty', () => {
-  assert.deepStrictEqual(fresh().list(), { runs: [null, null] });
+  assert.deepStrictEqual(fresh().list(), { runs: [null, null], continueTarget: null });
 });
 test('runs fill free slots in order; third run without replace is rejected', () => {
   const st = fresh();
@@ -70,4 +70,43 @@ test('difficulty and sandboxOptions are stored on the run; sandboxOptions only f
 test('writing a save updates run lastPlayedAt', () => {
   const st = fresh(); const r = st.createRun({ difficulty: 'heir' }); const s = st.writeSave(r.runId);
   assert.strictEqual(st.findRun(r.runId).lastPlayedAt, s.writtenAt);
+});
+
+// ---------- spec v1.3: style, continueTarget, mainCat ----------
+const { STYLES, DEFAULT_STYLE, normalizeMainCat } = require('../src/main/saves-store');
+test('style is stored on the run record; default Standard; invalid rejected', () => {
+  const st = fresh();
+  assert.strictEqual(st.createRun({ style: 'sim', difficulty: 'sandbox' }).style, 'sim');
+  assert.strictEqual(st.createRun({ difficulty: 'heir' }).style, DEFAULT_STYLE);
+  assert.throws(() => fresh().createRun({ style: 'easy', difficulty: 'heir' }));
+  assert.deepStrictEqual(STYLES, ['story', 'standard', 'sim']);
+  const runs = st.list().runs; assert.strictEqual(runs[0].style, 'sim'); assert.strictEqual(runs[0].sandboxOptions.needsDrain, 'normal');
+});
+test('pre-v1.3 run without style is read as Standard; bad style marks the run damaged', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-saves-')); const st = createSavesStore(dir, { now });
+  const r = st.createRun({ difficulty: 'heir' }); const f = path.join(dir, 'run-0', 'run.json');
+  const rec = JSON.parse(fs.readFileSync(f)); delete rec.style; fs.writeFileSync(f, JSON.stringify(rec));
+  assert.strictEqual(st.findRun(r.runId).style, 'standard');
+  fs.writeFileSync(f, JSON.stringify({ ...rec, style: 'ultra' }));
+  assert.strictEqual(st.list().runs[0].damaged, true);
+});
+test('saves:list continueTarget = newest valid save across both runs, null when none, updates after delete', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-saves-')); const st = createSavesStore(dir, { now });
+  assert.strictEqual(st.list().continueTarget, null);
+  const a = st.createRun({ difficulty: 'heir' }); const b = st.createRun({ difficulty: 'permadeath' });
+  assert.strictEqual(st.list().continueTarget, null);                    // runs without saves
+  const sa = st.writeSave(a.runId); const sb = st.writeSave(b.runId);
+  assert.deepStrictEqual(st.list().continueTarget, { runId: b.runId, saveId: sb.saveId });
+  st.deleteSave(b.runId, sb.saveId);
+  assert.deepStrictEqual(st.list().continueTarget, { runId: a.runId, saveId: sa.saveId });
+  fs.writeFileSync(path.join(dir, 'run-0', 'run.json'), 'broken');      // damaged run → its saves don't count
+  assert.strictEqual(st.list().continueTarget, null);
+});
+test('save meta has optional mainCat {catId,name,sex,lifeStage,genes,scars[]}, null by default', () => {
+  const st = fresh(); const r = st.createRun({ difficulty: 'heir' });
+  assert.strictEqual(st.writeSave(r.runId).mainCat, null);
+  const m = st.writeSave(r.runId, { mainCat: { catId: 'c1', name: 'Ashka', sex: 'female', lifeStage: 'adult', genes: { coat: 'x' }, extra: 1 } }).mainCat;
+  assert.deepStrictEqual(m, { catId: 'c1', name: 'Ashka', sex: 'female', lifeStage: 'adult', genes: { coat: 'x' }, scars: [] });
+  assert.strictEqual(normalizeMainCat('nope'), null);
+  assert.deepStrictEqual(st.findRun(r.runId).saves.find((s) => s.mainCat).mainCat, m);
 });

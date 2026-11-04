@@ -22,7 +22,7 @@ test('sandbox panel ids/values match the store; labels and descriptions per valu
 });
 test('parseCopy rejects missing sections and mismatched labels', () => {
   assert.throws(() => parseCopy('```json\n{"taglines":[]}\n```'), /missing/);
-  const bad = '```json\n' + JSON.stringify({ taglines: [], storytellerModes: [], difficulties: [],
+  const bad = '```json\n' + JSON.stringify({ taglines: [], storytellerModes: [], difficulties: [], playStyles: [],
     sandboxPanel: { options: [{ id: 'x', values: [1, 2], labels: ['a'] }] }, strings: {} }) + '\n```';
   assert.throws(() => parseCopy(bad), /mismatch/);
 });

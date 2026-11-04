@@ -47,3 +47,11 @@ test('saves inside a damaged run cannot be loaded (B8)', async () => {
   const dmg = saves.list().runs[0];
   assert.strictEqual(h.loadSave({ runId: dmg.runId, saveId: s.saveId }).ok, false);
 });
+test('menu:newGame passes style through to the run record', async () => {
+  const { h, saves } = setup();
+  const res = await h.newGame({ style: 'story', difficulty: 'sandbox', sandboxOptions: { needsDrain: 'off' } });
+  assert.strictEqual(res.ok, true);
+  const r = saves.findRun(res.run.runId);
+  assert.deepStrictEqual([r.style, r.difficulty, r.sandboxOptions.needsDrain], ['story', 'sandbox', 'off']);
+  assert.strictEqual((await h.newGame({ style: 'hard', difficulty: 'heir' })).errorId, 'toast.startFailed');
+});

@@ -8,6 +8,13 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 
 ## 1. Screen layout
 - **Background:** full-bleed Ice Age art slot `assets/menu/background.png` (.jpg and .webp also accepted). 16:9, minimum 1920x1080, target 3840x2160 for final art, cover-scale, focal point left-of-center. Until delivered: dark blue-grey gradient placeholder. Optional slow parallax/snow layer later; must be toggle-able (Reduced Motion).
+- **Menu cat (v1.3, art pending Anna's pick, so Flint plans now and builds after the pick):** the player's own current main cat appears lying on the right side of the background.
+  - **Which cat:** the player cat from the save that Continue would load, meaning the newest valid save across both runs. In Heir mode that's the heir currently being played, not the founder, even when the founder has died. If there's no valid save, show the **default cat**, a fixed genome in `data/menuDefaultCat.json`; Ochre sets the look.
+  - **How it's drawn:** the same layered pipeline as portraits, with fixed lying-pose lineart plus gene-driven layers (base coat, markings, eyes, sabers, scars, age variant).
+  - **Poses:** male lying and female lying, picked by sex. The age variant comes from the cat's life stage, adult or elder. Art lives in `assets/portraits/menu-lying-male/` and `assets/portraits/menu-lying-female/`, each with a `manifest.json` that lists layer order, blend mode, and which gene picks or tints each layer. Elder overlay and scar layers are included. Ochre owns these paths.
+  - **When it changes:** it re-renders whenever the Continue target changes, for example after a delete. Swapping cats uses a 300ms crossfade, or happens instantly with Reduced Motion.
+  - **Idle animation:** an optional breathing or tail flick, turned off under Reduced Motion.
+  - **Fallback:** if a snapshot is missing or a layer won't load, show the default cat and log it. The menu never crashes over this.
 - **Title/logo:** top-left third. Logo slot `assets/menu/logo.png` (placeholder: text "SABRETOOTH"). One random tagline below (copy §1, avoid repeating last launch's).
 - **Button column:** left side, vertically centered, under the title: Continue, New Game, Load, Settings, Credits, Quit. Fixed width, large text, ≥48px hit height.
 - **Version string:** bottom-right, small, e.g. `v0.1.0 (build abc123)` from `app.getVersion()`.
@@ -60,9 +67,9 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 }
 ```
 **Run record (`saves/run-<slotIndex>/run.json`):** `runId, slotIndex (0-1), catName, prideName, style (story|standard|sim), difficulty (death rule), sandboxOptions (null unless sandbox) {needsDrain, threatFrequency, startingReputation, freeCustomization}, storytellerMode, generation, createdAt, lastPlayedAt (ISO), gameVersion`.
-**Save record (`saves/run-<slotIndex>/save-<saveIndex>/meta.json`):** `saveId, runId, saveIndex (0-2), writtenAt (ISO), inGameDate {year, season, day}, playTimeSec, saveVersion, thumbnail?`.
+**Save record (`saves/run-<slotIndex>/save-<saveIndex>/meta.json`):** `saveId, runId, saveIndex (0-2), writtenAt (ISO), inGameDate {year, season, day}, playTimeSec, saveVersion, thumbnail?, mainCat {catId, name, sex, lifeStage, genes, scars[]}`. The snapshot is written on every save so the menu cat renders without loading the full save.
 
-**IPC (renderer → main):** `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?}`, `menu:loadSave {runId, saveId}`, `menu:deleteSave {runId, saveId}`, `menu:deleteRun {runId}`, `saves:list → {runs: [RunRecord & {saves: SaveRecord[]}] }` (always 2 entries, null for empty), `settings:get`, `settings:set {patch}`, `storyteller:check {mode} → {available, reason}`, `app:quit`. Main → renderer: `toast {text}`.
+**IPC (renderer → main):** `menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?}`, `menu:loadSave {runId, saveId}`, `menu:deleteSave {runId, saveId}`, `menu:deleteRun {runId}`, `saves:list → {runs: [RunRecord & {saves: SaveRecord[]}], continueTarget: {runId, saveId} | null}` (always 2 entries, null for empty; the menu cat reads `mainCat` from `continueTarget`), `settings:get`, `settings:set {patch}`, `storyteller:check {mode} → {available, reason}`, `app:quit`. Main → renderer: `toast {text}`.
 
 ## 6. Decisions log (Anna, 2026-11-04)
 1. Save model: 2 run slots × 3 manual saves per run.
@@ -80,7 +87,7 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 
 **v1.2 (Director-confirmed, 2026-11-04):** difficulty-screen button label is "Begin" (was Confirm). Menu background path is `assets/menu/background.png` (.jpg/.webp accepted), replacing `bg.png`. Background resolution: minimum 1920x1080, target 3840x2160 for final art. Spec frozen; further changes only when Director confirms.
 
-**v1.3 (Director-approved, 2026-11-04):** New Game has two independent choices on one setup screen: Style (Story/Standard/Sim, default Standard) and Death rule (Permadeath/Heir/Sandbox, default Heir). Both are locked per run and shown on the run cards. `style` is added to `menu:newGame` and the run record, and `difficulty` stays as the Death rule key. The Sandbox panel now sits beside the Death rule row. Style rules are in `docs/play-styles-spec.md`. Director has approved Heir as the default Death rule and Sandbox with any Style. "Style" and "Death rule" are internal names only. On-screen headings and labels come from Saga's copy (§6).
+**v1.3 (Director-approved, 2026-11-04):** New Game has two independent choices on one setup screen: Style (Story/Standard/Sim, default Standard) and Death rule (Permadeath/Heir/Sandbox, default Heir). Both are locked per run and shown on the run cards. `style` is added to `menu:newGame` and the run record, and `difficulty` stays as the Death rule key. The Sandbox panel now sits beside the Death rule row. Style rules are in `docs/play-styles-spec.md`. Director has approved Heir as the default Death rule and Sandbox with any Style. The menu cat (§1) is added: it shows the Continue save's player cat or a default cat, using layered art, with the build waiting on Anna's art pick. "Style" and "Death rule" are internal names only. On-screen headings and labels come from Saga's copy (§6).
 
 ## 7. Design notes (decided)
 **Heir mode, no eligible heir:** an heir is any living pride member adolescent or older, ranked by blood relation to the player cat, then age. If none qualify, the run ends on a Legacy summary screen (as Permadeath) offering "Begin a new lineage": a fresh lone cat in the same world, where old-pride survivors may remain. Legacy screen is out of menu scope; menu hook only: `game:legacyEnd {runId}` → Legacy screen (future) → `menu:newLineage {runId}` or root.

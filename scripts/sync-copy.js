@@ -11,7 +11,7 @@ function mergeBlock(out, block) {
     out[k] = isObj(out[k]) && isObj(v) ? { ...out[k], ...v } : v;
   }
 }
-const REQUIRED = ['taglines', 'storytellerModes', 'difficulties', 'sandboxPanel', 'strings'];
+const REQUIRED = ['taglines', 'storytellerModes', 'difficulties', 'playStyles', 'sandboxPanel', 'strings'];
 
 function parseCopy(md) {
   const out = {};

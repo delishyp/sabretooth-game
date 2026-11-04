@@ -1,0 +1,269 @@
+{
+  "$comment": "DRAFT v0.1. Owner: Saga. Rules per docs/loners-spec.md v0.4. Story data only; trait levels in narrativeLeaning are suggestions for Tundra. bandAffinity is a narrative leaning toward other loners (likely|possible|unlikely), not mutual affinity numbers; empty for cats who cannot band (females, elders).",
+  "version": "0.1",
+  "prides": [
+    "highcrag",
+    "bonefield",
+    "mistwood"
+  ],
+  "loners": [
+    {
+      "id": "greymantle",
+      "name": "Greymantle",
+      "originPrideId": "highcrag",
+      "sex": "male",
+      "ageStage": "elder",
+      "appearance": "Heavy grey tom gone white at the muzzle, one saber worn blunt, a deep old scar across both forelegs.",
+      "traits": [
+        "patient",
+        "proud",
+        "quietly bitter"
+      ],
+      "departure": {
+        "type": "exiled",
+        "reason": "Unjustly blamed by Ashmane for a cub's fall from the high ledge, to protect her son Stonebrow."
+      },
+      "attitudeToOrigin": "Loves the crag, hates what its leader did. Would never harm a Highcrag cat.",
+      "range": "The Split Rock and the lower slope of the Ice Wall, within sight of the crag.",
+      "homeZones": [
+        "split_rock",
+        "ice_wall"
+      ],
+      "secret": "Knows Stonebrow let the cub fall and that Ashmane knows. Years ago he carried Nettle's rescued Bonefield cub (Thistle) into Highcrag.",
+      "sampleLine": "They have taken my name out of the song. The stones still remember it.",
+      "narrativeLeaning": "Slow but steady to win over; respects courtesy and patience. Not a rival (aggression: low). Elder, so not band-eligible.",
+      "bandAffinity": {}
+    },
+    {
+      "id": "sorrel",
+      "name": "Sorrel",
+      "originPrideId": "highcrag",
+      "sex": "female",
+      "ageStage": "young_adult",
+      "appearance": "Lean red-gold queen with dark ticked stripes along her back, pale amber eyes, sabers still a little short for her face.",
+      "traits": [
+        "warm",
+        "headstrong",
+        "hopeful"
+      ],
+      "departure": {
+        "type": "left",
+        "reason": "Forbidden mate: Highcrag custom refused her bond with Redthroat of Bonefield, so she left to meet him. He has not come."
+      },
+      "attitudeToOrigin": "Homesick and angry in turns. Misses her mother and the caves, not the law.",
+      "range": "Greywater Ford and the Split Rock.",
+      "homeZones": [
+        "greywater_ford",
+        "split_rock"
+      ],
+      "secret": "Redthroat's silence has a reason she doesn't know; Scarjaw may have forbidden him, or worse.",
+      "sampleLine": "I'm not waiting for him. I just happen to like this rock.",
+      "narrativeLeaning": "Easy to win over (sociability: high). Never a rival (aggression: low). Natural courtship candidate.",
+      "bandAffinity": {}
+    },
+    {
+      "id": "brokentooth",
+      "name": "Brokentooth",
+      "originPrideId": "bonefield",
+      "sex": "male",
+      "ageStage": "adult",
+      "appearance": "Massive dun tom with a snapped left saber, thick scarred forelimbs, and pale yellow eyes that rarely blink.",
+      "traits": [
+        "ambitious",
+        "ruthless",
+        "proud"
+      ],
+      "departure": {
+        "type": "exiled",
+        "reason": "Failed challenge: lost a leadership challenge to Scarjaw, and Bonefield law drives the loser out."
+      },
+      "attitudeToOrigin": "Loves the pride, hates its leader, means to take it back.",
+      "range": "The Tar Seeps and the Bear's Throat, just outside Bonefield land.",
+      "homeZones": [
+        "tar_seeps",
+        "bears_throat"
+      ],
+      "secret": "Counts the seasons until Scarjaw weakens. Would use any ally, the player included, to get close to Bonefield again.",
+      "sampleLine": "One tooth is enough. Ask Scarjaw how many he has left by spring.",
+      "narrativeLeaning": "Hard to win over; respects only strength. Likely rival (aggression: high, sociability: low). Most likely band founder.",
+      "bandAffinity": {
+        "ashfall": "likely",
+        "duskrunner": "unlikely",
+        "coldwater": "unlikely"
+      }
+    },
+    {
+      "id": "nettle",
+      "name": "Nettle",
+      "originPrideId": "bonefield",
+      "sex": "female",
+      "ageStage": "adult",
+      "appearance": "Dark brindle queen with a torn right ear, a white blaze on her chest, and long clean sabers.",
+      "traits": [
+        "fierce",
+        "loyal",
+        "secretive"
+      ],
+      "departure": {
+        "type": "left",
+        "reason": "Disagreement: ordered to bring Tallgrass's cubs to Scarjaw to be killed, she saved one in secret and left the next season."
+      },
+      "attitudeToOrigin": "Grief and disgust, but she still has friends there and would not see them hurt.",
+      "range": "The Bear's Throat and the Split Rock.",
+      "homeZones": [
+        "bears_throat",
+        "split_rock"
+      ],
+      "secret": "The cub she saved lived: Thistle, now a young Highcrag cat and Tallgrass's son, with a blood claim to Bonefield.",
+      "sampleLine": "I've killed for that pride. I won't kill cubs for it.",
+      "narrativeLeaning": "Guarded, then very loyal once trust is earned. Fierce (aggression: high, sociability: medium) but a rival only if the player turns her against them. Kindness to cubs wins her fastest.",
+      "bandAffinity": {}
+    },
+    {
+      "id": "duskrunner",
+      "name": "Duskrunner",
+      "originPrideId": "bonefield",
+      "sex": "male",
+      "ageStage": "young_adult",
+      "appearance": "Long-legged tawny tom with faint dusk-grey spots, a nicked bobtail, and bright green eyes.",
+      "traits": [
+        "curious",
+        "restless",
+        "cheerful"
+      ],
+      "departure": {
+        "type": "left",
+        "reason": "Wanderlust: never liked the training fights, and after his half-brother's exile he walked north to see past the Ice Wall."
+      },
+      "attitudeToOrigin": "No hatred, no longing. Too loud.",
+      "range": "The foot of the Ice Wall and the Split Rock.",
+      "homeZones": [
+        "ice_wall",
+        "split_rock"
+      ],
+      "secret": "Has found a pass through the ice and seen scimitar cats on the far side. They saw him too.",
+      "sampleLine": "Have you ever been past the ice? No? Neither has anyone. Except me.",
+      "narrativeLeaning": "Very easy to befriend (sociability: high). Never a rival (aggression: low). Hard to keep; likes to wander off. Band-eligible only if young adults count (open question).",
+      "bandAffinity": {
+        "coldwater": "likely",
+        "brokentooth": "unlikely",
+        "ashfall": "possible"
+      }
+    },
+    {
+      "id": "lichen",
+      "name": "Lichen",
+      "originPrideId": "mistwood",
+      "sex": "female",
+      "ageStage": "elder",
+      "appearance": "Small thin queen with a grey-green bark-mottled coat, a cloudy left eye, and sabers yellowed with age.",
+      "traits": [
+        "wise",
+        "gentle",
+        "stubborn"
+      ],
+      "departure": {
+        "type": "survivor",
+        "reason": "Swept downriver in the Breaking; too frail to cross the marsh home. Mistwood believes she is dead."
+      },
+      "attitudeToOrigin": "Loves them still. Wants them to know she lived, and to know the truth.",
+      "range": "The Tar Seeps and the south shore of the Drowned Mere.",
+      "homeZones": [
+        "tar_seeps",
+        "drowned_mere"
+      ],
+      "secret": "She warned Longshadow the ice was rotten. She found Sedge's last cub dead on the shore and buried it.",
+      "sampleLine": "The ice told me. It always tells you. Most cats don't listen.",
+      "narrativeLeaning": "Warm and quick to trust (sociability: high). Never a rival (aggression: low). Joins as a non-breeder if past fertile age.",
+      "bandAffinity": {}
+    },
+    {
+      "id": "ashfall",
+      "name": "Ashfall",
+      "originPrideId": "mistwood",
+      "sex": "male",
+      "ageStage": "adult",
+      "appearance": "Sooty black tom with smoke-grey rosettes, a white-scarred muzzle, and hollow, tired gold eyes.",
+      "traits": [
+        "guilt-ridden",
+        "careful",
+        "kind in secret"
+      ],
+      "departure": {
+        "type": "exiled",
+        "reason": "Crime: in the hungry season after the Breaking he was caught stealing a goose from the cubs' share. He never denied it."
+      },
+      "attitudeToOrigin": "Shame. Avoids their land and won't speak their names.",
+      "range": "The edge of the Ash Hills and the Bear's Throat.",
+      "homeZones": [
+        "ash_hills",
+        "bears_throat"
+      ],
+      "secret": "The goose was for his hidden, injured mate Reedsong, who died anyway. Mistwood doesn't know she lived that long.",
+      "sampleLine": "I did what they said I did. Don't make me into anything better.",
+      "narrativeLeaning": "Slow to trust, quick to retreat (sociability: low). Not a rival (aggression: medium). Steady once won over.",
+      "bandAffinity": {
+        "brokentooth": "likely",
+        "duskrunner": "possible",
+        "coldwater": "unlikely"
+      }
+    },
+    {
+      "id": "sedge",
+      "name": "Sedge",
+      "originPrideId": "mistwood",
+      "sex": "female",
+      "ageStage": "adult",
+      "appearance": "Slender sand-colored queen with reed-thin dark leg stripes, a split lip over one saber, and pale blue-grey eyes.",
+      "traits": [
+        "sorrowful",
+        "watchful",
+        "quietly dangerous"
+      ],
+      "departure": {
+        "type": "left",
+        "reason": "Grief: lost her mate Rushwater and both cubs in the Breaking and could not bear the old dens."
+      },
+      "attitudeToOrigin": "Doesn't blame them. Just can't go back.",
+      "range": "The shore of the Drowned Mere.",
+      "homeZones": [
+        "drowned_mere"
+      ],
+      "secret": "Believes one cub lived and was taken by wolves. She is wrong, and Lichen knows.",
+      "sampleLine": "The river took them. It's going to give something back.",
+      "narrativeLeaning": "Distant at first, then deeply attached (sociability: medium). Not a rival (aggression: medium). Kindness to cubs matters most to her.",
+      "bandAffinity": {}
+    },
+    {
+      "id": "coldwater",
+      "name": "Coldwater",
+      "originPrideId": "mistwood",
+      "sex": "male",
+      "ageStage": "adult",
+      "appearance": "Broad blue-grey tom with a pale belly, a stiff left hind leg, and a long flank scar where the ice opened him.",
+      "traits": [
+        "loyal",
+        "haunted",
+        "earnest"
+      ],
+      "departure": {
+        "type": "survivor",
+        "reason": "Stranded on the far bank in the Breaking with a torn leg; by the time he healed, the pride had moved to dens he can't find."
+      },
+      "attitudeToOrigin": "Wants to go home more than anything.",
+      "range": "The north shore of the Drowned Mere and the Split Rock.",
+      "homeZones": [
+        "drowned_mere",
+        "split_rock"
+      ],
+      "secret": "On the ice he turned back instead of reaching for Longshadow, his father. He thinks his brother's mate Sedge would never forgive him.",
+      "sampleLine": "If you smell them, any of them, tell me which way.",
+      "narrativeLeaning": "Easy to befriend (sociability: high). Never a rival (aggression: low). Most likely to rejoin Mistwood by drift, or by a band's mates win.",
+      "bandAffinity": {
+        "duskrunner": "likely",
+        "brokentooth": "unlikely",
+        "ashfall": "unlikely"
+      }
+    }
+  ]
+}
