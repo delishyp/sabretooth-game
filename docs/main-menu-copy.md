@@ -133,6 +133,17 @@ Shown to the right of the difficulty cards while Sandbox is selected (spec §2).
           "All traits unlocked, including rare ones.",
           "Common traits only, as in a normal run."
         ]
+      },
+      {
+        "id": "freePerkRespec",
+        "name": "Free Perk Respec",
+        "description": "Swap your cat's perks whenever you rest, as often as you like.",
+        "values": [true, false],
+        "labels": ["On", "Off"],
+        "descriptions": [
+          "Swap any perk whenever you rest. Nothing is set in stone.",
+          "Perk choices are permanent, as in a normal run."
+        ]
       }
     ]
   }
@@ -142,6 +153,7 @@ Shown to the right of the difficulty cards while Sandbox is selected (spec §2).
 Notes for Flint:
 - `name` labels changed from the placeholders ("Needs drain" is now "Hunger and Thirst", "Threat frequency" is now "Dangers"). Value labels changed for three toggles ("Low" is now "Slow", "Rare", or "Outcast", for example). Ids and values are unchanged.
 - If the panel only has room for one line per toggle, use `description` and skip `descriptions`.
+- `freePerkRespec` (spec v1.4.3, skills-spec §7.6) defaults to off, unlike `freeCustomization`.
 - Panel `note` reworded from your placeholder to sound friendlier. It means the same thing.
 
 ## Open questions
@@ -326,15 +338,37 @@ Notes for Flint:
 - Fill `{styleName}` and `{deathRuleName}` from the `name` fields, for example "Sim style, Play On as Heir. Both are locked for the whole run."
 - On run cards, put `run.modes` on its own line, with `run.sandboxTag` after it for Sandbox runs, for example "Standard · Sandbox · No game over".
 
-## 7. Make Your Sabrecat (cat-creator-spec v0.1)
+### 6.1 Advanced: world seed (spec v1.4.2)
 
-The cat creator opens after Begin (and the slots-full dialog, if needed) and before the run starts. Option ids match `cat-creator-spec.md` §3, which maps them to genetics-spec alleles. The player only ever sees the names below. Tone stays plain: one short line per row, nothing that reads as a rule.
+A collapsed row below the Death rule row, in every Style. These are merged into the same `strings` block on sync.
+
+```json
+{
+  "strings": {
+    "newGame.advanced": "Advanced",
+    "newGame.seedLabel": "World seed",
+    "newGame.seedPlaceholder": "Random",
+    "newGame.seedHint": "Leave it blank for a random valley. Enter the same seed to roll the same world again.",
+    "newGame.seedInvalid": "Use digits only, from 0 to {max}."
+  }
+}
+```
+
+Notes for Flint:
+- `newGame.seedPlaceholder` shows inside the empty field. `newGame.seedHint` sits under the field while it's valid, and `newGame.seedInvalid` replaces it while the value is invalid (Begin is blocked then, per spec §2).
+- Fill `{max}` with 4294967295, unformatted, so it matches what the player can type.
+
+## 7. Make Your Sabrecat (cat-creator-spec v0.2)
+
+The cat creator opens after Begin (and the slots-full dialog, if needed) and before the run starts. It has two steps: Look, then Next, then Personality, then Start. Option ids match `cat-creator-spec.md` §3, which maps them to genetics-spec alleles. The player only ever sees the names below. Tone stays plain: one short line per row, nothing that reads as a rule.
 
 Decisions:
 - **Start label:** "Start", the same plain, single-verb tone as "Begin" (`difficulty.begin`). It's a new id so the two screens can change independently.
 - **Back label:** uses the existing `common.back`. No new id.
 - **Empty name:** the spec (§4.2) never blocks Start; a blank name gets a random default. So there is no empty-name error. `creator.name.emptyHint` is a gentle helper instead, shown while the field is blank.
-- **Back confirmation:** the spec doesn't ask for one. `creator.backConfirm.*` is written in case Flint or Tundra add one when the player has changed something. It follows the Quit and Replace pattern (body plus an OK label, Cancel from `common.cancel`, default focus Cancel). It says only the cat is dropped, because the setup choices and any run picked for replacing are untouched until Start (spec §1.2, §1.3).
+- **No Back confirmation:** spec v0.1.1 §1.3 removed it, so the `creator.backConfirm.*` strings are gone. Back on Personality returns to Look and keeps everything; Back on Look returns to New Game setup.
+- **Personality (spec §3b):** each trait has a name, a one-line description, and low/high end labels for the slider. Preset descriptions follow the shape of each preset's values without stating any. `custom` appears once any slider moves.
+- **Full-range note:** the spec doesn't ask for a note when Sandbox Free Customization widens the sliders, so there isn't one.
 - **Default names:** `creator.defaultNames` is a top-level array, not inside `strings`, because `t()` expects every `strings` value to be text. Names are single words in the lore style, and none of them belong to a premade cat, a named lore cat, a pride, a place, or a teammate.
 
 ```json
@@ -343,7 +377,7 @@ Decisions:
     "defaultNames": [
       "Rimefall", "Emberhide", "Stormpelt", "Birchclaw", "Snowtrack", "Driftmane",
       "Cragfoot", "Hailstrike", "Mossfang", "Wintermoon", "Thawsong", "Ridgerunner",
-      "Glacierheart", "Fernshadow", "Duneclaw", "Owlwhisker", "Bisonbane", "Sleetpaw",
+      "Glacierheart", "Fernshadow", "Duneclaw", "Larchwind", "Bisonbane", "Sleetpaw",
       "Starfrost", "Cinderwake", "Willowsnow", "Brightsaber", "Quietstone", "Ravenmark"
     ]
   },
@@ -370,9 +404,29 @@ Decisions:
     "creator.coat.gray": "Gray",
     "creator.coat.brown": "Brown",
     "creator.coat.black": "Black",
+    "creator.coat.sandy": "Sandy",
+    "creator.coat.pale": "Pale",
+    "creator.coat.ash": "Ash",
+    "creator.row.oddEyes": "Odd Eyes",
+    "creator.oddEyes.off": "Off",
+    "creator.oddEyes.on": "On",
+    "creator.row.eyeLeft": "Left Eye",
+    "creator.row.eyeRight": "Right Eye",
+    "creator.rareTag": "Rare",
     "creator.markings.none": "None",
     "creator.markings.spotted": "Spotted",
     "creator.markings.faintstripe": "Faint Stripe",
+    "creator.markings.rosette": "Rosettes",
+    "creator.markings.barred": "Barred",
+    "creator.row.undercoat": "Undercoat",
+    "creator.help.undercoat": "The paler fur on your belly, chest and muzzle.",
+    "creator.undercoat.cream": "Cream belly",
+    "creator.undercoat.pale": "Pale belly",
+    "creator.undercoat.off": "None",
+    "creator.row.dorsal": "Dorsal Stripe",
+    "creator.help.dorsal": "A dark line down the spine.",
+    "creator.dorsal.off": "Off",
+    "creator.dorsal.on": "On",
     "creator.eyes.amber": "Amber",
     "creator.eyes.gold": "Gold",
     "creator.eyes.green": "Green",
@@ -383,20 +437,59 @@ Decisions:
     "creator.name.error.invalidChars": "Use only letters, spaces, hyphens and apostrophes.",
 
     "creator.randomize": "Randomize",
-    "creator.help.randomize": "New coat, markings and eyes. Your name and sex stay.",
+    "creator.help.randomize": "New coat, markings and eyes. Your name, sex and personality stay.",
+    "creator.help.randomizePersonality": "Rerolls personality only. Your look and name stay.",
+    "creator.next": "Next",
     "creator.start": "Start",
+
+    "creator.step.indicator": "Step {n} of {total}: {stepName}",
+    "creator.step.look": "Look",
+    "creator.step.personality": "Personality",
+
+    "creator.row.preset": "Preset",
+    "creator.help.preset": "A place to start. Move any slider to make it your own.",
+    "creator.preset.balanced": "Balanced",
+    "creator.preset.balanced.desc": "Even in every way, and free to become anything.",
+    "creator.preset.fighter": "Fighter",
+    "creator.preset.fighter.desc": "Quick to anger, slow to back down, and happiest alone.",
+    "creator.preset.peacemaker": "Peacemaker",
+    "creator.preset.peacemaker.desc": "Gentle, easy to like, and slow to pick a fight.",
+    "creator.preset.wanderer": "Wanderer",
+    "creator.preset.wanderer.desc": "Restless and curious, with little pull toward any pride.",
+    "creator.preset.guardian": "Guardian",
+    "creator.preset.guardian.desc": "Steady and devoted, never far from the pride and the den.",
+    "creator.preset.custom": "Custom",
+    "creator.preset.custom.desc": "Your own mix.",
+
+    "creator.trait.aggression": "Aggression",
+    "creator.trait.aggression.desc": "How quickly your cat turns to teeth and claws.",
+    "creator.trait.aggression.low": "Gentle",
+    "creator.trait.aggression.high": "Fierce",
+    "creator.trait.sociability": "Sociability",
+    "creator.trait.sociability.desc": "How easily your cat makes friends and allies.",
+    "creator.trait.sociability.low": "Solitary",
+    "creator.trait.sociability.high": "Friendly",
+    "creator.trait.boldness": "Boldness",
+    "creator.trait.boldness.desc": "Whether your cat stands its ground or slips away.",
+    "creator.trait.boldness.low": "Cautious",
+    "creator.trait.boldness.high": "Bold",
+    "creator.trait.loyalty": "Loyalty",
+    "creator.trait.loyalty.desc": "How tightly your cat holds to its pride and kin.",
+    "creator.trait.loyalty.low": "Independent",
+    "creator.trait.loyalty.high": "Devoted",
+    "creator.trait.curiosity": "Curiosity",
+    "creator.trait.curiosity.desc": "How strongly the unknown pulls at your cat.",
+    "creator.trait.curiosity.low": "Settled",
+    "creator.trait.curiosity.high": "Curious",
 
     "creator.hint.keyboard": "Up/Down: row · Left/Right: change · Enter: select · Esc: back",
     "creator.hint.gamepad": "D-pad: row and change · A: select · A on Name: new name · B: back",
-    "creator.hint.mouse": "Click the arrows to change a row, then Start.",
+    "creator.hint.mouse": "Click the arrows to change a row, then Next.",
 
     "creator.preview.alt": "Portrait of {catName}, a {sex} sabrecat with a {coat} coat, {markings}, and {eyes} eyes.",
     "creator.preview.markings.none": "no markings",
     "creator.preview.markings.spotted": "spotted markings",
-    "creator.preview.markings.faintstripe": "faint stripes",
-
-    "creator.backConfirm.body": "Go back to New Game? The cat you made here won't be kept. Your setup and your saved runs stay as they are.",
-    "creator.backConfirm.ok": "Go back"
+    "creator.preview.markings.faintstripe": "faint stripes"
   }
 }
 ```
@@ -407,4 +500,8 @@ Notes for Flint:
 - Hint lines: show the one for the active input device. The gamepad line leaves out Start because the Start button is on screen.
 - `creator.preview.alt`: fill `{sex}`, `{coat}` and `{eyes}` with the lowercased option names (for example "gray", "amber"). Fill `{markings}` from `creator.preview.markings.<id>`. If the name is blank, use `run.defaultCatName` for `{catName}`.
 - `{max}` comes from the spec's name limit, not from the copy.
+- Step indicator: `{n}` and `{total}` are the step numbers, and `{stepName}` comes from `creator.step.look` or `creator.step.personality`. If a two-item strip fits better (spec §2.2b), show the two step names with the current one highlighted.
+- Buttons: step 1 is Randomize · Back · Next (`creator.next`), and step 2 is Randomize · Back · Start. Show `creator.help.randomize` on step 1 and `creator.help.randomizePersonality` on step 2.
+- Sliders: show the trait name with its `.desc` line under it, and `.low` and `.high` at the two ends.
+- Preset row: show the preset name, with its `.desc` line as the helper. Switch to `custom` as soon as any slider moves (spec §3b.3).
 - `src/renderer/data/menu-copy.json` needs `npm run sync-copy`, or the copy-sync test will fail.
