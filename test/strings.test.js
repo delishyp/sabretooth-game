@@ -74,3 +74,14 @@ test('no raw user-facing literals left in renderer for known old strings', () =>
   const menu = read('src/renderer/js/menu.js');
   for (const s of ['Could not start', 'Quit Sabretooth?', 'Empty run', 'Damaged run', 'Reset to defaults', 'unavailable, using']) assert.ok(!menu.includes(s), s);
 });
+test('slice 1 copy: no [PH] anywhere, no placeholders left, every used id is Saga\'s, every region has a description', () => {
+  assert.deepStrictEqual(Object.keys(I18n.PLACEHOLDER_STRINGS), []);
+  const ph = Object.entries(strings).filter(([, v]) => typeof v === 'string' && v.includes('[PH]')).map(([k]) => k);
+  assert.deepStrictEqual(ph, []);
+  assert.ok(!JSON.stringify(require('../src/renderer/data/menu-copy.json')).includes('[PH]'));
+  assert.ok(!read('src/renderer/js/game-screen.js').includes('[PH]') && !read('src/renderer/js/i18n.js').includes('[PH]"'));
+  assert.deepStrictEqual(usedIds().filter((id) => !(id in strings)), []);
+  assert.deepStrictEqual(MAP.regions.filter((r) => !strings[`map.region.${r.id}.description`]).map((r) => r.id), []);
+  const known = new Set(MAP.regions.map((r) => r.id));
+  assert.deepStrictEqual(Object.keys(strings).filter((k) => k.startsWith('map.region.') && !known.has(k.split('.')[2])), [], 'no description for an unknown region');
+});

@@ -1,6 +1,8 @@
 /**
  * Regenerates src/renderer/data/menu-copy.json from the JSON blocks in Saga's docs/main-menu-copy.md
  * (§1 taglines, §2 storytellerModes, §3 difficulties, §4 sandboxPanel, §5 strings). Any new block/keys Saga adds are picked up. Validates the shape so copy edits can't break ids.
+ * Slice 1: Saga's docs/slice-ui-copy.md (game UI) and docs/map-copy.md (region descriptions) add `strings` keys to the same
+ * runtime dictionary (no second one); a key defined in two docs is an error.
  */
 const fs = require('fs'); const path = require('path');
 const root = path.join(__dirname, '..');
@@ -25,9 +27,32 @@ function parseCopy(md) {
   return out;
 }
 
+const STRING_DOCS = ['docs/slice-ui-copy.md', 'docs/map-copy.md'];
+function stringsFrom(md, name) {
+  const out = {};
+  for (const m of md.matchAll(/```json\n([\s\S]*?)```/g)) {
+    const b = JSON.parse(m[1]);
+    for (const k of Object.keys(b)) if (k !== 'strings') throw new Error(`${name}: only "strings" blocks are synced, found "${k}"`);
+    for (const [k, v] of Object.entries(b.strings || {})) { if (k in out) throw new Error(`${name}: duplicate key ${k}`); out[k] = v; }
+  }
+  return out;
+}
+/** menu-copy.json = main-menu-copy.md + the strings of STRING_DOCS. */
+function buildCopy(read = (f) => fs.readFileSync(path.join(root, f), 'utf8')) {
+  const out = parseCopy(read('docs/main-menu-copy.md'));
+  for (const f of STRING_DOCS) {
+    for (const [k, v] of Object.entries(stringsFrom(read(f), f))) {
+      if (k in out.strings) throw new Error(`${f}: key ${k} already defined`);
+      out.strings[k] = v;
+    }
+  }
+  out._source = `Generated from docs/main-menu-copy.md + ${STRING_DOCS.join(' + ')} (Saga). Edit the docs, then run npm run sync-copy.`;
+  return out;
+}
+
 if (require.main === module) {
-  const out = parseCopy(fs.readFileSync(path.join(root, 'docs/main-menu-copy.md'), 'utf8'));
+  const out = buildCopy();
   fs.writeFileSync(path.join(root, 'src/renderer/data/menu-copy.json'), JSON.stringify(out, null, 2));
   console.log('menu-copy.json updated');
 }
-module.exports = { parseCopy };
+module.exports = { parseCopy, buildCopy, stringsFrom, STRING_DOCS };

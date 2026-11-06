@@ -1,7 +1,7 @@
 /**
  * Slice 1 renderer screens (scope v1.0.1): 'game' (HUD, region card, actions, day report, event overlay) and 'summary'.
  * All rules live in js/slice.js; this file only draws state and forwards actions. Text: t(id) — ids without Saga copy yet are
- * [PH] TODO-SAGA placeholders in js/i18n.js; event text is Saga's library (data/events/slice-1.json), region/biome names are map.json.
+ * Saga's docs/slice-ui-copy.md (synced into menu-copy.json strings); region descriptions docs/map-copy.md; event text is Saga's library (data/events/slice-1.json), region/biome names are map.json.
  * ctx: { api, t, $, show, focus, focusables, toast, portrait(genes|look, canvas), creatorLooks }
  */
 (function (root, factory) {
@@ -86,7 +86,8 @@
       fact('water', t(W.hasWater(s.region, se) ? 'game.water.yes' : 'game.water.no'));
       fact('owner', owner);
       c.append(dl);
-      const desc = el('p', 'region-desc', t('game.region.descTodo')); c.append(desc);   // TODO-SAGA: region descriptions (docs/map-copy.md has 10 of 30, uncommitted)
+      const dk = `map.region.${s.region}.description`;   // Saga, docs/map-copy.md
+      c.append(el('p', 'region-desc', t.has(dk) ? t(dk) : t('game.region.descTodo')));
     }
     function renderActions() {
       const a = $('#game-actions'); a.textContent = ''; const av = E.available(s);

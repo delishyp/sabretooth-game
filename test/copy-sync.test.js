@@ -1,11 +1,16 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs'); const path = require('path');
-const { parseCopy } = require('../scripts/sync-copy');
+const { parseCopy, buildCopy, stringsFrom, STRING_DOCS } = require('../scripts/sync-copy');
 const { SANDBOX_OPTIONS, DEFERRED_SANDBOX_OPTIONS } = require('../src/main/saves-store');
 const root = path.join(__dirname, '..');
-const parsed = parseCopy(fs.readFileSync(path.join(root, 'docs/main-menu-copy.md'), 'utf8'));
+const parsed = buildCopy();
 
+test('slice docs: only strings blocks, no duplicate keys across docs', () => {
+  assert.throws(() => stringsFrom('```json\n{"taglines":[]}\n```', 'x'), /only "strings"/);
+  const seen = new Set(Object.keys(parseCopy(fs.readFileSync(path.join(root, 'docs/main-menu-copy.md'), 'utf8')).strings));
+  for (const f of STRING_DOCS) for (const k of Object.keys(stringsFrom(fs.readFileSync(path.join(root, f), 'utf8'), f))) { assert.ok(!seen.has(k), `${f} ${k}`); seen.add(k); }
+});
 test('committed menu-copy.json is in sync with Saga\'s doc', () => {
   assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(root, 'src/renderer/data/menu-copy.json'), 'utf8')), parsed);
 });
