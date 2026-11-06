@@ -9,6 +9,7 @@ const fs = require('fs'); const os = require('os'); const path = require('path')
 const root = path.join(__dirname, '..', '..');
 const WorldMap = require(path.join(root, 'src/renderer/js/worldmap.js'));
 const W = WorldMap.create(require(path.join(root, 'src/renderer/data/map.json')));
+const COPY = require(path.join(root, 'src/renderer/data/menu-copy.json')).strings;
 const SHOTS = process.env.SLICE_SHOTS || null; if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
 const SEED = Number(process.env.SLICE_SEED || 1234);
 
@@ -65,6 +66,10 @@ async function step(page, shots) {
       assert.deepStrictEqual([s.day, s.region, s.seed, s.needs], [1, 'split_rock', SEED, { health: 100, hunger: 80, thirst: 80, energy: 80 }]);
       assert.match(await page.locator('#game-day').textContent(), /day 1 of 20/);
       assert.strictEqual(await page.locator('.region-name').textContent(), W.region('split_rock').name);
+      assert.strictEqual(await page.locator('.region-desc').textContent(), COPY['map.region.split_rock.description']);   // Saga, docs/map-copy.md
+      assert.ok(!(await page.locator('#stage').textContent()).includes('[PH]'), 'no placeholder text on screen');
+      // crosshair fix: background is one pre-scaled canvas, not a CSS cover background (software-raster tile seam)
+      assert.deepStrictEqual(await page.evaluate(() => [!!document.getElementById('bg-canvas'), getComputedStyle(document.getElementById('bg')).backgroundImage.includes('url(')]), [true, false]);
       assert.strictEqual(await page.locator('[data-g="travel"]').count(), W.neighbours('split_rock').length);
       await page.waitForTimeout(500); await shot(page, '02-region');
       const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
