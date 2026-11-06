@@ -78,6 +78,7 @@
    */
   function coerceLook(s, rng = Math.random) {
     let st = s;
+    if (st.portraitId != null && (typeof st.portraitId !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(st.portraitId))) st = { ...st, portraitId: null };
     if (!st.rare && hasRare(st)) st = { ...st, coat: RARE_COATS.includes(st.coat) ? pick(COATS, rng) : st.coat, oddEyes: 'off', eyeRight: null };
     if (!COATS.includes(st.coat) && !(st.rare && RARE_COATS.includes(st.coat))) st = { ...st, coat: pick(COATS, rng) };
     if (st.oddEyes === 'on') { if (!EYES.includes(st.eyeRight) || st.eyeRight === st.eyes) st = { ...st, eyeRight: nextOtherEye(st.eyes) }; }
@@ -148,6 +149,7 @@
     return {
       step: 1, focus: 'name', name: randomName(names, rng), sex: pick(SEXES, rng),
       coat: pick(COATS, rng), markings: pick(MARKINGS, rng), eyes: pick(EYES, rng), oddEyes: 'off', eyeRight: null,
+      portraitId: null,
       rare: rareAllowed(difficulty, sandboxOptions),
       traits: { ...PRESETS[DEFAULT_PRESET] }, preset: DEFAULT_PRESET, range: rangeFor(difficulty, sandboxOptions), nameError: null
     };
@@ -228,7 +230,8 @@
     return {
       catId: newId(), name, sex: s.sex,
       ageSeasons: PLAYER_START_AGE, birthSeason: birthSeasonFor(PLAYER_START_AGE, RUN_START), lifeStage: lifeStageFor(PLAYER_START_AGE),
-      genes: genesFor(s), scars: []
+      genes: genesFor(s), scars: [],
+      portraitId: typeof s.portraitId === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(s.portraitId) ? s.portraitId : null
     };
   }
 

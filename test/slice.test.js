@@ -187,6 +187,23 @@ test('≤ 1 offline event per day; region moments fire once per run', () => {
   }
 });
 
+test('portrait id is kept verbatim, and a legacy or corrupt id becomes null instead of another cat', () => {
+  const marked = { ...cat, portraitId: 'cat-6e2d788dd48ff440' };
+  const s = E.newRun({ mainCat: marked, seed: 1 });
+  assert.strictEqual(s.cat.portraitId, 'cat-6e2d788dd48ff440');
+  assert.ok(Object.values(s.npcs).every((n) => n.portraitId === null));
+  const legacy = JSON.parse(JSON.stringify(s));
+  delete legacy.cat.portraitId;
+  legacy.npcs.hc01.portraitId = 'Not A Cat';
+  const m = E.migrate(legacy);
+  assert.strictEqual(m.cat.portraitId, null);
+  assert.strictEqual(m.npcs.hc01.portraitId, null);
+  const kept = E.migrate(JSON.parse(JSON.stringify(s)));
+  assert.strictEqual(kept.cat.portraitId, 'cat-6e2d788dd48ff440');
+  const missing = E.newRun({ mainCat: cat, seed: 1 });
+  assert.strictEqual(missing.cat.portraitId, null);
+});
+
 test('migrate: rejects newer saves, upgrades old map dataVersion', () => {
   const s = E.newRun({ mainCat: cat, seed: 1 });
   assert.throws(() => E.migrate({ ...s, saveVersion: rules.saveVersion + 1 }));

@@ -89,9 +89,9 @@
       const cv = $('#home-cat');
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
       placeCat();
-      ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name }, cv).catch(() => {});
+      ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId }, cv).catch(() => {});
       const head = $('#home-head');
-      if (head) ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name }, head, { frame: 'head' }).catch(() => {});
+      if (head) ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId }, head, { frame: 'head' }).catch(() => {});
       const expand = $('#home-expand'); if (expand) expand.dataset.name = s.cat.name;
       const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
       den.title = t('home.denTip'); wild.title = t('home.wildTip');

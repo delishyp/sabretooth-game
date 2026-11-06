@@ -6,7 +6,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--deep);
     radial-gradient(2px 2px at 200px 160px, #fff, transparent), radial-gradient(1px 1px at 60px 200px, #fff, transparent);
   background-size: 240px 240px; animation: snow 18s linear infinite; }
 @keyframes snow { to { background-position: 60px 240px; } }
-body.reduced-motion #snow { animation: none; }
+body.reduced-motion #snow, body.menu-hidden #snow { animation: none; display: none; }
+@media (prefers-reduced-motion: reduce) { #snow { animation: none; display: none; } }
 /* 1920x1080 logical stage, uniformly scaled by JS (spec §1) */
 #stage { position: absolute; width: 1920px; height: 1080px; left: 50%; top: 50%; transform-origin: center; container-type: inline-size; }
 /* V1 (Ochre keep-out): the cat starts at x = 0.62 of the background, so the title must end inside the left 58% at every UI scale.
