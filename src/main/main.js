@@ -15,6 +15,8 @@ app.setName('Sabretooth'); // => %APPDATA%/Sabretooth on Windows
 // Dev/test only: point userData elsewhere (used for seeded screenshots).
 if (process.env.SABRETOOTH_USERDATA) app.setPath('userData', process.env.SABRETOOTH_USERDATA);
 const SHOTS = process.argv.includes('--screenshots');
+// Window/taskbar icon (Anna-approved gold logo): ICO on Windows, PNG on Linux/dev. Both ship via build.files.
+const APP_ICON = path.join(__dirname, '..', '..', 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
 let win, settings, saves, handlers, t, copy;
 let stagedSettings = null;   // B11: live, unsaved settings from the renderer; flushed on close
 
@@ -33,6 +35,7 @@ function createWindow() {
     backgroundColor: '#0d1620', show: false, autoHideMenuBar: true,
     fullscreen: !SHOTS && s.display.mode === 'fullscreen',
     title: 'Sabretooth',
+    icon: APP_ICON,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true, nodeIntegration: false, sandbox: true,

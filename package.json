@@ -32,6 +32,8 @@
       "assets/menu/logo.png",
       "assets/portraits/*/manifest.json",
       "assets/portraits/*/*.png",
+      "build/icon.png",
+      "build/icon.ico",
       "!audio-src/**",
       "!assets/menu/night/**",
       "!**/work/**",
@@ -44,9 +46,12 @@
       "node_modules/electron-updater/**/*"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.ico"
     },
     "nsis": {
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     },

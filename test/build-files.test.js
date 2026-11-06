@@ -24,3 +24,19 @@ test('art working files, sources, scripts, docs and screenshots do not ship', ()
     'assets/portraits/compare/markings-wrap-crops/head-all.png', 'assets/portraits/portrait-male/rejected/old.png', 'assets/portraits/README.md',
     'scripts/art/composite.py', 'scripts/sync-copy.js', 'docs/main-menu-spec.md', 'screenshots/creator-look.png', 'test/creator.test.js']) assert.ok(!ships(f), f);
 });
+test('app icon: build/icon.png + build/icon.ico ship (BrowserWindow icon) and win/nsis point at the ICO; ICO has 16-256 PNG frames', () => {
+  for (const f of ['build/icon.png', 'build/icon.ico']) { assert.ok(ships(f), f); assert.ok(fs.existsSync(path.join(root, f)), f); }
+  const b = require('../package.json').build;
+  assert.deepStrictEqual([b.win.icon, b.nsis.installerIcon, b.nsis.uninstallerIcon], ['build/icon.ico', 'build/icon.ico', 'build/icon.ico']);
+  const ico = fs.readFileSync(path.join(root, 'build/icon.ico'));
+  assert.deepStrictEqual([ico.readUInt16LE(0), ico.readUInt16LE(2)], [0, 1]);
+  const frames = [];
+  for (let i = 0; i < ico.readUInt16LE(4); i++) {
+    const e = 6 + 16 * i, w = ico[e] || 256, size = ico.readUInt32LE(e + 8), off = ico.readUInt32LE(e + 12);
+    frames.push(w); assert.ok(off + size <= ico.length, `frame ${w} in bounds`);
+    if (w === 256) assert.ok(ico.subarray(off, off + 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])), '256 is PNG-compressed');
+  }
+  assert.deepStrictEqual(frames.sort((a, b) => a - b), [16, 24, 32, 48, 64, 128, 256]);
+  const main = fs.readFileSync(path.join(root, 'src/main/main.js'), 'utf8');
+  assert.match(main, /icon: APP_ICON/); assert.match(main, /'icon\.ico' : 'icon\.png'/);
+});
