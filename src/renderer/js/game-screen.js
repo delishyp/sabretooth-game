@@ -15,6 +15,7 @@
     const W = E.W;
     let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home';
     const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; };
+    const framed = (canvas, size) => { const f = el('div', 'portrait-frame frame-' + size); f.append(canvas); return f; };
     const btn = (label, data, opts = {}) => { const b = el('button', opts.cls || '', label); Object.assign(b.dataset, data); if (opts.disabled) b.disabled = true; if (opts.title) b.title = opts.title; return b; };
     const regionName = (id) => (W.region(id) ? W.region(id).name : id);
     const factionName = (id) => t(`game.faction.${id}`);
@@ -142,7 +143,7 @@
           const li = el('li', 'met-cat');
           const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
           ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});
-          li.append(mini, el('span', '', n.name + ' · ' + factionName(n.faction) + ' · ' + t('game.affinity', { affinity: n.affinity })));
+          li.append(framed(mini, 'sm'), el('span', 'met-name', n.name + ' · ' + factionName(n.faction) + ' · ' + t('game.affinity', { affinity: n.affinity })));
           li.append(btn(t('portrait.expand'), { g: 'expandCat', source: mini.id, name: n.name }, { cls: 'portrait-expand' }));
           ul.append(li);
         }
@@ -218,7 +219,7 @@
         const who = el('div', 'event-who');
         const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
         ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
-        who.append(cv, btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
+        who.append(framed(cv, 'md'), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
         card.append(who, el('div', 'event-cat', npc.name), el('p', 'event-affinity', t('game.affinity', { affinity: npc.affinity })));
       }
       card.append(el('h2', 'event-title', e.title));
