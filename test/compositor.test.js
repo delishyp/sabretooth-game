@@ -66,7 +66,7 @@ test('genesToLayers covers every creator option (cat-creator-spec v0.1 §3)', ()
     assert.strictEqual(L.sabers.tint, '#EFE7D2');
     const mk = Object.keys(L).filter((k) => k.startsWith('markings_'));
     if (m === 'plain') assert.deepStrictEqual(mk, []);
-    else { assert.deepStrictEqual(mk, ['markings_' + m]); assert.strictEqual(L[mk[0]].opacity, 0.6);
+    else { assert.deepStrictEqual(mk, ['markings_' + m]); assert.strictEqual(L[mk[0]].opacity, c === 'melan' && m === 'faintstripe' ? 0.24 : 0.6);
       assert.strictEqual(L[mk[0]].tint, c === 'melan' ? '#3A3836' : c === 'leuc' ? '#E6DED2' : multTint(hex)); }
     assert.ok(!Object.keys(L).some((k) => k.startsWith('white_') || k === 'age_elder'));
     for (const l of Object.keys(L)) if (l !== 'eye_right' || true) assert.ok(mf.layers.some((x) => x.id === l), `${l} in manifest`);
@@ -133,6 +133,19 @@ test('Ochre item 7: black (melan) markings draw after sheen with tint #3A3836, s
   for (const c of ['tawny', 'sandy', 'russet', 'greydun', 'leuc']) assert.strictEqual(C.genesToLayers(g(c, 'spotted', 'amber')).markings_spotted.after, undefined);
   assert.strictEqual(C.genesToLayers({ v: 1, loci: { coat: ['melan', 'leuc'], marking: ['spotted', 'spotted'] } }).markings_spotted.after, undefined);   // ash unchanged
   assert.strictEqual(C.TINTS.markingsMelan, '#3A3836');
+});
+test('Ochre item 7: black + faintstripe opacity × 0.4 = 0.14/0.24/0.34; black spots/dorsal and other coats unchanged', () => {
+  const gi = (coat, mk, n) => { const x = g(coat, mk, 'amber'); x.loci.intensity = Array.from({ length: 2 }, (_, i) => (i < n ? 'I+' : 'i')); x.loci.dorsal = ['Ds', 'Ds']; return x; };
+  const base = [0.35, 0.60, 0.85];
+  assert.deepStrictEqual([0, 1, 2].map((n) => C.genesToLayers(gi('melan', 'faintstripe', n)).markings_faintstripe.opacity), [0.14, 0.24, 0.34]);
+  assert.deepStrictEqual([0, 1, 2].map((n) => C.genesToLayers(gi('melan', 'faintstripe', n)).markings_dorsal.opacity), base);
+  assert.deepStrictEqual([0, 1, 2].map((n) => C.genesToLayers(gi('melan', 'spotted', n)).markings_spotted.opacity), base);
+  assert.deepStrictEqual([0, 1, 2].map((n) => C.genesToLayers(gi('melan', 'spotted', n)).markings_dorsal.opacity), base);
+  assert.strictEqual(C.genesToLayers(gi('melan', 'faintstripe', 1)).markings_dorsal.after, 'sheen');
+  for (const c of ['tawny', 'sandy', 'russet', 'greydun', 'leuc']) for (const mk of ['faintstripe', 'spotted'])
+    assert.deepStrictEqual([0, 1, 2].map((n) => C.genesToLayers(gi(c, mk, n))['markings_' + mk].opacity), base, `${c} ${mk}`);
+  const ash = (n) => ({ v: 1, loci: { coat: ['melan', 'leuc'], marking: ['faintstripe', 'faintstripe'], intensity: Array.from({ length: 2 }, (_, i) => (i < n ? 'I+' : 'i')) } });
+  assert.deepStrictEqual([0, 1, 2].map((n) => C.genesToLayers(ash(n)).markings_faintstripe.opacity), base, 'ash unchanged');
 });
 test('poseFor + fallback to adult pose', async () => {
   assert.strictEqual(C.poseFor('male', 'adult'), 'portrait-male');

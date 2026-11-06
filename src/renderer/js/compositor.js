@@ -38,6 +38,8 @@
   const STACK = ['base_coat', 'undercoat', 'markings', 'dorsal', 'shadow', 'rim', 'sheen', 'white', 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'scars', 'age_elder'];
   // Black (melan) only: markings + dorsal draw just above `sheen` (still multiply) so the lit back doesn't wash them out (Ochre item 7).
   const MELAN_MARKINGS_AFTER = 'sheen';
+  // Black + faintstripe only: stripe opacity × 0.4 → 0.14 / 0.24 / 0.34 (Ochre). Rounded to 2 dp so 0.35 × 0.4 isn't 0.13999999999999999.
+  const MELAN_FAINTSTRIPE_OPACITY = 0.4;
   const BLENDS = { normal: 'source-over', multiply: 'multiply', screen: 'screen' };
   const LIFE_STAGES = ['cub', 'adolescent', 'adult', 'elder'];
 
@@ -110,7 +112,8 @@
     const mTint = coatP === 'melan' ? TINTS.markingsMelan : coatP === 'leuc' ? TINTS.markingsLeuc : scale(mix('#FFFFFF', coat, MARKINGS_MIX), MARKINGS_SCALE);
     const mOp = INTENSITY_OPACITY[L.intensity ? count(L.intensity, 'I+') : 1];
     const mAfter = coatP === 'melan' ? { after: MELAN_MARKINGS_AFTER } : {};
-    if (mk !== 'plain') out['markings_' + mk] = { tint: mTint, opacity: mOp, ...mAfter };
+    const bodyOp = coatP === 'melan' && mk === 'faintstripe' ? Math.round(mOp * MELAN_FAINTSTRIPE_OPACITY * 100) / 100 : mOp;
+    if (mk !== 'plain') out['markings_' + mk] = { tint: mTint, opacity: bodyOp, ...mAfter };
     if (Array.isArray(L.dorsal) && L.dorsal.includes('Ds')) out.markings_dorsal = { tint: mTint, opacity: mOp, ...mAfter };
     const w = L.white || ['none', 'none'];
     if (w.includes('piebald')) out.white_piebald = { tint: TINTS.white, opacity: 1 };
