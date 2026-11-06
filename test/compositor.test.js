@@ -67,7 +67,7 @@ test('genesToLayers covers every creator option (cat-creator-spec v0.1 §3)', ()
     const mk = Object.keys(L).filter((k) => k.startsWith('markings_'));
     if (m === 'plain') assert.deepStrictEqual(mk, []);
     else { assert.deepStrictEqual(mk, ['markings_' + m]); assert.strictEqual(L[mk[0]].opacity, 0.6);
-      assert.strictEqual(L[mk[0]].tint, c === 'melan' ? '#6E6A66' : c === 'leuc' ? '#E6DED2' : multTint(hex)); }
+      assert.strictEqual(L[mk[0]].tint, c === 'melan' ? '#3A3836' : c === 'leuc' ? '#E6DED2' : multTint(hex)); }
     assert.ok(!Object.keys(L).some((k) => k.startsWith('white_') || k === 'age_elder'));
     for (const l of Object.keys(L)) if (l !== 'eye_right' || true) assert.ok(mf.layers.some((x) => x.id === l), `${l} in manifest`);
   }
@@ -98,7 +98,7 @@ test('genetics §2.5 odd eyes: eye_left/eye_right tinted separately only for het
 test('portrait-layers v2: undercoat/rim/sheen/nose/claws, barred order, dorsal above the body pattern, lighting above markings', () => {
   const m = C.genesToLayers(g('melan', 'rosette', 'gold'));
   assert.strictEqual(m.rim.tint, '#4A5868'); assert.strictEqual(m.sheen.tint, '#38424E'); assert.strictEqual(m.sheen.opacity, 0.9);
-  assert.strictEqual(m.markings_rosette.tint, '#6E6A66');
+  assert.strictEqual(m.markings_rosette.tint, '#3A3836');
   const ash = C.genesToLayers({ v: 1, loci: { coat: ['melan', 'leuc'] } });
   assert.strictEqual(ash.sheen.opacity, 0.25); assert.ok(!ash.rim); assert.strictEqual(ash.undercoat.tint, '#BAC3CD');
   const t = C.genesToLayers(g('tawny', 'plain', 'amber')); assert.ok(!t.rim && !t.sheen); assert.strictEqual(t.nose.tint, '#4A3C38');
@@ -117,6 +117,22 @@ test('portrait-layers v2: undercoat/rim/sheen/nose/claws, barred order, dorsal a
   const at = (id) => order.indexOf(id);
   assert.ok(at('undercoat') < at('markings_spotted') && at('markings_faintstripe') < at('markings_dorsal') && at('markings_dorsal') < at('shadow'));
   assert.ok(at('shadow') < at('rim') && at('sheen') < at('nose') && at('sabers') < at('claws'));
+});
+test('Ochre item 7: black (melan) markings draw after sheen with tint #3A3836, still multiply; tan order/tint unchanged', () => {
+  const ids = ['shadow', 'base_coat', 'undercoat', 'rim', 'sheen', 'markings_spotted', 'markings_faintstripe', 'markings_dorsal', 'white_chest', 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'lineart'];
+  const man = ids.map((id) => ({ id, file: id + '.png', blend: id.startsWith('markings_') ? 'multiply' : id === 'rim' || id === 'sheen' ? 'screen' : 'normal' }));
+  const withDorsal = (coat, mk) => { const x = g(coat, mk, 'amber'); x.loci.dorsal = ['Ds', 'Ds']; return x; };
+  for (const mk of ['spotted', 'faintstripe']) {
+    const black = C.stackOrder(man, C.genesToLayers(withDorsal('melan', mk)));
+    assert.deepStrictEqual(black.map((l) => l.id), ['base_coat', 'undercoat', 'shadow', 'rim', 'sheen', `markings_${mk}`, 'markings_dorsal', 'nose', 'eye_left', 'eye_right', 'sabers', 'claws']);
+    for (const l of black.filter((x) => x.id.startsWith('markings_'))) { assert.strictEqual(l.tint, '#3A3836'); assert.strictEqual(C.blendFor(l), 'multiply'); }
+    const tan = C.stackOrder(man, C.genesToLayers(withDorsal('tawny', mk)));
+    assert.deepStrictEqual(tan.map((l) => l.id), ['base_coat', 'undercoat', `markings_${mk}`, 'markings_dorsal', 'shadow', 'nose', 'eye_left', 'eye_right', 'sabers', 'claws']);
+    const tl = tan.find((l) => l.id === `markings_${mk}`); assert.strictEqual(tl.after, undefined); assert.notStrictEqual(tl.tint, '#3A3836');
+  }
+  for (const c of ['tawny', 'sandy', 'russet', 'greydun', 'leuc']) assert.strictEqual(C.genesToLayers(g(c, 'spotted', 'amber')).markings_spotted.after, undefined);
+  assert.strictEqual(C.genesToLayers({ v: 1, loci: { coat: ['melan', 'leuc'], marking: ['spotted', 'spotted'] } }).markings_spotted.after, undefined);   // ash unchanged
+  assert.strictEqual(C.TINTS.markingsMelan, '#3A3836');
 });
 test('poseFor + fallback to adult pose', async () => {
   assert.strictEqual(C.poseFor('male', 'adult'), 'portrait-male');

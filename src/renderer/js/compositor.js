@@ -23,7 +23,7 @@
     saber: { ivory: '#EFE7D2', creamy: '#E3CF96', stained: '#8C7A5A' },
     white: '#F7F4EE', age: '#C9C4BC', scar: '#8E6F66', diluteTarget: '#F3EBDD',
     // Markings draw with blend MULTIPLY (manifest), so the tint is what the coat is multiplied by.
-    markingsMelan: '#6E6A66', markingsLeuc: '#E6DED2',
+    markingsMelan: '#3A3836', markingsLeuc: '#E6DED2',
   };
   const DILUTE_T = [0, 0.15, 0.35];
   const INTENSITY_OPACITY = [0.35, 0.60, 0.85];
@@ -36,6 +36,8 @@
   // portrait-layers v2: flat colour first, then `shadow` (multiply: form shading + ground shadow) and the screen lights on top,
   // so markings pick up the lighting. Layers above `shadow` carry their own shading in their grayscale.
   const STACK = ['base_coat', 'undercoat', 'markings', 'dorsal', 'shadow', 'rim', 'sheen', 'white', 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'scars', 'age_elder'];
+  // Black (melan) only: markings + dorsal draw just above `sheen` (still multiply) so the lit back doesn't wash them out (Ochre item 7).
+  const MELAN_MARKINGS_AFTER = 'sheen';
   const BLENDS = { normal: 'source-over', multiply: 'multiply', screen: 'screen' };
   const LIFE_STAGES = ['cub', 'adolescent', 'adult', 'elder'];
 
@@ -60,11 +62,12 @@
     return BLENDS[b];
   }
   const stackGroup = (id) => (id === 'markings_dorsal' ? 'dorsal' : id.startsWith('markings_') ? 'markings' : id.startsWith('white_') ? 'white' : id.startsWith('scar') ? 'scars' : id);
-  /** Manifest layers that are active for this cat, sorted into STACK order (stable within a group); lineart excluded. */
+  /** Manifest layers that are active for this cat, sorted into STACK order (stable within a group); lineart excluded.
+   *  An active entry may carry `after: '<stack group>'` to draw just above that group instead of its own slot. */
   function stackOrder(manifestLayers, active) {
     return manifestLayers
       .filter((l) => active[l.id] && l.id !== 'lineart')
-      .map((l, i) => ({ l, i, r: STACK.indexOf(stackGroup(l.id)) }))
+      .map((l, i) => ({ l, i, r: active[l.id].after ? STACK.indexOf(active[l.id].after) + 0.5 : STACK.indexOf(stackGroup(l.id)) }))
       .sort((a, b) => (a.r === -1 ? 99 : a.r) - (b.r === -1 ? 99 : b.r) || a.i - b.i)
       .map((x) => ({ ...x.l, ...active[x.l.id] }));
   }
@@ -106,8 +109,9 @@
     const mk = phen(L.marking || ['plain', 'plain'], ['spotted', 'rosette', 'barred', 'faintstripe', 'plain']);
     const mTint = coatP === 'melan' ? TINTS.markingsMelan : coatP === 'leuc' ? TINTS.markingsLeuc : scale(mix('#FFFFFF', coat, MARKINGS_MIX), MARKINGS_SCALE);
     const mOp = INTENSITY_OPACITY[L.intensity ? count(L.intensity, 'I+') : 1];
-    if (mk !== 'plain') out['markings_' + mk] = { tint: mTint, opacity: mOp };
-    if (Array.isArray(L.dorsal) && L.dorsal.includes('Ds')) out.markings_dorsal = { tint: mTint, opacity: mOp };
+    const mAfter = coatP === 'melan' ? { after: MELAN_MARKINGS_AFTER } : {};
+    if (mk !== 'plain') out['markings_' + mk] = { tint: mTint, opacity: mOp, ...mAfter };
+    if (Array.isArray(L.dorsal) && L.dorsal.includes('Ds')) out.markings_dorsal = { tint: mTint, opacity: mOp, ...mAfter };
     const w = L.white || ['none', 'none'];
     if (w.includes('piebald')) out.white_piebald = { tint: TINTS.white, opacity: 1 };
     else { if (w.includes('socks')) out.white_socks = { tint: TINTS.white, opacity: 1 }; if (w.includes('blaze')) out.white_blaze = { tint: TINTS.white, opacity: 1 }; }

@@ -8,8 +8,10 @@ const fs = require('fs'); const os = require('os'); const path = require('path')
 const root = path.join(__dirname, '..', '..');
 
 // portrait-layers v2 stack (compositor STACK): rim only on black (melan), sheen on black + ash; lineart always last.
-const drawnFor = (coat, markings) => ['base_coat', 'undercoat', ...(markings === 'none' ? [] : [`markings_${markings}`]), 'shadow',
-  ...(coat === 'black' ? ['rim'] : []), ...(coat === 'black' || coat === 'ash' ? ['sheen'] : []), 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'lineart'];
+// Black only: markings draw right after sheen (Ochre item 7).
+const drawnFor = (coat, markings) => { const mk = markings === 'none' ? [] : [`markings_${markings}`]; const black = coat === 'black';
+  return ['base_coat', 'undercoat', ...(black ? [] : mk), 'shadow', ...(black ? ['rim'] : []), ...(black || coat === 'ash' ? ['sheen'] : []),
+    ...(black ? mk : []), 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'lineart']; };
 async function launch(ud) {
   const app = await electron.launch({ executablePath: require('electron'), args: ['--no-sandbox', root], env: { ...process.env, SABRETOOTH_USERDATA: ud } });
   const page = await app.firstWindow(); await page.waitForFunction(() => window.__menuDebug);
