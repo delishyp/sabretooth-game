@@ -18,6 +18,11 @@
       return s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
     };
     t.has = (id) => id in map;
+    /**
+     * Day counts etc.: `<id>.one` when n === 1 (if Saga wrote it), else `<id>` (the plural form). n is also passed as vars[countVar].
+     * English-only rule for now; a locale plural table can replace `n === 1` later without touching call sites.
+     */
+    t.plural = (id, n, vars = {}, countVar = 'days') => t(n === 1 && `${id}.one` in map ? `${id}.one` : id, { ...vars, [countVar]: n });
     return t;
   }
   return { create, PLACEHOLDER_STRINGS };

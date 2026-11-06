@@ -71,7 +71,7 @@
       const day = el('div', 'hud-day', t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) }));
       day.id = 'game-day';
       const needs = el('div', 'hud-needs'); for (const k of ['health', 'hunger', 'thirst', 'energy']) needs.append(needBar(k, s.needs[k]));
-      const inj = el('div', 'hud-injuries'); for (const i of s.injuries) inj.append(el('span', `chip chip-${i.tier}`, t(`game.injury.${i.tier}`, { days: i.daysLeft })));
+      const inj = el('div', 'hud-injuries'); for (const i of s.injuries) inj.append(el('span', `chip chip-${i.tier}`, t.plural(`game.injury.${i.tier}`, i.daysLeft)));
       h.append(who, day, needs, inj);
     }
     function renderRegion() {
@@ -101,7 +101,7 @@
         const tr = el('div', 'action-group travel'); tr.append(el('h3', '', t('game.action.travel')));
         for (const o of av.travel) {
           const discovered = s.map.discovered.includes(o.to);
-          tr.append(btn(t('game.action.travelTo', { region: discovered ? regionName(o.to) : t('game.region.unknown'), days: o.days }), { g: 'travel', to: o.to }, { disabled: !o.allowed, title: o.allowed ? '' : t('game.blocked.edge') }));
+          tr.append(btn(t.plural('game.action.travelTo', o.days, { region: discovered ? regionName(o.to) : t('game.region.unknown') }), { g: 'travel', to: o.to }, { disabled: !o.allowed, title: o.allowed ? '' : t('game.blocked.edge') }));
         }
         a.append(hunt, rest, tr);
       }
@@ -112,10 +112,10 @@
         case 'hunt': return t(l.ok ? 'game.report.huntOk' : 'game.report.huntFail', { size: t(`game.size.${l.size}`), chance: l.chance, ate: l.ate });
         case 'rest': return t('game.report.rest', { energy: l.energy });
         case 'arrive': return t('game.report.arrive', { region: regionName(l.region) });
-        case 'travelling': return t('game.report.travelling', { region: regionName(l.to), days: l.daysLeft });
+        case 'travelling': return t.plural('game.report.travelling', l.daysLeft, { region: regionName(l.to) });
         case 'injury': return t(`game.report.injury.${l.tier}`);
         case 'hazard': return t('game.report.hazard', { hazard: t(`game.hazard.${l.id}`) });
-        case 'edgeBlocked': return t('game.report.edgeBlocked', { region: regionName(l.to), days: l.days });
+        case 'edgeBlocked': return t.plural('game.report.edgeBlocked', l.days, { region: regionName(l.to) });
         case 'fled': return t('game.report.fled', { from: t(`game.hazard.${l.from}`) });
         case 'patrol': return t('game.report.patrol', { faction: factionName(l.faction), relation: l.relation });
         case 'healed': return t(`game.report.healed.${l.tier}`);

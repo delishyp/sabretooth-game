@@ -110,3 +110,19 @@ Owner: Saga. Replaces all 102 placeholder strings in `src/renderer/js/i18n.js`. 
   }
 }
 ```
+
+## Singular day counts
+
+Added by Flint for the Director's "1 days" fix, pending Saga's review. The code uses `<key>.one` when the count is exactly 1 and the key above otherwise.
+
+```json
+{
+  "strings": {
+    "game.injury.minor.one": "Minor injury · {days} day remaining",
+    "game.injury.serious.one": "Serious injury · {days} day remaining",
+    "game.action.travelTo.one": "{region} · {days} day",
+    "game.report.travelling.one": "You are travelling to {region}. {days} day remains.",
+    "game.report.edgeBlocked.one": "The route back to {region} is blocked for {days} day."
+  }
+}
+```

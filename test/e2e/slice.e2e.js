@@ -118,6 +118,13 @@ async function step(page, shots) {
       await page.evaluate(() => document.querySelector('[data-action="newGame"]').click()); await waitState(page, 'newGameSetup');
       await page.mouse.move(2, 2); await press(page, 'ArrowUp', 'Enter'); await waitState(page, 'creator');
       await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
+      // Director fix: singular day counts ("1 day", never "1 days") on the travel buttons and the injury chip
+      await page.evaluate(() => window.__menuDebug.gamePatch({ injuries: [{ tier: 'minor', daysLeft: 1, source: 'e2e' }, { tier: 'serious', daysLeft: 2, source: 'e2e' }] }));
+      assert.strictEqual(await page.locator('.chip-minor').textContent(), 'Minor injury · 1 day remaining');
+      assert.strictEqual(await page.locator('.chip-serious').textContent(), 'Serious injury · 2 days remaining');
+      assert.match(await page.locator('[data-g="travel"]').first().textContent(), / · 1 day$/);
+      assert.ok(!/\b1 days\b/.test(await page.locator('#stage').textContent()), 'no "1 days" on screen');
+      await shot(page, '07-one-day-travel-and-injury');
       await page.evaluate(() => window.__menuDebug.gamePatch({ needs: { health: 10, hunger: 0, thirst: 100, energy: 100 }, counters: { starving: 2, parched: 0 } }));
       await page.locator('[data-g="rest"]').click(); await waitState(page, 'summary');
       const { summary, state: s } = await g(page);

@@ -17,6 +17,7 @@ function usedIds() {
   for (const f of ['src/renderer/js/menu.js', 'src/renderer/js/game-screen.js', 'src/main/main.js', 'src/main/menu-handlers.js']) {
     const src = read(f);
     for (const m of src.matchAll(/\bt\(\s*'([^']+)'/g)) ids.add(m[1]);
+    for (const m of src.matchAll(/\bt\.plural\(\s*'([^']+)'/g)) { ids.add(m[1]); ids.add(`${m[1]}.one`); }
     for (const m of src.matchAll(/'(toast\.[\w.]+)'/g)) ids.add(m[1]);
     for (const m of src.matchAll(/v \? '(common\.\w+)' : '(common\.\w+)'/g)) { ids.add(m[1]); ids.add(m[2]); }
   }
@@ -32,7 +33,7 @@ function usedIds() {
     'creator.preset.': [...C.PRESET_IDS, 'custom'].flatMap((p) => [p, `${p}.desc`]),
     'creator.trait.': C.TRAITS.flatMap((k) => [k, `${k}.desc`, `${k}.low`, `${k}.high`]),
     // Slice 1 game screen (js/game-screen.js); hazard/faction ids from map.json
-    'game.need.': ['health', 'hunger', 'thirst', 'energy'], 'game.needState.': ['ok', 'low', 'critical', 'empty'], 'game.injury.': ['minor', 'serious'],
+    'game.need.': ['health', 'hunger', 'thirst', 'energy'], 'game.needState.': ['ok', 'low', 'critical', 'empty'], 'game.injury.': ['minor', 'serious', 'minor.one', 'serious.one'],
     'game.region.': ['prey', 'danger', 'water', 'owner'], 'game.prey.': ['0', '1', '2', '3'], 'game.danger.': ['0', '1', '2', '3'],
     'game.faction.': [...MAP.factions.map((f) => f.id), 'loner'], 'game.size.': ['small', 'medium', 'large'], 'game.forced.': ['rest', 'stuck', 'lost', 'travel'],
     'game.report.injury.': ['minor', 'serious'], 'game.report.healed.': ['minor', 'serious'],
@@ -84,4 +85,25 @@ test('slice 1 copy: no [PH] anywhere, no placeholders left, every used id is Sag
   assert.deepStrictEqual(MAP.regions.filter((r) => !strings[`map.region.${r.id}.description`]).map((r) => r.id), []);
   const known = new Set(MAP.regions.map((r) => r.id));
   assert.deepStrictEqual(Object.keys(strings).filter((k) => k.startsWith('map.region.') && !known.has(k.split('.')[2])), [], 'no description for an unknown region');
+});
+
+test('day counts: singular at n=1, plural at n=2, for every t.plural key the game uses', () => {
+  const t = I18n.create(strings);
+  assert.strictEqual(t.plural('game.action.travelTo', 1, { region: 'Twin Forks' }), 'Twin Forks · 1 day');
+  assert.strictEqual(t.plural('game.action.travelTo', 2, { region: 'Twin Forks' }), 'Twin Forks · 2 days');
+  assert.strictEqual(t.plural('game.injury.minor', 1), 'Minor injury · 1 day remaining');
+  assert.strictEqual(t.plural('game.injury.serious', 2), 'Serious injury · 2 days remaining');
+  assert.strictEqual(t.plural('game.report.travelling', 1, { region: 'X' }), 'You are travelling to X. 1 day remains.');
+  assert.strictEqual(t.plural('game.report.edgeBlocked', 2, { region: 'X' }), 'The route back to X is blocked for 2 days.');
+  const src = read('src/renderer/js/game-screen.js');
+  const ids = [...src.matchAll(/\bt\.plural\(\s*'([^']+)'/g)].map((m) => m[1]).concat(['game.injury.minor', 'game.injury.serious']);
+  for (const id of ids) {
+    assert.ok(!/\b1 days\b/.test(t.plural(id, 1, { region: 'R' })), `${id} n=1`);
+    assert.match(t.plural(id, 2, { region: 'R' }), /\b2 days\b/, `${id} n=2`);
+    assert.match(t.plural(id, 1, { region: 'R' }), /\b1 day\b/, `${id} n=1`);
+  }
+  // no day count is rendered through plain t() any more
+  assert.ok(!/t\([^)]*\{[^}]*\bdays: (i\.daysLeft|o\.days|l\.daysLeft|l\.days)\b/.test(src));
+  // fallback: a key without .one keeps its single form
+  assert.strictEqual(I18n.create({ x: '{days} d' }).plural('x', 1), '1 d');
 });
