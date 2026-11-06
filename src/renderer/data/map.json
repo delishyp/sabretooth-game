@@ -1,0 +1,1894 @@
+{
+  "$comment": "Generated from docs/design/map-v1.md v1.0.1 by scripts/slice-data-from-specs.js. Values: Tundra. File: Flint. Layout not approved by Anna yet (slice-1 scope note).",
+  "dataVersion": 1,
+  "specVersion": "1.0.1",
+  "seasons": [
+    "spring",
+    "summer",
+    "autumn",
+    "winter"
+  ],
+  "daysPerSeason": 20,
+  "preyPoints": {
+    "0": -10,
+    "1": 0,
+    "2": 5,
+    "3": 10
+  },
+  "dangerBands": [
+    {
+      "max": 1,
+      "danger": 0
+    },
+    {
+      "max": 5,
+      "danger": 1
+    },
+    {
+      "max": 10,
+      "danger": 2
+    },
+    {
+      "max": 100,
+      "danger": 3
+    }
+  ],
+  "biomes": [
+    {
+      "id": "glacier",
+      "name": "Glacier",
+      "warmthPerDay": -15,
+      "typicalWater": "meltwater (winter: frozen)",
+      "notes": "avalanche, thin ice on melt sheets"
+    },
+    {
+      "id": "alpine",
+      "name": "Alpine / crag",
+      "warmthPerDay": -8,
+      "typicalWater": "upper river / snowmelt",
+      "notes": "cliffs, dens, horse meadows"
+    },
+    {
+      "id": "tundra",
+      "name": "Open tundra",
+      "warmthPerDay": -10,
+      "typicalWater": "none / melt pools",
+      "notes": "starvation pressure, wind"
+    },
+    {
+      "id": "steppe",
+      "name": "Grassland / steppe",
+      "warmthPerDay": -5,
+      "typicalWater": "seasonal pools",
+      "notes": "herds, open fights"
+    },
+    {
+      "id": "riverine",
+      "name": "River corridor",
+      "warmthPerDay": -3,
+      "typicalWater": "river (never freezes at fords)",
+      "notes": "crossings, ambush, flood in spring"
+    },
+    {
+      "id": "pinewood",
+      "name": "Pine forest",
+      "warmthPerDay": -4,
+      "typicalWater": "marsh seeps",
+      "notes": "fog, deer, hidden trails"
+    },
+    {
+      "id": "wetland",
+      "name": "Marsh / reed",
+      "warmthPerDay": -2,
+      "typicalWater": "marsh",
+      "notes": "mosquitoes summer; geese spring–summer"
+    },
+    {
+      "id": "lakeshore",
+      "name": "Lake shore",
+      "warmthPerDay": -3,
+      "typicalWater": "lake (winter freeze)",
+      "notes": "thin ice in spring (the Breaking)"
+    },
+    {
+      "id": "gorge",
+      "name": "Gorge / canyon",
+      "warmthPerDay": -6,
+      "typicalWater": "none / seep",
+      "notes": "bear dens, rockfall"
+    },
+    {
+      "id": "tarlands",
+      "name": "Tar seeps",
+      "warmthPerDay": -4,
+      "typicalWater": "none (tar undrinkable)",
+      "notes": "tar trap, scavenging"
+    },
+    {
+      "id": "ashscape",
+      "name": "Dry ash hills",
+      "warmthPerDay": -5,
+      "typicalWater": "none",
+      "notes": "dire wolves, summer camels"
+    }
+  ],
+  "hazards": [
+    {
+      "id": "avalanche",
+      "outcome": "avalanche",
+      "defaultOutcome": "Serious injury 60% / minor 40%; block the edge used today for 3 days",
+      "notes": "alpine / glacier"
+    },
+    {
+      "id": "thin_ice",
+      "outcome": "thin_ice",
+      "defaultOutcome": "Serious injury + forced swim (−20 Warmth, −30 Energy) or drown death in Sim only at 5%",
+      "notes": "lakeshore spring; the Breaking lore"
+    },
+    {
+      "id": "tar",
+      "outcome": "tar",
+      "defaultOutcome": "Escape roll: clamp(50 + 5×Endurance M, 20, 90)%. Fail → Serious injury + stuck 1 day",
+      "notes": "tarlands"
+    },
+    {
+      "id": "bear",
+      "outcome": "bear",
+      "defaultOutcome": "Encounter short-faced bear: flee (Endurance) or fight (formulas §4, lethal in Standard/Sim). Win → rare large carcass",
+      "notes": "gorge"
+    },
+    {
+      "id": "wolves",
+      "outcome": "wolves",
+      "defaultOutcome": "Dire-wolf patrol: lose 1 medium carcass if carrying / hunting, or minor injury 40%, or flee",
+      "notes": "ashscape + winter pressure elsewhere"
+    },
+    {
+      "id": "starvation",
+      "outcome": "starvation",
+      "defaultOutcome": "If Hunger already Hungry or worse: extra −10 Hunger (environmental scarcity), else no-op",
+      "notes": "hardship biomes"
+    },
+    {
+      "id": "cold_snap",
+      "outcome": "cold_snap",
+      "defaultOutcome": "−15 Warmth today (stacks with blizzard)",
+      "notes": "glacier / tundra"
+    },
+    {
+      "id": "flood",
+      "outcome": "flood",
+      "defaultOutcome": "Travel out costs +1 day today; 20% minor injury",
+      "notes": "riverine spring"
+    },
+    {
+      "id": "rockfall",
+      "outcome": "rockfall",
+      "defaultOutcome": "Minor injury 80% / serious 20%",
+      "notes": "alpine / gorge"
+    },
+    {
+      "id": "lost_trail",
+      "outcome": "lost_trail",
+      "defaultOutcome": "Waste the day (no hunt); −10 Energy",
+      "notes": "pinewood fog"
+    }
+  ],
+  "regions": [
+    {
+      "id": "ice_wall",
+      "name": "The Ice Wall",
+      "biome": "glacier",
+      "tier": "hardship",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 1,
+        "autumn": 1,
+        "winter": 0
+      },
+      "water": "meltwater",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "avalanche",
+          "pct": 4,
+          "seasons": null
+        },
+        {
+          "id": "starvation",
+          "pct": 3,
+          "seasons": null
+        },
+        {
+          "id": "cold_snap",
+          "pct": 5,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "frost_tongue",
+        "blue_caves",
+        "wind_scree",
+        "north_pass"
+      ],
+      "travelHint": "1–2",
+      "polygonRef": "ice_wall"
+    },
+    {
+      "id": "frost_tongue",
+      "name": "The Frost Tongue",
+      "biome": "glacier",
+      "tier": "hardship",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 2,
+        "autumn": 1,
+        "winter": 0
+      },
+      "water": "meltwater",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "avalanche",
+          "pct": 3,
+          "seasons": null
+        },
+        {
+          "id": "thin_ice",
+          "pct": 2,
+          "seasons": [
+            "spring"
+          ]
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "ice_wall",
+        "blue_caves",
+        "highcrag",
+        "wind_scree"
+      ],
+      "travelHint": "1",
+      "polygonRef": "frost_tongue"
+    },
+    {
+      "id": "blue_caves",
+      "name": "The Blue Caves",
+      "biome": "glacier",
+      "tier": "safe",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 1,
+        "autumn": 1,
+        "winter": 1
+      },
+      "water": "meltwater",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "cold_snap",
+          "pct": 4,
+          "seasons": null
+        },
+        {
+          "id": "rockfall",
+          "pct": 2,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "ice_wall",
+        "frost_tongue",
+        "highcrag",
+        "west_spur"
+      ],
+      "travelHint": "1",
+      "polygonRef": "blue_caves"
+    },
+    {
+      "id": "wind_scree",
+      "name": "The Wind Scree",
+      "biome": "tundra",
+      "tier": "hardship",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 1,
+        "autumn": 1,
+        "winter": 0
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "starvation",
+          "pct": 4,
+          "seasons": null
+        },
+        {
+          "id": "cold_snap",
+          "pct": 3,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "ice_wall",
+        "frost_tongue",
+        "horse_meadows",
+        "salt_flats"
+      ],
+      "travelHint": "1",
+      "polygonRef": "wind_scree"
+    },
+    {
+      "id": "north_pass",
+      "name": "North Pass",
+      "biome": "alpine",
+      "tier": "hardship",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 2,
+        "autumn": 1,
+        "winter": 0
+      },
+      "water": "meltwater",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "avalanche",
+          "pct": 6,
+          "seasons": [
+            "winter",
+            "spring"
+          ]
+        },
+        {
+          "id": "rockfall",
+          "pct": 2,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "ice_wall",
+        "highcrag",
+        "east_saddle"
+      ],
+      "travelHint": "2",
+      "polygonRef": "north_pass"
+    },
+    {
+      "id": "highcrag",
+      "name": "Highcrag",
+      "biome": "alpine",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "river",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "rockfall",
+          "pct": 1,
+          "seasons": null
+        }
+      ],
+      "startHolder": "highcrag",
+      "disputedBy": null,
+      "coreDen": true,
+      "pressureFaction": null,
+      "adjacency": [
+        "frost_tongue",
+        "blue_caves",
+        "horse_meadows",
+        "upper_greywater",
+        "north_pass"
+      ],
+      "travelHint": "1",
+      "polygonRef": "highcrag"
+    },
+    {
+      "id": "horse_meadows",
+      "name": "Horse Meadows",
+      "biome": "alpine",
+      "tier": "rich",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 3,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "meltwater",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 1,
+          "seasons": [
+            "winter"
+          ]
+        }
+      ],
+      "startHolder": "highcrag",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "highcrag",
+        "wind_scree",
+        "upper_greywater",
+        "greywater_ford"
+      ],
+      "travelHint": "1",
+      "polygonRef": "horse_meadows"
+    },
+    {
+      "id": "upper_greywater",
+      "name": "Upper Greywater",
+      "biome": "riverine",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 2
+      },
+      "water": "river",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "flood",
+          "pct": 3,
+          "seasons": [
+            "spring"
+          ]
+        }
+      ],
+      "startHolder": "highcrag",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "highcrag",
+        "horse_meadows",
+        "greywater_ford",
+        "twin_forks"
+      ],
+      "travelHint": "1",
+      "polygonRef": "upper_greywater"
+    },
+    {
+      "id": "greywater_ford",
+      "name": "Greywater Ford",
+      "biome": "riverine",
+      "tier": "rich",
+      "prey": 3,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 3,
+        "autumn": 3,
+        "winter": 2
+      },
+      "water": "river",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 2,
+          "seasons": null
+        },
+        {
+          "id": "flood",
+          "pct": 2,
+          "seasons": [
+            "spring"
+          ]
+        }
+      ],
+      "startHolder": "highcrag",
+      "disputedBy": "bonefield",
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "horse_meadows",
+        "upper_greywater",
+        "bonefield",
+        "twin_forks",
+        "split_rock",
+        "reedbank"
+      ],
+      "travelHint": "1",
+      "polygonRef": "greywater_ford"
+    },
+    {
+      "id": "salt_flats",
+      "name": "The Salt Flats",
+      "biome": "tundra",
+      "tier": "hardship",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 1,
+        "autumn": 1,
+        "winter": 0
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "starvation",
+          "pct": 5,
+          "seasons": null
+        },
+        {
+          "id": "cold_snap",
+          "pct": 2,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "wind_scree",
+        "tallgrass",
+        "split_rock",
+        "herd_trail"
+      ],
+      "travelHint": "1–2",
+      "polygonRef": "salt_flats"
+    },
+    {
+      "id": "bonefield",
+      "name": "The Bonefield",
+      "biome": "steppe",
+      "tier": "rich",
+      "prey": 3,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 3,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 2,
+          "seasons": [
+            "winter"
+          ]
+        }
+      ],
+      "startHolder": "bonefield",
+      "disputedBy": null,
+      "coreDen": true,
+      "pressureFaction": null,
+      "adjacency": [
+        "greywater_ford",
+        "herd_trail",
+        "tallgrass",
+        "south_range",
+        "split_rock",
+        "tar_seeps"
+      ],
+      "travelHint": "1",
+      "polygonRef": "bonefield"
+    },
+    {
+      "id": "herd_trail",
+      "name": "The Herd Trail",
+      "biome": "steppe",
+      "tier": "rich",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 3,
+        "autumn": 3,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 3,
+          "seasons": null
+        },
+        {
+          "id": "starvation",
+          "pct": 2,
+          "seasons": [
+            "winter"
+          ]
+        }
+      ],
+      "startHolder": "bonefield",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "bonefield",
+        "salt_flats",
+        "tallgrass",
+        "south_range",
+        "camel_ridge"
+      ],
+      "travelHint": "1",
+      "polygonRef": "herd_trail"
+    },
+    {
+      "id": "tallgrass",
+      "name": "Tallgrass Reach",
+      "biome": "steppe",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "pool",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [],
+      "startHolder": "bonefield",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "salt_flats",
+        "bonefield",
+        "herd_trail",
+        "split_rock",
+        "mistwood"
+      ],
+      "travelHint": "1",
+      "polygonRef": "tallgrass"
+    },
+    {
+      "id": "south_range",
+      "name": "South Range",
+      "biome": "steppe",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 3,
+          "seasons": null
+        },
+        {
+          "id": "bear",
+          "pct": 1,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "bonefield",
+        "herd_trail",
+        "tar_seeps",
+        "claw_gorge",
+        "ash_hills",
+        "wolf_run"
+      ],
+      "travelHint": "1",
+      "polygonRef": "south_range"
+    },
+    {
+      "id": "split_rock",
+      "name": "The Split Rock",
+      "biome": "steppe",
+      "tier": "safe",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "greywater_ford",
+        "bonefield",
+        "tallgrass",
+        "salt_flats",
+        "mistwood",
+        "twin_forks"
+      ],
+      "travelHint": "1",
+      "polygonRef": "split_rock"
+    },
+    {
+      "id": "twin_forks",
+      "name": "Twin Forks",
+      "biome": "riverine",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 2
+      },
+      "water": "river",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "flood",
+          "pct": 3,
+          "seasons": [
+            "spring"
+          ]
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "upper_greywater",
+        "greywater_ford",
+        "split_rock",
+        "reedbank",
+        "drowned_mere"
+      ],
+      "travelHint": "1",
+      "polygonRef": "twin_forks"
+    },
+    {
+      "id": "reedbank",
+      "name": "Reedbank",
+      "biome": "wetland",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 3,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "marsh",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "flood",
+          "pct": 2,
+          "seasons": [
+            "spring"
+          ]
+        }
+      ],
+      "startHolder": "mistwood",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "greywater_ford",
+        "twin_forks",
+        "mistwood",
+        "drowned_mere",
+        "mere_shore"
+      ],
+      "travelHint": "1",
+      "polygonRef": "reedbank"
+    },
+    {
+      "id": "mistwood",
+      "name": "The Mistwood",
+      "biome": "pinewood",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "marsh",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "lost_trail",
+          "pct": 1,
+          "seasons": null
+        }
+      ],
+      "startHolder": "mistwood",
+      "disputedBy": null,
+      "coreDen": true,
+      "pressureFaction": null,
+      "adjacency": [
+        "tallgrass",
+        "split_rock",
+        "reedbank",
+        "fog_paths",
+        "west_spur",
+        "mere_shore",
+        "bears_throat"
+      ],
+      "travelHint": "1",
+      "polygonRef": "mistwood"
+    },
+    {
+      "id": "fog_paths",
+      "name": "Fog Paths",
+      "biome": "pinewood",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 1,
+        "winter": 1
+      },
+      "water": "marsh",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "lost_trail",
+          "pct": 3,
+          "seasons": null
+        }
+      ],
+      "startHolder": "mistwood",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "mistwood",
+        "west_spur",
+        "mere_shore",
+        "island_mere"
+      ],
+      "travelHint": "1",
+      "polygonRef": "fog_paths"
+    },
+    {
+      "id": "west_spur",
+      "name": "West Spur",
+      "biome": "pinewood",
+      "tier": "safe",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "mistwood",
+        "fog_paths",
+        "island_mere",
+        "blue_caves"
+      ],
+      "travelHint": "1–2",
+      "polygonRef": "west_spur"
+    },
+    {
+      "id": "drowned_mere",
+      "name": "The Drowned Mere",
+      "biome": "lakeshore",
+      "tier": "rich",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 2,
+        "autumn": 1,
+        "winter": 1
+      },
+      "water": "lake",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "thin_ice",
+          "pct": 8,
+          "seasons": [
+            "spring"
+          ]
+        },
+        {
+          "id": "thin_ice",
+          "pct": 2,
+          "seasons": [
+            "winter"
+          ]
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "twin_forks",
+        "reedbank",
+        "mere_shore",
+        "island_mere",
+        "east_saddle"
+      ],
+      "travelHint": "1",
+      "polygonRef": "drowned_mere"
+    },
+    {
+      "id": "mere_shore",
+      "name": "Mere Shore",
+      "biome": "lakeshore",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 3,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "lake",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "thin_ice",
+          "pct": 3,
+          "seasons": [
+            "spring"
+          ]
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "reedbank",
+        "mistwood",
+        "fog_paths",
+        "drowned_mere",
+        "island_mere"
+      ],
+      "travelHint": "1",
+      "polygonRef": "mere_shore"
+    },
+    {
+      "id": "island_mere",
+      "name": "Island Mere",
+      "biome": "wetland",
+      "tier": "balanced",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 3,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "lake",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "thin_ice",
+          "pct": 4,
+          "seasons": [
+            "spring"
+          ]
+        },
+        {
+          "id": "flood",
+          "pct": 2,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "fog_paths",
+        "west_spur",
+        "drowned_mere",
+        "mere_shore"
+      ],
+      "travelHint": "1–2",
+      "polygonRef": "island_mere"
+    },
+    {
+      "id": "east_saddle",
+      "name": "East Saddle",
+      "biome": "alpine",
+      "tier": "hardship",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 1,
+        "winter": 0
+      },
+      "water": "meltwater",
+      "freezes": true,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "avalanche",
+          "pct": 3,
+          "seasons": null
+        },
+        {
+          "id": "rockfall",
+          "pct": 2,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "north_pass",
+        "drowned_mere",
+        "claw_gorge",
+        "ash_hills"
+      ],
+      "travelHint": "2",
+      "polygonRef": "east_saddle"
+    },
+    {
+      "id": "bears_throat",
+      "name": "The Bear's Throat",
+      "biome": "gorge",
+      "tier": "deadly",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 1,
+        "autumn": 1,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "bear",
+          "pct": 12,
+          "seasons": null
+        },
+        {
+          "id": "rockfall",
+          "pct": 3,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "mistwood",
+        "claw_gorge",
+        "tar_seeps"
+      ],
+      "travelHint": "1",
+      "polygonRef": "bears_throat"
+    },
+    {
+      "id": "claw_gorge",
+      "name": "Claw Gorge",
+      "biome": "gorge",
+      "tier": "deadly",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 2,
+        "autumn": 1,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "bear",
+          "pct": 5,
+          "seasons": null
+        },
+        {
+          "id": "rockfall",
+          "pct": 2,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "south_range",
+        "bears_throat",
+        "tar_seeps",
+        "ash_hills",
+        "east_saddle"
+      ],
+      "travelHint": "1",
+      "polygonRef": "claw_gorge"
+    },
+    {
+      "id": "tar_seeps",
+      "name": "The Tar Seeps",
+      "biome": "tarlands",
+      "tier": "rich",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 2,
+        "summer": 2,
+        "autumn": 2,
+        "winter": 2
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "tar",
+          "pct": 10,
+          "seasons": null
+        },
+        {
+          "id": "wolves",
+          "pct": 2,
+          "seasons": null
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "bonefield",
+        "south_range",
+        "bears_throat",
+        "claw_gorge",
+        "ash_hills"
+      ],
+      "travelHint": "1",
+      "polygonRef": "tar_seeps"
+    },
+    {
+      "id": "ash_hills",
+      "name": "The Ash Hills",
+      "biome": "ashscape",
+      "tier": "deadly",
+      "prey": 2,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 3,
+        "autumn": 2,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 10,
+          "seasons": null
+        },
+        {
+          "id": "starvation",
+          "pct": 2,
+          "seasons": [
+            "winter"
+          ]
+        }
+      ],
+      "startHolder": "wolves",
+      "disputedBy": null,
+      "coreDen": true,
+      "pressureFaction": null,
+      "adjacency": [
+        "south_range",
+        "claw_gorge",
+        "east_saddle",
+        "wolf_run",
+        "camel_ridge",
+        "tar_seeps"
+      ],
+      "travelHint": "1–2",
+      "polygonRef": "ash_hills"
+    },
+    {
+      "id": "wolf_run",
+      "name": "Wolf Run",
+      "biome": "ashscape",
+      "tier": "deadly",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 2,
+        "autumn": 1,
+        "winter": 1
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 14,
+          "seasons": null
+        }
+      ],
+      "startHolder": "wolves",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": null,
+      "adjacency": [
+        "ash_hills",
+        "camel_ridge",
+        "south_range"
+      ],
+      "travelHint": "1",
+      "polygonRef": "wolf_run"
+    },
+    {
+      "id": "camel_ridge",
+      "name": "Camel Ridge",
+      "biome": "ashscape",
+      "tier": "rich",
+      "prey": 1,
+      "preyBySeason": {
+        "spring": 1,
+        "summer": 3,
+        "autumn": 2,
+        "winter": 0
+      },
+      "water": "none",
+      "freezes": false,
+      "warmthPerDay": 0,
+      "hazards": [
+        {
+          "id": "wolves",
+          "pct": 6,
+          "seasons": null
+        },
+        {
+          "id": "starvation",
+          "pct": 3,
+          "seasons": [
+            "winter"
+          ]
+        }
+      ],
+      "startHolder": "neutral",
+      "disputedBy": null,
+      "coreDen": false,
+      "pressureFaction": "wolves",
+      "adjacency": [
+        "herd_trail",
+        "ash_hills",
+        "wolf_run"
+      ],
+      "travelHint": "1",
+      "polygonRef": "camel_ridge"
+    }
+  ],
+  "edges": [
+    {
+      "a": "ice_wall",
+      "b": "frost_tongue",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "ice_wall",
+      "b": "blue_caves",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "ice_wall",
+      "b": "wind_scree",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "ice_wall",
+      "b": "north_pass",
+      "days": 2,
+      "winterDays": 3
+    },
+    {
+      "a": "frost_tongue",
+      "b": "blue_caves",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "frost_tongue",
+      "b": "highcrag",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "frost_tongue",
+      "b": "wind_scree",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "blue_caves",
+      "b": "highcrag",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "blue_caves",
+      "b": "west_spur",
+      "days": 2,
+      "winterDays": 3
+    },
+    {
+      "a": "wind_scree",
+      "b": "horse_meadows",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "wind_scree",
+      "b": "salt_flats",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "north_pass",
+      "b": "highcrag",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "north_pass",
+      "b": "east_saddle",
+      "days": 2,
+      "winterDays": 3
+    },
+    {
+      "a": "highcrag",
+      "b": "horse_meadows",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "highcrag",
+      "b": "upper_greywater",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "horse_meadows",
+      "b": "upper_greywater",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "horse_meadows",
+      "b": "greywater_ford",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "upper_greywater",
+      "b": "greywater_ford",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "upper_greywater",
+      "b": "twin_forks",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "greywater_ford",
+      "b": "bonefield",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "greywater_ford",
+      "b": "twin_forks",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "greywater_ford",
+      "b": "split_rock",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "greywater_ford",
+      "b": "reedbank",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "salt_flats",
+      "b": "tallgrass",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "salt_flats",
+      "b": "split_rock",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "salt_flats",
+      "b": "herd_trail",
+      "days": 2,
+      "winterDays": 2
+    },
+    {
+      "a": "bonefield",
+      "b": "herd_trail",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "bonefield",
+      "b": "tallgrass",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "bonefield",
+      "b": "south_range",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "bonefield",
+      "b": "split_rock",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "bonefield",
+      "b": "tar_seeps",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "herd_trail",
+      "b": "tallgrass",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "herd_trail",
+      "b": "south_range",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "herd_trail",
+      "b": "camel_ridge",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "tallgrass",
+      "b": "split_rock",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "tallgrass",
+      "b": "mistwood",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "south_range",
+      "b": "tar_seeps",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "south_range",
+      "b": "claw_gorge",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "south_range",
+      "b": "ash_hills",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "south_range",
+      "b": "wolf_run",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "split_rock",
+      "b": "mistwood",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "split_rock",
+      "b": "twin_forks",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "twin_forks",
+      "b": "reedbank",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "twin_forks",
+      "b": "drowned_mere",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "reedbank",
+      "b": "mistwood",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "reedbank",
+      "b": "drowned_mere",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "reedbank",
+      "b": "mere_shore",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "mistwood",
+      "b": "fog_paths",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "mistwood",
+      "b": "west_spur",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "mistwood",
+      "b": "mere_shore",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "mistwood",
+      "b": "bears_throat",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "fog_paths",
+      "b": "west_spur",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "fog_paths",
+      "b": "mere_shore",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "fog_paths",
+      "b": "island_mere",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "west_spur",
+      "b": "island_mere",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "drowned_mere",
+      "b": "mere_shore",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "drowned_mere",
+      "b": "island_mere",
+      "days": 1,
+      "winterDays": 2
+    },
+    {
+      "a": "drowned_mere",
+      "b": "east_saddle",
+      "days": 2,
+      "winterDays": 2
+    },
+    {
+      "a": "mere_shore",
+      "b": "island_mere",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "east_saddle",
+      "b": "claw_gorge",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "east_saddle",
+      "b": "ash_hills",
+      "days": 2,
+      "winterDays": 2
+    },
+    {
+      "a": "bears_throat",
+      "b": "claw_gorge",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "bears_throat",
+      "b": "tar_seeps",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "claw_gorge",
+      "b": "tar_seeps",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "claw_gorge",
+      "b": "ash_hills",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "tar_seeps",
+      "b": "ash_hills",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "ash_hills",
+      "b": "wolf_run",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "ash_hills",
+      "b": "camel_ridge",
+      "days": 1,
+      "winterDays": 1
+    },
+    {
+      "a": "wolf_run",
+      "b": "camel_ridge",
+      "days": 1,
+      "winterDays": 1
+    }
+  ],
+  "factions": [
+    {
+      "id": "highcrag",
+      "kind": "pride",
+      "coreDen": "highcrag",
+      "targetRegions": 4,
+      "expandEdge": 10
+    },
+    {
+      "id": "bonefield",
+      "kind": "pride",
+      "coreDen": "bonefield",
+      "targetRegions": 5,
+      "expandEdge": -10
+    },
+    {
+      "id": "mistwood",
+      "kind": "pride",
+      "coreDen": "mistwood",
+      "targetRegions": 4,
+      "expandEdge": 5
+    },
+    {
+      "id": "wolves",
+      "kind": "pack",
+      "coreDen": "ash_hills",
+      "targetRegions": 2,
+      "packStrength": 40,
+      "activeAI": false
+    }
+  ],
+  "startClaims": [
+    {
+      "regionId": "highcrag",
+      "prideId": "highcrag",
+      "claim": 80
+    },
+    {
+      "regionId": "horse_meadows",
+      "prideId": "highcrag",
+      "claim": 70
+    },
+    {
+      "regionId": "upper_greywater",
+      "prideId": "highcrag",
+      "claim": 65
+    },
+    {
+      "regionId": "greywater_ford",
+      "prideId": "highcrag",
+      "claim": 55
+    },
+    {
+      "regionId": "greywater_ford",
+      "prideId": "bonefield",
+      "claim": 45
+    },
+    {
+      "regionId": "bonefield",
+      "prideId": "bonefield",
+      "claim": 80
+    },
+    {
+      "regionId": "herd_trail",
+      "prideId": "bonefield",
+      "claim": 70
+    },
+    {
+      "regionId": "tallgrass",
+      "prideId": "bonefield",
+      "claim": 65
+    },
+    {
+      "regionId": "mistwood",
+      "prideId": "mistwood",
+      "claim": 80
+    },
+    {
+      "regionId": "fog_paths",
+      "prideId": "mistwood",
+      "claim": 70
+    },
+    {
+      "regionId": "reedbank",
+      "prideId": "mistwood",
+      "claim": 65
+    },
+    {
+      "regionId": "ash_hills",
+      "prideId": "wolves",
+      "claim": 75
+    },
+    {
+      "regionId": "wolf_run",
+      "prideId": "wolves",
+      "claim": 70
+    }
+  ],
+  "tunables": {
+    "holdMin": 50,
+    "contestMin": 30,
+    "contestGap": 20,
+    "trespassClaimMin": 40,
+    "trespassMeetPct": 10,
+    "upkeepPerRegion": 1,
+    "patrolGain": 15,
+    "markGain": 25,
+    "decayUpkept": 5,
+    "decayMissed": 20,
+    "decayWild": 10,
+    "skirmishBase": 30,
+    "skirmishCap": 3,
+    "skirmishWin": 20,
+    "skirmishLose": 25,
+    "playerStartRegion": "split_rock"
+  },
+  "overlay": {
+    "ownershipTintAlpha": 0.35,
+    "contestedStripe": true,
+    "factionColors": {
+      "highcrag": "#7A8B9A",
+      "bonefield": "#A67C52",
+      "mistwood": "#5B7F6A",
+      "player": "#C4A35A",
+      "wolves": "#6E6A66",
+      "neutral": "#00000000"
+    }
+  }
+}

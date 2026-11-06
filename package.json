@@ -8,7 +8,7 @@
     "start": "electron .",
     "start:linux-dev": "electron . --no-sandbox",
     "screenshots": "electron . --no-sandbox --screenshots",
-    "sync-copy": "node scripts/sync-copy.js",
+    "sync-copy": "node scripts/sync-copy.js && node scripts/sync-events.js && node scripts/slice-data-from-specs.js",
     "test": "node --test \"test/*.test.js\"",
     "dist:win": "electron-builder --win nsis",
     "test:e2e": "node test/e2e/menu.e2e.js"

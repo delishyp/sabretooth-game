@@ -1,0 +1,136 @@
+{
+  "$comment": "Slice 1 'first season as a loner' rules (docs/design/slice-1-scope.md v1.0). Values copied from Tundra's specs, Standard style only: needs-spec v0.1 §1/§2/§7, formulas-spec v0.2.4 §1, map-v1 v1.0.1 §6/§8, loners-spec §2.3–2.4. File: Flint.",
+  "saveVersion": 1,
+  "seasonDays": 20,
+  "start": {
+    "region": "split_rock",
+    "season": "spring",
+    "year": 1,
+    "needs": 80,
+    "health": 100
+  },
+  "needs": {
+    "decay": {
+      "hunger": 12,
+      "thirst": 20
+    },
+    "energy": {
+      "hunt": 30,
+      "travel": 15,
+      "rest": 40,
+      "overnight": 25
+    },
+    "eat": {
+      "small": 25,
+      "medium": 50,
+      "large": 80
+    },
+    "drink": 100,
+    "health": {
+      "regen": 5,
+      "restRegen": 10,
+      "regenNeedsMin": 50
+    },
+    "thresholds": {
+      "critical": 25,
+      "low": 50
+    },
+    "damageAtEmpty": 10,
+    "starvationGraceDays": 3,
+    "parchedGraceDays": 1
+  },
+  "injuries": {
+    "minor": {
+      "health": 10,
+      "days": 3,
+      "hunt": -5
+    },
+    "serious": {
+      "health": 25,
+      "days": 10,
+      "hunt": -15,
+      "travelEnergy": 25
+    }
+  },
+  "hunt": {
+    "base": 50,
+    "size": {
+      "small": 5,
+      "medium": 0,
+      "large": -20
+    },
+    "hungry": -5,
+    "lowHealth": {
+      "below": 50,
+      "points": -10
+    },
+    "clamp": [
+      5,
+      95
+    ],
+    "injuryPct": {
+      "small": 2,
+      "medium": 6,
+      "large": 15
+    },
+    "failInjuryMult": 1.5,
+    "styleInjuryMult": 1,
+    "injuryTierSplit": {
+      "minor": 70,
+      "serious": 25,
+      "crippling": 5
+    }
+  },
+  "hazards": {
+    "styleInjuryMult": 1,
+    "avalanche": {
+      "serious": 60,
+      "blockEdgeDays": 3
+    },
+    "thin_ice": {
+      "energy": -30
+    },
+    "tar": {
+      "escapeBase": 50,
+      "escapePerEnduranceM": 5,
+      "escapeClamp": [
+        20,
+        90
+      ],
+      "stuckDays": 1
+    },
+    "starvation": {
+      "hunger": -10
+    },
+    "flood": {
+      "extraTravelDays": 1,
+      "minorPct": 20
+    },
+    "rockfall": {
+      "minor": 80
+    },
+    "lost_trail": {
+      "energy": -10
+    }
+  },
+  "meetings": {
+    "lonerHomePct": 15,
+    "lonerAdjacentPct": 5,
+    "patrolRelation": -5,
+    "patrolMinorInjuryPct": 30,
+    "hostileAtOrBelow": -50,
+    "affinityStart": 0,
+    "affinityRange": [
+      -100,
+      100
+    ]
+  },
+  "slice": {
+    "$comment": "slice-1 scope v1.0.1 §7 (Tundra): affinityIntent deltas on that cat's affinity toward the player; improve at most once per cat per day; patrol choices never touch the pride trespass relation.",
+    "affinityIntent": {
+      "improve": 5,
+      "unchanged": 0,
+      "worsen": -5
+    }
+  }
+}

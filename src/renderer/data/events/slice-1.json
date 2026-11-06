@@ -1,0 +1,867 @@
+{
+  "_source": "Generated from docs/lore/events/slice-1-events.json (Saga). Edit the doc, then run npm run sync-copy.",
+  "contentVersion": 1,
+  "events": [
+    {
+      "id": "slice.region.ice_wall",
+      "kind": "region",
+      "regions": [
+        "ice_wall"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A voice in the ice",
+      "text": "A deep crack travels through the glacier. You hold still until the last echo fades; no snow falls from the face above.",
+      "summary": "You listened to the glacier settle.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You listened to the glacier settle.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.frost_tongue",
+      "kind": "region",
+      "regions": [
+        "frost_tongue"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Under the crust",
+      "text": "Beneath a cloudy sheet of ice, water threads between dark stones. A hare has crossed here, leaving prints that stop at the exposed bank.",
+      "summary": "You found hare tracks beside the meltwater.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found hare tracks beside the meltwater.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.blue_caves",
+      "kind": "region",
+      "regions": [
+        "blue_caves"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Blue light",
+      "text": "Light passes through the ice above a shallow hollow. You watch your shadow turn blue against the wall, then stretch back towards the entrance.",
+      "summary": "You paused in the blue light of the caves.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You paused in the blue light of the caves.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.wind_scree",
+      "kind": "region",
+      "regions": [
+        "wind_scree"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A loose stone",
+      "text": "A pebble turns beneath your paw and rattles down the slope. Far below, a small shape bolts between the rocks before you can catch its scent.",
+      "summary": "You startled a small animal on the scree.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You startled a small animal on the scree.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.north_pass",
+      "kind": "region",
+      "regions": [
+        "north_pass"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "The other side",
+      "text": "At the crest, the wind flattens your whiskers. Beyond the pass lies another stretch of the Vale, its trails too distant to make out.",
+      "summary": "You looked across the Vale from North Pass.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You looked across the Vale from North Pass.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.highcrag",
+      "kind": "region",
+      "regions": [
+        "highcrag"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Worn stone",
+      "text": "The sheltered lip of a cave is smooth where generations of cats have passed. You stop short of the entrance; fresh scent lies over the old.",
+      "summary": "You found fresh scent at a Highcrag cave.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found fresh scent at a Highcrag cave.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.horse_meadows",
+      "kind": "region",
+      "regions": [
+        "horse_meadows"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Heads raised",
+      "text": "Horses stand among the cropped grass. One lifts its head, then another, until the whole group is watching your patch of hillside.",
+      "summary": "You watched the meadow horses notice you.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You watched the meadow horses notice you.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.upper_greywater",
+      "kind": "region",
+      "regions": [
+        "upper_greywater"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A branch goes by",
+      "text": "A stripped branch turns in the current, catches against a stone, then swings free. The water is stronger than it looks from the bank.",
+      "summary": "You watched the strength of the upper river.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You watched the strength of the upper river.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.greywater_ford",
+      "kind": "region",
+      "regions": [
+        "greywater_ford"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Overwritten",
+      "text": "Two cat scents overlap on a stone above the crossing. One is fresher, but neither has quite covered the other.",
+      "summary": "You found rival scent marks at the ford.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found rival scent marks at the ford.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.salt_flats",
+      "kind": "region",
+      "regions": [
+        "salt_flats"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "White ground",
+      "text": "Pale crust breaks under your paws. You lower your nose to a shallow hollow, but find only dry earth and the faint tracks of birds.",
+      "summary": "You crossed a dry hollow on the salt flats.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You crossed a dry hollow on the salt flats.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.bonefield",
+      "kind": "region",
+      "regions": [
+        "bonefield"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Between the ribs",
+      "text": "Grass grows through the ribs of an old mammoth. A small bird slips between them, carrying a strand in its beak.",
+      "summary": "You watched a bird among the mammoth bones.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You watched a bird among the mammoth bones.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.herd_trail",
+      "kind": "region",
+      "regions": [
+        "herd_trail"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Many feet",
+      "text": "Hoofprints press into older hoofprints until the trail is wider than a den. You find a single tuft of coarse fur caught on a low stem.",
+      "summary": "You examined the signs along the herd trail.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You examined the signs along the herd trail.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.tallgrass",
+      "kind": "region",
+      "regions": [
+        "tallgrass"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "At whisker height",
+      "text": "The grass closes around your shoulders. Somewhere ahead, stems tremble in a moving line, then fall still.",
+      "summary": "You followed a movement through the tall grass.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You followed a movement through the tall grass.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.south_range",
+      "kind": "region",
+      "regions": [
+        "south_range"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Open country",
+      "text": "From a low rise you can see a long way across the grass. A distant animal moves against the skyline, too far away to name.",
+      "summary": "You surveyed the open southern range.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You surveyed the open southern range.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.split_rock",
+      "kind": "region",
+      "regions": [
+        "split_rock"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A place to sit",
+      "text": "The split in the great boulder holds a narrow strip of shade. Old cat scents mingle at its base, with no single scent strong enough to claim it.",
+      "summary": "You paused beneath the Split Rock.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You paused beneath the Split Rock.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.twin_forks",
+      "kind": "region",
+      "regions": [
+        "twin_forks"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Two currents",
+      "text": "At the fork, clear ripples meet a cloudy stream. A leaf turns where the waters join before slipping downstream.",
+      "summary": "You watched the currents meet at Twin Forks.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You watched the currents meet at Twin Forks.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.reedbank",
+      "kind": "region",
+      "regions": [
+        "reedbank"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A hidden caller",
+      "text": "A bird calls from deep in the reeds. You turn towards it, but the next call comes from somewhere else among the stems.",
+      "summary": "You listened to an unseen bird in the reeds.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You listened to an unseen bird in the reeds.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.mistwood",
+      "kind": "region",
+      "regions": [
+        "mistwood"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Between the trunks",
+      "text": "Fog fills the gaps between the pines. A deer steps across a narrow trail; by the time you reach it, only the scent remains.",
+      "summary": "You found a deer trail in the Mistwood fog.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found a deer trail in the Mistwood fog.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.fog_paths",
+      "kind": "region",
+      "regions": [
+        "fog_paths"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Your own tracks",
+      "text": "The path bends around a fallen trunk. On the far side you recognise the prints you left earlier, still sharp in the mud.",
+      "summary": "You recognised your own tracks on the fog paths.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You recognised your own tracks on the fog paths.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.west_spur",
+      "kind": "region",
+      "regions": [
+        "west_spur"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Under the roots",
+      "text": "The roots of a leaning pine hold the soil in a tangled wall. Beneath them, old needles lie dry while the forest floor outside glistens.",
+      "summary": "You found a dry hollow beneath pine roots.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found a dry hollow beneath pine roots.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.drowned_mere",
+      "kind": "region",
+      "regions": [
+        "drowned_mere"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Grey ice",
+      "text": "A pale shelf of ice meets open water. A small wave slips underneath it, lifting the edge just enough for you to see it move.",
+      "summary": "You watched the spring ice shift on the Mere.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You watched the spring ice shift on the Mere.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.mere_shore",
+      "kind": "region",
+      "regions": [
+        "mere_shore"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "An old path",
+      "text": "Reeds have grown across a narrow trail to the water. Beneath their bent stems, the earth is still pressed smooth by many paws.",
+      "summary": "You found an overgrown trail beside the Mere.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found an overgrown trail beside the Mere.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.island_mere",
+      "kind": "region",
+      "regions": [
+        "island_mere"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Across the shallows",
+      "text": "A goose stands on a low patch of land among the channels. It stretches its neck towards you and calls until another answers.",
+      "summary": "You heard geese calling across the channels.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You heard geese calling across the channels.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.east_saddle",
+      "kind": "region",
+      "regions": [
+        "east_saddle"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Across the ridge",
+      "text": "You reach a hollow between two heights. Wind whistles through it, carrying the dry scrape of a stone rolling somewhere out of sight.",
+      "summary": "You listened to loose stone on East Saddle.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You listened to loose stone on East Saddle.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.bears_throat",
+      "kind": "region",
+      "regions": [
+        "bears_throat"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Heavy scent",
+      "text": "Bear scent hangs in the narrow gorge. You can see where a broad paw has pressed deep into a patch of soft earth.",
+      "summary": "You found a bear print in the narrow gorge.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found a bear print in the narrow gorge.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.claw_gorge",
+      "kind": "region",
+      "regions": [
+        "claw_gorge"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A mark above you",
+      "text": "Claw marks run down the rock above your head. You stretch your neck to follow them, then look back along the narrow way you came.",
+      "summary": "You examined high claw marks in Claw Gorge.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You examined high claw marks in Claw Gorge.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.tar_seeps",
+      "kind": "region",
+      "regions": [
+        "tar_seeps"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Not water",
+      "text": "The dark surface shines like a still pool, but its smell is thick and bitter. A trapped leaf tilts slowly without drifting towards the edge.",
+      "summary": "You watched a leaf held fast in the tar.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You watched a leaf held fast in the tar.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.ash_hills",
+      "kind": "region",
+      "regions": [
+        "ash_hills"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Along the ridge",
+      "text": "Wolf tracks follow the crest rather than the hollows. At a scent-marked stone, several sets of prints turn along the same trail.",
+      "summary": "You found a well-used wolf trail in the Ash Hills.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found a well-used wolf trail in the Ash Hills.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.wolf_run",
+      "kind": "region",
+      "regions": [
+        "wolf_run"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Single file",
+      "text": "The ground is worn into a narrow track. Wolf scent lies along it in layers, some fresh enough to make you lift your head and listen.",
+      "summary": "You noticed fresh scent on the wolf run.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You noticed fresh scent on the wolf run.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.region.camel_ridge",
+      "kind": "region",
+      "regions": [
+        "camel_ridge"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Dry stems",
+      "text": "Old camel tracks cut across the ridge. The plants beside them have been bitten down to woody stems; nothing moves on the slope today.",
+      "summary": "You found old camel tracks on the ridge.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "",
+          "summary": "You found old camel tracks on the ridge.",
+          "affinityIntent": "unchanged"
+        }
+      ]
+    },
+    {
+      "id": "slice.meeting.highcrag",
+      "kind": "first_meeting",
+      "faction": "highcrag",
+      "cast": "adult_or_elder",
+      "oncePerPair": true,
+      "title": "A measured greeting",
+      "text": "{catName} stands on the path ahead, leaving enough space for you to stop. “A stranger should give a name before coming closer.”",
+      "summary": "You met {catName}.",
+      "choices": [
+        {
+          "id": "introduce",
+          "label": "Give your name and wait.",
+          "text": "“Then we need not be strangers,” {catName} says. The path between you remains clear.",
+          "summary": "You introduced yourself to {catName}.",
+          "affinityIntent": "improve"
+        },
+        {
+          "id": "withdraw",
+          "label": "Step back without speaking.",
+          "text": "{catName} watches you go, making no move to follow.",
+          "summary": "You kept your distance from {catName}.",
+          "affinityIntent": "unchanged"
+        },
+        {
+          "id": "dismiss",
+          "label": "“I did not come to ask permission.”",
+          "text": "“That much is plain.” {catName} turns away, ears angled back.",
+          "summary": "You dismissed {catName}’s greeting.",
+          "affinityIntent": "worsen"
+        }
+      ]
+    },
+    {
+      "id": "slice.meeting.bonefield",
+      "kind": "first_meeting",
+      "faction": "bonefield",
+      "cast": "adult_or_elder",
+      "oncePerPair": true,
+      "title": "Stand where you are",
+      "text": "{catName} stops a few paces away and looks you over. “Alone? Then those tracks behind you are all yours.”",
+      "summary": "You met {catName}.",
+      "choices": [
+        {
+          "id": "steady",
+          "label": "“Alone. I can look after myself.”",
+          "text": "“We will see.” {catName} gives you another look, slower this time.",
+          "summary": "You answered {catName} steadily.",
+          "affinityIntent": "improve"
+        },
+        {
+          "id": "withdraw",
+          "label": "Leave room and pass in silence.",
+          "text": "{catName} lets the distance widen. Neither of you looks back.",
+          "summary": "You passed {catName} without speaking.",
+          "affinityIntent": "unchanged"
+        },
+        {
+          "id": "insult",
+          "label": "“You needed help to get this far?”",
+          "text": "{catName}’s ears flatten. “Keep walking, stranger.”",
+          "summary": "You mocked {catName} at your first meeting.",
+          "affinityIntent": "worsen"
+        }
+      ]
+    },
+    {
+      "id": "slice.meeting.mistwood",
+      "kind": "first_meeting",
+      "faction": "mistwood",
+      "cast": "adult_or_elder",
+      "oncePerPair": true,
+      "title": "A voice nearby",
+      "text": "“You tread loudly.” {catName} is closer than you expected, watching from beside a tree.",
+      "summary": "You met {catName}.",
+      "choices": [
+        {
+          "id": "listen",
+          "label": "Stop and lower your voice. “I am listening.”",
+          "text": "For a while neither of you speaks. Then {catName} gives a small nod.",
+          "summary": "You gave {catName} time and quiet.",
+          "affinityIntent": "improve"
+        },
+        {
+          "id": "withdraw",
+          "label": "Back away and leave the path clear.",
+          "text": "{catName} stays still until the trees hide you from each other.",
+          "summary": "You left {catName} space.",
+          "affinityIntent": "unchanged"
+        },
+        {
+          "id": "sneer",
+          "label": "“Is hiding all you do?”",
+          "text": "“You have seen very little.” {catName} disappears between the trunks.",
+          "summary": "You sneered at {catName}’s caution.",
+          "affinityIntent": "worsen"
+        }
+      ]
+    },
+    {
+      "id": "slice.meeting.loner",
+      "kind": "first_meeting",
+      "faction": "loner",
+      "cast": "adult_or_elder",
+      "oncePerPair": true,
+      "title": "Another solitary trail",
+      "text": "{catName} stops where your paths cross. For a moment, both of you look behind the other for companions.",
+      "summary": "You met {catName}.",
+      "choices": [
+        {
+          "id": "greet",
+          "label": "“Just me. And you?”",
+          "text": "“Just me.” The answer comes with a little less tension.",
+          "summary": "You exchanged a quiet greeting with {catName}.",
+          "affinityIntent": "improve"
+        },
+        {
+          "id": "pass",
+          "label": "Keep a respectful distance and move on.",
+          "text": "{catName} makes room. Your trails separate without a word.",
+          "summary": "You passed {catName} at a distance.",
+          "affinityIntent": "unchanged"
+        },
+        {
+          "id": "drive",
+          "label": "Tell the stranger to move aside.",
+          "text": "{catName} yields the path, but keeps watching until you are gone.",
+          "summary": "You ordered {catName} off the path.",
+          "affinityIntent": "worsen"
+        }
+      ]
+    },
+    {
+      "id": "slice.patrol.highcrag",
+      "kind": "patrol",
+      "faction": "highcrag",
+      "title": "A boundary warning",
+      "text": "{catName} steps onto the path. “These are Highcrag trails. Keep clear of the caves.”",
+      "summary": "A Highcrag patrol warned you away.",
+      "choices": [
+        {
+          "id": "yield",
+          "label": "Acknowledge the warning.",
+          "text": "{catName} watches as you give the patrol room.",
+          "summary": "You acknowledged {catName}’s warning.",
+          "affinityIntent": "improve"
+        },
+        {
+          "id": "leave",
+          "label": "Leave without answering.",
+          "text": "You put distance between yourself and the patrol.",
+          "summary": "You left {catName} without an answer.",
+          "affinityIntent": "unchanged"
+        },
+        {
+          "id": "defy",
+          "label": "“I heard you. I go where I choose.”",
+          "text": "{catName}’s gaze hardens as you turn away.",
+          "summary": "You defied {catName}’s warning.",
+          "affinityIntent": "worsen"
+        }
+      ],
+      "hostileText": "{catName} rushes towards you before you can speak. You turn and run, the patrol close behind.",
+      "hostileSummary": "You fled a hostile Highcrag patrol."
+    },
+    {
+      "id": "slice.patrol.bonefield",
+      "kind": "patrol",
+      "faction": "bonefield",
+      "title": "A boundary warning",
+      "text": "{catName} faces you across the grass. “Bonefield hunts here. Do not mistake an empty trail for unclaimed ground.”",
+      "summary": "A Bonefield patrol warned you away.",
+      "choices": [
+        {
+          "id": "yield",
+          "label": "Acknowledge the warning.",
+          "text": "{catName} watches as you give the patrol room.",
+          "summary": "You acknowledged {catName}’s warning.",
+          "affinityIntent": "improve"
+        },
+        {
+          "id": "leave",
+          "label": "Leave without answering.",
+          "text": "You put distance between yourself and the patrol.",
+          "summary": "You left {catName} without an answer.",
+          "affinityIntent": "unchanged"
+        },
+        {
+          "id": "defy",
+          "label": "“I heard you. I go where I choose.”",
+          "text": "{catName}’s gaze hardens as you turn away.",
+          "summary": "You defied {catName}’s warning.",
+          "affinityIntent": "worsen"
+        }
+      ],
+      "hostileText": "{catName} rushes towards you before you can speak. You turn and run, the patrol close behind.",
+      "hostileSummary": "You fled a hostile Bonefield patrol."
+    },
+    {
+      "id": "slice.patrol.mistwood",
+      "kind": "patrol",
+      "faction": "mistwood",
+      "title": "A boundary warning",
+      "text": "{catName} emerges beside the path. “You have crossed into Mistwood ground. Turn back from our dens.”",
+      "summary": "A Mistwood patrol warned you away.",
+      "choices": [
+        {
+          "id": "yield",
+          "label": "Acknowledge the warning.",
+          "text": "{catName} watches as you give the patrol room.",
+          "summary": "You acknowledged {catName}’s warning.",
+          "affinityIntent": "improve"
+        },
+        {
+          "id": "leave",
+          "label": "Leave without answering.",
+          "text": "You put distance between yourself and the patrol.",
+          "summary": "You left {catName} without an answer.",
+          "affinityIntent": "unchanged"
+        },
+        {
+          "id": "defy",
+          "label": "“I heard you. I go where I choose.”",
+          "text": "{catName}’s gaze hardens as you turn away.",
+          "summary": "You defied {catName}’s warning.",
+          "affinityIntent": "worsen"
+        }
+      ],
+      "hostileText": "{catName} rushes towards you before you can speak. You turn and run, the patrol close behind.",
+      "hostileSummary": "You fled a hostile Mistwood patrol."
+    }
+  ]
+}

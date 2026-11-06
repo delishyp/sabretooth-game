@@ -1,0 +1,361 @@
+{
+  "$comment": "Generated from docs/world-gen-spec.md §2 (slots: Tundra) + docs/lore/loners.json homeZones (Saga) by scripts/slice-data-from-specs.js. Display names are rolled per run (world-gen §3).",
+  "slots": [
+    {
+      "slot": "hc01",
+      "faction": "highcrag",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 36,
+      "storyRole": "Ashmane"
+    },
+    {
+      "slot": "hc02",
+      "faction": "highcrag",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 16,
+      "storyRole": "Stonebrow"
+    },
+    {
+      "slot": "hc03",
+      "faction": "highcrag",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 39,
+      "storyRole": null
+    },
+    {
+      "slot": "hc04",
+      "faction": "highcrag",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 12,
+      "storyRole": "Thistle"
+    },
+    {
+      "slot": "hc05",
+      "faction": "highcrag",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 24,
+      "storyRole": null
+    },
+    {
+      "slot": "hc06",
+      "faction": "highcrag",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 20,
+      "storyRole": null
+    },
+    {
+      "slot": "hc07",
+      "faction": "highcrag",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 31,
+      "storyRole": null
+    },
+    {
+      "slot": "hc08",
+      "faction": "highcrag",
+      "stage": "elder",
+      "sex": "female",
+      "ageSeasons": 51,
+      "storyRole": null
+    },
+    {
+      "slot": "hc09",
+      "faction": "highcrag",
+      "stage": "adolescent",
+      "sex": "male",
+      "ageSeasons": 8,
+      "storyRole": null
+    },
+    {
+      "slot": "hc10",
+      "faction": "highcrag",
+      "stage": "cub",
+      "sex": "female",
+      "ageSeasons": 3,
+      "storyRole": null
+    },
+    {
+      "slot": "hc11",
+      "faction": "highcrag",
+      "stage": "cub",
+      "sex": "male",
+      "ageSeasons": 0,
+      "storyRole": null
+    },
+    {
+      "slot": "bf01",
+      "faction": "bonefield",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 32,
+      "storyRole": "Scarjaw"
+    },
+    {
+      "slot": "bf02",
+      "faction": "bonefield",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 20,
+      "storyRole": "Redthroat"
+    },
+    {
+      "slot": "bf03",
+      "faction": "bonefield",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 24,
+      "storyRole": null
+    },
+    {
+      "slot": "bf04",
+      "faction": "bonefield",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 28,
+      "storyRole": null
+    },
+    {
+      "slot": "bf05",
+      "faction": "bonefield",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 23,
+      "storyRole": null
+    },
+    {
+      "slot": "bf06",
+      "faction": "bonefield",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 19,
+      "storyRole": null
+    },
+    {
+      "slot": "bf07",
+      "faction": "bonefield",
+      "stage": "elder",
+      "sex": "male",
+      "ageSeasons": 44,
+      "storyRole": null
+    },
+    {
+      "slot": "bf08",
+      "faction": "bonefield",
+      "stage": "adolescent",
+      "sex": "female",
+      "ageSeasons": 7,
+      "storyRole": null
+    },
+    {
+      "slot": "bf09",
+      "faction": "bonefield",
+      "stage": "cub",
+      "sex": "male",
+      "ageSeasons": 3,
+      "storyRole": null
+    },
+    {
+      "slot": "bf10",
+      "faction": "bonefield",
+      "stage": "cub",
+      "sex": "female",
+      "ageSeasons": 0,
+      "storyRole": null
+    },
+    {
+      "slot": "mw01",
+      "faction": "mistwood",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 39,
+      "storyRole": "Hollowsong"
+    },
+    {
+      "slot": "mw02",
+      "faction": "mistwood",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 36,
+      "storyRole": null
+    },
+    {
+      "slot": "mw03",
+      "faction": "mistwood",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 15,
+      "storyRole": null
+    },
+    {
+      "slot": "mw04",
+      "faction": "mistwood",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 27,
+      "storyRole": null
+    },
+    {
+      "slot": "mw05",
+      "faction": "mistwood",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 20,
+      "storyRole": null
+    },
+    {
+      "slot": "mw06",
+      "faction": "mistwood",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 16,
+      "storyRole": null
+    },
+    {
+      "slot": "mw07",
+      "faction": "mistwood",
+      "stage": "elder",
+      "sex": "female",
+      "ageSeasons": 55,
+      "storyRole": null
+    },
+    {
+      "slot": "mw08",
+      "faction": "mistwood",
+      "stage": "adolescent",
+      "sex": "male",
+      "ageSeasons": 8,
+      "storyRole": null
+    },
+    {
+      "slot": "mw09",
+      "faction": "mistwood",
+      "stage": "cub",
+      "sex": "female",
+      "ageSeasons": 0,
+      "storyRole": null
+    },
+    {
+      "slot": "ln01",
+      "faction": "loner",
+      "stage": "elder",
+      "sex": "male",
+      "ageSeasons": 52,
+      "storyRole": "Greymantle",
+      "homeZones": [
+        "split_rock",
+        "ice_wall"
+      ],
+      "lonerId": "greymantle"
+    },
+    {
+      "slot": "ln02",
+      "faction": "loner",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 15,
+      "storyRole": "Sorrel",
+      "homeZones": [
+        "greywater_ford",
+        "split_rock"
+      ],
+      "lonerId": "sorrel"
+    },
+    {
+      "slot": "ln03",
+      "faction": "loner",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 28,
+      "storyRole": "Torncheek",
+      "homeZones": [
+        "tar_seeps",
+        "bears_throat"
+      ],
+      "lonerId": "torncheek"
+    },
+    {
+      "slot": "ln04",
+      "faction": "loner",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 32,
+      "storyRole": "Nettle",
+      "homeZones": [
+        "bears_throat",
+        "split_rock"
+      ],
+      "lonerId": "nettle"
+    },
+    {
+      "slot": "ln05",
+      "faction": "loner",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 16,
+      "storyRole": "Duskrunner",
+      "homeZones": [
+        "ice_wall",
+        "split_rock"
+      ],
+      "lonerId": "duskrunner"
+    },
+    {
+      "slot": "ln06",
+      "faction": "loner",
+      "stage": "elder",
+      "sex": "female",
+      "ageSeasons": 48,
+      "storyRole": "Lichen",
+      "homeZones": [
+        "tar_seeps",
+        "drowned_mere"
+      ],
+      "lonerId": "lichen"
+    },
+    {
+      "slot": "ln07",
+      "faction": "loner",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 27,
+      "storyRole": "Ashfall",
+      "homeZones": [
+        "ash_hills",
+        "bears_throat"
+      ],
+      "lonerId": "ashfall"
+    },
+    {
+      "slot": "ln08",
+      "faction": "loner",
+      "stage": "adult",
+      "sex": "female",
+      "ageSeasons": 24,
+      "storyRole": "Sedge",
+      "homeZones": [
+        "drowned_mere"
+      ],
+      "lonerId": "sedge"
+    },
+    {
+      "slot": "ln09",
+      "faction": "loner",
+      "stage": "adult",
+      "sex": "male",
+      "ageSeasons": 20,
+      "storyRole": "Coldwater",
+      "homeZones": [
+        "drowned_mere",
+        "split_rock"
+      ],
+      "lonerId": "coldwater"
+    }
+  ]
+}
