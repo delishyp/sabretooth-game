@@ -1,4 +1,4 @@
-# Sabretooth: Region Map v1.0 DRAFT (Tundra, 2026-11-06)
+# Sabretooth: Region Map v1.0.1 DRAFT (Tundra, 2026-11-06)
 
 Owner: Tundra (rules and numbers). Code: Flint. Art / region polygons: Ochre. Flavour text: Saga.
 Status: **DRAFT for Anna.** Do not build the map engine until Anna approves the layout.
@@ -93,7 +93,7 @@ Tunable warmth offsets stack with needs-spec §1.5 season warmth.
 | `fog_paths` | Fog Paths | pinewood | mistwood | mistwood, west_spur, mere_shore, island_mere | 1 | 2 / 2 / 2 / 1 / 1 | lost_trail 3% | marsh / N | balanced |
 | `west_spur` | West Spur | pinewood | neutral | mistwood, fog_paths, island_mere, blue_caves | 1–2 | 2 / 2 / 2 / 2 / 1 | — (1%) | none / — | safe |
 | `drowned_mere` | The Drowned Mere | lakeshore | neutral§ | twin_forks, reedbank, mere_shore, island_mere, east_saddle | 1 | 2 / 3 / 2 / 1 / 1 | thin_ice 8% (spr), 2% (win on ice) | lake / Y | rich |
-| `mere_shore` | Mere Shore | lakeshore | mistwood | reedbank, mistwood, fog_paths, drowned_mere, island_mere | 1 | 2 / 3 / 3 / 2 / 1 | thin_ice 3% (spr) | lake / Y | balanced |
+| `mere_shore` | Mere Shore | lakeshore | neutral | reedbank, mistwood, fog_paths, drowned_mere, island_mere | 1 | 2 / 3 / 3 / 2 / 1 | thin_ice 3% (spr) | lake / Y | balanced |
 | `island_mere` | Island Mere | wetland | neutral | fog_paths, west_spur, drowned_mere, mere_shore | 1–2 | 2 / 3 / 2 / 2 / 1 | thin_ice 4% (spr), flood 2% | lake / Y | balanced |
 | `east_saddle` | East Saddle | alpine | neutral | north_pass, drowned_mere, claw_gorge, ash_hills | 2 | 1 / 2 / 2 / 1 / 0 | avalanche 3%, rockfall 2% | meltwater / Y | hardship |
 | `bears_throat` | The Bear's Throat | gorge | neutral | mistwood, claw_gorge, tar_seeps | 1 | 1 / 1 / 1 / 1 / 1 | bear 12%, rockfall 3% | none / — | deadly |
@@ -117,11 +117,11 @@ Notes on the table:
 |---|---|---|---|
 | Highcrag | `highcrag` | `highcrag`, `horse_meadows`, `upper_greywater`, `greywater_ford` (disputed) | Traditional, defensive. Won't expand fast. |
 | Bonefield | `bonefield` | `bonefield`, `herd_trail`, `tallgrass`; disputes `greywater_ford` | Aggressive expander toward ford and south_range. |
-| Mistwood | `mistwood` | `mistwood`, `fog_paths`, `reedbank`, `mere_shore` | Smallest; cautious; may abandon `mere_shore` if starving. |
-| Dire wolves (faction) | `ash_hills` | `ash_hills`, `wolf_run` | Not a playable pride. Pressure on `camel_ridge`, `south_range`, `tar_seeps`. Hook for later pack AI. |
+| Mistwood | `mistwood` | `mistwood`, `fog_paths`, `reedbank` | Smallest; cautious; `mere_shore` starts wild (lost in the Breaking), its first reclaim target. |
+| Dire wolves (faction) | `ash_hills` | `ash_hills`, `wolf_run` | Not a playable pride. Pressure on `camel_ridge`, `south_range`, `tar_seeps`. **v1: static holder, scent pressure + hazards only; never expands or retreats.** Pack AI later. |
 | Player start | — | none | Starts at **`split_rock`** as a loner (world-gen may override). |
 
-Neutral at start: `ice_wall`, `frost_tongue`, `blue_caves`, `wind_scree`, `north_pass`, `salt_flats`, `south_range`, `split_rock`, `twin_forks`, `west_spur`, `drowned_mere`, `island_mere`, `east_saddle`, `bears_throat`, `claw_gorge`, `tar_seeps`, `camel_ridge`.
+Neutral at start: `ice_wall`, `frost_tongue`, `blue_caves`, `wind_scree`, `north_pass`, `salt_flats`, `south_range`, `split_rock`, `twin_forks`, `west_spur`, `drowned_mere`, `mere_shore`, `island_mere`, `east_saddle`, `bears_throat`, `claw_gorge`, `tar_seeps`, `camel_ridge`.
 
 ---
 
@@ -312,10 +312,11 @@ Player may **Yield** a contested region: claim set to 0, rival +10, morale −10
 
 ### 9.6 AI expansion and retreat
 
-At season end, each AI pride (Highcrag, Bonefield, Mistwood) and the wolves faction:
+At season end, each AI pride (Highcrag, Bonefield, Mistwood). In v1 the wolves faction skips §9.6 entirely (`factions.wolves.activeAI: false`): its claims stay fixed, it never marks or abandons, and it acts only through hazards and scent pressure.
+
 
 1. Compute `foodNeed` = clamp( (mouths × 40 − store) / 40, 0, 3 ).
-2. If `foodNeed` ≥ 2 or `regionsHeld` < `targetRegions` (HC 4, BF 5, MW 3, wolves 2): consider expansion.
+2. If `foodNeed` ≥ 2 or `regionsHeld` < `targetRegions` (HC 4, BF 5, MW 4): consider expansion.
 3. Pick adjacent wild or weakly held region (enemy claim < 40) with highest `prey[season] − hazardPenalty`.
 4. If `prideStrength ≥ 0.9 × defenderStrength` (wild defenderStrength = 0; wolves use pack strength tunable 40): spend a mark (+25 claim) automatically.
 5. **Retreat:** if `foodNeed` ≤ 0 and a non-den held region has claim < 55 and hazardPenalty high, AI may drop claim to 0 (abandon) 25% of the season.
@@ -375,8 +376,8 @@ Until the player has founded a pride:
   "factions": [
     { "id": "highcrag", "kind": "pride", "coreDen": "highcrag", "targetRegions": 4, "expandEdge": 10 },
     { "id": "bonefield", "kind": "pride", "coreDen": "bonefield", "targetRegions": 5, "expandEdge": -10 },
-    { "id": "mistwood", "kind": "pride", "coreDen": "mistwood", "targetRegions": 3, "expandEdge": 5 },
-    { "id": "wolves", "kind": "pack", "coreDen": "ash_hills", "targetRegions": 2, "packStrength": 40 }
+    { "id": "mistwood", "kind": "pride", "coreDen": "mistwood", "targetRegions": 4, "expandEdge": 5 },
+    { "id": "wolves", "kind": "pack", "coreDen": "ash_hills", "targetRegions": 2, "packStrength": 40, "activeAI": false }
   ],
   "startClaims": [
     { "regionId": "highcrag", "prideId": "highcrag", "claim": 80 },
@@ -390,7 +391,6 @@ Until the player has founded a pride:
     { "regionId": "mistwood", "prideId": "mistwood", "claim": 80 },
     { "regionId": "fog_paths", "prideId": "mistwood", "claim": 70 },
     { "regionId": "reedbank", "prideId": "mistwood", "claim": 65 },
-    { "regionId": "mere_shore", "prideId": "mistwood", "claim": 55 },
     { "regionId": "ash_hills", "prideId": "wolves", "claim": 75 },
     { "regionId": "wolf_run", "prideId": "wolves", "claim": 70 }
   ],
@@ -472,17 +472,17 @@ After approval, Saga adds keys for the 20 new ids. Names in §4.1 are provisiona
 
 1. Fresh loner spring week at `split_rock`: expected hazard hits ≤ 1 in 20 days; trespass only if they walk into held land.
 2. Highcrag vs Bonefield at `greywater_ford`: remains contested ≥ 60% of spring seasons under AI-only play.
-3. Mistwood loses `mere_shore` within 4 seasons under Sim scarcity more often than Highcrag loses a core region.
+3. Mistwood reclaims `mere_shore` (claim ≥ holdMin) within 2 seasons in ≥ 50% of AI-only runs, unless the player or Bonefield contests it.
 4. Holding 6+ regions with 4 adults without patrols drops average claim below holdMin within 2 seasons.
 5. Summer camel expedition `split_rock` → `camel_ridge` is 3–4 days one way; wolf hazard on the ash legs is real but not a guaranteed death in Story.
 
 ---
 
-## 13. Open questions (Director / Anna)
+## 13. Resolved (Director, 2026-11-06)
 
-1. Is **30 regions** the right size, or should we push closer to 40 before Ochre paints?
-2. Should dire wolves be an active expanding faction in v1, or scent-pressure + hazard only until a later pack update?
-3. May Mistwood start with `mere_shore`, or should the Breaking leave that shore wild so reclaiming it is an early Mistwood story beat?
+1. 30 regions for v1. Data-driven, so we can grow it later.
+2. Dire wolves in v1: scent pressure + hazards only (`activeAI: false`). Active pack faction is a later update.
+3. `mere_shore` starts wild, contestable from day 1.
 
 ---
 
@@ -490,3 +490,4 @@ After approval, Saga adds keys for the 20 new ids. Names in §4.1 are provisiona
 
 - v0.1 (2026-11-06, Tundra): lean 10-zone draft; legacy Saga ids; basic travel, prey, danger, trespass.
 - v1.0 DRAFT (2026-11-06, Tundra): Anna's painted-map direction. 30 regions, 11 biomes, prey-by-season, hazard table, risk/reward tiers, full adjacency, dynamic territory contest (claim, upkeep, skirmish, AI expand/retreat), dataVersion + polygon/overlay contract, early-loner shield. Awaits Anna's approval before build/art.
+- v1.0.1 DRAFT (2026-11-06, Tundra): Director's calls applied. `mere_shore` starts neutral; MW targetRegions 4; wolves static in v1 (`activeAI: false`); balance target 3 rewritten.
