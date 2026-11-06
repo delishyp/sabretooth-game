@@ -239,7 +239,7 @@
   const preview = { token: 0, key: null, ms: null, drawn: [], skipped: [], pose: null, poses: new Map(), tints: new Map(), log: [], preloadMs: null };
   const creatorNames = () => (copy.creator && copy.creator.defaultNames) || [];
   const device = () => document.body.dataset.device || 'keyboard';
-  const creatorEnv = () => ({ names: creatorNames(), device: device() });
+  const creatorEnv = () => ({ names: creatorNames(), nameData: copy.nameData || null, device: device() });
   const optLabel = (row, id) => t(`creator.${row}.${id}`);
   // §3c rows: Left/Right Eye show eye names and reuse the Eyes help line; Odd Eyes has no help copy (Saga gave none), so none is shown.
   const valueOf = (c, id) => (id === 'eyeLeft' ? optLabel('eyes', c.eyes) : id === 'eyeRight' ? optLabel('eyes', c.eyeRight) : optLabel(id, c[id]));
@@ -278,7 +278,14 @@
       creatorDispatch('nameInput', before);
       if (inp.value !== creator.name) { inp.value = creator.name; const p = Math.max(0, Math.min(creator.name.length, pos - (before.length - creator.name.length))); inp.setSelectionRange(p, p); }
     });
-    ctl.append(inp);
+    // Anna bug 6: dice rerolls only the name (names.json). Saga has no label copy yet, so the aria-label/tooltip is a code-only string.
+    const dice = el('button', 'name-dice', '⚄'); dice.type = 'button'; dice.id = 'creator-name-dice';
+    dice.setAttribute('aria-label', 'Reroll name'); dice.title = 'Reroll name';
+    dice.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('rerollName'); });
+    dice.addEventListener('keydown', (ev) => {                  // keep Enter/Space on the dice (input.js would turn them into row actions)
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ev.stopPropagation(); creatorDispatch('rerollName'); }
+    });
+    ctl.append(inp, dice);
     row.append(head, ctl, el('p', 'crow-help'));
     return row;
   }
@@ -348,7 +355,8 @@
     // Real DOM focus: the Name field takes it so typing works; everything else focuses its control (never the text field).
     const target = c.focus === 'name' ? $('#creator-name')
       : $(`#creator-actions [data-cnav="${c.focus}"]`) || $(`#creator-panel [data-row="${c.focus}"] .crow-val`) || $(`#creator-panel [data-row="${c.focus}"] .arrow[data-arrow="1"]`);
-    if (target && document.activeElement !== target) target.focus({ preventScroll: true });
+    const onDice = c.focus === 'name' && document.activeElement && document.activeElement.id === 'creator-name-dice';
+    if (target && document.activeElement !== target && !onDice) target.focus({ preventScroll: true });
     fitActive();
   }
   /** Live preview (§2.1, §2.3): compositor.compose on poseFor(sex, 'adult'); redraws only when the look changes. */

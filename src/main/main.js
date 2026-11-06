@@ -154,6 +154,11 @@ function loadCopy() {
   c.sandboxPanel.options = visibleSandboxOptions(c.sandboxPanel.options).map((o) =>   // deferred toggles (freePerkRespec) don't render
     ({ ...o, default: SANDBOX_OPTIONS[o.id].default }));
   c.settingsDefaults = SETTINGS_DEFAULTS;
+  // Creator name dice (Anna bug 6): Saga's names megafile, full-name lists + the never-generate lists only.
+  try {
+    const n = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'renderer', 'data', 'names', 'names.json'), 'utf8'));
+    c.nameData = { male: n.male, female: n.female, either: n.either, reserved: n.reserved, blocklist: n.blocklist, maxLength: n.maxLength };
+  } catch (e) { log(`names.json unavailable: ${e.message}`); c.nameData = null; }
   return c;
 }
 

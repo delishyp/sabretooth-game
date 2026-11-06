@@ -342,6 +342,25 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await page.locator('[data-nav="begin"]').click(); await waitState(page, 'creator');
         await page.screenshot({ path: path.join(root, 'screenshots', 'creator-look.png') });
         let m = await model(page);
+        {                                                                                   // Anna bug 6: name dice (real mouse + keyboard)
+          const nd = require(path.join(root, 'src/renderer/data/names/names.json'));
+          const dice = page.locator('#creator-name-dice');
+          assert.strictEqual(await dice.getAttribute('aria-label'), 'Reroll name');
+          const bi = await dice.boundingBox(), ni = await page.locator('#creator-name').boundingBox();
+          assert.ok(bi && ni && Math.abs((bi.y + bi.height / 2) - (ni.y + ni.height / 2)) < 12 && bi.x > ni.x + ni.width - 2 && bi.x - (ni.x + ni.width) < 40, 'dice sits right of the Name field');
+          const same = (a, b) => JSON.stringify([a.sex, a.coat, a.markings, a.eyes, a.oddEyes, a.eyeRight, a.traits, a.preset, a.step]) === JSON.stringify([b.sex, b.coat, b.markings, b.eyes, b.oddEyes, b.eyeRight, b.traits, b.preset, b.step]);
+          for (let i = 0; i < 3; i++) {
+            const b = await model(page); await dice.click(); const a = await model(page);
+            const pool = [...(a.sex === 'female' ? nd.female : nd.male), ...nd.either];
+            assert.ok(pool.includes(a.name) && a.name !== b.name, `${b.name} → ${a.name}`); assert.ok(same(a, b), 'only the name changed');
+            assert.strictEqual(await page.locator('#creator-name').inputValue(), a.name);
+          }
+          await page.screenshot({ path: path.join(os.tmpdir(), 'sabretooth-name-dice.png') });
+          await dice.focus(); const b = await model(page); await page.keyboard.press('Enter'); const a = await model(page);
+          assert.ok(a.name !== b.name && same(a, b), 'keyboard Enter on the dice rerolls only the name');
+          assert.strictEqual(await page.evaluate(() => document.activeElement.id), 'creator-name-dice', 'focus stays on the dice');
+          m = await model(page);
+        }
         await page.locator('[data-row="coat"] .arrow[data-arrow="1"]').click();
         assert.strictEqual((await model(page)).coat, C.COATS[(C.COATS.indexOf(m.coat) + 1) % C.COATS.length]);
         await page.locator('[data-row="eyes"] .crow-val').click();

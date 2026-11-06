@@ -130,6 +130,18 @@
     return n;
   }
 
+  /**
+   * Name dice (Anna bug 6): a full name from Saga's megafile (`names.json`): the sex's list plus `either`, skipping `reserved` and
+   * `blocklist` (case-insensitive) and anything the name filter (§3.1) would change; never the current name. Compounds aren't rolled
+   * (how often to use them is Tundra's call). Returns '' when there's no data.
+   */
+  function namePool(nameData, sex) {
+    if (!nameData) return [];
+    const no = new Set([...(nameData.reserved || []), ...(nameData.blocklist || [])].map((x) => String(x).toLowerCase()));
+    const list = [...(sex === 'female' ? nameData.female || [] : nameData.male || []), ...(nameData.either || [])];
+    return list.filter((n) => typeof n === 'string' && !no.has(n.toLowerCase()) && sanitizeName(n).value === n && !sanitizeName(n).error);
+  }
+  function rollName(nameData, sex, rng = Math.random, avoid) { return randomName(namePool(nameData, sex), rng, avoid); }
   /** Fresh model on opening the creator (§3 defaults: random name, sex 50/50, coat/markings/eyes uniform; traits 50, Balanced). */
   /** On open the look is always common (§3.3–3.5 defaults); §3c rare looks come from the rows or Randomize. */
   function init({ names, difficulty, sandboxOptions, rng = Math.random } = {}) {
@@ -264,6 +276,9 @@
       st = id.startsWith('trait:') ? nudgeTrait(st, id.slice(6), dir) : cycleOption(st, id, dir); return out();
     }
     if (action === 'setTrait') { const { trait, value } = arg || {}; if (!TRAITS.includes(trait) || s.step !== 2) return out(); st = { ...setTrait(s, trait, value), focus: `trait:${trait}` }; return out(); }
+    if (action === 'rerollName') {                              // dice next to Name: only the name changes (focus, look, personality kept)
+      const n = rollName(env.nameData, s.sex, rng, s.name); if (n) st = { ...s, name: n, nameError: null }; return out();
+    }
     if (action === 'nameInput') { const r = sanitizeName(arg); st = { ...s, name: r.value, nameError: r.error }; return out(); }
 
     if (action === 'back') return s.step === 2 ? goStep(1, 'next') : out({ type: 'leave' });
@@ -299,7 +314,7 @@
     SEXES, COATS, RARE_COATS, COAT_GENES, MARKINGS, EYES, MARKING_ALLELE, EYE_ALLELE, OPTIONS, OFF_ON,
     RARE_LOOKS, RARE_CHANCE, rareAllowed, coatsFor, optionsFor, hasRare, coerceLook, rollLook,
     TRAITS, TRAIT_STEP, TRAIT_DEFAULT, RANGE_NORMAL, RANGE_FULL, PRESETS, PRESET_IDS, DEFAULT_PRESET, rangeFor,
-    NAME_MAX, sanitizeName, normalizeName, randomName,
+    NAME_MAX, sanitizeName, normalizeName, randomName, namePool, rollName,
     init, randomizeLook, randomizeTraits, applyPreset, nudgeTrait, setTrait, genesFor, buildMainCat,
     ROWS, BUTTONS, focusIds, reduce
   };

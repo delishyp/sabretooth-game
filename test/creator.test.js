@@ -294,3 +294,27 @@ test('§3c validation on Start: rare looks only with Sandbox + FC; odd eyes need
     [bad((m) => { m.genes.eyeRight = 'blue'; }), /eyeRight/], [bad((m) => { m.genes.loci.het = ['Het', 'het']; }), /het/],
     [bad((m) => { m.genes.loci.coat = ['leuc', 'melan']; }), /coat/], [bad((m) => { m.genes.loci.coat = ['melan', 'tawny']; }), /coat/]]) assert.throws(() => validateMainCat(m, SBX), re);
 });
+
+// ---- Anna bug 6: name dice ----
+const nameData = require('../src/renderer/data/names/names.json');
+test('name dice: rerolls only the name, from names.json (sex list + either, never reserved/blocklist)', () => {
+  const lower = (a) => new Set(a.map((x) => x.toLowerCase()));
+  const banned = lower([...nameData.reserved, ...nameData.blocklist]);
+  for (const sex of C.SEXES) {
+    const pool = new Set([...(sex === 'female' ? nameData.female : nameData.male), ...nameData.either]);
+    let s = { ...base({ sex, name: 'Mine', coat: 'black', markings: 'spotted', eyes: 'green', focus: 'name' }), traits: { aggression: 25, sociability: 30, boldness: 35, loyalty: 40, curiosity: 45 }, preset: 'custom' };
+    const e = env({ nameData, rng: seeded(sex === 'male' ? 1 : 2) });
+    for (let i = 0; i < 200; i++) {
+      const r = C.reduce(s, 'rerollName', undefined, e).state;
+      assert.ok(pool.has(r.name), r.name); assert.ok(!banned.has(r.name.toLowerCase()), r.name); assert.notStrictEqual(r.name, s.name);
+      assert.ok(r.name.length <= C.NAME_MAX && C.sanitizeName(r.name).error === null);
+      const { name: _a, nameError: _b, ...rest } = r; const { name: _c, nameError: _d, ...before } = s;
+      assert.deepStrictEqual(rest, before, 'nothing but the name changes');
+      s = r;
+    }
+  }
+  const step2 = { ...base({ name: 'Keep' }), step: 2, focus: 'trait:loyalty' };
+  const r2 = C.reduce(step2, 'rerollName', undefined, env({ nameData })).state;
+  assert.deepStrictEqual([r2.step, r2.focus], [2, 'trait:loyalty']);
+  assert.strictEqual(C.reduce(base({ name: 'Keep' }), 'rerollName', undefined, env({ nameData: null })).state.name, 'Keep');   // no data → no change
+});

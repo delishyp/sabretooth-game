@@ -112,6 +112,8 @@ button.primary { border-color: var(--accent); }
 .crow-help.error { color: var(--danger); }
 #creator-name { font: inherit; font-size: 24px; color: var(--ice); background: rgba(8, 16, 24, .7); border: 1px solid var(--panel-border); border-radius: 6px; padding: 6px 14px; width: 420px; min-height: 44px; }
 #creator-name:focus { outline: none; border-color: var(--accent); }
+.crow-ctl .name-dice { min-width: 48px; min-height: 44px; font-size: 30px; line-height: 1; padding: 2px 10px; }
+.crow-ctl .name-dice:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .crow.slider .crow-ctl .end { font-size: 17px; color: var(--ice); width: 116px; }
 .crow.slider .crow-ctl .end.low { text-align: right; }
 .crow.slider .track { position: relative; flex: 1; height: 14px; background: rgba(8, 16, 24, .8); border: 1px solid var(--panel-border); border-radius: 7px; cursor: pointer; }
