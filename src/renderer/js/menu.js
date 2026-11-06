@@ -391,12 +391,11 @@
       const t0 = performance.now();
       const look = (sex, coat, markings, eyes) => ({ sex, coat, markings, eyes, oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced } });
       const warm = async (a, s) => { await Compositor.compose(a.manifest, Creator.genesFor(s), composeOpts(a, document.createElement('canvas'))); await new Promise((r) => setTimeout(r, 0)); };
-      const poses = await Promise.all(Creator.SEXES.map((sex) => poseAssets(Compositor.poseFor(sex, 'adult'))));   // 1: load + decode both poses
-      for (let i = 0; i < poses.length; i++) await warm(poses[i], look(Creator.SEXES[i], 'tan', 'spotted', 'amber'));   // 2: fixed layers of each pose
-      for (let i = 0; i < poses.length; i++) {                                                                       // 3: every coat × marking, every eye
-        for (const coat of Creator.COATS) for (const markings of Creator.MARKINGS) { if (state === 'creator') break; await warm(poses[i], look(Creator.SEXES[i], coat, markings, 'amber')); }
-        for (const eyes of Creator.EYES) { if (state === 'creator') break; await warm(poses[i], look(Creator.SEXES[i], 'tan', 'none', eyes)); }
-      }
+      const pose = PortraitView.sharedPose(portraitReg);
+      const sheet = await poseAssets(pose);
+      await warm(sheet, look('female', 'tan', 'spotted', 'amber'));
+      for (const coat of Creator.COATS) for (const markings of Creator.MARKINGS) { if (state === 'creator') break; await warm(sheet, look('female', coat, markings, 'amber')); }
+      for (const eyes of Creator.EYES) { if (state === 'creator') break; await warm(sheet, look('female', 'tan', 'none', eyes)); }
       preview.preloadMs = performance.now() - t0;
     })().catch((e) => console.warn('portrait preload failed', e));
     return preloading;
@@ -406,12 +405,14 @@
     if (key === preview.key) return;
     preview.key = key; const token = ++preview.token; const t0 = performance.now();
     try {
-      const a = await poseAssets(Compositor.poseFor(c.sex, 'adult'));
+      const a = await poseAssets(PortraitView.sharedPose(portraitReg));
       const off = document.createElement('canvas');
       const res = await Compositor.compose(a.manifest, Creator.genesFor(c), composeOpts(a, off));
       if (token !== preview.token) return;
-      const cv = $('#creator-canvas'); cv.width = off.width; cv.height = off.height;
-      cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); cv.getContext('2d').drawImage(off, 0, 0);
+      const cv = $('#creator-canvas');
+      PortraitView.blitHead(off, cv, PortraitView.entryFor(portraitReg, null, c.sex).head);
+      cv._full = off;
+      const expand = $('#creator-expand'); if (expand) { expand.dataset.source = 'creator-canvas'; expand.dataset.name = Creator.normalizeName(c.name) || ''; }
       Object.assign(preview, { ms: performance.now() - t0, drawn: res.drawn, skipped: res.skipped, pose: a.pose, rendered: key });
       preview.log.push({ key, ms: preview.ms });
     } catch (e) {
@@ -596,12 +597,45 @@
 
   // ---------- slice 1 game (js/game-screen.js over js/slice.js) ----------
   /** NPC / player portrait: same compositor as the creator. spec = {genes, sex} (player) | {look, sex} (NPC: a common creator look). */
-  async function portrait(spec, canvas) {
-    const genes = spec.genes || Creator.genesFor({ oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced }, ...spec.look, sex: spec.sex });
-    const a = await poseAssets(Compositor.poseFor(spec.sex, 'adult'));
+  let portraitReg = PortraitView.parse(PortraitView.FALLBACK);
+  fetch('../../assets/portraits/registry.json').then((r) => r.ok ? r.json() : null).then((j) => { if (j) portraitReg = PortraitView.parse(j); }).catch(() => {});
+  async function portrait(spec, canvas, opts = {}) {
+    const id = spec && spec.portraitId;
+    const entry = PortraitView.entryFor(portraitReg, id, spec && spec.sex);
     const off = document.createElement('canvas');
-    await Compositor.compose(a.manifest, genes, composeOpts(a, off));
-    canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0);
+    if (entry.file) {
+      const img = new Image();
+      img.src = '../../assets/portraits/' + entry.file;
+      await img.decode();
+      off.width = img.naturalWidth; off.height = img.naturalHeight;
+      off.getContext('2d').drawImage(img, 0, 0);
+    } else {
+      const genes = spec.genes || Creator.genesFor({ oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced }, ...spec.look, sex: 'female' });
+      const a = await poseAssets(PortraitView.sharedPose(portraitReg));
+      await Compositor.compose(a.manifest, genes, composeOpts(a, off));
+    }
+    canvas._full = off;
+    if (opts.frame === 'head') PortraitView.blitHead(off, canvas, entry.head);
+    else { canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0); }
+  }
+  function openCatViewer(source, name) {
+    if (!source) return false;
+    const dest = $('#cat-viewer-canvas');
+    dest.width = source.width; dest.height = source.height;
+    dest.getContext('2d').drawImage(source, 0, 0);
+    $('#cat-viewer-name').textContent = name || '';
+    $('#cat-viewer').hidden = false;
+    const b = $('#cat-viewer-close');
+    $$('button.focused').forEach((x) => x.classList.remove('focused'));
+    b.classList.add('focused'); b.focus();
+    return true;
+  }
+  function closeCatViewer() {
+    const box = $('#cat-viewer');
+    if (!box || box.hidden) return false;
+    box.hidden = true;
+    if (state === 'game' && game) game.refocus();
+    return true;
   }
   /** Escape / Main menu: back to the root menu; the autosave after every action already holds the run (Flint call). */
   async function leaveGame() { await refreshSlots(); show('root', $('[data-action="continue"]')); }
@@ -671,11 +705,19 @@
     show('root', from ? $(`[data-action="${from}"]`) : null);
   }
   document.addEventListener('click', (ev) => {
-    const g = ev.target.closest('[data-g]'); if (g && game && !g.disabled) return game.onClick(g);
+    const g = ev.target.closest('[data-g]');
+    if (g && g.dataset.g === 'closeViewer') { closeCatViewer(); return; }
+    if (g && g.dataset.g === 'expandCat') {
+      const src = document.getElementById(g.dataset.source);
+      openCatViewer(src && src._full, g.dataset.name || '');
+      return;
+    }
+    if (g && game && !g.disabled) return game.onClick(g);
     const b = ev.target.closest('[data-action]'); if (b && ACTIONS[b.dataset.action]) ACTIONS[b.dataset.action]();
   });
 
   Input.on((a) => {
+    if (a === 'back' && closeCatViewer()) return;
     const el = current();
     if (!dialog && state === 'newGameSetup') return setupDispatch(a === 'start' ? 'confirm' : a);
     if (!dialog && state === 'creator') return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);

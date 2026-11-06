@@ -124,7 +124,11 @@ Owner: Saga. Replaces all 102 placeholder strings in `src/renderer/js/i18n.js`. 
     "home.you": "You",
     "home.noCats": "No other smilodons met yet.",
     "home.unavailableShort": "Unavailable",
-    "home.unavailable": "{section} is not available in this season."
+    "home.unavailable": "{section} is not available in this season.",
+    "portrait.expand": "Entire cat",
+    "portrait.close": "Close",
+    "portrait.full": "Entire cat",
+    "game.affinity": "Affinity {affinity}"
   }
 }
 ```

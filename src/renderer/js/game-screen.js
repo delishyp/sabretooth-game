@@ -88,7 +88,10 @@
       const cv = $('#home-cat');
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
       placeCat();
-      ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex }, cv).catch(() => {});
+      ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name }, cv).catch(() => {});
+      const head = $('#home-head');
+      if (head) ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name }, head, { frame: 'head' }).catch(() => {});
+      const expand = $('#home-expand'); if (expand) expand.dataset.name = s.cat.name;
       const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
       den.title = t('home.denTip'); wild.title = t('home.wildTip');
       den.classList.toggle('is-current', view === 'den');
@@ -126,13 +129,23 @@
         row(t('home.nav.pride'), (run && run.prideName) || '');
         row(t('home.you'), s.cat.name);
         row(t('creator.row.sex'), s.cat.sex === 'female' ? t('creator.sex.female') : t('creator.sex.male'));
+        for (const [id, rel] of Object.entries(s.prideRelation || {})) row(factionName(id), String(rel));
         p.append(dl);
       } else if (view === 'cats') {
         p.append(el('h2', 'home-panel-title', t('home.nav.cats')));
         const met = Object.values(s.npcs || {}).filter((n) => n.met);
         const ul = el('ul', 'home-cats');
-        ul.append(el('li', '', s.cat.name + ' · ' + t('home.you')));
-        for (const n of met) ul.append(el('li', '', n.name + ' · ' + factionName(n.faction)));
+        const player = el('li', 'met-cat');
+        player.append(el('span', '', s.cat.name + ' · ' + t('home.you')));
+        ul.append(player);
+        for (const n of met) {
+          const li = el('li', 'met-cat');
+          const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
+          ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});
+          li.append(mini, el('span', '', n.name + ' · ' + factionName(n.faction) + ' · ' + t('game.affinity', { affinity: n.affinity })));
+          li.append(btn(t('portrait.expand'), { g: 'expandCat', source: mini.id, name: n.name }, { cls: 'portrait-expand' }));
+          ul.append(li);
+        }
         p.append(ul);
         if (!met.length) p.append(el('p', 'home-empty', t('home.noCats')));
       }
@@ -201,9 +214,12 @@
       box.textContent = ''; const e = E.eventById(p.eventId);
       const card = el('div', 'event-card'); box.append(card);
       if (p.catId) {
-        const npc = s.npcs[p.catId]; const cv = el('canvas', 'event-portrait'); cv.width = 1152; cv.height = 864;
-        ctx.portrait({ look: npc.look, sex: npc.sex }, cv).catch(() => {});
-        card.append(cv, el('div', 'event-cat', npc.name));
+        const npc = s.npcs[p.catId];
+        const who = el('div', 'event-who');
+        const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
+        ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
+        who.append(cv, btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
+        card.append(who, el('div', 'event-cat', npc.name), el('p', 'event-affinity', t('game.affinity', { affinity: npc.affinity })));
       }
       card.append(el('h2', 'event-title', e.title));
       if (s.phase === 'event') {
@@ -221,7 +237,7 @@
       renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent();
       const evOpen = !$('#game-event').hidden;
       let target = null;
-      if (evOpen) target = [...$('#game-event').querySelectorAll('button')].find((b) => !b.disabled);
+      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
       else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
@@ -248,7 +264,19 @@
       if (d.g === 'menu' || d.g === 'summaryMenu') return ctx.leave();
     }
     /** Focus scope for keyboard/gamepad: the event card when open, else the whole game screen. */
-    const focusScope = () => (!$('#game-event').hidden ? $('#game-event') : null);
+    function refocus() {
+      if (!s || !$('#cat-viewer') || !$('#cat-viewer').hidden) return;
+      const evOpen = !$('#game-event').hidden;
+      const target = evOpen
+        ? [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="continue"]')].find((b) => !b.disabled)
+        : [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
+      ctx.focus(target || null);
+    }
+    const focusScope = () => {
+      const viewer = $('#cat-viewer');
+      if (viewer && !viewer.hidden) return viewer;
+      return (!$('#game-event').hidden ? $('#game-event') : null);
+    };
 
     // ---------- summary ----------
     function renderSummary() {
@@ -272,7 +300,7 @@
     }
 
     return {
-      E, start, resume, render, renderSummary, onClick, focusScope,
+      E, start, resume, render, renderSummary, onClick, focusScope, refocus,
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }

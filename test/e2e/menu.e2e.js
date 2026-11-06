@@ -229,7 +229,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         for (const sex of C.SEXES) for (const coat of C.COATS) for (const markings of C.MARKINGS) for (const eyes of C.EYES) {
           const p = await page.evaluate((l) => window.__menuDebug.creatorLook(l), { sex, coat, markings, eyes });
           assert.deepStrictEqual(p.skipped, [], `${sex} ${coat} ${markings} ${eyes}`);
-          assert.strictEqual(p.pose, `portrait-${sex}`);
+          assert.strictEqual(p.pose, 'portrait-female');
           const want = drawnFor(coat, markings);
           assert.deepStrictEqual(p.drawn, want); times.push(p.ms);
         }
@@ -252,7 +252,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         const look = { coat: m.coat, markings: m.markings, eyes: m.eyes };
         await press(page, 'ArrowRight'); const m2 = await model(page);
         assert.notStrictEqual(m2.sex, m.sex); assert.deepStrictEqual({ coat: m2.coat, markings: m2.markings, eyes: m2.eyes }, look);   // check 2
-        await page.waitForFunction((sx) => window.__menuDebug.creator().preview.pose === `portrait-${sx}`, m2.sex, { timeout: 2000 });
+        await page.waitForFunction((sx) => (window.__menuDebug.creator().preview.rendered || '').startsWith(sx + '|'), m2.sex, { timeout: 2000 });
         await press(page, 'ArrowDown', 'ArrowRight');                                  // Coat cycles
         assert.strictEqual((await model(page)).coat, C.COATS[(C.COATS.indexOf(look.coat) + 1) % C.COATS.length]);
         await press(page, 'ArrowDown', 'ArrowDown', 'ArrowDown');                       // markings, eyes, button row (Next)

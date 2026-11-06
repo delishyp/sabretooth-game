@@ -1,0 +1,5 @@
+{
+  "sharedPose": "portrait-female",
+  "defaultHead": { "x": 0.66, "y": 0.02, "w": 0.33, "h": 0.46 },
+  "portraits": []
+}
