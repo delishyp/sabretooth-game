@@ -263,7 +263,8 @@
 
   function openCreator(effect) {
     pendingSetup = { style: effect.style, difficulty: effect.difficulty, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
-    creator = Creator.init({ names: creatorNames(), difficulty: effect.difficulty, sandboxOptions: effect.sandboxOptions });
+    const ids = portraits.registry().portraits.map((p) => p.id);
+    creator = Creator.init({ names: creatorNames(), difficulty: effect.difficulty, sandboxOptions: effect.sandboxOptions, portraitIds: ids });
     starting = false; preview.key = null;
     show('creator');
   }
@@ -344,6 +345,16 @@
       } else if (id === 'preset') {
         row.querySelector('.crow-val').textContent = t(`creator.preset.${c.preset}`);
         help.textContent = t(`creator.preset.${c.preset}.desc`);
+      } else if (id === 'portrait') {
+        const entry = PortraitView.entryFor(portraitReg, c.portraitId);
+        const label = entry.sourceLabel || c.portraitId || '';
+        const eye = entry.eyeLabel || 'unknown';
+        const val = row.querySelector('.crow-val');
+        val.textContent = label;
+        val.title = `${label} · ${eye} · ${c.portraitId || ''}`;
+        val.setAttribute('aria-label', val.title);
+        help.textContent = t('creator.help.portrait');
+        row.querySelector('.rare-tag').hidden = true;
       } else if (id.startsWith('trait:')) {
         const k = id.slice(6); const v = c.traits[k];
         row.querySelector('.sval').textContent = String(v);
@@ -421,6 +432,8 @@
         preview.log.push({ key, ms: preview.ms });
         return;
       }
+      // Drop any earlier registered paint before the runtime draw, so a registry reload cannot put that cat back.
+      paintJobs.set(cv, { spec: { portraitId: null, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, opts: { frame: 'head' } });
       const a = await poseAssets(PortraitView.sharedPose(portraitReg));
       const off = document.createElement('canvas');
       const res = await Compositor.compose(a.manifest, Creator.genesFor(c), composeOpts(a, off));
@@ -623,12 +636,23 @@
   let portraitReg = portraits.registry();
   const paintJobs = new Map();
   function repaintPortraits() {
-    for (const [canvas, job] of paintJobs) { if (canvas && canvas.isConnected) paintPortrait(job.spec, canvas, job.opts); }
+    for (const [canvas, job] of paintJobs) {
+      if (!canvas || !canvas.isConnected) continue;
+      let spec = job.spec;
+      if (canvas.id === 'creator-canvas' && creator) spec = { ...spec, portraitId: creator.portraitId || null, sex: creator.sex, name: creator.name, look: creator, genes: Creator.genesFor(creator) };
+      paintPortrait(spec, canvas, job.opts);
+    }
   }
   fetch('../../assets/portraits/registry.json').then((r) => r.ok ? r.json() : null).then((j) => {
     if (!j) return;
     const adopted = portraits.adopt(j);
     portraitReg = portraits.registry();
+    const ids = portraitReg.portraits.map((p) => p.id);
+    if (adopted.ok && creator && ids.length && !creator.staticArt) {
+      creator = Creator.coerceLook({ ...creator, staticArt: true, portraitIds: ids, portraitId: ids.includes(creator.portraitId) ? creator.portraitId : ids[0] });
+      preview.key = '';
+      if (state === 'creator') applyCreator();
+    }
     if (adopted.ok) repaintPortraits();
   }).catch(() => {});
   async function paintRuntime(spec, off) {
@@ -808,7 +832,11 @@
     }
     const el = current();
     if (!dialog && state === 'newGameSetup') return setupDispatch(a === 'start' ? 'confirm' : a);
-    if (!dialog && state === 'creator') return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);
+    if (!dialog && state === 'creator') {
+      const live = document.activeElement;
+      if ((a === 'confirm' || a === 'start') && live && live.dataset && live.dataset.g === 'expandCat') { live.click(); return; }
+      return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);
+    }
     if (a === 'up') return move(-1);
     if (a === 'down') { if (state === 'credits') fastScroll = true; return move(1); }
     if (a === 'left' || a === 'right') {

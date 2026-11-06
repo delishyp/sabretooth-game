@@ -112,6 +112,7 @@ button.primary { border-color: var(--accent); }
 .crow-ctl button { min-height: 44px; font-size: 22px; padding: 4px 16px; }
 .crow-ctl button.focused, .crow-ctl button:focus-visible { outline: none; background: var(--panel); }
 .crow-ctl .crow-val { min-width: 300px; text-align: center; color: var(--accent); }
+.crow[data-row="portrait"] .crow-val { max-width: 460px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .crow-ctl .arrow { min-width: 48px; }
 .crow-ctl .rare-tag { font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 1px 6px; opacity: .85; }
 .crow-ctl .rare-tag[hidden] { display: none; }

@@ -31,6 +31,36 @@ test('mainCat: spec §5.2–5.4 shape, homozygous chosen loci, fixed defaults, p
   });
   assert.doesNotThrow(() => validateMainCat(m, { difficulty: 'heir' }));
 });
+test('static pictures: the picker lists every id for either sex, and coat controls stay off that screen', () => {
+  const ids = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '../assets/portraits/registry.json'), 'utf8')).portraits.map((p) => p.id);
+  assert.strictEqual(ids.length, 40);
+  let s = C.init({ names, rng: seeded(4), portraitIds: ids });
+  assert.strictEqual(s.staticArt, true);
+  assert.ok(ids.includes(s.portraitId));
+  assert.deepStrictEqual(C.ROWS(s), ['name', 'sex', 'portrait']);
+  const seen = new Set([s.portraitId]);
+  for (let i = 0; i < ids.length; i++) { s = C.reduce(s, 'arrow', { id: 'portrait', dir: 1 }).state; seen.add(s.portraitId); }
+  assert.strictEqual(seen.size, 40);
+  const name = s.name; const sex = s.sex; const coat = s.coat; const picture = s.portraitId;
+  s = C.reduce(s, 'arrow', { id: 'sex', dir: 1 }).state;
+  assert.notStrictEqual(s.sex, sex);
+  assert.strictEqual(s.portraitId, picture);
+  assert.strictEqual(s.coat, coat);
+  const nameData = require('../src/renderer/data/names/names.json');
+  s = C.reduce(s, 'rerollName', undefined, env({ nameData })).state;
+  assert.notStrictEqual(s.name, name);
+  assert.strictEqual(s.portraitId, picture);
+  const before = s.portraitId; const keptName = s.name;
+  s = C.reduce(s, 'click', 'randomize', { rng: seeded(11) }).state;
+  assert.notStrictEqual(s.portraitId, before);
+  assert.ok(ids.includes(s.portraitId));
+  assert.strictEqual(s.name, keptName);
+  const male = C.buildMainCat({ ...s, sex: 'male' }, { newId: () => 'cat_m' });
+  const female = C.buildMainCat({ ...s, sex: 'female' }, { newId: () => 'cat_f' });
+  assert.strictEqual(male.portraitId, female.portraitId);
+  assert.strictEqual(male.portraitId, s.portraitId);
+  assert.doesNotThrow(() => validateMainCat(male, { difficulty: 'permadeath' }));
+});
 test('portrait id is not a gene: coat changes keep it, randomize keeps it, a bad id becomes null', () => {
   const id = 'cat-6e2d788dd48ff440';
   let s = base({ portraitId: id, coat: 'tan', focus: 'coat' });

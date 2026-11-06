@@ -79,12 +79,20 @@
   function coerceLook(s, rng = Math.random) {
     let st = s;
     if (st.portraitId != null && (typeof st.portraitId !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(st.portraitId))) st = { ...st, portraitId: null };
+    if (st.staticArt) {
+      const ids = Array.isArray(st.portraitIds) ? st.portraitIds : [];
+      if (!ids.includes(st.portraitId)) st = { ...st, portraitId: ids[0] || null };
+    }
     if (!st.rare && hasRare(st)) st = { ...st, coat: RARE_COATS.includes(st.coat) ? pick(COATS, rng) : st.coat, oddEyes: 'off', eyeRight: null };
     if (!COATS.includes(st.coat) && !(st.rare && RARE_COATS.includes(st.coat))) st = { ...st, coat: pick(COATS, rng) };
     if (st.oddEyes === 'on') { if (!EYES.includes(st.eyeRight) || st.eyeRight === st.eyes) st = { ...st, eyeRight: nextOtherEye(st.eyes) }; }
     else if (st.oddEyes !== 'off' || st.eyeRight !== null) st = { ...st, oddEyes: 'off', eyeRight: null };
     const ids = focusIds(st);
-    if (!ids.includes(st.focus)) st = { ...st, focus: st.focus === 'eyeLeft' || st.focus === 'eyeRight' ? 'eyes' : st.focus === 'eyes' && ids.includes('eyeLeft') ? 'eyeLeft' : ROWS(st)[0] };
+    if (!ids.includes(st.focus)) {
+      const eyeRow = ids.includes('eyes') ? 'eyes' : (ids.includes('portrait') ? 'portrait' : ROWS(st)[0]);
+      const focus = (st.focus === 'eyeLeft' || st.focus === 'eyeRight') ? eyeRow : (st.focus === 'eyes' && ids.includes('eyeLeft') ? 'eyeLeft' : ROWS(st)[0]);
+      st = { ...st, focus: ids.includes(focus) ? focus : ROWS(st)[0] };
+    }
     return st;
   }
 
@@ -145,14 +153,17 @@
   function rollName(nameData, sex, rng = Math.random, avoid) { return randomName(namePool(nameData, sex), rng, avoid); }
   /** Fresh model on opening the creator (§3 defaults: random name, sex 50/50, coat/markings/eyes uniform; traits 50, Balanced). */
   /** On open the look is always common (§3.3–3.5 defaults); §3c rare looks come from the rows or Randomize. */
-  function init({ names, difficulty, sandboxOptions, rng = Math.random } = {}) {
-    return {
+  function init({ names, difficulty, sandboxOptions, rng = Math.random, portraitIds = null } = {}) {
+    const ids = Array.isArray(portraitIds) ? portraitIds.filter((id) => typeof id === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(id)) : [];
+    const base = {
       step: 1, focus: 'name', name: randomName(names, rng), sex: pick(SEXES, rng),
       coat: pick(COATS, rng), markings: pick(MARKINGS, rng), eyes: pick(EYES, rng), oddEyes: 'off', eyeRight: null,
       portraitId: null,
       rare: rareAllowed(difficulty, sandboxOptions),
       traits: { ...PRESETS[DEFAULT_PRESET] }, preset: DEFAULT_PRESET, range: rangeFor(difficulty, sandboxOptions), nameError: null
     };
+    if (!ids.length) return base;
+    return { ...base, staticArt: true, portraitIds: ids, portraitId: pick(ids, rng) };
   }
 
   /**
@@ -173,7 +184,12 @@
   function randomizeLook(s, rng = Math.random) {
     let look;
     do { look = rollLook(s.rare, rng); } while (sameLook(look, s));
-    return coerceLook({ ...s, ...look }, rng);
+    let portraitId = s.portraitId;
+    if (s.staticArt && Array.isArray(s.portraitIds) && s.portraitIds.length > 1) {
+      const choices = s.portraitIds.filter((id) => id !== s.portraitId);
+      portraitId = pick(choices, rng);
+    }
+    return coerceLook({ ...s, ...look, portraitId }, rng);
   }
   /** §3b.5: reroll only the five traits from Normal(50, 15), nearest 5, clamped to the range; Preset shows custom. */
   function randomizeTraits(s, rng = Math.random) {
@@ -193,6 +209,13 @@
     return { ...s, traits: { ...s.traits, [trait]: v }, preset: 'custom' };
   }
   function cycleOption(s, row, dir) {
+    if (row === 'portrait') {
+      const list = s.portraitIds || [];
+      if (!list.length) return s;
+      const i = list.indexOf(s.portraitId);
+      const v = list[((i < 0 ? (dir > 0 ? -1 : 0) : i) + dir + list.length) % list.length];
+      return { ...s, portraitId: v };
+    }
     if (row === 'preset') {
       const i = PRESET_IDS.indexOf(s.preset);   // custom → right lands on the first preset, left on the last
       const j = i < 0 ? (dir > 0 ? 0 : PRESET_IDS.length - 1) : (i + dir + PRESET_IDS.length) % PRESET_IDS.length;
@@ -240,6 +263,7 @@
   function ROWS(s) {
     const st = typeof s === 'object' ? s : { step: s };
     if (st.step === 2) return ['preset', ...TRAITS.map((k) => `trait:${k}`)];
+    if (st.staticArt) return ['name', 'sex', 'portrait'];
     const eyes = st.rare && st.oddEyes === 'on' ? ['eyeLeft', 'eyeRight'] : ['eyes'];
     return ['name', 'sex', 'coat', 'markings', ...eyes, ...(st.rare ? ['oddEyes'] : [])];
   }

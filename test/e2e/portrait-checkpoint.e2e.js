@@ -118,25 +118,66 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       assert.strictEqual(await page.evaluate(() => window.__menuDebug.state().state), 'creator');
       assert.strictEqual(await page.evaluate(() => document.activeElement.id), 'creator-expand');
       assert.strictEqual((await page.evaluate(() => window.__menuDebug.creator().model.name)), before.name);
+      await page.locator('#creator-name').focus();
+      const held = await page.evaluate(() => window.__menuDebug.creator().model);
+      await page.keyboard.press('Shift+Tab');
+      assert.strictEqual(await page.evaluate(() => document.activeElement.id), 'creator-expand');
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(() => document.getElementById('cat-viewer') && !document.getElementById('cat-viewer').hidden);
+      const afterKeys = await page.evaluate(() => window.__menuDebug.creator().model);
+      assert.strictEqual(afterKeys.coat, held.coat);
+      assert.strictEqual(afterKeys.portraitId, held.portraitId);
+      assert.strictEqual(afterKeys.name, held.name);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.getElementById('cat-viewer').hidden);
+    });
+
+    await check('clearing a portrait id stays cleared after the registry reloads', async () => {
+      await page.waitForFunction(() => document.getElementById('creator-canvas').dataset.runtime === '0', null, { timeout: 8000 });
+      const shown = await page.evaluate(() => document.getElementById('creator-canvas')._full.width);
+      await page.evaluate(() => window.__menuDebug.setPortraitId(null));
+      await page.waitForFunction(() => document.getElementById('creator-canvas').dataset.runtime === '1', null, { timeout: 8000 });
+      await page.evaluate(async () => {
+        const raw = await (await fetch('../../assets/portraits/registry.json')).json();
+        window.__menuDebug.adoptRegistry(raw);
+      });
+      await page.waitForTimeout(400);
+      const cleared = await page.evaluate(() => ({
+        id: window.__menuDebug.creator().model.portraitId,
+        shown: document.getElementById('creator-canvas').dataset.portraitId,
+        runtime: document.getElementById('creator-canvas').dataset.runtime,
+        width: document.getElementById('creator-canvas')._full && document.getElementById('creator-canvas')._full.width
+      }));
+      assert.strictEqual(cleared.id, null);
+      assert.strictEqual(cleared.shown, '');
+      assert.strictEqual(cleared.runtime, '1');
+      assert.notStrictEqual(cleared.width, shown);
+      await page.locator('[data-row="portrait"] .arrow[data-arrow="1"]').click();
+      await page.waitForFunction(() => document.getElementById('creator-canvas').dataset.runtime === '0', null, { timeout: 8000 });
     });
 
     await check('the same registered id survives creator, header, meeting, list, viewer, save and Continue', async () => {
-      const painted = await page.evaluate((id) => window.__menuDebug.setPortraitId(id), ID);
-      assert.strictEqual(painted.portraitId, ID);
-      assert.strictEqual(painted.canvas, ID);
-      await page.waitForFunction((id) => document.getElementById('creator-canvas')._portraitId === id, ID);
+      const chosen = await page.evaluate(() => window.__menuDebug.creator().model.portraitId);
+      assert.match(chosen, /^cat-[a-z0-9]+$/);
+      await page.waitForFunction((id) => document.getElementById('creator-canvas')._portraitId === id, chosen);
+      const expectSize = await page.evaluate((id) => { const e = window.__menuDebug.portraitOf(id); return { w: e.width, h: e.height }; }, chosen);
       const full = await page.evaluate(() => ({ w: document.getElementById('creator-canvas')._full.width, h: document.getElementById('creator-canvas')._full.height }));
-      assert.deepStrictEqual(full, { w: 1448, h: 1086 });
+      assert.deepStrictEqual(full, expectSize);
       const sexSame = await page.evaluate((id) => {
         const m = window.__menuDebug.portraitOf(id, 'male');
         const f = window.__menuDebug.portraitOf(id, 'female');
         return m.file === f.file && m.id === id;
-      }, ID);
+      }, chosen);
       assert.strictEqual(sexSame, true);
+      const resize = async (w, h) => { await app.evaluate(({ BrowserWindow }, s) => BrowserWindow.getAllWindows()[0].setContentSize(s.w, s.h), { w, h }); await page.waitForTimeout(250); };
+      await resize(1920, 1080);
       await shot(page, 'checkpoint-creator-head.png');
-      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter');
+      await resize(1280, 720);
+      await shot(page, 'checkpoint-creator-head-720.png');
+      await page.locator('[data-cnav="next"]').click();
+      await page.locator('[data-cnav="start"]').click();
       await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
-      await page.waitForFunction((id) => document.getElementById('home-head').dataset.portraitId === id, ID, { timeout: 8000 });
+      await page.waitForFunction((id) => document.getElementById('home-head').dataset.portraitId === id, chosen, { timeout: 8000 });
       assert.strictEqual(await page.evaluate(() => document.body.classList.contains('menu-hidden')), true);
       assert.strictEqual(await page.evaluate(() => getComputedStyle(document.getElementById('snow')).display), 'none');
       const day0 = await page.evaluate(() => window.__menuDebug.game().state.day);
@@ -150,17 +191,23 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       assert.strictEqual(await page.evaluate(() => window.__menuDebug.state().state), 'game');
       assert.strictEqual(await page.evaluate(() => window.__menuDebug.game().state.day), day0);
 
-      const meeting = await page.evaluate((id) => { window.__menuDebug.assignPortrait('hc01', id); return window.__menuDebug.forceMeeting('hc01'); }, ID);
+      const meeting = await page.evaluate((id) => { window.__menuDebug.assignPortrait('hc01', id); return window.__menuDebug.forceMeeting('hc01'); }, chosen);
       assert.strictEqual(meeting.choiceId, null);
-      await page.waitForFunction((id) => { const c = document.getElementById('event-head'); return c && c.dataset.portraitId === id; }, ID, { timeout: 8000 });
+      await page.waitForFunction((id) => { const c = document.getElementById('event-head'); return c && c.dataset.portraitId === id; }, chosen, { timeout: 8000 });
       const choices = await page.locator('#game-event [data-g="choose"]').evaluateAll((els) => els.map((e) => e.dataset.choice));
       assert.deepStrictEqual(choices, ['introduce', 'withdraw', 'dismiss']);
+      await resize(1920, 1080);
       await shot(page, 'checkpoint-event-head.png');
+      await resize(1280, 720);
+      await shot(page, 'checkpoint-event-head-720.png');
       await page.locator('#game-event [data-g="expandCat"]').click();
       await page.waitForFunction(() => document.activeElement.id === 'cat-viewer-close');
       const viewerSize = await page.evaluate(() => ({ w: document.getElementById('cat-viewer-canvas').width, h: document.getElementById('cat-viewer-canvas').height }));
-      assert.deepStrictEqual(viewerSize, { w: 1448, h: 1086 });
+      assert.deepStrictEqual(viewerSize, expectSize);
+      await resize(1920, 1080);
       await shot(page, 'checkpoint-event-full.png');
+      await resize(1280, 720);
+      await shot(page, 'checkpoint-event-full-720.png');
       for (const key of ['Tab', 'ArrowDown', 'Enter']) await page.keyboard.press(key);
       await page.waitForFunction(() => document.getElementById('cat-viewer').hidden);
       const held = await page.evaluate(() => { const s = window.__menuDebug.game().state; return { phase: s.phase, choice: s.pending.choiceId, affinity: s.npcs.hc01.affinity, day: s.day, seed: s.seed }; });
@@ -181,7 +228,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       assert.strictEqual(await page.evaluate(() => window.__menuDebug.game().state.npcs.hc01.affinity), meeting.affinity + 5);
 
       await page.locator('[data-view="cats"]').click();
-      await page.waitForFunction((id) => { const c = document.getElementById('met-hc01'); return c && c.dataset.portraitId === id; }, ID, { timeout: 8000 });
+      await page.waitForFunction((id) => { const c = document.getElementById('met-hc01'); return c && c.dataset.portraitId === id; }, chosen, { timeout: 8000 });
       await page.locator('[data-source="met-hc01"]').click();
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => document.activeElement && document.activeElement.dataset.source === 'met-hc01');
@@ -189,18 +236,18 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
 
       const autoPath = path.join(ud, 'saves', 'run-0', 'save-0', 'game.json');
       for (let i = 0; i < 25 && !fs.existsSync(autoPath); i++) await page.waitForTimeout(200);
-      assert.strictEqual(JSON.parse(fs.readFileSync(autoPath, 'utf8')).cat.portraitId, ID);
+      assert.strictEqual(JSON.parse(fs.readFileSync(autoPath, 'utf8')).cat.portraitId, chosen);
       await page.locator('[data-g="save"]').click();
       const manualPath = path.join(ud, 'saves', 'run-0', 'save-1', 'game.json');
       for (let i = 0; i < 25 && !fs.existsSync(manualPath); i++) await page.waitForTimeout(200);
-      assert.strictEqual(JSON.parse(fs.readFileSync(manualPath, 'utf8')).cat.portraitId, ID);
+      assert.strictEqual(JSON.parse(fs.readFileSync(manualPath, 'utf8')).cat.portraitId, chosen);
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => window.__menuDebug.state().state === 'root');
       assert.strictEqual(await page.evaluate(() => document.body.classList.contains('menu-hidden')), false);
       await page.keyboard.press('Enter');
       await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
-      await page.waitForFunction((id) => document.getElementById('home-head').dataset.portraitId === id, ID, { timeout: 8000 });
-      assert.strictEqual(await page.evaluate(() => window.__menuDebug.game().state.cat.portraitId), ID);
+      await page.waitForFunction((id) => document.getElementById('home-head').dataset.portraitId === id, chosen, { timeout: 8000 });
+      assert.strictEqual(await page.evaluate(() => window.__menuDebug.game().state.cat.portraitId), chosen);
 
       const legacy = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__menuDebug.game().state)); delete s.cat.portraitId; s.npcs.hc01.portraitId = 'Not A Cat'; return s; });
       await page.evaluate((s) => window.__menuDebug.reloadGame(s), legacy);

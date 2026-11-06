@@ -393,7 +393,9 @@ Decisions:
 
     "creator.help.name": "What the valley will call you.",
     "creator.help.nameGamepad": "Press A for another name.",
-    "creator.help.sex": "Your coat, markings and eyes stay the same.",
+    "creator.help.sex": "Either sex can use every picture.",
+    "creator.row.portrait": "Picture",
+    "creator.help.portrait": "One of the supplied pictures. Coat and eyes do not choose it.",
     "creator.help.coat": "The colour of your fur.",
     "creator.help.markings": "The pattern over your coat, if any.",
     "creator.help.eyes": "The first thing your rivals will see.",
@@ -438,7 +440,7 @@ Decisions:
     "creator.name.reroll": "Randomize name",
 
     "creator.randomize": "Randomize",
-    "creator.help.randomize": "New coat, markings and eyes. Your name, sex and personality stay.",
+    "creator.help.randomize": "A new picture. Your name, sex and personality stay.",
     "creator.help.randomizePersonality": "Rerolls personality only. Your look and name stay.",
     "creator.next": "Next",
     "creator.start": "Start",
