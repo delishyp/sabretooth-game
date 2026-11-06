@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sabretooth — appearance preview</title>
+<style>
+  :root { color-scheme: dark; --bg: #10161c; --panel: #1a242e; --line: #314556; --text: #e7eef4; --muted: #9aafc0; --warn: #e2c48a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100vh; background: var(--bg); color: var(--text); font: 15px/1.45 "Segoe UI", system-ui, sans-serif; }
+  #stage { min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 18px;
+    background-color: #f4f7f8;
+    background-image: linear-gradient(45deg, #d7a3c4 25%, transparent 25%), linear-gradient(-45deg, #d7a3c4 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d7a3c4 75%), linear-gradient(-45deg, transparent 75%, #d7a3c4 75%);
+    background-size: 12px 12px; background-position: 0 0, 0 6px, 6px -6px, -6px 0; }
+  canvas { display: block; background: transparent; }
+  aside { background: var(--panel); border-left: 1px solid var(--line); padding: 18px 18px 28px; overflow: auto; }
+  h1 { font-size: 18px; font-weight: 650; margin: 0 0 8px; }
+  h2 { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+  p { margin: 0 0 10px; }
+  .eyebrow { color: var(--warn); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 6px; }
+  .muted { color: var(--muted); }
+  #hash-readout { font: 12px/1.4 ui-monospace, monospace; word-break: break-all; }
+  label { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+  select { font: inherit; color: var(--text); background: #0e1620; border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; }
+  select:disabled { color: #b8a07a; }
+  .slot-note { color: var(--muted); font-size: 12px; margin: 4px 0 0; }
+  ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  li { margin: 0 0 6px; }
+  #err { color: #ffb4a8; min-height: 1.2em; }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="view" role="img" aria-label="Unchanged master sabretooth. Eye and nose holes are transparent."></canvas>
+  </div>
+  <aside>
+    <p class="eyebrow">Development preview</p>
+    <h1>Modular appearance</h1>
+    <p class="muted">Separate from the creator, saves, and gameplay. No recolor, and no generated eyes, noses, or patterns.</p>
+    <p id="canvas-readout">Loading native canvas…</p>
+    <p id="fit-readout" class="muted">Measuring display scale…</p>
+    <p id="hash-readout" class="muted"></p>
+    <div id="slot-coat"></div>
+    <div id="slot-pattern"></div>
+    <div id="slot-eyes"></div>
+    <div id="slot-nose"></div>
+    <h2>Compositor</h2>
+    <ul>
+      <li>Stack, bottom to top: eyes, nose, coat, pattern.</li>
+      <li>Straight alpha, one source-over pass. Masks are luminance, not PNG alpha.</li>
+      <li>The body mask is not applied. It equals the master alpha and includes teeth and claws, so it is not a fur-only tint.</li>
+      <li>Eye and nose art, once a PNG is registered, is confined to the eye/nose luminance and drawn behind the coat.</li>
+      <li>Default draws the locked master only. Holes stay transparent. The checkerboard is the page behind the bitmap.</li>
+    </ul>
+    <p id="err" role="alert"></p>
+  </aside>
+  <script src="js/png-decode.js"></script>
+  <script src="js/appearance-render.js"></script>
+  <script src="js/appearance-preview.js"></script>
+</body>
+</html>

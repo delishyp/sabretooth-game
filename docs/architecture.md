@@ -63,6 +63,9 @@ different colour, else right = left; genomes without `het` resolve to matching e
 `loadPoseManifest` falls back to the adult pose with a warning when that folder/manifest is missing. Assets: `assets/portraits/<pose>/` (see its README;
 current files are placeholders from `scripts/gen-placeholder-portraits.py`). Dev renders: `npx electron scripts/render-portrait.js` → `screenshots/portrait-*.png`.
 
+## Appearance preview (development only)
+`src/renderer/js/appearance-render.js` composites same-canvas PNGs from `assets/appearance/registry.json`. It is not called by the creator, saves, gameplay, or `compositor.js`, and it does not read genetics. The locked set (`ASSET-LOCK.json`) is 1448×1086: `master/master.png` RGBA, `body-mask.png` and `eye-nose-mask.png` grayscale L. The default selection draws the master bytes unchanged, so the existing eye/nose holes stay transparent. Coat and pattern are independent registry slots; only `master` and `none` are registered. Eyes and nose have no artwork and are unavailable. Mask coverage is luminance, not the opaque alpha a mode-L PNG gets in canvas. The body mask is not applied: it is byte-identical to the master alpha and includes teeth and claws. Eye/nose art, once registered, is confined to that luminance and drawn behind the coat. Display scale is proportional CSS only. `npm run appearance-preview`. The assets and preview are excluded from the packaged app.
+
 ## Make Your Sabrecat (cat-creator-spec v0.3.1, main-menu-spec v1.4)
 - **State machine:** `newGameSetup → creator` (Begin; the setup effect `{style, difficulty, sandboxOptions?}` is kept as `pendingSetup`) `→ starting` (Start).
   `creator` back on step 1 → `newGameSetup` with the setup model and `replaceRunId` untouched (no confirmation, nothing deleted).

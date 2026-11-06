@@ -22,7 +22,8 @@ test('art working files, sources, scripts, docs and screenshots do not ship', ()
     'assets/menu/backgrounds/raw-1.jpg', 'assets/menu/backgrounds/rejected/a.png', 'assets/menu/direction-a-cave-wall.png', 'assets/menu/contact-sheet-main-menu.png',
     'assets/menu/refs/r.jpg', 'assets/menu/html/menu-night.html', 'assets/portraits/compare/rare-coats-v1.png',
     'assets/portraits/compare/markings-wrap-crops/head-all.png', 'assets/portraits/portrait-male/rejected/old.png', 'assets/portraits/README.md',
-    'scripts/art/composite.py', 'scripts/sync-copy.js', 'docs/main-menu-spec.md', 'screenshots/creator-look.png', 'test/creator.test.js']) assert.ok(!ships(f), f);
+    'scripts/art/composite.py', 'scripts/sync-copy.js', 'docs/main-menu-spec.md', 'screenshots/creator-look.png', 'test/creator.test.js',
+    'assets/appearance/master/master.png', 'assets/appearance/registry.json', 'src/renderer/appearance-preview.html', 'src/renderer/js/appearance-render.js']) assert.ok(!ships(f), f);
 });
 test('app icon: build/icon.png + build/icon.ico ship (BrowserWindow icon) and win/nsis point at the ICO; ICO has 16-256 PNG frames', () => {
   for (const f of ['build/icon.png', 'build/icon.ico']) { assert.ok(ships(f), f); assert.ok(fs.existsSync(path.join(root, f)), f); }

@@ -10,6 +10,7 @@
     "screenshots": "electron . --no-sandbox --screenshots",
     "sync-copy": "node scripts/sync-copy.js && node scripts/sync-events.js && node scripts/slice-data-from-specs.js",
     "test": "node --test \"test/*.test.js\"",
+    "appearance-preview": "electron scripts/appearance-preview.js --no-sandbox",
     "dist:win": "electron-builder --win nsis",
     "test:e2e": "node test/e2e/menu.e2e.js && node test/e2e/slice.e2e.js"
   },
@@ -41,6 +42,11 @@
       "!**/compare/**",
       "!**/*.{py,psd,kra,xcf,npy}",
       "!scripts/**",
+      "!assets/appearance/**",
+      "!src/renderer/appearance-preview.html",
+      "!src/renderer/js/appearance-render.js",
+      "!src/renderer/js/appearance-preview.js",
+      "!src/renderer/js/png-decode.js",
       "!docs/**",
       "!screenshots/**",
       "node_modules/electron-updater/**/*"
