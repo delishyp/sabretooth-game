@@ -11,7 +11,7 @@
     "sync-copy": "node scripts/sync-copy.js && node scripts/sync-events.js && node scripts/slice-data-from-specs.js",
     "test": "node --test \"test/*.test.js\"",
     "dist:win": "electron-builder --win nsis",
-    "test:e2e": "node test/e2e/menu.e2e.js"
+    "test:e2e": "node test/e2e/menu.e2e.js && node test/e2e/slice.e2e.js"
   },
   "author": "Anna Kremer",
   "license": "UNLICENSED",

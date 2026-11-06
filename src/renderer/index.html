@@ -66,6 +66,21 @@
     <h2 data-t="placeholder.title"></h2><p class="sub" id="placeholder-detail"></p>
     <div class="row"><button data-action="back" data-t="common.backToMenu"></button></div>
   </section>
+  <!-- Slice 1 (scope v1.0.1): one season as a loner. Built by js/game-screen.js over the pure sim js/slice.js. -->
+  <section class="screen" data-screen="game">
+    <div id="game-main">
+      <div class="game-hud" id="game-hud"></div>
+      <div class="game-body">
+        <div class="game-region" id="game-region"></div>
+        <div class="game-side"><div class="game-actions" id="game-actions"></div><div class="game-report" id="game-report"></div></div>
+      </div>
+    </div>
+    <div class="game-event" id="game-event" hidden></div>
+  </section>
+  <section class="screen" data-screen="summary">
+    <div id="summary-body"></div>
+    <div class="row"><button data-g="summaryMenu" class="primary" data-t="common.mainMenu"></button></div>
+  </section>
   <section class="screen" data-screen="legacy">
     <h2 data-t="legacy.title"></h2><p class="sub" data-t="legacy.body"></p>
     <div class="row"><button data-action="newLineage" class="primary" data-t="legacy.newLineage"></button><button data-action="back" data-t="common.mainMenu"></button></div>
@@ -108,6 +123,10 @@
 <script src="js/compositor.js"></script>
 <script src="js/creator.js"></script>
 <script src="js/input.js"></script>
+<script src="js/rng.js"></script>
+<script src="js/worldmap.js"></script>
+<script src="js/slice.js"></script>
+<script src="js/game-screen.js"></script>
 <script src="js/menu.js"></script>
 </body>
 </html>

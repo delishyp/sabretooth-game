@@ -8,12 +8,13 @@ const copy = require('../src/renderer/data/menu-copy.json');
 const root = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
 const strings = copy.strings;
+const MAP = require('../src/renderer/data/map.json');
 
 function usedIds() {
   const ids = new Set();
   const html = read('src/renderer/index.html');
   for (const m of html.matchAll(/data-t="([^"]+)"/g)) ids.add(m[1]);
-  for (const f of ['src/renderer/js/menu.js', 'src/main/main.js', 'src/main/menu-handlers.js']) {
+  for (const f of ['src/renderer/js/menu.js', 'src/renderer/js/game-screen.js', 'src/main/main.js', 'src/main/menu-handlers.js']) {
     const src = read(f);
     for (const m of src.matchAll(/\bt\(\s*'([^']+)'/g)) ids.add(m[1]);
     for (const m of src.matchAll(/'(toast\.[\w.]+)'/g)) ids.add(m[1]);
@@ -29,7 +30,14 @@ function usedIds() {
     'creator.sex.': C.SEXES, 'creator.coat.': C.coatsFor(true), 'creator.oddEyes.': C.OFF_ON, 'creator.rareTag': [''], 'creator.markings.': C.MARKINGS, 'creator.eyes.': C.EYES,
     'creator.preview.markings.': C.MARKINGS,
     'creator.preset.': [...C.PRESET_IDS, 'custom'].flatMap((p) => [p, `${p}.desc`]),
-    'creator.trait.': C.TRAITS.flatMap((k) => [k, `${k}.desc`, `${k}.low`, `${k}.high`]) };
+    'creator.trait.': C.TRAITS.flatMap((k) => [k, `${k}.desc`, `${k}.low`, `${k}.high`]),
+    // Slice 1 game screen (js/game-screen.js); hazard/faction ids from map.json
+    'game.need.': ['health', 'hunger', 'thirst', 'energy'], 'game.needState.': ['ok', 'low', 'critical', 'empty'], 'game.injury.': ['minor', 'serious'],
+    'game.region.': ['prey', 'danger', 'water', 'owner'], 'game.prey.': ['0', '1', '2', '3'], 'game.danger.': ['0', '1', '2', '3'],
+    'game.faction.': [...MAP.factions.map((f) => f.id), 'loner'], 'game.size.': ['small', 'medium', 'large'], 'game.forced.': ['rest', 'stuck', 'lost', 'travel'],
+    'game.report.injury.': ['minor', 'serious'], 'game.report.healed.': ['minor', 'serious'],
+    'game.report.': ['drink', 'tarEscaped', 'starving', 'parched', 'stuck', 'lost'], 'game.hazard.': MAP.hazards.map((h) => h.id),
+    'summary.cause.': ['starvation', 'thirst', 'hunt', 'patrol', 'hazard'], 'summary.': ['days', 'regions', 'cats', 'best'] };
   const menu = read('src/renderer/js/menu.js');
   assert.ok(menu.includes('t(`settings.${settingsTab}.${key}`)'), 'settings label template present');
   for (const [p, vals] of Object.entries(expand)) vals.forEach((v) => ids.add(p + v));

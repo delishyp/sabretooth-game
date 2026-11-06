@@ -5,6 +5,7 @@
  *   creator: step 1 Look ⇄ step 2 Personality; Back on step 1 → newGameSetup (choices kept, replaceRunId kept, nothing deleted)
  *   load → loadRunExpanded → loading | deleteSaveConfirm → loadRunExpanded | deleteRunConfirm → load; back → load
  *   legacy (game:legacyEnd hook) → menu:newLineage | root
+ *   slice 1: creator Start → game; Continue / Load of a slice save → game | summary (run over); game → root (Esc / Main menu); summary → root
  * Text: t(id, vars) over Saga's copy (js/i18n.js). New Game setup navigation: pure Nav.setupReduce (js/nav.js).
  */
 (async () => {
@@ -79,7 +80,7 @@
 
   // ---------- generic focus (all screens except difficulty) ----------
   function focusables() {
-    const scope = dialog ? $('#dialog') : $('.screen.active');
+    const scope = dialog ? $('#dialog') : (state === 'game' && game && game.focusScope()) || $('.screen.active');
     return scope ? $$('button', scope).filter((b) => !b.disabled && b.offsetParent !== null && !b.closest('.tabs')) : [];
   }
   function focus(el) {
@@ -107,7 +108,9 @@
     const el = ['starting', 'loading'].includes(screen) ? 'placeholder' : screen === 'loadRunExpanded' ? 'load' : screen;
     $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === el));
     if (screen === 'root') { renderRoot(); music.play(); }
-    if (screen === 'starting' || screen === 'loading') music.fadeOutAndStop();   // §7.5 v1.4.4: creator Start / Continue / Load (keeps playing through the creator)
+    if (['starting', 'loading', 'game', 'summary'].includes(screen)) music.fadeOutAndStop();   // §7.5 v1.4.4: creator Start / Continue / Load (keeps playing through the creator)
+    if (screen === 'game') { game.render(); return fitActive(); }
+    if (screen === 'summary') game.renderSummary();
     if (screen === 'newGameSetup') return renderSetup();
     if (screen === 'creator') return renderCreator();
     if (screen === 'settings') renderSettings();
@@ -588,6 +591,22 @@
   $('#dialog-ok').addEventListener('click', () => { const fn = dialog.onOk; closeDialog(); fn(); });
   $('#dialog-cancel').addEventListener('click', closeDialog);
 
+  // ---------- slice 1 game (js/game-screen.js over js/slice.js) ----------
+  /** NPC / player portrait: same compositor as the creator. spec = {genes, sex} (player) | {look, sex} (NPC: a common creator look). */
+  async function portrait(spec, canvas) {
+    const genes = spec.genes || Creator.genesFor({ oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced }, ...spec.look, sex: spec.sex });
+    const a = await poseAssets(Compositor.poseFor(spec.sex, 'adult'));
+    const off = document.createElement('canvas');
+    await Compositor.compose(a.manifest, genes, composeOpts(a, off));
+    canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0);
+  }
+  /** Escape / Main menu: back to the root menu; the autosave after every action already holds the run (Flint call). */
+  async function leaveGame() { await refreshSlots(); show('root', $('[data-action="continue"]')); }
+  let seedOverride = null;
+  const nextSeed = () => { const x = seedOverride; seedOverride = null; return x === null ? Rng.newSeed() : x; };
+  const game = copy.gameData ? GameScreen.create({ api, t, $, show, focus, toast, portrait, leave: leaveGame,
+    creatorLooks: { coats: Creator.COATS, markings: Creator.MARKINGS, eyes: Creator.EYES } }, copy.gameData, copy.nameData) : null;
+
   // ---------- actions ----------
   /** Creator Start (v1.4): menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, mainCat}. The replaced run is deleted only now (main). */
   async function startNewGame({ style, difficulty, sandboxOptions, mainCat }) {
@@ -595,12 +614,14 @@
     if (!res.ok) { toast(t('toast.startFailed')); return; }   // B12: raw error is logged by main only
     fallbackToast(res.storyteller?.preferred, res.storyteller?.effective);
     replaceRunId = null; creator = null;
+    if (game && res.mainCat) return game.start(res.run, res.mainCat, nextSeed());
     $('#placeholder-detail').textContent = t('placeholder.newRun', { styleName: styleName(style), deathRuleName: diffName(difficulty), slot: res.run.slotIndex + 1 });
     show('starting');
   }
   async function loadSave(runId, saveId) {
     const res = await api.menu.loadSave(runId, saveId);
     if (!res.ok) { toast(t('toast.saveLoadFailed')); return; }
+    if (res.game && game) { try { return game.resume(res.run, res.game); } catch (e) { console.warn('slice save rejected', e); toast(t('toast.saveLoadFailed')); return; } }
     const r = runs.find((x) => x && x.runId === runId);
     $('#placeholder-detail').textContent = r ? t('placeholder.loading', { runLabel: runLabel(r) }) : t('placeholder.loadingFallback');
     show('loading');
@@ -638,6 +659,7 @@
     if (state === 'settings') return leaveSettings();
     if (state === 'root') return quit();
     if (state === 'creator') return creatorDispatch('back');
+    if (state === 'game' || state === 'summary') return leaveGame();
     if (state === 'loadRunExpanded') { const id = expandedRunId; expandedRunId = null; show('load', `.run[data-run-id="${id}"]`); return; }
     clearInterval(creditsTimer);
     if (state === 'newGameSetup') replaceRunId = null;
@@ -646,6 +668,7 @@
     show('root', from ? $(`[data-action="${from}"]`) : null);
   }
   document.addEventListener('click', (ev) => {
+    const g = ev.target.closest('[data-g]'); if (g && game && !g.disabled) return game.onClick(g);
     const b = ev.target.closest('[data-action]'); if (b && ACTIONS[b.dataset.action]) ACTIONS[b.dataset.action]();
   });
 
@@ -680,6 +703,10 @@
     /** Resolves when the app-start portrait preload (C3) has finished. */
     portraitsReady: () => preloadPortraits().then(() => preview.preloadMs),
     setUiScale: (v) => { settings.display.uiScale = v; scale(); },
+    /** Slice 1: seed for the next new run (deterministic e2e), current game state, and a test-only state patch (death path). */
+    setGameSeed: (n) => { seedOverride = n >>> 0; },
+    game: () => (game ? { state: game.state(), run: game.run(), available: game.state() ? game.E.available(game.state()) : null, summary: game.state() ? game.E.summary(game.state()) : null, busy: game.busy() } : null),
+    gamePatch: (patch) => { const g = JSON.parse(JSON.stringify(game.state())); for (const [k, v] of Object.entries(patch)) g[k] = v && typeof v === 'object' && !Array.isArray(v) && g[k] && typeof g[k] === 'object' ? { ...g[k], ...v } : v; game.setState(g); game.render(); },
     show: async (s) => {
       if (dialog) closeDialog();
       await refreshSlots();

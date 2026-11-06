@@ -49,8 +49,8 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
           await waitState(page, 'creator');                          // v1.4: Begin opens Make Your Sabrecat
           const cname = (await st(page)).creator.name;
           await throughCreator(page);
-          await waitState(page, 'starting');
-          assert.strictEqual((await st(page)).state, 'starting');
+          await waitState(page, 'game');
+          assert.strictEqual((await st(page)).state, 'game');
           const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', `run-${slot}`, 'run.json'), 'utf8'));
           assert.deepStrictEqual([run.style, run.difficulty, run.sandboxOptions === null], [style, death, death !== 'sandbox']);
           assert.strictEqual(run.catName, cname); assert.strictEqual(run.playerCat.ageSeasons, 12);
@@ -68,7 +68,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.ok(/Replaces/.test(summary), summary);
         await page.keyboard.press('ArrowUp'); await page.keyboard.press('Enter');   // Begin (Standard + Heir)
         await waitState(page, 'creator'); await throughCreator(page);
-        await waitState(page, 'starting');
+        await waitState(page, 'game');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
         assert.deepStrictEqual([run.style, run.difficulty], ['standard', 'heir']);
       });
@@ -293,7 +293,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.deepStrictEqual([m.step, m.focus, m.coat, m.markings, m.eyes, m.name], [1, 'next', lookBefore.coat, lookBefore.markings, lookBefore.eyes, 'Ash  Tail']);
         await press(page, 'Enter'); m = await model(page); assert.deepStrictEqual([m.step, m.traits], [2, traits]);
         await press(page, 'ArrowUp'); assert.strictEqual((await model(page)).focus, 'start');
-        await press(page, 'Enter'); await waitState(page, 'starting');
+        await press(page, 'Enter'); await waitState(page, 'game');
         const run = runJson(ud, 0);                                                       // checks 6 + 11
         assert.strictEqual(run.catName, 'Ash Tail');
         const pc = run.playerCat;
@@ -313,7 +313,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await toCreator(page);
         await page.keyboard.press('Control+A'); await page.keyboard.press('Backspace'); await page.keyboard.type('   ');
         assert.match(await page.locator('[data-row="name"] .crow-help').textContent(), /Leave it blank/);
-        await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'starting');
+        await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
         assert.ok(names.includes(runJson(ud, 1).catName), runJson(ud, 1).catName);
       });
       await check('creator §7.5 + §1.2: Back from step 1 keeps setup choices and the run picked for replacement still exists', async () => {
@@ -330,7 +330,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.match(await page.locator('#setup-summary').textContent(), /Replaces/);
         assert.strictEqual(runJson(ud, 0).runId, victim, 'replaced run still exists after Back');
         await press(page, 'Enter'); await waitState(page, 'creator');                      // Begin again → fresh creator, still replacing
-        await throughCreator(page); await waitState(page, 'starting');
+        await throughCreator(page); await waitState(page, 'game');
         const now = runJson(ud, 0); assert.notStrictEqual(now.runId, victim); assert.deepStrictEqual([now.style, now.difficulty], ['sim', 'permadeath']);
       });
     } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
@@ -390,7 +390,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await page.locator('[data-row="trait:boldness"] .arrow[data-arrow="1"]').click(); assert.strictEqual((await model(page)).traits.boldness, 55);
         await page.locator('#creator-actions [data-cnav="back"]').click(); assert.strictEqual((await model(page)).step, 1);
         await page.locator('[data-cnav="next"]').click(); m = await model(page); assert.strictEqual(m.traits.boldness, 55);
-        await page.locator('[data-cnav="start"]').click(); await waitState(page, 'starting');
+        await page.locator('[data-cnav="start"]').click(); await waitState(page, 'game');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
         assert.strictEqual(run.catName, 'Mouse Cat'); assert.deepStrictEqual(run.playerCat.genes.personality, m.traits);
       });
@@ -423,7 +423,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await tap(DOWN); await tap(LEFT); m = await model(page); assert.deepStrictEqual([m.traits.aggression, m.preset], [70, 'custom']);
         await tap(B); assert.strictEqual((await model(page)).step, 1);
         await tap(START); assert.strictEqual((await model(page)).traits.aggression, 70);
-        await tap(START); await waitState(page, 'starting');
+        await tap(START); await waitState(page, 'game');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-1', 'run.json'), 'utf8'));
         assert.deepStrictEqual([run.catName, run.playerCat.genes.personality.aggression], [n2, 70]);
       });
@@ -539,7 +539,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         m = await model(page); assert.deepStrictEqual([m.coat, m.eyes, m.oddEyes, m.eyeRight], ['ash', 'amber', 'on', 'green']);
         assert.strictEqual(await page.locator('[data-row="coat"] .rare-tag').isVisible(), true);
         await page.evaluate(() => document.querySelector('[data-cnav="next"]').click());
-        await page.evaluate(() => document.querySelector('[data-cnav="start"]').click()); await waitState(page, 'starting');
+        await page.evaluate(() => document.querySelector('[data-cnav="start"]').click()); await waitState(page, 'game');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
         assert.deepStrictEqual([run.difficulty, run.playerCat.genes.loci.coat, run.playerCat.genes.loci.het, run.playerCat.genes.loci.eyes, run.playerCat.genes.eyeRight],
           ['sandbox', ['melan', 'leuc'], ['het', 'het'], ['amber', 'amber'], 'green']);
