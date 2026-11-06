@@ -41,8 +41,29 @@ function createMenuHandlers({ settings, saves, log, t, checkStoryteller }) {
       const run = saves.findRun(p.runId);
       const s = run && !run.damaged && saves.findSave(p.runId, p.saveId);
       if (!s || s.damaged) { log(`menu:loadSave refused ${JSON.stringify(p)}`); return { ok: false, errorId: 'toast.saveLoadFailed' }; }
-      log(`menu:loadSave ${JSON.stringify(p)} (placeholder)`);
-      return { ok: true, placeholder: true };
+      let game;
+      try { game = saves.readGame(p.runId, p.saveId); } catch (e) { log(`menu:loadSave game.json unreadable ${JSON.stringify(p)}: ${e.message}`); return { ok: false, errorId: 'toast.saveLoadFailed' }; }
+      if (!game) { log(`menu:loadSave ${JSON.stringify(p)} (placeholder)`); return { ok: true, placeholder: true }; }
+      log(`menu:loadSave ${JSON.stringify(p)} day ${game.day}`);
+      return { ok: true, game, run: { runId: run.runId, catName: run.catName, style: run.style, difficulty: run.difficulty, playerCat: run.playerCat || null } };
+    },
+    /**
+     * game:save {runId, kind: 'auto'|'manual', game} (slice 1). Autosave = save slot 0, manual = slot 1, each overwritten
+     * (Flint call: two fixed slots inside the 3-save cap). inGameDate/mainCat come from the game state.
+     */
+    saveGame(p = {}) {
+      try {
+        const g = p.game; if (!g || typeof g !== 'object' || !Number.isInteger(g.day)) throw new Error('no game state');
+        const meta = saves.writeSave(p.runId, {
+          overwriteSaveIndex: p.kind === 'manual' ? 1 : 0, game: g,
+          inGameDate: { year: g.year || 1, season: g.season || 'spring', day: g.day }, mainCat: g.cat || null
+        });
+        log(`game:save ${p.kind} run ${p.runId} day ${g.day}`);
+        return { ok: true, save: meta };
+      } catch (e) {
+        log(`game:save FAILED ${p.runId}: ${e && e.stack ? e.stack : e}`);
+        return { ok: false, errorId: 'toast.saveFailed' };
+      }
     }
   };
 }

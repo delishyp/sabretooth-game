@@ -107,6 +107,7 @@ function registerIpc() {
   const placeholder = (name, payload) => { log(`${name} ${JSON.stringify(payload)} (placeholder)`); return { ok: true, placeholder: true }; };
   ipcMain.handle('menu:newGame', (_e, p) => handlers.newGame(p));
   ipcMain.handle('menu:loadSave', (_e, p) => handlers.loadSave(p));
+  ipcMain.handle('game:save', (_e, p) => handlers.saveGame(p));
   ipcMain.handle('menu:deleteSave', (_e, p = {}) => saves.deleteSave(p.runId, p.saveId));
   ipcMain.handle('menu:deleteRun', (_e, p = {}) => saves.deleteRun(p.runId));
   // Legacy hook (spec §7): game:legacyEnd {runId} -> Legacy screen (future) -> menu:newLineage {runId} | root.
@@ -162,6 +163,11 @@ function loadCopy() {
     const n = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'renderer', 'data', 'names', 'names.json'), 'utf8'));
     c.nameData = { male: n.male, female: n.female, either: n.either, reserved: n.reserved, blocklist: n.blocklist, maxLength: n.maxLength };
   } catch (e) { log(`names.json unavailable: ${e.message}`); c.nameData = null; }
+  // Slice 1 (scope v1.0.1): map model, rules, Saga's offline event library, world slots.
+  try {
+    const d = (f) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'renderer', 'data', f), 'utf8'));
+    c.gameData = { map: d('map.json'), rules: d('slice-rules.json'), events: d('events/slice-1.json'), slots: d('world-slots.json') };
+  } catch (e) { log(`slice data unavailable: ${e.message}`); c.gameData = null; }
   return c;
 }
 

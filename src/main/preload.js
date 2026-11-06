@@ -10,7 +10,10 @@ contextBridge.exposeInMainWorld('sabretooth', {
     deleteRun: (runId) => call('menu:deleteRun', { runId }),
     newLineage: (runId) => call('menu:newLineage', { runId })
   },
-  game: { legacyEnd: (runId) => call('game:legacyEnd', { runId }) },
+  game: {
+    legacyEnd: (runId) => call('game:legacyEnd', { runId }),
+    save: (runId, kind, game) => call('game:save', { runId, kind, game })
+  },
   saves: { list: () => call('saves:list') },
   portraits: { load: (pose) => call('portraits:load', { pose }) },
   settings: {

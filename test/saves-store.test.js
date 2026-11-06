@@ -110,3 +110,14 @@ test('save meta has optional mainCat {catId,name,sex,lifeStage,genes,scars[]}, n
   assert.strictEqual(normalizeMainCat('nope'), null);
   assert.deepStrictEqual(st.findRun(r.runId).saves.find((s) => s.mainCat).mainCat, m);
 });
+test('slice 1: writeSave stores game.json next to meta; readGame returns it, null for pre-slice saves', () => {
+  const st = fresh(); const run = st.createRun({ difficulty: 'permadeath' });
+  const old = st.writeSave(run.runId, {});
+  assert.strictEqual(st.readGame(run.runId, old.saveId), null);
+  const g = { day: 4, year: 1, season: 'spring', region: 'split_rock' };
+  const m = st.writeSave(run.runId, { overwriteSaveIndex: 1, game: g, inGameDate: { year: 1, season: 'spring', day: 4 } });
+  assert.deepStrictEqual(st.readGame(run.runId, m.saveId), g);
+  const m2 = st.writeSave(run.runId, { overwriteSaveIndex: 1, game: { ...g, day: 5 } });
+  assert.strictEqual(st.readGame(run.runId, m2.saveId).day, 5); assert.strictEqual(st.findSave(run.runId, m.saveId), null);
+  assert.throws(() => st.readGame(run.runId, 'nope'));
+});

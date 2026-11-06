@@ -141,7 +141,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
      * Write a manual save. Without `overwriteSaveIndex`, uses the first free index and throws SaveCapError
      * when the run already has SAVES_PER_RUN saves (the in-game UI must then ask which one to overwrite).
      */
-    writeSave(runId, { inGameDate = { year: 1, season: 'spring', day: 1 }, playTimeSec = 0, overwriteSaveIndex, mainCat = null } = {}) {
+    writeSave(runId, { inGameDate = { year: 1, season: 'spring', day: 1 }, playTimeSec = 0, overwriteSaveIndex, mainCat = null, game = null } = {}) {
       const run = findRun(runId); if (!run || run.damaged) throw new Error('run not found');
       let idx = overwriteSaveIndex;
       if (idx === undefined) {
@@ -152,10 +152,18 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
       const t = now().toISOString();
       const meta = { saveId: crypto.randomUUID(), runId, saveIndex: idx, writtenAt: t, inGameDate, playTimeSec, saveVersion: 1, mainCat: normalizeMainCat(mainCat) };
       fs.rmSync(saveDir(run.slotIndex, idx), { recursive: true, force: true });
+      if (game) writeJson(path.join(saveDir(run.slotIndex, idx), 'game.json'), game);   // slice 1: game state next to meta (written first)
       writeJson(path.join(saveDir(run.slotIndex, idx), 'meta.json'), meta);
       const rec = readJson(path.join(runDir(run.slotIndex), 'run.json'));
       writeJson(path.join(runDir(run.slotIndex), 'run.json'), { ...rec, lastPlayedAt: t });
       return meta;
+    },
+    /** Slice 1 game payload of a save: object, null when the save has none (pre-slice placeholder), throws when unreadable. */
+    readGame(runId, saveId) {
+      const r = findRun(runId); const sv = r && r.saves.find((x) => x.saveId === saveId);
+      if (!sv || sv.damaged) throw new Error('save not found');
+      const f = path.join(saveDir(r.slotIndex, sv.saveIndex), 'game.json');
+      return fs.existsSync(f) ? readJson(f) : null;
     },
     findSave(runId, saveId) { const r = findRun(runId); return (r && r.saves.find((s) => s.saveId === saveId)) || null; },
     deleteSave(runId, saveId) {
