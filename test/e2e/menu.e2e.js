@@ -348,7 +348,9 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         {                                                                                   // Anna bug 6: name dice (real mouse + keyboard)
           const nd = require(path.join(root, 'src/renderer/data/names/names.json'));
           const dice = page.locator('#creator-name-dice');
-          assert.strictEqual(await dice.getAttribute('aria-label'), 'Reroll name');
+          const label = require(path.join(root, 'src/renderer/data/menu-copy.json')).strings['creator.name.reroll'];
+          assert.strictEqual(label, 'Randomize name');
+          assert.deepStrictEqual([await dice.getAttribute('aria-label'), await dice.getAttribute('title')], [label, label]);
           const bi = await dice.boundingBox(), ni = await page.locator('#creator-name').boundingBox();
           assert.ok(bi && ni && Math.abs((bi.y + bi.height / 2) - (ni.y + ni.height / 2)) < 12 && bi.x > ni.x + ni.width - 2 && bi.x - (ni.x + ni.width) < 40, 'dice sits right of the Name field');
           const same = (a, b) => JSON.stringify([a.sex, a.coat, a.markings, a.eyes, a.oddEyes, a.eyeRight, a.traits, a.preset, a.step]) === JSON.stringify([b.sex, b.coat, b.markings, b.eyes, b.oddEyes, b.eyeRight, b.traits, b.preset, b.step]);
@@ -405,7 +407,14 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         let m = await model(page); assert.strictEqual(m.focus, 'name');
         assert.match(await page.locator('#creator-hint').textContent(), /A on Name: new name/);
         assert.strictEqual(await page.locator('[data-row="name"] .crow-help').textContent(), 'Press A for another name.');
-        await tap(A); const n2 = (await model(page)).name; assert.ok(names.includes(n2) && n2 !== m.name, `${m.name} → ${n2}`);
+        let n2;
+        {                                                                                   // A on Name = the dice: names.json pool for this sex, only the name changes
+          const nd = require(path.join(root, 'src/renderer/data/names/names.json'));
+          const pool = [...(m.sex === 'female' ? nd.female : nd.male), ...nd.either];
+          await tap(A); const a = await model(page); n2 = a.name;
+          assert.ok(pool.includes(n2) && n2 !== m.name, `${m.name} → ${n2}`);
+          assert.deepStrictEqual([a.sex, a.coat, a.markings, a.eyes, a.focus], [m.sex, m.coat, m.markings, m.eyes, 'name'], 'A on Name rerolls only the name');
+        }
         await tap(DOWN); await tap(RIGHT); const m2 = await model(page); assert.deepStrictEqual([m2.focus, m2.sex !== m.sex], ['sex', true]);
         await tap(START); m = await model(page); assert.deepStrictEqual([m.step, m.focus], [2, 'preset']);   // Start = Next on step 1
         await tap(RIGHT); assert.strictEqual((await model(page)).preset, 'fighter');

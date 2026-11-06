@@ -300,7 +300,7 @@
     if (action === 'confirm') {
       if (btns.includes(f)) return confirmButton(f);
       if (f === 'name') {
-        if (env.device === 'controller') { st = { ...s, name: randomName(env.names, rng, s.name), nameError: null }; return out(); }
+        if (env.device === 'controller') return reduce(s, 'rerollName', undefined, env);   // gamepad A on Name = the dice (names.json)
         st = { ...s, focus: 'sex' }; return out();              // keyboard Enter on Name: on to the next row
       }
       if (f.startsWith('trait:')) return out();

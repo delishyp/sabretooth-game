@@ -435,6 +435,7 @@ Decisions:
     "creator.name.emptyHint": "Leave it blank and the valley will name you.",
     "creator.name.error.tooLong": "Names can be up to {max} characters.",
     "creator.name.error.invalidChars": "Use only letters, spaces, hyphens and apostrophes.",
+    "creator.name.reroll": "Randomize name",
 
     "creator.randomize": "Randomize",
     "creator.help.randomize": "New coat, markings and eyes. Your name, sex and personality stay.",

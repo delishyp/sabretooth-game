@@ -278,9 +278,9 @@
       creatorDispatch('nameInput', before);
       if (inp.value !== creator.name) { inp.value = creator.name; const p = Math.max(0, Math.min(creator.name.length, pos - (before.length - creator.name.length))); inp.setSelectionRange(p, p); }
     });
-    // Anna bug 6: dice rerolls only the name (names.json). Saga has no label copy yet, so the aria-label/tooltip is a code-only string.
+    // Anna bug 6: dice rerolls only the name (names.json); label/tooltip = Saga's creator.name.reroll.
     const dice = el('button', 'name-dice', '⚄'); dice.type = 'button'; dice.id = 'creator-name-dice';
-    dice.setAttribute('aria-label', 'Reroll name'); dice.title = 'Reroll name';
+    dice.setAttribute('aria-label', t('creator.name.reroll')); dice.title = t('creator.name.reroll');
     dice.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('rerollName'); });
     dice.addEventListener('keydown', (ev) => {                  // keep Enter/Space on the dice (input.js would turn them into row actions)
       if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ev.stopPropagation(); creatorDispatch('rerollName'); }

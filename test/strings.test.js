@@ -45,6 +45,8 @@ test('every id used in code exists in Saga strings or a marked placeholder', () 
 });
 test('creator: no [PH] placeholders left, default names list ≥ 20, unique', () => {
   assert.deepStrictEqual(Object.keys(I18n.PLACEHOLDER_STRINGS).filter((k) => k.startsWith('creator.')), []);
+  assert.strictEqual(strings['creator.name.reroll'], 'Randomize name');                   // dice label/tooltip (Saga), no code-only fallback
+  assert.ok(!read('src/renderer/js/menu.js').includes("'Reroll name'"));
   const n = copy.creator.defaultNames; assert.ok(n.length >= 20); assert.strictEqual(new Set(n).size, n.length);
   for (const x of n) assert.strictEqual(C.sanitizeName(x).value, x);
   assert.ok(!('creator.backConfirm.body' in strings) && !read('src/renderer/js/menu.js').includes('backConfirm'));

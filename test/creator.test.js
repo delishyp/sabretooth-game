@@ -145,10 +145,16 @@ test('navigation: focus starts on Name; Up/Down wrap; button row enters on Next/
   const seq2 = []; st = s2; for (let i = 0; i < 7; i++) { st = run(st, ['down']).state; seq2.push(st.focus); }
   assert.deepStrictEqual(seq2, ['trait:aggression', 'trait:sociability', 'trait:boldness', 'trait:loyalty', 'trait:curiosity', 'start', 'preset']);
 });
-test('Name: gamepad A rerolls a default name; keyboard Enter moves on; sex change keeps the look', () => {
+test('Name: gamepad A rerolls from names.json (same as the dice); keyboard Enter moves on; sex change keeps the look', () => {
+  const nameData = require('../src/renderer/data/names/names.json');
   const s = base({ name: 'Mine', focus: 'name' });
-  const pad = run(s, ['confirm'], env({ device: 'controller' })).state;
-  assert.ok(names.includes(pad.name) && pad.name !== 'Mine'); assert.strictEqual(pad.focus, 'name');
+  for (const sex of C.SEXES) {
+    const e = env({ device: 'controller', nameData, rng: seeded(3) });
+    const pad = run({ ...s, sex }, ['confirm'], e).state;
+    assert.strictEqual(pad.name, C.reduce({ ...s, sex }, 'rerollName', undefined, env({ nameData, rng: seeded(3) })).state.name, 'A on Name = dice');
+    assert.ok(C.namePool(nameData, sex).includes(pad.name) && pad.name !== 'Mine'); assert.strictEqual(pad.focus, 'name');
+  }
+  assert.strictEqual(run(s, ['confirm'], env({ device: 'controller', nameData: null })).state.name, 'Mine');   // no names.json → no change, like the dice
   const kb = run(s, ['confirm']).state; assert.deepStrictEqual([kb.name, kb.focus], ['Mine', 'sex']);
   const sx = run({ ...s, focus: 'sex' }, ['right']).state;
   assert.deepStrictEqual([sx.coat, sx.markings, sx.eyes], [s.coat, s.markings, s.eyes]); assert.notStrictEqual(sx.sex, s.sex);
