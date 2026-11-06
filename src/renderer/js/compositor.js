@@ -12,18 +12,30 @@
   // genetics-spec v0.3.1 §2 tints (incl. sandy #D9BC8A, ash #7D776F = melan+leuc codominant, leucistic #EFE6D6, melanistic #3A332E;
   // markings: melanistic #1E1A17 ghost markings, leucistic #D2C3A8, ash and every other coat = coat × 0.55) — placeholder (Ochre tunes; later moves to data/genetics.json per §6.2).
   const TINTS = {
-    coat: { tawny: '#C8955A', sandy: '#D9BC8A', russet: '#B0623A', greydun: '#A39A88', ash: '#7D776F', melan: '#3A332E', leuc: '#EFE6D6' },
+    coat: { tawny: '#C8955A', sandy: '#D9BC8A', russet: '#B0623A', greydun: '#A39A88', ash: '#8A95A3', melan: '#141416', leuc: '#EDE6DA' },
+    // Ochre coat-palette v1 + portrait-layers v2 (docs/art/): undercoat `cream` hexes; `pale` = mix(cream, coat, 0.5)
+    undercoat: { tawny: '#E6CFA6', sandy: '#EEDFC4', russet: '#DDB08C', greydun: '#CDC5B5', ash: '#BAC3CD', melan: '#1A1A1D', leuc: '#F6F2EB' },
+    rim: { melan: '#4A5868' },                       // screen
+    sheen: { ash: '#DCE3EA', melan: '#38424E' },     // screen
+    nose: { default: '#4A3C38', russet: '#5A3A30', ash: '#4E5158', melan: '#19191B', leuc: '#B89A9C' },
+    claws: '#D6CCB8',
     eyes: { amber: '#C98A1E', gold: '#D9B43A', copper: '#B5652A', green: '#8FA34A', blue: '#8EB6D1' },
     saber: { ivory: '#EFE7D2', creamy: '#E3CF96', stained: '#8C7A5A' },
     white: '#F7F4EE', age: '#C9C4BC', scar: '#8E6F66', diluteTarget: '#F3EBDD',
-    markingsMelan: '#1E1A17', markingsLeuc: '#D2C3A8',
+    // Markings draw with blend MULTIPLY (manifest), so the tint is what the coat is multiplied by.
+    markingsMelan: '#6E6A66', markingsLeuc: '#E6DED2',
   };
   const DILUTE_T = [0, 0.15, 0.35];
   const INTENSITY_OPACITY = [0.35, 0.60, 0.85];
-  const MARKINGS_DARKEN = 0.55;
+  const MARKINGS_MIX = 0.6, MARKINGS_SCALE = 0.62;      // default multiply tint = scale(mix(white, coat, 0.6), 0.62)
+  const UNDER_INT_OPACITY = [0.35, 0.60, 0.85];        // genetics v0.4.3 §1.13 (count of U+); creator uses 0.85
+  const RIM_OPACITY = 1.0;
+  const SHEEN_OPACITY = { ash: 0.25, melan: 0.9 };
   const ELDER_OPACITY = 0.5;
   const ELDER_SABER_STAIN = 0.15;
-  const STACK = ['shadow', 'base_coat', 'markings', 'white', 'eye_left', 'eye_right', 'sabers', 'scars', 'age_elder'];
+  // portrait-layers v2: flat colour first, then `shadow` (multiply: form shading + ground shadow) and the screen lights on top,
+  // so markings pick up the lighting. Layers above `shadow` carry their own shading in their grayscale.
+  const STACK = ['base_coat', 'undercoat', 'markings', 'dorsal', 'shadow', 'rim', 'sheen', 'white', 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'scars', 'age_elder'];
   const BLENDS = { normal: 'source-over', multiply: 'multiply', screen: 'screen' };
   const LIFE_STAGES = ['cub', 'adolescent', 'adult', 'elder'];
 
@@ -47,7 +59,7 @@
     if (!BLENDS[b]) { warn(`compositor: unknown blend "${b}" on ${layer && layer.id}, using normal`); return BLENDS.normal; }
     return BLENDS[b];
   }
-  const stackGroup = (id) => (id.startsWith('markings_') ? 'markings' : id.startsWith('white_') ? 'white' : id.startsWith('scar') ? 'scars' : id);
+  const stackGroup = (id) => (id === 'markings_dorsal' ? 'dorsal' : id.startsWith('markings_') ? 'markings' : id.startsWith('white_') ? 'white' : id.startsWith('scar') ? 'scars' : id);
   /** Manifest layers that are active for this cat, sorted into STACK order (stable within a group); lineart excluded. */
   function stackOrder(manifestLayers, active) {
     return manifestLayers
@@ -80,9 +92,19 @@
       if (p.includes('melan') && p.includes('leuc')) return 'ash';
       return phen(p, ['tawny', 'russet', 'sandy', 'greydun', 'melan', 'leuc']); })();
     const coat = mix(TINTS.coat[coatP], TINTS.diluteTarget, DILUTE_T[count(L.dilute, 'd')]);
+    const dT = DILUTE_T[count(L.dilute, 'd')];
     const out = { shadow: { tint: '#FFFFFF', opacity: 1 }, base_coat: { tint: coat, opacity: 1 } };
-    const mk = phen(L.marking || ['plain', 'plain'], ['spotted', 'rosette', 'faintstripe', 'plain']);
-    const mTint = coatP === 'melan' ? TINTS.markingsMelan : coatP === 'leuc' ? TINTS.markingsLeuc : scale(coat, MARKINGS_DARKEN);
+    const under = phen(L.under || ['cream', 'cream'], ['cream', 'pale', 'off']);
+    if (under !== 'off') {
+      const cream = mix(TINTS.undercoat[coatP], TINTS.diluteTarget, dT);
+      out.undercoat = { tint: under === 'pale' ? mix(cream, coat, 0.5) : cream, opacity: UNDER_INT_OPACITY[L.underInt ? count(L.underInt, 'U+') : 2] };
+    }
+    if (TINTS.rim[coatP]) out.rim = { tint: TINTS.rim[coatP], opacity: RIM_OPACITY };
+    if (TINTS.sheen[coatP]) out.sheen = { tint: TINTS.sheen[coatP], opacity: SHEEN_OPACITY[coatP] };
+    out.nose = { tint: TINTS.nose[coatP] || TINTS.nose.default, opacity: 1 };
+    out.claws = { tint: TINTS.claws, opacity: 1 };
+    const mk = phen(L.marking || ['plain', 'plain'], ['spotted', 'rosette', 'barred', 'faintstripe', 'plain']);
+    const mTint = coatP === 'melan' ? TINTS.markingsMelan : coatP === 'leuc' ? TINTS.markingsLeuc : scale(mix('#FFFFFF', coat, MARKINGS_MIX), MARKINGS_SCALE);
     const mOp = INTENSITY_OPACITY[L.intensity ? count(L.intensity, 'I+') : 1];
     if (mk !== 'plain') out['markings_' + mk] = { tint: mTint, opacity: mOp };
     if (Array.isArray(L.dorsal) && L.dorsal.includes('Ds')) out.markings_dorsal = { tint: mTint, opacity: mOp };

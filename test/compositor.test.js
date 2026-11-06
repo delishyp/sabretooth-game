@@ -7,6 +7,9 @@ const mf = require('../assets/portraits/portrait-male/manifest.json');
 const g = (coat, marking, eyes) => ({ v: 1, loci: { coat: [coat, coat], dilute: ['D', 'D'], marking: [marking, marking], dorsal: ['ds', 'ds'],
   intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: [eyes, eyes], saber: ['ivory', 'ivory'], het: ['Het', 'Het'] }, eyeRight: null, mutations: [] });
 
+// portrait-layers v2: markings are multiplied; default tint = scale(mix(white, coat, 0.6), 0.62)
+const multTint = (hex) => { const c = C.hexToRgb(C.mix('#FFFFFF', hex, 0.6)); return '#' + c.map((v) => Math.round(v * 0.62).toString(16).padStart(2, '0')).join('').toUpperCase(); };
+
 test('tint = color × shading, alpha kept', () => {
   const d = new Uint8ClampedArray([255, 255, 255, 200, 128, 128, 128, 17, 0, 0, 0, 255]);
   C.tintPixels(d, '#C8955A');
@@ -24,7 +27,7 @@ test('stack order is canonical regardless of manifest order', () => {
   const ids = ['age_elder', 'sabers', 'eye_right', 'eye_left', 'white_socks', 'markings_spotted', 'base_coat', 'shadow', 'scar_1'];
   const active = Object.fromEntries(ids.map((i) => [i, { tint: '#FFFFFF', opacity: 1 }]));
   const order = C.stackOrder(ids.map((id) => ({ id, file: id + '.png' })), active).map((l) => l.id);
-  assert.deepStrictEqual(order, ['shadow', 'base_coat', 'markings_spotted', 'white_socks', 'eye_left', 'eye_right', 'sabers', 'scar_1', 'age_elder']);
+  assert.deepStrictEqual(order, ['base_coat', 'markings_spotted', 'shadow', 'white_socks', 'eye_left', 'eye_right', 'sabers', 'scar_1', 'age_elder']);
 });
 
 function fakeCanvas(log) {
@@ -42,9 +45,10 @@ async function run(genes, opts = {}, missing = []) {
 }
 test('compose draws stack with blends, lineart last; elder opacity', async () => {
   const { res, main } = await run(g('tawny', 'spotted', 'amber'), { lifeStage: 'elder' });
-  assert.deepStrictEqual(res.drawn, ['shadow', 'base_coat', 'markings_spotted', 'eye_left', 'eye_right', 'sabers', 'age_elder', 'lineart']);
-  assert.strictEqual(main[0].op, 'multiply'); assert.strictEqual(main[1].op, 'source-over');
-  assert.strictEqual(main[2].alpha, 0.6); assert.strictEqual(main[6].alpha, 0.5);
+  assert.deepStrictEqual(res.drawn, ['base_coat', 'undercoat', 'markings_spotted', 'shadow', 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'age_elder', 'lineart']);
+  assert.strictEqual(main[0].op, 'source-over'); assert.strictEqual(main[1].alpha, 0.85);
+  assert.strictEqual(main[2].op, 'multiply'); assert.strictEqual(main[2].alpha, 0.6); assert.strictEqual(main[3].op, 'multiply');
+  assert.strictEqual(main[9].alpha, 0.5);
   const { res: r2 } = await run(g('tawny', 'plain', 'amber'), { lifeStage: 'adult' });
   assert.ok(!r2.drawn.includes('age_elder') && !r2.drawn.some((d) => d.startsWith('markings')));
   assert.strictEqual(C.genesToLayers(g('tawny', 'plain', 'amber'), { lifeStage: 'elder', elderOpacity: 0.8 }).age_elder.opacity, 0.8);
@@ -55,7 +59,7 @@ test('missing layer file is skipped with a warning, not a crash', async () => {
   assert.ok(res.drawn.includes('eye_right')); assert.strictEqual(warns.length, 2);
 });
 test('genesToLayers covers every creator option (cat-creator-spec v0.1 §3)', () => {
-  const coats = { tawny: '#C8955A', greydun: '#A39A88', russet: '#B0623A', melan: '#3A332E', sandy: '#D9BC8A', leuc: '#EFE6D6' };
+  const coats = { tawny: '#C8955A', greydun: '#A39A88', russet: '#B0623A', melan: '#141416', sandy: '#D9BC8A', leuc: '#EDE6DA' };
   for (const [c, hex] of Object.entries(coats)) for (const m of ['plain', 'spotted', 'faintstripe']) for (const [e, eh] of [['amber', '#C98A1E'], ['gold', '#D9B43A'], ['green', '#8FA34A']]) {
     const L = C.genesToLayers(g(c, m, e));
     assert.strictEqual(L.base_coat.tint, hex); assert.strictEqual(L.eye_left.tint, eh); assert.strictEqual(L.eye_right.tint, eh);
@@ -63,18 +67,18 @@ test('genesToLayers covers every creator option (cat-creator-spec v0.1 §3)', ()
     const mk = Object.keys(L).filter((k) => k.startsWith('markings_'));
     if (m === 'plain') assert.deepStrictEqual(mk, []);
     else { assert.deepStrictEqual(mk, ['markings_' + m]); assert.strictEqual(L[mk[0]].opacity, 0.6);
-      assert.strictEqual(L[mk[0]].tint, c === 'melan' ? '#1E1A17' : c === 'leuc' ? '#D2C3A8' : C.mix(hex, '#000000', 0.45)); }
+      assert.strictEqual(L[mk[0]].tint, c === 'melan' ? '#6E6A66' : c === 'leuc' ? '#E6DED2' : multTint(hex)); }
     assert.ok(!Object.keys(L).some((k) => k.startsWith('white_') || k === 'age_elder'));
     for (const l of Object.keys(L)) if (l !== 'eye_right' || true) assert.ok(mf.layers.some((x) => x.id === l), `${l} in manifest`);
   }
 });
-test('genetics v0.3.1 §2: ash = melan/leuc codominant (#7D776F), coat-derived markings; Co order does not matter', () => {
+test('genetics §2: ash = melan/leuc codominant (#8A95A3, Ochre palette v1), coat-derived markings; Co order does not matter', () => {
   for (const pair of [['melan', 'leuc'], ['leuc', 'melan']]) {
     const L = C.genesToLayers({ ...g('tawny', 'spotted', 'amber'), loci: { ...g('tawny', 'spotted', 'amber').loci, coat: pair } });
-    assert.strictEqual(L.base_coat.tint, '#7D776F'); assert.strictEqual(L.markings_spotted.tint, C.mix('#7D776F', '#000000', 0.45));
+    assert.strictEqual(L.base_coat.tint, '#8A95A3'); assert.strictEqual(L.markings_spotted.tint, multTint('#8A95A3'));
   }
   assert.strictEqual(C.genesToLayers({ ...g('melan', 'plain', 'amber'), loci: { ...g('melan', 'plain', 'amber').loci, coat: ['tawny', 'melan'] } }).base_coat.tint, '#C8955A');
-  assert.deepStrictEqual([C.TINTS.coat.sandy, C.TINTS.coat.ash, C.TINTS.coat.leuc, C.TINTS.coat.melan], ['#D9BC8A', '#7D776F', '#EFE6D6', '#3A332E']);
+  assert.deepStrictEqual([C.TINTS.coat.sandy, C.TINTS.coat.ash, C.TINTS.coat.leuc, C.TINTS.coat.melan], ['#D9BC8A', '#8A95A3', '#EDE6DA', '#141416']);
 });
 test('genetics §2.5 odd eyes: eye_left/eye_right tinted separately only for het/het; back-compatible', () => {
   const odd = (het, right) => ({ ...g('tawny', 'plain', 'amber'), loci: { ...g('tawny', 'plain', 'amber').loci, het }, eyeRight: right });
@@ -90,6 +94,29 @@ test('genetics §2.5 odd eyes: eye_left/eye_right tinted separately only for het
   assert.deepStrictEqual([L.eye_left.tint, L.eye_right.tint], ['#D9B43A', '#8FA34A']);
   L = C.genesToLayers(g('tawny', 'plain', 'amber'), { eyes: { left: 'gold' } });
   assert.deepStrictEqual([L.eye_left.tint, L.eye_right.tint], ['#D9B43A', '#D9B43A']);
+});
+test('portrait-layers v2: undercoat/rim/sheen/nose/claws, barred order, dorsal above the body pattern, lighting above markings', () => {
+  const m = C.genesToLayers(g('melan', 'rosette', 'gold'));
+  assert.strictEqual(m.rim.tint, '#4A5868'); assert.strictEqual(m.sheen.tint, '#38424E'); assert.strictEqual(m.sheen.opacity, 0.9);
+  assert.strictEqual(m.markings_rosette.tint, '#6E6A66');
+  const ash = C.genesToLayers({ v: 1, loci: { coat: ['melan', 'leuc'] } });
+  assert.strictEqual(ash.sheen.opacity, 0.25); assert.ok(!ash.rim); assert.strictEqual(ash.undercoat.tint, '#BAC3CD');
+  const t = C.genesToLayers(g('tawny', 'plain', 'amber')); assert.ok(!t.rim && !t.sheen); assert.strictEqual(t.nose.tint, '#4A3C38');
+  assert.deepStrictEqual(t.undercoat, { tint: '#E6CFA6', opacity: 0.85 });
+  const und = (under, underInt) => C.genesToLayers({ v: 1, loci: { coat: ['tawny', 'tawny'], under, underInt } });
+  assert.ok(!und(['off', 'off']).undercoat);
+  assert.strictEqual(und(['pale', 'off']).undercoat.tint, C.mix('#E6CFA6', '#C8955A', 0.5));
+  assert.deepStrictEqual([0, 1, 2].map((n) => und(['cream', 'cream'], ['U+', 'U+', 'U-', 'U-'].slice(2 - n, 4 - n)).undercoat.opacity), [0.35, 0.6, 0.85]);
+  assert.strictEqual(C.genesToLayers({ v: 1, loci: { coat: ['leuc', 'leuc'] } }).nose.tint, '#B89A9C');
+  assert.ok(C.genesToLayers({ v: 1, loci: { marking: ['barred', 'faintstripe'] } }).markings_barred);
+  assert.ok(C.genesToLayers({ v: 1, loci: { marking: ['rosette', 'barred'] } }).markings_rosette);
+  for (const id of ['rim', 'sheen']) assert.strictEqual(mf.layers.find((l) => l.id === id).blend, 'screen');
+  for (const l of mf.layers.filter((x) => x.id.startsWith('markings_'))) assert.strictEqual(l.blend, 'multiply');
+  const all = [...mf.layers, { id: 'markings_dorsal', file: 'markings_dorsal.png' }];
+  const order = C.stackOrder(all, Object.fromEntries(all.map((l) => [l.id, { tint: '#FFFFFF', opacity: 1 }]))).map((l) => l.id);
+  const at = (id) => order.indexOf(id);
+  assert.ok(at('undercoat') < at('markings_spotted') && at('markings_faintstripe') < at('markings_dorsal') && at('markings_dorsal') < at('shadow'));
+  assert.ok(at('shadow') < at('rim') && at('sheen') < at('nose') && at('sabers') < at('claws'));
 });
 test('poseFor + fallback to adult pose', async () => {
   assert.strictEqual(C.poseFor('male', 'adult'), 'portrait-male');

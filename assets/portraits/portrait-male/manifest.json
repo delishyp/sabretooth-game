@@ -4,15 +4,8 @@
     1152,
     864
   ],
-  "placeholder": true,
   "lineart": "lineart.png",
   "layers": [
-    {
-      "id": "shadow",
-      "file": "shadow.png",
-      "blend": "multiply",
-      "tintFrom": null
-    },
     {
       "id": "base_coat",
       "file": "base_coat.png",
@@ -20,16 +13,52 @@
       "tintFrom": "coat"
     },
     {
+      "id": "undercoat",
+      "file": "undercoat.png",
+      "blend": "normal",
+      "tintFrom": "undercoat"
+    },
+    {
       "id": "markings_spotted",
       "file": "markings_spotted.png",
-      "blend": "normal",
+      "blend": "multiply",
+      "tintFrom": "marking"
+    },
+    {
+      "id": "markings_rosette",
+      "file": "markings_rosette.png",
+      "blend": "multiply",
       "tintFrom": "marking"
     },
     {
       "id": "markings_faintstripe",
       "file": "markings_faintstripe.png",
-      "blend": "normal",
+      "blend": "multiply",
       "tintFrom": "marking"
+    },
+    {
+      "id": "shadow",
+      "file": "shadow.png",
+      "blend": "multiply",
+      "tintFrom": null
+    },
+    {
+      "id": "rim",
+      "file": "rim.png",
+      "blend": "screen",
+      "tintFrom": "rim"
+    },
+    {
+      "id": "sheen",
+      "file": "sheen.png",
+      "blend": "screen",
+      "tintFrom": "sheen"
+    },
+    {
+      "id": "nose",
+      "file": "nose.png",
+      "blend": "normal",
+      "tintFrom": "nose"
     },
     {
       "id": "eye_left",
@@ -48,6 +77,12 @@
       "file": "sabers.png",
       "blend": "normal",
       "tintFrom": "saber"
+    },
+    {
+      "id": "claws",
+      "file": "claws.png",
+      "blend": "normal",
+      "tintFrom": "claws"
     }
   ]
 }

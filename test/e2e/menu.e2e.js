@@ -7,6 +7,9 @@ const assert = require('node:assert');
 const fs = require('fs'); const os = require('os'); const path = require('path');
 const root = path.join(__dirname, '..', '..');
 
+// portrait-layers v2 stack (compositor STACK): rim only on black (melan), sheen on black + ash; lineart always last.
+const drawnFor = (coat, markings) => ['base_coat', 'undercoat', ...(markings === 'none' ? [] : [`markings_${markings}`]), 'shadow',
+  ...(coat === 'black' ? ['rim'] : []), ...(coat === 'black' || coat === 'ash' ? ['sheen'] : []), 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'lineart'];
 async function launch(ud) {
   const app = await electron.launch({ executablePath: require('electron'), args: ['--no-sandbox', root], env: { ...process.env, SABRETOOTH_USERDATA: ud } });
   const page = await app.firstWindow(); await page.waitForFunction(() => window.__menuDebug);
@@ -223,7 +226,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
           const p = await page.evaluate((l) => window.__menuDebug.creatorLook(l), { sex, coat, markings, eyes });
           assert.deepStrictEqual(p.skipped, [], `${sex} ${coat} ${markings} ${eyes}`);
           assert.strictEqual(p.pose, `portrait-${sex}`);
-          const want = ['shadow', 'base_coat', ...(markings === 'none' ? [] : [`markings_${markings}`]), 'eye_left', 'eye_right', 'sabers', 'lineart'];
+          const want = drawnFor(coat, markings);
           assert.deepStrictEqual(p.drawn, want); times.push(p.ms);
         }
         const warm = times.filter((_, i) => i % 45 !== 0);   // first draw per pose includes the one-time asset load
@@ -497,7 +500,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         for (const coat of [...C.RARE_COATS, 'tan']) for (const [eyes, eyeRight] of [['amber', 'gold'], ['gold', 'green'], ['green', 'amber']]) for (const odd of ['on', 'off']) {
           const p = await page.evaluate((l) => window.__menuDebug.creatorLook(l), { sex, coat, markings: 'spotted', eyes, oddEyes: odd, eyeRight: odd === 'on' ? eyeRight : null });
           assert.deepStrictEqual(p.skipped, [], `${sex} ${coat} ${eyes}/${eyeRight}`);
-          assert.deepStrictEqual(p.drawn, ['shadow', 'base_coat', 'markings_spotted', 'eye_left', 'eye_right', 'sabers', 'lineart']);
+          assert.deepStrictEqual(p.drawn, drawnFor(coat, 'spotted'));
           assert.ok(p.ms < 100, `redraw ${p.ms.toFixed(1)} ms`);
         } }
         // the preview's genes tint eye_left and eye_right separately (pixels aren't compared: the committed placeholder far-eye mask is empty, genetics §2.5 art caveat)
