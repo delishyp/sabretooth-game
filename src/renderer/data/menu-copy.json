@@ -407,7 +407,7 @@
     "game.report.title": "Day {day}",
     "game.report.quiet": "Nothing else disturbed your day.",
     "game.report.huntOk": "You caught {size} prey ({chance}% chance) and ate. Hunger +{ate}.",
-    "game.report.huntFail": "The {size} prey escaped ({chance}% chance).",
+    "game.report.huntFail": "The prey escaped ({chance}% chance of success).",
     "game.report.rest": "You rested. Energy +{energy}.",
     "game.report.arrive": "You reached {region}.",
     "game.report.travelling": "You are travelling to {region}. {days} days remain.",
@@ -493,7 +493,7 @@
     {
       "id": "standard",
       "name": "Standard",
-      "description": "Survival and story in balance. You lead the pride yourself, choosing roles, patrols, and who eats first, through hard but fair seasons."
+      "description": "Survival and story in balance. Spend your first spring alone: hunt, rest, travel, and meet the cats of the Vale."
     },
     {
       "id": "sim",

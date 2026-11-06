@@ -61,7 +61,7 @@ Owner: Saga. Replaces all 102 placeholder strings in `src/renderer/js/i18n.js`. 
     "game.report.title": "Day {day}",
     "game.report.quiet": "Nothing else disturbed your day.",
     "game.report.huntOk": "You caught {size} prey ({chance}% chance) and ate. Hunger +{ate}.",
-    "game.report.huntFail": "The {size} prey escaped ({chance}% chance).",
+    "game.report.huntFail": "The prey escaped ({chance}% chance of success).",
     "game.report.rest": "You rested. Energy +{energy}.",
     "game.report.arrive": "You reached {region}.",
     "game.report.travelling": "You are travelling to {region}. {days} days remain.",

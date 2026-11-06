@@ -314,7 +314,7 @@ New Game is a single setup screen with two rows of cards. The Style row uses the
     {
       "id": "standard",
       "name": "Standard",
-      "description": "Survival and story in balance. You lead the pride yourself, choosing roles, patrols, and who eats first, through hard but fair seasons."
+      "description": "Survival and story in balance. Spend your first spring alone: hunt, rest, travel, and meet the cats of the Vale."
     },
     {
       "id": "sim",
