@@ -1,7 +1,7 @@
 {
   "name": "sabretooth",
   "productName": "Sabretooth",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Sabretooth (working title): single-player Ice Age Smilodon pride game. Main menu only.",
   "main": "src/main/main.js",
   "scripts": {
