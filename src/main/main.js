@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { createSettingsStore } = require('./settings-store');
 const { createSavesStore, SANDBOX_OPTIONS, visibleSandboxOptions } = require('./saves-store');
-const { createMenuHandlers } = require('./menu-handlers');
+const { createMenuHandlers, menuLockFrom } = require('./menu-handlers');
 const I18n = require('../renderer/js/i18n');
 const { DEFAULTS: SETTINGS_DEFAULTS } = require('./settings-store');
 
@@ -168,6 +168,7 @@ function loadCopy() {
     const d = (f) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'renderer', 'data', f), 'utf8'));
     c.gameData = { map: d('map.json'), rules: d('slice-rules.json'), events: d('events/slice-1.json'), slots: d('world-slots.json') };
   } catch (e) { log(`slice data unavailable: ${e.message}`); c.gameData = null; }
+  c.menuLock = menuLockFrom(c.gameData && c.gameData.rules, process.env);   // renderer shows only the locked cards
   return c;
 }
 
@@ -176,7 +177,8 @@ app.whenReady().then(() => {
   settings = createSettingsStore(ud);
   saves = createSavesStore(path.join(ud, 'saves'), { log, gameVersion: app.getVersion() });
   copy = loadCopy(); t = I18n.create(copy.strings);
-  handlers = createMenuHandlers({ settings, saves, log, t, checkStoryteller });
+  handlers = createMenuHandlers({ settings, saves, log, t, checkStoryteller, lock: copy.menuLock });
+  if (!copy.menuLock) log('New Game menu lock OFF (SABRETOOTH_MENU_UNLOCK=1)');
   registerIpc();
   createWindow();
   require('./updater').initUpdater((m) => { try { log(m); } catch (_) {} });

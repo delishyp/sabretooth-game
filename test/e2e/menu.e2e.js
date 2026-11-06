@@ -1,6 +1,8 @@
 /**
  * Electron smoke test (real app, real keyboard events). Needs a display; run with:  npm run test:e2e
  * Uses its own temp userData (never a QA dir) and closes the app at the end.
+ * Runs with SABRETOOTH_MENU_UNLOCK=1: this file covers the full menu spec (all styles / death rules / Sandbox). The shipped Slice 1
+ * lock (Standard + permadeath only) is covered by test/e2e/slice.e2e.js and test/menu-lock.test.js.
  */
 const { _electron: electron } = require('playwright-core');
 const assert = require('node:assert');
@@ -13,7 +15,7 @@ const drawnFor = (coat, markings) => { const mk = markings === 'none' ? [] : [`m
   return ['base_coat', 'undercoat', ...(black ? [] : mk), 'shadow', ...(black ? ['rim'] : []), ...(black || coat === 'ash' ? ['sheen'] : []),
     ...(black ? mk : []), 'nose', 'eye_left', 'eye_right', 'sabers', 'claws', 'lineart']; };
 async function launch(ud) {
-  const app = await electron.launch({ executablePath: require('electron'), args: ['--no-sandbox', root], env: { ...process.env, SABRETOOTH_USERDATA: ud } });
+  const app = await electron.launch({ executablePath: require('electron'), args: ['--no-sandbox', root], env: { ...process.env, SABRETOOTH_USERDATA: ud, SABRETOOTH_MENU_UNLOCK: '1' } });
   const page = await app.firstWindow(); await page.waitForFunction(() => window.__menuDebug);
   await page.waitForTimeout(300);
   return { app, page };

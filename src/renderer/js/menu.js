@@ -177,9 +177,12 @@
     b.querySelector('.name').textContent = d.name; b.querySelector('.desc').textContent = d.description;
     return b;
   }
+  /** Slice 1 lock (scope IN §1, slice-rules menuLock): only Standard + Permadeath cards exist; the rest are hidden, not just disabled. */
+  const setupStyles = () => (copy.menuLock ? copy.playStyles.filter((d) => copy.menuLock.styles.includes(d.id)) : copy.playStyles);
+  const setupDeaths = () => (copy.menuLock ? copy.difficulties.filter((d) => copy.menuLock.difficulties.includes(d.id)) : copy.difficulties);
   function renderSetup() {
-    $('#style-cards').replaceChildren(...copy.playStyles.map((d) => cardButton('style', d)));
-    $('#death-cards').replaceChildren(...copy.difficulties.map((d) => cardButton('death', d)));
+    $('#style-cards').replaceChildren(...setupStyles().map((d) => cardButton('style', d)));
+    $('#death-cards').replaceChildren(...setupDeaths().map((d) => cardButton('death', d)));
     $('#sandbox-title').textContent = copy.sandboxPanel.title; $('#sandbox-note').textContent = copy.sandboxPanel.note;
     applySetup();
   }
@@ -628,7 +631,7 @@
   }
   function openSetup() {
     // Every New Game resets to the defaults: Standard, Heir, default Sandbox options (B7, spec v1.3).
-    setup = Nav.setupInit(copy.playStyles.map((d) => d.id), copy.difficulties.map((d) => d.id), optionDefs());
+    setup = Nav.setupInit(setupStyles().map((d) => d.id), setupDeaths().map((d) => d.id), optionDefs());
     show('newGameSetup');
   }
   const quit = () => confirmDialog(t('quitConfirm.body'), t('quitConfirm.ok'), () => api.app.quit());
@@ -696,6 +699,7 @@
   // Dev hook used by `--screenshots`; harmless in production.
   window.__menuDebug = {
     music: () => music.debug(),
+    menuLock: () => copy.menuLock,
     state: () => ({ state, setup, creator, dialog: !!dialog, focused: current()?.dataset.nav || current()?.dataset.action || current()?.textContent }),
     /** Sets a look on the open creator and waits for its preview (e2e check 1: all 72 looks render with no missing layer). */
     creatorLook: async (look) => { creator = Creator.coerceLook({ ...creator, ...look }); applyCreator(); await renderPreview(); return { ms: preview.ms, drawn: preview.drawn, skipped: preview.skipped, pose: preview.pose, rendered: preview.rendered }; },

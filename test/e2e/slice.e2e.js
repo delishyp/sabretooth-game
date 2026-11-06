@@ -53,10 +53,21 @@ async function step(page, shots) {
   const { app, page } = await launch(ud);
   const shots = {};
   try {
-    await check('creator Start opens the game on day 1 at Split Rock (scope start)', async () => {
-      await page.evaluate((x) => window.__menuDebug.setGameSeed(x), SEED);
+    await check('New Game is locked to Standard + permadeath (scope IN §1): other cards hidden, no Sandbox panel', async () => {
+      assert.deepStrictEqual(await page.evaluate(() => window.__menuDebug.menuLock()), { styles: ['standard'], difficulties: ['permadeath'] });
       await page.mouse.move(2, 2);
       await press(page, 'Enter'); await waitState(page, 'newGameSetup');
+      const cards = () => page.evaluate(() => [...document.querySelectorAll('#style-cards .card, #death-cards .card')].map((c) => c.dataset.nav));
+      assert.deepStrictEqual(await cards(), ['style:standard', 'death:permadeath']);
+      let s = (await st(page)).setup; assert.deepStrictEqual([s.style, s.death], ['standard', 'permadeath']);
+      await press(page, 'ArrowLeft', 'Enter', 'ArrowRight', 'Enter', 'ArrowDown', 'ArrowLeft', 'Enter', 'ArrowRight', 'Enter', 'ArrowUp');
+      s = (await st(page)).setup; assert.deepStrictEqual([s.style, s.death, s.focus], ['standard', 'permadeath', 'style:standard']);
+      assert.strictEqual(await page.locator('#sandbox-panel').isHidden(), true);
+      assert.ok(!(await page.locator('[data-screen="newGameSetup"]').textContent()).includes('[PH]'));
+      await page.waitForTimeout(200); await shot(page, '00-setup-locked');
+    });
+    await check('creator Start opens the game on day 1 at Split Rock (scope start)', async () => {
+      await page.evaluate((x) => window.__menuDebug.setGameSeed(x), SEED);
       await press(page, 'ArrowUp', 'Enter'); await waitState(page, 'creator');
       await page.waitForFunction(() => window.__menuDebug.creator().preview.rendered, null, { timeout: 5000 }).catch(() => {});
       await shot(page, '01-creator');
@@ -74,6 +85,7 @@ async function step(page, shots) {
       await page.waitForTimeout(500); await shot(page, '02-region');
       const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
       assert.strictEqual(s.cat.name, run.catName);
+      assert.deepStrictEqual([run.style, run.difficulty, run.sandboxOptions], ['standard', 'permadeath', null]);
     });
     let before;
     await check('play several days; manual Save → menu → Continue restores the same state', async () => {

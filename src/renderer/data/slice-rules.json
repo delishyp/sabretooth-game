@@ -132,5 +132,14 @@
       "unchanged": 0,
       "worsen": -5
     }
+  },
+  "menuLock": {
+    "$comment": "slice-1 scope v1.0.1 IN §1: Standard style + permadeath only. New Game shows only these cards; main rejects anything else. Dev/test escape hatch: SABRETOOTH_MENU_UNLOCK=1.",
+    "styles": [
+      "standard"
+    ],
+    "difficulties": [
+      "permadeath"
+    ]
   }
 }

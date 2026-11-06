@@ -12,7 +12,13 @@ async function effectiveStoryteller(mode, check) {
   return 'offline';
 }
 
-function createMenuHandlers({ settings, saves, log, t, checkStoryteller }) {
+/** Slice 1 New Game lock (scope IN §1) from slice-rules.json `menuLock`; null when SABRETOOTH_MENU_UNLOCK=1 (dev/test only) or absent. */
+function menuLockFrom(rules, env = {}) {
+  if (env.SABRETOOTH_MENU_UNLOCK === '1' || !rules || !rules.menuLock) return null;
+  return { styles: rules.menuLock.styles.slice(), difficulties: rules.menuLock.difficulties.slice() };
+}
+
+function createMenuHandlers({ settings, saves, log, t, checkStoryteller, lock = null }) {
   return {
     effectiveStoryteller: (mode) => effectiveStoryteller(mode, checkStoryteller),
     /**
@@ -22,6 +28,7 @@ function createMenuHandlers({ settings, saves, log, t, checkStoryteller }) {
      */
     async newGame(p = {}) {
       try {
+        if (lock && (!lock.styles.includes(p.style || 'standard') || !lock.difficulties.includes(p.difficulty))) throw new Error(`locked: ${p.style}/${p.difficulty} not in slice menu lock`);
         const cat = p.mainCat === undefined ? null : validateMainCat(p.mainCat, p);
         const preferred = settings.get().storyteller.mode;
         const effective = await effectiveStoryteller(preferred, checkStoryteller);
@@ -67,4 +74,4 @@ function createMenuHandlers({ settings, saves, log, t, checkStoryteller }) {
     }
   };
 }
-module.exports = { createMenuHandlers, effectiveStoryteller, FALLBACK_CHAIN };
+module.exports = { menuLockFrom, createMenuHandlers, effectiveStoryteller, FALLBACK_CHAIN };
