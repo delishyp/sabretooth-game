@@ -15,7 +15,7 @@ test('runtime files ship: every manifest-referenced portrait layer, lineart, men
     for (const f of [...m.layers.map((l) => l.file), m.lineart]) assert.ok(ships(`assets/portraits/${pose}/${f}`), `${pose}/${f}`);
   }
   for (const f of ['assets/menu/background.png', 'assets/menu/background-1920.png', 'assets/menu/background.jpg', 'assets/menu/background.webp', 'assets/menu/logo.png',
-    'assets/audio/menu/earthbound-pulse.ogg', 'src/renderer/index.html', 'src/main/main.js', 'src/renderer/data/menu-copy.json', 'package.json']) assert.ok(ships(f), f);
+    'assets/audio/menu/earthbound-pulse.ogg', 'assets/game/home-landscape.png', 'src/renderer/index.html', 'src/main/main.js', 'src/renderer/data/menu-copy.json', 'package.json']) assert.ok(ships(f), f);
 });
 test('art working files, sources, scripts, docs and screenshots do not ship', () => {
   for (const f of ['audio-src/earthbound-pulse-original.mp3', 'assets/menu/night/work/bg3840.png', 'assets/menu/night/work/old/x.png', 'assets/menu/night/crops-final/a.png',

@@ -81,6 +81,7 @@ test('slice 1: game:save auto → slot 0, manual → slot 1 (overwritten); loadS
   assert.strictEqual(saves.findRun(runId).saves.length, 2);
   const l = h.loadSave({ runId, saveId: m.save.saveId });
   assert.strictEqual(l.ok, true); assert.strictEqual(l.game.day, 5); assert.strictEqual(l.run.runId, runId);
+  assert.strictEqual(l.run.prideName, t('run.defaultPrideName'));
   assert.deepStrictEqual(saves.findSave(runId, m.save.saveId).inGameDate, { year: 1, season: 'spring', day: 5 });
   assert.deepStrictEqual(h.saveGame({ runId, kind: 'auto', game: null }), { ok: false, errorId: 'toast.saveFailed' });
 });

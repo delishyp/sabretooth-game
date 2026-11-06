@@ -31,6 +31,7 @@
       "assets/menu/background.{png,jpg,webp}",
       "assets/menu/background-1920.png",
       "assets/menu/logo.png",
+      "assets/game/home-landscape.png",
       "assets/portraits/*/manifest.json",
       "assets/portraits/*/*.png",
       "build/icon.png",

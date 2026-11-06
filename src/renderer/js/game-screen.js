@@ -1,7 +1,8 @@
 /**
- * Slice 1 renderer screens (scope v1.0.1): 'game' (HUD, region card, actions, day report, event overlay) and 'summary'.
- * All rules live in js/slice.js; this file only draws state and forwards actions. Text: t(id) — ids without Saga copy yet are
- * Saga's docs/slice-ui-copy.md (synced into menu-copy.json strings); region descriptions docs/map-copy.md; event text is Saga's library (data/events/slice-1.json), region/biome names are map.json.
+ * Slice 1 renderer screens (scope v1.0.1): 'game' (home scene over the clean landscape, actions, day report, event overlay) and 'summary'.
+ * All rules live in js/slice.js; this file only draws state and forwards actions. The cat on the ledge is the existing portrait
+ * compositor (poseFor + compose), scaled by home-scene.js. The appearance-preview master is not used here.
+ * Text: t(id) from docs/slice-ui-copy.md (synced into menu-copy.json); region descriptions docs/map-copy.md; event text is Saga's library.
  * ctx: { api, t, $, show, focus, focusables, toast, portrait(genes|look, canvas), creatorLooks }
  */
 (function (root, factory) {
@@ -12,7 +13,7 @@
     const { t, $ } = ctx;
     const E = Slice.create({ ...gameData, nameData, looks: ctx.creatorLooks });
     const W = E.W;
-    let s = null; let run = null; let busy = false; let lastSaved = null;
+    let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home';
     const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; };
     const btn = (label, data, opts = {}) => { const b = el('button', opts.cls || '', label); Object.assign(b.dataset, data); if (opts.disabled) b.disabled = true; if (opts.title) b.title = opts.title; return b; };
     const regionName = (id) => (W.region(id) ? W.region(id).name : id);
@@ -63,16 +64,78 @@
       row.title = t(`game.needState.${E.needState(v)}`); row.dataset.need = id; row.dataset.value = v;
       return row;
     }
+    const navLabel = (id) => {
+      if (id === 'home') return t('home.nav.home');
+      if (id === 'pride') return t('home.nav.pride');
+      if (id === 'den') return t('home.nav.den');
+      if (id === 'wilderness') return t('home.nav.wilderness');
+      if (id === 'cats') return t('home.nav.cats');
+      if (id === 'breeding') return t('home.nav.breeding');
+      if (id === 'market') return t('home.nav.market');
+      if (id === 'inventory') return t('home.nav.inventory');
+      return t('home.nav.lore');
+    };
+    function placeCat() {
+      const host = $('#game-main'); const cv = $('#home-cat');
+      if (!host || !cv) return;
+      const box = HomeScene.catBox(host.clientWidth || 1920, host.clientHeight || 1080);
+      cv.style.left = box.left + 'px'; cv.style.top = box.top + 'px';
+      cv.style.width = box.width + 'px'; cv.style.height = box.height + 'px';
+    }
+    function renderChrome() {
+      $('#home-pride-name').textContent = run && run.prideName ? run.prideName : '';
+      $('#home-player-name').textContent = s.cat.name;
+      const cv = $('#home-cat');
+      cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
+      placeCat();
+      ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex }, cv).catch(() => {});
+      const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
+      den.title = t('home.denTip'); wild.title = t('home.wildTip');
+      den.classList.toggle('is-current', view === 'den');
+      wild.classList.toggle('is-current', view === 'wilderness');
+      if (view === 'den') den.setAttribute('aria-current', 'true'); else den.removeAttribute('aria-current');
+      if (view === 'wilderness') wild.setAttribute('aria-current', 'true'); else wild.removeAttribute('aria-current');
+    }
+    function renderNav() {
+      const nav = $('#home-nav'); nav.textContent = '';
+      nav.setAttribute('aria-label', t('home.nav.label'));
+      for (const item of HomeScene.NAV) {
+        const b = el('button', item.implemented ? '' : 'is-unavailable');
+        b.type = 'button'; b.dataset.g = item.implemented ? 'nav' : 'unavailable'; b.dataset.view = item.id;
+        b.append(el('span', 'nav-label', navLabel(item.id)));
+        if (!item.implemented) b.append(el('span', 'nav-state', t('home.unavailableShort')));
+        b.title = item.implemented ? navLabel(item.id) : t('home.unavailable', { section: navLabel(item.id) });
+        if (item.implemented && view === item.id) b.setAttribute('aria-current', 'page');
+        nav.append(b);
+      }
+    }
     function renderHud() {
       const h = $('#game-hud'); h.textContent = '';
-      const who = el('div', 'hud-who'); const cv = el('canvas', 'hud-portrait'); cv.width = 576; cv.height = 432;
-      ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex }, cv).catch(() => {});
-      who.append(cv, el('div', 'hud-name', s.cat.name));
       const day = el('div', 'hud-day', t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) }));
       day.id = 'game-day';
       const needs = el('div', 'hud-needs'); for (const k of ['health', 'hunger', 'thirst', 'energy']) needs.append(needBar(k, s.needs[k]));
       const inj = el('div', 'hud-injuries'); for (const i of s.injuries) inj.append(el('span', `chip chip-${i.tier}`, t.plural(`game.injury.${i.tier}`, i.daysLeft)));
-      h.append(who, day, needs, inj);
+      h.append(day, needs, inj);
+    }
+    function renderPanel() {
+      const p = $('#home-panel'); p.textContent = '';
+      if (view === 'pride') {
+        p.append(el('h2', 'home-panel-title', t('home.nav.pride')));
+        const dl = el('dl', 'home-facts');
+        const row = (k, v) => { dl.append(el('dt', '', k), el('dd', '', v)); };
+        row(t('home.nav.pride'), (run && run.prideName) || '');
+        row(t('home.you'), s.cat.name);
+        row(t('creator.row.sex'), s.cat.sex === 'female' ? t('creator.sex.female') : t('creator.sex.male'));
+        p.append(dl);
+      } else if (view === 'cats') {
+        p.append(el('h2', 'home-panel-title', t('home.nav.cats')));
+        const met = Object.values(s.npcs || {}).filter((n) => n.met);
+        const ul = el('ul', 'home-cats');
+        ul.append(el('li', '', s.cat.name + ' · ' + t('home.you')));
+        for (const n of met) ul.append(el('li', '', n.name + ' · ' + factionName(n.faction)));
+        p.append(ul);
+        if (!met.length) p.append(el('p', 'home-empty', t('home.noCats')));
+      }
     }
     function renderRegion() {
       const c = $('#game-region'); c.textContent = ''; const r = W.region(s.region); const se = s.season;
@@ -97,15 +160,14 @@
         const hunt = el('div', 'action-group'); hunt.append(el('h3', '', t('game.action.hunt')));
         for (const size of ['small', 'medium', 'large']) hunt.append(btn(t('game.action.huntSize', { size: t(`game.size.${size}`), chance: av.hunt.chance[size] }), { g: 'hunt', size }, { disabled: !av.hunt.allowed, title: av.hunt.allowed ? '' : t('game.blocked.tired') }));
         if (!av.hunt.allowed) hunt.append(el('p', 'blocked-note', t('game.blocked.tired')));
-        const rest = el('div', 'action-group'); rest.append(el('h3', '', t('game.action.restTitle')), btn(t('game.action.rest'), { g: 'rest' }));
-        const tr = el('div', 'action-group travel'); tr.append(el('h3', '', t('game.action.travel')));
+        const rest = el('div', 'action-group is-rest' + (view === 'den' ? ' is-target' : '')); rest.append(el('h3', '', t('game.action.restTitle')), btn(t('game.action.rest'), { g: 'rest' }));
+        const tr = el('div', 'action-group travel is-travel' + (view === 'wilderness' ? ' is-target' : '')); tr.append(el('h3', '', t('game.action.travel')));
         for (const o of av.travel) {
           const discovered = s.map.discovered.includes(o.to);
           tr.append(btn(t.plural('game.action.travelTo', o.days, { region: discovered ? regionName(o.to) : t('game.region.unknown') }), { g: 'travel', to: o.to }, { disabled: !o.allowed, title: o.allowed ? '' : t('game.blocked.edge') }));
         }
         a.append(hunt, rest, tr);
       }
-      const sys = el('div', 'action-group sys'); sys.append(btn(t('game.action.save'), { g: 'save' }), btn(t('common.mainMenu'), { g: 'menu' })); a.append(sys);
     }
     const lineText = (l) => {
       switch (l.k) {
@@ -156,13 +218,26 @@
     }
     function render() {
       if (!s) return;
-      renderHud(); renderRegion(); renderActions(); renderReport(); renderEvent();
+      renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent();
       const evOpen = !$('#game-event').hidden;
-      const scope = evOpen ? $('#game-event') : $('#game-actions');
-      ctx.focus([...scope.querySelectorAll('button')].find((b) => !b.disabled) || null);
+      let target = null;
+      if (evOpen) target = [...$('#game-event').querySelectorAll('button')].find((b) => !b.disabled);
+      else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
+      else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
+      else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
+      ctx.focus(target || null);
+    }
+    function showView(id) {
+      const next = HomeScene.selectView(view, id);
+      if (next.unavailable) { ctx.toast(t('home.unavailable', { section: navLabel(next.unavailable) })); return; }
+      view = next.view; render();
     }
     function onClick(b) {
       const d = b.dataset;
+      if (d.g === 'nav') return showView(d.view);
+      if (d.g === 'unavailable') return showView(d.view);
+      if (d.g === 'den') return showView('den');
+      if (d.g === 'wild') return showView('wilderness');
       if (d.g === 'hunt') return act({ type: 'hunt', size: d.size });
       if (d.g === 'rest') return act({ type: 'rest' });
       if (d.g === 'travel') return act({ type: 'travel', to: d.to });

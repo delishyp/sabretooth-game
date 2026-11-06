@@ -52,7 +52,7 @@ function createMenuHandlers({ settings, saves, log, t, checkStoryteller, lock = 
       try { game = saves.readGame(p.runId, p.saveId); } catch (e) { log(`menu:loadSave game.json unreadable ${JSON.stringify(p)}: ${e.message}`); return { ok: false, errorId: 'toast.saveLoadFailed' }; }
       if (!game) { log(`menu:loadSave ${JSON.stringify(p)} (placeholder)`); return { ok: true, placeholder: true }; }
       log(`menu:loadSave ${JSON.stringify(p)} day ${game.day}`);
-      return { ok: true, game, run: { runId: run.runId, catName: run.catName, style: run.style, difficulty: run.difficulty, playerCat: run.playerCat || null } };
+      return { ok: true, game, run: { runId: run.runId, catName: run.catName, prideName: run.prideName, style: run.style, difficulty: run.difficulty, playerCat: run.playerCat || null } };
     },
     /**
      * game:save {runId, kind: 'auto'|'manual', game} (slice 1). Autosave = save slot 0, manual = slot 1, each overwritten
