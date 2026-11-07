@@ -55,6 +55,15 @@ button.primary { border-color: var(--accent); }
 #toasts { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 20; }
 .toast { background: #1c3446; border: 1px solid var(--accent); padding: 12px 24px; border-radius: 6px; font-size: 18px; }
 #version { position: fixed; right: 16px; bottom: 10px; font-size: 13px; color: var(--ice-dim); opacity: .8; }
+#update-bar { position: fixed; left: 16px; bottom: 16px; z-index: 25; width: min(460px, calc(100vw - 32px)); padding: 12px 14px; background: rgba(16, 12, 10, .94); border: 1px solid rgba(212, 176, 122, .75); border-radius: 10px; color: #f6efe2; }
+#update-bar[hidden] { display: none; }
+#update-text { margin: 0; font-size: 16px; line-height: 1.35; }
+#update-detail { margin: 6px 0 0; font-size: 14px; color: #e7d3b4; }
+#update-track { height: 10px; margin: 8px 0 0; background: rgba(0, 0, 0, .45); border: 1px solid rgba(212, 176, 122, .45); border-radius: 6px; overflow: hidden; }
+#update-fill { display: block; height: 100%; width: 0; background: #e2c48a; }
+#update-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+#update-actions button { min-height: 36px; font-size: 16px; padding: 4px 12px; background: rgba(40, 28, 18, .9); border-color: rgba(212, 176, 122, .65); color: #f6efe2; }
+#update-actions button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 /* New Game setup (v1.3) */
 .screen[data-screen="newGameSetup"] { padding: 60px 160px; }
 .screen[data-screen="newGameSetup"] h2 { font-size: 54px; margin-bottom: 4px; }

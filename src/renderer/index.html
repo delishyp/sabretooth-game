@@ -147,6 +147,17 @@
   </div>
 </div>
 <div id="toasts"></div>
+<div id="update-bar" hidden>
+  <p id="update-text"></p>
+  <div id="update-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><i id="update-fill"></i></div>
+  <p id="update-detail" hidden></p>
+  <div id="update-actions">
+    <button type="button" id="update-restart" data-update="restart" data-t="update.restart" hidden></button>
+    <button type="button" id="update-later" data-update="later" data-t="update.laterButton" hidden></button>
+    <button type="button" id="update-retry" data-update="retry" data-t="update.retry" hidden></button>
+    <button type="button" id="update-cancel" data-update="cancel" data-t="update.cancel" hidden></button>
+  </div>
+</div>
 <div id="version"></div>
 <script src="js/log.js"></script>
 <script src="js/i18n.js"></script>
@@ -163,5 +174,6 @@
 <script src="js/home-scene.js"></script>
 <script src="js/game-screen.js"></script>
 <script src="js/menu.js"></script>
+<script src="js/update-status.js"></script>
 </body>
 </html>
