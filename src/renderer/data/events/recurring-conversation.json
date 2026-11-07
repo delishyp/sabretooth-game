@@ -1,6 +1,6 @@
 {
   "id": "m2.repeat_meeting.conversation",
-  "revision": 3,
+  "revision": 6,
   "status": "DRAFT authoring extension, not runtime schema or approved mechanics",
   "extends": "m2.repeat_meeting in pairing-contract.json; replace one-line exchange, do not add another daily event",
   "inputStyle": "Authored labelled choices only. Free text neither implemented nor presumed approved.",
@@ -27,7 +27,8 @@
         {
           "id": "leave",
           "label": "“Just passing. I will leave you to it.”",
-          "outcome": "left_politely"
+          "outcome": "left_politely",
+          "B": "Safe trails. I will leave you to them."
         }
       ]
     },
@@ -74,12 +75,14 @@
         {
           "id": "return_quiet",
           "label": "“Another quiet walk, if we meet again?”",
-          "outcome": "quiet_company"
+          "outcome": "quiet_company",
+          "B": "Another quiet walk, if we meet. I will remember what we have agreed to."
         },
         {
           "id": "no_promise",
           "label": "Nod, then take your own path.",
-          "outcome": "quiet_no_promise"
+          "outcome": "quiet_no_promise",
+          "B": "Go safely. We have made no promise about another day."
         }
       ]
     },
@@ -89,12 +92,14 @@
         {
           "id": "respect",
           "label": "“Then quiet it is.”",
-          "outcome": "quiet_company"
+          "outcome": "quiet_company",
+          "B": "A quiet stretch together would suit me."
         },
         {
           "id": "leave_space",
           "label": "“I will give you some space today.”",
-          "outcome": "gave_space"
+          "outcome": "gave_space",
+          "B": "Thank you. I will take a little space today."
         }
       ]
     },
@@ -105,12 +110,14 @@
         {
           "id": "repair",
           "label": "“I pushed. That was not fair. We can leave it there.”",
-          "outcome": "repaired_pressure"
+          "outcome": "repaired_pressure",
+          "B": "Thank you for stopping. We can leave it there."
         },
         {
           "id": "dismiss",
           "label": "“Forget I asked.”",
-          "outcome": "dismissed_boundary"
+          "outcome": "dismissed_boundary",
+          "B": "Then let us leave it here rather than quarrel."
         }
       ]
     },
@@ -120,12 +127,14 @@
         {
           "id": "remember",
           "label": "“I will watch for that.”",
-          "outcome": "asked_about_trust"
+          "outcome": "asked_about_trust",
+          "B": "Then let me see you do it. Small things count when they keep happening."
         },
         {
           "id": "disagree",
           "label": "“I would rather you told me directly.”",
-          "outcome": "prefers_direct_words"
+          "outcome": "prefers_direct_words",
+          "B": "All right. I can say when I want to stop."
         }
       ]
     },
@@ -135,48 +144,21 @@
         {
           "id": "learn",
           "label": "“We could start by walking together.”",
-          "outcome": "asked_about_hunting"
+          "outcome": "asked_about_hunting",
+          "B": "A walk would let us learn without rushing into a hunt."
         },
         {
           "id": "alone",
           "label": "“I think I would keep hunting alone.”",
-          "outcome": "prefers_solo_hunts"
+          "outcome": "prefers_solo_hunts",
+          "B": "That suits me. A shared walk need not mean a shared hunt."
         }
       ]
     }
   },
-  "voiceVariants": [
-    {
-      "node": "opening",
-      "when": "B.sociability >=70",
-      "B": "“There you are. Will you walk with me?”"
-    },
-    {
-      "node": "opening",
-      "when": "B.sociability <=30",
-      "B": "“Passing through? Or staying a little?”"
-    },
-    {
-      "node": "opening",
-      "when": "B.aggression >=70",
-      "B": "“You can stop there. What did you want?”"
-    },
-    {
-      "node": "company",
-      "when": "B.sociability >=70",
-      "B": "“Walk with me. I want to hear your paws beside mine for a while.”"
-    },
-    {
-      "node": "trust",
-      "when": "B.aggression >=70",
-      "B": "“A cat who gives me room when I ask. Not one who makes me ask twice.”"
-    },
-    {
-      "node": "trust",
-      "when": "B.sociability >=70",
-      "B": "“When they notice I have fallen behind and come back for me.”"
-    }
-  ],
+  "voiceVariants": {
+    "status": "SUPERSEDED: use personalityCoverage for every speech location, not the earlier six greeting/trust variants."
+  },
   "laterMeeting": {
     "trigger": "next eligible repeat_meeting with SAME B, after completion of this arc",
     "recallByOutcome": {
@@ -291,7 +273,7 @@
         }
       }
     },
-    "fallback": "“We have crossed paths before.”",
+    "fallback": "Did you want to stop here?",
     "choices": [
       {
         "id": "remember",
@@ -585,244 +567,7 @@
     "Next-day recap does not restart the introductory tree; repeated-meeting content selection needs an explicit tested fallback.",
     "Later choices differ by remembered outcome: quiet company can become talk; boundary pressure prompts renewed negotiation; solitary hunting can be clarified as not rejecting all company. These are playable follow-ups, not only different greetings."
   ],
-  "spec": "milestone-2-spec v0.4 DRAFT @44ccc54 §11; all new costs, timing and numeric consequences are proposals.",
-  "proofSequence": {
-    "status": "DRAFT adapter of existing hunting-interest / quiet-company / boundary-repair content. Overrides generic introductory loop for this one-cat proof.",
-    "catId": "ln05",
-    "topicId": "share_next_kill",
-    "promiseId": "offer_share_when_able",
-    "deadline": "none",
-    "entryRules": [
-      "Meeting1 reuses slice.meeting.loner greet/pass/drive unchanged. Greet may continue into this topic; pass/drive do not silently complete it.",
-      "Each listed beat is one choice plus its authored response. Neutral leave/pause is available at every beat and preserves the unfinished cursor, not a completed answer.",
-      "3 core beats per completed meeting; do not pad aggressive cats beyond their proposed 3-beat limit. Optional extra dialogue only with validated remaining beat budget.",
-      "Seek out access/cooldowns and side-slot costs are engine-owned proposed tunables. No extra calendar tick per beat.",
-      "Only actual committed share can mark kept. Missing kill, absence or hazard interruption stays pending, never broken. Explicit refusal can mark broken once.",
-      "Call share only after today’s successful hunt and before any hunt resource has been consumed; Flint validates actual engine support. No free inventory or double promise/share bonus."
-    ],
-    "meetings": [
-      {
-        "id": "first_topic",
-        "trigger": "slice.meeting.loner → existing hunting topic",
-        "beats": [
-          {
-            "id": "greeting",
-            "reuse": "slice.meeting.loner greet/pass/drive; stop here on pass/drive",
-            "note": "Greeting choices remain existing ids and effects."
-          },
-          {
-            "id": "interest",
-            "B": "“Do you hunt alone, then?”",
-            "choices": [
-              {
-                "id": "speak",
-                "label": "“Mostly. I am still learning your pace.”",
-                "B": "“Walking is one thing. A kill is another.”",
-                "stanceId": "interested_in_company"
-              }
-            ]
-          },
-          {
-            "id": "offer",
-            "B": "“Would you share a kill, if you had one when we met?”",
-            "choices": [
-              {
-                "id": "talk_warm",
-                "label": "“If I have a kill when we meet, I will offer you some.”",
-                "B": "“Then I will remember the offer.”",
-                "fact": {
-                  "topicId": "share_next_kill",
-                  "stanceId": "offered_share",
-                  "promise": true,
-                  "status": "pending"
-                }
-              },
-              {
-                "id": "talk_plain",
-                "label": "“I will not promise that. We can still talk.”",
-                "B": "“Then there is no promise between us.”",
-                "fact": {
-                  "topicId": "share_next_kill",
-                  "stanceId": "no_promise",
-                  "promise": false
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "promise_resolution",
-        "trigger": "next eligible m2.repeat_meeting with ln05",
-        "beats": [
-          {
-            "id": "recall",
-            "when": "pending promise exists",
-            "B": "“You offered to share, if you had a kill when we met.”",
-            "choices": [
-              {
-                "id": "speak",
-                "label": "“I remember.”",
-                "B": "“Then we understand each other.”",
-                "result": "acknowledge_no_extra_affinity"
-              }
-            ]
-          },
-          {
-            "id": "resolve",
-            "choices": [
-              {
-                "id": "share",
-                "when": "engine validates today successful hunt and share available",
-                "label": "Share your kill as you offered.",
-                "B": "“You meant it. Make room beside you.”",
-                "transition": "pending→kept only after share commits; standard share only, no additional promise bonus"
-              },
-              {
-                "id": "talk_curt",
-                "label": "“I offered, but I am choosing not to keep that promise.”",
-                "B": "“Then I will not count on your word.”",
-                "transition": "pending→broken; explicit choice, once"
-              },
-              {
-                "id": "go",
-                "when": "no share available or player wants to wait",
-                "label": "“I cannot offer a kill now. The offer still stands.”",
-                "B": "“Another time, then. I have not forgotten.”",
-                "transition": "pending remains; this is not a broken promise"
-              }
-            ]
-          },
-          {
-            "id": "part",
-            "BByState": {
-              "kept": "“We can sit together a little.”",
-              "broken": "“Give me some space today.”",
-              "pending": "“We can speak again when our paths cross.”"
-            },
-            "choices": [
-              {
-                "id": "stay",
-                "label": "Respect the space they offer.",
-                "result": "finish_with_current_promise_state_no_further_bonus"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "remember_resolution",
-        "trigger": "next eligible meeting; saved committed promise state selects branch",
-        "branches": {
-          "kept": [
-            {
-              "id": "recall_kept",
-              "B": "“You shared when you said you would. Stay a while.”",
-              "choices": [
-                {
-                  "id": "stay",
-                  "label": "Sit beside them.",
-                  "B": "“It is easier to rest when I am not wondering what another cat wants.”"
-                }
-              ]
-            },
-            {
-              "id": "confide",
-              "B": "“I like company. I do not always like having to ask for it.”",
-              "choices": [
-                {
-                  "id": "speak",
-                  "label": "“You can ask me directly.”",
-                  "B": "“All right. I would like you to stay.”",
-                  "stanceId": "company_direct"
-                },
-                {
-                  "id": "talk_plain",
-                  "label": "“I like some quiet between us, too.”",
-                  "B": "“Quiet would suit me.”",
-                  "stanceId": "company_quiet"
-                }
-              ]
-            },
-            {
-              "id": "close_kept",
-              "B": "“A little longer?”",
-              "choices": [
-                {
-                  "id": "stay",
-                  "label": "Stay for a quiet moment.",
-                  "result": "record_confiding_completed"
-                },
-                {
-                  "id": "go",
-                  "label": "“Another time. I need to go.”",
-                  "result": "record_confiding_leave_no_broken_promise"
-                }
-              ]
-            }
-          ],
-          "broken": [
-            {
-              "id": "recall_broken",
-              "B": "“Last time you chose not to keep your offer. Why should this time be different?”",
-              "choices": [
-                {
-                  "id": "speak",
-                  "label": "“You should not have to believe another promise.”",
-                  "B": "“Then do not make one.”"
-                }
-              ]
-            },
-            {
-              "id": "repair",
-              "B": "“Do you still want company, without asking me to forget?”",
-              "choices": [
-                {
-                  "id": "talk_warm",
-                  "label": "“Yes. I can begin by listening.”",
-                  "B": "“Then listen. I would rather hear no than an offer you do not mean.”",
-                  "stanceId": "repair_open"
-                },
-                {
-                  "id": "talk_plain",
-                  "label": "“I think we need some distance.”",
-                  "B": "“Then leave me that.”",
-                  "stanceId": "repair_declined"
-                }
-              ]
-            },
-            {
-              "id": "close_broken",
-              "B": "“We will see what happens when we meet again.”",
-              "choices": [
-                {
-                  "id": "go",
-                  "label": "Leave without making another promise.",
-                  "result": "finish_repair_attempt_not_automatic_forgiveness"
-                }
-              ]
-            }
-          ],
-          "pending": "Use resolution meeting again without recharging prior facts, not confiding or blame. A resumed cursor remains the same instance; a later fresh meeting has its own slot charge.",
-          "no_promise": "Use existing trust/quiet-company followupByOutcome with its actual saved stance; no invented promise, confiding reward or accusation."
-        }
-      }
-    ],
-    "factMapping": [
-      "Engine mints factId/sourceChoiceKey/absDay/sequence. Topic and stance ids above are author-supplied, not inferred from prose.",
-      "Keep original promise fact and terminal state history; no log-pruning loss of receipt or promise.",
-      "Confiding is a new conversation disclosure about company, not a rerolled personality or canon biography. Use sociability/aggression voice variants without erasing the recorded state.",
-      "First proof may pin a fixture for tests, but normal-play ln05 retains its actual generated personality. Never force a friendly trait to make a branch work."
-    ],
-    "gate": [
-      "Three meetings retain same ln05 identity and generated traits.",
-      "Kept share unlocks confiding; explicit broken promise offers repair instead.",
-      "No kill, delayed meeting, leaving or hazard does not break a promise.",
-      "No promise path never receives promise recall.",
-      "Save before share has pending choice/no reward; save after has kept state and one share reward.",
-      "Save/Continue at every beat preserves cursor, presented branch, previous facts and once-only proposed needs charge."
-    ]
-  },
+  "spec": "milestone-2-spec v0.4.2 DRAFT §11 / §11.3a.8–9; provisional tunables, not approved balance",
   "rulesSource": "milestone-2-spec v0.4.2 DRAFT §11 / §11.3a.8–9; provisional tunables, not approved balance",
   "proofProfile": {
     "meetings": 3,
@@ -972,5 +717,1345 @@
     "Third meeting has explicit confiding/repair/neutral gates with written replies; all third outcomes default0 pending mapping.",
     "Generated ln05 identity/personality/portrait always authoritative; no fixed authoring biography.",
     "Outcome identifiers remain stable; revision increments only content bundle revision. Atomic receipts require run/cat/instance/node/choice, not label-only keys."
-  ]
+  ],
+  "worldMemoryConsumer": {
+    "status": "DRAFT semantic story contract; Flint maps actual versioned storage and Tundra owns relationship bands/effect numbers. No runtime support assumed.",
+    "entities": {
+      "player": "saved player entity ID",
+      "cat": "persistent roster ID, ln05 for personal proof",
+      "pride": "persistent pride ID; never cat name, portrait filename or translated label"
+    },
+    "predicates": [
+      {
+        "id": "event_committed",
+        "reads": "eventId + committed outcome/receipt",
+        "falseIf": "missing, pending, cancelled or unverified event",
+        "purpose": "No memory or reward from an unchosen answer."
+      },
+      {
+        "id": "cat_knows",
+        "reads": "observerCatId + factId + sourceEventId + provenance + active status",
+        "falseIf": "no knowledge record, rumor only, or source uncommitted",
+        "purpose": "Only witnessed, participated, explicitly disclosed or explicitly relayed facts may be asserted by that cat."
+      },
+      {
+        "id": "active_topic_fact",
+        "reads": "catId + topicId -> newest active fact ordered by saved sequence",
+        "falseIf": "unknown, superseded, or merely inferred from affinity",
+        "purpose": "Preserve history but surface current stance; pending promise remains pending."
+      },
+      {
+        "id": "player_cat_band",
+        "reads": "catId -> playerId personal feeling; direction explicit, not mirrored",
+        "falseIf": "record missing (use neutral fallback, not fabricated hostility)",
+        "purpose": "Personal warmth never becomes a whole-pride relationship update."
+      },
+      {
+        "id": "player_pride_band",
+        "reads": "prideId -> playerId standing; separate from individual cats and reverse direction",
+        "falseIf": "missing means specified default, not personal dislike",
+        "purpose": "Story policy may depend on standing without changing any individual’s private memories."
+      },
+      {
+        "id": "pride_edge_band",
+        "reads": "sourcePrideId -> targetPrideId explicit directional record and policy band",
+        "falseIf": "reverse edge only or missing (unknown/default)",
+        "purpose": "Highcrag toward Bonefield is not Bonefield toward Highcrag. No implicit mirrored update."
+      }
+    ],
+    "factLayers": {
+      "worldTruth": "Committed event is true in the world, scoped to its actual participants, place, choice and outcome. Storage of truth alone does not teach it to anyone.",
+      "individualKnowledge": "Cat has a provenance-linked observation/participation/disclosure/relay entry. Individual knowledge is distinct from world truth and faction policy.",
+      "claimsAndRumors": "A disclosure of a false claim records heard_claim, not an established event. No accusation/rumor is promoted to truth without a verified source. Rumor dialogue must say heard/claimed.",
+      "privacy": "Initial conversation and promise are known to player and bound B only. No pride-wide broadcast, no implicit knowledge by mate/leader/pride member. The player relationship record itself is not a knowledge source."
+    },
+    "effects": [
+      {
+        "id": "commit_choice_event",
+        "writes": "event/choice/outcome record + receipt; pendingArc cursor atomically",
+        "cause": "actual selected choice only"
+      },
+      {
+        "id": "record_conversation_fact",
+        "writes": "world fact + participants’ knowledge + per-cat active-topic link",
+        "cause": "committed reply; use existing ln05 topic/stance keys; no extra biography"
+      },
+      {
+        "id": "supersede_stance",
+        "writes": "old active-topic fact -> superseded; new fact active, history retained",
+        "cause": "explicit changed stance, not summary rewrite"
+      },
+      {
+        "id": "resolve_promise",
+        "writes": "pending -> kept once + agreed receipt/reward",
+        "cause": "same-cat return plus non-leave commitment; opening Leave remains pending"
+      },
+      {
+        "id": "disclose_event",
+        "writes": "recipient-specific knowledge edge with disclosure source event referencing real committed event",
+        "cause": "explicit player disclosure choice; no whole-pride spread"
+      },
+      {
+        "id": "apply_relationship_effect",
+        "writes": "only explicitly named personal/standing/directional faction records with sourceEventId and ruleId",
+        "cause": "Tundra-approved/provisional mapped effect; no transitive or mirrored deltas"
+      },
+      {
+        "id": "record_story_outcome",
+        "writes": "current encounter result audience_offered/audience_deferred; choice receipts and scoped facts",
+        "cause": "branch actually selected. Not rank, free access, guaranteed leader spawn or automatic diplomatic status."
+      }
+    ],
+    "ln05Adapter": {
+      "firstMeeting": "Every terminal choice emits actual event, topic/stance fact and participant knowledge. Stored first arc outcome is immutable history; active topic can later change.",
+      "nextMeeting": "Read original completed outcome + active fact + B knows that fact before offering matching reply. Copy no knowledge to other cats.",
+      "promise": "quiet_walk.return_quiet alone creates pending promise with source choice receipt. Later commitment resolves same fact once; greeting/Leave does not.",
+      "pendingContinue": "Restore node and presented fact IDs/cast; no reroll, auto-disclosure, synthetic completed reply or receipt replay.",
+      "legacySave": "Missing old facts means unknown. Use baseline/re-introduction, never infer a quiet walk from high affinity or a met flag."
+    },
+    "noFreeInference": [
+      "Friend of player implies ally of player pride",
+      "Disliked player implies hostile pride",
+      "Highcrag->Bonefield hostility implies reverse edge",
+      "World event exists implies guard knows it",
+      "Shared kill with one member means joining or promising allegiance",
+      "Player claim rewrites saved cat biography",
+      "Unreturned pending promise is broken",
+      "A UI log prune removes truth, knowledge or receipt"
+    ],
+    "directionNote": "Per Tundra current foundation: cat->player personal feeling; pride->player standing; ordered prideA->prideB faction record. Do not mirror or reinterpret neutral0 as +50. UI may describe the player’s standing but must label whose view is stored."
+  },
+  "factionStoryConsumer": {
+    "id": "m2.border_introduction",
+    "status": "DRAFT first faction consumer, not a new simulation or runtime schema",
+    "cast": {
+      "A": "saved player",
+      "B": "existing living Highcrag member actually met at legal border/rendezvous; engine supplies ID/name/portrait",
+      "originPride": "Highcrag",
+      "otherPride": "Bonefield"
+    },
+    "entryFacts": [
+      "No guaranteed spawn or entry into Highcrag’s interior. Use an actual legal meeting.",
+      "If using aid callback, bind a real committed player-share/help event with a Bonefield member. If none exists, do not invent it; generic variant still tests faction policy.",
+      "A cat knows the cause only if recorded witness/disclosure/relay provenance exists. Actual private ln05 conversations never seed this story."
+    ],
+    "policyContext": "Read Highcrag->Bonefield plus player->Highcrag separately. Tundra must map bands into permits_introduction/defers_introduction. No invented threshold. Reverse edge or personal fondness is not a substitute.",
+    "opening": {
+      "B": "“What brings you to our border?”",
+      "choices": [
+        {
+          "id": "request_introduction",
+          "label": "“Will you carry a request to speak with your leader?”",
+          "next": "policy_gate"
+        },
+        {
+          "id": "leave",
+          "label": "“I will leave your border in peace.”",
+          "outcome": "border_left"
+        }
+      ]
+    },
+    "policyGate": {
+      "permitted": {
+        "requires": "policy explicitly permits introduction and standing permits; no private-help predicate needed",
+        "B": "“I can carry your request. What should I tell them?”",
+        "choices": [
+          {
+            "id": "send_request",
+            "label": "“That I want to speak at the border, not enter your den.”",
+            "outcome": "audience_offered",
+            "B": "“At the border. I will pass that on.”"
+          },
+          {
+            "id": "withdraw",
+            "label": "“Not today. I will ask another time.”",
+            "outcome": "border_withdrawn"
+          }
+        ],
+        "consequence": "Record accepted request-to-relay as a scoped story fact; subsequent actual relaying is a separate event. No leader appearance or entry rights auto-granted."
+      },
+      "deferred_known_cause": {
+        "requires": "policy defers introduction AND B knows a verified player aid/share event involving Bonefield AND B knows current Highcrag policy cause",
+        "B": "“I know you helped a Bonefield cat. With things as they are between our prides, I will not carry this request without hearing why.”",
+        "choices": [
+          {
+            "id": "explain_known_aid",
+            "label": "“Ask me about what I did. Do not decide from their pride alone.”",
+            "next": "explain"
+          },
+          {
+            "id": "accept_defer",
+            "label": "“Then I will leave the request for now.”",
+            "outcome": "audience_deferred"
+          }
+        ]
+      },
+      "deferred_no_knowledge": {
+        "requires": "policy defers introduction; any knowledge predicate for named aid/cause missing",
+        "B": "“Not today. I am not taking requests across this border.”",
+        "choices": [
+          {
+            "id": "ask_reason",
+            "label": "“Can you tell me why?”",
+            "next": "reason_without_invented_knowledge"
+          },
+          {
+            "id": "accept_defer",
+            "label": "“Then I will leave the request for now.”",
+            "outcome": "audience_deferred"
+          }
+        ]
+      },
+      "unknown_policy": {
+        "requires": "directional policy mapping missing or unknown",
+        "B": "“I cannot promise an introduction.”",
+        "choices": [
+          {
+            "id": "leave_request",
+            "label": "“Then leave the request unanswered for now.”",
+            "outcome": "audience_pending_unknown"
+          },
+          {
+            "id": "withdraw",
+            "label": "“I will ask another time.”",
+            "outcome": "border_withdrawn"
+          }
+        ]
+      }
+    },
+    "explain": {
+      "B": "“Then tell me what happened.”",
+      "choices": [
+        {
+          "id": "disclose_verified_share",
+          "requires": "bound source event is actually a completed share (not arbitrary help)",
+          "label": "“We shared a kill. That is what happened.”",
+          "outcome": "account_recorded_audience_deferred",
+          "B": "“I have heard your account. The request still waits.”",
+          "effects": "Record exact disclosure and B knowledge, no faction change or audience approval inferred."
+        },
+        {
+          "id": "keep_private",
+          "label": "“I am not telling you more about that meeting.”",
+          "outcome": "private_audience_deferred",
+          "B": "“Then I will leave the request unanswered.”"
+        }
+      ]
+    },
+    "reason_without_invented_knowledge": {
+      "B": "“I am not offering to carry it. That is all I can tell you.”",
+      "choices": [
+        {
+          "id": "accept_defer",
+          "label": "“Then I will ask another time.”",
+          "outcome": "audience_deferred"
+        },
+        {
+          "id": "withdraw",
+          "label": "Withdraw the request.",
+          "outcome": "border_withdrawn"
+        }
+      ]
+    },
+    "concreteDifference": "A permitted directional policy offers send_request and commits audience_offered; a deferring policy offers explanation/withdrawal instead and commits audience_deferred. B liking the player does not bypass policy. Faction hostility alone never grants B knowledge of a private aid event.",
+    "storageNeeds": [
+      "Directional faction policy/band with saved cause IDs",
+      "Separate player-standing and personal records",
+      "Event facts plus recipient-specific knowledge/provenance",
+      "Scoped encounter outcome/choice receipts; pendingArc pause/Continue"
+    ],
+    "effectsDefault": "No numeric faction/standing/personal delta authored here. Tundra maps effects; current observable consequence is different choices and persisted introduction result, not a new diplomacy system.",
+    "checks": [
+      "Same personal relationship, change ONLY Highcrag->Bonefield policy: send_request appears or explanation/deferral appears. Reload preserves same branch.",
+      "Change ONLY Bonefield->Highcrag edge: no change to this gate.",
+      "Private aid fact exists but B lacks knowledge: never show named-aid accusation.",
+      "Explicit verified disclosure teaches B only. No other Highcrag cat or leader learns it until an actual relay event.",
+      "Warm B with hostile pride policy still defers; hostile B with friendly pride does not rewrite faction state.",
+      "New/cancelled share and a false claim never create verified-share callback.",
+      "Double-click request or disclosure: one event, one knowledge edge, one story outcome; no instant leader spawn.",
+      "Old save without knowledge records uses unknown/generic response; no fabricated memory."
+    ]
+  },
+  "proofSequence": {
+    "status": "AUTHORITATIVE sequence references existing graph/profile only; supersedes former share-next-kill adapter.",
+    "catId": "ln05",
+    "meeting1": {
+      "entry": "opening",
+      "positivePath": [
+        "company",
+        "quiet",
+        "return_quiet"
+      ],
+      "promise": "return_quiet; pending ONLY from quiet_walk.return_quiet"
+    },
+    "meeting2": {
+      "entry": "laterMeeting.recallByOutcome + followupByOutcome",
+      "positivePath": "quiet_company -> quiet_again -> quiet_renewed",
+      "promiseCommit": "same cat, non-leave opening commitment keeps return_quiet once; immediate Leave stays pending"
+    },
+    "meeting3": {
+      "entry": "thirdMeeting",
+      "branches": "confiding after kept return+quiet_renewed; repair after recorded boundary offense; otherwise neutral"
+    },
+    "receiptRules": "v0.4.2 §11.3a.8–9. First-contact greet entering arc has no extra +5. Promise kept receipt is run/cat/promiseFactId; choice receipts include instance/node/choice.",
+    "notInThisProof": [
+      "No share_next_kill promise",
+      "No return-promise broken state from absence, Leave or hazard",
+      "No fixed personality or authoring-lean runtime substitution"
+    ]
+  },
+  "councilDraft": {
+    "id": "council.feud_review.v1",
+    "status": "DRAFT, design only. Not part of current conversation acceptance; no cadence, access, vote right or balance approval implied.",
+    "cast": {
+      "allLeaders": "Resolve all extant pride IDs to their CURRENT living leader IDs at council creation; pin participant snapshot through save/Continue. Original world leaders hc01/bf01/mw01; use saved names/personality. If an expected leader is missing/replaced, revalidate/defer rather than call a two-leader scene all-leader council.",
+      "disputants": "Highcrag and Bonefield for this bounded example; bind only if a recorded feud/cause exists.",
+      "mediator": "Mistwood leader, participant rather than automatic judge.",
+      "player": "Role supplied by Tundra access contract: absent, admitted observer, invited speaker, or actual founded-pride leader. A loner never gains a vote by attending."
+    },
+    "preconditions": [
+      "A committed faction-history source event and explicit Highcrag->Bonefield / Bonefield->Highcrag records. No invented old feud or blame from generic hostility alone.",
+      "Current leaders can attend at the chosen legal site. Trigger/cadence/site/access supplied by Tundra, not a fixed year or invented festival.",
+      "Each statement about the cause requires that speaker’s knowledge provenance. If a leader lacks it, use the claim/disclosure branch; presence at council does not retroactively create knowledge of a private encounter."
+    ],
+    "beats": [
+      {
+        "id": "open",
+        "speaker": "mediator",
+        "text": "“We have all come. Let each pride say what it is asking before anyone answers.”",
+        "effect": "Record council opened/participant IDs; no peace effect."
+      },
+      {
+        "id": "accounts",
+        "text": "The disputing leaders give separate accounts tied to their known source facts. One may disagree with the other without changing recorded world truth.",
+        "variants": {
+          "verified": "“We are here because of what happened at the border. I want it stopped.”",
+          "claim_only": "“This is the account brought to me. I have not heard the other side.”",
+          "missing": "“Tell me what you are accusing us of.”"
+        },
+        "choicesIfPlayerInvited": [
+          {
+            "id": "cite_known_source",
+            "label": "Give the account you actually witnessed.",
+            "requires": "player knows verified source event; no fabricated eyewitness claim",
+            "effect": "Explicit disclosure to attending leaders, each with source provenance. No wider-pride broadcast."
+          },
+          {
+            "id": "acknowledge_limits",
+            "label": "“I did not see it. I cannot settle whose account is right.”",
+            "effect": "No false testimony or truth overwrite."
+          },
+          {
+            "id": "observe",
+            "label": "Listen without speaking.",
+            "effect": "No invented vote or diplomatic reward."
+          }
+        ]
+      },
+      {
+        "id": "terms",
+        "speaker": "mediator",
+        "text": "“Then leave pursuit out of this. Neither pride orders an attack on the other while this agreement stands. We review it when we next meet.”",
+        "proposedTerms": {
+          "termId": "no_authorised_attacks",
+          "parties": [
+            "highcrag",
+            "bonefield"
+          ],
+          "obligation": "Neither party orders or explicitly endorses an attack against the other party’s members.",
+          "review": "next actual council event, not elapsed guessed year length",
+          "notGranted": [
+            "Territory transfer",
+            "Free border passage",
+            "Shared hunting rights",
+            "Whole-pride friendship",
+            "Player leadership/vote rights"
+          ]
+        },
+        "effects": "Create draft agreement ID with exact terms, parties, participant votes/assents pending. No relation delta yet."
+      },
+      {
+        "id": "answers",
+        "requires": "Both disputing leaders decide independently from saved personality, known event, party standing and Tundra gate; personality affects delivery but never fabricates consent.",
+        "voices": {
+          "highAggression": "“No attack ordered by us. That does not give you our hunting ground.”",
+          "highLoyalty": "“I will answer for the orders I give my pride. Name what you will answer for.”",
+          "highSociability": "“We can say the terms plainly, here, with all three prides hearing.”",
+          "baseline": "“State the terms again. I will answer for my own pride.”"
+        },
+        "outcomes": {
+          "both_assent": {
+            "speaker": "mediator",
+            "text": "“Both have agreed to these terms. Nothing more has been given away.”",
+            "effect": "Activate precisely this agreement; ledger causes cite both assent choices. Apply only Tundra’s explicitly mapped directional effects, once."
+          },
+          "one_refuses": {
+            "speaker": "refusing leader",
+            "text": "“No. I will not bind my pride to that.”",
+            "effect": "Record refusal and inactive proposal. No agreement, automatic war, presumed bilateral penalty or silent majority override."
+          },
+          "counterproposal": {
+            "speaker": "counterproposing leader",
+            "text": "“Not those terms. Bring a narrower promise next time.”",
+            "effect": "Record requested revision, keep proposal unresolved. No invented replacement terms or automatic acceptance."
+          }
+        }
+      },
+      {
+        "id": "close",
+        "speaker": "mediator",
+        "text": "“What was agreed is recorded. What was refused remains unsettled.”",
+        "effect": "Save current negotiation cursor/terms/status and actual knowledge disclosures. Merely hearing a proposal does not mean accepting it."
+      }
+    ],
+    "agreementLifecycle": {
+      "identity": "agreementId, councilId, revision, partyPrideIds, leaderAssentChoiceIds, exact term version, status and causeEventIds; Flint maps fields.",
+      "fulfilment": "On a later actual review, assess recorded events under the term. No observed breach is not proof of compliance when event coverage is unknown. A validated review can close fulfilled; do not pay a compliance reward every day.",
+      "breach": "Only a committed attack event explicitly ordered/endorsed by a bound party can trigger this draft term. Lone-cat dislike, unrelated hazard or rumor is not a pride breach. Unknown authority remains unresolved. No new combat system implied.",
+      "knowledge": "World breach truth and who knows it are separate. A private breach may exist without uninformed leaders accusing a party. Witnessing/relay at a later scene teaches named recipients only.",
+      "consequences": "Tundra supplies explicit directional deltas and operational effects. Apply breach/fulfilment once per agreement/term/source-event receipt. Do not mirror edges or change player standing without a specific sourced rule.",
+      "leadershipChange": "Agreement belongs to pride parties, not automatically to replacement leader consent. Tundra must pin succession handling; do not silently cancel or renew terms."
+    },
+    "checks": [
+      "All actual leaders included with stable IDs/names/traits through Save/Continue; no old role name forced as display name.",
+      "Disagreement preserves inactive proposal and chosen terms; no agreement from two unrelated bystander approvals.",
+      "Terms do not mutate when reloaded; changed terms need revision and fresh assent from required parties.",
+      "One authorised breach updates only explicitly mapped records once; personal hostility/rumor never qualifies.",
+      "Unknown-to-leader source cannot become a factual accusation. Explicit disclosure adds recipients but no invisible pride-wide spread.",
+      "No invented date/year length, loner voting, forced resolution, resource transfer or border rights."
+    ],
+    "expansionStatus": "Further council dialogue DEFERRED by Director until three-meeting personality integration and evidence; existing proposal not expanded."
+  },
+  "personalityCoverage": {
+    "id": "ln05.personality_coverage.v1",
+    "status": "DRAFT full authored speech-location coverage, not runtime acceptance. Numeric band cuts and presentation policies proposed. No actual ln05 trait values assumed.",
+    "requiredTraits": [
+      "aggression",
+      "sociability",
+      "boldness",
+      "loyalty",
+      "curiosity"
+    ],
+    "authority": "Saved per-run cat personality from world-gen §5 / genetics §4. ln05 hidden-parent inheritance requires the generation resolver, not a founder shortcut or narrative lean.",
+    "inputContract": {
+      "required": [
+        "catId",
+        "all five saved trait integers",
+        "run/instance/node/choice IDs",
+        "known fact IDs and provenance",
+        "active original/follow-up outcomes",
+        "pending promise state",
+        "cat->player value and band"
+      ],
+      "missing": "Emit characterization_unresolved and preserve pending cursor. A diagnostic baseline may be displayed only if explicitly labelled incomplete, never counted as consistent-character coverage. Do not create personality values here.",
+      "provenance": "Each rendered beat records characterDataVersion, saved traits snapshot/reference, fact IDs and selected variant ID. Do not expose hidden numerical traits in ordinary player UI."
+    },
+    "renderPolicy": [
+      "First resolve the original history/knowledge/promise branch. Then read this exact speech-location row. Never use traits to invent a remembered event or skip a fact gate.",
+      "Band each trait: low <=30, high >=70, otherwise middle (authoring defaults, not new mechanics). Focus trait selects the full high/low utterance; middle retains the row base. Values at or near 50 describe a coherent moderate personality, not missing data.",
+      "Choose one visible action from that context: use focused trait if extreme; otherwise use the most extreme remaining trait (absolute distance from50; stable tie order requiredTraits). If all are middle, use neutral action: {catName} waits for your answer without hurrying you. Low/high actions are intentional NPC behavior, not combat/flee/hunt rolls.",
+      "Secondary constraints always apply: low sociability bounds closeness, high sociability can seek company without overriding quiet/consent; aggression changes how firmly limits are defended, never auto-attacks; boldness changes who initiates/sets pace, never invents a hazard; loyalty favors reliable limits but does not guarantee agreement or give loner pride loyalty; curiosity invites clarification, never grants unknown facts.",
+      "Relationship context may keep physical distance/guardedness or permit closeness only when actual chosen branch allows it. Do not reverse the saved personality. Positive affinity is not consent, negative affinity not an automatic fight, and Permanent Rival is not locked.",
+      "Player choice labels remain player-authored intentions. Do not rewrite the player to sound like the NPC or hide exit/repair/honest disagreement because of NPC traits. NPC personality appears in invitation/limits and the selected choice’s response/action; original stable choice/outcome IDs remain unchanged.",
+      "Text is composed BEFORE showing the node, then saved with selected variant/action IDs and exact pending cursor. Continue restores that presentation; no live RNG, rerender to a different choice set, extra receipt, or new cost.",
+      "Online/local/offline paths share these facts, trait inputs, branch/response/choice constraints. Generative modes may paraphrase within that envelope but cannot invent promises, change outcome/gate or omit the selected behavior. Offline has every row explicitly authored.",
+      "For terminal replies, resolve the chosen answer and its unchanged receipt once, save the response/cursor, and show the response. Reopening/restoring cannot apply effects again. Rendering an invitation or request does not resolve a promise."
+    ],
+    "npcDecisions": "The context action is an actual visible NPC choice of distance, initiative, pacing, questioning or enforcing a limit. It must appear in the scene, not remain an unused tag. New trust checks, denial gates, resource costs or mechanical preference deltas require separate approved/proposed rule mapping, not this authoring pass.",
+    "contextActions": {
+      "opening": {
+        "aggression": [
+          "{catName} holds their place and waits for a plain answer.",
+          "{catName} leaves a clear path past them rather than blocking you."
+        ],
+        "sociability": [
+          "{catName} turns fully toward you and makes room at their side.",
+          "{catName} leaves a little distance for you to choose whether to close."
+        ],
+        "boldness": [
+          "{catName} takes the first step toward a place to pause, then waits.",
+          "{catName} waits for you to stop before moving closer."
+        ],
+        "loyalty": [
+          "{catName} waits for an answer rather than treating your approach as an agreement.",
+          "{catName} offers only this moment, without pressing for another meeting."
+        ],
+        "curiosity": [
+          "{catName} watches for whether you mean to stop or keep moving.",
+          "{catName} waits for a direct answer instead of looking for another question."
+        ]
+      },
+      "walking": {
+        "aggression": [
+          "{catName} chooses a steady line beside you, leaving room between your shoulders.",
+          "{catName} shifts aside to leave you room to choose your pace."
+        ],
+        "sociability": [
+          "{catName} keeps beside you rather than moving out ahead.",
+          "{catName} keeps a small, comfortable gap without leaving the walk."
+        ],
+        "boldness": [
+          "{catName} offers to set the pace, then checks that you are alongside.",
+          "{catName} matches the slower pace instead of urging you farther."
+        ],
+        "loyalty": [
+          "{catName} keeps to the pace and quiet being offered now.",
+          "{catName} limits the invitation to this stretch rather than promising more."
+        ],
+        "curiosity": [
+          "{catName} watches how you match each other’s steps.",
+          "{catName} keeps attention on the walk rather than looking for a new subject."
+        ]
+      },
+      "question": {
+        "aggression": [
+          "{catName} faces the question directly, without crowding you.",
+          "{catName} gives you room to finish before answering."
+        ],
+        "sociability": [
+          "{catName} stays turned toward you, inviting an answer in return.",
+          "{catName} answers without moving closer or extending the talk."
+        ],
+        "boldness": [
+          "{catName} answers without waiting for you to make the question easier.",
+          "{catName} pauses to choose an answer rather than rushing it."
+        ],
+        "loyalty": [
+          "{catName} keeps the answer to what they can actually offer.",
+          "{catName} speaks about today rather than binding either of you to more."
+        ],
+        "curiosity": [
+          "{catName} leaves a pause for you to explain what you meant.",
+          "{catName} answers the question at hand without opening another subject."
+        ]
+      },
+      "boundary": {
+        "aggression": [
+          "{catName} plants their paws and holds the space they have asked for.",
+          "{catName} eases back rather than turning the disagreement into a confrontation."
+        ],
+        "sociability": [
+          "{catName} stays facing you; wanting company has not removed the limit.",
+          "{catName} leaves more room between you instead of seeking reassurance."
+        ],
+        "boldness": [
+          "{catName} meets your gaze while stating the limit.",
+          "{catName} states the limit from a little farther away."
+        ],
+        "loyalty": [
+          "{catName} waits to see whether the limit is respected before offering more.",
+          "{catName} keeps the question to what each of you wants now."
+        ],
+        "curiosity": [
+          "{catName} waits for your answer rather than deciding what you meant.",
+          "{catName} does not prolong the disagreement with more questions."
+        ]
+      },
+      "return": {
+        "aggression": [
+          "{catName} waits squarely for your answer without stepping into your way.",
+          "{catName} leaves you room to answer or pass."
+        ],
+        "sociability": [
+          "{catName} makes space beside them for the invitation they are offering.",
+          "{catName} offers a little room without closing the whole gap."
+        ],
+        "boldness": [
+          "{catName} makes the invitation plainly, then waits.",
+          "{catName} waits until you have stopped before making the invitation."
+        ],
+        "loyalty": [
+          "{catName} leaves the earlier words as they were, waiting to hear what you choose now.",
+          "{catName} makes today’s invitation without asking for a longer promise."
+        ],
+        "curiosity": [
+          "{catName} watches for your answer rather than assuming you want the same thing again.",
+          "{catName} waits on the present invitation without adding another subject."
+        ]
+      },
+      "departure": {
+        "aggression": [
+          "{catName} steps aside rather than turning an ending into a confrontation.",
+          "{catName} lets the exchange end without following you."
+        ],
+        "sociability": [
+          "{catName} stays facing you for the last words, but does not delay your leaving.",
+          "{catName} gives you room to leave without stretching the farewell."
+        ],
+        "boldness": [
+          "{catName} turns toward their own path once the answer is given.",
+          "{catName} waits for a little distance before turning away."
+        ],
+        "loyalty": [
+          "{catName} leaves the answer as given, without extracting another promise.",
+          "{catName} lets today’s meeting end without making arrangements for another."
+        ],
+        "curiosity": [
+          "{catName} lets the question wait rather than calling you back.",
+          "{catName} adds no further question to the farewell."
+        ]
+      },
+      "confiding": {
+        "aggression": [
+          "{catName} makes the request without stepping into your way.",
+          "{catName} leaves you room to answer without pressure."
+        ],
+        "sociability": [
+          "{catName} offers a place beside them, waiting to see whether you take it.",
+          "{catName} offers the nearness without asking for constant talk."
+        ],
+        "boldness": [
+          "{catName} holds your gaze while making the request.",
+          "{catName} glances aside, then gives you time to answer."
+        ],
+        "loyalty": [
+          "{catName} waits for the limit of what you are willing to offer.",
+          "{catName} keeps the request to this meeting rather than asking for a lasting commitment."
+        ],
+        "curiosity": [
+          "{catName} gives you time to say what staying would mean to you.",
+          "{catName} waits for your answer without questioning it in advance."
+        ]
+      }
+    },
+    "speechLocations": {
+      "/nodes/opening": {
+        "focusTrait": "sociability",
+        "high": "Would you walk with me? You can pass through if you need to.",
+        "low": "Did you want to stop? I can spare a little time.",
+        "base": "“Are you passing through, or did you want company?”",
+        "context": "opening",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/company": {
+        "focusTrait": "sociability",
+        "high": "Walk beside me. I would like company, even if we leave the talking for later.",
+        "low": "We can walk a little. I would rather keep it quiet today.",
+        "base": "“We can walk. Quietly, for a little while.”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/curious": {
+        "focusTrait": "curiosity",
+        "high": "What made you curious about me? Ask, and I may have a question for you too.",
+        "low": "Ask one thing first. I would rather not turn this into a long questioning.",
+        "base": "“What do you want to know?”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/quiet_walk": {
+        "focusTrait": "boldness",
+        "high": "This is all right. I will keep beside you for this stretch.",
+        "low": "This is all right. No need to hurry farther yet.",
+        "base": "“This is all right.”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/space": {
+        "focusTrait": "sociability",
+        "high": "I want you here. I just do not want to talk all the way.",
+        "low": "I did not ask you to leave. Walking quietly is enough for me today.",
+        "base": "“Not alone. Just quiet. There is a difference.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/boundary": {
+        "focusTrait": "aggression",
+        "high": "I said quiet. You can want something else, but do not press me.",
+        "low": "We seem to want different things today. Let us stop rather than argue.",
+        "base": "“Then we want different things today.”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/trust": {
+        "focusTrait": "loyalty",
+        "high": "Small things done again. If I stop, notice it; do not promise to notice and then walk on.",
+        "low": "Notice when I stop, today. I would rather see what we do than make a large promise.",
+        "base": "“Small things. A cat who notices when I stop, instead of walking on without me.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/hunting": {
+        "focusTrait": "boldness",
+        "high": "I will take the lead when I know a hunt. First I would learn your pace, without prey in front of us.",
+        "low": "I would learn your pace on a walk first. I do not want to find out we work badly together in the middle of a hunt.",
+        "base": "“With another cat, you have to keep track of more than the prey. I would want to learn your pace first.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/left_politely": {
+        "focusTrait": "sociability",
+        "high": "You only stopped briefly before. Have you time to stay with me now?",
+        "low": "Passing through again, or stopping this time?",
+        "base": "“Not just passing through this time?”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/quiet_company": {
+        "focusTrait": "sociability",
+        "high": "Another quiet walk together? There is room beside me.",
+        "low": "Quiet again? I could do that.",
+        "base": "“Another quiet walk?”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/quiet_no_promise": {
+        "focusTrait": "boldness",
+        "high": "We walked together before. Shall we take another stretch?",
+        "low": "A few more steps together, without going far?",
+        "base": "“A few more steps together?”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/gave_space": {
+        "focusTrait": "sociability",
+        "high": "You gave me space before. I would like you closer today.",
+        "low": "You left me room last time. You need not stand quite so far off now.",
+        "base": "“You left me some space last time. You can come closer today.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/repaired_pressure": {
+        "focusTrait": "aggression",
+        "high": "You stopped pushing last time. Keep it that way and we can walk.",
+        "low": "We stopped that argument last time. We could try walking again.",
+        "base": "“We could try that walk again. Without the argument.”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/dismissed_boundary": {
+        "focusTrait": "aggression",
+        "high": "Last time you dismissed what I asked for. Are you going to do that again?",
+        "low": "Last time did not end well. Can we avoid another argument about quiet?",
+        "base": "“Are we going to argue about quiet again?”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/asked_about_trust": {
+        "focusTrait": "loyalty",
+        "high": "You said you would notice when I stopped. Do you still mean it?",
+        "low": "You asked what I trusted. Still watching for when I stop?",
+        "base": "“Still watching for when I stop?”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/prefers_direct_words": {
+        "focusTrait": "sociability",
+        "high": "You asked for plain words: I want your company today.",
+        "low": "You wanted me to say it directly. I could walk with you a little.",
+        "base": "“You said to tell you directly. I would like some company.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/asked_about_hunting": {
+        "focusTrait": "curiosity",
+        "high": "You wanted to learn my pace. What have you made of it so far?",
+        "low": "You asked about hunting together. A walk is still where I would start.",
+        "base": "“Learning my pace, then?”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/recallByOutcome/prefers_solo_hunts": {
+        "focusTrait": "curiosity",
+        "high": "You said you hunt alone. Is it only hunting you want to keep to yourself?",
+        "low": "Still keeping your hunts to yourself? We need not change that to stop here.",
+        "base": "“Still keeping your hunts to yourself?”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/nodes/later_check_in": {
+        "focusTrait": "sociability",
+        "high": "Tell me what you would like today. I want to spend a little time together.",
+        "low": "What would suit you today? Keep it simple.",
+        "base": "“And what would you like today?”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/nodes/later_new_tone": {
+        "focusTrait": "curiosity",
+        "high": "Something different? Tell me what you have in mind.",
+        "low": "Say what you want plainly. I would rather know before we begin.",
+        "base": "“Tell me what you have in mind.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/outcomes/later_left": {
+        "focusTrait": "sociability",
+        "high": "Another time, then. I would have liked you to stay.",
+        "low": "All right. I will leave you to it.",
+        "base": "“Another time.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/outcomes/later_quiet": {
+        "focusTrait": "boldness",
+        "high": "Beside me, then. I will take this stretch with you.",
+        "low": "Here beside me is enough. We need not go far.",
+        "base": "“All right. Here, beside me.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/outcomes/later_talk": {
+        "focusTrait": "sociability",
+        "high": "Stay and talk, then. I would like that.",
+        "low": "A few words, then. I can stay a little.",
+        "base": "“For a little while. Stay.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/outcomes/later_listen": {
+        "focusTrait": "loyalty",
+        "high": "I wondered whether you would come back. I notice when a cat does.",
+        "low": "I wondered whether you would come back. You are here now; that is enough for today.",
+        "base": "“I was wondering whether you would come back.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/outcomes/later_space": {
+        "focusTrait": "sociability",
+        "high": "A little space, then. We can still be company.",
+        "low": "That suits me. I do not need to stay close.",
+        "base": "“That would suit me.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/quiet_company": {
+        "focusTrait": "sociability",
+        "high": "I would like another walk. Quiet again, or shall we talk a little?",
+        "low": "Quiet again? I can manage a few words instead, if that is what you want.",
+        "base": "“Quiet again, or would you rather talk today?”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/quiet_company/choices/0": {
+        "focusTrait": "boldness",
+        "high": "Come along. I will walk beside you.",
+        "low": "Then let us keep to a comfortable pace.",
+        "base": "“Then come along.”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/quiet_company/choices/1": {
+        "focusTrait": "sociability",
+        "high": "You gave me quiet before. I would like to hear you today.",
+        "low": "You did not hurry me before. A few words today would be all right.",
+        "base": "“You did not rush me last time. I can spare a few words.”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/quiet_no_promise": {
+        "focusTrait": "sociability",
+        "high": "I would like another walk. Quiet again, or shall we talk a little?",
+        "low": "Quiet again? I can manage a few words instead, if that is what you want.",
+        "base": "“Quiet again, or would you rather talk today?”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/quiet_no_promise/choices/0": {
+        "focusTrait": "boldness",
+        "high": "Come along. I will walk beside you.",
+        "low": "Then let us keep to a comfortable pace.",
+        "base": "“Then come along.”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/quiet_no_promise/choices/1": {
+        "focusTrait": "sociability",
+        "high": "You gave me quiet before. I would like to hear you today.",
+        "low": "You did not hurry me before. A few words today would be all right.",
+        "base": "“You did not rush me last time. I can spare a few words.”",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/gave_space": {
+        "focusTrait": "curiosity",
+        "high": "You left me room last time. Were you waiting for me to ask you back, or did you want space too?",
+        "low": "You gave me space before. Were you waiting for an invitation back?",
+        "base": "“You gave me room last time. Were you waiting for me to ask you back?”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/gave_space/choices/0": {
+        "focusTrait": "sociability",
+        "high": "Here is the invitation, then. Come closer.",
+        "low": "You can come a little closer. No need to wait so far away.",
+        "base": "“You need not stay so far away now.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/gave_space/choices/1": {
+        "focusTrait": "sociability",
+        "high": "We have both had our space. I would like to walk together now.",
+        "low": "Then we both had what we needed. A short walk?",
+        "base": "“Then we have both had our space. Walk a little?”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/repaired_pressure": {
+        "focusTrait": "aggression",
+        "high": "We wanted different things last time. If I ask for quiet again, will you accept it?",
+        "low": "Last time I wanted quiet and you wanted words. How do we keep that from becoming another argument?",
+        "base": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/repaired_pressure/choices/0": {
+        "focusTrait": "aggression",
+        "high": "Good. Quiet today, then. That is what I am offering.",
+        "low": "Thank you. A quiet walk would suit me today.",
+        "base": "“Good. Today I would rather walk quietly.”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/repaired_pressure/choices/1": {
+        "focusTrait": "aggression",
+        "high": "Then find talking company today. I am not offering that.",
+        "low": "Then it may be better to find someone who wants to talk today. We can try another time.",
+        "base": "“Then look for company that wants to talk today. We can try another time.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/dismissed_boundary": {
+        "focusTrait": "aggression",
+        "high": "We wanted different things last time. If I ask for quiet again, will you accept it?",
+        "low": "Last time I wanted quiet and you wanted words. How do we keep that from becoming another argument?",
+        "base": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/dismissed_boundary/choices/0": {
+        "focusTrait": "aggression",
+        "high": "Good. Quiet today, then. That is what I am offering.",
+        "low": "Thank you. A quiet walk would suit me today.",
+        "base": "“Good. Today I would rather walk quietly.”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/dismissed_boundary/choices/1": {
+        "focusTrait": "aggression",
+        "high": "Then find talking company today. I am not offering that.",
+        "low": "Then it may be better to find someone who wants to talk today. We can try another time.",
+        "base": "“Then look for company that wants to talk today. We can try another time.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/asked_about_trust": {
+        "focusTrait": "curiosity",
+        "high": "You said you would watch for me stopping. What would you do if I asked to turn back?",
+        "low": "You said you would notice when I stopped. Would you turn back if I asked?",
+        "base": "“You said you would watch for when I stopped. And if I asked to turn back?”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/asked_about_trust/choices/0": {
+        "focusTrait": "boldness",
+        "high": "Then I am willing to go a little farther with you.",
+        "low": "Then we can go a little farther, knowing we can turn back.",
+        "base": "“Then we could go a little farther together.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/asked_about_trust/choices/1": {
+        "focusTrait": "curiosity",
+        "high": "Ask, then. I would rather we understood each other than guessed.",
+        "low": "A plain question would do. You need not guess.",
+        "base": "“Fair. Asking would do.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/prefers_direct_words": {
+        "focusTrait": "sociability",
+        "high": "You wanted plain words: I want to spend time with you, but I do not want a shared hunt today.",
+        "low": "Company would be all right today. Not a hunt together; just a walk.",
+        "base": "“You asked me to speak plainly. I want company today, but not hunting company.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/prefers_direct_words/choices/0": {
+        "focusTrait": "sociability",
+        "high": "Good. A walk together is what I wanted.",
+        "low": "Yes. That is enough for me today.",
+        "base": "“That is what I meant.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/prefers_direct_words/choices/1": {
+        "focusTrait": "loyalty",
+        "high": "Go, then. I would rather you told me than stayed unwillingly.",
+        "low": "Then go and hunt. This was only an invitation, not an obligation.",
+        "base": "“Then I will not keep you.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/asked_about_hunting": {
+        "focusTrait": "loyalty",
+        "high": "You said you wanted to learn my pace. Do you still mean to try?",
+        "low": "You mentioned learning my pace. Still interested, or have you changed your mind?",
+        "base": "“You wanted to learn my pace. Still interested, or was that only talk?”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/asked_about_hunting/choices/0": {
+        "focusTrait": "boldness",
+        "high": "Walking first, then. I am willing to begin there.",
+        "low": "Walking first is a start I can be comfortable with.",
+        "base": "“Walking first. I can agree to that.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/asked_about_hunting/choices/1": {
+        "focusTrait": "aggression",
+        "high": "Then say so now. Do not pretend to want a hunt together.",
+        "low": "All right. Better to say so than walk toward something neither of us wants.",
+        "base": "“Then it is better to say so now.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/prefers_solo_hunts": {
+        "focusTrait": "curiosity",
+        "high": "You said you hunt alone. Is that only about hunts, or would you rather I left now?",
+        "low": "You keep hunting to yourself. Would you prefer I left now too?",
+        "base": "“You said you hunt alone. Does that mean you would rather I left now?”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/prefers_solo_hunts/choices/0": {
+        "focusTrait": "sociability",
+        "high": "Then I will stay. I wanted company, not a claim on your hunts.",
+        "low": "A little company without sharing hunts would suit me too.",
+        "base": "“Then I will stay a little.”",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/prefers_solo_hunts/choices/1": {
+        "focusTrait": "aggression",
+        "high": "All right. I will take my own path.",
+        "low": "All right. I will leave you some room.",
+        "base": "“All right. I will take the other path.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/left_politely": {
+        "focusTrait": "sociability",
+        "high": "You only passed through last time. Will you stop with me today?",
+        "low": "You were passing through before. Do you have time to stop now?",
+        "base": "“You were only passing through last time. Have you time to stop now?”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/left_politely/choices/0": {
+        "focusTrait": "sociability",
+        "high": "Then stay. I would like the company.",
+        "low": "Then we can stop here a little.",
+        "base": "“Then stay a while.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/followupByOutcome/left_politely/choices/1": {
+        "focusTrait": "sociability",
+        "high": "I am glad you stopped to say it. Go safely.",
+        "low": "I heard you. Safe trails.",
+        "base": "“I heard you. Safe trails.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/confiding": {
+        "focusTrait": "boldness",
+        "high": "You came back and kept our walk quiet. I want you to stay longer; I am asking you now.",
+        "low": "You came back and left the quiet alone. I have been trying to find a way to ask you to stay a little longer.",
+        "base": "“You came back, and you let the quiet stay quiet. I have not quite known how to ask you to stay longer.”",
+        "context": "confiding",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/confiding/choices/0": {
+        "focusTrait": "sociability",
+        "high": "Stay, then. I would like more time beside you.",
+        "low": "Stay a little longer. Just here is enough.",
+        "base": "“Stay a little longer, then.”",
+        "context": "confiding",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/confiding/choices/1": {
+        "focusTrait": "loyalty",
+        "high": "Tell me when you need to go. A limit honestly given is better than a promise you cannot keep.",
+        "low": "Then do not promise every time. Tell me what you want today.",
+        "base": "“Tell me when you have to go. I would rather know.”",
+        "context": "confiding",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/repair": {
+        "focusTrait": "aggression",
+        "high": "You wanted words when I asked for quiet. Will you leave me space if I ask for it now?",
+        "low": "We argued when I wanted quiet. I need to know I can ask for space without another argument.",
+        "base": "“Last time you wanted words when I wanted quiet. Are you going to listen if I ask for space?”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/repair/choices/0": {
+        "focusTrait": "sociability",
+        "high": "Then stay a little way off for now. I am not ready to be close, but you need not go.",
+        "low": "Then let us begin with some space. That is enough for today.",
+        "base": "“Then we can start with a little space between us.”",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/repair/choices/1": {
+        "focusTrait": "aggression",
+        "high": "Then go. Better that than pushing for what I am not offering.",
+        "low": "That may be better today. We need not make it another quarrel.",
+        "base": "“That may be better today.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/neutral": {
+        "focusTrait": "sociability",
+        "high": "Will you stay with me a little today?",
+        "low": "Did you want a little company today?",
+        "base": "“A little company today?”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/neutral/choices/0": {
+        "focusTrait": "boldness",
+        "high": "Come sit here beside me.",
+        "low": "We could sit here a little.",
+        "base": "“Come sit here.”",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/thirdMeeting/neutral/choices/1": {
+        "focusTrait": "sociability",
+        "high": "Another time, then. I would have liked a little longer.",
+        "low": "All right. Another time.",
+        "base": "“Another time.”",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/opening/choices/2": {
+        "focusTrait": "sociability",
+        "high": "All right. I would have liked the company, but I will not keep you.",
+        "low": "Safe trails. I will leave you to them.",
+        "base": "Safe trails. I will leave you to them.",
+        "context": "departure",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/quiet_walk/choices/0": {
+        "focusTrait": "loyalty",
+        "high": "Another quiet walk, if we meet. I will remember what we have agreed to.",
+        "low": "If we meet again, yes. Let us leave it at a quiet walk.",
+        "base": "Another quiet walk, if we meet. I will remember what we have agreed to.",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/quiet_walk/choices/1": {
+        "focusTrait": "loyalty",
+        "high": "Go safely. We have made no promise about another day.",
+        "low": "Go safely. This walk was enough for today.",
+        "base": "Go safely. We have made no promise about another day.",
+        "context": "walking",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/space/choices/0": {
+        "focusTrait": "sociability",
+        "high": "Then stay beside me for this stretch.",
+        "low": "A quiet stretch together would suit me.",
+        "base": "A quiet stretch together would suit me.",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/space/choices/1": {
+        "focusTrait": "sociability",
+        "high": "All right. I did want company, but I can leave it for today.",
+        "low": "Thank you. I will take a little space today.",
+        "base": "Thank you. I will take a little space today.",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/boundary/choices/0": {
+        "focusTrait": "aggression",
+        "high": "Good. Do not push it further today.",
+        "low": "Thank you for stopping. We can leave it there.",
+        "base": "Thank you for stopping. We can leave it there.",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/boundary/choices/1": {
+        "focusTrait": "aggression",
+        "high": "Then leave it. I am not going to argue for the quiet I asked for.",
+        "low": "Then let us leave it here rather than quarrel.",
+        "base": "Then let us leave it here rather than quarrel.",
+        "context": "boundary",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/trust/choices/0": {
+        "focusTrait": "loyalty",
+        "high": "Then let me see you do it. Small things count when they keep happening.",
+        "low": "Then we can see how this walk goes, without promising more.",
+        "base": "Then let me see you do it. Small things count when they keep happening.",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/trust/choices/1": {
+        "focusTrait": "curiosity",
+        "high": "Then I will say it, and you can ask if it is unclear.",
+        "low": "All right. I can say when I want to stop.",
+        "base": "All right. I can say when I want to stop.",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/hunting/choices/0": {
+        "focusTrait": "boldness",
+        "high": "A walk first. I am willing to start there.",
+        "low": "A walk would let us learn without rushing into a hunt.",
+        "base": "A walk would let us learn without rushing into a hunt.",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/nodes/hunting/choices/1": {
+        "focusTrait": "sociability",
+        "high": "You can keep your hunts. I can still enjoy company away from them.",
+        "low": "That suits me. A shared walk need not mean a shared hunt.",
+        "base": "That suits me. A shared walk need not mean a shared hunt.",
+        "context": "question",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      },
+      "/laterMeeting/fallback": {
+        "focusTrait": "sociability",
+        "high": "Would you like to stop with me?",
+        "low": "Did you want to stop here?",
+        "base": "Did you want to stop here?",
+        "context": "return",
+        "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+      }
+    },
+    "coverage": {
+      "speechLocations": 76,
+      "fullExtremeUtterances": 152,
+      "baselineUtterances": 76,
+      "firstMeetingTerminalRepliesAdded": 11,
+      "uncoveredNpcSpeechLocations": 0,
+      "scope": "All three meetings, ten callbacks and matched follow-ups, response to every terminal player choice, generic legacy later nodes, and history-missing fallback. Council intentionally not expanded.",
+      "runtimeAcceptance": "NOT RUN; only source coverage/structural validation below. Engine must consume actions, exact variant persistence and all five saved traits on every path."
+    },
+    "qaScenarios": [
+      {
+        "kind": "synthetic fixture, not actual ln05 values",
+        "case": "contrasting saved cats",
+        "inputs": "one high aggression/low sociability; one low aggression/high sociability; same known events and player choice",
+        "assert": "different authored speech and visible boundary/company decision at opening, follow-up and third repair, without different invented memory or extra numerical delta"
+      },
+      {
+        "kind": "synthetic fixture, not actual ln05 values",
+        "case": "other axes",
+        "inputs": "hold other traits at50; compare boldness20/80 at quiet_walk and third confiding, loyalty20/80 at trust and honest_limit, curiosity20/80 at curious and asked_about_trust",
+        "assert": "each changes its focused response and action, not merely a greeting; no change to committed factual history"
+      },
+      {
+        "case": "same cat after warmth/repair",
+        "assert": "traits unchanged; exact callback history changes only through actual choices. Aggressive cat can accept repair firmly; sociable cat can keep a boundary. Confiding only after actual required history."
+      },
+      {
+        "case": "save/Continue",
+        "assert": "same cat values, node, choices, exact selected speech/action and fact references; terminal cost/reward/promise receipt applies once"
+      },
+      {
+        "case": "missing data",
+        "assert": "explicit gap, no normal generic-character pass; offline/local/online all preserve pending exchange"
+      },
+      {
+        "case": "all locations",
+        "assert": "every B and fallback location has explicit low/middle/high response; removed or added source nodes must fail authoring coverage check rather than quietly use a generic greeting"
+      }
+    ],
+    "relationshipModulation": {
+      "priority": "Exact history/knowledge/choice gate > explicit limit or farewell > relationship distance modulation > selected trait action. Traits still select speech and delivery; modulation never edits saved traits.",
+      "guarded": {
+        "when": "known catToPlayer <= -15; presentation-only authoring default",
+        "action": "{catName} stays turned toward you but keeps a clear gap, waiting for your answer.",
+        "limit": "Do not suppress a justified invitation, change its selected outcome or fabricate an offense. Sociability can motivate offering company despite guardedness."
+      },
+      "warm": {
+        "when": "known catToPlayer >=15 and current beat offers company, with no unresolved boundary and no farewell",
+        "action": "Retain the selected trait action; allow its invitation but do not collapse low-sociability distance or presume affection, touch, romance or consent.",
+        "limit": "Warmth never bypasses third-meeting fact gates or makes forgiveness instant."
+      },
+      "unknown_or_neutral": "Use selected trait action and current situation only; never describe unearned liking/dislike. Unknown relationship display is not evidence of neutrality."
+    }
+  }
 }

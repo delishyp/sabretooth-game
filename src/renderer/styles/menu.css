@@ -232,6 +232,11 @@ button.primary { border-color: var(--accent); }
 .conversation-card .event-text.narration { color: #e7d3b4; font-style: italic; }
 .conversation-card .event-choices { flex: 0 0 auto; overflow: visible; }
 .conversation-card .event-choices button { white-space: normal; height: auto; min-height: 48px; line-height: 1.35; overflow: visible; text-align: left; }
+.conversation-card .event-text.gap { color: #e6c46a; font-style: normal; font-size: 16px; }
+.conversation-card .event-text.action { color: #d4b07a; font-style: italic; }
+.conversation-card .talk-utility { flex: 0 0 auto; display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212, 176, 122, .4); }
+.conversation-card .talk-utility button { width: auto; min-height: 34px; padding: 4px 14px; font-size: 15px; letter-spacing: 1px; text-transform: uppercase; background: transparent; border: 1px dashed rgba(212, 176, 122, .75); color: #d4b07a; border-radius: 8px; }
+.conversation-card .talk-utility button:hover, .conversation-card .talk-utility button.focused, .conversation-card .talk-utility button:focus-visible { background: rgba(48, 32, 18, .55); border-color: #e6c98a; color: #fff8ea; outline: 2px solid #fff; outline-offset: 2px; }
 .met-note { margin: 4px 0 0; font-size: 15px; color: #e7d3b4; }
 .screen[data-screen="summary"] { padding: 80px 160px; }
 .summary-cause { font-size: 28px; color: var(--danger); }

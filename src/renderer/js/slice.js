@@ -7,9 +7,9 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A slug is kept as given. Anything else, including a legacy omission, is null. Never rewritten to another id. */
@@ -20,6 +20,7 @@
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
     const C = Conversation.create(conversation, { ...(R.conversation || {}), affinityRange: M.affinityRange });
+    const WM = WorldMemory.create(R);
     const EV = (events && events.events) || [];
     const season = (s) => s.season;
     /** needs §1.6a named state. */
@@ -59,6 +60,8 @@
         npcs: rollNpcs(seed, mainCat.name), usedEvents: [], pending: null, report: null, log: [], dead: null, over: false,
         conversation: C.empty()
       };
+      Personality.applyNew(s);
+      WM.initNew(s);
       return s;
     }
 
@@ -119,6 +122,9 @@
       if (s.phase === 'conversation') {
         const r = C.commit(s, action);
         if (r.error) return { state: s0, error: r.error };
+        const led = s.conversation && s.conversation.ledger;
+        const row = led && led[led.length - 1];
+        if (row && s.worldMemory) WM.noteConversation(s, row, s.conversation.cats[row.catId]);
         return { state: s };
       }
       if (action.type === 'talk') {
@@ -271,7 +277,10 @@
       if (p.hostile) { p.choiceId = 'hostile'; log(s, fill(e.hostileSummary, { catName: p.catName })); s.phase = 'eventResult'; return { state: s }; }
       const c = e.choices.find((x) => x.id === action.choiceId); if (!c) return { state: s, error: 'choice' };
       p.choiceId = c.id;
-      if (p.catId) applyIntent(s, p.catId, c.affinityIntent, p.day);
+      if (p.catId) {
+        const d = applyIntent(s, p.catId, c.affinityIntent, p.day);
+        if (s.worldMemory) WM.notePersonal(s, { catId: p.catId, delta: d, receiptKey: `${s.runId || ''}/intent/${p.catId}/${p.eventId}/${c.id}/${p.day}`, sourceType: 'conversation_outcome', scope: 'private' });
+      }
       log(s, fill(c.summary || e.summary, { catName: p.catName }));
       s.phase = 'eventResult';
       return { state: s };
@@ -325,12 +334,14 @@
         n.portraitId = keptPortraitId(n.portraitId);
         // Personality, look and name are the saved cat. Loading must not roll them again.
       }
+      Personality.migrate(s);
       C.normalize(s);
+      WM.migrate(s);
       s.saveVersion = R.saveVersion;
       return s;
     }
     const eventById = (id) => EV.find((e) => e.id === id) || null;
-    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R, talkView: (st) => C.view(st) };
+    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R, talkView: (st) => C.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM };
   }
   return { create, fill };
 });

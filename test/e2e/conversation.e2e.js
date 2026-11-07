@@ -143,8 +143,14 @@ function assertLayout(box, { scroll = false } = {}) {
       assert.strictEqual(mid.conversation.ledger.length, 1);
     });
 
-    await check('save mid-talk and Continue restores the same cat and cursor', async () => {
-      await page.locator('#game-event [data-g="save"]').click();
+    const choiceIds = () => page.evaluate(() => [...document.querySelectorAll('.event-choices [data-g="choose"]')].map((b) => b.dataset.choice));
+    await check('save mid-talk and Continue restores the same node and choices', async () => {
+      assert.strictEqual(await page.locator('.event-choices [data-g="save"]').count(), 0);
+      assert.strictEqual(await page.locator('.talk-utility [data-g="save"]').count(), 1);
+      const idsBefore = await choiceIds();
+      const variantBefore = (await g(page)).state.conversation.pending.presentation.variantIds;
+      files.before = await shot(page, 'conversation-node-before');
+      await page.locator('.talk-utility [data-g="save"]').click();
       await page.waitForTimeout(300);
       const before = (await g(page)).state;
       await press(page, 'Escape');
@@ -154,6 +160,10 @@ function assertLayout(box, { scroll = false } = {}) {
       await page.waitForFunction(() => document.querySelector('.conversation-card'));
       const after = (await g(page)).state;
       assert.strictEqual(after.conversation.pending.nodeId, 'company');
+      assert.deepStrictEqual(await choiceIds(), idsBefore);
+      assert.deepStrictEqual(after.conversation.pending.presentation.variantIds, variantBefore);
+      assert.ok(after.npcs.ln05.personality);
+      assert.strictEqual(after.npcs.ln05.portraitId, null);
       assert.strictEqual(after.npcs.ln05.name, identity.name);
       assert.strictEqual(after.npcs.ln05.portraitId, identity.portraitId);
       assert.deepStrictEqual(after.npcs.ln05.look, identity.look);
@@ -175,7 +185,7 @@ function assertLayout(box, { scroll = false } = {}) {
       assert.strictEqual((await g(page)).state.npcs.ln05.affinity, 0);
       if (!(await page.locator('#cat-viewer').isHidden())) await page.locator('#cat-viewer-close').click();
       await page.waitForFunction(() => document.getElementById('cat-viewer').hidden);
-      files.continue = await shot(page, 'conversation-continue');
+      files.after = await shot(page, 'conversation-node-after');
     });
 
     await check('the longest exchange scrolls and keeps the choices on screen', async () => {
@@ -224,7 +234,7 @@ function assertLayout(box, { scroll = false } = {}) {
       assert.strictEqual(row.allowed, true, `not eligible by day ${(await g(page)).state.day} from ${started}`);
       await page.locator('[data-g="talk"][data-cat="ln05"]').click();
       await idle(page);
-      await page.waitForFunction(() => (document.querySelector('.event-scroll')?.textContent || '').includes('Another quiet walk'));
+      await page.waitForFunction(() => document.querySelector('.conversation-card')?.dataset.node === 'followup:quiet_company');
       const box = await layout(page);
       assert.strictEqual(box.name, identity.name);
       const now = (await g(page)).state;
@@ -235,15 +245,42 @@ function assertLayout(box, { scroll = false } = {}) {
       assert.strictEqual(now.day, started + 2);
       assertLayout(box);
       files.callback = await shot(page, 'conversation-callback');
-      const affinity = now.npcs.ln05.affinity;
-      await page.locator('#game-event [data-choice="leave"]').click();
-      await idle(page);
+      await clickChoice(page, 'quiet_again');
       await page.locator('#game-event [data-g="continue"]').click();
       await idle(page);
-      const left = (await g(page)).state;
-      assert.strictEqual(left.npcs.ln05.affinity, affinity);
-      assert.strictEqual(left.conversation.cats.ln05.facts.find((f) => f.promiseId === 'return_quiet').promise, 'pending');
-      assert.ok((await g(page)).available.hunt.allowed || (await g(page)).available.rest);
+      const kept = (await g(page)).state;
+      assert.strictEqual(kept.conversation.cats.ln05.facts.find((f) => f.promiseId === 'return_quiet').promise, 'kept');
+      assert.strictEqual(kept.conversation.cats.ln05.followupOutcome, 'quiet_renewed');
+      const from = kept.day;
+      for (let i = 0; i < 8; i++) {
+        const avail = (await g(page)).available;
+        const ready = (avail.talk || []).find((t) => t.catId === 'ln05');
+        if (ready && ready.allowed) break;
+        await page.locator('[data-g="rest"]').click();
+        await idle(page);
+        let guard = 0;
+        while ((await g(page)).state.phase !== 'day' && guard++ < 8) {
+          const phase = (await g(page)).state.phase;
+          if (phase === 'event') {
+            const pass = page.locator('#game-event [data-choice="pass"]');
+            if (await pass.count()) await pass.click(); else await page.locator('#game-event [data-g="choose"]').first().click();
+          } else if (phase === 'eventResult' || phase === 'conversation') {
+            const cont = page.locator('#game-event [data-g="continue"]');
+            if (await cont.count()) await cont.click();
+            else await page.locator('#game-event [data-choice="leave"], #game-event [data-choice="pause"]').first().click();
+          }
+          await idle(page);
+        }
+      }
+      await page.locator('[data-g="talk"][data-cat="ln05"]').click();
+      await idle(page);
+      await page.waitForFunction(() => document.querySelector('.conversation-card')?.dataset.node === 'third:confiding');
+      const third = await layout(page);
+      assert.strictEqual(third.name, identity.name);
+      assert.deepStrictEqual((await g(page)).state.npcs.ln05.personality, identity.personality);
+      assert.ok((await g(page)).state.day >= from + 2);
+      assertLayout(third);
+      files.third = await shot(page, 'conversation-meeting-3');
     });
     console.log('SHOTS', JSON.stringify(files));
   } finally {

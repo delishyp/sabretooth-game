@@ -244,16 +244,22 @@
       ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
       who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.catName), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
       card.append(who);
-      card.append(el('p', 'event-affinity', t('game.affinity', { affinity: npc.affinity })));
+      const band = E.personalBand(s, view.catId);
+      card.append(el('p', 'event-affinity', t('game.affinity', { affinity: npc.affinity }) + (band ? ' · ' + band.label : '')));
       const scroll = el('div', 'event-scroll');
       if (!view.lines.length) scroll.append(el('p', 'event-text', ''));
-      for (const line of view.lines) scroll.append(el('p', line.kind === 'say' ? 'event-text say' : 'event-text narration', line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+      for (const line of view.lines) {
+        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
+        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+      }
       card.append(scroll);
       const ch = el('div', 'event-choices');
       if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.pause ? t('talk.pause') : c.label, { g: 'choose', choice: c.id, node: view.nodeId, instance: view.instanceId }));
-      ch.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
       card.append(ch);
+      const util = el('div', 'talk-utility');
+      util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
+      card.append(util);
     }
     function renderEvent() {
       if (s.phase === 'conversation') return renderTalk();

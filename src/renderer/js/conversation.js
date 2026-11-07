@@ -5,9 +5,9 @@
  * Numbers come from slice-rules conversation.*; prose comes from the authored graph. No free text.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.Conversation = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./speech'));
+  else root.Conversation = factory(root.Speech);
+})(typeof self !== 'undefined' ? self : this, function (Speech) {
   const SCHEMA = 1;
   const TOPIC = {
     left_politely: 'company', quiet_company: 'company', quiet_no_promise: 'company', gave_space: 'company',
@@ -70,7 +70,7 @@
     /** Aggression high, then sociability high, then sociability low, else the node baseline. Missing traits never invent a lean. */
     function voice(nodeId, base, npc) {
       const p = npc && npc.personality;
-      if (!p || !graph || !graph.voiceVariants) return base;
+      if (!p || !graph || !Array.isArray(graph.voiceVariants)) return base;
       const variants = graph.voiceVariants.filter((v) => v.node === nodeId && v.B);
       const order = [
         (v) => traitMatch(v.when, p) && /aggression/.test(v.when) && />=/.test(v.when),
@@ -125,13 +125,13 @@
     }
     function nodeById(id) {
       if (!enabled) return null;
-      if (graph.nodes[id]) return { id, opening: id === 'opening', narration: graph.nodes[id].narration || null, B: graph.nodes[id].B || null, lead: null, choices: graph.nodes[id].choices || [] };
+      if (graph.nodes[id]) return { id, opening: id === 'opening', narration: graph.nodes[id].narration || null, B: graph.nodes[id].B || null, lead: null, speechPath: `/nodes/${id}`, choices: graph.nodes[id].choices || [] };
       if (id.startsWith('followup:')) {
         const outcome = id.slice('followup:'.length);
         const block = graph.laterMeeting.followupByOutcome[outcome];
         const recall = graph.laterMeeting.recallByOutcome[outcome];
         if (!block) return null;
-        return { id, opening: true, narration: recall && recall.summary ? recall.summary : null, lead: recall ? recall.B : null, B: block.B, choices: block.choices || [] };
+        return { id, opening: true, narration: recall && recall.summary ? recall.summary : null, lead: recall ? recall.B : null, leadPath: `/laterMeeting/recallByOutcome/${outcome}`, speechPath: `/laterMeeting/followupByOutcome/${outcome}`, B: block.B, choices: block.choices || [] };
       }
       if (id.startsWith('callback:')) {
         const outcome = id.slice('callback:'.length);
@@ -143,17 +143,17 @@
         const kind = id.slice('third:'.length);
         const block = graph.thirdMeeting && graph.thirdMeeting[kind];
         if (!block) return null;
-        return { id, opening: true, narration: null, lead: null, B: block.B, choices: block.choices || [] };
+        return { id, opening: true, narration: null, lead: null, speechPath: `/thirdMeeting/${kind}`, B: block.B, choices: block.choices || [] };
       }
       if (id === 'later_opening') {
         return { id, opening: true, narration: null, lead: null, B: graph.laterMeeting.fallback, choices: graph.laterMeeting.choices || [] };
       }
       if (id === 'later_check_in' || id === 'later_new_tone') {
         const n = graph.laterMeeting.nodes[id];
-        return n ? { id, opening: false, narration: null, lead: null, B: n.B, choices: n.choices || [] } : null;
+        return n ? { id, opening: false, narration: null, lead: null, speechPath: `/laterMeeting/nodes/${id}`, B: n.B, choices: n.choices || [] } : null;
       }
       if (id === 'repeat_fallback') {
-        return { id, opening: true, narration: null, lead: null, B: graph.laterMeeting.fallback, choices: [] };
+        return { id, opening: true, narration: null, lead: null, speechPath: '/laterMeeting/fallback', B: graph.laterMeeting.fallback, choices: [] };
       }
       return null;
     }
@@ -169,25 +169,57 @@
     }
     function presented(node) { return node ? withEngineChoices(node) : []; }
 
+    function speechAt(path, npc, vars) {
+      const coverage = graph && graph.personalityCoverage;
+      if (!coverage || !path) return [];
+      const r = Speech.resolve(coverage, path, npc.personality, vars);
+      const out = [];
+      if (r.gap) out.push({ kind: 'gap', text: r.gap });
+      if (r.action) out.push({ kind: 'action', text: r.action });
+      if (r.text) out.push({ kind: 'say', speaker: npc.name, text: r.text, variantId: r.variantId });
+      return { lines: out, variantId: r.variantId, actionId: r.actionId, characterization: r.characterization };
+    }
+    function choicePath(node, choice) {
+      if (!choice) return null;
+      if (choice.outcome === 'later_left') return '/laterMeeting/outcomes/later_left';
+      if (choice.outcome === 'repeat_fallback_left') return '/laterMeeting/fallback';
+      const idx = (node.choices || []).findIndex((c) => c.id === choice.id);
+      return idx >= 0 && node.speechPath ? `${node.speechPath}/choices/${idx}` : null;
+    }
     function linesOf(node, npc, vars) {
       if (!node) return [];
       const out = [];
+      const meta = [];
       if (node.narration) out.push({ kind: 'narration', text: fill(node.narration, vars) });
-      if (node.lead) out.push({ kind: 'say', speaker: npc.name, text: fill(node.lead, vars) });
-      // Voice variants are authored against intro node ids. Later and third lines stay as written.
-      const authored = node.id.startsWith('followup:') || node.id.startsWith('third:') || node.id === 'repeat_fallback' || node.id === 'later_opening';
-      const spoken = authored ? node.B : voice(node.id, node.B, npc);
-      if (spoken) out.push({ kind: 'say', speaker: npc.name, text: fill(spoken, vars) });
-      return out;
+      for (const path of [node.leadPath, node.speechPath]) {
+        if (!path) continue;
+        const spoken = speechAt(path, npc, vars);
+        if (spoken.lines) { out.push(...spoken.lines); meta.push(spoken); }
+      }
+      if (!node.speechPath && node.B) out.push({ kind: 'say', speaker: npc.name, text: fill(voice(node.id, node.B, npc), vars) });
+      return { lines: out, meta };
     }
-    function closing(choice, npc, vars) {
+    function closing(node, choice, npc, vars) {
+      const path = choicePath(node, choice);
+      if (path && graph.personalityCoverage && graph.personalityCoverage.speechLocations[path]) {
+        const spoken = speechAt(path, npc, vars);
+        return spoken.lines || [];
+      }
       if (choice && choice.B) return [{ kind: 'say', speaker: npc.name, text: fill(choice.B, vars) }];
       const outcome = choice && choice.outcome;
       const later = graph.laterMeeting && graph.laterMeeting.outcomes && graph.laterMeeting.outcomes[outcome];
-      if (later && later.B) return [{ kind: 'say', speaker: npc.name, text: fill(later.B, vars) }, later.summary ? { kind: 'narration', text: fill(later.summary, vars) } : null].filter(Boolean);
-      const recall = graph.laterMeeting && graph.laterMeeting.recallByOutcome && graph.laterMeeting.recallByOutcome[outcome];
-      if (recall && recall.summary) return [{ kind: 'narration', text: fill(recall.summary, vars) }];
+      if (later && later.B) return [{ kind: 'say', speaker: npc.name, text: fill(later.B, vars) }];
       return [];
+    }
+    function freeze(p, node, npc, vars, extra) {
+      const built = linesOf(node, npc, vars);
+      p.presentation = {
+        nodeId: node.id, lines: built.lines.concat(extra || []),
+        variantIds: (built.meta || []).map((m) => m.variantId),
+        characterization: (built.meta[0] && built.meta[0].characterization) || 'unresolved',
+        traits: npc.personality ? { ...npc.personality } : null,
+        choiceIds: presented(node).map((c) => c.id)
+      };
     }
     function topicFor(outcome, cat) {
       if (TOPIC[outcome]) return TOPIC[outcome];
@@ -289,14 +321,17 @@
       if (!npc) return null;
       const node = nodeById(p.nodeId);
       const v = varsFor(s, npc);
-      const lines = (p.transcript || []).map((line) => ({ ...line, text: line.text }));
+      const live = !p.showingTerminal && p.presentation && p.presentation.nodeId === p.nodeId
+        ? p.presentation.lines
+        : (!p.showingTerminal && node ? linesOf(node, npc, v).lines : []);
+      const lines = (p.transcript || []).map((line) => ({ ...line, text: line.text })).concat(live);
       let choices = [];
-      if (!p.showingTerminal && node) {
-        lines.push(...linesOf(node, npc, v));
-        choices = presented(node).map((c) => ({ id: c.id, label: c.label, pause: !!c.pause }));
-      }
+      if (!p.showingTerminal && node) choices = presented(node).map((c) => ({ id: c.id, label: c.label, pause: !!c.pause }));
       return {
         catId: p.catId, catName: npc.name, portraitId: npc.portraitId || null, look: npc.look, sex: npc.sex,
+        personality: npc.personality || null, personalityGap: npc.personalityGap || null,
+        characterization: p.presentation ? p.presentation.characterization : null,
+        variantIds: p.presentation ? p.presentation.variantIds : null,
         nodeId: p.nodeId, instanceId: p.instanceId, stage: p.stage, lines, choices,
         terminal: !!p.showingTerminal, dayResolved: !!p.dayResolved, slotCharged: !!p.slotCharged
       };
@@ -350,8 +385,9 @@
         presentedChoiceIds: choices.map((c) => c.id),
         startedDay: s.day, slotCharged: false, absDelta: 0,
         transcript: opts.transcript || [], fromGreet: !!opts.fromGreet, greetFolded: !!opts.fromGreet,
-        dayResolved: !!opts.dayResolved, showingTerminal: false, terminal: null, paused: false
+        dayResolved: !!opts.dayResolved, showingTerminal: false, terminal: null, paused: false, presentation: null
       };
+      freeze(s.conversation.pending, node, npc, varsFor(s, npc));
       s.phase = 'conversation';
       if (opts.fromGreet) s.pending = null;
       return { ok: true };
@@ -414,7 +450,7 @@
         promiseKey = held.key || promiseKey;
       }
       let affinityApplied = 0; let fact = null;
-      const seen = linesOf(node, npc, v);
+      const seen = linesOf(node, npc, v).lines;
       if (outcome) {
         affinityApplied = applyAffinity(s, p.catId, p, deltaFor(outcome, choice.id, cat));
         if (recordsArc) fact = addFact(s, cat, p, choice, outcome);
@@ -425,7 +461,9 @@
           || outcome;
         pushLog(cat, { day: s.day, instanceId: p.instanceId, nodeId: p.nodeId, choiceId: choice.id, outcome, factId: fact ? fact.factId : null, summary: fill(summary, v) });
         if (s.log) s.log.push({ day: s.day, text: fill(summary, v) });
-        p.transcript = (p.transcript || []).concat(seen, closing(choice, npc, v));
+        const reply = closing(node, choice, npc, v);
+        p.transcript = (p.transcript || []).concat(seen, reply);
+        p.presentation = { nodeId: p.nodeId, lines: reply, variantIds: reply.map((l) => l.variantId).filter(Boolean), characterization: npc.personality ? 'traits' : 'unresolved', traits: npc.personality ? { ...npc.personality } : null, choiceIds: [] };
         p.showingTerminal = true;
         p.terminal = { outcome, choiceId: choice.id, nodeId: p.nodeId };
         p.presentedChoiceIds = [];
@@ -435,6 +473,7 @@
         p.nodeId = choice.next;
         const nxt = nodeById(p.nodeId);
         p.presentedChoiceIds = presented(nxt).map((c) => c.id);
+        freeze(p, nxt, npc, v);
       }
       box.sequence += 1;
       box.ledger.push({

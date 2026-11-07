@@ -53,8 +53,9 @@ function talk(s) {
 }
 function roundTrip(s) { return E.migrate(JSON.parse(JSON.stringify(s))); }
 
-test('graph revision 3 is the authored source the engine loads', () => {
-  assert.strictEqual(graph.revision, 3);
+test('graph revision 6 is the authored source the engine loads', () => {
+  assert.strictEqual(graph.revision, 6);
+  assert.strictEqual(Object.keys(graph.personalityCoverage.speechLocations).length, 76);
   assert.strictEqual(graph.id, 'm2.repeat_meeting.conversation');
   assert.ok(graph.nodes.quiet_walk.choices.some((c) => c.id === 'return_quiet' && c.outcome === 'quiet_company'));
   assert.ok(graph.resolvedReceiptCases.length >= 2);
@@ -372,7 +373,7 @@ test('memory does not leak across cats, and a bad or finished history falls back
   third.day = 8;
   const again = talk(third);
   const text = E.talkView(again).lines.map((l) => l.text).join('\n');
-  assert.ok(text.includes('We have crossed paths before.'));
+  assert.ok(text.includes('Did you want to stop here?') || text.includes(graph.personalityCoverage.speechLocations['/laterMeeting/fallback'].base.replace(/[“”]/g, '')));
   assert.ok(!text.includes('Are you passing through'));
   again.conversation.cats.ln05.revision = 1;
   again.conversation.pending = null; again.phase = 'day';
@@ -385,16 +386,21 @@ test('memory does not leak across cats, and a bad or finished history falls back
 });
 
 test('a high-aggression saved personality changes only the voice line and survives continue', () => {
-  const s = E.act(meet(fresh()), { type: 'choose', choiceId: 'greet' }).state;
+  const mid = fresh();
+  mid.npcs.ln05.personality = { aggression: 40, sociability: 55, boldness: 50, loyalty: 50, curiosity: 48 };
+  const s = E.act(meet(mid), { type: 'choose', choiceId: 'greet' }).state;
   assert.ok(E.talkView(s).lines.some((l) => l.text.includes('Are you passing through')));
-  s.npcs.ln05.personality = { aggression: 80, sociability: 90, boldness: 10, loyalty: 10, curiosity: 10 };
-  const sharp = E.talkView(s).lines.map((l) => l.text).join('\n');
-  assert.ok(sharp.includes('You can stop there'));
-  assert.ok(!sharp.includes('Will you walk with me'));
-  const kept = roundTrip(s);
-  assert.strictEqual(kept.npcs.ln05.personality.aggression, 80);
-  assert.strictEqual(kept.npcs.ln05.portraitId, 'cat-stable-ln05');
-  assert.ok(E.talkView(kept).lines.some((l) => l.text.includes('You can stop there')));
+  const warm = fresh();
+  warm.npcs.ln05.personality = { aggression: 80, sociability: 90, boldness: 10, loyalty: 10, curiosity: 10 };
+  const spoken = E.act(meet(warm), { type: 'choose', choiceId: 'greet' }).state;
+  const sharp = E.talkView(spoken).lines.map((l) => l.text).join('\n');
+  assert.ok(sharp.includes('Would you walk with me'));
+  assert.deepStrictEqual(E.talkView(spoken).choices.map((c) => c.id), E.talkView(s).choices.map((c) => c.id));
+  spoken.npcs.ln05.affinity = 80;
+  const kept = roundTrip(spoken);
+  assert.strictEqual(kept.npcs.ln05.personality.sociability, 90);
+  assert.ok(E.talkView(kept).lines.some((l) => l.text.includes('Would you walk with me')));
+  assert.strictEqual(kept.conversation.pending.presentation.variantIds[0], spoken.conversation.pending.presentation.variantIds[0]);
 });
 
 test('old saves gain an empty conversation and still end on day 20; a newer conversation schema is rejected', () => {

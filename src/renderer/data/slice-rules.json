@@ -190,6 +190,29 @@
       "trust_response": 5
     }
   },
+  "worldMemory": {
+    "$comment": "v0.5.2 PROPOSED tunables. Spillover numbers are not approved balance. Rank never bypasses knowledge. Personal labels: negative and zero are Anna's; positive labels are Director wording pending Anna.",
+    "schema": 1,
+    "spilloverCoeffLeader": 0.5,
+    "spilloverCoeffHighRank": 0.35,
+    "spilloverCoeffMember": 0.2,
+    "spilloverMinAbs": 5,
+    "spilloverEventCap": 5,
+    "spilloverCatBlockCap": 10,
+    "personalBands": [
+      { "id": "permanent_rival", "label": "Permanent Rival", "approval": "anna", "locksMechanics": false },
+      { "id": "hated", "label": "Hated", "approval": "anna", "locksMechanics": false },
+      { "id": "despised", "label": "Despised", "approval": "anna", "locksMechanics": false },
+      { "id": "disliked", "label": "Disliked", "approval": "anna", "locksMechanics": false },
+      { "id": "eyesore", "label": "An Eyesore", "approval": "anna", "locksMechanics": false },
+      { "id": "neutral", "label": "No Opinion/Neutral", "approval": "anna", "locksMechanics": false },
+      { "id": "welcome", "label": "A Welcome Face", "approval": "director-provisional", "locksMechanics": false },
+      { "id": "liked", "label": "Liked", "approval": "director-provisional", "locksMechanics": false },
+      { "id": "close_friend", "label": "Close Friend", "approval": "director-provisional", "locksMechanics": false },
+      { "id": "cherished", "label": "Cherished", "approval": "director-provisional", "locksMechanics": false },
+      { "id": "unbreakable", "label": "Unbreakable Bond", "approval": "director-provisional", "locksMechanics": false }
+    ]
+  },
   "menuLock": {
     "$comment": "slice-1 scope v1.0.1 IN §1: Standard style + permadeath only. New Game shows only these cards; main rejects anything else. Dev/test escape hatch: SABRETOOTH_MENU_UNLOCK=1.",
     "styles": [
