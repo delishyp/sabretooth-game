@@ -262,6 +262,33 @@
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
       card.append(util);
     }
+    function renderFord() {
+      const box = $('#game-event'); const view = E.world.fordView(s);
+      const show = !!view;
+      box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
+      if (!show) return;
+      box.textContent = '';
+      const card = el('div', 'event-card conversation-card'); card.dataset.node = view.node; box.append(card);
+      const who = el('div', 'event-cast');
+      const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
+      const speaker = s.npcs[view.speakerId];
+      ctx.portrait({ look: speaker.look, sex: speaker.sex, name: speaker.name, portraitId: speaker.portraitId }, cv, { frame: 'head' }).catch(() => {});
+      who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.speakerName));
+      card.append(who);
+      const scroll = el('div', 'event-scroll');
+      for (const line of view.lines || []) {
+        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
+        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+      }
+      card.append(scroll);
+      const ch = el('div', 'event-choices');
+      if (view.node === 'answered') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      else for (const c of view.choices) ch.append(btn(c.label, { g: 'fordChoose', choice: c.id }));
+      card.append(ch);
+      const util = el('div', 'talk-utility');
+      util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
+      card.append(util);
+    }
     function renderBorder() {
       const box = $('#game-event'); const view = E.world.borderView(s);
       const show = !!view;
@@ -269,7 +296,7 @@
       if (!show) return;
       box.textContent = '';
       const card = el('div', 'event-card conversation-card'); card.dataset.node = view.node; card.dataset.cat = view.guardId; box.append(card);
-      const guard = s.npcs[view.guardId];
+      const guard = s.npcs[view.speakerId || view.guardId];
       const who = el('div', 'event-cast');
       const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
       ctx.portrait({ look: guard.look, sex: guard.sex, name: guard.name, portraitId: guard.portraitId }, cv, { frame: 'head' }).catch(() => {});
@@ -292,6 +319,7 @@
       card.append(util);
     }
     function renderEvent() {
+      if (s.phase === 'ford') return renderFord();
       if (s.phase === 'border') return renderBorder();
       if (s.phase === 'conversation') return renderTalk();
       const box = $('#game-event'); const p = s.pending;
@@ -324,7 +352,7 @@
       renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent();
       const evOpen = !$('#game-event').hidden;
       let target = null;
-      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
+      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
       else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
@@ -347,6 +375,7 @@
       if (d.g === 'forced') return act({ type: 'forced' });
       if (d.g === 'border') return act({ type: 'border', guardId: d.guard });
       if (d.g === 'borderChoose') return act({ type: 'borderChoose', choiceId: d.choice });
+      if (d.g === 'fordChoose') return act({ type: 'fordChoose', choiceId: d.choice });
       if (d.g === 'talk') return act({ type: 'talk', catId: d.cat });
       if (d.g === 'choose') return act({ type: 'choose', choiceId: d.choice, nodeId: d.node, instanceId: d.instance });
       if (d.g === 'continue') return act({ type: 'continue' });
@@ -358,7 +387,7 @@
       if (!s || !$('#cat-viewer') || !$('#cat-viewer').hidden) return;
       const evOpen = !$('#game-event').hidden;
       const target = evOpen
-        ? [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="continue"]')].find((b) => !b.disabled)
+        ? [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"]')].find((b) => !b.disabled)
         : [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
       ctx.focus(target || null);
     }

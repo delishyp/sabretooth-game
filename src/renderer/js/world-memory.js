@@ -213,16 +213,28 @@
       }
     }
     const story = graph && graph.factionStoryConsumer;
+    const policyDoc = producer && (producer.policy || producer);
+    const fordDoc = producer && producer.fordStory;
+    const tunable = (rules && rules.worldMemory) || {};
+    const deferAt = tunable.borderPolicyDeferAtOrBelow ?? -15;
+    const warmAt = tunable.borderPolicyWarmPermitAt ?? 15;
+    const curiosityAt = tunable.borderPolicyCuriosityPermitAt ?? 50;
+    const repetitionDays = tunable.borderRepetitionDays ?? 5;
     function policyStatus(s) {
       const row = box(s).policy['highcrag->bonefield'];
-      if (!row || row.source !== 'reconciled') return 'unmapped';
+      if (!row || row.source !== 'leader-ruling' || row.topic !== 'bonefield') return 'unmapped';
       if (row.status === 'permits' || row.status === 'defers') return row.status;
       return 'unmapped';
     }
-    function speak(npc, location) {
-      if (!producer || !Speech || !graph || !npc) return null;
+    function speechLocations() {
+      return (policyDoc && policyDoc.personalityCoverage && policyDoc.personalityCoverage.speechLocations)
+        || (producer && producer.personalityCoverage && producer.personalityCoverage.speechLocations)
+        || {};
+    }
+    function speak(npc, location, locations) {
+      if (!Speech || !graph || !npc) return null;
       const coverage = {
-        speechLocations: producer.personalityCoverage && producer.personalityCoverage.speechLocations,
+        speechLocations: locations || speechLocations(),
         contextActions: graph.personalityCoverage && graph.personalityCoverage.contextActions
       };
       return Speech.resolve(coverage, location, npc.personality, { catName: npc.name });
@@ -265,32 +277,64 @@
         if (c.requires && String(c.requires).includes('completed share')) return false;
         return true;
       }).map((c) => ({ id: c.id, label: c.label, next: c.next, outcome: c.outcome, B: c.B }));
-      if (producer && s.border && s.border.node === 'policy_gate' && policyStatus(s) === 'unmapped') {
-        const offer = (producer.normalRoute || []).find((step) => step.step === 'request_review');
-        const extra = offer && (offer.choices || []).find((c) => c.id === 'request_policy_review');
-        if (extra && !list.some((c) => c.id === extra.id)) list.push({ id: extra.id, label: extra.label });
+      if (s.border && s.border.node === 'policy_gate') {
+        if (!list.some((c) => c.id === 'ask_unrelated')) list.push({ id: 'ask_unrelated', label: 'Ask to speak with your leader about another matter.' });
+        const blocked = reviewBlocked(s);
+        if (!blocked) {
+          const route = (policyDoc && policyDoc.normalRoute) || (producer && producer.normalRoute) || [];
+          const offer = route.find((step) => step.step === 'request_review');
+          const extra = offer && (offer.choices || []).find((c) => c.id === 'request_policy_review');
+          if (extra && !list.some((c) => c.id === extra.id)) list.push({ id: extra.id, label: extra.label });
+        }
       }
+      if (s.border && s.border.node === 'review') list.push({ id: 'accept_ruling', label: 'That is the instruction.' });
       return list;
+    }
+    function gateSpeech(s) {
+      const status = policyStatus(s);
+      if (status === 'permits') return 'guard_permitted';
+      if (status !== 'defers') return 'guard_unknown';
+      const aid = (s.worldMemory.facts || []).find((f) => f.kind === 'aid' && knowsFact(s, s.border.guardId, f.factId));
+      return aid ? 'guard_deferred_known_aid' : 'guard_deferred_no_aid';
+    }
+    function reviewBlocked(s) {
+      const row = box(s).policy['highcrag->bonefield'] || {};
+      if (row.source === 'leader-ruling' && row.cause === 'caution' && s.day < (row.ruledOnDay || 0) + repetitionDays) {
+        return { error: 'repetition', eligibleDay: (row.ruledOnDay || 0) + repetitionDays };
+      }
+      if ((box(s).reviews || []).some((r) => r.status === 'pending' || (r.status === 'relayed' && !r.rulingEventId))) return { error: 'pending' };
+      return null;
     }
     function borderView(s) {
       if (!story || !s.border || s.phase !== 'border') return null;
       const guard = s.npcs[s.border.guardId];
       if (!guard) return null;
-      if (s.border.node === 'done' || s.border.node === 'review_pending') {
+      if (s.border.node === 'done' || s.border.node === 'review_pending' || s.border.node === 'unrelated') {
         const presented = s.border.presentation;
         return {
           guardId: guard.id, guardName: guard.name, portraitId: guard.portraitId || null, look: guard.look, sex: guard.sex,
           node: s.border.node, policy: policyStatus(s), policySource: (box(s).policy['highcrag->bonefield'] || {}).source || 'unreconciled',
-          title: (presented && presented.text) || s.border.reply || s.border.outcome, choices: [], lines: presented ? linesFrom(guard, presented) : [],
+          title: (presented && presented.text) || s.border.reply || s.border.outcome, choices: [], lines: presented ? (presented.lines || linesFrom(guard, presented)) : [],
           variantId: presented ? presented.variantId : null,
           outcome: s.border.outcome, reply: s.border.reply || '', traitSpeech: presented ? presented.characterization : 'unauthored'
+        };
+      }
+      if (s.border.node === 'review') {
+        const presented = s.border.presentation;
+        const leader = s.npcs[s.border.leaderId] || guard;
+        return {
+          guardId: guard.id, guardName: leader.name, speakerId: leader.id, portraitId: leader.portraitId || null, look: leader.look, sex: leader.sex,
+          node: 'review', policy: policyStatus(s), policySource: (box(s).policy['highcrag->bonefield'] || {}).source || 'unreconciled',
+          title: '', choices: borderChoices(s, null).filter((c) => c.id === 'accept_ruling').map((c) => ({ id: c.id, label: c.label })),
+          lines: presented && presented.lines || [], variantId: presented && presented.variantId || null,
+          outcome: null, reply: '', traitSpeech: presented ? presented.characterization : 'unresolved'
         };
       }
       const node = borderNode(s);
       if (!node && s.border.node !== 'review_pending') return null;
       const choices = s.border.node === 'review_pending' ? [] : borderChoices(s, node).map((c) => ({ id: c.id, label: c.label }));
       const presented = s.border.presentation && s.border.presentation.node === s.border.node ? s.border.presentation : null;
-      const lines = presented ? linesFrom(guard, presented) : [];
+      const lines = presented ? (presented.lines || linesFrom(guard, presented)) : [];
       return {
         guardId: guard.id, guardName: guard.name, portraitId: guard.portraitId || null, look: guard.look, sex: guard.sex,
         node: s.border.node, policy: policyStatus(s), policySource: (box(s).policy['highcrag->bonefield'] || {}).source || 'unreconciled',
@@ -305,37 +349,104 @@
       const guard = s.npcs[guardId];
       if (!guard || guard.faction !== 'highcrag') return { error: 'guard' };
       guard.met = true;
+      const visit = (box(s).borderVisits = (box(s).borderVisits || 0) + 1);
+      const waiting = (box(s).reviews || []).find((r) => r.status === 'relayed' && !r.rulingEventId);
+      if (waiting) {
+        const leader = s.npcs[waiting.leaderId];
+        const decision = rulingSelector(s, waiting.leaderId);
+        const openLine = speak(leader, 'leader_open');
+        const decisionLine = decision.speech ? speak(leader, decision.speech) : null;
+        const lines = [];
+        if (openLine) lines.push(...linesFrom(leader, openLine));
+        if (decisionLine) lines.push(...linesFrom(leader, decisionLine));
+        s.border = {
+          guardId, leaderId: waiting.leaderId, visit, node: 'review', choicePath: [], outcome: null, receiptKeys: [],
+          reviewId: waiting.requestEventId, pendingRuling: decision,
+          guardPersonality: guard.personality ? { ...guard.personality } : null,
+          leaderPersonality: leader && leader.personality ? { ...leader.personality } : null,
+          presentation: { node: 'review', lines, variantId: decisionLine && decisionLine.variantId, characterization: decisionLine ? decisionLine.characterization : 'unresolved' }
+        };
+        s.phase = 'border';
+        return { ok: true };
+      }
       s.border = {
-        guardId, node: 'opening', choicePath: [], outcome: null, receiptKeys: [],
+        guardId, visit, node: 'opening', choicePath: [], outcome: null, receiptKeys: [],
         guardPersonality: guard.personality ? { ...guard.personality } : null,
         traitSpeech: 'unauthored'
       };
       s.phase = 'border';
       return { ok: true };
     }
+    function rulingSelector(s, leaderId) {
+      const leader = s.npcs[leaderId];
+      if (!leader || !Speech || !Speech.complete(leader.personality)) return { status: 'unresolved', reason: 'personality' };
+      const edge = s.worldMemory.prideToPride[pairKey('highcrag', 'bonefield')];
+      const standing = s.worldMemory.prideToPlayer[pairKey('highcrag', 'player')];
+      const source = (s.worldMemory.facts || []).find((f) => f.kind === 'hunt_steal' && knowsFact(s, leaderId, f.factId));
+      if (edge && edge.value <= deferAt && source) return { decision: 'defer_relay', cause: 'feud', factId: source.factId, speech: 'leader_defer_cause' };
+      if (standing && standing.value <= deferAt) return { decision: 'defer_relay', cause: 'standing', speech: 'leader_defer_standing' };
+      if (standing && standing.value >= warmAt) return { decision: 'permit_relay', cause: 'warm', speech: 'leader_permit_warm' };
+      if (leader.personality.curiosity >= curiosityAt) return { decision: 'permit_relay', cause: 'curiosity', speech: 'leader_permit' };
+      return { decision: 'defer_relay', cause: 'caution', speech: 'leader_defer_caution' };
+    }
+    function commitRuling(s) {
+      const pending = s.border && s.border.pendingRuling;
+      if (!pending || pending.status === 'unresolved') return { error: 'unresolved' };
+      const review = (box(s).reviews || []).find((r) => r.requestEventId === s.border.reviewId);
+      if (!review) return { error: 'no-request' };
+      const key = `${s.runId || ''}/border/ruling/${review.requestEventId}`;
+      if (has(s, key) || review.rulingEventId) return { error: 'duplicate' };
+      const row = box(s).policy['highcrag->bonefield'];
+      row.source = 'leader-ruling';
+      row.topic = 'bonefield';
+      row.status = pending.decision === 'permit_relay' ? 'permits' : 'defers';
+      row.decision = pending.decision;
+      row.cause = pending.cause;
+      row.factId = pending.factId || null;
+      row.leaderId = s.border.leaderId;
+      row.guardId = s.border.guardId;
+      row.version = (row.version || 0) + 1;
+      row.ruledOnDay = s.day;
+      review.rulingEventId = key;
+      review.status = 'ruled';
+      box(s).ledger.push({
+        receiptKey: key, sourceType: 'leader_ruling', recordKind: 'policy', actor: s.border.leaderId, target: 'bonefield',
+        delta: 0, auditOnly: true, absDay: s.day, decision: pending.decision, cause: pending.cause, factId: pending.factId || null,
+        version: row.version, knowledgeScope: 'private', witnessIds: [s.border.leaderId, s.border.guardId]
+      });
+      const rulingFact = `${key}/knowledge`;
+      box(s).facts.push({ factId: rulingFact, kind: 'ruling', topic: 'bonefield' });
+      box(s).knowledge[rulingFact] = { scope: 'private', participantIds: ['player', s.border.leaderId, s.border.guardId], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: s.day };
+      return { applied: true, decision: pending.decision, version: row.version };
+    }
     function recordReviewRequest(s) {
+      const blocked = reviewBlocked(s);
+      if (blocked) return blocked;
       const leaderId = LEADERS.highcrag;
       if (!s.npcs[leaderId]) return { error: 'leader' };
-      const key = `${s.runId || ''}/border/review/${s.border.guardId}`;
-      if (has(s, key)) return { applied: false, reason: 'duplicate' };
-      const factId = `${s.runId || 'run'}/petition/highcrag/bonefield`;
       const m = box(s);
-      if (!m.facts.some((f) => f.factId === factId)) {
-        m.facts.push({ factId, kind: 'petition', topic: 'bonefield_introduction' });
-        m.knowledge[factId] = { scope: 'private', participantIds: ['player', s.border.guardId], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: s.day };
-      }
+      const key = `${s.runId || ''}/border/review/${s.border.guardId}/${(m.reviews || []).length + 1}`;
+      if (has(s, key)) return { applied: false, reason: 'duplicate' };
+      const factId = `${s.runId || 'run'}/petition/highcrag/bonefield/${(m.reviews || []).length + 1}`;
+      m.facts.push({ factId, kind: 'petition', topic: 'bonefield_introduction' });
+      m.knowledge[factId] = { scope: 'private', participantIds: ['player', s.border.guardId], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: s.day };
       m.ledger.push({ receiptKey: key, sourceType: 'review_request', recordKind: 'policy', actor: 'player', target: leaderId, factId, delta: 0, auditOnly: true, absDay: s.day, knowledgeScope: 'private' });
       m.reviews = m.reviews || [];
-      m.reviews.push({ requestEventId: key, guardId: s.border.guardId, leaderId, factId, status: 'pending', relayEventId: null });
+      m.reviews.push({ requestEventId: key, guardId: s.border.guardId, leaderId, factId, status: 'pending', relayEventId: null, rulingEventId: null });
       return { applied: true, factId };
     }
     function relayPetition(s, requestEventId) {
       const m = box(s);
       const row = (m.reviews || []).find((r) => !requestEventId || r.requestEventId === requestEventId);
       if (!row) return { applied: false, reason: 'no-request' };
-      if (row.relayEventId) return { applied: false, reason: 'duplicate' };
+      if (row.relayEventId || row.status !== 'pending') return { applied: false, reason: 'duplicate' };
       const taught = disclose(s, { factId: row.factId, toId: row.leaderId, sourceEventId: row.requestEventId });
       if (!taught.applied) return taught;
+      for (const fact of m.facts) {
+        if (fact.kind !== 'hunt_steal') continue;
+        if (!knowsFact(s, row.guardId, fact.factId) || knowsFact(s, row.leaderId, fact.factId)) continue;
+        disclose(s, { factId: fact.factId, toId: row.leaderId, sourceEventId: row.requestEventId });
+      }
       row.relayEventId = `${s.runId || ''}/disclose/${row.factId}/${row.leaderId}`;
       row.status = 'relayed';
       return { applied: true, factId: row.factId, policy: policyStatus(s) };
@@ -343,7 +454,7 @@
     function borderAct(s, choiceId) {
       if (s.phase !== 'border' || !s.border) return { error: 'phase' };
       if (s.border.node === 'done') return { error: 'duplicate' };
-      const key = `${s.runId || ''}/border/${s.border.guardId}/${s.border.node}/${choiceId}`;
+      const key = `${s.runId || ''}/border/${s.border.guardId}/${s.border.visit || 1}/${s.border.node}/${choiceId}`;
       if (has(s, key) || s.border.receiptKeys.includes(key)) return { error: 'duplicate' };
       const node = borderNode(s);
       const choice = borderChoices(s, node).find((c) => c.id === choiceId);
@@ -369,9 +480,22 @@
         s.border.reply = (s.border.presentation && s.border.presentation.text) || '';
         return { ok: true };
       }
+      if (choice.id === 'ask_unrelated') {
+        s.border.node = 'unrelated';
+        s.border.outcome = 'unrelated_ignored';
+        freezeSpeech(s, 'guard_unknown');
+        return { ok: true };
+      }
+      if (choice.id === 'accept_ruling') {
+        const committed = commitRuling(s);
+        if (committed.error) return committed;
+        s.border.node = 'done';
+        s.border.outcome = committed.decision;
+        return { ok: true };
+      }
       if (choice.next === 'policy_gate') {
         s.border.node = 'policy_gate';
-        if (policyStatus(s) === 'unmapped') freezeSpeech(s, 'guard_unknown');
+        freezeSpeech(s, gateSpeech(s));
         return { ok: true };
       }
       else if (choice.next === 'explain') s.border.node = 'explain';
@@ -401,7 +525,110 @@
       });
       return { status: 'not-run', reason: 'Council cadence, access, and numeric effects are pending. A refusal is not stored as peace.', leaders, councils: box(s).councils, agreements: box(s).agreements };
     }
-    return { SCHEMA, personalBand, standingBand, roundHalfAway, initNew, migrate, notePersonal, noteConversation, knowsFact, disclose, spillover, witness, borderGate, borderView, openBorder, borderAct, closeBorder, relayPetition, policyStatus, councilStatus, ensureRecords, hasBorder: !!story };
+    function adultOf(s, faction, prefer) {
+      const list = Object.values(s.npcs || {}).filter((n) => n.faction === faction && n.stage === 'adult' && !n.dead);
+      list.sort((a, b) => (a.id < b.id ? -1 : 1));
+      if (prefer) { const picked = list.find((n) => n.id === prefer); if (picked) return picked; }
+      return list[0] || null;
+    }
+    function applyFordEdges(s, hcId, bfId) {
+      const m = box(s);
+      const hcKey = `${s.runId || ''}/ford_dispute/highcrag/bonefield`;
+      const bfKey = `${s.runId || ''}/ford_dispute/bonefield/highcrag`;
+      const hcDelta = tunable.fordHcToBf ?? -20;
+      const bfDelta = tunable.fordBfToHc ?? -10;
+      if (!has(s, hcKey)) {
+        const rec = m.prideToPride[pairKey('highcrag', 'bonefield')];
+        rec.value = clamp((rec.value || 0) + hcDelta);
+        m.ledger.push({ receiptKey: hcKey, sourceType: 'hunt_steal', recordKind: 'prideToPride', actor: 'highcrag', target: 'bonefield', delta: hcDelta, absDay: s.day });
+      }
+      if (!has(s, bfKey)) {
+        const rec = m.prideToPride[pairKey('bonefield', 'highcrag')];
+        rec.value = clamp((rec.value || 0) + bfDelta);
+        m.ledger.push({ receiptKey: bfKey, sourceType: 'hunt_steal', recordKind: 'prideToPride', actor: 'bonefield', target: 'highcrag', delta: bfDelta, absDay: s.day });
+      }
+      if (!m.facts.some((f) => f.factId === hcKey)) {
+        m.facts.push({ factId: hcKey, kind: 'hunt_steal' });
+        m.knowledge[hcKey] = { scope: 'witnessed', participantIds: ['player', hcId, bfId], witnessIds: [hcId, bfId], disclosedTo: [], prideIds: ['highcrag', 'bonefield'], learnedAbsDay: s.day };
+      }
+    }
+    function fordLines(hc, bf, ids) {
+      const locs = fordDoc && fordDoc.speechLocations;
+      const lines = [];
+      for (const id of ids) {
+        const npc = id.includes('bonefield') || id.startsWith('aid_bonefield') || id.startsWith('side_bonefield') || id.startsWith('stay_bonefield') ? bf : hc;
+        if (id === 'bonefield_answer' || id === 'aid_bonefield_response' || id === 'side_bonefield_response' || id === 'stay_bonefield_response') {
+          const spoken = speak(bf, id, locs); if (spoken) lines.push(...linesFrom(bf, spoken));
+        } else {
+          const spoken = speak(hc, id, locs); if (spoken) lines.push(...linesFrom(hc, spoken));
+        }
+      }
+      return lines;
+    }
+    function considerFord(s) {
+      if (!fordDoc || s.phase !== 'day' || s.region !== 'greywater_ford' || (s.day || 1) < (tunable.fordMinDay ?? 2)) return false;
+      if (s.conversation && s.conversation.pending) return false;
+      if (has(s, `${s.runId || ''}/ford_dispute/highcrag/bonefield`)) return false;
+      const hc = adultOf(s, 'highcrag', 'hc07');
+      const bf = adultOf(s, 'bonefield', null);
+      if (!hc || !bf || !Speech || !Speech.complete(hc.personality) || !Speech.complete(bf.personality)) return false;
+      applyFordEdges(s, hc.id, bf.id);
+      hc.met = true; bf.met = true;
+      const narration = String(fordDoc.openingNarration || '').replace('{highcragCatName}', hc.name).replace('{bonefieldCatName}', bf.name);
+      const lines = [{ kind: 'narration', text: narration }].concat(fordLines(hc, bf, ['highcrag_open', 'bonefield_answer']));
+      s.ford = { hcId: hc.id, bfId: bf.id, node: 'open', choiceId: null, lines };
+      s.phase = 'ford';
+      return true;
+    }
+    function fordChoose(s, choiceId) {
+      if (s.phase !== 'ford' || !s.ford) return { error: 'phase' };
+      if (s.ford.choiceId || s.ford.node !== 'open') return { error: 'duplicate' };
+      const allowed = { help_bonefield_cat: ['aid_bonefield_response', 'aid_highcrag_response'], side_with_highcrag: ['side_highcrag_response', 'side_bonefield_response'], stay_out: ['stay_highcrag_response', 'stay_bonefield_response'] };
+      const responses = allowed[choiceId];
+      if (!responses) return { error: 'choice' };
+      const key = `${s.runId || ''}/ford_choice/${choiceId}`;
+      if (has(s, key) || s.ford.choiceId) return { error: 'duplicate' };
+      const hc = s.npcs[s.ford.hcId]; const bf = s.npcs[s.ford.bfId];
+      const personal = tunable.fordPersonalDelta ?? 5;
+      if (choiceId === 'help_bonefield_cat') {
+        bf.affinity = clamp((bf.affinity || 0) + personal);
+        const factId = `${s.runId || 'run'}/player_aided_bonefield`;
+        box(s).facts.push({ factId, kind: 'aid' });
+        box(s).knowledge[factId] = { scope: 'witnessed', participantIds: ['player', bf.id], witnessIds: [hc.id], disclosedTo: [], prideIds: [], learnedAbsDay: s.day };
+        notePersonal(s, { catId: bf.id, delta: personal, receiptKey: key, sourceType: 'ford_choice', factId, scope: 'witnessed' });
+      } else if (choiceId === 'side_with_highcrag') {
+        hc.affinity = clamp((hc.affinity || 0) + personal);
+        const factId = `${s.runId || 'run'}/player_sided_highcrag`;
+        box(s).facts.push({ factId, kind: 'side' });
+        box(s).knowledge[factId] = { scope: 'witnessed', participantIds: ['player', hc.id], witnessIds: [bf.id], disclosedTo: [], prideIds: [], learnedAbsDay: s.day };
+        notePersonal(s, { catId: hc.id, delta: personal, receiptKey: key, sourceType: 'ford_choice', factId, scope: 'witnessed' });
+      } else {
+        box(s).ledger.push({ receiptKey: key, sourceType: 'ford_choice', recordKind: 'observation', actor: 'player', target: 'greywater_ford', delta: 0, auditOnly: true, absDay: s.day });
+      }
+      s.ford.choiceId = choiceId;
+      s.ford.node = 'answered';
+      s.ford.lines = fordLines(hc, bf, responses);
+      return { ok: true };
+    }
+    function fordView(s) {
+      if (s.phase !== 'ford' || !s.ford) return null;
+      const hc = s.npcs[s.ford.hcId];
+      const choices = s.ford.node === 'open' ? ((fordDoc && fordDoc.choices) || []).map((c) => ({ id: c.id, label: c.label })) : [];
+      return { node: s.ford.node, lines: s.ford.lines || [], choices, speakerId: hc.id, speakerName: hc.name, portraitId: hc.portraitId || null, look: hc.look, sex: hc.sex };
+    }
+    function considerRelay(s) {
+      if (s.phase !== 'day') return false;
+      const pending = (box(s).reviews || []).find((r) => r.status === 'pending');
+      if (!pending) return false;
+      const result = relayPetition(s, pending.requestEventId);
+      return !!(result && result.applied);
+    }
+    function closeFord(s) {
+      if (s.phase !== 'ford') return { error: 'phase' };
+      s.phase = 'day';
+      return { ok: true };
+    }
+    return { SCHEMA, personalBand, standingBand, roundHalfAway, initNew, migrate, notePersonal, noteConversation, knowsFact, disclose, spillover, witness, borderGate, borderView, openBorder, borderAct, closeBorder, relayPetition, considerFord, considerRelay, fordView, fordChoose, closeFord, rulingSelector, policyStatus, councilStatus, ensureRecords, hasBorder: !!story };
   }
   return { create, SCHEMA, PRIDES };
 });

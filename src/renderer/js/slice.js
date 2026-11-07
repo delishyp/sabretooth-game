@@ -148,6 +148,15 @@
         if (action.type === 'continue') { WM.closeBorder(s); return { state: s }; }
         return { state: s0, error: 'border' };
       }
+      if (s.phase === 'ford') {
+        if (action.type === 'fordChoose') {
+          const r = WM.fordChoose(s, action.choiceId);
+          if (r.error) return { state: s0, error: r.error };
+          return { state: s };
+        }
+        if (action.type === 'continue') { WM.closeFord(s); return { state: s }; }
+        return { state: s0, error: 'ford' };
+      }
       if (action.type === 'border') {
         if (!atHighcragBorder(s)) return { state: s0, error: 'border' };
         const r = WM.openBorder(s, action.guardId || 'hc07');
@@ -174,7 +183,12 @@
         }
       }
       if (s.phase === 'event') return choose(s, action);
-      if (s.phase === 'eventResult') { s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null; if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; } return { state: s }; }
+      if (s.phase === 'eventResult') {
+        s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
+        if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
+        else if (s.phase === 'day') WM.considerFord(s);
+        return { state: s };
+      }
       const av = available(s); let rested = false; let travelledEdge = null;
       if (av.talkOnly) return { state: s0, error: 'talk' };
       const ag = { day: s.day, region: s.region };
@@ -224,7 +238,7 @@
       if (!finished) s.day += 1;
       if (ev) { s.pending = ev; s.phase = 'event'; if (finished) s.endsAfterEvent = true; }
       else if (finished) { s.over = true; s.phase = 'over'; }
-      else s.phase = 'day';
+      else { s.phase = 'day'; if (!WM.considerFord(s)) WM.considerRelay(s); }
     }
     function rollHazards(s, rep, ctx) {
       let hit = false;

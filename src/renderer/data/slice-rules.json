@@ -195,7 +195,15 @@
     "ln05": "cat-6e2d788dd48ff440"
   },
   "worldMemory": {
-    "$comment": "v0.5.3 PROPOSED tunables. Spillover numbers are not approved balance. Rank never bypasses knowledge. Personal labels: negative and zero are Anna's; positive labels are Director wording pending Anna. Highcrag introduction policy is unreconciled: neither the §12.6.6 numeric threshold nor the Saga leader-curiosity ruling is live.",
+    "$comment": "v0.5.5 PROPOSED defaults, not approved balance. The border reads only a committed leader ruling. The ford dispute writes feud history and is not itself the policy. Spillover numbers and the curiosity/standing cuts below are provisional.",
+    "borderPolicyDeferAtOrBelow": -15,
+    "borderPolicyWarmPermitAt": 15,
+    "borderPolicyCuriosityPermitAt": 50,
+    "borderRepetitionDays": 5,
+    "fordHcToBf": -20,
+    "fordBfToHc": -10,
+    "fordPersonalDelta": 5,
+    "fordMinDay": 2,
     "schema": 1,
     "spilloverCoeffLeader": 0.5,
     "spilloverCoeffHighRank": 0.35,

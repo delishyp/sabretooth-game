@@ -29,6 +29,18 @@ const gameJson = (ud, run, save) => JSON.parse(fs.readFileSync(path.join(ud, 'sa
 /** One step of a simple survival policy, by clicking the real buttons. Returns what it did. */
 async function step(page, shots) {
   const { state: s, available: av } = await g(page);
+  if (s.phase === 'ford') {
+    const stay = page.locator('#game-event [data-choice="stay_out"]');
+    if (await stay.count()) { await stay.click(); await idle(page); return 'ford'; }
+    await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'ford-continue';
+  }
+  if (s.phase === 'border') {
+    const cont = page.locator('#game-event [data-g="continue"]');
+    if (await cont.count()) { await cont.click(); await idle(page); return 'border-continue'; }
+    const leave = page.locator('#game-event [data-choice="withdraw"], #game-event [data-choice="leave_request"]');
+    if (await leave.count()) { await leave.first().click(); await idle(page); return 'border-leave'; }
+    await page.locator('#game-event button').first().click(); await idle(page); return 'border';
+  }
   if (s.phase === 'conversation') {
     const cont = page.locator('#game-event [data-g="continue"]');
     if (await cont.count()) { await cont.click(); await idle(page); return 'talk-continue'; }
@@ -99,7 +111,7 @@ async function step(page, shots) {
       while ((await g(page)).state.day < 6) await step(page, shots);
       while ((await g(page)).state.phase !== 'day') await step(page, shots);
       assert.ok(gameJson(ud, 0, 0).day >= 6, 'autosave each day');
-      await page.locator('[data-g="save"]').click(); await page.waitForTimeout(300);
+      await page.locator('.home-tools [data-g="save"]').click(); await page.waitForTimeout(300);
       before = (await g(page)).state;
       assert.deepStrictEqual(gameJson(ud, 0, 1), before);
       await press(page, 'Escape'); await waitState(page, 'root');
