@@ -304,6 +304,7 @@
       card.append(who);
       card.append(relationMeters(view.catId));
       const scroll = el('div', 'event-scroll');
+      scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       if (!view.lines.length) scroll.append(el('p', 'event-text', ''));
       for (const line of view.lines) {
         const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
@@ -313,7 +314,7 @@
       card.append(costNote());
       const ch = el('div', 'event-choices');
       if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
-      else for (const c of view.choices) ch.append(btn(c.pause ? t('talk.pause') : c.label, { g: 'choose', choice: c.id, node: view.nodeId, instance: view.instanceId }));
+      else for (const c of view.choices) ch.append(btn(c.pause ? t('talk.pause') : c.label, { g: 'choose', choice: c.id, node: view.nodeId, instance: view.instanceId }, { disabled: !!c.disabled, title: c.disabled ? 'Not enough Energy, Hunger, or Thirst.' : '' }));
       card.append(ch);
       const util = el('div', 'talk-utility');
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));

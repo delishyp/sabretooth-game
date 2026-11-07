@@ -86,13 +86,29 @@
   function focusables() {
     if (viewerOpen()) return viewerButtons();
     const scope = dialog ? $('#dialog') : (state === 'game' && game && game.focusScope()) || $('.screen.active');
-    return scope ? $$('button', scope).filter((b) => !b.disabled && b.offsetParent !== null && !b.closest('.tabs')) : [];
+    if (!scope) return [];
+    return $$('button, [data-scroll="prose"]', scope).filter((b) => !b.disabled && b.offsetParent !== null && !b.closest('.tabs'));
   }
   function focus(el) {
-    $$('button.focused').forEach((b) => b.classList.remove('focused'));
+    $$('.focused').forEach((b) => b.classList.remove('focused'));
     if (el) { el.classList.add('focused'); el.focus({ preventScroll: true }); }
   }
-  const current = () => $('button.focused') || null;
+  const current = () => $('.focused') || null;
+  function scrollProse(a) {
+    const el = current();
+    if (!el || el.dataset.scroll !== 'prose') return false;
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
+    const before = el.scrollTop;
+    if (a === 'up') el.scrollTop = Math.max(0, before - 48);
+    else if (a === 'down') el.scrollTop = Math.min(max, before + 48);
+    else if (a === 'pageup') el.scrollTop = Math.max(0, before - el.clientHeight);
+    else if (a === 'pagedown') el.scrollTop = Math.min(max, before + el.clientHeight);
+    else if (a === 'home') el.scrollTop = 0;
+    else if (a === 'end') el.scrollTop = max;
+    else return false;
+    if ((a === 'up' || a === 'down') && el.scrollTop === before) return false;
+    return true;
+  }
   function move(delta) {
     const f = focusables(); if (!f.length) return;
     const j = Nav.step(f.length, f.indexOf(current()), delta);
@@ -837,6 +853,7 @@
       if ((a === 'confirm' || a === 'start') && live && live.dataset && live.dataset.g === 'expandCat') { live.click(); return; }
       return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);
     }
+    if (['up', 'down', 'pageup', 'pagedown', 'home', 'end'].includes(a) && scrollProse(a)) return;
     if (a === 'up') return move(-1);
     if (a === 'down') { if (state === 'credits') fastScroll = true; return move(1); }
     if (a === 'left' || a === 'right') {
@@ -891,6 +908,25 @@
     reloadGame: (saved) => { if (game && game.run()) game.resume(game.run(), saved); },
     creditsRunning: () => !!creditsTimer,
     game: () => (game ? { state: game.state(), run: game.run(), available: game.state() ? game.E.available(game.state()) : null, summary: game.state() ? game.E.summary(game.state()) : null, busy: game.busy() } : null),
+    /** Direct slice handler. A refusal leaves the live state untouched. */
+    gameAct: (action) => {
+      if (!game || !game.state()) return { error: 'no-game' };
+      const r = game.E.act(game.state(), action);
+      if (!r.error) { game.setState(r.state); game.render(); }
+      const s = game.state();
+      const pending = s.conversation && s.conversation.pending;
+      const cat = pending && s.conversation.cats && s.conversation.cats[pending.catId];
+      return {
+        error: r.error || null,
+        energy: s.needs.energy, hunger: s.needs.hunger, thirst: s.needs.thirst,
+        node: pending ? pending.nodeId : null,
+        ledger: s.conversation ? s.conversation.ledger.length : 0,
+        slot: s.conversation ? s.conversation.slotDay : null,
+        cooldown: cat ? cat.cooldownUntilDay : null,
+        phase: s.phase,
+        costRows: s.conversation ? s.conversation.ledger.filter((row) => row.costApplied).length : 0
+      };
+    },
     gamePatch: (patch) => { const g = JSON.parse(JSON.stringify(game.state())); for (const [k, v] of Object.entries(patch)) g[k] = v && typeof v === 'object' && !Array.isArray(v) && g[k] && typeof g[k] === 'object' ? { ...g[k], ...v } : v; game.setState(g); game.render(); },
     show: async (s) => {
       if (dialog) closeDialog();

@@ -230,6 +230,7 @@ button.primary { border-color: var(--accent); }
 .conversation-card .event-cast-name { font-family: var(--font-title); font-size: 32px; letter-spacing: 1px; color: #f6efe2; }
 .conversation-card .event-affinity { flex: 0 0 auto; margin: 0; width: 100%; text-align: left; }
 .conversation-card .event-scroll { flex: 1 1 auto; min-height: 96px; max-height: 140px; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding: 10px 12px; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
+.conversation-card .event-scroll.focused, .conversation-card .event-scroll:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .relation-meters { margin: 0; padding: 8px 10px; width: 100%; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
 .relation-meters p { margin: 0; font-size: 18px; line-height: 1.35; color: #f6efe2; }
 .personal-meter { width: 100%; margin: 0 0 6px; }

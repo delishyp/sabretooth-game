@@ -442,3 +442,65 @@ test('a full season with the arc loaded still ends at day 20 and does not invent
   assert.strictEqual(E.summary(s).seasonDays, 20);
   assert.strictEqual(s.saveVersion, 1);
 });
+
+test('an opening reply is refused in full when Energy, Hunger, or Thirst cannot pay, and a reload keeps that refusal', () => {
+  const open = () => E.act(meet(fresh()), { type: 'choose', choiceId: 'greet' }).state;
+  const company = (s) => {
+    const v = E.talkView(s);
+    return E.act(s, { type: 'choose', choiceId: 'company', nodeId: v.nodeId, instanceId: v.instanceId });
+  };
+  const snap = (s) => ({
+    needs: { ...s.needs }, node: s.conversation.pending.nodeId, slot: s.conversation.slotDay,
+    cooldown: s.conversation.cats.ln05 && s.conversation.cats.ln05.cooldownUntilDay,
+    ledger: s.conversation.ledger.length, phase: s.phase
+  });
+  function refuse(label, needs) {
+    const s = open();
+    Object.assign(s.needs, needs);
+    const before = snap(s);
+    const view = E.talkView(s);
+    assert.strictEqual(view.choices.find((c) => c.id === 'company').disabled, true, label);
+    assert.strictEqual(view.choices.find((c) => c.id === 'leave').disabled, false, label);
+    const rejected = company(s);
+    assert.strictEqual(rejected.error, 'unaffordable', label);
+    assert.deepStrictEqual(snap(rejected.state), before, label);
+    const loaded = E.migrate(JSON.parse(JSON.stringify(s)));
+    assert.strictEqual(E.talkView(loaded).choices.find((c) => c.id === 'company').disabled, true, label);
+    const again = company(loaded);
+    assert.strictEqual(again.error, 'unaffordable', label);
+    assert.deepStrictEqual(snap(again.state), snap(loaded), label);
+  }
+  refuse('energy 2', { energy: 2, hunger: 80, thirst: 80 });
+  refuse('hunger 1', { energy: 80, hunger: 1, thirst: 80 });
+  refuse('thirst 0', { energy: 80, hunger: 80, thirst: 0 });
+  const paid = open();
+  Object.assign(paid.needs, { energy: 3, hunger: 2, thirst: 1 });
+  assert.strictEqual(E.talkView(paid).choices.find((c) => c.id === 'company').disabled, false);
+  const moved = company(paid);
+  assert.ok(!moved.error);
+  assert.deepStrictEqual([moved.state.needs.energy, moved.state.needs.hunger, moved.state.needs.thirst], [0, 0, 0]);
+  assert.strictEqual(moved.state.conversation.pending.nodeId, 'company');
+  assert.strictEqual(moved.state.conversation.pending.slotCharged, true);
+  moved.state.needs.energy = 0; moved.state.needs.hunger = 0; moved.state.needs.thirst = 0;
+  const resumed = E.migrate(JSON.parse(JSON.stringify(moved.state)));
+  const quiet = E.talkView(resumed).choices.find((c) => c.id === 'quiet');
+  assert.strictEqual(quiet.disabled, false);
+  const next = E.act(resumed, { type: 'choose', choiceId: 'quiet', nodeId: resumed.conversation.pending.nodeId, instanceId: resumed.conversation.pending.instanceId });
+  assert.ok(!next.error);
+  assert.deepStrictEqual([next.state.needs.energy, next.state.needs.hunger, next.state.needs.thirst], [0, 0, 0]);
+  const twice = open();
+  const firstView = E.talkView(twice);
+  const action = { type: 'choose', choiceId: 'company', nodeId: firstView.nodeId, instanceId: firstView.instanceId };
+  const once = E.act(twice, action);
+  const stale = E.act(once.state, action);
+  assert.strictEqual(stale.error, 'stale');
+  assert.strictEqual(stale.state.conversation.ledger.length, 1);
+  assert.strictEqual(stale.state.needs.energy, twice.needs.energy - 3);
+  const broke = open();
+  Object.assign(broke.needs, { energy: 1, hunger: 0, thirst: 0 });
+  const left = E.act(broke, { type: 'choose', choiceId: 'leave', nodeId: broke.conversation.pending.nodeId, instanceId: broke.conversation.pending.instanceId });
+  assert.ok(!left.error);
+  assert.deepStrictEqual([left.state.needs.energy, left.state.needs.hunger, left.state.needs.thirst], [1, 0, 0]);
+  assert.strictEqual(left.state.conversation.slotDay, null);
+  assert.strictEqual(left.state.conversation.ledger.filter((r) => r.costApplied).length, 0);
+});

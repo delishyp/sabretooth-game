@@ -326,7 +326,10 @@
         : (!p.showingTerminal && node ? linesOf(node, npc, v).lines : []);
       const lines = (p.transcript || []).map((line) => ({ ...line, text: line.text })).concat(live);
       let choices = [];
-      if (!p.showingTerminal && node) choices = presented(node).map((c) => ({ id: c.id, label: c.label, pause: !!c.pause }));
+      if (!p.showingTerminal && node) choices = presented(node).map((c) => ({
+        id: c.id, label: c.label, pause: !!c.pause,
+        disabled: !p.slotCharged && !freeOpening(node, c) && !canAfford(s)
+      }));
       return {
         catId: p.catId, catName: npc.name, portraitId: npc.portraitId || null, look: npc.look, sex: npc.sex,
         personality: npc.personality || null, personalityGap: npc.personalityGap || null,
@@ -337,6 +340,13 @@
       };
     }
 
+    function canAfford(s) {
+      const n = s.needs || {};
+      return n.energy >= costs.energy && n.hunger >= costs.hunger && n.thirst >= costs.thirst;
+    }
+    function freeOpening(node, choice) {
+      return !!(node && node.opening && (choice.pause || choice.id === 'leave' || FREE_LEAVE.has(choice.outcome)));
+    }
     function charge(s, pending, cat) {
       if (pending.slotCharged) return false;
       s.needs.energy = clamp(s.needs.energy - costs.energy, 0, 100);
@@ -427,7 +437,8 @@
         return { ok: true, paused: true };
       }
       const opening = !!node.opening;
-      const freeLeave = opening && FREE_LEAVE.has(choice.outcome);
+      const freeLeave = opening && (choice.id === 'leave' || FREE_LEAVE.has(choice.outcome));
+      if (!freeLeave && !choice.pause && !p.slotCharged && !canAfford(s)) return { error: 'unaffordable' };
       const outcome = choice.outcome || null;
       if (choice.next && !nodeById(choice.next)) return { error: 'node' };
       // A free Leave after the first meeting does not consume the follow-up or the promise.
