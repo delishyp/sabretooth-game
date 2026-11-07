@@ -81,12 +81,21 @@
   // ---------- generic focus (all screens except difficulty) ----------
   function viewerOpen() { const v = $('#cat-viewer'); return !!(v && !v.hidden); }
   function inspectOpen() { const v = $('#encounter-inspect'); return !!(v && !v.hidden); }
+  function modalOpen() { return viewerOpen() || inspectOpen(); }
+  function inspectButtons() {
+    return $$('#encounter-inspect button').filter((b) => !b.disabled && b.offsetParent !== null);
+  }
+  function syncInert() {
+    const stage = $('#stage');
+    if (stage) stage.inert = modalOpen();
+  }
   function closeInspect() {
     const box = $('#encounter-inspect');
     if (!box || box.hidden) return false;
     box.hidden = true;
     const opener = box._opener;
     box._opener = null;
+    syncInert();
     if (opener && opener.isConnected && !opener.disabled) focus(opener);
     else if (state === 'game' && game) game.refocus();
     return true;
@@ -95,7 +104,7 @@
     return $$('#cat-viewer button').filter((b) => !b.disabled && !b.classList.contains('cat-viewer-backdrop') && b.offsetParent !== null);
   }
   function focusables() {
-    if (inspectOpen()) return [$('#encounter-inspect-close')].filter((b) => b && !b.disabled);
+    if (inspectOpen()) return inspectButtons();
     if (viewerOpen()) return viewerButtons();
     const scope = dialog ? $('#dialog') : (state === 'game' && game && game.focusScope()) || $('.screen.active');
     if (!scope) return [];
@@ -748,6 +757,7 @@
     $('#cat-viewer-name').textContent = name || '';
     $('#cat-viewer').hidden = false;
     viewerOpener = opener || null;
+    syncInert();
     focus($('#cat-viewer-close'));
     return true;
   }
@@ -757,6 +767,7 @@
     box.hidden = true;
     const opener = viewerOpener;
     viewerOpener = null;
+    syncInert();
     if (opener && opener.isConnected && !opener.disabled) focus(opener);
     else if (state === 'game' && game) game.refocus();
     return true;
@@ -841,15 +852,28 @@
       openCatViewer(src && src._full, g.dataset.name || '', g);
       return;
     }
-    if (g && game && !g.disabled) return game.onClick(g);
+    if (g && game && !g.disabled) {
+      if (modalOpen() && g.dataset.g !== 'closeInspect' && g.dataset.g !== 'closeViewer' && !g.closest('#cat-viewer') && !g.closest('#encounter-inspect')) return;
+      game.onClick(g);
+      syncInert();
+      return;
+    }
     const b = ev.target.closest('[data-action]'); if (b && ACTIONS[b.dataset.action]) ACTIONS[b.dataset.action]();
   });
 
   window.addEventListener('keydown', (ev) => {
-    if (!viewerOpen() || ev.key !== 'Tab') return;
+    if (ev.key !== 'Tab' || !modalOpen()) return;
     ev.preventDefault();
     ev.stopPropagation();
-    cycleViewer(ev.shiftKey ? -1 : 1);
+    const delta = ev.shiftKey ? -1 : 1;
+    if (inspectOpen()) {
+      const f = inspectButtons();
+      if (!f.length) return;
+      const i = f.indexOf(current());
+      focus(f[Nav.step(f.length, i, delta)]);
+      return;
+    }
+    cycleViewer(delta);
   }, true);
   Input.on((a) => {
     if (inspectOpen()) {

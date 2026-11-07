@@ -372,7 +372,7 @@
       }
       card.append(scroll);
       const ch = el('div', 'event-choices');
-      if (view.node === 'done' || view.node === 'review_pending') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      if (view.node === 'done' || view.node === 'review_pending' || view.node === 'unrelated') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.label, { g: 'borderChoose', choice: c.id }));
       card.append(ch);
       const util = el('div', 'talk-utility');

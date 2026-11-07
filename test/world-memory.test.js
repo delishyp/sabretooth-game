@@ -398,3 +398,43 @@ test('trait profiles change the authored line, not the choices, and a missing pe
   }
   assert.strictEqual(covered, 76);
 });
+
+test('ask_unrelated keeps Bonefield policy and Continue leaves without a second cost', () => {
+  let s = E.newRun({ mainCat: cat, seed: 4, runId: 'unrelated-exit' });
+  const needs = { ...s.needs };
+  s = E.act(s, { type: 'border' }).state;
+  s = E.act(s, { type: 'borderChoose', choiceId: 'request_introduction' }).state;
+  const policy = JSON.parse(JSON.stringify(s.worldMemory.policy));
+  const edges = {
+    hc: s.worldMemory.prideToPride['highcrag->bonefield'].value,
+    bf: s.worldMemory.prideToPride['bonefield->highcrag'].value
+  };
+  const standing = s.worldMemory.prideToPlayer['highcrag->player'].value;
+  const slot = s.conversation.slotDay;
+  const borderReceipts = s.worldMemory.ledger.filter((row) => String(row.receiptKey).includes('/border/')).length;
+  const parkedGate = E.migrate(JSON.parse(JSON.stringify(s)));
+  assert.ok(E.world.borderView(parkedGate).choices.some((c) => c.id === 'ask_unrelated'));
+  s = E.act(s, { type: 'borderChoose', choiceId: 'ask_unrelated' }).state;
+  assert.strictEqual(s.border.node, 'unrelated');
+  assert.strictEqual(s.border.outcome, 'unrelated_ignored');
+  assert.deepStrictEqual(E.world.borderView(s).choices, []);
+  assert.deepStrictEqual(s.worldMemory.policy, policy);
+  assert.strictEqual(s.worldMemory.prideToPride['highcrag->bonefield'].value, edges.hc);
+  assert.strictEqual(s.worldMemory.prideToPride['bonefield->highcrag'].value, edges.bf);
+  assert.strictEqual(s.worldMemory.prideToPlayer['highcrag->player'].value, standing);
+  assert.deepStrictEqual(s.needs, needs);
+  assert.strictEqual(s.conversation.slotDay, slot);
+  assert.strictEqual(s.worldMemory.ledger.filter((row) => String(row.receiptKey).includes('/border/')).length, borderReceipts + 1);
+  assert.strictEqual(E.act(s, { type: 'borderChoose', choiceId: 'ask_unrelated' }).error, 'duplicate');
+  const kept = E.migrate(JSON.parse(JSON.stringify(s)));
+  assert.strictEqual(kept.border.node, 'unrelated');
+  assert.deepStrictEqual(kept.worldMemory.policy, policy);
+  assert.strictEqual(kept.worldMemory.ledger.filter((row) => String(row.receiptKey).includes('/border/')).length, borderReceipts + 1);
+  const left = E.act(kept, { type: 'continue' }).state;
+  assert.strictEqual(left.phase, 'day');
+  assert.deepStrictEqual(left.needs, needs);
+  assert.strictEqual(left.conversation.slotDay, slot);
+  assert.deepStrictEqual(left.worldMemory.policy, policy);
+  assert.strictEqual(left.worldMemory.ledger.filter((row) => String(row.receiptKey).includes('/border/')).length, borderReceipts + 1);
+  assert.strictEqual(E.act(left, { type: 'continue' }).error, 'action');
+});

@@ -453,7 +453,7 @@
     }
     function borderAct(s, choiceId) {
       if (s.phase !== 'border' || !s.border) return { error: 'phase' };
-      if (s.border.node === 'done') return { error: 'duplicate' };
+      if (s.border.node === 'done' || s.border.node === 'unrelated') return { error: 'duplicate' };
       const key = `${s.runId || ''}/border/${s.border.guardId}/${s.border.visit || 1}/${s.border.node}/${choiceId}`;
       if (has(s, key) || s.border.receiptKeys.includes(key)) return { error: 'duplicate' };
       const node = borderNode(s);
