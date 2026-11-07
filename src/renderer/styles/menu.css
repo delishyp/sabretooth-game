@@ -182,7 +182,7 @@ button.primary { border-color: var(--accent); }
 .screen[data-screen="game"] .home-nav button:focus-visible { background: rgba(90, 58, 28, .55); border-color: rgba(212, 176, 122, .65); color: #fff8ea; outline: 2px solid #fff; outline-offset: 2px; }
 .home-nav button[aria-current="page"] { border-color: #e6c98a; background: rgba(110, 72, 32, .72); color: #fff6e4; }
 .home-nav .nav-state { font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: #d7c4a4; }
-.home-nav button.is-unavailable { color: #cbbba6; }
+.home-nav button.is-unavailable { color: #b7aa9a; opacity: .72; border: 1px dashed rgba(212, 176, 122, .55); background: rgba(20, 14, 10, .55); }
 .home-dock { position: absolute; z-index: 3; top: 104px; right: 16px; width: 420px; max-height: calc(100% - 124px); overflow: auto; padding: 14px 16px 16px; background: rgba(20, 13, 9, .82); border: 1px solid rgba(212, 176, 122, .65); box-shadow: inset 0 0 0 1px rgba(243, 221, 176, .15); border-radius: 12px; }
 .home-panel-title { font-size: 28px; letter-spacing: 2px; margin: 0 0 8px; color: #f6efe2; }
 .home-facts { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; margin: 0 0 12px; font-size: 18px; }
@@ -200,6 +200,7 @@ button.primary { border-color: var(--accent); }
 .action-group { display: flex; flex-direction: column; gap: 6px; }
 .action-group h3 { margin: 0; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #d4b07a; }
 .action-group button, .game-actions > button, .home-tools button { min-height: 42px; font-size: 18px; padding: 6px 12px; text-align: left; background: rgba(40, 28, 18, .8); border: 1px solid rgba(212, 176, 122, .45); color: #f6efe2; border-radius: 8px; }
+.screen[data-screen="game"] button:disabled { opacity: .42; color: #b7aa9a; border-style: dashed; background: rgba(28, 20, 14, .55); cursor: not-allowed; }
 .screen[data-screen="game"] .action-group button:hover,
 .screen[data-screen="game"] .action-group button.focused,
 .screen[data-screen="game"] .action-group button:focus-visible,
@@ -212,22 +213,31 @@ button.primary { border-color: var(--accent); }
 .game-report[hidden] { display: none; }
 .game-report h3 { margin: 0 0 6px; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #d4b07a; }
 .game-report ul { margin: 0; padding-left: 18px; line-height: 1.45; }
-.game-event { position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; }
+.game-event { position: absolute; left: 210px; right: 0; top: 88px; bottom: 0; z-index: 5; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.game-event .event-card { pointer-events: auto; }
 .game-event[hidden] { display: none; }
 .event-card { width: min(820px, calc(100% - 280px)); max-height: calc(100% - 48px); overflow: auto; background: linear-gradient(180deg, rgba(42, 28, 18, .97), rgba(16, 11, 8, .97)); border: 2px solid #c6a15a; box-shadow: inset 0 0 0 1px #f3ddb0, 0 18px 48px rgba(0, 0, 0, .5); border-radius: 14px; padding: 22px 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f6efe2; }
 .event-cat { font-family: var(--font-title); font-size: 28px; color: #f6efe2; letter-spacing: 1px; }
 .event-title { font-size: 34px; letter-spacing: 2px; margin: 4px 0 0; color: #f8efe0; }
 .event-text { font-size: 20px; line-height: 1.45; text-align: center; margin: 0; max-width: 640px; color: #f0e2cc; }
 .event-choices { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 6px; }
-.event-choices button, .event-card > button { min-height: 48px; font-size: 20px; padding: 8px 18px; background: rgba(48, 32, 18, .9); border: 1px solid rgba(212, 176, 122, .5); color: #f6efe2; border-radius: 8px; }
+.event-choices button, .event-card > button { min-height: 48px; font-size: 20px; padding: 8px 18px; background: #3a2614; border: 2px solid #e6c98a; color: #fff8ea; border-radius: 8px; }
 .event-choices button:hover, .event-choices button.focused, .event-choices button:focus-visible,
-.event-card > button:hover, .event-card > button.focused, .event-card > button:focus-visible { background: rgba(110, 72, 32, .95); border-color: #e6c98a; outline: 2px solid #fff; outline-offset: 2px; }
+.event-card > button:hover, .event-card > button.focused, .event-card > button:focus-visible { background: #6e4820; border-color: #fff1c9; outline: 3px solid #fff; outline-offset: 3px; }
 /* Recurring talk: the speaker stays put, the prose scrolls, and the choices stay on screen. */
 .conversation-card { width: min(880px, calc(100% - 64px)); max-height: calc(100% - 32px); overflow: hidden; align-items: stretch; justify-content: flex-start; box-sizing: border-box; padding: 16px 22px 14px; }
 .conversation-card .event-cast { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; width: 100%; }
 .conversation-card .event-cast-name { font-family: var(--font-title); font-size: 32px; letter-spacing: 1px; color: #f6efe2; }
 .conversation-card .event-affinity { flex: 0 0 auto; margin: 0; width: 100%; text-align: left; }
-.conversation-card .event-scroll { flex: 1 1 auto; min-height: 96px; max-height: 140px; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding-right: 8px; }
+.conversation-card .event-scroll { flex: 1 1 auto; min-height: 96px; max-height: 140px; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding: 10px 12px; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
+.relation-meters { list-style: none; margin: 0; padding: 8px 10px; width: 100%; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
+.relation-meters li { margin: 0; font-size: 16px; color: #f6efe2; }
+.choice-cost { margin: 0; padding: 8px 10px; background: #24180f; border: 1px solid rgba(230, 201, 138, .55); border-radius: 8px; color: #f6efe2; font-size: 16px; }
+@media (max-height: 800px) {
+  .conversation-card { width: min(620px, calc(100% - 24px)); }
+  .conversation-card .frame-md { --frame-h: 96px; }
+  .home-dock { width: 280px; }
+}
 .conversation-card .event-text { text-align: left; max-width: none; overflow-wrap: anywhere; white-space: pre-wrap; }
 .conversation-card .event-text.narration { color: #e7d3b4; font-style: italic; }
 .conversation-card .event-choices { flex: 0 0 auto; overflow: visible; }

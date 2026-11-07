@@ -58,12 +58,48 @@
     }
 
     // ---------- game screen ----------
+    function signed(n) {
+      const v = Math.trunc(Number(n) || 0);
+      return v > 0 ? `+${v}` : (v === 0 ? '+0' : String(v));
+    }
     function needBar(id, v) {
+      const name = t(`game.need.${id}`);
       const row = el('div', `need need-${id} state-${E.needState(v)}`);
-      row.append(el('span', 'need-label', t(`game.need.${id}`)), el('span', 'need-bar'), el('span', 'need-value', String(v)));
+      row.append(el('span', 'need-label', name), el('span', 'need-bar'), el('span', 'need-value', String(v)));
       row.children[1].append(el('i')); row.children[1].firstChild.style.width = `${v}%`;
-      row.title = t(`game.needState.${E.needState(v)}`); row.dataset.need = id; row.dataset.value = v;
+      row.title = `${name} ${v}. ${t(`game.needState.${E.needState(v)}`)}`;
+      row.dataset.need = id; row.dataset.value = v; row.setAttribute('aria-label', `${name} ${v}`);
       return row;
+    }
+    function relationMeters(catId) {
+      const npc = s.npcs[catId];
+      const ul = el('ul', 'relation-meters');
+      const personal = s.worldMemory && s.worldMemory.catToPlayer && s.worldMemory.catToPlayer[`${catId}->player`];
+      const known = !!(npc && npc.met && personal);
+      const band = known ? E.personalBand(s, catId) : null;
+      const tier = band && band.id === 'neutral' ? 'Neutral' : (band ? band.label : 'Neutral');
+      const who = npc ? npc.name : 'This cat';
+      ul.append(el('li', 'relation-personal', known ? `Personal · ${who} → you ${signed(personal.value)} · ${tier}` : `Personal · ${who} → you · Unknown`));
+      const romance = s.worldMemory && s.worldMemory.romance && s.worldMemory.romance[catId];
+      ul.append(el('li', 'relation-romance', romance && romance.value != null ? `Romance · ${signed(romance.value)}` : 'Romance · Unknown'));
+      if (!npc || !npc.faction || npc.faction === 'loner') ul.append(el('li', 'relation-faction', 'Faction · Unknown'));
+      else {
+        const pride = s.worldMemory && s.worldMemory.prideToPlayer && s.worldMemory.prideToPlayer[`${npc.faction}->player`];
+        ul.append(el('li', 'relation-faction', pride ? `Faction · ${factionName(npc.faction)} → you ${signed(pride.value)}` : `Faction · ${factionName(npc.faction)} → you · Unknown`));
+      }
+      return ul;
+    }
+    function costNote() {
+      const c = (E.rules && E.rules.conversation) || {};
+      const pending = s.conversation && s.conversation.pending;
+      const energy = c.energyCost, hunger = c.hungerCost, thirst = c.thirstCost;
+      const text = pending && pending.slotCharged
+        ? `This reply costs Energy 0, Hunger 0, Thirst 0. The opening already cost Energy −${energy}, Hunger −${hunger}, Thirst −${thirst}.`
+        : `A reply other than Leave costs Energy −${energy}, Hunger −${hunger}, Thirst −${thirst}. Leave costs nothing.`;
+      const p = el('p', 'choice-cost', text);
+      p.dataset.energy = String(energy); p.dataset.hunger = String(hunger); p.dataset.thirst = String(thirst);
+      p.dataset.charged = pending && pending.slotCharged ? '1' : '0';
+      return p;
     }
     const navLabel = (id) => {
       if (id === 'home') return t('home.nav.home');
@@ -130,7 +166,7 @@
         row(t('home.nav.pride'), (run && run.prideName) || '');
         row(t('home.you'), s.cat.name);
         row(t('creator.row.sex'), s.cat.sex === 'female' ? t('creator.sex.female') : t('creator.sex.male'));
-        for (const [id, rel] of Object.entries(s.prideRelation || {})) row(factionName(id), String(rel));
+        for (const [id, rel] of Object.entries(s.prideRelation || {})) row(`Faction · ${factionName(id)} → you`, signed(rel));
         p.append(dl);
       } else if (view === 'cats') {
         p.append(el('h2', 'home-panel-title', t('home.nav.cats')));
@@ -143,7 +179,8 @@
           const li = el('li', 'met-cat');
           const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
           ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});
-          li.append(framed(mini, 'sm'), el('span', 'met-name', n.name + ' · ' + factionName(n.faction) + ' · ' + t('game.affinity', { affinity: n.affinity })));
+          li.append(framed(mini, 'sm'), el('span', 'met-name', n.name));
+          li.append(relationMeters(n.id));
           li.append(btn(t('portrait.expand'), { g: 'expandCat', source: mini.id, name: n.name }, { cls: 'portrait-expand' }));
           const known = (E.available(s).talk || []).find((row) => row.catId === n.id);
           if (known) li.append(el('p', 'met-note', talkNote(known)));
@@ -245,8 +282,7 @@
       ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
       who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.catName), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
       card.append(who);
-      const band = E.personalBand(s, view.catId);
-      card.append(el('p', 'event-affinity', t('game.affinity', { affinity: npc.affinity }) + (band ? ' · ' + band.label : '')));
+      card.append(relationMeters(view.catId));
       const scroll = el('div', 'event-scroll');
       if (!view.lines.length) scroll.append(el('p', 'event-text', ''));
       for (const line of view.lines) {
@@ -254,6 +290,7 @@
         scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
       }
       card.append(scroll);
+      card.append(costNote());
       const ch = el('div', 'event-choices');
       if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.pause ? t('talk.pause') : c.label, { g: 'choose', choice: c.id, node: view.nodeId, instance: view.instanceId }));
@@ -334,7 +371,7 @@
         const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
         ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
         who.append(framed(cv, 'md'), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
-        card.append(who, el('div', 'event-cat', npc.name), el('p', 'event-affinity', t('game.affinity', { affinity: npc.affinity })));
+        card.append(who, el('div', 'event-cat', npc.name), relationMeters(npc.id));
       }
       card.append(el('h2', 'event-title', e.title));
       if (s.phase === 'event') {
