@@ -7,18 +7,19 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'));
-  else root.Slice = factory(root.Rng, root.WorldMap);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A slug is kept as given. Anything else, including a legacy omission, is null. Never rewritten to another id. */
   const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
-  function create({ map, rules, events, slots, nameData = null, looks = null }) {
+  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null }) {
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
+    const C = Conversation.create(conversation, { ...(R.conversation || {}), affinityRange: M.affinityRange });
     const EV = (events && events.events) || [];
     const season = (s) => s.season;
     /** needs §1.6a named state. */
@@ -55,7 +56,8 @@
         region: st.region, travel: null, forced: null,
         map: { dataVersion: W.dataVersion, claims: W.initClaims(), discovered: W.discover([], st.region), visited: [st.region], blockedEdges: {}, flood: null },
         prideRelation: Object.fromEntries(map.factions.filter((f) => f.kind === 'pride').map((f) => [f.id, 0])),
-        npcs: rollNpcs(seed, mainCat.name), usedEvents: [], pending: null, report: null, log: [], dead: null, over: false
+        npcs: rollNpcs(seed, mainCat.name), usedEvents: [], pending: null, report: null, log: [], dead: null, over: false,
+        conversation: C.empty()
       };
       return s;
     }
@@ -86,13 +88,17 @@
     /** What the player can do today. forced: 'rest' (Exhausted) | 'stuck' (tar) | 'lost' (lost trail) | 'travel' (mid 2-day edge). */
     function available(s) {
       if (s.phase !== 'day') return { phase: s.phase };
-      if (s.travel) return { forced: 'travel', to: s.travel.to };
+      const talk = C.targets(s);
+      const held = !!(s.conversation && s.conversation.pending && s.conversation.pending.paused && s.conversation.pending.dayResolved);
+      if (s.travel) return { forced: 'travel', to: s.travel.to, talk: [] };
+      if (held) return { talkOnly: true, talk };
       if (s.forced) return { forced: s.forced };
       const blocked = (to) => (s.map.blockedEdges[WorldMap.edgeKey(s.region, to)] || 0) >= s.day;
       return {
         hunt: { allowed: !tired(s), reason: tired(s) ? 'tired' : null, chance: Object.fromEntries(Object.keys(H.size).map((z) => [z, huntChance(s, z)])) },
         rest: { allowed: true },
-        travel: W.neighbours(s.region).map((to) => ({ to, days: travelDaysFrom(s, to), allowed: !blocked(to), reason: blocked(to) ? 'blocked' : null }))
+        travel: W.neighbours(s.region).map((to) => ({ to, days: travelDaysFrom(s, to), allowed: !blocked(to), reason: blocked(to) ? 'blocked' : null })),
+        talk
       };
     }
     function travelDaysFrom(s, to) {
@@ -110,9 +116,34 @@
     function act(s0, action) {
       const s = clone(s0); const rep = [];
       if (s.over) return { state: s, error: 'over' };
+      if (s.phase === 'conversation') {
+        const r = C.commit(s, action);
+        if (r.error) return { state: s0, error: r.error };
+        return { state: s };
+      }
+      if (action.type === 'talk') {
+        const r = C.begin(s, action.catId);
+        if (r.error) return { state: s0, error: r.error };
+        return { state: s };
+      }
+      if (s.phase === 'event' && action.type === 'choose' && s.pending && !s.pending.hostile) {
+        const ev = EV.find((x) => x.id === s.pending.eventId);
+        const greet = ev && (ev.choices || []).find((x) => x.id === action.choiceId);
+        if (greet && C.entersArc(s.pending.eventId, s.pending.catId, greet.id)) {
+          const npc = s.npcs[s.pending.catId];
+          const text = greet.text ? fill(greet.text, { catName: s.pending.catName }) : '';
+          const r = C.begin(s, s.pending.catId, {
+            fromGreet: true, dayResolved: true,
+            transcript: text ? [{ kind: 'say', speaker: npc ? npc.name : s.pending.catName, text }] : []
+          });
+          if (r.error) return { state: s0, error: r.error };
+          return { state: s };
+        }
+      }
       if (s.phase === 'event') return choose(s, action);
       if (s.phase === 'eventResult') { s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null; if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; } return { state: s }; }
       const av = available(s); let rested = false; let travelledEdge = null;
+      if (av.talkOnly) return { state: s0, error: 'talk' };
       const ag = { day: s.day, region: s.region };
       if (av.forced) {
         if (action.type !== 'forced') return { state: s0, error: `forced:${av.forced}` };
@@ -290,12 +321,16 @@
       if ((s.map.dataVersion || 0) < W.dataVersion) { s.map = WorldMap.migrateMap(s.map, W); s.dataVersion = W.dataVersion; }
       if (!W.regions.some((r) => r.id === s.region)) s.region = R.start.region;
       if (s.cat) s.cat.portraitId = keptPortraitId(s.cat.portraitId);
-      for (const n of Object.values(s.npcs || {})) n.portraitId = keptPortraitId(n.portraitId);
+      for (const n of Object.values(s.npcs || {})) {
+        n.portraitId = keptPortraitId(n.portraitId);
+        // Personality, look and name are the saved cat. Loading must not roll them again.
+      }
+      C.normalize(s);
       s.saveVersion = R.saveVersion;
       return s;
     }
     const eventById = (id) => EV.find((e) => e.id === id) || null;
-    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R };
+    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R, talkView: (st) => C.view(st) };
   }
   return { create, fill };
 });

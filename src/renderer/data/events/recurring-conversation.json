@@ -1,0 +1,976 @@
+{
+  "id": "m2.repeat_meeting.conversation",
+  "revision": 3,
+  "status": "DRAFT authoring extension, not runtime schema or approved mechanics",
+  "extends": "m2.repeat_meeting in pairing-contract.json; replace one-line exchange, do not add another daily event",
+  "inputStyle": "Authored labelled choices only. Free text neither implemented nor presumed approved.",
+  "entry": "opening",
+  "binding": {
+    "A": "saved player id",
+    "B": "ln05 ONLY for proof; resolve run-generated name, all five saved traits, stable portrait and existing world facts by ID. Duskrunner is a role label, not an imposed name.",
+    "region": "actual encounter region"
+  },
+  "nodes": {
+    "opening": {
+      "B": "“Are you passing through, or did you want company?”",
+      "choices": [
+        {
+          "id": "company",
+          "label": "“I wanted to spend some time with you.”",
+          "next": "company"
+        },
+        {
+          "id": "curious",
+          "label": "“I would like to know you better.”",
+          "next": "curious"
+        },
+        {
+          "id": "leave",
+          "label": "“Just passing. I will leave you to it.”",
+          "outcome": "left_politely"
+        }
+      ]
+    },
+    "company": {
+      "narration": "{catName} makes room beside the trail.",
+      "B": "“We can walk. Quietly, for a little while.”",
+      "choices": [
+        {
+          "id": "quiet",
+          "label": "Match their pace without filling the silence.",
+          "next": "quiet_walk"
+        },
+        {
+          "id": "ask_first",
+          "label": "“Would you rather be alone?”",
+          "next": "space"
+        },
+        {
+          "id": "press",
+          "label": "“I came to talk, not walk in silence.”",
+          "next": "boundary"
+        }
+      ]
+    },
+    "curious": {
+      "B": "“What do you want to know?”",
+      "choices": [
+        {
+          "id": "trust",
+          "label": "“What makes you trust another cat?”",
+          "next": "trust"
+        },
+        {
+          "id": "hunt",
+          "label": "“Do you prefer hunting alone?”",
+          "next": "hunting"
+        }
+      ]
+    },
+    "quiet_walk": {
+      "narration": "For a stretch, there is only grass brushing your legs and the sound of paws. {catName} slows when you slow.",
+      "B": "“This is all right.”",
+      "choices": [
+        {
+          "id": "return_quiet",
+          "label": "“Another quiet walk, if we meet again?”",
+          "outcome": "quiet_company"
+        },
+        {
+          "id": "no_promise",
+          "label": "Nod, then take your own path.",
+          "outcome": "quiet_no_promise"
+        }
+      ]
+    },
+    "space": {
+      "B": "“Not alone. Just quiet. There is a difference.”",
+      "choices": [
+        {
+          "id": "respect",
+          "label": "“Then quiet it is.”",
+          "outcome": "quiet_company"
+        },
+        {
+          "id": "leave_space",
+          "label": "“I will give you some space today.”",
+          "outcome": "gave_space"
+        }
+      ]
+    },
+    "boundary": {
+      "narration": "{catName} stops instead of falling into step.",
+      "B": "“Then we want different things today.”",
+      "choices": [
+        {
+          "id": "repair",
+          "label": "“I pushed. That was not fair. We can leave it there.”",
+          "outcome": "repaired_pressure"
+        },
+        {
+          "id": "dismiss",
+          "label": "“Forget I asked.”",
+          "outcome": "dismissed_boundary"
+        }
+      ]
+    },
+    "trust": {
+      "B": "“Small things. A cat who notices when I stop, instead of walking on without me.”",
+      "choices": [
+        {
+          "id": "remember",
+          "label": "“I will watch for that.”",
+          "outcome": "asked_about_trust"
+        },
+        {
+          "id": "disagree",
+          "label": "“I would rather you told me directly.”",
+          "outcome": "prefers_direct_words"
+        }
+      ]
+    },
+    "hunting": {
+      "B": "“With another cat, you have to keep track of more than the prey. I would want to learn your pace first.”",
+      "choices": [
+        {
+          "id": "learn",
+          "label": "“We could start by walking together.”",
+          "outcome": "asked_about_hunting"
+        },
+        {
+          "id": "alone",
+          "label": "“I think I would keep hunting alone.”",
+          "outcome": "prefers_solo_hunts"
+        }
+      ]
+    }
+  },
+  "voiceVariants": [
+    {
+      "node": "opening",
+      "when": "B.sociability >=70",
+      "B": "“There you are. Will you walk with me?”"
+    },
+    {
+      "node": "opening",
+      "when": "B.sociability <=30",
+      "B": "“Passing through? Or staying a little?”"
+    },
+    {
+      "node": "opening",
+      "when": "B.aggression >=70",
+      "B": "“You can stop there. What did you want?”"
+    },
+    {
+      "node": "company",
+      "when": "B.sociability >=70",
+      "B": "“Walk with me. I want to hear your paws beside mine for a while.”"
+    },
+    {
+      "node": "trust",
+      "when": "B.aggression >=70",
+      "B": "“A cat who gives me room when I ask. Not one who makes me ask twice.”"
+    },
+    {
+      "node": "trust",
+      "when": "B.sociability >=70",
+      "B": "“When they notice I have fallen behind and come back for me.”"
+    }
+  ],
+  "laterMeeting": {
+    "trigger": "next eligible repeat_meeting with SAME B, after completion of this arc",
+    "recallByOutcome": {
+      "left_politely": {
+        "B": "“Not just passing through this time?”",
+        "summary": "{catName} remembered your brief first conversation.",
+        "fact": {
+          "topicId": "company",
+          "stanceId": "left_politely",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "quiet_company": {
+        "B": "“Another quiet walk?”",
+        "summary": "{catName} remembered your quiet company.",
+        "fact": {
+          "topicId": "company",
+          "stanceId": "quiet_company",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "quiet_no_promise": {
+        "B": "“A few more steps together?”",
+        "summary": "{catName} remembered walking beside you.",
+        "fact": {
+          "topicId": "company",
+          "stanceId": "quiet_no_promise",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "gave_space": {
+        "B": "“You left me some space last time. You can come closer today.”",
+        "summary": "{catName} remembered that you gave them space.",
+        "fact": {
+          "topicId": "company",
+          "stanceId": "gave_space",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "repaired_pressure": {
+        "B": "“We could try that walk again. Without the argument.”",
+        "summary": "{catName} remembered your attempt to make things right.",
+        "fact": {
+          "topicId": "boundary",
+          "stanceId": "repaired_pressure",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "dismissed_boundary": {
+        "B": "“Are we going to argue about quiet again?”",
+        "summary": "{catName} remembered how your last talk ended.",
+        "fact": {
+          "topicId": "boundary",
+          "stanceId": "dismissed_boundary",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": true,
+          "help": false
+        }
+      },
+      "asked_about_trust": {
+        "B": "“Still watching for when I stop?”",
+        "summary": "{catName} remembered your talk about trust.",
+        "fact": {
+          "topicId": "trust",
+          "stanceId": "asked_about_trust",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "prefers_direct_words": {
+        "B": "“You said to tell you directly. I would like some company.”",
+        "summary": "{catName} remembered that you prefer plain words.",
+        "fact": {
+          "topicId": "trust",
+          "stanceId": "prefers_direct_words",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "asked_about_hunting": {
+        "B": "“Learning my pace, then?”",
+        "summary": "{catName} remembered your interest in walking together.",
+        "fact": {
+          "topicId": "hunting",
+          "stanceId": "asked_about_hunting",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      },
+      "prefers_solo_hunts": {
+        "B": "“Still keeping your hunts to yourself?”",
+        "summary": "{catName} remembered that you prefer hunting alone.",
+        "fact": {
+          "topicId": "hunting",
+          "stanceId": "prefers_solo_hunts",
+          "promise": "pending only if sourceChoiceKey ends quiet_walk/return_quiet; otherwise false",
+          "insult": false,
+          "help": false
+        }
+      }
+    },
+    "fallback": "“We have crossed paths before.”",
+    "choices": [
+      {
+        "id": "remember",
+        "label": "“I remember that too.”",
+        "next": "later_check_in"
+      },
+      {
+        "id": "reset_tone",
+        "label": "“Could we try something different today?”",
+        "next": "later_new_tone"
+      },
+      {
+        "id": "leave",
+        "label": "“Another time.”",
+        "outcome": "later_left"
+      }
+    ],
+    "nodes": {
+      "later_check_in": {
+        "B": "“And what would you like today?”",
+        "choices": [
+          {
+            "id": "quiet",
+            "label": "“A little quiet company.”",
+            "outcome": "later_quiet"
+          },
+          {
+            "id": "talk",
+            "label": "“A few words, if you want.”",
+            "outcome": "later_talk"
+          }
+        ]
+      },
+      "later_new_tone": {
+        "B": "“Tell me what you have in mind.”",
+        "choices": [
+          {
+            "id": "listen",
+            "label": "“You can speak. I will listen.”",
+            "outcome": "later_listen"
+          },
+          {
+            "id": "space",
+            "label": "“No demands. We can just sit apart.”",
+            "outcome": "later_space"
+          }
+        ]
+      }
+    },
+    "outcomes": {
+      "later_left": {
+        "B": "“Another time.”",
+        "summary": "You left your conversation with {catName} for another day."
+      },
+      "later_quiet": {
+        "B": "“All right. Here, beside me.”",
+        "summary": "You chose quiet company with {catName} again."
+      },
+      "later_talk": {
+        "B": "“For a little while. Stay.”",
+        "summary": "You and {catName} made time for a few words."
+      },
+      "later_listen": {
+        "B": "“I was wondering whether you would come back.”",
+        "summary": "You gave {catName} room to speak."
+      },
+      "later_space": {
+        "B": "“That would suit me.”",
+        "summary": "You and {catName} settled a little apart."
+      }
+    },
+    "followupByOutcome": {
+      "quiet_company": {
+        "B": "“Quiet again, or would you rather talk today?”",
+        "choices": [
+          {
+            "id": "quiet_again",
+            "label": "Walk quietly beside them.",
+            "outcome": "quiet_renewed",
+            "B": "“Then come along.”"
+          },
+          {
+            "id": "talk_today",
+            "label": "“I would like to hear what you have to say today.”",
+            "outcome": "quiet_to_talk",
+            "B": "“You did not rush me last time. I can spare a few words.”"
+          }
+        ]
+      },
+      "quiet_no_promise": {
+        "B": "“Quiet again, or would you rather talk today?”",
+        "choices": [
+          {
+            "id": "quiet_again",
+            "label": "Walk quietly beside them.",
+            "outcome": "quiet_renewed",
+            "B": "“Then come along.”"
+          },
+          {
+            "id": "talk_today",
+            "label": "“I would like to hear what you have to say today.”",
+            "outcome": "quiet_to_talk",
+            "B": "“You did not rush me last time. I can spare a few words.”"
+          }
+        ]
+      },
+      "gave_space": {
+        "B": "“You gave me room last time. Were you waiting for me to ask you back?”",
+        "choices": [
+          {
+            "id": "waited",
+            "label": "“Yes. I did not want to crowd you.”",
+            "outcome": "space_understood",
+            "B": "“You need not stay so far away now.”"
+          },
+          {
+            "id": "own_path",
+            "label": "“No. I had my own trail to follow.”",
+            "outcome": "space_independent",
+            "B": "“Then we have both had our space. Walk a little?”"
+          }
+        ]
+      },
+      "repaired_pressure": {
+        "B": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "choices": [
+          {
+            "id": "respect_no",
+            "label": "“We part for the day. I will not press you.”",
+            "outcome": "boundary_respected",
+            "B": "“Good. Today I would rather walk quietly.”"
+          },
+          {
+            "id": "need_words",
+            "label": "“I can leave without arguing, but I still want someone to talk to.”",
+            "outcome": "boundary_difference",
+            "B": "“Then look for company that wants to talk today. We can try another time.”"
+          }
+        ]
+      },
+      "dismissed_boundary": {
+        "B": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "choices": [
+          {
+            "id": "respect_no",
+            "label": "“We part for the day. I will not press you.”",
+            "outcome": "boundary_respected",
+            "B": "“Good. Today I would rather walk quietly.”"
+          },
+          {
+            "id": "need_words",
+            "label": "“I can leave without arguing, but I still want someone to talk to.”",
+            "outcome": "boundary_difference",
+            "B": "“Then look for company that wants to talk today. We can try another time.”"
+          }
+        ]
+      },
+      "asked_about_trust": {
+        "B": "“You said you would watch for when I stopped. And if I asked to turn back?”",
+        "choices": [
+          {
+            "id": "turn_back",
+            "label": "“I would turn with you, if you wanted company.”",
+            "outcome": "trust_response",
+            "B": "“Then we could go a little farther together.”"
+          },
+          {
+            "id": "ask_why",
+            "label": "“I would ask why, not pretend I knew.”",
+            "outcome": "trust_direct",
+            "B": "“Fair. Asking would do.”"
+          }
+        ]
+      },
+      "prefers_direct_words": {
+        "B": "“You asked me to speak plainly. I want company today, but not hunting company.”",
+        "choices": [
+          {
+            "id": "accept_words",
+            "label": "“Then let us walk, and leave the hunt for ourselves.”",
+            "outcome": "direct_understood",
+            "B": "“That is what I meant.”"
+          },
+          {
+            "id": "decline_today",
+            "label": "“I need to hunt today. Another time.”",
+            "outcome": "direct_declined",
+            "B": "“Then I will not keep you.”"
+          }
+        ]
+      },
+      "asked_about_hunting": {
+        "B": "“You wanted to learn my pace. Still interested, or was that only talk?”",
+        "choices": [
+          {
+            "id": "walk_first",
+            "label": "“Walking first. No hunt promised.”",
+            "outcome": "pace_reaffirmed",
+            "B": "“Walking first. I can agree to that.”"
+          },
+          {
+            "id": "changed_mind",
+            "label": "“I have changed my mind about company on a hunt.”",
+            "outcome": "pace_revised",
+            "B": "“Then it is better to say so now.”"
+          }
+        ]
+      },
+      "prefers_solo_hunts": {
+        "B": "“You said you hunt alone. Does that mean you would rather I left now?”",
+        "choices": [
+          {
+            "id": "only_hunts",
+            "label": "“Only for hunting. I can enjoy your company otherwise.”",
+            "outcome": "solo_clarified",
+            "B": "“Then I will stay a little.”"
+          },
+          {
+            "id": "alone_today",
+            "label": "“Today, yes. I want some time alone.”",
+            "outcome": "solo_today",
+            "B": "“All right. I will take the other path.”"
+          }
+        ]
+      },
+      "left_politely": {
+        "B": "“You were only passing through last time. Have you time to stop now?”",
+        "choices": [
+          {
+            "id": "stop_now",
+            "label": "“Yes. I came back to talk with you.”",
+            "outcome": "passing_to_company",
+            "B": "“Then stay a while.”"
+          },
+          {
+            "id": "still_passing",
+            "label": "“Not today. I wanted to greet you, though.”",
+            "outcome": "passing_greeting",
+            "B": "“I heard you. Safe trails.”"
+          }
+        ]
+      }
+    },
+    "routing": "Play saved outcome callback, then its matching followupByOutcome (not the generic nodes). Each choice has a written B reply and stored lastFollowupOutcome; no world action or numeric effect is implied. Generic nodes remain fallback only for missing/unknown memory."
+  },
+  "proposedMemoryContract": {
+    "scope": "Map to v0.4 pendingArc, memoryFacts, activeFactIdsByTopic, followUpHooks and atomic choice receipts, not a parallel runner. Earlier simplified fields are semantic requirements only.",
+    "perCat": [
+      "arcId",
+      "revision",
+      "lastCompletedOutcome",
+      "lastCompletedDay",
+      "lastFollowupOutcome (does not erase first arc outcome)"
+    ],
+    "pending": [
+      "castIds",
+      "nodeId",
+      "choicePath",
+      "instanceId",
+      "appliedConsequenceIds"
+    ],
+    "rules": [
+      "Read the last COMPLETED conversation before updating current state. Closing early records the actual early outcome.",
+      "Save/Continue must not reset binding, reroll traits or overwrite prior outcome with an unfinished conversation.",
+      "Callbacks only for the matching arc/revision/outcome and same live cat. Missing or incompatible memory uses neutral baseline.",
+      "Player promises are remembered words, not automatically fulfilled world actions. No implied shared hunt, resource, membership or courtship.",
+      "Personality only selects voice, not stored truth or acceptance. Priority aggression high, then sociability high/low, then baseline; sparse variants fall back per node.",
+      "Later meeting plays the matching saved callback, then its own short follow-up tree, never the introductory tree. Save its own outcome without erasing first arc outcome. Subsequent repetitions need used-content suppression and a baseline, not an endless generated dialogue claim.",
+      "v0.4 supersedes single-terminal-effect suggestion: commit each chosen fact/intent once under its atomic receipt; first improve/day and absolute-delta cap are engine tunables. No raw numeric rewards authored here.",
+      "Use proposedOutcomeEffects as §11.3a mirror: terminal effects only, promise resolution separate once within absolute10 cap. Each choice+facts+next node persists atomically; terminal receipt also scoped by run/cat/arc-instance/outcome. Proposed numbers are not approved balance."
+    ]
+  },
+  "facts": {
+    "fixed": [
+      "Only verified saved identity, age/stage, faction, portrait and rolled traits are character facts.",
+      "This arc introduces no named relatives, scars, prior tragedy, territorial rights or fixed historical biography.",
+      "Statements about company and trust are preferences expressed in this conversation, retained as conversation facts, not a new personality reroll."
+    ],
+    "notEstablished": [
+      "No physical joint-hunt event, predator sighting, food transfer, mate bond or pride membership."
+    ]
+  },
+  "acceptance": [
+    "Company → quiet → return_quiet produces quiet_company; same cat later offers Another quiet walk.",
+    "Curious → hunt → alone produces prefers_solo_hunts, not a shared hunt memory.",
+    "Company → press → repair produces repaired_pressure; dismiss produces dismissed_boundary.",
+    "Early leave never becomes completed walk; give-space never becomes rejection of all company.",
+    "Save at company, Continue, choose quiet and finish: same cast/traits/portrait, same branch, one terminal consequence.",
+    "Reload after completion: recap uses same outcome without replaying consequences.",
+    "Different cat or missing memory never receives the first cat’s callback.",
+    "Next-day recap does not restart the introductory tree; repeated-meeting content selection needs an explicit tested fallback.",
+    "Later choices differ by remembered outcome: quiet company can become talk; boundary pressure prompts renewed negotiation; solitary hunting can be clarified as not rejecting all company. These are playable follow-ups, not only different greetings."
+  ],
+  "spec": "milestone-2-spec v0.4 DRAFT @44ccc54 §11; all new costs, timing and numeric consequences are proposals.",
+  "proofSequence": {
+    "status": "DRAFT adapter of existing hunting-interest / quiet-company / boundary-repair content. Overrides generic introductory loop for this one-cat proof.",
+    "catId": "ln05",
+    "topicId": "share_next_kill",
+    "promiseId": "offer_share_when_able",
+    "deadline": "none",
+    "entryRules": [
+      "Meeting1 reuses slice.meeting.loner greet/pass/drive unchanged. Greet may continue into this topic; pass/drive do not silently complete it.",
+      "Each listed beat is one choice plus its authored response. Neutral leave/pause is available at every beat and preserves the unfinished cursor, not a completed answer.",
+      "3 core beats per completed meeting; do not pad aggressive cats beyond their proposed 3-beat limit. Optional extra dialogue only with validated remaining beat budget.",
+      "Seek out access/cooldowns and side-slot costs are engine-owned proposed tunables. No extra calendar tick per beat.",
+      "Only actual committed share can mark kept. Missing kill, absence or hazard interruption stays pending, never broken. Explicit refusal can mark broken once.",
+      "Call share only after today’s successful hunt and before any hunt resource has been consumed; Flint validates actual engine support. No free inventory or double promise/share bonus."
+    ],
+    "meetings": [
+      {
+        "id": "first_topic",
+        "trigger": "slice.meeting.loner → existing hunting topic",
+        "beats": [
+          {
+            "id": "greeting",
+            "reuse": "slice.meeting.loner greet/pass/drive; stop here on pass/drive",
+            "note": "Greeting choices remain existing ids and effects."
+          },
+          {
+            "id": "interest",
+            "B": "“Do you hunt alone, then?”",
+            "choices": [
+              {
+                "id": "speak",
+                "label": "“Mostly. I am still learning your pace.”",
+                "B": "“Walking is one thing. A kill is another.”",
+                "stanceId": "interested_in_company"
+              }
+            ]
+          },
+          {
+            "id": "offer",
+            "B": "“Would you share a kill, if you had one when we met?”",
+            "choices": [
+              {
+                "id": "talk_warm",
+                "label": "“If I have a kill when we meet, I will offer you some.”",
+                "B": "“Then I will remember the offer.”",
+                "fact": {
+                  "topicId": "share_next_kill",
+                  "stanceId": "offered_share",
+                  "promise": true,
+                  "status": "pending"
+                }
+              },
+              {
+                "id": "talk_plain",
+                "label": "“I will not promise that. We can still talk.”",
+                "B": "“Then there is no promise between us.”",
+                "fact": {
+                  "topicId": "share_next_kill",
+                  "stanceId": "no_promise",
+                  "promise": false
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "promise_resolution",
+        "trigger": "next eligible m2.repeat_meeting with ln05",
+        "beats": [
+          {
+            "id": "recall",
+            "when": "pending promise exists",
+            "B": "“You offered to share, if you had a kill when we met.”",
+            "choices": [
+              {
+                "id": "speak",
+                "label": "“I remember.”",
+                "B": "“Then we understand each other.”",
+                "result": "acknowledge_no_extra_affinity"
+              }
+            ]
+          },
+          {
+            "id": "resolve",
+            "choices": [
+              {
+                "id": "share",
+                "when": "engine validates today successful hunt and share available",
+                "label": "Share your kill as you offered.",
+                "B": "“You meant it. Make room beside you.”",
+                "transition": "pending→kept only after share commits; standard share only, no additional promise bonus"
+              },
+              {
+                "id": "talk_curt",
+                "label": "“I offered, but I am choosing not to keep that promise.”",
+                "B": "“Then I will not count on your word.”",
+                "transition": "pending→broken; explicit choice, once"
+              },
+              {
+                "id": "go",
+                "when": "no share available or player wants to wait",
+                "label": "“I cannot offer a kill now. The offer still stands.”",
+                "B": "“Another time, then. I have not forgotten.”",
+                "transition": "pending remains; this is not a broken promise"
+              }
+            ]
+          },
+          {
+            "id": "part",
+            "BByState": {
+              "kept": "“We can sit together a little.”",
+              "broken": "“Give me some space today.”",
+              "pending": "“We can speak again when our paths cross.”"
+            },
+            "choices": [
+              {
+                "id": "stay",
+                "label": "Respect the space they offer.",
+                "result": "finish_with_current_promise_state_no_further_bonus"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "remember_resolution",
+        "trigger": "next eligible meeting; saved committed promise state selects branch",
+        "branches": {
+          "kept": [
+            {
+              "id": "recall_kept",
+              "B": "“You shared when you said you would. Stay a while.”",
+              "choices": [
+                {
+                  "id": "stay",
+                  "label": "Sit beside them.",
+                  "B": "“It is easier to rest when I am not wondering what another cat wants.”"
+                }
+              ]
+            },
+            {
+              "id": "confide",
+              "B": "“I like company. I do not always like having to ask for it.”",
+              "choices": [
+                {
+                  "id": "speak",
+                  "label": "“You can ask me directly.”",
+                  "B": "“All right. I would like you to stay.”",
+                  "stanceId": "company_direct"
+                },
+                {
+                  "id": "talk_plain",
+                  "label": "“I like some quiet between us, too.”",
+                  "B": "“Quiet would suit me.”",
+                  "stanceId": "company_quiet"
+                }
+              ]
+            },
+            {
+              "id": "close_kept",
+              "B": "“A little longer?”",
+              "choices": [
+                {
+                  "id": "stay",
+                  "label": "Stay for a quiet moment.",
+                  "result": "record_confiding_completed"
+                },
+                {
+                  "id": "go",
+                  "label": "“Another time. I need to go.”",
+                  "result": "record_confiding_leave_no_broken_promise"
+                }
+              ]
+            }
+          ],
+          "broken": [
+            {
+              "id": "recall_broken",
+              "B": "“Last time you chose not to keep your offer. Why should this time be different?”",
+              "choices": [
+                {
+                  "id": "speak",
+                  "label": "“You should not have to believe another promise.”",
+                  "B": "“Then do not make one.”"
+                }
+              ]
+            },
+            {
+              "id": "repair",
+              "B": "“Do you still want company, without asking me to forget?”",
+              "choices": [
+                {
+                  "id": "talk_warm",
+                  "label": "“Yes. I can begin by listening.”",
+                  "B": "“Then listen. I would rather hear no than an offer you do not mean.”",
+                  "stanceId": "repair_open"
+                },
+                {
+                  "id": "talk_plain",
+                  "label": "“I think we need some distance.”",
+                  "B": "“Then leave me that.”",
+                  "stanceId": "repair_declined"
+                }
+              ]
+            },
+            {
+              "id": "close_broken",
+              "B": "“We will see what happens when we meet again.”",
+              "choices": [
+                {
+                  "id": "go",
+                  "label": "Leave without making another promise.",
+                  "result": "finish_repair_attempt_not_automatic_forgiveness"
+                }
+              ]
+            }
+          ],
+          "pending": "Use resolution meeting again without recharging prior facts, not confiding or blame. A resumed cursor remains the same instance; a later fresh meeting has its own slot charge.",
+          "no_promise": "Use existing trust/quiet-company followupByOutcome with its actual saved stance; no invented promise, confiding reward or accusation."
+        }
+      }
+    ],
+    "factMapping": [
+      "Engine mints factId/sourceChoiceKey/absDay/sequence. Topic and stance ids above are author-supplied, not inferred from prose.",
+      "Keep original promise fact and terminal state history; no log-pruning loss of receipt or promise.",
+      "Confiding is a new conversation disclosure about company, not a rerolled personality or canon biography. Use sociability/aggression voice variants without erasing the recorded state.",
+      "First proof may pin a fixture for tests, but normal-play ln05 retains its actual generated personality. Never force a friendly trait to make a branch work."
+    ],
+    "gate": [
+      "Three meetings retain same ln05 identity and generated traits.",
+      "Kept share unlocks confiding; explicit broken promise offers repair instead.",
+      "No kill, delayed meeting, leaving or hazard does not break a promise.",
+      "No promise path never receives promise recall.",
+      "Save before share has pending choice/no reward; save after has kept state and one share reward.",
+      "Save/Continue at every beat preserves cursor, presented branch, previous facts and once-only proposed needs charge."
+    ]
+  },
+  "rulesSource": "milestone-2-spec v0.4.2 DRAFT §11 / §11.3a.8–9; provisional tunables, not approved balance",
+  "proofProfile": {
+    "meetings": 3,
+    "firstContact": "Reuse slice.meeting.loner greet/pass/drive IDs unchanged. If greet enters this authored arc, do not separately apply greet +5: the terminal outcome is the whole conversation delta plus any due promise within cap. If greet does not enter an arc, original slice behavior remains. No duplicate first-contact award.",
+    "meeting1": "Existing three-choice-deep authored graph. quiet_company creates a return_quiet promise ONLY via return_quiet, not via respect at space.",
+    "meeting2": "Matching saved callback plus followupByOutcome. Only a non-leave opening commitment fulfils return_quiet. Free Leave leaves it pending. Other histories preserve actual original outcome.",
+    "meeting3": "thirdMeeting below, routed by committed memory after meeting2. No intro replay.",
+    "canonicalPositive": [
+      "company",
+      "quiet",
+      "return_quiet",
+      "later: quiet_again",
+      "third: confide/listen"
+    ],
+    "canonicalContrast": [
+      "company",
+      "press",
+      "dismiss",
+      "later: need_words",
+      "third: repair or distance"
+    ],
+    "calendar": "Use agreed legal D/D+2/D+4 availability, not forced encounter dates or a time skip. Seek out/main-action and one side-slot costs remain Tundra tunables."
+  },
+  "proposedOutcomeEffects": {
+    "status": "Mirror of §11.3a proposals, not approved balance. Engine applies once at terminal outcome; no per-node talk rewards.",
+    "first": {
+      "asked_about_hunting": 5,
+      "asked_about_trust": 5,
+      "dismissed_boundary": -5,
+      "gave_space": 5,
+      "left_politely": 0,
+      "prefers_direct_words": 0,
+      "prefers_solo_hunts": 0,
+      "quiet_company": 5,
+      "quiet_no_promise": 0,
+      "repaired_pressure": 5
+    },
+    "later": {
+      "boundary_difference": 0,
+      "boundary_respected": 5,
+      "direct_declined": 0,
+      "direct_understood": 5,
+      "later_left": 0,
+      "later_listen": 5,
+      "later_quiet": 0,
+      "later_space": 0,
+      "later_talk": 0,
+      "pace_reaffirmed": 0,
+      "pace_revised": 0,
+      "passing_greeting": 0,
+      "passing_to_company": 0,
+      "quiet_renewed": 5,
+      "quiet_to_talk": 0,
+      "solo_clarified": 0,
+      "solo_today": 0,
+      "space_independent": 0,
+      "space_understood": 5,
+      "trust_direct": 0,
+      "trust_response": 5
+    },
+    "conditionalOverride": "need_words at remembered dismissed_boundary yields -5 for boundary_difference; not -5 plus another base effect. Other boundary_difference cases stay0.",
+    "promise": "return_quiet pending only at quiet_walk.return_quiet. Kept only on a later same-cat non-leave opening commitment, +5 once within absolute10 cap; receipt runId/catId/promiseFactId. Immediate opening Leave keeps promise pending, costs0 and gives0; absence never breaks it.",
+    "charging": "Opening leave/later_left: zero affinity/needs, no slot/cooldown. Other opening commitment: needs -3/-2/-1 once, stamps slot and cooldown; resume never recharges.",
+    "newOutcomes": "Third-meeting outcomes default0 until Tundra maps them. No automatically awarded reward for unlocking confiding."
+  },
+  "thirdMeeting": {
+    "routing": "Choose active committed fact; never infer from affinity. Priority ongoing boundary repair, then confirmed kept return_quiet plus quiet_renewed, then neutral fallback. Original facts/history remain intact; newer explicit stance supersedes active topic only.",
+    "confiding": {
+      "requires": [
+        "return_quiet kept",
+        "lastFollowupOutcome == quiet_renewed",
+        "no newer unresolved boundary offense"
+      ],
+      "B": "“You came back, and you let the quiet stay quiet. I have not quite known how to ask you to stay longer.”",
+      "choices": [
+        {
+          "id": "listen",
+          "label": "“You can ask me now.”",
+          "B": "“Stay a little longer, then.”",
+          "outcome": "third_confide_listen"
+        },
+        {
+          "id": "honest_limit",
+          "label": "“I like this, but I cannot always stay.”",
+          "B": "“Tell me when you have to go. I would rather know.”",
+          "outcome": "third_confide_limit"
+        }
+      ]
+    },
+    "repair": {
+      "requires": [
+        "newest active boundary fact unresolved, from dismissed_boundary or repeated need_words"
+      ],
+      "B": "“Last time you wanted words when I wanted quiet. Are you going to listen if I ask for space?”",
+      "choices": [
+        {
+          "id": "repair",
+          "label": "“Yes. You do not have to give me company.”",
+          "B": "“Then we can start with a little space between us.”",
+          "outcome": "third_repair_offer"
+        },
+        {
+          "id": "distance",
+          "label": "“We want different things. I will go.”",
+          "B": "“That may be better today.”",
+          "outcome": "third_distance"
+        }
+      ]
+    },
+    "neutral": {
+      "requires": [
+        "neither confiding nor repair gates pass"
+      ],
+      "B": "“A little company today?”",
+      "choices": [
+        {
+          "id": "stay",
+          "label": "Stay for a while.",
+          "B": "“Come sit here.”",
+          "outcome": "third_neutral_stay"
+        },
+        {
+          "id": "go",
+          "label": "“Not today.”",
+          "B": "“Another time.”",
+          "outcome": "third_neutral_go"
+        }
+      ]
+    },
+    "notes": [
+      "A repair OFFER is not instant forgiveness or a kept world promise. Record explicit new stance; do not erase the previous offense.",
+      "No fixed family history, trauma, home claims or personality rewrite introduced. Confiding is about this relationship.",
+      "These third-meeting text outcomes currently default0 under §11.3a. Free exit/pause semantics apply at each decision boundary."
+    ]
+  },
+  "mappingQuestions": [
+    "Neutral leave on every non-opening beat must pause at the current node, not manufacture a terminal outcome or erase pending facts. Later resume does not charge again.",
+    "Preserve authoring node IDs where possible; mapping to §10 beats/choices is Flint-owned. Third-meeting outcomes await terminal tuning (default0)."
+  ],
+  "resolvedReceiptCases": [
+    "Opening free Leave never fulfils return_quiet; later non-leave opening commits cost/slot/cooldown and promise transition once.",
+    "First-contact greet entering arc folds into terminal delta; no extra greet +5."
+  ],
+  "engineFieldMappingStatus": "Flint proposed per-cat memory and one pending exchange (castIds,node,choicePath,instanceId), atomic choice/effects/cursor. Exact runtime field names/renderer format still await mapping; do not assume this JSON is drop-in runtime data.",
+  "validationNotes": [
+    "All first-arc nodes reachable; all ten terminal outcomes have remembered callbacks and meaningful branch-specific follow-ups.",
+    "Third meeting has explicit confiding/repair/neutral gates with written replies; all third outcomes default0 pending mapping.",
+    "Generated ln05 identity/personality/portrait always authoritative; no fixed authoring biography.",
+    "Outcome identifiers remain stable; revision increments only content bundle revision. Atomic receipts require run/cat/instance/node/choice, not label-only keys."
+  ]
+}

@@ -145,6 +145,8 @@
           ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});
           li.append(framed(mini, 'sm'), el('span', 'met-name', n.name + ' · ' + factionName(n.faction) + ' · ' + t('game.affinity', { affinity: n.affinity })));
           li.append(btn(t('portrait.expand'), { g: 'expandCat', source: mini.id, name: n.name }, { cls: 'portrait-expand' }));
+          const known = (E.available(s).talk || []).find((row) => row.catId === n.id);
+          if (known) li.append(el('p', 'met-note', talkNote(known)));
           ul.append(li);
         }
         p.append(ul);
@@ -168,7 +170,9 @@
     }
     function renderActions() {
       const a = $('#game-actions'); a.textContent = ''; const av = E.available(s);
-      if (av.phase) { /* event open: actions wait behind the event card */ } else if (av.forced) {
+      if (av.phase) { /* event open: actions wait behind the event card */ } else if (av.talkOnly) {
+        a.append(el('p', 'forced-note', t('talk.held')), talkGroup(av.talk));
+      } else if (av.forced) {
         a.append(el('p', 'forced-note', t(`game.forced.${av.forced}`, { region: av.to ? regionName(av.to) : '' })), btn(t('game.action.continueDay'), { g: 'forced' }, { cls: 'primary' }));
       } else {
         const hunt = el('div', 'action-group'); hunt.append(el('h3', '', t('game.action.hunt')));
@@ -180,8 +184,28 @@
           const discovered = s.map.discovered.includes(o.to);
           tr.append(btn(t.plural('game.action.travelTo', o.days, { region: discovered ? regionName(o.to) : t('game.region.unknown') }), { g: 'travel', to: o.to }, { disabled: !o.allowed, title: o.allowed ? '' : t('game.blocked.edge') }));
         }
+        const talks = talkGroup(av.talk);
         a.append(hunt, rest, tr);
+        if (talks.childElementCount) a.append(talks);
       }
+    }
+    function talkNote(o) {
+      const place = (o.homeZones || []).map(regionName).join(', ');
+      if (o.allowed) return t(o.resume ? 'talk.resume' : 'talk.with', { name: o.name });
+      if (o.reason === 'cooldown') return t('talk.cooldown', { name: o.name, day: o.eligibleDay, place });
+      if (o.reason === 'away') return t('talk.away', { name: o.name, place });
+      if (o.reason === 'slot') return t('talk.slot', { name: o.name });
+      return t('talk.away', { name: o.name, place });
+    }
+    function talkGroup(rows) {
+      const box = el('div', 'action-group is-talk');
+      if (!rows || !rows.length) return box;
+      box.append(el('h3', '', t('talk.heading')));
+      for (const o of rows) {
+        if (o.allowed) box.append(btn(t(o.resume ? 'talk.resume' : 'talk.with', { name: o.name }), { g: 'talk', cat: o.catId }));
+        else box.append(el('p', 'blocked-note', talkNote(o)));
+      }
+      return box;
     }
     const lineText = (l) => {
       switch (l.k) {
@@ -207,7 +231,32 @@
       if (!ul.children.length) ul.append(el('li', '', t('game.report.quiet')));
       r.append(ul);
     }
+    function renderTalk() {
+      const box = $('#game-event'); const view = E.talkView(s);
+      const show = !!view;
+      box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
+      if (!show) return;
+      box.textContent = '';
+      const card = el('div', 'event-card conversation-card'); card.dataset.node = view.nodeId; card.dataset.cat = view.catId; box.append(card);
+      const npc = s.npcs[view.catId];
+      const who = el('div', 'event-cast');
+      const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
+      ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
+      who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.catName), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
+      card.append(who);
+      card.append(el('p', 'event-affinity', t('game.affinity', { affinity: npc.affinity })));
+      const scroll = el('div', 'event-scroll');
+      if (!view.lines.length) scroll.append(el('p', 'event-text', ''));
+      for (const line of view.lines) scroll.append(el('p', line.kind === 'say' ? 'event-text say' : 'event-text narration', line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+      card.append(scroll);
+      const ch = el('div', 'event-choices');
+      if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      else for (const c of view.choices) ch.append(btn(c.pause ? t('talk.pause') : c.label, { g: 'choose', choice: c.id, node: view.nodeId, instance: view.instanceId }));
+      ch.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
+      card.append(ch);
+    }
     function renderEvent() {
+      if (s.phase === 'conversation') return renderTalk();
       const box = $('#game-event'); const p = s.pending;
       const show = s.phase === 'event' || s.phase === 'eventResult';
       box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
@@ -259,7 +308,8 @@
       if (d.g === 'rest') return act({ type: 'rest' });
       if (d.g === 'travel') return act({ type: 'travel', to: d.to });
       if (d.g === 'forced') return act({ type: 'forced' });
-      if (d.g === 'choose') return act({ type: 'choose', choiceId: d.choice });
+      if (d.g === 'talk') return act({ type: 'talk', catId: d.cat });
+      if (d.g === 'choose') return act({ type: 'choose', choiceId: d.choice, nodeId: d.node, instanceId: d.instance });
       if (d.g === 'continue') return act({ type: 'continue' });
       if (d.g === 'save') return manualSave();
       if (d.g === 'menu' || d.g === 'summaryMenu') return ctx.leave();

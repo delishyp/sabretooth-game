@@ -222,6 +222,17 @@ button.primary { border-color: var(--accent); }
 .event-choices button, .event-card > button { min-height: 48px; font-size: 20px; padding: 8px 18px; background: rgba(48, 32, 18, .9); border: 1px solid rgba(212, 176, 122, .5); color: #f6efe2; border-radius: 8px; }
 .event-choices button:hover, .event-choices button.focused, .event-choices button:focus-visible,
 .event-card > button:hover, .event-card > button.focused, .event-card > button:focus-visible { background: rgba(110, 72, 32, .95); border-color: #e6c98a; outline: 2px solid #fff; outline-offset: 2px; }
+/* Recurring talk: the speaker stays put, the prose scrolls, and the choices stay on screen. */
+.conversation-card { width: min(880px, calc(100% - 64px)); max-height: calc(100% - 32px); overflow: hidden; align-items: stretch; justify-content: flex-start; box-sizing: border-box; padding: 16px 22px 14px; }
+.conversation-card .event-cast { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; width: 100%; }
+.conversation-card .event-cast-name { font-family: var(--font-title); font-size: 32px; letter-spacing: 1px; color: #f6efe2; }
+.conversation-card .event-affinity { flex: 0 0 auto; margin: 0; width: 100%; text-align: left; }
+.conversation-card .event-scroll { flex: 1 1 auto; min-height: 96px; max-height: 140px; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding-right: 8px; }
+.conversation-card .event-text { text-align: left; max-width: none; overflow-wrap: anywhere; white-space: pre-wrap; }
+.conversation-card .event-text.narration { color: #e7d3b4; font-style: italic; }
+.conversation-card .event-choices { flex: 0 0 auto; overflow: visible; }
+.conversation-card .event-choices button { white-space: normal; height: auto; min-height: 48px; line-height: 1.35; overflow: visible; text-align: left; }
+.met-note { margin: 4px 0 0; font-size: 15px; color: #e7d3b4; }
 .screen[data-screen="summary"] { padding: 80px 160px; }
 .summary-cause { font-size: 28px; color: var(--danger); }
 .summary-stats { display: grid; grid-template-columns: 300px 1fr; gap: 12px 24px; font-size: 26px; }

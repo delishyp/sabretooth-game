@@ -29,6 +29,13 @@ const gameJson = (ud, run, save) => JSON.parse(fs.readFileSync(path.join(ud, 'sa
 /** One step of a simple survival policy, by clicking the real buttons. Returns what it did. */
 async function step(page, shots) {
   const { state: s, available: av } = await g(page);
+  if (s.phase === 'conversation') {
+    const cont = page.locator('#game-event [data-g="continue"]');
+    if (await cont.count()) { await cont.click(); await idle(page); return 'talk-continue'; }
+    const leave = page.locator('#game-event [data-choice="leave"], #game-event [data-choice="pause"]');
+    if (await leave.count()) { await leave.first().click(); await idle(page); return 'talk-leave'; }
+    await page.locator('#game-event [data-g="choose"]').first().click(); await idle(page); return 'talk-choice';
+  }
   if (s.phase === 'event') {
     if (!shots.event && s.pending.catId) { await page.waitForTimeout(400); await shot(page, '04-event'); shots.event = true; }
     const b = page.locator('#game-event [data-g="choose"]').first(); await b.click(); await idle(page); return 'choose';
