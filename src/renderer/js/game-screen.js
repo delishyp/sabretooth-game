@@ -395,7 +395,7 @@
       img.alt = view.displayName;
       img.dataset.asset = view.assetId;
       art.append(img);
-      card.append(art, btn('Entire image', { g: 'inspectEncounter' }));
+      card.append(art, btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
@@ -487,7 +487,16 @@
       if (d.g === 'choose') return act({ type: 'choose', choiceId: d.choice, nodeId: d.node, instanceId: d.instance });
       if (d.g === 'encounterChoose') return act({ type: 'encounterChoose', choiceId: d.choice });
       if (d.g === 'seek') return act({ type: 'seek', catId: d.cat });
-      if (d.g === 'inspectEncounter') { const art = document.querySelector('.encounter-art'); if (art) art.classList.toggle('is-full'); return; }
+      if (d.g === 'inspectEncounter') {
+        const src = document.querySelector('.encounter-img');
+        const box = document.getElementById('encounter-inspect');
+        const img = box.querySelector('img');
+        img.src = src.src; img.alt = src.alt;
+        box.hidden = false;
+        box._opener = b;
+        ctx.focus(document.getElementById('encounter-inspect-close'));
+        return;
+      }
       if (d.g === 'continue') return act({ type: 'continue' });
       if (d.g === 'save') return manualSave();
       if (d.g === 'menu' || d.g === 'summaryMenu') return ctx.leave();

@@ -80,10 +80,22 @@
 
   // ---------- generic focus (all screens except difficulty) ----------
   function viewerOpen() { const v = $('#cat-viewer'); return !!(v && !v.hidden); }
+  function inspectOpen() { const v = $('#encounter-inspect'); return !!(v && !v.hidden); }
+  function closeInspect() {
+    const box = $('#encounter-inspect');
+    if (!box || box.hidden) return false;
+    box.hidden = true;
+    const opener = box._opener;
+    box._opener = null;
+    if (opener && opener.isConnected && !opener.disabled) focus(opener);
+    else if (state === 'game' && game) game.refocus();
+    return true;
+  }
   function viewerButtons() {
     return $$('#cat-viewer button').filter((b) => !b.disabled && !b.classList.contains('cat-viewer-backdrop') && b.offsetParent !== null);
   }
   function focusables() {
+    if (inspectOpen()) return [$('#encounter-inspect-close')].filter((b) => b && !b.disabled);
     if (viewerOpen()) return viewerButtons();
     const scope = dialog ? $('#dialog') : (state === 'game' && game && game.focusScope()) || $('.screen.active');
     if (!scope) return [];
@@ -823,6 +835,7 @@
   document.addEventListener('click', (ev) => {
     const g = ev.target.closest('[data-g]');
     if (g && g.dataset.g === 'closeViewer') { closeCatViewer(); return; }
+    if (g && g.dataset.g === 'closeInspect') { closeInspect(); return; }
     if (g && g.dataset.g === 'expandCat') {
       const src = document.getElementById(g.dataset.source);
       openCatViewer(src && src._full, g.dataset.name || '', g);
@@ -839,6 +852,11 @@
     cycleViewer(ev.shiftKey ? -1 : 1);
   }, true);
   Input.on((a) => {
+    if (inspectOpen()) {
+      if (a === 'back') { closeInspect(); return; }
+      if (a === 'confirm' || a === 'start') { const el = current(); if (el) el.click(); return; }
+      return;
+    }
     if (viewerOpen()) {
       if (a === 'back') { closeCatViewer(); return; }
       if (a === 'up' || a === 'left' || a === 'tabPrev') { cycleViewer(-1); return; }

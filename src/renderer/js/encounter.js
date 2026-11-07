@@ -74,6 +74,8 @@
     function hyenaTier(s) {
       const stat = fightStat(s);
       if (stat >= cleanAt) return { tier: 'clean', stat, threat, extraEnergy: 0, injury: null, success: true };
+      // Tundra v0.6.2 and Saga: partial is a successful drive. It costs the extra Energy and uses hyena_driven.
+      // The later witnessed deeds stay available. This contest pays only drive_hyena, +5, not the follow-ups.
       if (stat >= threat) return { tier: 'partial', stat, threat, extraEnergy: partialE, injury: null, success: true };
       if (stat >= 6) return { tier: 'fail', stat, threat, extraEnergy: 0, injury: null, success: false };
       return { tier: 'fail', stat, threat, extraEnergy: 0, injury: 'minor', success: false };
