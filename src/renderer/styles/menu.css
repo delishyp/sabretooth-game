@@ -213,7 +213,7 @@ button.primary { border-color: var(--accent); }
 .game-report[hidden] { display: none; }
 .game-report h3 { margin: 0 0 6px; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #d4b07a; }
 .game-report ul { margin: 0; padding-left: 18px; line-height: 1.45; }
-.game-event { position: absolute; left: 210px; right: 0; top: 88px; bottom: 0; z-index: 5; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.game-event { position: absolute; left: 210px; right: 440px; top: 88px; bottom: 0; z-index: 5; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .game-event .event-card { pointer-events: auto; }
 .game-event[hidden] { display: none; }
 .event-card { width: min(820px, calc(100% - 280px)); max-height: calc(100% - 48px); overflow: auto; background: linear-gradient(180deg, rgba(42, 28, 18, .97), rgba(16, 11, 8, .97)); border: 2px solid #c6a15a; box-shadow: inset 0 0 0 1px #f3ddb0, 0 18px 48px rgba(0, 0, 0, .5); border-radius: 14px; padding: 22px 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f6efe2; }
@@ -225,18 +225,26 @@ button.primary { border-color: var(--accent); }
 .event-choices button:hover, .event-choices button.focused, .event-choices button:focus-visible,
 .event-card > button:hover, .event-card > button.focused, .event-card > button:focus-visible { background: #6e4820; border-color: #fff1c9; outline: 3px solid #fff; outline-offset: 3px; }
 /* Recurring talk: the speaker stays put, the prose scrolls, and the choices stay on screen. */
-.conversation-card { width: min(880px, calc(100% - 64px)); max-height: calc(100% - 32px); overflow: hidden; align-items: stretch; justify-content: flex-start; box-sizing: border-box; padding: 16px 22px 14px; }
+.conversation-card { width: min(920px, 100%); max-height: calc(100% - 16px); overflow: hidden; align-items: stretch; justify-content: flex-start; box-sizing: border-box; padding: 16px 22px 14px; }
 .conversation-card .event-cast { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; width: 100%; }
 .conversation-card .event-cast-name { font-family: var(--font-title); font-size: 32px; letter-spacing: 1px; color: #f6efe2; }
 .conversation-card .event-affinity { flex: 0 0 auto; margin: 0; width: 100%; text-align: left; }
 .conversation-card .event-scroll { flex: 1 1 auto; min-height: 96px; max-height: 140px; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding: 10px 12px; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
-.relation-meters { list-style: none; margin: 0; padding: 8px 10px; width: 100%; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
-.relation-meters li { margin: 0; font-size: 16px; color: #f6efe2; }
-.choice-cost { margin: 0; padding: 8px 10px; background: #24180f; border: 1px solid rgba(230, 201, 138, .55); border-radius: 8px; color: #f6efe2; font-size: 16px; }
+.relation-meters { margin: 0; padding: 8px 10px; width: 100%; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
+.relation-meters p { margin: 0; font-size: 18px; line-height: 1.35; color: #f6efe2; }
+.personal-meter { width: 100%; margin: 0 0 6px; }
+.meter-track { position: relative; height: 16px; background: #0e0b09; border: 1px solid #e6c98a; border-radius: 8px; }
+.meter-zero { position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: #f6efe2; }
+.meter-mark { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; background: #e6c98a; border: 2px solid #fff8ea; border-radius: 2px; }
+.personal-meter.is-unknown .meter-track { background: repeating-linear-gradient(90deg, #1a140f, #1a140f 6px, #2a2118 6px, #2a2118 12px); }
+.meter-ends { display: flex; justify-content: space-between; margin-top: 2px; padding: 0 2px; font-size: 15px; color: #f0e2cc; }
+.meter-caption { font-size: 18px; }
+.choice-cost { margin: 0; padding: 8px 10px; background: #24180f; border: 1px solid rgba(230, 201, 138, .55); border-radius: 8px; color: #f6efe2; font-size: 18px; line-height: 1.35; }
 @media (max-height: 800px) {
-  .conversation-card { width: min(620px, calc(100% - 24px)); }
-  .conversation-card .frame-md { --frame-h: 96px; }
-  .home-dock { width: 280px; }
+  .home-dock { width: 300px; }
+  .game-event { right: 316px; }
+  .conversation-card { width: 100%; }
+  .conversation-card .frame-md { --frame-h: 128px; }
 }
 .conversation-card .event-text { text-align: left; max-width: none; overflow-wrap: anywhere; white-space: pre-wrap; }
 .conversation-card .event-text.narration { color: #e7d3b4; font-style: italic; }

@@ -98,6 +98,10 @@ async function reach(page) {
         variantIds: p.presentation.variantIds,
         portraitId: s.npcs.ln05.portraitId, affinity: s.npcs.ln05.affinity,
         relations: card.querySelector('.relation-meters').innerText,
+        meterRole: card.querySelector('.personal-meter')?.getAttribute('role'),
+        meterNow: card.querySelector('.personal-meter')?.getAttribute('aria-valuenow'),
+        meterMark: !!card.querySelector('.personal-meter .meter-mark'),
+        romanceUnknown: (card.querySelector('.relation-romance')?.textContent || '').includes('Unknown'),
         cost: card.querySelector('.choice-cost').innerText,
         costData: card.querySelector('.choice-cost').dataset,
         needs,
@@ -120,6 +124,10 @@ async function reach(page) {
     assert.strictEqual(at720.portraitId, BEFORE.portraitId);
     assert.strictEqual(at720.affinity, BEFORE.affinity);
     assert.strictEqual(logicHash(at720), logicHash(BEFORE));
+    assert.strictEqual(at720.meterRole, 'meter');
+    assert.strictEqual(at720.meterNow, '0');
+    assert.strictEqual(at720.meterMark, true);
+    assert.strictEqual(at720.romanceUnknown, true);
     assert.ok(at720.relations.includes('Personal · Coppergale → you +0 · Neutral'));
     assert.ok(at720.relations.includes('Romance · Unknown'));
     assert.ok(at720.relations.includes('Faction · Unknown'));

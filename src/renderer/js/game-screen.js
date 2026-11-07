@@ -73,19 +73,39 @@
     }
     function relationMeters(catId) {
       const npc = s.npcs[catId];
-      const ul = el('ul', 'relation-meters');
+      const ul = el('div', 'relation-meters');
       const personal = s.worldMemory && s.worldMemory.catToPlayer && s.worldMemory.catToPlayer[`${catId}->player`];
       const known = !!(npc && npc.met && personal);
       const band = known ? E.personalBand(s, catId) : null;
       const tier = band && band.id === 'neutral' ? 'Neutral' : (band ? band.label : 'Neutral');
       const who = npc ? npc.name : 'This cat';
-      ul.append(el('li', 'relation-personal', known ? `Personal · ${who} → you ${signed(personal.value)} · ${tier}` : `Personal · ${who} → you · Unknown`));
+      const meter = el('div', known ? 'personal-meter' : 'personal-meter is-unknown');
+      const track = el('div', 'meter-track');
+      track.append(el('span', 'meter-zero'));
+      if (known) {
+        const v = Math.max(-100, Math.min(100, Math.trunc(personal.value)));
+        const mark = el('span', 'meter-mark');
+        mark.style.left = `${((v + 100) / 200) * 100}%`;
+        track.append(mark);
+        meter.setAttribute('role', 'meter');
+        meter.setAttribute('aria-valuemin', '-100');
+        meter.setAttribute('aria-valuemax', '100');
+        meter.setAttribute('aria-valuenow', String(v));
+        meter.setAttribute('aria-valuetext', `Personal. ${who} toward you. ${signed(v)}. ${tier}. Scale -100 to 100, zero at the center.`);
+      } else {
+        meter.setAttribute('role', 'img');
+        meter.setAttribute('aria-label', `Personal. ${who} toward you. Unknown. Not a reading on the -100 to 100 scale.`);
+      }
+      const ends = el('div', 'meter-ends');
+      ends.append(el('span', '', '-100'), el('span', '', '0'), el('span', '', '100'));
+      meter.append(track, ends, el('p', 'meter-caption', known ? `Personal · ${who} → you ${signed(personal.value)} · ${tier}` : `Personal · ${who} → you · Unknown`));
+      ul.append(meter);
       const romance = s.worldMemory && s.worldMemory.romance && s.worldMemory.romance[catId];
-      ul.append(el('li', 'relation-romance', romance && romance.value != null ? `Romance · ${signed(romance.value)}` : 'Romance · Unknown'));
-      if (!npc || !npc.faction || npc.faction === 'loner') ul.append(el('li', 'relation-faction', 'Faction · Unknown'));
+      ul.append(el('p', 'relation-romance', romance && romance.value != null ? `Romance · ${signed(romance.value)}` : 'Romance · Unknown'));
+      if (!npc || !npc.faction || npc.faction === 'loner') ul.append(el('p', 'relation-faction', 'Faction · Unknown'));
       else {
         const pride = s.worldMemory && s.worldMemory.prideToPlayer && s.worldMemory.prideToPlayer[`${npc.faction}->player`];
-        ul.append(el('li', 'relation-faction', pride ? `Faction · ${factionName(npc.faction)} → you ${signed(pride.value)}` : `Faction · ${factionName(npc.faction)} → you · Unknown`));
+        ul.append(el('p', 'relation-faction', pride ? `Faction · ${factionName(npc.faction)} → you ${signed(pride.value)}` : `Faction · ${factionName(npc.faction)} → you · Unknown`));
       }
       return ul;
     }
