@@ -20,7 +20,7 @@
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
     const C = Conversation.create(conversation, { ...(R.conversation || {}), affinityRange: M.affinityRange });
-    const WM = WorldMemory.create(R);
+    const WM = WorldMemory.create(R, conversation);
     const EV = (events && events.events) || [];
     const season = (s) => s.season;
     /** needs §1.6a named state. */
@@ -60,7 +60,7 @@
         npcs: rollNpcs(seed, mainCat.name), usedEvents: [], pending: null, report: null, log: [], dead: null, over: false,
         conversation: C.empty()
       };
-      Personality.applyNew(s);
+      Personality.applyNew(s, R);
       WM.initNew(s);
       return s;
     }
@@ -101,8 +101,20 @@
         hunt: { allowed: !tired(s), reason: tired(s) ? 'tired' : null, chance: Object.fromEntries(Object.keys(H.size).map((z) => [z, huntChance(s, z)])) },
         rest: { allowed: true },
         travel: W.neighbours(s.region).map((to) => ({ to, days: travelDaysFrom(s, to), allowed: !blocked(to), reason: blocked(to) ? 'blocked' : null })),
-        talk
+        talk,
+        border: borderOffer(s)
       };
+    }
+    function atHighcragBorder(s) {
+      if (!s.map || s.region === 'highcrag') return false;
+      const held = (id) => W.ownership(s.map.claims, id).holder === 'highcrag';
+      return W.neighbours(s.region).some(held) || (held(s.region) && W.neighbours(s.region).some((id) => !held(id)));
+    }
+    function borderOffer(s) {
+      if (!WM.hasBorder || !atHighcragBorder(s) || (s.conversation && s.conversation.pending)) return null;
+      const guard = s.npcs && s.npcs.hc07;
+      if (!guard) return null;
+      return { allowed: true, guardId: 'hc07', name: guard.name };
     }
     function travelDaysFrom(s, to) {
       const d = W.travelDays(s.region, to, season(s));
@@ -125,6 +137,21 @@
         const led = s.conversation && s.conversation.ledger;
         const row = led && led[led.length - 1];
         if (row && s.worldMemory) WM.noteConversation(s, row, s.conversation.cats[row.catId]);
+        return { state: s };
+      }
+      if (s.phase === 'border') {
+        if (action.type === 'borderChoose') {
+          const r = WM.borderAct(s, action.choiceId);
+          if (r.error) return { state: s0, error: r.error };
+          return { state: s };
+        }
+        if (action.type === 'continue') { WM.closeBorder(s); return { state: s }; }
+        return { state: s0, error: 'border' };
+      }
+      if (action.type === 'border') {
+        if (!atHighcragBorder(s)) return { state: s0, error: 'border' };
+        const r = WM.openBorder(s, action.guardId || 'hc07');
+        if (r.error) return { state: s0, error: r.error };
         return { state: s };
       }
       if (action.type === 'talk') {
@@ -331,10 +358,10 @@
       if (!W.regions.some((r) => r.id === s.region)) s.region = R.start.region;
       if (s.cat) s.cat.portraitId = keptPortraitId(s.cat.portraitId);
       for (const n of Object.values(s.npcs || {})) {
-        n.portraitId = keptPortraitId(n.portraitId);
-        // Personality, look and name are the saved cat. Loading must not roll them again.
+        // A missing portraitId is not the same as a stored null. Only validate a field the save actually has.
+        if (Object.prototype.hasOwnProperty.call(n, 'portraitId')) n.portraitId = keptPortraitId(n.portraitId);
       }
-      Personality.migrate(s);
+      Personality.migrate(s, R);
       C.normalize(s);
       WM.migrate(s);
       s.saveVersion = R.saveVersion;

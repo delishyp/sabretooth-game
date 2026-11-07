@@ -28,8 +28,9 @@ test('new-game personalities use kin order and do not store the ln05 lean', () =
   const s = E.newRun({ mainCat: cat, seed: 4 });
   assert.deepStrictEqual(s.npcs.ln05.personality, a.byId.ln05.personality);
   assert.strictEqual(s.npcs.ln05.name, 'Bitterwatch');
-  assert.strictEqual(s.npcs.ln05.portraitId, null);
-  assert.strictEqual(s.npcs.ln05.portraitGap.status, 'no-approved-assignment');
+  assert.strictEqual(s.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(s.npcs.ln05.portraitAssignment, 'presentation-proof-v1');
+  assert.strictEqual(s.npcs.hc01.portraitId, null);
   assert.strictEqual(s.npcs.ln05.affinity, 0);
 });
 
@@ -133,6 +134,93 @@ test('private ln05 talk is unknown to other cats and prides, and the border gate
   assert.strictEqual(E.world.borderGate(s, { guardId: 'hc07' }).branch, 'permitted');
   assert.deepStrictEqual(E.world.councilStatus(s).councils, []);
   assert.strictEqual(E.world.councilStatus(s).leaders.find((l) => l.catId === 'hc01').name, s.npcs.hc01.name);
+});
+
+test('a cleared or stored-null ln05 portrait stays empty, and a missing field is filled once', () => {
+  const cleared = E.newRun({ mainCat: cat, seed: 2 });
+  cleared.npcs.ln05.portraitId = null;
+  cleared.npcs.ln05.portraitAssignment = 'cleared';
+  assert.strictEqual(E.migrate(JSON.parse(JSON.stringify(cleared))).npcs.ln05.portraitId, null);
+  const legacy = E.newRun({ mainCat: cat, seed: 2 });
+  legacy.npcs.ln05.portraitId = null;
+  delete legacy.npcs.ln05.portraitAssignment;
+  delete legacy.npcs.ln05.portraitGap;
+  const keptNull = E.migrate(JSON.parse(JSON.stringify(legacy)));
+  assert.strictEqual(keptNull.npcs.ln05.portraitId, null);
+  assert.strictEqual(keptNull.npcs.ln05.portraitAssignment, 'legacy-null');
+  const other = E.newRun({ mainCat: cat, seed: 2 });
+  other.npcs.ln05.portraitId = 'cat-6477d01534355420';
+  other.npcs.ln05.portraitAssignment = 'stored';
+  assert.strictEqual(E.migrate(JSON.parse(JSON.stringify(other))).npcs.ln05.portraitId, 'cat-6477d01534355420');
+  const missing = E.newRun({ mainCat: cat, seed: 2 });
+  delete missing.npcs.ln05.portraitId;
+  delete missing.npcs.ln05.portraitAssignment;
+  assert.strictEqual(E.migrate(missing).npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(E.migrate(JSON.parse(JSON.stringify(missing))).npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+});
+
+test('two runtime cats keep their own saved traits; the border scene does not borrow ln05 lines', () => {
+  let found = null;
+  for (let seed = 1; seed <= 40 && !found; seed++) {
+    const s = E.newRun({ mainCat: cat, seed });
+    const ln = Speech.resolve(coverage, '/nodes/opening', s.npcs.ln05.personality, { catName: s.npcs.ln05.name });
+    const guard = Speech.resolve(coverage, '/nodes/opening', s.npcs.hc07.personality, { catName: s.npcs.hc07.name });
+    if (ln.text !== guard.text) found = { seed, ln, guard };
+  }
+  assert.ok(found, 'two rolled cats should differ on the authored opening line');
+  const s = E.newRun({ mainCat: cat, seed: found.seed });
+  assert.notDeepStrictEqual(s.npcs.ln05.personality, s.npcs.hc07.personality);
+  assert.strictEqual(coverage.id, 'ln05.personality_coverage.v1');
+  s.npcs.ln05.met = true;
+  const talked = E.act(s, { type: 'talk', catId: 'ln05' }).state;
+  const say = E.talkView(talked).lines.find((l) => l.kind === 'say');
+  assert.strictEqual(say.text, found.ln.text);
+  const refused = E.act(E.newRun({ mainCat: cat, seed: found.seed }), { type: 'talk', catId: 'hc07' });
+  assert.strictEqual(refused.error, 'cat');
+  let border = E.newRun({ mainCat: cat, seed: found.seed });
+  border = E.act(border, { type: 'border' }).state;
+  const view = E.world.borderView(border);
+  assert.strictEqual(view.traitSpeech, 'unauthored');
+  assert.strictEqual(view.title, graph.factionStoryConsumer.opening.B);
+  assert.notStrictEqual(view.title, found.guard.text);
+  assert.deepStrictEqual(border.border.guardPersonality, border.npcs.hc07.personality);
+});
+
+test('border introduction is reachable at Split Rock, stays unknown without a feud, and reloads the same choices', () => {
+  let s = E.newRun({ mainCat: cat, seed: 4, runId: 'border-play' });
+  assert.strictEqual(s.region, 'split_rock');
+  assert.strictEqual(E.available(s).border.guardId, 'hc07');
+  s = E.act(s, { type: 'border' }).state;
+  assert.ok(E.world.borderView(s).choices.some((c) => c.id === 'request_introduction'));
+  s = E.act(s, { type: 'borderChoose', choiceId: 'request_introduction' }).state;
+  const ids = E.world.borderView(s).choices.map((c) => c.id);
+  assert.deepStrictEqual(ids, ['leave_request', 'withdraw']);
+  s.npcs.hc07.affinity = 90;
+  s.worldMemory.prideToPride['bonefield->highcrag'].value = -80;
+  assert.deepStrictEqual(E.world.borderView(s).choices.map((c) => c.id), ids);
+  const reloaded = E.migrate(JSON.parse(JSON.stringify(s)));
+  assert.deepStrictEqual(E.world.borderView(reloaded).choices.map((c) => c.id), ids);
+  const done = E.act(reloaded, { type: 'borderChoose', choiceId: 'leave_request' }).state;
+  assert.strictEqual(E.act(done, { type: 'borderChoose', choiceId: 'leave_request' }).error, 'duplicate');
+  assert.strictEqual(done.worldMemory.prideToPride['highcrag->bonefield'].value, 0);
+  assert.strictEqual(done.worldMemory.prideToPride['bonefield->highcrag'].value, -80);
+  assert.strictEqual(done.worldMemory.ledger.filter((e) => String(e.receiptKey).includes('/border/')).length, 2);
+});
+
+test('an engine-supplied deferral changes the border replies only with the guard knowledge, not a private fact', () => {
+  let s = E.newRun({ mainCat: cat, seed: 4, runId: 'border-defer' });
+  s.worldMemory.policy['highcrag->bonefield'] = { status: 'defers' };
+  s = E.act(s, { type: 'border' }).state;
+  s = E.act(s, { type: 'borderChoose', choiceId: 'request_introduction' }).state;
+  assert.deepStrictEqual(E.world.borderView(s).choices.map((c) => c.id), ['ask_reason', 'accept_defer']);
+  const factId = 'aid-1';
+  s.worldMemory.facts.push({ factId, kind: 'aid' });
+  s.worldMemory.knowledge[factId] = { scope: 'private', participantIds: ['player', 'ln05'], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: 1 };
+  assert.deepStrictEqual(E.world.borderView(s).choices.map((c) => c.id), ['ask_reason', 'accept_defer']);
+  E.world.disclose(s, { factId, toId: 'hc07', sourceEventId: 'told-the-guard' });
+  assert.strictEqual(E.world.knowsFact(s, 'highcrag', factId), false);
+  assert.ok(E.world.borderView(s).choices.some((c) => c.id === 'explain_known_aid'));
+  assert.strictEqual(s.worldMemory.prideToPride['highcrag->bonefield'].value, 0);
 });
 
 test('trait profiles change the authored line, not the choices, and a missing personality is not a silent baseline', () => {

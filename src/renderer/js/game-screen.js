@@ -187,6 +187,7 @@
         const talks = talkGroup(av.talk);
         a.append(hunt, rest, tr);
         if (talks.childElementCount) a.append(talks);
+        if (av.border && av.border.allowed) a.append(btn(`Ask ${av.border.name} at the Highcrag border`, { g: 'border', guard: av.border.guardId }));
       }
     }
     function talkNote(o) {
@@ -261,7 +262,33 @@
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
       card.append(util);
     }
+    function renderBorder() {
+      const box = $('#game-event'); const view = E.world.borderView(s);
+      const show = !!view;
+      box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
+      if (!show) return;
+      box.textContent = '';
+      const card = el('div', 'event-card conversation-card'); card.dataset.node = view.node; card.dataset.cat = view.guardId; box.append(card);
+      const guard = s.npcs[view.guardId];
+      const who = el('div', 'event-cast');
+      const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
+      ctx.portrait({ look: guard.look, sex: guard.sex, name: guard.name, portraitId: guard.portraitId }, cv, { frame: 'head' }).catch(() => {});
+      who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.guardName));
+      card.append(who);
+      const scroll = el('div', 'event-scroll');
+      scroll.append(el('p', 'event-text say', view.guardName + ': ' + view.title));
+      if (view.outcome) scroll.append(el('p', 'event-text', view.reply || view.outcome));
+      card.append(scroll);
+      const ch = el('div', 'event-choices');
+      if (view.node === 'done') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      else for (const c of view.choices) ch.append(btn(c.label, { g: 'borderChoose', choice: c.id }));
+      card.append(ch);
+      const util = el('div', 'talk-utility');
+      util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
+      card.append(util);
+    }
     function renderEvent() {
+      if (s.phase === 'border') return renderBorder();
       if (s.phase === 'conversation') return renderTalk();
       const box = $('#game-event'); const p = s.pending;
       const show = s.phase === 'event' || s.phase === 'eventResult';
@@ -293,7 +320,7 @@
       renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent();
       const evOpen = !$('#game-event').hidden;
       let target = null;
-      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
+      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
       else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
@@ -314,6 +341,8 @@
       if (d.g === 'rest') return act({ type: 'rest' });
       if (d.g === 'travel') return act({ type: 'travel', to: d.to });
       if (d.g === 'forced') return act({ type: 'forced' });
+      if (d.g === 'border') return act({ type: 'border', guardId: d.guard });
+      if (d.g === 'borderChoose') return act({ type: 'borderChoose', choiceId: d.choice });
       if (d.g === 'talk') return act({ type: 'talk', catId: d.cat });
       if (d.g === 'choose') return act({ type: 'choose', choiceId: d.choice, nodeId: d.node, instanceId: d.instance });
       if (d.g === 'continue') return act({ type: 'continue' });
@@ -325,7 +354,7 @@
       if (!s || !$('#cat-viewer') || !$('#cat-viewer').hidden) return;
       const evOpen = !$('#game-event').hidden;
       const target = evOpen
-        ? [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="continue"]')].find((b) => !b.disabled)
+        ? [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="continue"]')].find((b) => !b.disabled)
         : [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
       ctx.focus(target || null);
     }

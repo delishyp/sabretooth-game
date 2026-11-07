@@ -89,7 +89,20 @@
   function portraitGap() {
     return { status: 'no-approved-assignment', portraitId: null, note: 'No approved slot-to-portrait map. Registry order is not an assignment.' };
   }
-  function applyNew(state) {
+  const PROOF_PORTRAIT = 'cat-6e2d788dd48ff440';
+  function proofPortrait(rules) {
+    const id = rules && rules.presentationPortraits && rules.presentationPortraits.ln05;
+    return typeof id === 'string' && id ? id : PROOF_PORTRAIT;
+  }
+  function assignProofPortrait(npc, rules) {
+    if (!npc || npc.id !== 'ln05') return;
+    if (npc.portraitAssignment === 'cleared' || npc.portraitAssignment === 'legacy-null') return;
+    if (typeof npc.portraitId === 'string' && npc.portraitId) return;
+    npc.portraitId = proofPortrait(rules);
+    npc.portraitAssignment = 'presentation-proof-v1';
+    npc.portraitGap = null;
+  }
+  function applyNew(state, rules) {
     if (!state || state.seed == null || !state.npcs) return state;
     const rolled = roll(state.seed);
     for (const [id, npc] of Object.entries(state.npcs)) {
@@ -99,7 +112,8 @@
         npc.personalitySource = row.source;
         npc.personalityGap = null;
       }
-      if (!npc.portraitId) npc.portraitGap = portraitGap();
+      if (id === 'ln05') assignProofPortrait(npc, rules);
+      else if (!npc.portraitId) npc.portraitGap = portraitGap();
       npc.prideLoyalty = npc.faction && npc.faction !== 'loner' && complete(npc.personality)
         ? Math.max(0, Math.min(100, roundHalfAway(70 + (npc.personality.loyalty - 50) * 0.2))) : null;
     }
@@ -107,16 +121,26 @@
     return state;
   }
   /** Does not invent a personality for a save that never stored one. */
-  function migrate(state) {
+  function migrate(state, rules) {
     if (!state || !state.npcs) return state;
     for (const npc of Object.values(state.npcs)) {
-      if (complete(npc.personality)) { npc.personalityGap = null; continue; }
-      const missing = TRAITS.filter((t) => !npc.personality || !Number.isInteger(npc.personality[t]));
-      if (!npc.personality || typeof npc.personality !== 'object') npc.personality = null;
-      npc.personalityGap = { status: 'unresolved', recoverable: false, missing, reason: GAP, narrativeLeanIgnored: true };
-      if (!npc.portraitId) npc.portraitGap = npc.portraitGap || portraitGap();
+      if (complete(npc.personality)) npc.personalityGap = null;
+      else {
+        const missing = TRAITS.filter((t) => !npc.personality || !Number.isInteger(npc.personality[t]));
+        if (!npc.personality || typeof npc.personality !== 'object') npc.personality = null;
+        npc.personalityGap = { status: 'unresolved', recoverable: false, missing, reason: GAP, narrativeLeanIgnored: true };
+      }
+      if (npc.portraitAssignment === 'cleared') { npc.portraitId = null; npc.portraitGap = { status: 'cleared', portraitId: null }; continue; }
+      if (typeof npc.portraitId === 'string' && npc.portraitId) { npc.portraitGap = null; continue; }
+      const missingField = !Object.prototype.hasOwnProperty.call(npc, 'portraitId');
+      if (missingField && npc.id === 'ln05' && npc.portraitAssignment !== 'legacy-null') { assignProofPortrait(npc, rules); continue; }
+      if (npc.portraitGap && (npc.portraitGap.status === 'no-approved-assignment' || npc.portraitGap.status === 'cleared')) continue;
+      if (missingField) { npc.portraitId = null; npc.portraitGap = portraitGap(); continue; }
+      npc.portraitId = null;
+      if (!npc.portraitAssignment) npc.portraitAssignment = 'legacy-null';
+      npc.portraitGap = { status: 'legacy-null', portraitId: null, note: 'A stored null is kept. It is not treated as a missing portrait and is not filled.' };
     }
     return state;
   }
-  return { TRAITS, PARENTS, ORDER, LN05_LEAN, roll, applyNew, migrate, complete, roundHalfAway };
+  return { TRAITS, PARENTS, ORDER, LN05_LEAN, PROOF_PORTRAIT, roll, applyNew, migrate, complete, roundHalfAway };
 });

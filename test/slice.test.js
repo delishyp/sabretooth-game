@@ -191,7 +191,7 @@ test('portrait id is kept verbatim, and a legacy or corrupt id becomes null inst
   const marked = { ...cat, portraitId: 'cat-6e2d788dd48ff440' };
   const s = E.newRun({ mainCat: marked, seed: 1 });
   assert.strictEqual(s.cat.portraitId, 'cat-6e2d788dd48ff440');
-  assert.ok(Object.values(s.npcs).every((n) => n.portraitId === null));
+  assert.ok(Object.values(s.npcs).every((n) => n.id === 'ln05' ? n.portraitId === 'cat-6e2d788dd48ff440' : n.portraitId === null));
   const legacy = JSON.parse(JSON.stringify(s));
   delete legacy.cat.portraitId;
   legacy.npcs.hc01.portraitId = 'Not A Cat';
