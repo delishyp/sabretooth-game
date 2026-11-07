@@ -128,7 +128,15 @@ Owner: Saga. Replaces all 102 placeholder strings in `src/renderer/js/i18n.js`. 
     "portrait.expand": "Entire cat",
     "portrait.close": "Close",
     "portrait.full": "Entire cat",
-    "game.affinity": "Affinity {affinity}"
+    "game.affinity": "Affinity {affinity}",
+    "talk.heading": "Talk",
+    "talk.with": "Talk with {name}",
+    "talk.resume": "Continue talking with {name}",
+    "talk.pause": "Leave this for now.",
+    "talk.cooldown": "You can talk with {name} again on day {day}. They keep to {place}.",
+    "talk.away": "{name} is not here. They keep to {place}.",
+    "talk.slot": "You have already stopped to talk today.",
+    "talk.held": "Finish this talk before the day moves on."
   }
 }
 ```
