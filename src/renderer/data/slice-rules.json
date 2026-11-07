@@ -195,7 +195,7 @@
     "ln05": "cat-6e2d788dd48ff440"
   },
   "worldMemory": {
-    "$comment": "v0.5.2 PROPOSED tunables. Spillover numbers are not approved balance. Rank never bypasses knowledge. Personal labels: negative and zero are Anna's; positive labels are Director wording pending Anna.",
+    "$comment": "v0.5.3 PROPOSED tunables. Spillover numbers are not approved balance. Rank never bypasses knowledge. Personal labels: negative and zero are Anna's; positive labels are Director wording pending Anna. Highcrag introduction policy is unreconciled: neither the §12.6.6 numeric threshold nor the Saga leader-curiosity ruling is live.",
     "schema": 1,
     "spilloverCoeffLeader": 0.5,
     "spilloverCoeffHighRank": 0.35,

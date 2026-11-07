@@ -16,11 +16,11 @@
   const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
-  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null }) {
+  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null }) {
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
     const C = Conversation.create(conversation, { ...(R.conversation || {}), affinityRange: M.affinityRange });
-    const WM = WorldMemory.create(R, conversation);
+    const WM = WorldMemory.create(R, conversation, borderPolicy);
     const EV = (events && events.events) || [];
     const season = (s) => s.season;
     /** needs §1.6a named state. */

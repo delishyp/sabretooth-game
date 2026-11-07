@@ -4,14 +4,14 @@
  * Council cadence is not run. A refusal is not stored as peace.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.WorldMemory = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./speech'));
+  else root.WorldMemory = factory(root.Speech);
+})(typeof self !== 'undefined' ? self : this, function (Speech) {
   const SCHEMA = 1;
   const PRIDES = ['highcrag', 'bonefield', 'mistwood'];
   const LEADERS = { highcrag: 'hc01', bonefield: 'bf01', mistwood: 'mw01' };
 
-  function create(rules, graph) {
+  function create(rules, graph, producer) {
     const wm = (rules && rules.worldMemory) || {};
     const range = (rules && rules.meetings && rules.meetings.affinityRange) || [-100, 100];
     const bands = wm.personalBands || [];
@@ -58,7 +58,7 @@
       return {
         schema: SCHEMA, ledger: [], facts: [], knowledge: {}, conflicts: [],
         catToPlayer: {}, prideToPlayer: {}, prideToPride: {},
-        policy: { 'highcrag->bonefield': { status: 'unmapped', permits: null, defers: null } },
+        policy: { 'highcrag->bonefield': { status: 'unmapped', source: 'unreconciled', kind: 'relay_introduction_requests_involving_bonefield', version: 0, permits: null, defers: null } },
         councils: [], agreements: [], romance: {},
         spillover: { apply: true, rankBypassesKnowledge: false, pendingClarification: null }
       };
@@ -127,7 +127,7 @@
       const k = s.worldMemory && s.worldMemory.knowledge[factId];
       if (!k) return false;
       if (k.scope === 'world_known') return true;
-      if (subjectId === 'player' || (k.participantIds || []).includes(subjectId) || (k.disclosedTo || []).includes(subjectId)) return true;
+      if (subjectId === 'player' || (k.participantIds || []).includes(subjectId) || (k.disclosedTo || []).includes(subjectId) || (k.witnessIds || []).includes(subjectId)) return true;
       if ((k.prideIds || []).includes(subjectId)) return true;
       if (k.scope === 'witnessed') {
         return (k.witnessIds || []).some((id) => s.npcs[id] && s.npcs[id].faction === subjectId);
@@ -189,12 +189,12 @@
       return { applied: true };
     }
     function borderGate(s, { guardId }) {
-      const policy = box(s).policy['highcrag->bonefield'] || { status: 'unmapped' };
+      const status = policyStatus(s);
       const reverse = s.worldMemory.prideToPride[pairKey('bonefield', 'highcrag')];
       const personal = guardId && catRecSafe(s, guardId);
-      const base = { usedPersonal: false, usedReverse: false, numericEffect: null, reverseValue: reverse ? reverse.value : 0, personalValue: personal ? personal.value : null };
-      if (policy.status !== 'permits' && policy.status !== 'defers') return { ...base, branch: 'unknown_policy' };
-      if (policy.status === 'permits') return { ...base, branch: 'permitted' };
+      const base = { usedPersonal: false, usedReverse: false, numericEffect: null, reverseValue: reverse ? reverse.value : 0, personalValue: personal ? personal.value : null, source: (box(s).policy['highcrag->bonefield'] || {}).source || 'unreconciled' };
+      if (status !== 'permits' && status !== 'defers') return { ...base, branch: 'unknown_policy' };
+      if (status === 'permits') return { ...base, branch: 'permitted' };
       const aid = (s.worldMemory.facts || []).find((f) => f.kind === 'aid' && knowsFact(s, guardId, f.factId));
       return { ...base, branch: aid ? 'deferred_known_cause' : 'deferred_no_knowledge', aidFactId: aid ? aid.factId : null };
     }
@@ -215,8 +215,35 @@
     const story = graph && graph.factionStoryConsumer;
     function policyStatus(s) {
       const row = box(s).policy['highcrag->bonefield'];
-      if (row && (row.status === 'permits' || row.status === 'defers' || row.status === 'unmapped')) return row.status;
+      if (!row || row.source !== 'reconciled') return 'unmapped';
+      if (row.status === 'permits' || row.status === 'defers') return row.status;
       return 'unmapped';
+    }
+    function speak(npc, location) {
+      if (!producer || !Speech || !graph || !npc) return null;
+      const coverage = {
+        speechLocations: producer.personalityCoverage && producer.personalityCoverage.speechLocations,
+        contextActions: graph.personalityCoverage && graph.personalityCoverage.contextActions
+      };
+      return Speech.resolve(coverage, location, npc.personality, { catName: npc.name });
+    }
+    function linesFrom(npc, resolved) {
+      if (!resolved) return [];
+      const out = [];
+      if (resolved.gap) out.push({ kind: 'gap', text: resolved.gap });
+      if (resolved.action) out.push({ kind: 'action', text: resolved.action });
+      if (resolved.text && !resolved.gap) out.push({ kind: 'say', speaker: npc.name, text: resolved.text, variantId: resolved.variantId });
+      else if (resolved.text && resolved.gap) out.push({ kind: 'say', speaker: npc.name, text: resolved.text, variantId: resolved.variantId, incomplete: true });
+      return out;
+    }
+    function freezeSpeech(s, location) {
+      const npc = s.npcs[s.border.guardId];
+      const resolved = speak(npc, location);
+      if (!resolved) return;
+      s.border.presentation = {
+        node: s.border.node, location, variantId: resolved.variantId, actionId: resolved.actionId,
+        characterization: resolved.characterization, text: resolved.text, action: resolved.action, gap: resolved.gap
+      };
     }
     function borderNode(s) {
       const status = policyStatus(s);
@@ -233,30 +260,43 @@
       }
       return story.policyGate.unknown_policy;
     }
-    function borderChoices(node) {
-      return (node && node.choices || []).filter((c) => {
+    function borderChoices(s, node) {
+      const list = (node && node.choices || []).filter((c) => {
         if (c.requires && String(c.requires).includes('completed share')) return false;
         return true;
-      });
+      }).map((c) => ({ id: c.id, label: c.label, next: c.next, outcome: c.outcome, B: c.B }));
+      if (producer && s.border && s.border.node === 'policy_gate' && policyStatus(s) === 'unmapped') {
+        const offer = (producer.normalRoute || []).find((step) => step.step === 'request_review');
+        const extra = offer && (offer.choices || []).find((c) => c.id === 'request_policy_review');
+        if (extra && !list.some((c) => c.id === extra.id)) list.push({ id: extra.id, label: extra.label });
+      }
+      return list;
     }
     function borderView(s) {
       if (!story || !s.border || s.phase !== 'border') return null;
       const guard = s.npcs[s.border.guardId];
       if (!guard) return null;
-      if (s.border.node === 'done') {
+      if (s.border.node === 'done' || s.border.node === 'review_pending') {
+        const presented = s.border.presentation;
         return {
           guardId: guard.id, guardName: guard.name, portraitId: guard.portraitId || null, look: guard.look, sex: guard.sex,
-          node: 'done', policy: policyStatus(s), title: s.border.reply || s.border.outcome, choices: [],
-          outcome: s.border.outcome, reply: s.border.reply || '', traitSpeech: 'unauthored'
+          node: s.border.node, policy: policyStatus(s), policySource: (box(s).policy['highcrag->bonefield'] || {}).source || 'unreconciled',
+          title: (presented && presented.text) || s.border.reply || s.border.outcome, choices: [], lines: presented ? linesFrom(guard, presented) : [],
+          variantId: presented ? presented.variantId : null,
+          outcome: s.border.outcome, reply: s.border.reply || '', traitSpeech: presented ? presented.characterization : 'unauthored'
         };
       }
       const node = borderNode(s);
-      if (!node) return null;
-      const choices = borderChoices(node).map((c) => ({ id: c.id, label: c.label }));
+      if (!node && s.border.node !== 'review_pending') return null;
+      const choices = s.border.node === 'review_pending' ? [] : borderChoices(s, node).map((c) => ({ id: c.id, label: c.label }));
+      const presented = s.border.presentation && s.border.presentation.node === s.border.node ? s.border.presentation : null;
+      const lines = presented ? linesFrom(guard, presented) : [];
       return {
         guardId: guard.id, guardName: guard.name, portraitId: guard.portraitId || null, look: guard.look, sex: guard.sex,
-        node: s.border.node, policy: policyStatus(s), title: node.B, choices,
-        outcome: s.border.outcome || null, reply: '', traitSpeech: 'unauthored'
+        node: s.border.node, policy: policyStatus(s), policySource: (box(s).policy['highcrag->bonefield'] || {}).source || 'unreconciled',
+        title: presented && presented.text ? presented.text : (node && node.B) || '', choices, lines,
+        variantId: presented ? presented.variantId : null,
+        outcome: s.border.outcome || null, reply: '', traitSpeech: presented ? presented.characterization : 'unauthored'
       };
     }
     function openBorder(s, guardId) {
@@ -273,13 +313,40 @@
       s.phase = 'border';
       return { ok: true };
     }
+    function recordReviewRequest(s) {
+      const leaderId = LEADERS.highcrag;
+      if (!s.npcs[leaderId]) return { error: 'leader' };
+      const key = `${s.runId || ''}/border/review/${s.border.guardId}`;
+      if (has(s, key)) return { applied: false, reason: 'duplicate' };
+      const factId = `${s.runId || 'run'}/petition/highcrag/bonefield`;
+      const m = box(s);
+      if (!m.facts.some((f) => f.factId === factId)) {
+        m.facts.push({ factId, kind: 'petition', topic: 'bonefield_introduction' });
+        m.knowledge[factId] = { scope: 'private', participantIds: ['player', s.border.guardId], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: s.day };
+      }
+      m.ledger.push({ receiptKey: key, sourceType: 'review_request', recordKind: 'policy', actor: 'player', target: leaderId, factId, delta: 0, auditOnly: true, absDay: s.day, knowledgeScope: 'private' });
+      m.reviews = m.reviews || [];
+      m.reviews.push({ requestEventId: key, guardId: s.border.guardId, leaderId, factId, status: 'pending', relayEventId: null });
+      return { applied: true, factId };
+    }
+    function relayPetition(s, requestEventId) {
+      const m = box(s);
+      const row = (m.reviews || []).find((r) => !requestEventId || r.requestEventId === requestEventId);
+      if (!row) return { applied: false, reason: 'no-request' };
+      if (row.relayEventId) return { applied: false, reason: 'duplicate' };
+      const taught = disclose(s, { factId: row.factId, toId: row.leaderId, sourceEventId: row.requestEventId });
+      if (!taught.applied) return taught;
+      row.relayEventId = `${s.runId || ''}/disclose/${row.factId}/${row.leaderId}`;
+      row.status = 'relayed';
+      return { applied: true, factId: row.factId, policy: policyStatus(s) };
+    }
     function borderAct(s, choiceId) {
       if (s.phase !== 'border' || !s.border) return { error: 'phase' };
       if (s.border.node === 'done') return { error: 'duplicate' };
       const key = `${s.runId || ''}/border/${s.border.guardId}/${s.border.node}/${choiceId}`;
       if (has(s, key) || s.border.receiptKeys.includes(key)) return { error: 'duplicate' };
       const node = borderNode(s);
-      const choice = borderChoices(node).find((c) => c.id === choiceId);
+      const choice = borderChoices(s, node).find((c) => c.id === choiceId);
       if (!choice) return { error: 'choice' };
       s.border.receiptKeys.push(key);
       s.border.choicePath.push(choiceId);
@@ -293,9 +360,28 @@
         if (!aid) return { error: 'no-aid' };
         disclose(s, { factId: aid.factId, toId: s.border.guardId, sourceEventId: key });
       }
-      if (choice.next === 'policy_gate') s.border.node = 'policy_gate';
+      if (choice.id === 'request_policy_review') {
+        const review = recordReviewRequest(s);
+        if (review.error) return review;
+        s.border.node = 'review_pending';
+        s.border.outcome = 'review_requested';
+        freezeSpeech(s, 'review_requested');
+        s.border.reply = (s.border.presentation && s.border.presentation.text) || '';
+        return { ok: true };
+      }
+      if (choice.next === 'policy_gate') {
+        s.border.node = 'policy_gate';
+        if (policyStatus(s) === 'unmapped') freezeSpeech(s, 'guard_unknown');
+        return { ok: true };
+      }
       else if (choice.next === 'explain') s.border.node = 'explain';
       else if (choice.next === 'reason_without_invented_knowledge') s.border.node = 'reason';
+      else if (choice.id === 'withdraw' || choice.id === 'leave_request') {
+        s.border.outcome = choice.outcome || choice.id;
+        s.border.node = 'done';
+        freezeSpeech(s, 'withdraw');
+        s.border.reply = (s.border.presentation && s.border.presentation.text) || choice.B || (node && node.B) || '';
+      }
       else if (choice.outcome) {
         s.border.outcome = choice.outcome;
         s.border.node = 'done';
@@ -315,7 +401,7 @@
       });
       return { status: 'not-run', reason: 'Council cadence, access, and numeric effects are pending. A refusal is not stored as peace.', leaders, councils: box(s).councils, agreements: box(s).agreements };
     }
-    return { SCHEMA, personalBand, standingBand, roundHalfAway, initNew, migrate, notePersonal, noteConversation, knowsFact, disclose, spillover, witness, borderGate, borderView, openBorder, borderAct, closeBorder, policyStatus, councilStatus, ensureRecords, hasBorder: !!story };
+    return { SCHEMA, personalBand, standingBand, roundHalfAway, initNew, migrate, notePersonal, noteConversation, knowsFact, disclose, spillover, witness, borderGate, borderView, openBorder, borderAct, closeBorder, relayPetition, policyStatus, councilStatus, ensureRecords, hasBorder: !!story };
   }
   return { create, SCHEMA, PRIDES };
 });

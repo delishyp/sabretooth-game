@@ -276,11 +276,15 @@
       who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.guardName));
       card.append(who);
       const scroll = el('div', 'event-scroll');
-      scroll.append(el('p', 'event-text say', view.guardName + ': ' + view.title));
-      if (view.outcome) scroll.append(el('p', 'event-text', view.reply || view.outcome));
+      const lines = view.lines || [];
+      if (!lines.length) scroll.append(el('p', 'event-text say', view.guardName + ': ' + view.title));
+      for (const line of lines) {
+        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
+        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+      }
       card.append(scroll);
       const ch = el('div', 'event-choices');
-      if (view.node === 'done') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      if (view.node === 'done' || view.node === 'review_pending') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.label, { g: 'borderChoose', choice: c.id }));
       card.append(ch);
       const util = el('div', 'talk-utility');

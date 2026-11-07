@@ -69,10 +69,10 @@ const press = async (page, ...keys) => { for (const k of keys) await page.keyboa
       };
     });
     assert.strictEqual(before.node, 'policy_gate');
-    assert.deepStrictEqual(before.choices, ['leave_request', 'withdraw']);
+    assert.deepStrictEqual(before.choices, ['leave_request', 'withdraw', 'request_policy_review']);
     assert.strictEqual(before.stance, 0);
     assert.strictEqual(before.reverse, 0);
-    assert.ok(before.text.includes('I cannot promise an introduction'));
+    assert.ok(before.text.includes('I do not have an answer') || before.text.includes('I do not have an instruction') || before.text.includes('I have no answer'));
     await page.screenshot({ path: path.join(SHOTS, 'border-unknown.png'), scale: 'css', clip: { x: 0, y: 0, width: 1280, height: 720 } });
     await page.locator('#game-event [data-g="save"]').click();
     await page.waitForTimeout(300);
@@ -89,24 +89,32 @@ const press = async (page, ...keys) => { for (const k of keys) await page.keyboa
     assert.deepStrictEqual(after.choices, before.choices);
     assert.strictEqual(after.node, before.node);
     assert.deepStrictEqual(after.traits, cats.hc07);
-    await page.locator('#game-event [data-choice="leave_request"]').click();
+    await page.locator('#game-event [data-choice="request_policy_review"]').click();
     await idle(page);
     const done = await page.evaluate(() => {
       const s = window.__menuDebug.game().state;
-      const rows = s.worldMemory.ledger.filter((e) => String(e.receiptKey).includes('/border/'));
+      const petition = s.worldMemory.reviews[0].factId;
+      const knows = (id, fact) => {
+        const k = s.worldMemory.knowledge[fact];
+        return !!(k && (k.participantIds.includes(id) || k.disclosedTo.includes(id) || k.witnessIds.includes(id)));
+      };
       return {
         outcome: s.border.outcome,
-        rows: rows.length,
-        keys: rows.map((e) => e.receiptKey),
+        source: s.worldMemory.policy['highcrag->bonefield'].source,
         stance: s.worldMemory.prideToPride['highcrag->bonefield'].value,
-        reverse: s.worldMemory.prideToPride['bonefield->highcrag'].value
+        reverse: s.worldMemory.prideToPride['bonefield->highcrag'].value,
+        leaderKnows: knows('hc01', petition),
+        guardKnows: knows('hc07', petition),
+        pending: s.worldMemory.reviews[0].status
       };
     });
-    assert.strictEqual(done.outcome, 'audience_pending_unknown');
-    assert.strictEqual(done.rows, 2);
-    assert.strictEqual(new Set(done.keys).size, 2);
+    assert.strictEqual(done.outcome, 'review_requested');
+    assert.strictEqual(done.source, 'unreconciled');
     assert.strictEqual(done.stance, 0);
     assert.strictEqual(done.reverse, 0);
+    assert.strictEqual(done.leaderKnows, false);
+    assert.strictEqual(done.guardKnows, true);
+    assert.strictEqual(done.pending, 'pending');
     console.log('border e2e passed', before.choices.join(','));
   } finally { await app.close(); }
 })().catch((e) => { console.error(e); process.exit(1); });
