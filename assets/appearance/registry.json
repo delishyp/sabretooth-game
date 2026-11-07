@@ -1,0 +1,33 @@
+{
+  "id": "appearance-preview",
+  "version": 1,
+  "canvas": { "width": 1448, "height": 1086 },
+  "masks": {
+    "body": {
+      "file": "master/body-mask.png",
+      "encoding": "luminance",
+      "applied": false
+    },
+    "eyeNose": {
+      "file": "master/eye-nose-mask.png",
+      "encoding": "luminance",
+      "applied": "eyes-and-nose-only"
+    }
+  },
+  "slots": {
+    "coat": {
+      "default": "master",
+      "options": [
+        { "id": "master", "label": "Master", "file": "master/master.png", "available": true }
+      ]
+    },
+    "pattern": {
+      "default": "none",
+      "options": [
+        { "id": "none", "label": "No pattern", "file": null, "available": true }
+      ]
+    },
+    "eyes": { "default": null, "options": [] },
+    "nose": { "default": null, "options": [] }
+  }
+}

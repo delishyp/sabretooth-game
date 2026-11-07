@@ -25,7 +25,15 @@ contextBridge.exposeInMainWorld('sabretooth', {
   storyteller: { check: (mode) => call('storyteller:check', { mode }), effective: (mode) => call('storyteller:effective', { mode }) },
   copy: { get: () => call('copy:get') },
   app: { info: () => call('app:info'), quit: () => call('app:quit') },
+  update: {
+    get: () => call('update:get'),
+    retry: () => call('update:retry'),
+    cancel: () => call('update:cancel'),
+    restart: () => call('update:restart'),
+    later: () => call('update:later')
+  },
   log: (level, text) => ipcRenderer.send('log:renderer', { level, text }),   // M1: renderer warnings → logs/menu.log
   onToast: (fn) => ipcRenderer.on('toast', (_e, msg) => fn(msg)),
+  onUpdate: (fn) => ipcRenderer.on('update:state', (_e, msg) => fn(msg)),
   onLegacyEnd: (fn) => ipcRenderer.on('legacyEnd', (_e, msg) => fn(msg))
 });

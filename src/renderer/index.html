@@ -46,7 +46,10 @@
     <p class="sub creator-sub" data-t="creator.subtitle"></p>
     <p class="creator-step" id="creator-step"></p>
     <div class="creator-body">
-      <div class="creator-preview"><canvas id="creator-canvas" role="img" width="1152" height="864"></canvas></div>
+      <div class="creator-preview">
+        <div class="portrait-frame frame-lg"><canvas id="creator-canvas" role="img" width="1152" height="864"></canvas></div>
+        <button type="button" id="creator-expand" class="portrait-expand" data-g="expandCat" data-source="creator-canvas" data-t="portrait.expand"></button>
+      </div>
       <div class="creator-side">
         <div class="creator-panel" id="creator-panel"></div>
         <div class="row creator-actions" id="creator-actions">
@@ -66,14 +69,35 @@
     <h2 data-t="placeholder.title"></h2><p class="sub" id="placeholder-detail"></p>
     <div class="row"><button data-action="back" data-t="common.backToMenu"></button></div>
   </section>
-  <!-- Slice 1 (scope v1.0.1): one season as a loner. Built by js/game-screen.js over the pure sim js/slice.js. -->
+  <!-- Slice 1 home: clean landscape, live portrait, and the season's real actions. -->
   <section class="screen" data-screen="game">
     <div id="game-main">
-      <div class="game-hud" id="game-hud"></div>
-      <div class="game-body">
+      <img id="home-landscape" class="home-landscape" alt="" src="../../assets/game/home-landscape.png">
+      <canvas id="home-cat" class="home-cat" width="1152" height="864"></canvas>
+      <button type="button" id="hotspot-den" class="hotspot hotspot-den" data-g="den"><span data-t="home.den"></span></button>
+      <button type="button" id="hotspot-wild" class="hotspot hotspot-wild" data-g="wild"><span data-t="home.wilderness"></span></button>
+      <header class="home-top">
+        <div class="home-brand">
+          <div class="portrait-frame frame-sm"><canvas id="home-head" class="home-head" width="64" height="64"></canvas></div>
+          <div>
+            <p class="home-kicker" data-t="home.nav.pride"></p>
+            <h1 id="home-pride-name" class="home-pride-name"></h1>
+            <p class="home-player-line"><span id="home-player-name" class="home-player-name"></span><button type="button" id="home-expand" class="portrait-expand" data-g="expandCat" data-source="home-head" data-t="portrait.expand"></button></p>
+          </div>
+        </div>
+        <div class="home-status" id="game-hud"></div>
+        <div class="home-tools">
+          <button type="button" data-g="save" data-t="game.action.save"></button>
+          <button type="button" data-g="menu" data-t="common.mainMenu"></button>
+        </div>
+      </header>
+      <nav id="home-nav" class="home-nav"></nav>
+      <aside class="home-dock">
+        <div id="home-panel"></div>
+        <div class="game-actions" id="game-actions"></div>
         <div class="game-region" id="game-region"></div>
-        <div class="game-side"><div class="game-actions" id="game-actions"></div><div class="game-report" id="game-report"></div></div>
-      </div>
+        <div class="game-report" id="game-report" hidden></div>
+      </aside>
     </div>
     <div class="game-event" id="game-event" hidden></div>
   </section>
@@ -113,20 +137,44 @@
 </div>
 <div id="dialog" hidden><div class="box"><p id="dialog-text"></p>
   <div class="row"><button id="dialog-ok"></button><button id="dialog-cancel" data-t="common.cancel"></button></div></div></div>
+<div id="cat-viewer" class="cat-viewer" hidden>
+  <button type="button" class="cat-viewer-backdrop" data-g="closeViewer" aria-label="Close"></button>
+  <div class="cat-viewer-box" role="dialog" aria-modal="true" aria-labelledby="cat-viewer-title">
+    <h2 id="cat-viewer-title" data-t="portrait.full"></h2>
+    <p id="cat-viewer-name"></p>
+    <canvas id="cat-viewer-canvas"></canvas>
+    <button type="button" id="cat-viewer-close" data-g="closeViewer" data-t="portrait.close"></button>
+  </div>
+</div>
 <div id="toasts"></div>
+<div id="update-bar" hidden>
+  <p id="update-text"></p>
+  <div id="update-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><i id="update-fill"></i></div>
+  <p id="update-detail" hidden></p>
+  <div id="update-actions">
+    <button type="button" id="update-restart" data-update="restart" data-t="update.restart" hidden></button>
+    <button type="button" id="update-later" data-update="later" data-t="update.laterButton" hidden></button>
+    <button type="button" id="update-retry" data-update="retry" data-t="update.retry" hidden></button>
+    <button type="button" id="update-cancel" data-update="cancel" data-t="update.cancel" hidden></button>
+  </div>
+</div>
 <div id="version"></div>
 <script src="js/log.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/menu-frame.js"></script>
 <script src="js/assets.js"></script>
 <script src="js/music.js"></script>
 <script src="js/compositor.js"></script>
+<script src="js/portrait-view.js"></script>
 <script src="js/creator.js"></script>
 <script src="js/input.js"></script>
 <script src="js/rng.js"></script>
 <script src="js/worldmap.js"></script>
 <script src="js/slice.js"></script>
+<script src="js/home-scene.js"></script>
 <script src="js/game-screen.js"></script>
 <script src="js/menu.js"></script>
+<script src="js/update-status.js"></script>
 </body>
 </html>

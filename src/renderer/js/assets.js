@@ -14,10 +14,11 @@ function probeImage(src) {
 }
 async function firstExisting(list) { for (const src of list) if (await probeImage(src)) return src; return null; }
 /**
- * Background as a window-sized canvas, `cover` at 35% / center (same framing as the old CSS background).
+ * Background as a window-sized canvas, cover-scaled, not stretched.
  * Why not CSS `background-size: cover`: with software raster (no GPU, e.g. the QA box) Chromium draws a downscaled background
  * per raster tile and leaves a 1px seam at a tile edge, so a body-coloured crosshair showed at ~53% of the window on every screen.
  * One pre-scaled bitmap has no tile seams. Redrawn on resize.
+ * MenuFrame skips the approved plate's black side bars and keeps the cat on the right.
  */
 async function paintBackground(src) {
   const img = new Image(); img.src = src;
@@ -27,12 +28,11 @@ async function paintBackground(src) {
   Object.assign(c.style, { position: 'absolute', inset: '0', width: '100%', height: '100%' });
   host.textContent = ''; host.appendChild(c);
   const draw = () => {
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     c.width = Math.round(innerWidth * dpr); c.height = Math.round(innerHeight * dpr);
-    const k = Math.max(c.width / img.naturalWidth, c.height / img.naturalHeight);
-    const w = img.naturalWidth * k, h = img.naturalHeight * k;
     const g = c.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
-    g.drawImage(img, (c.width - w) * 0.35, (c.height - h) * 0.5, w, h);
+    const box = MenuFrame.place(c.width, c.height, img.naturalWidth, img.naturalHeight);
+    g.drawImage(img, box.sx, box.sy, box.sw, box.sh, box.dx, box.dy, box.dw, box.dh);
   };
   draw(); addEventListener('resize', draw);
 }

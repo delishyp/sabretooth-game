@@ -48,6 +48,7 @@ function normalizeMainCat(c) {
   if (!c || typeof c !== 'object') return null;
   const out = Object.fromEntries(MAIN_CAT_FIELDS.map((k) => [k, c[k] === undefined ? null : c[k]]));
   out.scars = Array.isArray(c.scars) ? c.scars : [];
+  out.portraitId = typeof c.portraitId === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(c.portraitId) ? c.portraitId : null;
   return out;
 }
 

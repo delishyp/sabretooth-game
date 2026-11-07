@@ -1,0 +1,1385 @@
+{
+  "sharedPose": "portrait-female",
+  "defaultHead": {
+    "x": 0.63,
+    "y": 0.0,
+    "w": 0.35,
+    "h": 0.54
+  },
+  "staticHead": {
+    "x": 0.57,
+    "y": 0.0,
+    "w": 0.43,
+    "h": 0.42
+  },
+  "portraits": [
+    {
+      "id": "cat-6e2d788dd48ff440",
+      "file": "cats/cat-6e2d788dd48ff440.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "brown-brown",
+      "eyeLabel": "brown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1404327,
+      "encodedSha256": "bb581f17ebeb4616f54d89ac3e260bfd3b6121dd0845df278c2513c30d1d4ef4",
+      "decodedRgbaSha256": "6e2d788dd48ff440568840a1c6af25f51347d5541ab69cc851ed7115d6d886d4",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/inputs/brown-brown.png",
+          "role": "original",
+          "source_label": "brown-brown",
+          "eye_label": "brown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1404327,
+          "encoded_sha256": "bb581f17ebeb4616f54d89ac3e260bfd3b6121dd0845df278c2513c30d1d4ef4"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-6477d01534355420",
+      "file": "cats/cat-6477d01534355420.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "cream-brown",
+      "eyeLabel": "brown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1544056,
+      "encodedSha256": "f02dcb7642ad36b7eaa488c60d8e7ff8e476637deaa262a2ee70b920b4a0c551",
+      "decodedRgbaSha256": "6477d01534355420312254fd88e082c2d2749eefef43bfce43894a8e79565ed3",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/inputs/cream-brown.png",
+          "role": "original",
+          "source_label": "cream-brown",
+          "eye_label": "brown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1544056,
+          "encoded_sha256": "f02dcb7642ad36b7eaa488c60d8e7ff8e476637deaa262a2ee70b920b4a0c551"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-8ac6058de8429d56",
+      "file": "cats/cat-8ac6058de8429d56.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "donor complete-cat source; coat label unknown",
+      "eyeLabel": "blue",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1546865,
+      "encodedSha256": "0e77768fc4d162ec1c70d05cfc3f698661c61ea9cc4b856ef48074bddd4d23e6",
+      "decodedRgbaSha256": "8ac6058de8429d56593d975e5bc148d27f0be281b2e49abb1915e4f4da5e89e1",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/inputs/donor-blue.png",
+          "role": "original",
+          "source_label": "donor complete-cat source; coat label unknown",
+          "eye_label": "blue",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1546865,
+          "encoded_sha256": "0e77768fc4d162ec1c70d05cfc3f698661c61ea9cc4b856ef48074bddd4d23e6"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-702c446a6136b904",
+      "file": "cats/cat-702c446a6136b904.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "donor complete-cat source; coat label unknown",
+      "eyeLabel": "gold",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1475687,
+      "encodedSha256": "afbe1f474cd5bcf6dadef387811e5950d8169e18dd1b2eb0dd4ff67e40075d9a",
+      "decodedRgbaSha256": "702c446a6136b904e4b29282f5c420d188db8c719557c008dc2fe00d2ced834e",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/inputs/donor-gold.png",
+          "role": "original",
+          "source_label": "donor complete-cat source; coat label unknown",
+          "eye_label": "gold",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1475687,
+          "encoded_sha256": "afbe1f474cd5bcf6dadef387811e5950d8169e18dd1b2eb0dd4ff67e40075d9a"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-4f7ea03373d6f000",
+      "file": "cats/cat-4f7ea03373d6f000.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "donor complete-cat source; coat label unknown",
+      "eyeLabel": "green",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1422631,
+      "encodedSha256": "5a7800938bd5523ddbde9cce26aba114b6f59badbe2c2fb44a0013e343dd287e",
+      "decodedRgbaSha256": "4f7ea03373d6f0003a73699828219fab2d876e3de1e5f8c3177b272f04042299",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/inputs/donor-green.png",
+          "role": "original",
+          "source_label": "donor complete-cat source; coat label unknown",
+          "eye_label": "green",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1422631,
+          "encoded_sha256": "5a7800938bd5523ddbde9cce26aba114b6f59badbe2c2fb44a0013e343dd287e"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-2fe9cb1d7fac044f",
+      "file": "cats/cat-2fe9cb1d7fac044f.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "gray-brown",
+      "eyeLabel": "brown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1468343,
+      "encodedSha256": "e8d7ee6f7ac3ff6740132ff1f55398ac3e6c27d2ccee0a9d2e7edc1fac579752",
+      "decodedRgbaSha256": "2fe9cb1d7fac044f8dee5e4049f684cf15cf503643c9a2ec4712bd7ce817627d",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/inputs/gray-brown.png",
+          "role": "original",
+          "source_label": "gray-brown",
+          "eye_label": "brown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1468343,
+          "encoded_sha256": "e8d7ee6f7ac3ff6740132ff1f55398ac3e6c27d2ccee0a9d2e7edc1fac579752"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-605f7d890ed2cbf1",
+      "file": "cats/cat-605f7d890ed2cbf1.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "brown-undertone-green-eyes",
+      "eyeLabel": "green",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1254507,
+      "encodedSha256": "49213e3da6bf0ea699600359e7f7ca49d987735ad79030e88edf91c346598d7a",
+      "decodedRgbaSha256": "605f7d890ed2cbf1e20001e4fb215c81e3836f06249d75a87a2da118877de228",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/outputs/brown-undertone-green-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "brown-undertone-green-eyes",
+          "eye_label": "green",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1254507,
+          "encoded_sha256": "49213e3da6bf0ea699600359e7f7ca49d987735ad79030e88edf91c346598d7a"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-4cd271c4c8628739",
+      "file": "cats/cat-4cd271c4c8628739.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "cream-undertone-gold-eyes",
+      "eyeLabel": "gold",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1384905,
+      "encodedSha256": "3794f97915cefe6bebe74b167c6ef7adbc1ecc04bc947752d9fc9f8166d537ab",
+      "decodedRgbaSha256": "4cd271c4c86287393c0baf592e566d28a2e82654500453d9549c0d20fdbc2099",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/outputs/cream-undertone-gold-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "cream-undertone-gold-eyes",
+          "eye_label": "gold",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1384905,
+          "encoded_sha256": "3794f97915cefe6bebe74b167c6ef7adbc1ecc04bc947752d9fc9f8166d537ab"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-6f686632edadccea",
+      "file": "cats/cat-6f686632edadccea.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "gray-undertone-blue-eyes",
+      "eyeLabel": "blue",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1285967,
+      "encodedSha256": "76d1cf2506d8ef7060fc9c78bd97e75d67d536143b0d3fad95bbd3c1a46f7e5e",
+      "decodedRgbaSha256": "6f686632edadccea12e03ea8463a4ec52691cae4a708e930d987d9c639d70768",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/outputs/gray-undertone-blue-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "gray-undertone-blue-eyes",
+          "eye_label": "blue",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1285967,
+          "encoded_sha256": "76d1cf2506d8ef7060fc9c78bd97e75d67d536143b0d3fad95bbd3c1a46f7e5e"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-3c3c02a1296dcbb1",
+      "file": "cats/cat-3c3c02a1296dcbb1.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "white-undertone-red-eyes",
+      "eyeLabel": "red",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1460199,
+      "encodedSha256": "bedee164c0f99b0177a3e35a7d4ddb9426e3231de275b60549280f935c3e898f",
+      "decodedRgbaSha256": "3c3c02a1296dcbb1a9b0fc63630de73e9fcbc1bef0d588fdb0f72d3a159619d2",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-eye-set/outputs/white-undertone-red-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "white-undertone-red-eyes",
+          "eye_label": "red",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1460199,
+          "encoded_sha256": "bedee164c0f99b0177a3e35a7d4ddb9426e3231de275b60549280f935c3e898f"
+        },
+        {
+          "path": "/workspace/qa/undertone-red-eyes/result-undertone-red-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "result-undertone-red-eyes",
+          "eye_label": "red",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1460199,
+          "encoded_sha256": "bedee164c0f99b0177a3e35a7d4ddb9426e3231de275b60549280f935c3e898f"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-502538fcf3eb0e3e",
+      "file": "cats/cat-502538fcf3eb0e3e.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "brown-tiger-white-undertone",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1446,
+      "height": 1087,
+      "bytes": 1977909,
+      "encodedSha256": "1f10be0cb565f93c4db44e6bfa353357a86aba5a377622fb94d25fc2d1004b2d",
+      "decodedRgbaSha256": "502538fcf3eb0e3e7b0aeeddbd64d4600de181fa4960026fa8979de62534f45f",
+      "aliases": [
+        {
+          "path": "/workspace/qa/tiger-eye-variants/inputs/brown-tiger-white-undertone.png",
+          "role": "original",
+          "source_label": "brown-tiger-white-undertone",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1446,
+          "height": 1087,
+          "bytes": 1977909,
+          "encoded_sha256": "1f10be0cb565f93c4db44e6bfa353357a86aba5a377622fb94d25fc2d1004b2d"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-f865fbd2eafb9f38",
+      "file": "cats/cat-f865fbd2eafb9f38.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "brown-tiger",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1447,
+      "height": 1087,
+      "bytes": 1989340,
+      "encodedSha256": "58b71e97838ccbc32d064ce34d1ec1d0562ca75e3bb7f102e32ea358453f2e1d",
+      "decodedRgbaSha256": "f865fbd2eafb9f38208cded1c241687a720c5cbaa2956bed0bd4ded4ceed02f9",
+      "aliases": [
+        {
+          "path": "/workspace/qa/tiger-eye-variants/inputs/brown-tiger.png",
+          "role": "original",
+          "source_label": "brown-tiger",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1447,
+          "height": 1087,
+          "bytes": 1989340,
+          "encoded_sha256": "58b71e97838ccbc32d064ce34d1ec1d0562ca75e3bb7f102e32ea358453f2e1d"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-88528d4656792b28",
+      "file": "cats/cat-88528d4656792b28.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "brown-tiger-blue-eyes",
+      "eyeLabel": "blue",
+      "nativeMode": "RGBA",
+      "width": 1447,
+      "height": 1087,
+      "bytes": 1806312,
+      "encodedSha256": "358967ffd2dea39f42f2ce7be3e4d35dbcaba5517f57afd9463fec873c6906d9",
+      "decodedRgbaSha256": "88528d4656792b28cf604c66ee070a1a3e2f5543de8d775e5b177a72e722887b",
+      "aliases": [
+        {
+          "path": "/workspace/qa/tiger-eye-variants/outputs/brown-tiger-blue-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "brown-tiger-blue-eyes",
+          "eye_label": "blue",
+          "native_mode": "RGBA",
+          "width": 1447,
+          "height": 1087,
+          "bytes": 1806312,
+          "encoded_sha256": "358967ffd2dea39f42f2ce7be3e4d35dbcaba5517f57afd9463fec873c6906d9"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-b3dbfcaa759427b4",
+      "file": "cats/cat-b3dbfcaa759427b4.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "brown-tiger-white-undertone-green-eyes",
+      "eyeLabel": "green",
+      "nativeMode": "RGBA",
+      "width": 1446,
+      "height": 1087,
+      "bytes": 1798659,
+      "encodedSha256": "f711dfbbea7fb7b70ee0490a48a4917779d5a361c8ae9ef461f47f24e8055e35",
+      "decodedRgbaSha256": "b3dbfcaa759427b4561799cbb9227ce0f2f71538a9006b57ad8f411083da9da8",
+      "aliases": [
+        {
+          "path": "/workspace/qa/tiger-eye-variants/outputs/brown-tiger-white-undertone-green-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "brown-tiger-white-undertone-green-eyes",
+          "eye_label": "green",
+          "native_mode": "RGBA",
+          "width": 1446,
+          "height": 1087,
+          "bytes": 1798659,
+          "encoded_sha256": "f711dfbbea7fb7b70ee0490a48a4917779d5a361c8ae9ef461f47f24e8055e35"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-5b118d80461187e7",
+      "file": "cats/cat-5b118d80461187e7.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "coat-1 (tan-golden)",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 2120180,
+      "encodedSha256": "00b7f0d5f67b10b8f74ccec1cd0980a403d4566ab7306b4a42bc8e3fe882dc4c",
+      "decodedRgbaSha256": "5b118d80461187e7e822b90185149482c93cc9a0882d3fb7905bbcbb5b9f95f5",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/coat-1.png",
+          "role": "original",
+          "source_label": "coat-1 (tan-golden)",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 2120180,
+          "encoded_sha256": "00b7f0d5f67b10b8f74ccec1cd0980a403d4566ab7306b4a42bc8e3fe882dc4c"
+        },
+        {
+          "path": "/workspace/qa/next-coat-eyes/inputs/gold-normal.png",
+          "role": "original",
+          "source_label": "gold-normal",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 2120180,
+          "encoded_sha256": "00b7f0d5f67b10b8f74ccec1cd0980a403d4566ab7306b4a42bc8e3fe882dc4c"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-46f04e1c79d4e443",
+      "file": "cats/cat-46f04e1c79d4e443.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "coat-2 (dark-gray)",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1977448,
+      "encodedSha256": "8912c796b47f3c4ea8350504efaeb2023e5c6051aec9cdcd78cb143ceb0ae09e",
+      "decodedRgbaSha256": "46f04e1c79d4e4432274da05abc90ffbc778212f9d1f5e84c75c2d389abc87f4",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/coat-2.png",
+          "role": "original",
+          "source_label": "coat-2 (dark-gray)",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1977448,
+          "encoded_sha256": "8912c796b47f3c4ea8350504efaeb2023e5c6051aec9cdcd78cb143ceb0ae09e"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-f70f52f0f22da7fc",
+      "file": "cats/cat-f70f52f0f22da7fc.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "coat-3 (pale-cream)",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1884586,
+      "encodedSha256": "f7852e90b6ab8425e3eda1ed0d39adfdc236b3021f86df8f59b9ba1f4d83515d",
+      "decodedRgbaSha256": "f70f52f0f22da7fc8dce23e7a3ec4c616c41340690bb07bdf149c30d01bc7744",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/coat-3.png",
+          "role": "original",
+          "source_label": "coat-3 (pale-cream)",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1884586,
+          "encoded_sha256": "f7852e90b6ab8425e3eda1ed0d39adfdc236b3021f86df8f59b9ba1f4d83515d"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-ff92bf3c32b9245e",
+      "file": "cats/cat-ff92bf3c32b9245e.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "coat-4 (orange)",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1994648,
+      "encodedSha256": "ff747511ecbe824f976526f620b0f53c4aa4efaf518bf8d958ce9d62f7b8c7ad",
+      "decodedRgbaSha256": "ff92bf3c32b9245e1e0c031c927834cfc3565b6849a5743501fe73745c15e138",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/coat-4.png",
+          "role": "original",
+          "source_label": "coat-4 (orange)",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1994648,
+          "encoded_sha256": "ff747511ecbe824f976526f620b0f53c4aa4efaf518bf8d958ce9d62f7b8c7ad"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-7c5ab14d9e51320a",
+      "file": "cats/cat-7c5ab14d9e51320a.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "coat-5 (pale-gray-white)",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 2150162,
+      "encodedSha256": "f8b8e84e2c31853bb70bbedd4f9966889d031968f6079c6af952934d61b55e4b",
+      "decodedRgbaSha256": "7c5ab14d9e51320af6183d15b4e30a01e1492b19401f48dcb5a504491ad0682a",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/coat-5.png",
+          "role": "original",
+          "source_label": "coat-5 (pale-gray-white)",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 2150162,
+          "encoded_sha256": "f8b8e84e2c31853bb70bbedd4f9966889d031968f6079c6af952934d61b55e4b"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-1e34c4845adf8357",
+      "file": "cats/cat-1e34c4845adf8357.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "donor complete-cat source; coat label unknown",
+      "eyeLabel": "brown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1442859,
+      "encodedSha256": "6c2e9c1e7282925777f707f9f2f41ad9b5f0037e7be780b35931c5de62850738",
+      "decodedRgbaSha256": "1e34c4845adf83575dde766323bbaf2e1be501fdf85862a5c181aac8e03701aa",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/donor-brown.png",
+          "role": "original",
+          "source_label": "donor complete-cat source; coat label unknown",
+          "eye_label": "brown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1442859,
+          "encoded_sha256": "6c2e9c1e7282925777f707f9f2f41ad9b5f0037e7be780b35931c5de62850738"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-4919cb1c1c79953a",
+      "file": "cats/cat-4919cb1c1c79953a.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "donor complete-cat source; coat label unknown",
+      "eyeLabel": "gray",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1401612,
+      "encodedSha256": "6f1aa459e87c36e4295e7b0e9b7c008a09d9abac6a32bde7a19212e8fc3efffc",
+      "decodedRgbaSha256": "4919cb1c1c79953a104b623e59255bc7df05214da0c4ca38f6cccc08fdb98258",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/donor-gray.png",
+          "role": "original",
+          "source_label": "donor complete-cat source; coat label unknown",
+          "eye_label": "gray",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1401612,
+          "encoded_sha256": "6f1aa459e87c36e4295e7b0e9b7c008a09d9abac6a32bde7a19212e8fc3efffc"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-e745411905dd6aee",
+      "file": "cats/cat-e745411905dd6aee.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "donor complete-cat source; coat label unknown",
+      "eyeLabel": "red",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1428219,
+      "encodedSha256": "bea490eb6d955951290f2295dd96741b21936cdadf65d10ea29a99c5e7995ba5",
+      "decodedRgbaSha256": "e745411905dd6aee2887836ef3c399c2f85a771f35ee45ecab3bfd714fab76d1",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/inputs/donor-red.png",
+          "role": "original",
+          "source_label": "donor complete-cat source; coat label unknown",
+          "eye_label": "red",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1428219,
+          "encoded_sha256": "bea490eb6d955951290f2295dd96741b21936cdadf65d10ea29a99c5e7995ba5"
+        },
+        {
+          "path": "/workspace/qa/undertone-red-eyes/donor-red.png",
+          "role": "original",
+          "source_label": "donor complete-cat source; coat label unknown",
+          "eye_label": "red",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1428219,
+          "encoded_sha256": "bea490eb6d955951290f2295dd96741b21936cdadf65d10ea29a99c5e7995ba5"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-96beb4613b169dfd",
+      "file": "cats/cat-96beb4613b169dfd.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "coat-1 (tan-golden)",
+      "eyeLabel": "blue",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1934906,
+      "encodedSha256": "72b088d00a2e24cdc172e3695521f3657f0ae53d036f2a50c3695ac154e536b3",
+      "decodedRgbaSha256": "96beb4613b169dfdc6a616bce50a21aef9174c307110831bce59fc9c61aa1ed2",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/outputs/coat-1-tan-golden-blue-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "coat-1 (tan-golden)",
+          "eye_label": "blue",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1934906,
+          "encoded_sha256": "72b088d00a2e24cdc172e3695521f3657f0ae53d036f2a50c3695ac154e536b3"
+        },
+        {
+          "path": "/workspace/qa/next-coat-eyes/outputs/gold-normal-blue-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "gold-normal-blue-eyes",
+          "eye_label": "blue",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1934906,
+          "encoded_sha256": "72b088d00a2e24cdc172e3695521f3657f0ae53d036f2a50c3695ac154e536b3"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-ac1a47847b87727e",
+      "file": "cats/cat-ac1a47847b87727e.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "coat-2 (dark-gray)",
+      "eyeLabel": "green",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1745952,
+      "encodedSha256": "94daad4dc7d69d3ca0ee6887156440d712bbf13e6008d1e5db15ca514e0043a8",
+      "decodedRgbaSha256": "ac1a47847b87727e102cb31e22f45b53fb34b8a0857f625c328d436517e1ba2b",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/outputs/coat-2-dark-gray-green-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "coat-2 (dark-gray)",
+          "eye_label": "green",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1745952,
+          "encoded_sha256": "94daad4dc7d69d3ca0ee6887156440d712bbf13e6008d1e5db15ca514e0043a8"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-ab15b6f437a072cc",
+      "file": "cats/cat-ab15b6f437a072cc.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "coat-3 (pale-cream)",
+      "eyeLabel": "red",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1714128,
+      "encodedSha256": "edaf00fd3a60e4164b4aaec6acfdce0206ba6019a7b49e21ac69fffd9adb95ae",
+      "decodedRgbaSha256": "ab15b6f437a072cc28ecc427723ca3df1d01539181bd99b2b5bf3858757428e0",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/outputs/coat-3-pale-cream-red-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "coat-3 (pale-cream)",
+          "eye_label": "red",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1714128,
+          "encoded_sha256": "edaf00fd3a60e4164b4aaec6acfdce0206ba6019a7b49e21ac69fffd9adb95ae"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-3315fea2b57a0746",
+      "file": "cats/cat-3315fea2b57a0746.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "coat-4 (orange)",
+      "eyeLabel": "gray",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1837448,
+      "encodedSha256": "94537b65797005db8e26c0e20f9c6939f3ce80448b07cda295bd738665faf31d",
+      "decodedRgbaSha256": "3315fea2b57a07466b2b01d7852b42efa799e4000043c2a76e9ffceeef7004a6",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/outputs/coat-4-orange-gray-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "coat-4 (orange)",
+          "eye_label": "gray",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1837448,
+          "encoded_sha256": "94537b65797005db8e26c0e20f9c6939f3ce80448b07cda295bd738665faf31d"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-3f9fb78fb1697a76",
+      "file": "cats/cat-3f9fb78fb1697a76.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "coat-5 (pale-gray-white)",
+      "eyeLabel": "brown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1907972,
+      "encodedSha256": "4b999c37376e81e5e5e5e9cc3ebce26ea4c7d431832c5cf4225ee4d4426895f5",
+      "decodedRgbaSha256": "3f9fb78fb1697a7629756a24d7deca5078e6476c1acbf53575f7fcfcceebcb65",
+      "aliases": [
+        {
+          "path": "/workspace/qa/five-coat-eyes/outputs/coat-5-pale-gray-white-brown-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "coat-5 (pale-gray-white)",
+          "eye_label": "brown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1907972,
+          "encoded_sha256": "4b999c37376e81e5e5e5e9cc3ebce26ea4c7d431832c5cf4225ee4d4426895f5"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-eec858c7a583cdc6",
+      "file": "cats/cat-eec858c7a583cdc6.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "brown-white",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1941780,
+      "encodedSha256": "b5aac5abc7d879d8bbf725606f085b405a20a1d8a48aba2548143fb8777d91a5",
+      "decodedRgbaSha256": "eec858c7a583cdc6a70e0bccac37f25085797a7250d835893deed2c98cbd98be",
+      "aliases": [
+        {
+          "path": "/workspace/qa/next-coat-eyes/inputs/brown-white.png",
+          "role": "original",
+          "source_label": "brown-white",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1941780,
+          "encoded_sha256": "b5aac5abc7d879d8bbf725606f085b405a20a1d8a48aba2548143fb8777d91a5"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-4a74e453bae483ad",
+      "file": "cats/cat-4a74e453bae483ad.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "gold-white",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1447,
+      "height": 1087,
+      "bytes": 2074845,
+      "encodedSha256": "d02aec9247b00b28db2303e072175c47f97148ee0ef52f31a285b846103cd67f",
+      "decodedRgbaSha256": "4a74e453bae483ad05e9358d7069d4d18605c89145fcd38b61ced830416d0b35",
+      "aliases": [
+        {
+          "path": "/workspace/qa/next-coat-eyes/inputs/gold-white.png",
+          "role": "original",
+          "source_label": "gold-white",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1447,
+          "height": 1087,
+          "bytes": 2074845,
+          "encoded_sha256": "d02aec9247b00b28db2303e072175c47f97148ee0ef52f31a285b846103cd67f"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-44c73696e0dc7be0",
+      "file": "cats/cat-44c73696e0dc7be0.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "brown-white-gray-eyes",
+      "eyeLabel": "gray",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1739061,
+      "encodedSha256": "8e5a4df62f39a5ed3b24353bc6ae4be2d6bca6a5f6f18d370d539c1e31bf9a1d",
+      "decodedRgbaSha256": "44c73696e0dc7be03adddb3fa18931db135094552000d6210c312eafd3119f49",
+      "aliases": [
+        {
+          "path": "/workspace/qa/next-coat-eyes/outputs/brown-white-gray-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "brown-white-gray-eyes",
+          "eye_label": "gray",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1739061,
+          "encoded_sha256": "8e5a4df62f39a5ed3b24353bc6ae4be2d6bca6a5f6f18d370d539c1e31bf9a1d"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-28145089a90d5f9f",
+      "file": "cats/cat-28145089a90d5f9f.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "gold-white-green-eyes",
+      "eyeLabel": "green",
+      "nativeMode": "RGBA",
+      "width": 1447,
+      "height": 1087,
+      "bytes": 1896817,
+      "encodedSha256": "95d114e9005f03df7b9aa7f43b993188eed2adde45a677fa493f410684ea9b17",
+      "decodedRgbaSha256": "28145089a90d5f9ff14ada7b4f11d10bc976e1ad5f094647494b74f818780507",
+      "aliases": [
+        {
+          "path": "/workspace/qa/next-coat-eyes/outputs/gold-white-green-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "gold-white-green-eyes",
+          "eye_label": "green",
+          "native_mode": "RGBA",
+          "width": 1447,
+          "height": 1087,
+          "bytes": 1896817,
+          "encoded_sha256": "95d114e9005f03df7b9aa7f43b993188eed2adde45a677fa493f410684ea9b17"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-e67924de1f224fd0",
+      "file": "cats/cat-e67924de1f224fd0.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "special-1",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 2063975,
+      "encodedSha256": "a09eecc108a366e9695f9e11f64d2f7732fe7f77cd71d3d1bb903b414ae1b000",
+      "decodedRgbaSha256": "e67924de1f224fd0cf6e0c79b693e076b2e1bc46ec23f2dce105ad3613e221d0",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/inputs/special-1.png",
+          "role": "original",
+          "source_label": "special-1",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 2063975,
+          "encoded_sha256": "a09eecc108a366e9695f9e11f64d2f7732fe7f77cd71d3d1bb903b414ae1b000"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-412f097a30e3558e",
+      "file": "cats/cat-412f097a30e3558e.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "special-2",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1662893,
+      "encodedSha256": "69fed1742f01dced6da6d5d79a6a18fb98527763db87beb78f855531712ca36d",
+      "decodedRgbaSha256": "412f097a30e3558e1dad1be3119f4d1bcb0fb456c9f509150917f9da28ee238e",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/inputs/special-2.png",
+          "role": "original",
+          "source_label": "special-2",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1662893,
+          "encoded_sha256": "69fed1742f01dced6da6d5d79a6a18fb98527763db87beb78f855531712ca36d"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-ee0fe001a6afbf55",
+      "file": "cats/cat-ee0fe001a6afbf55.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "special-3",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGB",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 2353261,
+      "encodedSha256": "f776a278cf9d3d09c70930c14cd1a7e4c87f90a46ba044d87ccf2a6723f6421f",
+      "decodedRgbaSha256": "ee0fe001a6afbf556fd4cbf55b745772153975ebd6fb84a30cc54b9c2785400c",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/inputs/special-3.png",
+          "role": "original",
+          "source_label": "special-3",
+          "eye_label": "unknown",
+          "native_mode": "RGB",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 2353261,
+          "encoded_sha256": "f776a278cf9d3d09c70930c14cd1a7e4c87f90a46ba044d87ccf2a6723f6421f"
+        }
+      ],
+      "knownIssues": [
+        "Baked snowy/studio background; preserved without cleanup."
+      ]
+    },
+    {
+      "id": "cat-59d2b8291b22010d",
+      "file": "cats/cat-59d2b8291b22010d.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "special-4",
+      "eyeLabel": "unknown",
+      "nativeMode": "RGBA",
+      "width": 1447,
+      "height": 1087,
+      "bytes": 2047798,
+      "encodedSha256": "efbbafba4834afd18646d3d7d7d82f4f01f4b7d443e34a5fcb71d79f131b4a85",
+      "decodedRgbaSha256": "59d2b8291b22010db76d85f182ad8be5fc8cfb341f86e62f631bd23edf305709",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/inputs/special-4.png",
+          "role": "original",
+          "source_label": "special-4",
+          "eye_label": "unknown",
+          "native_mode": "RGBA",
+          "width": 1447,
+          "height": 1087,
+          "bytes": 2047798,
+          "encoded_sha256": "efbbafba4834afd18646d3d7d7d82f4f01f4b7d443e34a5fcb71d79f131b4a85"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-2e94d0c70183b853",
+      "file": "cats/cat-2e94d0c70183b853.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "special-1-blue-eyes",
+      "eyeLabel": "blue",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1886552,
+      "encodedSha256": "70f509744c36d0a67ee36d6e453e54da53b0a2607af21b35e22be8ac35bac305",
+      "decodedRgbaSha256": "2e94d0c70183b85303d81e09fbae23b908dde58a7485443b2f82c2d6bff69ea6",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/outputs/special-1-blue-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "special-1-blue-eyes",
+          "eye_label": "blue",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1886552,
+          "encoded_sha256": "70f509744c36d0a67ee36d6e453e54da53b0a2607af21b35e22be8ac35bac305"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-b4bfb0e3eeff9eff",
+      "file": "cats/cat-b4bfb0e3eeff9eff.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "special-2-green-eyes",
+      "eyeLabel": "green",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1502820,
+      "encodedSha256": "8b793f266b61b748693f1ca8616b4f323d38cd9153180b3aec307518315863da",
+      "decodedRgbaSha256": "b4bfb0e3eeff9eff8c29dcedaaf8ad20a245a491e3323d8043415299dca92a2a",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/outputs/special-2-green-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "special-2-green-eyes",
+          "eye_label": "green",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1502820,
+          "encoded_sha256": "8b793f266b61b748693f1ca8616b4f323d38cd9153180b3aec307518315863da"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-f5e6e4ae9ef0a12f",
+      "file": "cats/cat-f5e6e4ae9ef0a12f.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "special-3-red-eyes",
+      "eyeLabel": "red",
+      "nativeMode": "RGB",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 2094315,
+      "encodedSha256": "809251fc5699fe6fa93b7c3cb276fb08ac1d00d06ec4c7112746cb1272443159",
+      "decodedRgbaSha256": "f5e6e4ae9ef0a12f575382a3a2fc70c658f76a7c2d969bcddf98cb5f33d9a5a0",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/outputs/special-3-red-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "special-3-red-eyes",
+          "eye_label": "red",
+          "native_mode": "RGB",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 2094315,
+          "encoded_sha256": "809251fc5699fe6fa93b7c3cb276fb08ac1d00d06ec4c7112746cb1272443159"
+        }
+      ],
+      "knownIssues": [
+        "Baked snowy/studio background; preserved without cleanup."
+      ]
+    },
+    {
+      "id": "cat-ff1036767ec8ca63",
+      "file": "cats/cat-ff1036767ec8ca63.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "eye-alternate",
+      "sourceLabel": "special-4-green-eyes",
+      "eyeLabel": "green",
+      "nativeMode": "RGBA",
+      "width": 1447,
+      "height": 1087,
+      "bytes": 1888255,
+      "encodedSha256": "2ec420a1de3fd73a3c19cf2cee88d9a12b254d21ee637200e40f031e74ddd768",
+      "decodedRgbaSha256": "ff1036767ec8ca63430645c668ba41b9bd4b07a1e26711311303a79786345e09",
+      "aliases": [
+        {
+          "path": "/workspace/qa/special-coat-eyes/outputs/special-4-green-eyes.png",
+          "role": "eye-alternate",
+          "source_label": "special-4-green-eyes",
+          "eye_label": "green",
+          "native_mode": "RGBA",
+          "width": 1447,
+          "height": 1087,
+          "bytes": 1888255,
+          "encoded_sha256": "2ec420a1de3fd73a3c19cf2cee88d9a12b254d21ee637200e40f031e74ddd768"
+        }
+      ],
+      "knownIssues": []
+    },
+    {
+      "id": "cat-07a1fa7882dd5e6d",
+      "file": "cats/cat-07a1fa7882dd5e6d.png",
+      "head": {
+        "x": 0.57,
+        "y": 0.0,
+        "w": 0.43,
+        "h": 0.42
+      },
+      "role": "original",
+      "sourceLabel": "white undertone (linked by undertone-eye-set REPORT reused red output); base coat label unknown",
+      "eyeLabel": "brown",
+      "nativeMode": "RGBA",
+      "width": 1448,
+      "height": 1086,
+      "bytes": 1662398,
+      "encodedSha256": "b9d34b5a64984e8c1a963decd4da4366ca9b76b34d24c1fdf9b95f7b6c0d2c64",
+      "decodedRgbaSha256": "07a1fa7882dd5e6d5d72712e6ac748ab774165f844c3590a76fcf03e2d8eacfd",
+      "aliases": [
+        {
+          "path": "/workspace/qa/undertone-red-eyes/target-brown.png",
+          "role": "original",
+          "source_label": "white undertone (linked by undertone-eye-set REPORT reused red output); base coat label unknown",
+          "eye_label": "brown",
+          "native_mode": "RGBA",
+          "width": 1448,
+          "height": 1086,
+          "bytes": 1662398,
+          "encoded_sha256": "b9d34b5a64984e8c1a963decd4da4366ca9b76b34d24c1fdf9b95f7b6c0d2c64"
+        }
+      ],
+      "knownIssues": []
+    }
+  ]
+}

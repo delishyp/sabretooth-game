@@ -106,7 +106,29 @@ Owner: Saga. Replaces all 102 placeholder strings in `src/renderer/js/i18n.js`. 
     "summary.bestValue": "{name} ({affinity})",
     "summary.bestNone": "No cats met",
     "summary.log": "Season log",
-    "summary.logLine": "Day {day}: {text}"
+    "summary.logLine": "Day {day}: {text}",
+    "home.nav.label": "Places",
+    "home.nav.home": "Home",
+    "home.nav.pride": "Pride",
+    "home.nav.den": "Den",
+    "home.nav.wilderness": "Wilderness",
+    "home.nav.cats": "Smilodons",
+    "home.nav.breeding": "Breeding",
+    "home.nav.market": "Market",
+    "home.nav.inventory": "Inventory",
+    "home.nav.lore": "Lore",
+    "home.den": "The Den",
+    "home.wilderness": "The Wilderness",
+    "home.denTip": "Rest at the den",
+    "home.wildTip": "Travel into the wilderness",
+    "home.you": "You",
+    "home.noCats": "No other smilodons met yet.",
+    "home.unavailableShort": "Unavailable",
+    "home.unavailable": "{section} is not available in this season.",
+    "portrait.expand": "Entire cat",
+    "portrait.close": "Close",
+    "portrait.full": "Entire cat",
+    "game.affinity": "Affinity {affinity}"
   }
 }
 ```

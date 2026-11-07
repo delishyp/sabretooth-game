@@ -12,6 +12,8 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
+  /** A slug is kept as given. Anything else, including a legacy omission, is null. Never rewritten to another id. */
+  const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
   function create({ map, rules, events, slots, nameData = null, looks = null }) {
@@ -38,7 +40,7 @@
         for (let i = 0; i < 200 && p.length; i++) { const n = Rng.pick(rng, p); if (!used.has(n.toLowerCase())) { name = n; break; } }
         name = name || `Cat-${sl.slot}`; used.add(name.toLowerCase());
         const look = looks ? { sex: sl.sex, coat: Rng.pick(rng, looks.coats), markings: Rng.pick(rng, looks.markings), eyes: Rng.pick(rng, looks.eyes) } : { sex: sl.sex };
-        out[sl.slot] = { id: sl.slot, name, sex: sl.sex, stage: sl.stage, faction: sl.faction, homeZones: sl.homeZones || [], look, affinity: M.affinityStart, met: false, improvedDay: null };
+        out[sl.slot] = { id: sl.slot, name, sex: sl.sex, stage: sl.stage, faction: sl.faction, homeZones: sl.homeZones || [], look, affinity: M.affinityStart, met: false, improvedDay: null, portraitId: null };
       }
       return out;
     }
@@ -47,7 +49,7 @@
       const s = {
         saveVersion: R.saveVersion, dataVersion: W.dataVersion, eventsVersion: (events && events.contentVersion) || 0,
         runId, seed: seed >>> 0, year: st.year, season: st.season, day: 1, phase: 'day',
-        cat: { catId: mainCat.catId, name: mainCat.name, sex: mainCat.sex, lifeStage: mainCat.lifeStage, genes: mainCat.genes, scars: mainCat.scars || [] },
+        cat: { catId: mainCat.catId, name: mainCat.name, sex: mainCat.sex, lifeStage: mainCat.lifeStage, genes: mainCat.genes, scars: mainCat.scars || [], portraitId: keptPortraitId(mainCat.portraitId) },
         needs: { health: st.health, hunger: st.needs, thirst: st.needs, energy: st.needs },
         injuries: [], counters: { starving: 0, parched: 0 },
         region: st.region, travel: null, forced: null,
@@ -287,6 +289,8 @@
       if ((s.saveVersion || 0) > R.saveVersion) throw new Error(`save version ${s.saveVersion} is newer than ${R.saveVersion}`);
       if ((s.map.dataVersion || 0) < W.dataVersion) { s.map = WorldMap.migrateMap(s.map, W); s.dataVersion = W.dataVersion; }
       if (!W.regions.some((r) => r.id === s.region)) s.region = R.start.region;
+      if (s.cat) s.cat.portraitId = keptPortraitId(s.cat.portraitId);
+      for (const n of Object.values(s.npcs || {})) n.portraitId = keptPortraitId(n.portraitId);
       s.saveVersion = R.saveVersion;
       return s;
     }

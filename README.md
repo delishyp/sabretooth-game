@@ -10,6 +10,7 @@ npm run start:linux-dev   # Linux dev box (adds --no-sandbox)
 npm test                  # unit tests (settings, slots + cap, copy/strings, navigation, gamepad, handlers, music, compositor, creator)
 npm run test:e2e          # Electron smoke test via playwright-core (needs a display; own temp userData)
 npm run screenshots       # Linux dev: capture menu screens to ./screenshots and exit
+npm run appearance-preview  # dev only: modular PNG preview (add -- --screenshot to write screenshots/appearance-preview.png)
 node scripts/seed-demo-saves.js <dir>   # dev: seed fake runs/saves into a temp userData
 npm run dist:win          # build Windows NSIS installer (run on Windows)
 ```
@@ -46,8 +47,9 @@ New Game setup → **Begin** → creator step 1 **Look** (Name, Sex, Coat, Marki
 
 ## Background art (for Ochre / Anna)
 The menu background is **one swappable file**: `assets/menu/background.png` (also accepted: `background.jpg`, `background.webp`;
-checked in that order, first found wins). 16:9, ideally 3840x2160, cover-scaled with focal point left of centre (the button column
-sits on the left). Drop the file in and restart the app; no code change. If no file exists, the cold blue-grey gradient
+checked in that order, first found wins). The current file is `background.jpg`, the approved Milky Way plate, used as supplied.
+It is cover-scaled, not stretched. Narrow black side bars in that file are skipped when it is drawn. The cat stays on the
+right and the buttons sit in the open left. If no file exists, the cold blue-grey gradient
 (`--bg-fallback` in `src/renderer/styles/theme.css`) is shown. Optional logo: `assets/menu/logo.png` (else text title).
 Other files in `assets/menu/` (e.g. `backgrounds/`, `refs/`, `html/`) are ignored by the app.
 

@@ -79,7 +79,12 @@
   api.onToast(({ id, vars, text }) => toast(id ? t(id, vars) : text));
 
   // ---------- generic focus (all screens except difficulty) ----------
+  function viewerOpen() { const v = $('#cat-viewer'); return !!(v && !v.hidden); }
+  function viewerButtons() {
+    return $$('#cat-viewer button').filter((b) => !b.disabled && !b.classList.contains('cat-viewer-backdrop') && b.offsetParent !== null);
+  }
   function focusables() {
+    if (viewerOpen()) return viewerButtons();
     const scope = dialog ? $('#dialog') : (state === 'game' && game && game.focusScope()) || $('.screen.active');
     return scope ? $$('button', scope).filter((b) => !b.disabled && b.offsetParent !== null && !b.closest('.tabs')) : [];
   }
@@ -94,6 +99,7 @@
     focus(f[j]);
   }
   document.addEventListener('mouseover', (ev) => {
+    if (viewerOpen()) return;
     if (state === 'creator') return;   // creator hover uses real mouse movement only (below)
     const b = ev.target.closest('button'); if (!b || b.disabled) return;
     // C2: only a real focus change re-renders; repeated mouseover on the focused control does nothing.
@@ -107,6 +113,7 @@
     state = screen;
     const el = ['starting', 'loading'].includes(screen) ? 'placeholder' : screen === 'loadRunExpanded' ? 'load' : screen;
     $$('.screen').forEach((s) => s.classList.toggle('active', s.dataset.screen === el));
+    applyMotion();
     if (screen === 'root') { renderRoot(); music.play(); }
     if (['starting', 'loading', 'game', 'summary'].includes(screen)) music.fadeOutAndStop();   // §7.5 v1.4.4: creator Start / Continue / Load (keeps playing through the creator)
     if (screen === 'game') { game.render(); return fitActive(); }
@@ -256,7 +263,8 @@
 
   function openCreator(effect) {
     pendingSetup = { style: effect.style, difficulty: effect.difficulty, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
-    creator = Creator.init({ names: creatorNames(), difficulty: effect.difficulty, sandboxOptions: effect.sandboxOptions });
+    const ids = portraits.registry().portraits.map((p) => p.id);
+    creator = Creator.init({ names: creatorNames(), difficulty: effect.difficulty, sandboxOptions: effect.sandboxOptions, portraitIds: ids });
     starting = false; preview.key = null;
     show('creator');
   }
@@ -337,6 +345,16 @@
       } else if (id === 'preset') {
         row.querySelector('.crow-val').textContent = t(`creator.preset.${c.preset}`);
         help.textContent = t(`creator.preset.${c.preset}.desc`);
+      } else if (id === 'portrait') {
+        const entry = PortraitView.entryFor(portraitReg, c.portraitId);
+        const label = entry.sourceLabel || c.portraitId || '';
+        const eye = entry.eyeLabel || 'unknown';
+        const val = row.querySelector('.crow-val');
+        val.textContent = label;
+        val.title = `${label} · ${eye} · ${c.portraitId || ''}`;
+        val.setAttribute('aria-label', val.title);
+        help.textContent = t('creator.help.portrait');
+        row.querySelector('.rare-tag').hidden = true;
       } else if (id.startsWith('trait:')) {
         const k = id.slice(6); const v = c.traits[k];
         row.querySelector('.sval').textContent = String(v);
@@ -356,6 +374,7 @@
     const hintKey = { keyboard: 'creator.hint.keyboard', controller: 'creator.hint.gamepad', mouse: c.step === 2 ? 'creator.hint.mousePersonality' : 'creator.hint.mouse' }[device()] || 'creator.hint.keyboard';
     $('#creator-hint').textContent = t(hintKey);
     const nm = Creator.normalizeName(c.name) || t('run.defaultCatName');
+    const expand = $('#creator-expand'); if (expand) expand.dataset.name = nm;
     $('#creator-canvas').setAttribute('aria-label', t('creator.preview.alt', { catName: nm, sex: optLabel('sex', c.sex).toLowerCase(),
       coat: optLabel('coat', c.coat).toLowerCase(), markings: t(`creator.preview.markings.${c.markings}`), eyes: (c.oddEyes === 'on' && c.eyeRight ? `${optLabel('eyes', c.eyes)}/${optLabel('eyes', c.eyeRight)}` : optLabel('eyes', c.eyes)).toLowerCase() }));
     // Real DOM focus: the Name field takes it so typing works; everything else focuses its control (never the text field).
@@ -391,27 +410,36 @@
       const t0 = performance.now();
       const look = (sex, coat, markings, eyes) => ({ sex, coat, markings, eyes, oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced } });
       const warm = async (a, s) => { await Compositor.compose(a.manifest, Creator.genesFor(s), composeOpts(a, document.createElement('canvas'))); await new Promise((r) => setTimeout(r, 0)); };
-      const poses = await Promise.all(Creator.SEXES.map((sex) => poseAssets(Compositor.poseFor(sex, 'adult'))));   // 1: load + decode both poses
-      for (let i = 0; i < poses.length; i++) await warm(poses[i], look(Creator.SEXES[i], 'tan', 'spotted', 'amber'));   // 2: fixed layers of each pose
-      for (let i = 0; i < poses.length; i++) {                                                                       // 3: every coat × marking, every eye
-        for (const coat of Creator.COATS) for (const markings of Creator.MARKINGS) { if (state === 'creator') break; await warm(poses[i], look(Creator.SEXES[i], coat, markings, 'amber')); }
-        for (const eyes of Creator.EYES) { if (state === 'creator') break; await warm(poses[i], look(Creator.SEXES[i], 'tan', 'none', eyes)); }
-      }
+      const pose = PortraitView.sharedPose(portraitReg);
+      const sheet = await poseAssets(pose);
+      await warm(sheet, look('female', 'tan', 'spotted', 'amber'));
+      for (const coat of Creator.COATS) for (const markings of Creator.MARKINGS) { if (state === 'creator') break; await warm(sheet, look('female', coat, markings, 'amber')); }
+      for (const eyes of Creator.EYES) { if (state === 'creator') break; await warm(sheet, look('female', 'tan', 'none', eyes)); }
       preview.preloadMs = performance.now() - t0;
     })().catch((e) => console.warn('portrait preload failed', e));
     return preloading;
   }
   async function renderPreview() {
-    const c = creator; const key = [c.sex, c.coat, c.markings, c.eyes, c.oddEyes, c.eyeRight].join('|');
+    const c = creator; const key = [c.sex, c.coat, c.markings, c.eyes, c.oddEyes, c.eyeRight, c.portraitId || ''].join('|');
     if (key === preview.key) return;
     preview.key = key; const token = ++preview.token; const t0 = performance.now();
+    const cv = $('#creator-canvas');
     try {
-      const a = await poseAssets(Compositor.poseFor(c.sex, 'adult'));
+      if (c.portraitId) {
+        const painted = await paintPortrait({ portraitId: c.portraitId, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, cv, { frame: 'head' });
+        if (token !== preview.token) return;
+        Object.assign(preview, { ms: performance.now() - t0, drawn: painted.runtime ? [] : [c.portraitId], skipped: painted.runtime ? ['file'] : [], pose: painted.runtime ? PortraitView.sharedPose(portraitReg) : c.portraitId, rendered: key });
+        preview.log.push({ key, ms: preview.ms });
+        return;
+      }
+      // Drop any earlier registered paint before the runtime draw, so a registry reload cannot put that cat back.
+      paintJobs.set(cv, { spec: { portraitId: null, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, opts: { frame: 'head' } });
+      const a = await poseAssets(PortraitView.sharedPose(portraitReg));
       const off = document.createElement('canvas');
       const res = await Compositor.compose(a.manifest, Creator.genesFor(c), composeOpts(a, off));
       if (token !== preview.token) return;
-      const cv = $('#creator-canvas'); cv.width = off.width; cv.height = off.height;
-      cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); cv.getContext('2d').drawImage(off, 0, 0);
+      PortraitView.blitHead(off, cv, PortraitView.entryFor(portraitReg, null, c.sex).head);
+      cv._full = off; cv._portraitId = null; cv.dataset.runtime = '1';
       Object.assign(preview, { ms: performance.now() - t0, drawn: res.drawn, skipped: res.skipped, pose: a.pose, rendered: key });
       preview.log.push({ key, ms: preview.ms });
     } catch (e) {
@@ -549,7 +577,15 @@
     settings[settingsTab][key] = v; changed();
     renderSettings(); focus($(`#tab-body [data-key="${key}"]`));
   }
-  function applyLive() { music.setAudio(settings.audio); document.body.classList.toggle('reduced-motion', !!settings.display.reducedMotion); scale(); }
+  const motionMq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function motionReduced() { return !!(settings.display && settings.display.reducedMotion) || !!(motionMq && motionMq.matches); }
+  function applyMotion() {
+    document.body.classList.toggle('reduced-motion', motionReduced());
+    document.body.classList.toggle('menu-hidden', state === 'game' || state === 'summary');
+    if (motionReduced() || state !== 'credits') { clearInterval(creditsTimer); creditsTimer = null; }
+  }
+  function applyLive() { music.setAudio(settings.audio); applyMotion(); scale(); }
+  if (motionMq && motionMq.addEventListener) motionMq.addEventListener('change', applyMotion);
 
   async function fallbackToast(mode, effective) {
     if (effective && effective !== mode) toast(t('toast.storytellerFallback', { fromShort: t(`storyteller.shortName.${mode}`), toShort: t(`storyteller.shortName.${effective}`) }));
@@ -574,10 +610,10 @@
   let creditsTimer = null, fastScroll = false;
   function startCredits() {
     const roll = $('#credits-roll'); roll.scrollTop = 0; clearInterval(creditsTimer);
-    if (settings.display.reducedMotion) return;
+    if (motionReduced()) return;
     creditsTimer = setInterval(() => { roll.scrollTop += fastScroll ? 6 : 1; }, 30);
   }
-  addEventListener('keyup', (e) => { if (e.key === 'ArrowDown' || e.key === 's') fastScroll = false; });
+  addEventListener('keyup', (e) => { if (state === 'credits' && (e.key === 'ArrowDown' || e.key === 's')) fastScroll = false; });
 
   // ---------- dialogs ----------
   function confirmDialog(text, okLabel, onOk) {
@@ -596,12 +632,110 @@
 
   // ---------- slice 1 game (js/game-screen.js over js/slice.js) ----------
   /** NPC / player portrait: same compositor as the creator. spec = {genes, sex} (player) | {look, sex} (NPC: a common creator look). */
-  async function portrait(spec, canvas) {
-    const genes = spec.genes || Creator.genesFor({ oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced }, ...spec.look, sex: spec.sex });
-    const a = await poseAssets(Compositor.poseFor(spec.sex, 'adult'));
-    const off = document.createElement('canvas');
+  const portraits = PortraitView.createSession(PortraitView.FALLBACK);
+  let portraitReg = portraits.registry();
+  const paintJobs = new Map();
+  function repaintPortraits() {
+    for (const [canvas, job] of paintJobs) {
+      if (!canvas || !canvas.isConnected) continue;
+      let spec = job.spec;
+      if (canvas.id === 'creator-canvas' && creator) spec = { ...spec, portraitId: creator.portraitId || null, sex: creator.sex, name: creator.name, look: creator, genes: Creator.genesFor(creator) };
+      paintPortrait(spec, canvas, job.opts);
+    }
+  }
+  fetch('../../assets/portraits/registry.json').then((r) => r.ok ? r.json() : null).then((j) => {
+    if (!j) return;
+    const adopted = portraits.adopt(j);
+    portraitReg = portraits.registry();
+    const ids = portraitReg.portraits.map((p) => p.id);
+    if (adopted.ok && creator && ids.length && !creator.staticArt) {
+      creator = Creator.coerceLook({ ...creator, staticArt: true, portraitIds: ids, portraitId: ids.includes(creator.portraitId) ? creator.portraitId : ids[0] });
+      preview.key = '';
+      if (state === 'creator') applyCreator();
+    }
+    if (adopted.ok) repaintPortraits();
+  }).catch(() => {});
+  async function paintRuntime(spec, off) {
+    const genes = spec.genes || Creator.genesFor({ oddEyes: 'off', eyeRight: null, traits: { ...Creator.PRESETS.balanced }, ...spec.look, sex: spec.sex || 'female' });
+    const a = await poseAssets(PortraitView.sharedPose(portraitReg));
     await Compositor.compose(a.manifest, genes, composeOpts(a, off));
-    canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0);
+    return PortraitView.entryFor(portraitReg, null, spec && spec.sex);
+  }
+  async function paintPortrait(spec, canvas, opts = {}) {
+    if (!canvas) return { ok: false, id: null, runtime: true, stale: false };
+    paintJobs.set(canvas, { spec, opts });
+    const job = portraits.begin(canvas);
+    const entry = PortraitView.entryFor(job.registry, spec && spec.portraitId, spec && spec.sex);
+    const still = () => portraits.current(canvas, job.token, job.generation);
+    try {
+      const off = document.createElement('canvas');
+      let head = entry.head;
+      let shownId = entry.runtime ? null : entry.id;
+      let runtime = entry.runtime;
+      if (entry.file) {
+        try {
+          const img = new Image();
+          img.src = new URL('../../assets/portraits/' + entry.file, window.location.href).href;
+          await img.decode();
+          if (!still()) return { ok: true, id: null, runtime: false, stale: true };
+          off.width = img.naturalWidth; off.height = img.naturalHeight;
+          off.getContext('2d').drawImage(img, 0, 0);
+        } catch (e) {
+          if (!still()) return { ok: true, id: null, runtime: true, stale: true };
+          console.warn('portrait file failed, using the runtime pose', entry.file, e);
+          const fallback = await paintRuntime(spec || {}, off);
+          head = fallback.head; shownId = null; runtime = true;
+        }
+      } else {
+        const fallback = await paintRuntime(spec || {}, off);
+        head = fallback.head; shownId = null; runtime = true;
+      }
+      if (!still()) return { ok: true, id: null, runtime, stale: true };
+      canvas._full = off;
+      canvas._portraitId = shownId;
+      canvas.dataset.portraitId = shownId || '';
+      canvas.dataset.runtime = runtime ? '1' : '0';
+      if (opts.frame === 'head') PortraitView.blitHead(off, canvas, head);
+      else { canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0); }
+      return { ok: true, id: shownId, runtime, stale: false };
+    } catch (e) {
+      if (!still()) return { ok: false, id: null, runtime: true, stale: true };
+      console.warn('portrait paint failed', e);
+      const g = canvas.getContext('2d');
+      if (g && canvas.width && canvas.height) g.clearRect(0, 0, canvas.width, canvas.height);
+      canvas._full = null; canvas._portraitId = null; canvas.dataset.runtime = '1'; canvas.dataset.portraitId = '';
+      return { ok: false, id: null, runtime: true, stale: false };
+    }
+  }
+  async function portrait(spec, canvas, opts = {}) {
+    try { return await paintPortrait(spec, canvas, opts); }
+    catch (e) { console.warn('portrait paint failed', e); return { ok: false, id: null, runtime: true, stale: false }; }
+  }
+  let viewerOpener = null;
+  function openCatViewer(source, name, opener) {
+    if (!source) return false;
+    const dest = $('#cat-viewer-canvas');
+    dest.width = source.width; dest.height = source.height;
+    dest.getContext('2d').drawImage(source, 0, 0);
+    $('#cat-viewer-name').textContent = name || '';
+    $('#cat-viewer').hidden = false;
+    viewerOpener = opener || null;
+    focus($('#cat-viewer-close'));
+    return true;
+  }
+  function closeCatViewer() {
+    const box = $('#cat-viewer');
+    if (!box || box.hidden) return false;
+    box.hidden = true;
+    const opener = viewerOpener;
+    viewerOpener = null;
+    if (opener && opener.isConnected && !opener.disabled) focus(opener);
+    else if (state === 'game' && game) game.refocus();
+    return true;
+  }
+  function cycleViewer(delta) {
+    const f = viewerButtons(); if (!f.length) return;
+    focus(f[Nav.step(f.length, f.indexOf(current()), delta)]);
   }
   /** Escape / Main menu: back to the root menu; the autosave after every action already holds the run (Flint call). */
   async function leaveGame() { await refreshSlots(); show('root', $('[data-action="continue"]')); }
@@ -671,14 +805,38 @@
     show('root', from ? $(`[data-action="${from}"]`) : null);
   }
   document.addEventListener('click', (ev) => {
-    const g = ev.target.closest('[data-g]'); if (g && game && !g.disabled) return game.onClick(g);
+    const g = ev.target.closest('[data-g]');
+    if (g && g.dataset.g === 'closeViewer') { closeCatViewer(); return; }
+    if (g && g.dataset.g === 'expandCat') {
+      const src = document.getElementById(g.dataset.source);
+      openCatViewer(src && src._full, g.dataset.name || '', g);
+      return;
+    }
+    if (g && game && !g.disabled) return game.onClick(g);
     const b = ev.target.closest('[data-action]'); if (b && ACTIONS[b.dataset.action]) ACTIONS[b.dataset.action]();
   });
 
+  window.addEventListener('keydown', (ev) => {
+    if (!viewerOpen() || ev.key !== 'Tab') return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    cycleViewer(ev.shiftKey ? -1 : 1);
+  }, true);
   Input.on((a) => {
+    if (viewerOpen()) {
+      if (a === 'back') { closeCatViewer(); return; }
+      if (a === 'up' || a === 'left' || a === 'tabPrev') { cycleViewer(-1); return; }
+      if (a === 'down' || a === 'right' || a === 'tabNext') { cycleViewer(1); return; }
+      if (a === 'confirm' || a === 'start') { const el = current(); if (el && $('#cat-viewer').contains(el)) el.click(); return; }
+      return;
+    }
     const el = current();
     if (!dialog && state === 'newGameSetup') return setupDispatch(a === 'start' ? 'confirm' : a);
-    if (!dialog && state === 'creator') return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);
+    if (!dialog && state === 'creator') {
+      const live = document.activeElement;
+      if ((a === 'confirm' || a === 'start') && live && live.dataset && live.dataset.g === 'expandCat') { live.click(); return; }
+      return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);
+    }
     if (a === 'up') return move(-1);
     if (a === 'down') { if (state === 'credits') fastScroll = true; return move(1); }
     if (a === 'left' || a === 'right') {
@@ -709,6 +867,29 @@
     setUiScale: (v) => { settings.display.uiScale = v; scale(); },
     /** Slice 1: seed for the next new run (deterministic e2e), current game state, and a test-only state patch (death path). */
     setGameSeed: (n) => { seedOverride = n >>> 0; },
+    paintPortrait: (spec, canvas, opts) => paintPortrait(spec, canvas, opts),
+    adoptRegistry: (raw) => { const r = portraits.adopt(raw); portraitReg = portraits.registry(); if (r.ok) repaintPortraits(); return { ok: r.ok, error: r.error, count: portraitReg.portraits.length }; },
+    portraitOf: (id, sex) => PortraitView.entryFor(portraits.registry(), id, sex || 'female'),
+    setPortraitId: async (id) => { if (!creator) return null; creator = { ...creator, portraitId: id }; preview.key = ''; await renderPreview(); return { portraitId: creator.portraitId, canvas: $('#creator-canvas')._portraitId || null, runtime: $('#creator-canvas').dataset.runtime }; },
+    assignPortrait: (slot, id) => {
+      if (!game || !game.state()) return null;
+      const s = game.state();
+      if (slot === 'player') s.cat.portraitId = id;
+      else if (s.npcs[slot]) s.npcs[slot].portraitId = id;
+      game.render();
+      return slot === 'player' ? s.cat.portraitId : s.npcs[slot] && s.npcs[slot].portraitId;
+    },
+    forceMeeting: (slot) => {
+      if (!game || !game.state()) return null;
+      const s = game.state(); const n = s.npcs[slot]; if (!n) return null;
+      n.met = true;
+      s.phase = 'event';
+      s.pending = { eventId: 'slice.meeting.highcrag', kind: 'first_meeting', catId: slot, catName: n.name, day: s.day, hostile: false, choiceId: null };
+      game.render();
+      return { day: s.day, seed: s.seed, affinity: n.affinity, name: n.name, choiceId: s.pending.choiceId, phase: s.phase };
+    },
+    reloadGame: (saved) => { if (game && game.run()) game.resume(game.run(), saved); },
+    creditsRunning: () => !!creditsTimer,
     game: () => (game ? { state: game.state(), run: game.run(), available: game.state() ? game.E.available(game.state()) : null, summary: game.state() ? game.E.summary(game.state()) : null, busy: game.busy() } : null),
     gamePatch: (patch) => { const g = JSON.parse(JSON.stringify(game.state())); for (const [k, v] of Object.entries(patch)) g[k] = v && typeof v === 'object' && !Array.isArray(v) && g[k] && typeof g[k] === 'object' ? { ...g[k], ...v } : v; game.setState(g); game.render(); },
     show: async (s) => {
