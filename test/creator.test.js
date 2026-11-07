@@ -27,9 +27,54 @@ test('mainCat: spec §5.2–5.4 shape, homozygous chosen loci, fixed defaults, p
     genes: { v: 1, loci: { coat: ['greydun', 'greydun'], dilute: ['D', 'D'], marking: ['faintstripe', 'faintstripe'], dorsal: ['ds', 'ds'],
       intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: ['green', 'green'], saber: ['ivory', 'ivory'], het: ['Het', 'Het'] }, eyeRight: null, mutations: [],
       personality: { aggression: 75, sociability: 20, boldness: 80, loyalty: 35, curiosity: 55 } },
-    scars: []
+    scars: [], portraitId: null
   });
   assert.doesNotThrow(() => validateMainCat(m, { difficulty: 'heir' }));
+});
+test('static pictures: the picker lists every id for either sex, and coat controls stay off that screen', () => {
+  const ids = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '../assets/portraits/registry.json'), 'utf8')).portraits.map((p) => p.id);
+  assert.strictEqual(ids.length, 40);
+  let s = C.init({ names, rng: seeded(4), portraitIds: ids });
+  assert.strictEqual(s.staticArt, true);
+  assert.ok(ids.includes(s.portraitId));
+  assert.deepStrictEqual(C.ROWS(s), ['name', 'sex', 'portrait']);
+  const seen = new Set([s.portraitId]);
+  for (let i = 0; i < ids.length; i++) { s = C.reduce(s, 'arrow', { id: 'portrait', dir: 1 }).state; seen.add(s.portraitId); }
+  assert.strictEqual(seen.size, 40);
+  const name = s.name; const sex = s.sex; const coat = s.coat; const picture = s.portraitId;
+  s = C.reduce(s, 'arrow', { id: 'sex', dir: 1 }).state;
+  assert.notStrictEqual(s.sex, sex);
+  assert.strictEqual(s.portraitId, picture);
+  assert.strictEqual(s.coat, coat);
+  const nameData = require('../src/renderer/data/names/names.json');
+  s = C.reduce(s, 'rerollName', undefined, env({ nameData })).state;
+  assert.notStrictEqual(s.name, name);
+  assert.strictEqual(s.portraitId, picture);
+  const before = s.portraitId; const keptName = s.name;
+  s = C.reduce(s, 'click', 'randomize', { rng: seeded(11) }).state;
+  assert.notStrictEqual(s.portraitId, before);
+  assert.ok(ids.includes(s.portraitId));
+  assert.strictEqual(s.name, keptName);
+  const male = C.buildMainCat({ ...s, sex: 'male' }, { newId: () => 'cat_m' });
+  const female = C.buildMainCat({ ...s, sex: 'female' }, { newId: () => 'cat_f' });
+  assert.strictEqual(male.portraitId, female.portraitId);
+  assert.strictEqual(male.portraitId, s.portraitId);
+  assert.doesNotThrow(() => validateMainCat(male, { difficulty: 'permadeath' }));
+});
+test('portrait id is not a gene: coat changes keep it, randomize keeps it, a bad id becomes null', () => {
+  const id = 'cat-6e2d788dd48ff440';
+  let s = base({ portraitId: id, coat: 'tan', focus: 'coat' });
+  s = C.reduce(s, 'arrow', { id: 'coat', dir: 1 }).state;
+  assert.strictEqual(s.portraitId, id);
+  assert.notStrictEqual(s.coat, 'tan');
+  s = C.reduce(s, 'click', 'randomize', { rng: seeded(9) }).state;
+  assert.strictEqual(s.portraitId, id);
+  const built = C.buildMainCat(s, { newId: () => 'cat_p' });
+  assert.strictEqual(built.portraitId, id);
+  assert.strictEqual(C.buildMainCat(base({ portraitId: 'Nope' }), { newId: () => 'cat_q' }).portraitId, null);
+  const male = C.buildMainCat(base({ portraitId: id, sex: 'male' }), { newId: () => 'cat_m' });
+  const female = C.buildMainCat(base({ portraitId: id, sex: 'female' }), { newId: () => 'cat_f' });
+  assert.strictEqual(male.portraitId, female.portraitId);
 });
 test('option → allele mapping covers all 90 common looks (5 coats in every Style); none = plain; rare pairs', () => {
   let n = 0;
@@ -186,7 +231,7 @@ test('main validates mainCat: rejects heterozygous/out-of-range/off-step/bad nam
   const ok = C.buildMainCat(base({ traits: { aggression: 0, sociability: 100, boldness: 50, loyalty: 50, curiosity: 50 } }), { newId: () => 'cat_v' });
   assert.throws(() => validateMainCat(ok, { difficulty: 'heir' }), /personality.aggression/);
   const v = validateMainCat(ok, { difficulty: 'sandbox', sandboxOptions: { freeCustomization: true } });
-  assert.deepStrictEqual(Object.keys(v.snapshot), ['catId', 'name', 'sex', 'lifeStage', 'genes', 'scars']);
+  assert.deepStrictEqual(Object.keys(v.snapshot), ['catId', 'name', 'sex', 'lifeStage', 'genes', 'scars', 'portraitId']);
   assert.deepStrictEqual([v.record.ageSeasons, v.record.birthSeason, 'lifeStage' in v.record], [12, { year: -2, season: 'spring' }, false]);
   const good = C.buildMainCat(base(), { newId: () => 'cat_v' });
   const bad = (f) => { const m = JSON.parse(JSON.stringify(good)); f(m); return m; };

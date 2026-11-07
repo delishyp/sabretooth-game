@@ -1,0 +1,32 @@
+{
+  "immutable": true,
+  "note": "Byte-for-byte import of the authoritative master set. Do not recompress, re-export, resize, crop, or edit these files. The appearance preview refuses to draw a locked PNG whose bytes do not match.",
+  "canvas": { "width": 1448, "height": 1086 },
+  "files": {
+    "master/master.png": {
+      "bytes": 1274763,
+      "sha256": "5de0cfdeb68d99820b139680ff27566695cf1bae6a709f0751e771a8372da76b",
+      "png": { "width": 1448, "height": 1086, "bitDepth": 8, "colorType": 6, "mode": "RGBA" }
+    },
+    "master/body-mask.png": {
+      "bytes": 31757,
+      "sha256": "729219293bf8fb38a18d2ac32e9c85095ffdea869557a23474d9ec8c4a4d260a",
+      "png": { "width": 1448, "height": 1086, "bitDepth": 8, "colorType": 0, "mode": "L" }
+    },
+    "master/eye-nose-mask.png": {
+      "bytes": 2420,
+      "sha256": "86a31245b5512e5fd3ce8b840b0824fbeb7bda1e995adc81748195ebe30921ba",
+      "png": { "width": 1448, "height": 1086, "bitDepth": 8, "colorType": 0, "mode": "L" }
+    },
+    "validation-metadata.json": {
+      "bytes": 11476,
+      "sha256": "47e216d5380b94d8f096ec85e0eb9d10ffddf5b1cd3d4918bc16cc59f554472f",
+      "role": "Validation record imported byte-for-byte. The renderer does not read it."
+    }
+  },
+  "relationships": {
+    "bodyMaskEqualsMasterAlpha": true,
+    "bodyMaskIsFurTintSafe": false,
+    "eyeNoseMaskMarksCutouts": true
+  }
+}

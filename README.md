@@ -10,6 +10,7 @@ npm run start:linux-dev   # Linux dev box (adds --no-sandbox)
 npm test                  # unit tests (settings, slots + cap, copy/strings, navigation, gamepad, handlers, music, compositor, creator)
 npm run test:e2e          # Electron smoke test via playwright-core (needs a display; own temp userData)
 npm run screenshots       # Linux dev: capture menu screens to ./screenshots and exit
+npm run appearance-preview  # dev only: modular PNG preview (add -- --screenshot to write screenshots/appearance-preview.png)
 node scripts/seed-demo-saves.js <dir>   # dev: seed fake runs/saves into a temp userData
 npm run dist:win          # build Windows NSIS installer (run on Windows)
 ```
