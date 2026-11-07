@@ -384,7 +384,15 @@
       },
       "outcomeRendering": {
         "resolve_hyena_contest": {
-          "authority": "v0.6 §13.3.7 deterministic existing fight stat, not a lethal duel or new random roll. >=12 clean; >=9 partial with extra Energy -10; >=6 fail without injury; below6 fail plus minor injury. Proposed proof injury cap applies.",
+          "authority": "v0.6.2 §13.3.7 deterministic existing fight stat, not a lethal duel or new random roll. >=11 clean; >=9 partial with extra Energy -10; >=6 fail without injury; below6 fail plus minor injury. Proposed proof injury cap applies.",
+          "thresholdCorrection": {
+            "handoff": "encounters-v0.2 v0.6.1-reconciled",
+            "handoffSha256": "66de49ea1afaf66b11e04d41256d201446735827e94241811914044b8909b475",
+            "handoffCleanCut": 12,
+            "source": "milestone-2-spec v0.6.2 DRAFT, Tundra local ad097bd, 2026-11-07",
+            "status": "PROPOSED DEFAULT, not Anna-approved",
+            "change": "Clean cut only: 12 → 11, so a Standard creator at fight stat 11.2 can be clean. Partial stays >= 9 with Energy -10. Fail stays >= 6 with no injury, and below 6 with a minor injury. Outcome id hyena_driven, deed id drive_hyena, and +5 values are unchanged. Partial still unlocks the later deeds because the hyena was driven away."
+          },
           "clean": {
             "text": "The hyena backs away, leaving the carcass beside the hunter.",
             "outcome": "hyena_driven",

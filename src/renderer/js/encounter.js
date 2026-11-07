@@ -17,6 +17,7 @@
     const searchE = tun.deerSearchEnergy ?? 10;
     const commitE = tun.deerCommitEnergy ?? 20;
     const threat = tun.hyenaThreatStat ?? 9;
+    const cleanAt = tun.hyenaCleanAt ?? 11;
     const partialE = tun.hyenaPartialEnergy ?? 10;
     const deedDelta = tun.deedDelta ?? 5;
     const stealHunger = tun.stealHunger ?? 50;
@@ -72,7 +73,7 @@
     }
     function hyenaTier(s) {
       const stat = fightStat(s);
-      if (stat >= 12) return { tier: 'clean', stat, threat, extraEnergy: 0, injury: null, success: true };
+      if (stat >= cleanAt) return { tier: 'clean', stat, threat, extraEnergy: 0, injury: null, success: true };
       if (stat >= threat) return { tier: 'partial', stat, threat, extraEnergy: partialE, injury: null, success: true };
       if (stat >= 6) return { tier: 'fail', stat, threat, extraEnergy: 0, injury: null, success: false };
       return { tier: 'fail', stat, threat, extraEnergy: 0, injury: 'minor', success: false };

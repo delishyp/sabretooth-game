@@ -1,6 +1,5 @@
-// Audit only. Does not change thresholds, costs, or scene rules.
-// Canonical JSON gives clean and partial the same outcome id, hyena_driven, and different text.
-// A Standard creator cannot reach clean: aggression 100 is outside the 20–80 range.
+// Deed and tier audit. v0.6.2 moves only the clean cut from 12 to 11.
+// Canonical JSON still gives clean and partial the same outcome id, hyena_driven.
 const test = require('node:test');
 const assert = require('node:assert');
 const crypto = require('node:crypto');
@@ -85,7 +84,11 @@ function payOnce(s, choiceId, leaf, sourceType, expectedStanding) {
 
 test('canonical JSON uses one outcome id for clean and partial, with different text and cost', () => {
   const file = path.join(D, 'events/encounters-v0.2.json');
-  assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'), '66de49ea1afaf66b11e04d41256d201446735827e94241811914044b8909b475');
+  const correction = CONTEST.thresholdCorrection;
+  assert.strictEqual(correction.handoffSha256, '66de49ea1afaf66b11e04d41256d201446735827e94241811914044b8909b475');
+  assert.strictEqual(correction.handoffCleanCut, 12);
+  assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'), '3e04b455317c89a77a2ffd7ef633c6a880790e3530872ea87f6459b5be84a23c');
+  assert.match(CONTEST.authority, />=11 clean/);
   assert.strictEqual(CONTEST.clean.outcome, 'hyena_driven');
   assert.strictEqual(CONTEST.partial.outcome, 'hyena_driven');
   assert.strictEqual(CONTEST.clean.next, 'after_drive');
@@ -103,7 +106,7 @@ test('canonical JSON uses one outcome id for clean and partial, with different t
   assert.match(CONTEST.authority, /partial with extra Energy -10/);
 });
 
-test('every Standard trait step is partial or fail, never clean', () => {
+test('Standard bands: aggression 80 is clean at 11.2, a fresh 10 is partial, and 20 fails', () => {
   const fresh = start(null, 'fresh-stat');
   assert.strictEqual(E.encounter.fightStat(fresh), 10);
   assert.deepStrictEqual(
@@ -112,9 +115,9 @@ test('every Standard trait step is partial or fail, never clean', () => {
   );
   for (let aggression = 20; aggression <= 80; aggression += 5) {
     const tier = E.encounter.hyenaTier(start(traits(aggression), 'band-' + aggression));
-    assert.notStrictEqual(tier.tier, 'clean', String(aggression));
-    if (aggression >= 25) assert.strictEqual(tier.tier, 'partial');
-    else assert.strictEqual(tier.tier, 'fail');
+    if (aggression >= 75) assert.strictEqual(tier.tier, 'clean', String(aggression));
+    else if (aggression >= 25) assert.strictEqual(tier.tier, 'partial', String(aggression));
+    else assert.strictEqual(tier.tier, 'fail', String(aggression));
   }
 });
 
@@ -168,28 +171,58 @@ test('reachable partial saves before and after each deed, in both follow-up orde
   route(shareThenWarn, 'audit-share-warn', false);
 });
 
-test('FIXTURE unreachable on Standard: aggression 100 is clean, costs no extra Energy, and still uses hyena_driven', () => {
-  const preview = E.encounter.hyenaTier(start(traits(100), 'clean-preview'));
-  assert.strictEqual(preview.tier, 'clean');
-  assert.strictEqual(preview.extraEnergy, 0);
-  assert.ok(preview.stat >= 12);
-  let s = arrive(traits(100), 'clean-fixture');
-  assert.strictEqual(E.encounterView(s).forecast.tier, 'clean');
-  const energy = s.needs.energy;
-  s = choose(s, 'drive_off').state;
-  assert.strictEqual(s.encounters.pending.result.outcomeId, 'hyena_driven');
-  assert.strictEqual(s.encounters.pending.result.tier, 'clean');
-  assert.strictEqual(s.needs.energy, energy);
-  assert.ok(says(s, CONTEST.clean.text));
-  assert.ok(!says(s, CONTEST.partial.text));
-  assert.strictEqual(E.encounterView(s).nodeId, 'after_drive');
-  assertDeed(s, 'drive_hyena', 'pride_aid');
-  assert.strictEqual(standing(s), 5);
-  const kept = reload(s);
-  assert.strictEqual(kept.encounters.pending.result.tier, 'clean');
-  assert.strictEqual(choose(kept, 'drive_off').error, 'choice');
-  assert.strictEqual(standing(kept), 5);
-  assert.strictEqual(positiveDeeds(kept).length, 1);
+test('strongest Standard aggression 80 is clean with no extra Energy, a fresh 10 pays 10, and a fail pays nothing', () => {
+  function drive(personality, runId) {
+    let s = arrive(personality, runId);
+    const before = s.needs.energy;
+    const forecast = E.encounterView(s).forecast;
+    const parked = reload(s);
+    assert.strictEqual(parked.needs.energy, before);
+    assert.strictEqual(E.encounterView(parked).forecast.tier, forecast.tier);
+    assert.strictEqual(deed(parked, 'drive_hyena'), undefined);
+    s = choose(parked, 'drive_off').state;
+    return { s, before, forecast };
+  }
+  const clean = drive(traits(80), 'standard-clean');
+  assert.ok(Math.abs(clean.forecast.stat - 11.2) < 1e-9);
+  assert.strictEqual(clean.forecast.tier, 'clean');
+  assert.strictEqual(clean.forecast.extraEnergy, 0);
+  assert.strictEqual(clean.s.encounters.pending.result.outcomeId, 'hyena_driven');
+  assert.strictEqual(clean.s.encounters.pending.result.tier, 'clean');
+  assert.strictEqual(clean.s.needs.energy, clean.before);
+  assert.ok(says(clean.s, CONTEST.clean.text));
+  assert.ok(!says(clean.s, CONTEST.partial.text));
+  assert.strictEqual(E.encounterView(clean.s).nodeId, 'after_drive');
+  assertDeed(clean.s, 'drive_hyena', 'pride_aid');
+  const cleanKept = reload(clean.s);
+  assert.strictEqual(cleanKept.encounters.pending.result.tier, 'clean');
+  assert.strictEqual(choose(cleanKept, 'drive_off').error, 'choice');
+  assert.strictEqual(standing(cleanKept), 5);
+  assert.strictEqual(positiveDeeds(cleanKept).length, 1);
+
+  const partial = drive(null, 'fresh-partial');
+  assert.strictEqual(partial.forecast.stat, 10);
+  assert.strictEqual(partial.forecast.tier, 'partial');
+  assert.strictEqual(partial.forecast.extraEnergy, 10);
+  assert.strictEqual(partial.s.encounters.pending.result.outcomeId, 'hyena_driven');
+  assert.strictEqual(partial.s.encounters.pending.result.tier, 'partial');
+  assert.strictEqual(partial.s.needs.energy, partial.before - 10);
+  assert.ok(says(partial.s, CONTEST.partial.text));
+  assert.ok(!says(partial.s, CONTEST.clean.text));
+  assertDeed(partial.s, 'drive_hyena', 'pride_aid');
+  const partialKept = reload(partial.s);
+  assert.strictEqual(choose(partialKept, 'drive_off').error, 'choice');
+  assert.strictEqual(standing(partialKept), 5);
+  assert.strictEqual(partialKept.needs.energy, partial.before - 10);
+  assert.strictEqual(cleanKept.worldMemory.ledger.find((row) => row.receiptKey.endsWith('/drive_hyena')).receiptKey.split('/').slice(-2).join('/'), partialKept.worldMemory.ledger.find((row) => row.receiptKey.endsWith('/drive_hyena')).receiptKey.split('/').slice(-2).join('/'));
+
+  const failed = drive(traits(20), 'standard-fail');
+  assert.ok(failed.forecast.stat < 9);
+  assert.strictEqual(failed.forecast.tier, 'fail');
+  assert.strictEqual(failed.s.encounters.pending.result.outcomeId, 'hyena_keeps_kill');
+  assert.strictEqual(failed.s.needs.energy, failed.before);
+  assert.strictEqual(standing(failed.s), 0);
+  assert.strictEqual(deed(reload(failed.s), 'drive_hyena'), undefined);
 });
 
 test('a failed drive, a yield, and a retreat cannot start share or warn', () => {

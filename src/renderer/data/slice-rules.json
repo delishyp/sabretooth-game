@@ -195,9 +195,10 @@
     "ln05": "cat-6e2d788dd48ff440"
   },
   "encounter": {
-    "$comment": "PROPOSED DEFAULT from milestone-2 v0.6.1 §13 and needs-spec. Not approved balance. Deer search is Energy -10 and commit_hunt the remaining -20. Hyena partial adds Energy -10. Seek out at the recorded rendezvous is Energy -5. Fresh fight stat is formulas §4.1 with no Saber Strike skill.",
+    "$comment": "PROPOSED DEFAULT, not Anna-approved. Deer search is Energy -10 and commit_hunt the remaining -20. Hyena partial adds Energy -10. Seek out at the recorded rendezvous is Energy -5. Fresh fight stat is formulas §4.1 with no Saber Strike skill. v0.6.2 (Tundra local ad097bd) moves only hyenaCleanAt from 12 to 11. Partial, fail, deed ids, and +5 values are unchanged.",
     "deerSearchEnergy": 10,
     "deerCommitEnergy": 20,
+    "hyenaCleanAt": 11,
     "hyenaThreatStat": 9,
     "hyenaPartialEnergy": 10,
     "deedDelta": 5,
