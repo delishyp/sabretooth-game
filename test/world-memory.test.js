@@ -12,7 +12,7 @@ const producer = j('events/faction-proof-reconciled.json');
 const E = Slice.create({
   map: j('map.json'), rules, events: j('events/slice-1.json'), slots: j('world-slots.json'),
   nameData: j('names/names.json'), looks: { coats: ['tan', 'black'], markings: ['none', 'spotted'], eyes: ['amber'] },
-  conversation: graph, borderPolicy: producer
+  conversation: graph, borderPolicy: producer, encounters: j('events/encounters-v0.2.json')
 });
 const cat = { catId: 'player-1', name: 'Tester', sex: 'female', lifeStage: 'adult', genes: { coat: 'D/D' }, portraitId: 'cat-6e2d788dd48ff440' };
 const coverage = graph.personalityCoverage;
@@ -252,7 +252,15 @@ test('a review request does not write policy or teach the leader; only an actual
 function toDay(s) {
   let cur = s;
   for (let i = 0; i < 12 && cur.phase !== 'day' && cur.phase !== 'ford' && !cur.over; i++) {
-    if (cur.phase === 'event') {
+    if (cur.phase === 'encounter') {
+      const v = E.encounterView(cur);
+      if (!v || v.terminal) cur = E.act(cur, { type: 'continue' }).state;
+      else {
+        const ids = ['give_ground', 'leave', 'break_off', 'retreat', 'yield_kill', 'finish', 'withdraw'];
+        const c = v.choices.find((x) => ids.includes(x.id) && !x.disabled) || v.choices.find((x) => !x.disabled);
+        cur = E.act(cur, { type: 'encounterChoose', choiceId: c.id }).state;
+      }
+    } else if (cur.phase === 'event') {
       const ev = E.eventById(cur.pending.eventId);
       const pass = ev && (ev.choices || []).find((c) => c.id === 'pass');
       cur = E.act(cur, { type: 'choose', choiceId: cur.pending.hostile ? 'flee' : (pass || ev.choices[0]).id }).state;

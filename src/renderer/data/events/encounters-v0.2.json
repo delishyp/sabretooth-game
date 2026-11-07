@@ -1,0 +1,679 @@
+{
+  "format": "sabretooth.authored.encounter.draft.v0.2",
+  "status": "AUTHORING ONLY: deer/wolf pair and REQUIRED cave-hyena standing proof reconciled to Tundra v0.6.1 §13. No runtime or legal-day-budget acceptance.",
+  "ownership": "Saga text/conditions; Tundra species roles, eligibility, risk and all numerical effects; Flint existing-stream integration after current checkpoint; Ochre actual-image usability; Tracker independent gate. No new art, menu change, map replacement, merge or release.",
+  "sources": [
+    "Director 2026-11-07 supplied encounter asset instruction",
+    "Existing milestone-2-spec §0 preserves current bear/wolf flee-only scope until explicitly extended",
+    "needs-spec §1/§2 and map-v1 §7 are references, not new rates applied here",
+    "milestone-2-spec v0.6 DRAFT, reported local b2f88eb, §13; all design defaults provisional",
+    "milestone-2-spec v0.6.1 DRAFT, reported local 352deec, §13.6–13.7 supersedes standing route in v0.6",
+    "needs-spec §1/§3/§6/§7: base adult Standard Travel Energy 15, Rest restore 40; needs start 80, Health 100; live scaling/ticks remain authoritative"
+  ],
+  "assets": {
+    "human-enemy.png": {
+      "sourcePath": "/workspace/shared-art/human-enemy.png",
+      "availability": "present",
+      "sha256": "65e9a2903bd0075481c4a9d1cd1dd35cb24b6062ec65399fb240277fb88e0ba6"
+    },
+    "old-pack-enemy.png": {
+      "sourcePath": "/workspace/shared-art/old-pack-enemy.png",
+      "availability": "present",
+      "sha256": "9b3670fbc1927ef1e60133195dcee784099f3c83f85e5f028b59827fe6d81151",
+      "displayLabel": "Wolf pack enemy"
+    },
+    "wolf-pup.png": {
+      "sourcePath": "/workspace/shared-art/wolf-pup.png",
+      "availability": "present",
+      "sha256": "b3c1c87b94df726fa2ba32609727f3090821ac0c907b5ab415522437cd9bda6d"
+    },
+    "woolly-mammoth.png": {
+      "sourcePath": "/workspace/shared-art/woolly-mammoth.png",
+      "availability": "present",
+      "sha256": "a519f47d14c4890e2bcc82eb156f7e99ae993fc53748d294ced279a82df070d7"
+    },
+    "mammoth-calf.png": {
+      "sourcePath": "/workspace/shared-art/mammoth-calf.png",
+      "availability": "present",
+      "sha256": "95dd17599c77ee20d0da514ac34a2f3794b459a4d78255ef86600c6261a53cb7"
+    },
+    "woolly-rhinoceros.png": {
+      "sourcePath": "/workspace/shared-art/woolly-rhinoceros.png",
+      "availability": "present",
+      "sha256": "8f42906e0462f81c235dd45bc107f75e4e09d4b031f5c145e06775f0f4024cf3"
+    },
+    "woolly-rhinoceros-calf.png": {
+      "sourcePath": "/workspace/shared-art/woolly-rhinoceros-calf.png",
+      "availability": "present",
+      "sha256": "cd6656e5810210cbd59b51c42e5a3b2ae0e3c6dda57cf6d2298f927fd7f780e1"
+    },
+    "giant-deer.png": {
+      "sourcePath": "/workspace/shared-art/giant-deer.png",
+      "availability": "present",
+      "sha256": "28f3de9c8463943340b8c7aebb877abe0c22518c38f50ddeea0070e51b4cbb05"
+    },
+    "antlerless-deer.png": {
+      "sourcePath": "/workspace/shared-art/antlerless-deer.png",
+      "availability": "present",
+      "sha256": "b7ea46c43d50226e8ea69e4c79d1edb9f835398fedd597c351c6489d752bdb7a"
+    },
+    "spotted-fawn.png": {
+      "sourcePath": "/workspace/shared-art/spotted-fawn.png",
+      "availability": "present",
+      "sha256": "9d1121add269c81282c107f06782ce3f64663f9025d6df2250a90c7792dbeb29"
+    },
+    "american-lion.png": {
+      "sourcePath": "/workspace/shared-art/american-lion.png",
+      "availability": "present",
+      "sha256": "64274b161512749a22b9e622ab2fcafe0f030f951e7ccfd97ff955b572156824",
+      "displayLabel": "American Lion"
+    },
+    "maneless-lion.png": {
+      "sourcePath": "/workspace/shared-art/maneless-lion.png",
+      "availability": "present",
+      "sha256": "00b6a794440d4c7fb392191b3178b17ebc23f60236ee85ef51a8cdd8e1ebe2a7"
+    },
+    "cave-hyena.png": {
+      "sourcePath": "/workspace/shared-art/cave-hyena.png",
+      "availability": "present",
+      "sha256": "12d21888b811bb18db711ab1ce7bac44e667281ef2d6e1ca9df0d216f1c0a151"
+    }
+  },
+  "inspectedImages": [
+    "giant-deer.png: antlered full-body deer",
+    "old-pack-enemy.png: three full-body warning wolves",
+    "cave-hyena.png: single spotted, open-mouthed full-body hyena; this authoring pass makes no fine-detail art approval claim"
+  ],
+  "assetRules": [
+    "Use the original supplied PNG as the actual encounter image, not a style reference or generated substitute. Persist assetId with encounter instance.",
+    "Renderer must contain the full animal, including giant-deer antlers and wolves’ feet; use approved UI/scene backing rather than altering source bytes.",
+    "No asset label changes species, hostility, prey eligibility, combat tier or cat roster. Actual species/composition comes from scene data and Tundra plan."
+  ],
+  "sharedRuntimeContract": {
+    "parseability": "Semantic IDs in this authoring file are not claims about the current engine API. Flint maps to actual supported scene/choice/effect schemas and reports any unmapped result explicitly.",
+    "costs": "v0.6.1 §13.3/§13.6: one main action/day. Deer Hunt search Energy -10; remaining -20 only on commit_hunt. Hyena adds no base day or Energy beyond originating action; partial drive alone adds Energy -10. Day1 Travel base Energy -15 (needs-spec §7); day2 rendezvous Seek out Energy -5; day3 Rest uses ordinary +40 base restore and live caps/ticks. No extra cost for either hyena followup, relay, review or reply. All base costs use existing Style/age/injury/sandbox rules where applicable; no invented resource clamp/refund.",
+    "events": "Use run/encounter/node/choice receipts plus one source resolver receipt. Choices, actual effects, outcome and pending cursor commit atomically. An animal sighting is not a kill, a warning is not a fight, and an exit is not proof of safety before the resolver returns.",
+    "saveContinue": "Persist entry action phase, species/asset ID, participant IDs, current node, exact offered choices/disabled reasons, selected observation facts and pending/resolved result. If resolution was rolled, store it before display; Continue cannot reroll, respawn, recharge or remove food twice.",
+    "knowledge": "Only participants/witnesses know a wildlife action. Three direct pride deeds require actual living Highcrag witnesses and committed knowsFact(highcrag,factId); no automatic leader knowledge or report. Private wildlife writes zero standing. Witnessed pride knowledge is not proof that an absent named leader heard the details.",
+    "personality": "If a real companion/pride cat speaks, supply that cat’s saved identity and all five traits at every beat, following revision6 voice/action contract. No companion is spawned by these drafts. Missing required cat data remains explicit. Neutral sensory narration does not dictate the player’s emotions, consent or chosen personality.",
+    "allModes": "Offline uses these exact nodes/results; online/local may paraphrase only established facts. They cannot replace the supplied image, invent hidden animal counts/parents, change risk/outcome or narrate a kill/attack/death without engine authority.",
+    "unsupported": "Omit unsupported result-changing choices or show clear disabled reasons; never expose a clickable dummy combat or surrender-food option.",
+    "proofInjuryCap": "v0.6 §13.3.6 PROPOSED: initial deer/wolf/hyena proof cannot kill; downgrade crippling to serious and floor encounter Health at 1 before rendering. Other needs/hazards unchanged. Narration never overrides the committed effect."
+  },
+  "encounters": [
+    {
+      "id": "encounter.giant_deer.v1",
+      "status": "AUTHORING ONLY; numerical/trigger defaults now pinned provisionally by Tundra v0.6 §13; runtime integration unverified.",
+      "asset": "giant-deer.png",
+      "displayName": "Giant deer",
+      "roleProposal": "dangerous_prey; large, not an automatic fight or guaranteed meal",
+      "entryContract": {
+        "ordinaryRouteProposal": "v0.6 §13.5: first ordinary Hunt at split_rock on absDay >= 1, before hunt resolution. Later eligible deer tables per §13.2.",
+        "phase": "Hunt has been chosen but must not have already awarded food or rolled its final result. If a legacy hunt already resolved, use a non-reward sighting variant instead; never roll or pay twice.",
+        "required": [
+          "runId",
+          "encounterInstanceId",
+          "regionId",
+          "absDay",
+          "mainAction receipt/phase",
+          "saved needs and hunt eligibility",
+          "resolver version",
+          "actual habitat/cover facts used by the text"
+        ],
+        "exclusions": [
+          "No automatic companion spawn",
+          "No assumed herd, fawn, mate or injury",
+          "No new breeding, inventory or combat subsystem"
+        ]
+      },
+      "opening": "A giant deer stands beyond the low cover, its antlers broad above its back. It lifts its head between mouthfuls. You have room to leave without making an approach.",
+      "nodes": {
+        "opening": {
+          "choices": [
+            {
+              "id": "observe",
+              "label": "Watch its footing and the space around its antlers.",
+              "next": "observe"
+            },
+            {
+              "id": "stalk",
+              "label": "Begin a careful approach.",
+              "next": "approach",
+              "requires": "engine says hunt may begin; show actual cost/risk before choice"
+            },
+            {
+              "id": "leave",
+              "label": "Leave the deer and end this attempt.",
+              "outcome": "prey_attempt_abandoned"
+            }
+          ]
+        },
+        "observe": {
+          "text": "The deer turns its head, sweeping the antlers through the space in front of it. Getting close would not mean getting past them. Watching has given you a clearer view, not a guaranteed opening.",
+          "choices": [
+            {
+              "id": "stalk",
+              "label": "Approach only as far as the cover allows.",
+              "next": "approach",
+              "requires": "same hunt eligibility as direct stalk"
+            },
+            {
+              "id": "leave",
+              "label": "Decide against the attempt.",
+              "outcome": "prey_attempt_abandoned"
+            }
+          ],
+          "effect": "Observation only. No automatic accuracy bonus, extra hunger, consumed day, injury, attraction or knowledge of hidden numerical odds."
+        },
+        "approach": {
+          "text": "You keep your body low and work toward the edge of the cover. Beyond it, you would be exposed. The deer is still upright; nothing has been won yet.",
+          "choices": [
+            {
+              "id": "commit_hunt",
+              "label": "Commit to the hunt.",
+              "outcome": "resolve_one_large_prey_attempt",
+              "requires": "engine hunt eligibility; actual cost and non-guaranteed risk shown"
+            },
+            {
+              "id": "break_off",
+              "label": "Break off before closing the distance.",
+              "outcome": "prey_attempt_abandoned"
+            }
+          ],
+          "effect": "Approach is a written beat, not a second hunt, automatic damage, player skill bonus or prey kill."
+        }
+      },
+      "outcomeRendering": {
+        "prey_attempt_abandoned": {
+          "text": "You leave the deer where it stands. There is no carcass to eat or share.",
+          "writes": "One actual abandoned-attempt event; any already-spent action/day cost follows Tundra’s phase rule. No fabricated food, wound or free refund."
+        },
+        "resolve_one_large_prey_attempt": {
+          "requires": "Actual engine resolver receipt; story does not choose success, injury or death.",
+          "priority": [
+            "Apply proposed proof injury cap before rendering; no proof death text. Only an independent non-proof death uses existing difficulty continuation.",
+            "Otherwise show injury consequence only when a real injury/damage effect exists.",
+            "Show prey_taken only with an actual kill/food resolver result, prey_escaped otherwise."
+          ],
+          "prey_taken": "The deer goes down, and you wait until its struggling has ended before feeding. The food you can use is the amount the hunt has actually yielded.",
+          "prey_escaped": "The deer breaks away before you can bring it down. Its antlers pass out of reach, and it runs on. There is no kill to claim.",
+          "injuryOverlay": "The attempt has left you hurt. The wound remains when the encounter ends.",
+          "effectRule": "Food, needs, injury and action costs come ONLY from the pinned resolver. Success and injury may coexist if the engine says so; the overlay never awards or removes a kill."
+        }
+      },
+      "nonHuntSighting": {
+        "text": "You watch the giant deer from a distance, then let it move on. Seeing it has not made it a successful hunt.",
+        "writes": "Optional witnessed sighting event only, no food or extra resolution."
+      },
+      "memory": {
+        "kind": "actual prey sighting/attempt/outcome, not a new personal relationship",
+        "facts": [
+          "species/asset ID",
+          "actual region/day",
+          "chosen observe/approach/withdraw path",
+          "resolver outcome and receipt",
+          "actual injury/food effects if any"
+        ],
+        "laterConditionExample": "A later visit may refer to a hunt here only if that player knows the committed attempt at this location. It may refer to injury only if that injury was actually recorded; it cannot claim the same individual deer survived or returned without a persistent animal ID."
+      }
+    },
+    {
+      "id": "encounter.wolf_pack.v1",
+      "status": "AUTHORING ONLY; numerical/trigger defaults now pinned provisionally by Tundra v0.6 §13; runtime integration unverified.",
+      "asset": "old-pack-enemy.png",
+      "displayName": "Wolf pack enemy",
+      "roleProposal": "Threatening pack holding space. A warning display is not an automatic attack; no pups or tame/adoption route implied.",
+      "entryContract": {
+        "ordinaryRouteProposal": "v0.6 §13.5: first end-of-day in a wolves-hazard region with free event slot; ordinary Travel split_rock to greywater_ford on absDay 1 is the proposed nearest proof. Ford dispute remains absDay >= 2; later conflict latches per §13.5.",
+        "phase": "Existing travel/hunt/day cost and wolf hazard receipt supplied. This scene must not duplicate the base action or roll the same hazard twice.",
+        "required": [
+          "runId",
+          "encounterInstanceId",
+          "actual region/day",
+          "entry action/receipt",
+          "actual wolf hazard state",
+          "coverAvailable if observation-from-cover is offered",
+          "supported existing flee resolver/version"
+        ],
+        "notAllowedInFirstProof": [
+          "No unimplemented attack/duel/charge choice",
+          "No unconditional surrender-carcass choice without a real tracked resource",
+          "No wolf faction diplomacy, breeding or pet system"
+        ]
+      },
+      "opening": "Three wolves face you, teeth showing. They hold their ground instead of rushing. The space between you is still open, but none of them turns aside to invite you through.",
+      "nodes": {
+        "opening": {
+          "choices": [
+            {
+              "id": "give_ground",
+              "label": "Give ground and withdraw without approaching.",
+              "outcome": "resolve_existing_flee"
+            },
+            {
+              "id": "watch",
+              "label": "Stay behind the available cover and watch before moving.",
+              "next": "watch",
+              "requires": "actual coverAvailable; omit rather than invent shelter if false"
+            }
+          ],
+          "effect": "The warning is visible now. No injury/food loss follows merely from the enemy label or image."
+        },
+        "watch": {
+          "text": "The wolves keep facing your position. Watching has not made a route through them safe, and you cannot tell from their teeth alone whether they will follow.",
+          "choices": [
+            {
+              "id": "withdraw",
+              "label": "Leave the cover and withdraw.",
+              "outcome": "resolve_existing_flee"
+            },
+            {
+              "id": "keep_cover",
+              "label": "Keep the cover between you and the pack as you move away.",
+              "outcome": "resolve_existing_flee_with_cover",
+              "requires": "Actual coverAvailable and legal route. If no cover modifier is supported, same flee resolver with different text only; no bonus. Omit if no cover."
+            }
+          ],
+          "effect": "No automatic fear debuff, safe passage or free success. Cover may affect resolution only if Tundra explicitly maps an existing supported modifier."
+        }
+      },
+      "outcomeRendering": {
+        "resolve_existing_flee": {
+          "requires": "one actual existing flee/hazard result, not a new combat roll",
+          "success": "You put distance between yourself and the wolves. This encounter ends without a fight.",
+          "successRequires": "engine reports escaped, alive and no combat",
+          "pursued": "The pack follows as you withdraw. Their warning has become a pursuit.",
+          "pursuedRequires": "actual pursuit/escalation flag; do not add this purely for drama",
+          "injuryOverlay": "You get clear, but not without injury. The damage remains after the wolves are out of reach.",
+          "injuryRequires": "actual escaped+injured result; never narrate escape if unresolved/dead",
+          "death": "No proof encounter death: apply v0.6 injury cap before display. Independent needs/other hazard death remains separate.",
+          "lossOverlay": "The carried food is gone.",
+          "lossRequires": "engine actually removes a specific tracked carried resource once. Successful hunt flag alone is not a second carcass to surrender."
+        },
+        "resolve_existing_flee_with_cover": {
+          "requires": "One existing flee resolver; cover input only if implemented, otherwise no-modifier fallback per v0.6.",
+          "success": "You keep the cover between you and the pack until there is room to move away.",
+          "effectRule": "Same semantic injury/death/resource conditions as plain flee. No invented modifier or automatic safe outcome."
+        }
+      },
+      "memory": {
+        "kind": "actual warning/withdrawal/hazard outcome, never a universal wolf reputation",
+        "facts": [
+          "pack encounter instance, not assumed permanent pack identity",
+          "actual region/day and chosen retreat route",
+          "actual resolver receipt",
+          "injury/resource loss only if real"
+        ],
+        "laterConditionExample": "A later same-region warning may mention that you met wolves here if that sighting is committed. It cannot say these are the same wolves or that they remember you unless persistent animal IDs and reciprocal knowledge exist."
+      }
+    },
+    {
+      "id": "encounter.cave_hyena.v1",
+      "status": "AUTHORING ONLY; REQUIRED for +15 standing proof, Tundra v0.6.1 §13.6; all defaults provisional",
+      "asset": "cave-hyena.png",
+      "displayName": "Cave hyena",
+      "role": "scavenger",
+      "entryContract": {
+        "ordinaryRoute": "v0.6 §13.5 first Hunt or Travel ending in twin_forks on absDay >= 1. Proposed day-1 Travel from split_rock, no Ford needed.",
+        "cast": "Commit living Highcrag adult hc05 if alive, else another living Highcrag adult, with id/name/portrait and five saved traits. Commit this Highcrag-owned kill and hunter to the encounter; it is not a player kill or hunt companion. If no eligible adult exists, omit standing-deed scene; do not invent a witness.",
+        "outsider": "For warn_off_trespasser, commit a second, distinct living eligible adult loner or Bonefield cat as physically present near the cache. Never the hunter, player, dead cat, child or an assumed generic stranger. Save id/name/portrait/traits. No eligible cast means no such choice and no third deed; report the reachability gap.",
+        "priorFacts": "The carcass is an actual committed scene resource owned by Highcrag, not evidence of a prior witnessed hunt. No leader order, theft, war, permission to enter Highcrag land or former feud is inferred.",
+        "costs": "No extra day or base Energy beyond originating Travel/Hunt. Travel day1 base Energy -15 per needs-spec; partial contest adds Energy -10 per §13.6. Share/warn/finish add no extra day, Energy or Hunger award."
+      },
+      "opening": "A cave hyena faces a carcass at the forks, its mouth open and its shoulders high. {hunterName} is beside the kill. Neither animal has yielded the space around it.",
+      "openingSpeech": "opening",
+      "nodes": {
+        "opening": {
+          "choices": [
+            {
+              "id": "drive_off",
+              "label": "Try to drive the hyena away from Highcrag’s kill.",
+              "outcome": "resolve_hyena_contest",
+              "requires": "Actual eligible witness and committed Highcrag carcass; show deterministic tiers and extra Energy/injury risk."
+            },
+            {
+              "id": "yield_kill",
+              "label": "Leave the contested kill to the hyena.",
+              "outcome": "hyena_keeps_kill"
+            },
+            {
+              "id": "take_the_kill",
+              "label": "Take meat from Highcrag’s kill for yourself.",
+              "outcome": "player_takes_kill",
+              "requires": "Actual carcass share available; display Hunger +50, witnessed Highcrag standing -5 once. Do not claim to carry away an entire kill."
+            },
+            {
+              "id": "retreat",
+              "label": "Withdraw without taking anything.",
+              "outcome": "hyena_retreated"
+            }
+          ]
+        },
+        "after_drive": {
+          "text": "The hyena has moved away from the carcass. {hunterName} remains with the kill.",
+          "speech": "driven",
+          "choices": [
+            {
+              "id": "share_remains",
+              "label": "Help the hunter keep a share for Highcrag.",
+              "next": "after_drive",
+              "speech": "share",
+              "requires": "Successful clean/partial drive, carcass present, hunter present, share_kill receipt unused. Record resolved sharing once; do not donate someone else’s whole kill or conjure player inventory.",
+              "deed": "share_kill"
+            },
+            {
+              "id": "warn_off_trespasser",
+              "label": "Ask the lingering cat to move away from the cache.",
+              "next": "after_drive",
+              "speechSequence": [
+                "cache_request",
+                "outsider_request",
+                "cache_ack"
+              ],
+              "requires": "Successful drive, saved eligible outsider physically present and still at cache, hunter present, return_trespasser receipt unused. Commit explicit peaceful request and actual outsider departure before rewarding. No offscreen threat, forced exile or combat.",
+              "deed": "return_trespasser"
+            },
+            {
+              "id": "finish",
+              "label": "Leave the hunter with the kill.",
+              "outcome": "leave_after_aid"
+            }
+          ],
+          "visibility": "Completed deed choices disappear (or remain disabled with reason), independently. Choosing share must not end the scene or hide warn, and choosing warn must not hide share. Either order; finish may exit early."
+        }
+      },
+      "outcomeRendering": {
+        "resolve_hyena_contest": {
+          "authority": "v0.6 §13.3.7 deterministic existing fight stat, not a lethal duel or new random roll. >=12 clean; >=9 partial with extra Energy -10; >=6 fail without injury; below6 fail plus minor injury. Proposed proof injury cap applies.",
+          "clean": {
+            "text": "The hyena backs away, leaving the carcass beside the hunter.",
+            "outcome": "hyena_driven",
+            "next": "after_drive",
+            "deed": "drive_hyena"
+          },
+          "partial": {
+            "text": "You keep pressing until the hyena moves away. The effort has cost more energy.",
+            "outcome": "hyena_driven",
+            "next": "after_drive",
+            "deed": "drive_hyena"
+          },
+          "fail": {
+            "text": "The hyena still holds the space around the carcass. You have not driven it away.",
+            "outcome": "hyena_keeps_kill",
+            "speech": "failed",
+            "noDeeds": true
+          },
+          "injuryOverlay": "The attempt has left you with an injury. Show this only when the actual minor-injury effect is committed."
+        },
+        "hyena_keeps_kill": {
+          "text": "You leave the carcass within the hyena’s reach. You take no meat and claim no successful aid.",
+          "standing": 0,
+          "terminal": true
+        },
+        "player_takes_kill": {
+          "text": "You take meat from the Highcrag kill. {hunterName} sees you feed. This was not your hunt.",
+          "speech": "steal",
+          "effects": "v0.6 Hunger +50 and witnessed Highcrag standing -5 hunt_steal once; no private/automatic spillover, extra player kill, predator defeat or carried carcass.",
+          "terminal": true
+        },
+        "hyena_retreated": {
+          "text": "You move away without taking anything. The contest at the carcass is left behind.",
+          "speech": "exit",
+          "clarification": "ID adopted unchanged; the player retreats, not a claimed defeated hyena.",
+          "standing": 0,
+          "terminal": true
+        },
+        "leave_after_aid": {
+          "text": "You leave the kill with {hunterName}. Only the help you actually completed is recorded.",
+          "standing": "No additional award on exit.",
+          "terminal": true
+        }
+      },
+      "standingDeeds": {
+        "common": "All values are Tundra v0.6 PROPOSED. Each true completed deed +5 highcrag→player, once per run. Actual living Highcrag witnessIds plus committed knowsFact required. No personal-affinity reward, greeting, rank spillover, feud edge or leader knowledge is added. Missing witness gives zero; future actual report requires separately authored/committed relay, not this file.",
+        "drive_hyena": {
+          "receipt": "runId/standing_deed/highcrag/drive_hyena",
+          "sourceType": "pride_aid",
+          "requires": "clean/partial contest success, not selecting drive_off alone"
+        },
+        "share_kill": {
+          "receipt": "runId/standing_deed/highcrag/share_kill",
+          "sourceType": "gift_share",
+          "requires": "Completed share_remains after successful hyena drive. This hyena followup is the ONLY enabled share_kill trigger; own-kill sharing retired."
+        },
+        "return_trespasser": {
+          "receipt": "runId/standing_deed/highcrag/return_trespasser",
+          "sourceType": "pride_aid",
+          "requires": "Actual saved cat asked and moved away while hunter witnessed; no blanket authority over Twin Forks or automatic Bonefield feud"
+        },
+        "steal_kill": {
+          "receipt": "runId/standing_deed/highcrag/steal_kill",
+          "sourceType": "hunt_steal",
+          "delta": -5
+        }
+      },
+      "personality": {
+        "requiredTraits": [
+          "aggression",
+          "sociability",
+          "boldness",
+          "loyalty",
+          "curiosity"
+        ],
+        "bands": "low <=30, high >=70, otherwise baseline; missing data blocks normal variant rendering explicitly, never table lean substitution",
+        "utterances": {
+          "opening": {
+            "focusTrait": "loyalty",
+            "baseline": "That kill is Highcrag's. The hyena has come up to it.",
+            "low": "I brought this down. The hyena has come up to it.",
+            "high": "That's Highcrag's kill. I won't leave it unguarded."
+          },
+          "driven": {
+            "focusTrait": "sociability",
+            "baseline": "It's moved off. You helped keep the kill here.",
+            "low": "It's off. You helped.",
+            "high": "It's off! You helped us keep the kill."
+          },
+          "failed": {
+            "focusTrait": "boldness",
+            "baseline": "It still has the carcass. There's no share to offer you here.",
+            "low": "It has the carcass. Keep your distance.",
+            "high": "It still has the carcass. That attempt didn't shift it."
+          },
+          "share": {
+            "focusTrait": "loyalty",
+            "baseline": "You helped keep a share here for Highcrag.",
+            "low": "There is still meat here. You helped keep it.",
+            "high": "There is still a share here for Highcrag. Your help made a difference."
+          },
+          "cache_request": {
+            "focusTrait": "curiosity",
+            "baseline": "Another cat is lingering by the cache. Will you ask them to move away?",
+            "low": "Another cat is by the cache. Ask them to move away.",
+            "high": "Another cat is lingering by the cache. Will you find out whether they'll move away?"
+          },
+          "cache_ack": {
+            "focusTrait": "sociability",
+            "baseline": "They've moved away from the cache. I saw you speak to them.",
+            "low": "They're clear of the cache. I saw.",
+            "high": "They've moved away. Thank you for speaking to them; I saw what you did."
+          },
+          "steal": {
+            "focusTrait": "aggression",
+            "baseline": "You took meat from our kill. I saw you take it.",
+            "low": "That was our meat. I saw you take it.",
+            "high": "That's our kill! I saw you take that meat."
+          },
+          "exit": {
+            "focusTrait": "boldness",
+            "baseline": "You're leaving. I'll stay here.",
+            "low": "You're going. I'll keep my distance.",
+            "high": "You're going. I'll hold here."
+          },
+          "outsider_request": {
+            "focusTrait": "aggression",
+            "baseline": "I'll move away from the cache.",
+            "low": "All right. I'll move away.",
+            "high": "Keep your teeth to yourself. I'm moving away."
+          }
+        },
+        "allTraitActionCues": {
+          "aggression": {
+            "low": "Keeps teeth covered while speaking.",
+            "middle": "Speaks without baring teeth.",
+            "high": "Lifts the lip briefly, without an unchosen attack."
+          },
+          "sociability": {
+            "low": "Addresses the listener in a brief glance, then looks back at the scene.",
+            "middle": "Looks toward the listener for the reply.",
+            "high": "Turns toward the listener and holds the exchange open."
+          },
+          "boldness": {
+            "low": "Keeps a wider distance from the actual threat or unfamiliar cat.",
+            "middle": "Holds position without moving closer.",
+            "high": "Stands openly without retreating; does not approach an unsupported danger."
+          },
+          "loyalty": {
+            "low": "Stays beside the present carcass rather than moving toward the listener.",
+            "middle": "Checks the carcass between replies.",
+            "high": "Keeps position between the present carcass and the other animal or outsider."
+          },
+          "curiosity": {
+            "low": "Returns attention to the immediate task after the reply.",
+            "middle": "Checks the visible surroundings once.",
+            "high": "Studies the visible tracks and positions before replying; learns no hidden facts."
+          }
+        },
+        "application": "At every actual NPC speech beat select focus-trait utterance plus context-compatible visible action cues from all five saved traits. Do not stack all five cues as five repetitive sentences: compose concise action with the established revision6 presentation contract. Hunter cues referring to carcass apply only while present; outsider uses only compatible neutral/spacing cues, never claims ownership of Highcrag kill. Request/ack are hunter, outsider_request is the actual outsider. Save selected lines/actions at pending node. Traits alter voice/spacing, not reward, success, consent or unseen facts."
+      },
+      "persistence": "Save hunter/outsider ids, traits/selected variants, carcass owner/availability, witnessIds, actual fact scope, contest stat/tier/effects, offered choices/cursor and all individual deed receipts. Atomically persist chosen deed, fact promotion and its +5 ledger entry. Continue never replays tier costs or rewards. Three distinct deed receipts may share an encounter source; the direct +5 deeds are not rank spillover and are not collapsed into one source cap.",
+      "openDesignChecks": [
+        "Hyena is REQUIRED for the warm-standing proof, not an optional integration. No standalone trespasser or own-kill sharing trigger is enabled.",
+        "Proposed day1 +15 and day3 permit still need actual runtime actions, full needs/resource eligibility, legal contact, correct cooldown, cast, relay and return-message evidence. If encountered speech starts conversation cooldown, use the spec day4 caveat; do not inject an extra contact.",
+        "No eligible witness or outsider means corresponding choice absent, zero reward and an explicit reachability gap, not a fabricated cat or deed."
+      ]
+    }
+  ],
+  "remainingSpeciesRoutingProposals": {
+    "human-enemy.png": "Human encounter: possible threat/avoidance; do not invent a specific weapon or automatic attack without inspecting its image and receiving the bounded plan.",
+    "old-pack-enemy.png": "First threat proof above; warning/withdrawal before any attack, actual supplied three-wolf image.",
+    "wolf-pup.png": "Juvenile sighting; leave space/watch for adults if actually present. No automatic hostile pack, adoption or fight reward.",
+    "woolly-mammoth.png": "Large-animal sighting/defensive threat proposal, not a default solo kill.",
+    "mammoth-calf.png": "Juvenile/herd-context encounter proposal; no guaranteed absent adults or easy prey.",
+    "woolly-rhinoceros.png": "Large-animal avoidance/defensive risk proposal; no automatic charge.",
+    "woolly-rhinoceros-calf.png": "Juvenile-context encounter proposal; nearby adult must be actual cast, not invented.",
+    "giant-deer.png": "First prey proof above; antlers create approach risk without an automatic injury.",
+    "antlerless-deer.png": "Separate prey/sighting proposal; lack of antlers does not prove sex, helplessness or identical giant-deer stats.",
+    "spotted-fawn.png": "Juvenile sighting/prey-role question for Tundra; no invented parent or guaranteed low-risk meal.",
+    "american-lion.png": "User display label American Lion; possible competitor/threat, not a pride member or automatically hostile.",
+    "maneless-lion.png": "Separate appearance asset; do not infer sex, age, species or kinship from missing mane alone."
+  },
+  "openForTundra": [
+    "v0.6.1 defaults provisional, not Anna-approved.",
+    "Runtime/cooldown/resource/cast/legal-path acceptance still open; no alternate standing route enabled."
+  ],
+  "qaCases": [
+    "Reach both species through normal selected actions, and show the exact supplied image, not a cat portrait or placeholder.",
+    "Deer observe/approach/abandon paths differ from wolf warning/cover/retreat; neither image forces hostility.",
+    "No successful-hunt award before resolver; failed or abandoned deer attempt has no invented food.",
+    "Save before a choice and after resolution preserves same asset/node/choices/result, with costs/damage/food applied once.",
+    "No cover or real carried food means the corresponding conditional choice is absent; no fake shelter or phantom carcass.",
+    "Other supplied assets remain indexed but NOT claimed as authored, reachable or tested encounters.",
+    "Initial proof injury cap applies before rendering; no deer/wolf/hyena proof death text.",
+    "Fresh eligible start travel split_rock→twin_forks; successful drive plus both witnessed followups yields exactly +15 with three receipts, in either followup order. Selecting drive without success yields no deed.",
+    "Own-kill sharing and standalone border deeds are retired; neither can pay. Replay/repeat hyena cannot pay a second +5.",
+    "No witness, no eligible outsider, missing traits or failed contest must never silently pay a deed. Report any blocked +15 proof explicitly.",
+    "Twin Forks cache request is not an illegal-trespass finding, war, exile or HC→BF standing write.",
+    "Warm +15 still requires real Bonefield-topic request, relay and leader review; known feud still defers. No automatic communication.",
+    "Save before/after each deed and contest: persist actual image, full cast, selected speech, exact node and once-only effects."
+  ],
+  "authoringValidation": {
+    "jsonAndNodeReferences": "PASS (structural only)",
+    "authoredEncounterFamilies": 3,
+    "allSuppliedAssetsIndexed": 13,
+    "remainingFamiliesNotAuthored": 10,
+    "runtime": "NOT RUN",
+    "numbersSource": "Tundra v0.6.1 §13 and existing needs-spec; provisional base values, no runtime simulation",
+    "revision": "v0.6.1 reconciliation; structural only"
+  },
+  "supersession": {
+    "previousPair": "This revision replaces the earlier v0.2 attachment for standing integration; deer/wolf/hyena IDs and text preserved.",
+    "wolfWarningService": "UNUSED, standing 0 even if played; not an enabled fourth deed. Do not connect runId/service/highcrag/wolf_warning to any prideToPlayer reward.",
+    "policy": "v0.5.5 four ordered checks unchanged; warm standing cannot override known feud",
+    "retiredDeedTriggers": "Standalone border return_trespasser and post-prey_taken own-kill sharing are RETIRED, not eligible triggers. Only successful hyena scene produces the three +5 deeds."
+  },
+  "authoringRevision": "v0.6.1-reconciled; design source reported local 352deec",
+  "canonicalStandingRoute": {
+    "source": "Tundra v0.6.1 352deec §13.6; proposed paper sequence only",
+    "onlyProducer": "encounter.cave_hyena.v1 after a successful clean/partial drive",
+    "preconditions": "Fresh eligible Standard adult, initial highcrag→player=0, living Highcrag hunter and separate eligible outsider. No Ford/known feud or Highcrag interior entry. Existing needs, cooldown and legal-action checks remain binding.",
+    "numberedSteps": [
+      {
+        "step": 1,
+        "absDay": 1,
+        "region": "twin_forks",
+        "mainAction": "Travel split_rock→twin_forks, map-v1 one-day edge",
+        "baseEnergyCost": 15,
+        "event": "Required encounter.cave_hyena.v1, drive_off→resolve_hyena_contest→clean/partial→hyena_driven→after_drive",
+        "additionalEnergyCost": "clean 0; partial 10; live scaling applies",
+        "deedId": "drive_hyena",
+        "standingDelta": 5,
+        "receipt": "runId/standing_deed/highcrag/drive_hyena",
+        "knowledge": "Present actual living Highcrag witnessIds and knowsFact for completed successful drive. Selecting drive alone pays nothing."
+      },
+      {
+        "step": 2,
+        "absDay": 1,
+        "region": "twin_forks",
+        "mainAction": "same Travel event, no second action",
+        "choiceId": "share_remains",
+        "deedId": "share_kill",
+        "baseEnergyCost": 0,
+        "extraDays": 0,
+        "extraHunger": 0,
+        "standingDelta": 5,
+        "receipt": "runId/standing_deed/highcrag/share_kill",
+        "knowledge": "Actual completed cooperative share retention, same living hunter witnesses. May swap order with step3."
+      },
+      {
+        "step": 3,
+        "absDay": 1,
+        "region": "twin_forks",
+        "mainAction": "same Travel event, no second action",
+        "choiceId": "warn_off_trespasser",
+        "deedId": "return_trespasser",
+        "baseEnergyCost": 0,
+        "extraDays": 0,
+        "standingDelta": 5,
+        "receipt": "runId/standing_deed/highcrag/return_trespasser",
+        "knowledge": "cache_request→actual outsider_request→actual departure→cache_ack witnessed by hunter. May swap with step2. Distinct cat must exist; no HC→BF delta."
+      },
+      {
+        "step": 4,
+        "absDay": 2,
+        "region": "twin_forks",
+        "mainAction": "Seek out already-met hc05 or same fallback hunter at rendezvous",
+        "baseEnergyCost": 5,
+        "event": "Bonefield-topic m2.border_introduction request and explicit relay request to living current leader. Queue named relay; request itself remains private to actual interlocutors.",
+        "standingDelta": 0,
+        "ruling": "NONE; queued is not delivered",
+        "receipt": "Use canonical request/relay provenance and version receipts from faction-proof-reconciled.json; no standing-deed receipt."
+      },
+      {
+        "step": 5,
+        "absDay": 3,
+        "region": "twin_forks",
+        "mainAction": "Rest, ordinary restore/ticks/caps",
+        "baseRestEnergyRestore": 40,
+        "event": "Actual queued relay delivers to current living leader; real review checks unchanged v0.5.5 selector. No known feud and standing +15→step3 permit_relay. Actual contact/messenger may return reply that day only if present and recorded.",
+        "standingDelta": 0,
+        "ruling": "permit_relay only after actual delivery/review",
+        "receipt": "Persist one actual versioned ruling and delivery/reply receipts under existing faction-proof-reconciled contract; no new +5."
+      }
+    ],
+    "cooldownCaveat": "Spec proposes encounter speech does not start conversation.catCooldownDays. If it does in implementation, day2 petition is not proven; spec moves petition to day3 and permit to day4. Report rather than bypass cooldown.",
+    "failure": "Fail drive/yield/retreat grants no positive deeds, no after_drive. Missing witness/outsider or unaffordable main action prevents corresponding path; never clamp resources to make it legal.",
+    "costAccounting": "Steps2/3 are same event, either order. Step1 base -15 plus partial extra -10, day2 base -5; live daily needs and overnight restores apply separately once, not omitted or doubled. Day3 Rest uses actual current needs. These are base inputs, not a fabricated complete end-state simulation.",
+    "proofStatus": "NOT PLAYED: proposed day1 standing is distinct from proposed day3 delivered permit. Tracker must verify both complete legal sequence and resource budget."
+  }
+}

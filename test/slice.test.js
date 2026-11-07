@@ -10,7 +10,8 @@ const j = (f) => JSON.parse(fs.readFileSync(path.join(D, f), 'utf8'));
 const map = j('map.json'); const rules = j('slice-rules.json'); const slots = j('world-slots.json'); const nameData = j('names/names.json');
 const events = fs.existsSync(path.join(D, 'events/slice-1.json')) ? j('events/slice-1.json') : { contentVersion: 0, events: [] };
 const looks = { coats: ['tan', 'black'], markings: ['none', 'spotted'], eyes: ['amber'] };
-const mk = (over = {}) => Slice.create({ map: over.map || map, rules: over.rules || rules, events: over.events || events, slots, nameData, looks });
+const encounters = j('events/encounters-v0.2.json');
+const mk = (over = {}) => Slice.create({ map: over.map || map, rules: over.rules || rules, events: over.events || events, slots, nameData, looks, encounters });
 const cat = { catId: 'c1', name: 'Tester', sex: 'female', lifeStage: 'adult', genes: {} };
 const E = mk();
 
@@ -19,12 +20,28 @@ function play(E, seed, policy) {
   let s = E.newRun({ mainCat: cat, seed }); const seen = [s];
   for (let i = 0; i < 200 && !s.over; i++) {
     let a;
-    if (s.phase === 'event') { const e = E.eventById(s.pending.eventId); a = { type: 'choose', choiceId: e.choices[0].id }; }
+    if (s.phase === 'encounter') a = leaveEncounter(E, s);
+    else if (s.phase === 'ford') a = s.ford && s.ford.node === 'open' ? { type: 'fordChoose', choiceId: 'stay_out' } : { type: 'continue' };
+    else if (s.phase === 'border') a = leaveBorder(E, s);
+    else if (s.phase === 'event') { const e = E.eventById(s.pending.eventId); a = { type: 'choose', choiceId: e.choices[0].id }; }
     else if (s.phase === 'eventResult') a = { type: 'continue' };
     else { const av = E.available(s); a = av.forced ? { type: 'forced' } : policy(s, av); }
     const r = E.act(s, a); assert.ok(!r.error, `${r.error} on day ${s.day}`); s = r.state; seen.push(s);
   }
   return { s, seen };
+}
+function leaveEncounter(E, s) {
+  const v = E.encounterView(s);
+  if (!v || v.terminal) return { type: 'continue' };
+  const ids = ['leave', 'break_off', 'give_ground', 'retreat', 'yield_kill', 'finish', 'withdraw'];
+  const c = v.choices.find((x) => ids.includes(x.id) && !x.disabled) || v.choices.find((x) => !x.disabled);
+  return { type: 'encounterChoose', choiceId: c.id };
+}
+function leaveBorder(E, s) {
+  const v = E.world.borderView(s);
+  if (!v || !v.choices.length) return { type: 'continue' };
+  const c = v.choices.find((x) => x.id === 'withdraw' || x.id === 'leave_request') || v.choices[0];
+  return { type: 'borderChoose', choiceId: c.id };
 }
 const sensible = (s, av) => (s.needs.hunger < 60 && av.hunt.allowed ? { type: 'hunt', size: 'small' }
   : s.needs.thirst < 50 ? { type: 'travel', to: av.travel.find((t) => t.allowed && E.W.hasWater(t.to, 'spring'))?.to || av.travel[0].to } : { type: 'rest' });
@@ -53,7 +70,10 @@ test('same seed + same actions = same run (save/load invariant)', () => {
   const { seen } = play(E, 99, sensible); const mid = seen[Math.floor(seen.length / 2)];
   let s = E.migrate(JSON.parse(JSON.stringify(mid)));
   for (let i = 0; i < 200 && !s.over; i++) {
-    let x; if (s.phase === 'event') x = { type: 'choose', choiceId: E.eventById(s.pending.eventId).choices[0].id };
+    let x; if (s.phase === 'encounter') x = leaveEncounter(E, s);
+    else if (s.phase === 'ford') x = s.ford && s.ford.node === 'open' ? { type: 'fordChoose', choiceId: 'stay_out' } : { type: 'continue' };
+    else if (s.phase === 'border') x = leaveBorder(E, s);
+    else if (s.phase === 'event') x = { type: 'choose', choiceId: E.eventById(s.pending.eventId).choices[0].id };
     else if (s.phase === 'eventResult') x = { type: 'continue' };
     else { const av = E.available(s); x = av.forced ? { type: 'forced' } : sensible(s, av); }
     s = E.act(s, x).state;
@@ -69,9 +89,16 @@ test('hunt chance: formulas §1.2 Standard (base 50 + size + prey + hungry + low
   assert.strictEqual(E.huntChance(s, 'large'), Math.max(5, 50 - 20 + prey - 5 - 10 - 15));
 });
 
-test('hunt: energy −30, food on success, Tired (<25) blocks hunting', () => {
+test('hunt: the first Split Rock hunt is the giant deer, and a later hunt still spends Energy 30', () => {
   const s = E.newRun({ mainCat: cat, seed: 5 });
-  const r = E.act(s, { type: 'hunt', size: 'small' }); const h = r.state.report.lines.find((l) => l.k === 'hunt');
+  const opened = E.act(s, { type: 'hunt', size: 'small' });
+  assert.strictEqual(opened.state.phase, 'encounter');
+  assert.strictEqual(opened.state.needs.energy, 70);
+  const left = E.act(opened.state, { type: 'encounterChoose', choiceId: 'leave' }).state;
+  const done = E.act(left, { type: 'continue' }).state;
+  assert.strictEqual(done.phase === 'event' || done.phase === 'day' || done.phase === 'eventResult', true);
+  const again = E.act(done.phase === 'day' ? done : E.act(done, { type: 'continue' }).state, { type: 'hunt', size: 'small' });
+  const h = (again.state.report ? again.state.report.lines : []).find((l) => l.k === 'hunt');
   assert.ok(h); assert.strictEqual(h.ate, h.ok ? 25 : 0);
   const t = E.newRun({ mainCat: cat, seed: 5 }); t.needs.energy = 20;
   assert.strictEqual(E.available(t).hunt.allowed, false); assert.strictEqual(E.act(t, { type: 'hunt', size: 'small' }).error, 'tired');
@@ -83,11 +110,13 @@ test('overnight tick: hunger −12, thirst −20 after drink, energy +25 (halved
   s.npcs = Object.fromEntries(Object.entries(s.npcs).map(([k, n]) => [k, { ...n, homeZones: [] }]));
   s.map.claims = Object.fromEntries(Object.keys(s.map.claims).map((r) => [r, {}]));
   s.usedEvents = events.events.map((e) => e.id);
-  const r = quiet.act(s, { type: 'rest' }).state;
+  let r = quiet.act(s, { type: 'rest' }).state;
+  if (r.phase === 'encounter') r = quiet.act(quiet.act(r, leaveEncounter(quiet, r)).state, { type: 'continue' }).state;
   assert.strictEqual(r.needs.hunger, 68); assert.strictEqual(r.needs.thirst, 80);
   assert.strictEqual(r.needs.energy, 100); assert.strictEqual(r.day, 2);
   const h = JSON.parse(JSON.stringify(s)); h.needs.hunger = 20; h.needs.energy = 10;
-  const r2 = quiet.act(h, { type: 'rest' }).state; // rest 20 (halved) + overnight 12 (halved)
+  let r2 = quiet.act(h, { type: 'rest' }).state; // rest 20 (halved) + overnight 12 (halved)
+  if (r2.phase === 'encounter') r2 = quiet.act(quiet.act(r2, leaveEncounter(quiet, r2)).state, { type: 'continue' }).state;
   assert.strictEqual(r2.needs.energy, 10 + 20 + 12);
 });
 
@@ -95,6 +124,7 @@ test('injury: second injury of the same tier raises it to serious; serious block
   const s = E.newRun({ mainCat: cat, seed: 4 }); s.injuries = [{ tier: 'minor', daysLeft: 3, source: 'x' }];
   s.map.claims = Object.fromEntries(Object.keys(s.map.claims).map((r) => [r, {}]));
   const T = mk({ map: { ...map, tunables: { ...map.tunables, trespassMeetPct: 0 } }, rules: { ...rules, hunt: { ...rules.hunt, injuryPct: { small: 100, medium: 100, large: 100 }, injuryTierSplit: { minor: 100, serious: 0 } } } });
+  s.encounters.log.push({ encounterId: 'encounter.giant_deer.v1' });
   const r = T.act(s, { type: 'hunt', size: 'small' }).state;
   assert.deepStrictEqual(r.injuries.map((i) => i.tier), ['serious']);
 });

@@ -32,6 +32,7 @@
       "assets/menu/background-1920.png",
       "assets/menu/logo.png",
       "assets/game/home-landscape.png",
+      "assets/encounters/*.png",
       "assets/portraits/registry.json",
       "assets/portraits/*/manifest.json",
       "assets/portraits/*/*.png",

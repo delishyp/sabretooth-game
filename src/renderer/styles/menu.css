@@ -231,6 +231,19 @@ button.primary { border-color: var(--accent); }
 .conversation-card .event-affinity { flex: 0 0 auto; margin: 0; width: 100%; text-align: left; }
 .conversation-card .event-scroll { flex: 1 1 auto; min-height: 96px; max-height: 140px; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding: 10px 12px; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
 .conversation-card .event-scroll.focused, .conversation-card .event-scroll:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.encounter-card .event-scroll { max-height: 120px; }
+.encounter-art { box-sizing: border-box; width: 100%; margin: 0 0 8px; padding: 16px; background: #31241D; border-radius: 8px; }
+.encounter-art img { display: block; width: 100%; height: auto; max-height: 280px; object-fit: contain; object-position: center; background: #31241D; }
+.encounter-art.is-full img { max-height: none; }
+@media (max-height: 800px) {
+  .encounter-card .event-scroll { max-height: 96px; }
+  .encounter-art { padding: 12px; }
+  .encounter-art img { max-height: 200px; }
+}
+@media (min-height: 1000px) {
+  .encounter-art img { max-height: 420px; }
+  .encounter-card .event-scroll { max-height: 160px; }
+}
 .relation-meters { margin: 0; padding: 8px 10px; width: 100%; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
 .relation-meters p { margin: 0; font-size: 18px; line-height: 1.35; color: #f6efe2; }
 .personal-meter { width: 100%; margin: 0 0 6px; }

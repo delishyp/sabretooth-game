@@ -244,7 +244,10 @@
         const talks = talkGroup(av.talk);
         a.append(hunt, rest, tr);
         if (talks.childElementCount) a.append(talks);
+        if (av.seek) a.append(btn(`Seek out ${av.seek.name} · Energy −${av.seek.energy}`, { g: 'seek', cat: av.seek.catId }, { disabled: !av.seek.allowed, title: av.seek.reason || '' }));
         if (av.border && av.border.allowed) a.append(btn(`Ask ${av.border.name} at the Highcrag border`, { g: 'border', guard: av.border.guardId }));
+        const spot = s.encounters && s.encounters.rendezvous;
+        if (spot && spot.sought && s.region === spot.regionId && s.npcs[spot.catId]) a.append(btn(`Speak with ${s.npcs[spot.catId].name}`, { g: 'border', guard: spot.catId }));
       }
     }
     function talkNote(o) {
@@ -376,7 +379,53 @@
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
       card.append(util);
     }
+    function renderEncounter() {
+      const box = $('#game-event'); const view = E.encounterView(s);
+      const show = !!view;
+      box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
+      if (!show) return;
+      box.textContent = '';
+      const card = el('div', 'event-card conversation-card encounter-card');
+      card.dataset.node = view.nodeId; card.dataset.encounter = view.encounterId; card.dataset.asset = view.assetId;
+      box.append(card);
+      card.append(el('h2', 'event-title', view.displayName));
+      const art = el('div', 'encounter-art');
+      const img = el('img', 'encounter-img');
+      img.src = `../../assets/encounters/${view.assetId}`;
+      img.alt = view.displayName;
+      img.dataset.asset = view.assetId;
+      art.append(img);
+      card.append(art, btn('Entire image', { g: 'inspectEncounter' }));
+      const scroll = el('div', 'event-scroll');
+      scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
+      for (const line of view.lines || []) {
+        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
+        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+      }
+      card.append(scroll);
+      card.append(el('p', 'choice-cost', encounterCost(view)));
+      const ch = el('div', 'event-choices');
+      if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      else for (const c of view.choices) ch.append(btn(c.label, { g: 'encounterChoose', choice: c.id }, { disabled: !!c.disabled, title: c.reason || '' }));
+      card.append(ch);
+      const util = el('div', 'talk-utility');
+      util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
+      card.append(util);
+    }
+    function encounterCost(view) {
+      const c = (E.rules && E.rules.encounter) || {};
+      if (view.encounterId === 'encounter.giant_deer.v1') {
+        return `This hunt has spent the day and Energy −${c.deerSearchEnergy}. Watching or leaving adds nothing and awards no food. Committing costs Energy −${c.deerCommitEnergy} and is not a guaranteed kill.`;
+      }
+      if (view.encounterId === 'encounter.wolf_pack.v1') return 'Withdrawing uses the existing flee. A wolf warning does not change Highcrag standing.';
+      const f = view.forecast;
+      if (!f) return 'Finished help adds no further standing.';
+      const extra = f.extraEnergy ? `Extra Energy −${f.extraEnergy}.` : 'No extra Energy.';
+      const wound = f.injury ? 'A failed contest at this stat also leaves a minor injury.' : 'This stat does not add an injury.';
+      return `Drive-off is ${f.tier} (fight stat ${Math.round(f.stat * 10) / 10} against ${f.threat}). ${extra} ${wound} Failure, yielding, and retreat pay no standing.`;
+    }
     function renderEvent() {
+      if (s.phase === 'encounter') return renderEncounter();
       if (s.phase === 'ford') return renderFord();
       if (s.phase === 'border') return renderBorder();
       if (s.phase === 'conversation') return renderTalk();
@@ -410,7 +459,7 @@
       renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent();
       const evOpen = !$('#game-event').hidden;
       let target = null;
-      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
+      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="encounterChoose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
       else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
@@ -436,6 +485,9 @@
       if (d.g === 'fordChoose') return act({ type: 'fordChoose', choiceId: d.choice });
       if (d.g === 'talk') return act({ type: 'talk', catId: d.cat });
       if (d.g === 'choose') return act({ type: 'choose', choiceId: d.choice, nodeId: d.node, instanceId: d.instance });
+      if (d.g === 'encounterChoose') return act({ type: 'encounterChoose', choiceId: d.choice });
+      if (d.g === 'seek') return act({ type: 'seek', catId: d.cat });
+      if (d.g === 'inspectEncounter') { const art = document.querySelector('.encounter-art'); if (art) art.classList.toggle('is-full'); return; }
       if (d.g === 'continue') return act({ type: 'continue' });
       if (d.g === 'save') return manualSave();
       if (d.g === 'menu' || d.g === 'summaryMenu') return ctx.leave();
@@ -445,7 +497,7 @@
       if (!s || !$('#cat-viewer') || !$('#cat-viewer').hidden) return;
       const evOpen = !$('#game-event').hidden;
       const target = evOpen
-        ? [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"]')].find((b) => !b.disabled)
+        ? [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="encounterChoose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"]')].find((b) => !b.disabled)
         : [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
       ctx.focus(target || null);
     }

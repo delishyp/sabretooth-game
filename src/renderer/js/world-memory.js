@@ -628,7 +628,44 @@
       s.phase = 'day';
       return { ok: true };
     }
-    return { SCHEMA, personalBand, standingBand, roundHalfAway, initNew, migrate, notePersonal, noteConversation, knowsFact, disclose, spillover, witness, borderGate, borderView, openBorder, borderAct, closeBorder, relayPetition, considerFord, considerRelay, fordView, fordChoose, closeFord, rulingSelector, policyStatus, councilStatus, ensureRecords, hasBorder: !!story };
+    /** One pride standing receipt. Missing witness or incomplete traits pay nothing and write no receipt. */
+    function recordDeed(s, { deedId, delta, sourceType, witnessIds }) {
+      const receiptKey = `${s.runId || ''}/standing_deed/highcrag/${deedId}`;
+      if (has(s, receiptKey)) return { applied: false, reason: 'duplicate', receiptKey };
+      const ids = (witnessIds || []).filter(Boolean);
+      const present = ids.filter((id) => {
+        const n = s.npcs && s.npcs[id];
+        return n && !n.dead && n.faction === 'highcrag' && (n.stage === 'adult' || n.stage === 'elder');
+      });
+      if (!present.length) return { applied: false, reason: 'no-witness', receiptKey };
+      if (!Speech || present.some((id) => !Speech.complete(s.npcs[id].personality))) return { applied: false, reason: 'personality', receiptKey };
+      const factId = `${receiptKey}/fact`;
+      const rec = s.worldMemory.prideToPlayer[pairKey('highcrag', 'player')];
+      rec.value = clamp((rec.value || 0) + delta);
+      if (s.prideRelation) s.prideRelation.highcrag = rec.value;
+      box(s).ledger.push({
+        receiptKey, sourceType, recordKind: 'prideToPlayer', actor: 'highcrag', target: 'player', delta,
+        factId, absDay: s.day, witnessIds: present, knowledgeScope: 'witnessed'
+      });
+      box(s).facts.push({ factId, kind: sourceType === 'hunt_steal' ? 'hunt_steal' : sourceType });
+      box(s).knowledge[factId] = {
+        scope: 'witnessed', participantIds: ['player'].concat(present), witnessIds: present.slice(),
+        disclosedTo: [], prideIds: ['highcrag'], learnedAbsDay: s.day
+      };
+      return { applied: true, receiptKey, delta, value: rec.value };
+    }
+    /** Retired warning service. Playing it records a zero and does not move standing. */
+    function unusedService(s, leaf) {
+      const receiptKey = `${s.runId || ''}/service/highcrag/${leaf || 'wolf_warning'}`;
+      if (has(s, receiptKey)) return { applied: false, reason: 'duplicate', delta: 0 };
+      const value = s.worldMemory.prideToPlayer[pairKey('highcrag', 'player')].value;
+      box(s).ledger.push({
+        receiptKey, sourceType: leaf || 'wolf_warning', recordKind: 'prideToPlayer', actor: 'highcrag', target: 'player',
+        delta: 0, auditOnly: true, absDay: s.day
+      });
+      return { applied: true, delta: 0, value };
+    }
+    return { SCHEMA, personalBand, standingBand, roundHalfAway, initNew, migrate, notePersonal, noteConversation, knowsFact, disclose, spillover, witness, borderGate, borderView, openBorder, borderAct, closeBorder, relayPetition, considerFord, considerRelay, fordView, fordChoose, closeFord, rulingSelector, policyStatus, councilStatus, ensureRecords, recordDeed, unusedService, hasBorder: !!story };
   }
   return { create, SCHEMA, PRIDES };
 });

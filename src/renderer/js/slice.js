@@ -7,20 +7,21 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A slug is kept as given. Anything else, including a legacy omission, is null. Never rewritten to another id. */
   const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
-  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null }) {
+  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null, encounters = null }) {
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
     const C = Conversation.create(conversation, { ...(R.conversation || {}), affinityRange: M.affinityRange });
     const WM = WorldMemory.create(R, conversation, borderPolicy);
+    const Enc = Encounter.create(encounters, R);
     const EV = (events && events.events) || [];
     const season = (s) => s.season;
     /** needs §1.6a named state. */
@@ -58,7 +59,8 @@
         map: { dataVersion: W.dataVersion, claims: W.initClaims(), discovered: W.discover([], st.region), visited: [st.region], blockedEdges: {}, flood: null },
         prideRelation: Object.fromEntries(map.factions.filter((f) => f.kind === 'pride').map((f) => [f.id, 0])),
         npcs: rollNpcs(seed, mainCat.name), usedEvents: [], pending: null, report: null, log: [], dead: null, over: false,
-        conversation: C.empty()
+        conversation: C.empty(),
+        encounters: Enc.empty()
       };
       Personality.applyNew(s, R);
       WM.initNew(s);
@@ -102,7 +104,8 @@
         rest: { allowed: true },
         travel: W.neighbours(s.region).map((to) => ({ to, days: travelDaysFrom(s, to), allowed: !blocked(to), reason: blocked(to) ? 'blocked' : null })),
         talk,
-        border: borderOffer(s)
+        border: borderOffer(s),
+        seek: Enc.seekOffer(s)
       };
     }
     function atHighcragBorder(s) {
@@ -145,7 +148,14 @@
           if (r.error) return { state: s0, error: r.error };
           return { state: s };
         }
-        if (action.type === 'continue') { WM.closeBorder(s); return { state: s }; }
+        if (action.type === 'continue') {
+          WM.closeBorder(s);
+          if (s.actionLatch === 'seek') {
+            s.actionLatch = null;
+            endDay(s, [], { rested: false, action: 'seek', slotTaken: true, start: { day: s.day, region: s.region } });
+          }
+          return { state: s };
+        }
         return { state: s0, error: 'border' };
       }
       if (s.phase === 'ford') {
@@ -161,6 +171,46 @@
         if (!atHighcragBorder(s)) return { state: s0, error: 'border' };
         const r = WM.openBorder(s, action.guardId || 'hc07');
         if (r.error) return { state: s0, error: r.error };
+        return { state: s };
+      }
+      if (s.phase === 'encounter') {
+        if (action.type === 'continue') {
+          const done = Enc.continueScene(s);
+          if (done.error) return { state: s0, error: done.error };
+          if (done.resume) endDay(s, (done.ctx && done.ctx.rep) || [], done.ctx || {});
+          else endDay(s, [{ k: 'encounter', id: Enc.DEER }], { action: 'hunt', slotTaken: true, rested: false, start: { day: s.day, region: s.region } });
+          return { state: s };
+        }
+        const choiceId = action.choiceId;
+        const picked = Enc.choose(s, choiceId, {
+          hunt: (st, size) => {
+            const p = huntChance(st, size);
+            const rng = Rng.stream(st.seed, 'hunt', st.day);
+            const ok = rng() * 100 < p;
+            const ate = ok ? N.eat[size] : 0;
+            if (ok) st.needs.hunger = clamp(st.needs.hunger + ate, 0, 100);
+            let injuryTier = null;
+            const injPct = H.injuryPct[size] * (ok ? 1 : H.failInjuryMult) * H.styleInjuryMult;
+            if (rng() * 100 < injPct) {
+              injuryTier = tierRoll(rng);
+              if (injuryTier === 'crippling') injuryTier = 'serious';
+              injure(st, injuryTier, st.encounters.pending.encounterInstanceId, []);
+              if (st.needs.health < 1) st.needs.health = 1;
+              if (st.dead) { st.dead = null; st.needs.health = Math.max(1, st.needs.health); }
+            }
+            return { ok, chance: p, ate, injuryTier };
+          },
+          injure: (st, tier, source) => injure(st, tier, source, []),
+          recordDeed: (st, spec) => WM.recordDeed(st, spec)
+        });
+        if (picked.error) return { state: s0, error: picked.error };
+        return { state: s };
+      }
+      if (action.type === 'seek') {
+        const opened = Enc.beginSeek(s);
+        if (opened.error) return { state: s0, error: opened.error };
+        const border = WM.openBorder(s, opened.catId);
+        if (border.error) return { state: s0, error: border.error };
         return { state: s };
       }
       if (action.type === 'talk') {
@@ -201,6 +251,11 @@
       } else if (action.type === 'hunt') {
         const size = action.size; if (!H.size[size] && H.size[size] !== 0) return { state: s0, error: 'size' };
         if (!av.hunt.allowed) return { state: s0, error: av.hunt.reason };
+        if (Enc.deerInstead(s)) {
+          const opened = Enc.beginDeer(s);
+          if (opened.error) return { state: s0, error: opened.error };
+          return { state: s };
+        }
         const p = huntChance(s, size); const rng = Rng.stream(s.seed, 'hunt', s.day);
         const ok = rng() * 100 < p;
         s.needs.energy = clamp(s.needs.energy - N.energy.hunt, 0, 100);
@@ -226,11 +281,15 @@
 
     // ---------- day end ----------
     function endDay(s, rep, ctx) {
-      if (!s.dead && W.hasWater(s.region, season(s)) && !s.travel) { if (s.needs.thirst < N.drink) rep.push({ k: 'drink' }); s.needs.thirst = clamp(s.needs.thirst + N.drink, 0, 100); }
+      ctx = ctx || {};
       let hazardHit = false;
-      if (!s.dead && !s.travel) hazardHit = rollHazards(s, rep, ctx);
+      if (!ctx.resumed) {
+        if (!s.dead && W.hasWater(s.region, season(s)) && !s.travel) { if (s.needs.thirst < N.drink) rep.push({ k: 'drink' }); s.needs.thirst = clamp(s.needs.thirst + N.drink, 0, 100); }
+        if (!s.dead && !s.travel) hazardHit = rollHazards(s, rep, ctx);
+        if (!s.dead && !s.travel && !ctx.slotTaken && Enc.intercept(s, ctx, W.hazardsFor, rep)) return;
+      }
       let ev = null;
-      if (!s.dead && !s.travel) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
+      if (!s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
       overnight(s, rep, ctx.rested);
       s.report = { day: s.day, region: s.region, lines: rep };
       if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
@@ -244,6 +303,7 @@
       let hit = false;
       W.hazardsFor(s.region, season(s)).forEach((h, i) => {
         const rng = Rng.stream(s.seed, 'map', 'hazard', s.day, s.region, i);
+        if (h.id === 'wolves' && Enc.willPresentWolf(s, W.hazardsFor)) return;
         if (s.dead || !Rng.chance(rng, h.pct)) return;
         hit = true; rep.push({ k: 'hazard', id: h.id });
         const src = `hazard.${h.id}`;
@@ -378,11 +438,12 @@
       Personality.migrate(s, R);
       C.normalize(s);
       WM.migrate(s);
+      Enc.normalize(s);
       s.saveVersion = R.saveVersion;
       return s;
     }
     const eventById = (id) => EV.find((e) => e.id === id) || null;
-    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R, talkView: (st) => C.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM };
+    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc };
   }
   return { create, fill };
 });

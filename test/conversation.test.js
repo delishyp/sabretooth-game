@@ -11,7 +11,8 @@ const graph = j('events/recurring-conversation.json');
 const looks = { coats: ['tan', 'black'], markings: ['none', 'spotted'], eyes: ['amber'] };
 const mk = (over = {}) => Slice.create({
   map, rules: over.rules || rules, events, slots, nameData, looks,
-  conversation: over.conversation === undefined ? graph : over.conversation
+  conversation: over.conversation === undefined ? graph : over.conversation,
+  encounters: j('events/encounters-v0.2.json'), borderPolicy: j('events/faction-proof-reconciled.json')
 });
 const cat = { catId: 'player-1', name: 'Tester', sex: 'female', lifeStage: 'adult', genes: { coat: 'D/D' }, portraitId: 'cat-6e2d788dd48ff440' };
 const E = mk();

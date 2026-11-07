@@ -194,6 +194,19 @@
     "$comment": "Presentation only for the ln05 proof. The id is a registered static portrait, not a genotype and not an index into registry order. Sex is ignored by portrait lookup. A stored id is kept. A stored null is legacy absence or a cleared choice and is not filled.",
     "ln05": "cat-6e2d788dd48ff440"
   },
+  "encounter": {
+    "$comment": "PROPOSED DEFAULT from milestone-2 v0.6.1 §13 and needs-spec. Not approved balance. Deer search is Energy -10 and commit_hunt the remaining -20. Hyena partial adds Energy -10. Seek out at the recorded rendezvous is Energy -5. Fresh fight stat is formulas §4.1 with no Saber Strike skill.",
+    "deerSearchEnergy": 10,
+    "deerCommitEnergy": 20,
+    "hyenaThreatStat": 9,
+    "hyenaPartialEnergy": 10,
+    "deedDelta": 5,
+    "stealHunger": 50,
+    "stealDelta": -5,
+    "seekEnergy": 5,
+    "proofHealthFloor": 1,
+    "fightBase": 10
+  },
   "worldMemory": {
     "$comment": "v0.5.5 PROPOSED defaults, not approved balance. The border reads only a committed leader ruling. The ford dispute writes feud history and is not itself the policy. Spillover numbers and the curiosity/standing cuts below are provisional.",
     "borderPolicyDeferAtOrBelow": -15,
