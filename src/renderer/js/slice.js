@@ -547,6 +547,10 @@
       if (s.counters.starving >= N.starvationGraceDays) { n.health = clamp(n.health - N.damageAtEmpty, 0, 100); rep.push({ k: 'starving' }); if (n.health <= 0) die(s, 'starvation'); }
       if (s.counters.parched >= N.parchedGraceDays) { n.health = clamp(n.health - N.damageAtEmpty, 0, 100); rep.push({ k: 'parched' }); if (n.health <= 0) die(s, 'thirst'); }
       s.injuries = s.injuries.map((i) => ({ ...i, daysLeft: i.daysLeft - (rested ? 2 : 1) })).filter((i) => { if (i.daysLeft <= 0) { rep.push({ k: 'healed', tier: i.tier }); return false; } return true; });
+      for (const n of Object.values(s.npcs || {})) {
+        if (!n.injuries || !n.injuries.length) continue;
+        n.injuries = n.injuries.map((i) => ({ ...i, daysLeft: i.daysLeft - (rested ? 2 : 1) })).filter((i) => i.daysLeft > 0);
+      }
       if (n.energy <= 0 && !s.dead && !s.forced) s.forced = 'rest';
     }
 

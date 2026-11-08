@@ -565,7 +565,9 @@
         stage: player ? s.cat.lifeStage : cat && cat.stage,
         ageSeasons: who && Number.isInteger(who.ageSeasons) ? who.ageSeasons : null,
         health: player ? s.needs.health : null,
-        serious: player ? (s.injuries || []).some((i) => i.tier === 'serious') : false,
+        serious: player
+          ? (s.injuries || []).some((i) => i.tier === 'serious')
+          : !!((cat && cat.injuries) || []).some((i) => i.tier === 'serious' && i.daysLeft > 0),
         perks: (who && who.perks) || [],
         saberM: storedMilestone(who, 'saberM'),
         guardM: storedMilestone(who, 'guardM'),
@@ -608,6 +610,30 @@
       if (deps.notePride) deps.notePride(s, pride, delta, key);
       else s.prideRelation[pride] = Math.max(-100, Math.min(100, (s.prideRelation[pride] || 0) + delta));
     }
+    function chipTier(tier) { return tier === 'crippling' ? 'serious' : tier; }
+    function commitFightInjuries(s, stored, rival, deps) {
+      if (!stored || stored.injuriesApplied) return stored;
+      stored.applied = stored.applied || { player: null, rival: null };
+      if (stored.replaced || !stored.injuries) { stored.injuriesApplied = true; return stored; }
+      const playerTier = stored.won ? stored.injuries.winner : stored.injuries.loser;
+      const rivalTier = stored.won ? stored.injuries.loser : stored.injuries.winner;
+      if (playerTier && deps && deps.injure) {
+        const chip = chipTier(playerTier);
+        deps.injure(s, chip, 'mate-challenge');
+        stored.applied.player = chip;
+      }
+      if (rivalTier && rival && rival.id !== s.cat.catId) {
+        const chip = chipTier(rivalTier);
+        const days = rules && rules.injuries && rules.injuries[chip] ? rules.injuries[chip].days : (chip === 'serious' ? 10 : 3);
+        rival.injuries = rival.injuries || [];
+        if (!rival.injuries.some((row) => row.source === 'mate-challenge' && row.day === stored.day)) {
+          rival.injuries.push({ tier: chip, rolled: rivalTier, daysLeft: days, source: 'mate-challenge', day: stored.day });
+        }
+        stored.applied.rival = chip;
+      }
+      stored.injuriesApplied = true;
+      return stored;
+    }
     function matesOrRival(s, npc, deps, day) {
       const rival = qualifyingRival(s, npc);
       if (!rival) return matesScene(s, npc, deps);
@@ -630,21 +656,21 @@
         });
         if (once(s, `${s.runId || ''}/rival/${npc.id}/resolve`)) {
           const wonNow = !!result.won;
-          const playerTier = result.replaced ? null : (wonNow ? result.injuries.winner : result.injuries.loser);
           const stored = {
             day, catId: npc.id, rivalId: rival.id, won: wonNow, playerStr: result.playerStr, rivalStr: result.rivalStr,
             lethal: false, deathRoll: false, replaced: result.replaced, rolls: result.rolls,
-            injuries: result.injuries, playerTier
+            injuries: result.injuries, applied: { player: null, rival: null }
           };
+          commitFightInjuries(s, stored, rival, deps);
           s.records.fights.push(stored);
           result = stored;
           Skills.grant(s, 'standing', wonNow, `${s.runId || ''}/skill/standing/rival/${npc.id}`);
-          if (!stored.replaced && playerTier && deps.injure) deps.injure(s, playerTier === 'crippling' ? 'serious' : playerTier, 'mate-challenge');
           if (!wonNow) shiftValue(s, npc, -10, `${key}/loss`, deps);
           else lowerPair(s, rival.id, npc.id, -10);
         }
       }
       const won = !!(result && result.won);
+      const applied = (result && result.applied) || { player: null, rival: null };
       const family = families['m2.mate_rival'];
       const which = won ? 'won' : 'lost';
       const beats = family.beats.concat(family.results.challenge_start.beats, family.results[which].beats);
@@ -656,6 +682,11 @@
         next: won ? matesScene(s, npc, deps) : null
       });
       event.rivalId = rival.id;
+      const injuryLines = [];
+      if (applied.player) injuryLines.push({ kind: 'narration', text: `You have a ${applied.player} injury from the challenge.` });
+      if (applied.rival) injuryLines.push({ kind: 'narration', text: `${rival.name} has a ${applied.rival} injury from the challenge.` });
+      event.lines = (event.lines || []).concat(injuryLines);
+      event.committedInjuries = injuryLines.map((line) => line.text);
       remember(s, [s.cat.catId, npc.id, rival.id], won ? 'rival_won' : 'rival_lost', event.summary, key, day);
       return event;
     }
@@ -1130,7 +1161,7 @@
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
       courtOffers, beginCourt, audienceOffers, beginAudience, challengeOffers, beginChallenge, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, noteMistwoodDay, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
+      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 
