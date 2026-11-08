@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const V = require('../src/renderer/js/portrait-view');
 
 const root = path.join(__dirname, '..');
@@ -81,6 +82,10 @@ test('40 static cats keep manifest identity, aliases, hashes, and both sexes sha
     assert.strictEqual(male.id, a.id);
   }
   assert.deepStrictEqual(roles, { original: 23, 'eye-alternate': 17 });
+  for (const p of reg.portraits) {
+    const bytes = fs.readFileSync(path.join(root, 'assets/portraits', p.file));
+    assert.strictEqual(crypto.createHash('sha256').update(bytes).digest('hex'), p.encodedSha256, p.id);
+  }
   assert.strictEqual(aliases, 44);
   const baked = reg.portraits.filter((p) => p.knownIssues.some((x) => /baked/i.test(x)));
   assert.deepStrictEqual(baked.map((p) => p.nativeMode).sort(), ['RGB', 'RGB']);

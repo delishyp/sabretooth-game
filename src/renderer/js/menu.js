@@ -477,7 +477,15 @@
         preview.log.push({ key, ms: preview.ms });
         return;
       }
-      // Drop any earlier registered paint before the runtime draw, so a registry reload cannot put that cat back.
+      // A static picker with no selected id does not draw the placeholder layers.
+      if (c.staticArt) {
+        paintJobs.delete(cv);
+        cv._full = null; cv._portraitId = null; cv.dataset.runtime = '1'; cv.dataset.portraitId = ''; cv.dataset.artGap = '1';
+        const g = cv.getContext('2d'); if (g && cv.width && cv.height) g.clearRect(0, 0, cv.width, cv.height);
+        Object.assign(preview, { ms: performance.now() - t0, drawn: [], skipped: ['art-gap'], pose: null, rendered: key });
+        return;
+      }
+      // Gene-look mode only, when the static registry is not in use.
       paintJobs.set(cv, { spec: { portraitId: null, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, opts: { frame: 'head' } });
       const a = await poseAssets(PortraitView.sharedPose(portraitReg));
       const off = document.createElement('canvas');
@@ -727,15 +735,24 @@
           off.getContext('2d').drawImage(img, 0, 0);
         } catch (e) {
           if (!still()) return { ok: true, id: null, runtime: true, stale: true };
-          console.warn('portrait file failed, using the runtime pose', entry.file, e);
-          const fallback = await paintRuntime(spec || {}, off);
-          head = fallback.head; shownId = null; runtime = true;
+          console.warn('portrait file missing; placeholder layers are not used', entry.file, e);
+          shownId = null; runtime = true;
         }
       } else {
-        const fallback = await paintRuntime(spec || {}, off);
-        head = fallback.head; shownId = null; runtime = true;
+        shownId = null; runtime = true;
       }
       if (!still()) return { ok: true, id: null, runtime, stale: true };
+      if (!shownId || !off.width) {
+        canvas._full = null;
+        canvas._portraitId = null;
+        canvas.dataset.portraitId = '';
+        canvas.dataset.runtime = '1';
+        canvas.dataset.artGap = '1';
+        const g = canvas.getContext('2d');
+        if (g && canvas.width && canvas.height) g.clearRect(0, 0, canvas.width, canvas.height);
+        return { ok: true, id: null, runtime: true, artGap: true, stale: false };
+      }
+      canvas.dataset.artGap = '0';
       canvas._full = off;
       canvas._portraitId = shownId;
       canvas.dataset.portraitId = shownId || '';

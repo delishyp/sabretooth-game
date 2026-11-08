@@ -163,7 +163,8 @@
       traits: { ...PRESETS[DEFAULT_PRESET] }, preset: DEFAULT_PRESET, range: rangeFor(difficulty, sandboxOptions), nameError: null
     };
     if (!ids.length) return base;
-    return { ...base, staticArt: true, portraitIds: ids, portraitId: pick(ids, rng) };
+    // The opening picture is the first registered production id. Randomize is the explicit control that changes it.
+    return { ...base, staticArt: true, portraitIds: ids, portraitId: ids[0] };
   }
 
   /**

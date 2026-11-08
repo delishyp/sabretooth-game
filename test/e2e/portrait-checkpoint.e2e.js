@@ -55,7 +55,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       await page.waitForFunction(() => window.__menuDebug.state().state === 'root');
     });
 
-    await check('corrupt registry is refused and a missing file paints the runtime pose', async () => {
+    await check('corrupt registry is refused and a missing file does not paint placeholder layers', async () => {
       await page.waitForFunction(() => window.__menuDebug.portraitOf('cat-6e2d788dd48ff440').file, null, { timeout: 8000 });
       const before = await page.evaluate(() => window.__menuDebug.portraitOf('cat-6e2d788dd48ff440').file);
       const bad = await page.evaluate(() => window.__menuDebug.adoptRegistry({ portraits: [{ id: 'Not A Slug', file: 'cats/x.png' }] }));
@@ -76,8 +76,9 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       });
       assert.strictEqual(missing.painted.ok, true);
       assert.strictEqual(missing.painted.runtime, true);
+      assert.strictEqual(missing.painted.artGap, true);
       assert.strictEqual(missing.painted.id, null);
-      assert.ok(missing.width && missing.width !== 1448, 'runtime pose is not a registered plate');
+      assert.ok(!missing.width, 'a missing file does not paint the placeholder pose');
       assert.strictEqual(missing.other, before);
     });
 

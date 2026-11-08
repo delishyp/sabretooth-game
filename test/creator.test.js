@@ -36,7 +36,7 @@ test('static pictures: the picker lists every id for either sex, and coat contro
   assert.strictEqual(ids.length, 40);
   let s = C.init({ names, rng: seeded(4), portraitIds: ids });
   assert.strictEqual(s.staticArt, true);
-  assert.ok(ids.includes(s.portraitId));
+  assert.strictEqual(s.portraitId, ids[0]);
   assert.deepStrictEqual(C.ROWS(s), ['name', 'sex', 'portrait']);
   const seen = new Set([s.portraitId]);
   for (let i = 0; i < ids.length; i++) { s = C.reduce(s, 'arrow', { id: 'portrait', dir: 1 }).state; seen.add(s.portraitId); }
