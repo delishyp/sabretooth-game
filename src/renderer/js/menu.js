@@ -703,6 +703,7 @@
     const adopted = portraits.adopt(j);
     portraitReg = portraits.registry();
     const ids = portraitReg.portraits.map((p) => p.id);
+    if (typeof Slice !== 'undefined' && Slice.setRegisteredPortraits) Slice.setRegisteredPortraits(ids);
     if (adopted.ok && creator && ids.length && !creator.staticArt) {
       creator = Creator.coerceLook({ ...creator, staticArt: true, portraitIds: ids, portraitId: ids.includes(creator.portraitId) ? creator.portraitId : ids[0] });
       preview.key = '';

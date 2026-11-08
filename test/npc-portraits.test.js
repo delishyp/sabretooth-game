@@ -106,5 +106,25 @@ test('a legacy player blank gets the creator default, and a saved id stays', () 
     const still = E.migrate(JSON.parse(JSON.stringify(kept)));
     assert.strictEqual(still.cat.portraitId, 'cat-96beb4613b169dfd');
     assert.deepStrictEqual(still.cat.portraitLegacy, kept.cat.portraitLegacy);
+    s.cat.portraitId = 'cat-not-in-the-registry';
+    delete s.cat.portraitLegacy;
+    s.npcs.hc01.portraitId = 'cat-also-not-registered';
+    delete s.npcs.hc01.portraitLegacy;
+    const npcName = s.npcs.hc01.name;
+    const npcStage = s.npcs.hc01.stage;
+    const missingSlug = E.migrate(JSON.parse(JSON.stringify(s)));
+    assert.strictEqual(missingSlug.cat.portraitId, DEFAULT);
+    assert.strictEqual(missingSlug.cat.portraitLegacy.case, 'unregistered');
+    assert.strictEqual(missingSlug.cat.portraitLegacy.rejected, 'cat-not-in-the-registry');
+    assert.strictEqual(missingSlug.cat.portraitLegacy.phenotypeMatch, false);
+    assert.strictEqual(missingSlug.cat.sex, sex);
+    assert.deepStrictEqual(missingSlug.cat.genes, genes);
+    assert.strictEqual(missingSlug.npcs.hc01.portraitId, defaults.assignments.hc01.id);
+    assert.notStrictEqual(missingSlug.npcs.hc01.portraitId, 'cat-also-not-registered');
+    assert.strictEqual(missingSlug.npcs.hc01.name, npcName);
+    assert.strictEqual(missingSlug.npcs.hc01.stage, npcStage);
+    const slugAgain = E.migrate(JSON.parse(JSON.stringify(missingSlug)));
+    assert.deepStrictEqual(slugAgain.cat.portraitLegacy, missingSlug.cat.portraitLegacy);
+    assert.strictEqual(slugAgain.npcs.hc01.portraitId, missingSlug.npcs.hc01.portraitId);
   }
 });

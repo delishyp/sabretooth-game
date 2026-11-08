@@ -13,8 +13,34 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
-  /** A slug is kept as given. Anything else is not a saved choice. */
-  const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
+  /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
+  const SLUG = /^[a-z0-9][a-z0-9-]*$/;
+  let registeredPortraits = null;
+  function rememberPortraits(ids) {
+    if (!ids || !ids.length) return;
+    registeredPortraits = new Set(ids);
+  }
+  function loadRegisteredPortraits() {
+    if (typeof require === 'function') {
+      try {
+        const reg = require('../../../assets/portraits/registry.json');
+        rememberPortraits((reg.portraits || []).map((p) => p && p.id).filter(Boolean));
+      } catch (e) { /* the renderer fills this from the same file */ }
+    }
+  }
+  loadRegisteredPortraits();
+  if (!registeredPortraits && typeof XMLHttpRequest !== 'undefined') {
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '../../assets/portraits/registry.json', false);
+      xhr.send();
+      if (xhr.status === 200 || xhr.status === 0) {
+        const reg = JSON.parse(xhr.responseText);
+        rememberPortraits((reg.portraits || []).map((p) => p && p.id).filter(Boolean));
+      }
+    } catch (e) { /* node tests load the registry through require */ }
+  }
+  const keptPortraitId = (v) => (typeof v === 'string' && SLUG.test(v) && (!registeredPortraits || registeredPortraits.has(v)) ? v : null);
   /** First registered static id. The creator opens on it. Legacy blanks use this same id. Not inferred from genes or a filename. */
   const PLAYER_PRESENTATION_DEFAULT = 'cat-6e2d788dd48ff440';
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
@@ -423,6 +449,7 @@
       let ev = ctx.forcedEvent || null;
       if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
       if (s.records) s.records._huntOk = false;
+      if (!s.dead && !s.travel) shareKill(s, rep);
       overnight(s, rep, ctx.rested);
       if (Pair.enabled && !s.dead && !s.travel && s.records) {
         const own = W.ownership(s.map.claims, s.region);
@@ -502,10 +529,27 @@
     const bind = (e, npc, extra = {}) => ({ eventId: e.id, kind: e.kind, catId: npc ? npc.id : null, catName: npc ? npc.name : null, day: s_day(extra), hostile: !!extra.hostile, choiceId: null });
     const s_day = (x) => x.day;
     /** map §8.3 trespass patrol, then loners §2.3. Returns a pending event or null. */
+    function onOwnPrideLand(s) {
+      const pride = s.cat && s.cat.status === 'member' ? s.cat.prideId : null;
+      if (!pride) return false;
+      const own = W.ownership(s.map.claims, s.region);
+      return own.holder === pride && own.state === 'held';
+    }
+    /** Membership kill share: +20 Hunger once per day on that pride's held land. Same receipt list as admission. No skill XP. */
+    function shareKill(s, rep) {
+      if (!onOwnPrideLand(s) || !s.records || s.travel) return;
+      if (!Array.isArray(s.records.receipts)) s.records.receipts = [];
+      const key = `${s.runId || ''}/kill-share/${s.cat.prideId}/${s.day}`;
+      if (s.records.receipts.includes(key)) return;
+      s.records.receipts.push(key);
+      const before = s.needs.hunger;
+      s.needs.hunger = clamp(before + 20, 0, 100);
+      rep.push({ k: 'killShare', pride: s.cat.prideId, hunger: s.needs.hunger - before });
+    }
     function rollMeeting(s, rep) {
       const rng = Rng.stream(s.seed, 'meet', s.day);
       const factions = W.trespassFactions(s.map.claims, s.region);
-      if (factions.length && Rng.chance(rng, map.tunables.trespassMeetPct)) {
+      if (!onOwnPrideLand(s) && factions.length && Rng.chance(rng, map.tunables.trespassMeetPct)) {
         const own = W.ownership(s.map.claims, s.region);
         const faction = factions.includes(own.holder) && !(own.disputedBy && rng() < 0.5) ? own.holder : own.disputedBy || factions[0];
         s.prideRelation[faction] = (s.prideRelation[faction] || 0) + M.patrolRelation;            // separate from any choice (scope §7)
@@ -615,11 +659,10 @@
       const prior = cat.portraitLegacy || null;
       if (prior && prior.status === 'presentation-default' && prior.id === PLAYER_PRESENTATION_DEFAULT && cat.portraitId === PLAYER_PRESENTATION_DEFAULT) return cat;
       const earlier = prior && (prior.case || prior.status);
-      const sourceCase = !had ? 'field-absent' : raw == null ? 'stored-null' : 'invalid';
-      const caseName = earlier === 'invalid-cleared' ? 'invalid'
-        : (earlier === 'field-absent' || earlier === 'stored-null' || earlier === 'invalid') ? earlier
-        : sourceCase;
-      const rejected = caseName === 'invalid' ? String(raw != null ? raw : (prior && prior.rejected) || '') : (prior && prior.rejected) || null;
+      const sourceCase = !had ? 'field-absent' : raw == null ? 'stored-null' : (typeof raw === 'string' && SLUG.test(raw) ? 'unregistered' : 'invalid');
+      const knownCase = ['field-absent', 'stored-null', 'invalid', 'unregistered'];
+      const caseName = earlier === 'invalid-cleared' ? 'invalid' : (knownCase.includes(earlier) ? earlier : sourceCase);
+      const rejected = caseName === 'invalid' || caseName === 'unregistered' ? String(raw != null ? raw : (prior && prior.rejected) || '') : (prior && prior.rejected) || null;
       cat.portraitId = PLAYER_PRESENTATION_DEFAULT;
       cat.portraitLegacy = {
         status: 'presentation-default', assigned: true, id: PLAYER_PRESENTATION_DEFAULT,
@@ -680,5 +723,5 @@
     const eventById = (id) => EV.find((e) => e.id === id) || null;
     return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc };
   }
-  return { create, fill };
+  return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

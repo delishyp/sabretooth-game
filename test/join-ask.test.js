@@ -58,7 +58,13 @@ test('FIXTURE: an unmated cat on Highcrag can ask once the leader is met, withou
     assert.strictEqual(row.scored.requestType, -10);
     assert.ok(!state.records.willingness.hc01);
     assert.strictEqual(state.records.matePair, null);
-    assert.deepStrictEqual(state.records.members, before.members);
+    if (row.approved) {
+      assert.strictEqual(state.cat.status, 'member');
+      assert.strictEqual(state.cat.prideId, 'highcrag');
+    } else {
+      assert.deepStrictEqual(state.records.members, before.members);
+      assert.strictEqual(state.cat.status, undefined);
+    }
     assert.deepStrictEqual(state.records.playerSkills.receipts, before.xp.receipts);
     assert.strictEqual(state.day, s.day + 1);
     const loaded = E.migrate(JSON.parse(JSON.stringify(state)));
@@ -221,4 +227,77 @@ test('FIXTURE: the ask stays shut until the leader has been met', () => {
   assert.ok(!gate.blockers.some((line) => line.includes('courtship')));
   const blocked = E.act(s, { type: 'joinAsk', pride: 'highcrag' });
   assert.strictEqual(blocked.error, 'join.blocked');
+});
+
+test('FIXTURE seed 36: an accepted ask makes the player a member of that pride, once', () => {
+  const s = place(36, 'highcrag', 1);
+  const skills = s.records.playerSkills.receipts.slice();
+  const asked = E.act(s, { type: 'joinAsk', pride: 'highcrag' });
+  assert.ok(!asked.error, asked.error);
+  const row = asked.state.records.joinAsk.highcrag;
+  assert.strictEqual(row.approved, true);
+  assert.strictEqual(row.joined, true);
+  assert.strictEqual(asked.state.cat.status, 'member');
+  assert.strictEqual(asked.state.cat.prideId, 'highcrag');
+  assert.strictEqual(asked.state.records.matePair, null);
+  assert.deepStrictEqual(asked.state.records.willingness, {});
+  assert.strictEqual(asked.state.records.pride, null);
+  const members = asked.state.records.members.filter((m) => m.prideId === 'highcrag');
+  assert.strictEqual(members.length, 1);
+  assert.strictEqual(members[0].role, 'member');
+  assert.ok(members[0].receipt.includes('/join/highcrag/season1'));
+  assert.ok(asked.state.pending.summary.includes('member of Highcrag'));
+  assert.ok(!asked.state.pending.lines.some((line) => line.text.includes('does not make you a member')));
+  assert.deepStrictEqual(asked.state.records.playerSkills.receipts, skills);
+  const loaded = E.migrate(JSON.parse(JSON.stringify(asked.state)));
+  assert.strictEqual(loaded.cat.status, 'member');
+  assert.strictEqual(loaded.cat.prideId, 'highcrag');
+  assert.strictEqual(loaded.records.members.filter((m) => m.prideId === 'highcrag').length, 1);
+  let day = E.act(loaded, { type: 'continue' }).state;
+  const again = E.act(day, { type: 'joinAsk', pride: 'highcrag' });
+  assert.strictEqual(again.error, 'duplicate');
+  assert.strictEqual(again.state.records.members.filter((m) => m.prideId === 'highcrag').length, 1);
+  assert.strictEqual(again.state.cat.prideId, 'highcrag');
+  const cold = E.migrate(JSON.parse(JSON.stringify(again.state)));
+  assert.strictEqual(cold.records.members.filter((m) => m.role === 'member').length, 1);
+});
+
+test('FIXTURE: own land skips trespass and shares a kill once a day; other land does not', () => {
+  let patrolSeed = null;
+  for (let seed = 1; seed <= 40 && !patrolSeed; seed++) {
+    const loner = fresh(seed);
+    loner.region = 'highcrag';
+    const stayed = E.act(loner, { type: 'rest' }).state;
+    if (stayed.prideRelation.highcrag === -5) patrolSeed = seed;
+  }
+  assert.ok(patrolSeed, 'no loner patrol on Highcrag in seeds 1-40');
+  const member = fresh(patrolSeed);
+  member.region = 'highcrag';
+  member.cat.status = 'member';
+  member.cat.prideId = 'highcrag';
+  const skills = member.records.playerSkills.receipts.slice();
+  const home = E.act(member, { type: 'rest' }).state;
+  assert.strictEqual(home.prideRelation.highcrag, 0);
+  assert.ok(home.records.receipts.some((key) => key.includes('/kill-share/highcrag/')));
+  assert.strictEqual(home.needs.hunger, fresh(patrolSeed).needs.hunger - 12 + 20);
+  assert.deepStrictEqual(home.records.playerSkills.receipts, skills);
+  const again = E.migrate(JSON.parse(JSON.stringify(home)));
+  assert.strictEqual(again.records.receipts.filter((key) => key.includes('/kill-share/')).length, 1);
+  let ready = again;
+  for (let i = 0; i < 4 && ready.phase !== 'day'; i++) ready = E.act(ready, { type: 'continue' }).state;
+  if (ready.phase !== 'day') { ready.phase = 'day'; ready.pending = null; }
+  const next = E.act(ready, { type: 'rest' }).state;
+  assert.strictEqual(next.records.receipts.filter((key) => key.includes('/kill-share/')).length, 2);
+  const away = fresh(patrolSeed);
+  away.region = 'bonefield';
+  away.cat.status = 'member';
+  away.cat.prideId = 'highcrag';
+  const lonerAway = fresh(patrolSeed);
+  lonerAway.region = 'bonefield';
+  const memberAway = E.act(away, { type: 'rest' }).state;
+  const plainAway = E.act(lonerAway, { type: 'rest' }).state;
+  assert.strictEqual(memberAway.prideRelation.bonefield, plainAway.prideRelation.bonefield);
+  assert.strictEqual(memberAway.prideRelation.highcrag, plainAway.prideRelation.highcrag);
+  assert.ok(!memberAway.records.receipts.some((key) => key.includes('/kill-share/')));
+  assert.strictEqual(memberAway.needs.hunger, plainAway.needs.hunger);
 });

@@ -372,6 +372,14 @@
       for (const [pride, ask] of Object.entries(r.joinAsk || {})) {
         if (ask && ask.approved === false && r.admissionRefusals[pride] == null) r.admissionRefusals[pride] = 1;
       }
+      if (!(r.pride && r.pride.id) && s.cat && s.cat.status !== 'member') {
+        for (const [pride, ask] of Object.entries(r.joinAsk || {})) {
+          if (ask && ask.approved === true) {
+            grantMembership(s, pride, `${s.runId || ''}/join/${pride}/season${ask.season || 1}`);
+            break;
+          }
+        }
+      }
       if (!r.cats || typeof r.cats !== 'object') r.cats = {};
       if (!Object.prototype.hasOwnProperty.call(r, 'history')) {
         r.history = null;
@@ -948,6 +956,20 @@
       if (prior && (prior.season == null || prior.season === season)) blockers.push(`You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
       return { pride, leader, blockers };
     }
+    function grantMembership(s, pride, receipt) {
+      if (!s.cat || !pride) return false;
+      if (s.records.pride && s.records.pride.id) return false;
+      s.cat.status = 'member';
+      s.cat.prideId = pride;
+      if (!Array.isArray(s.records.members)) s.records.members = [];
+      if (!s.records.members.some((m) => m.catId === s.cat.catId && m.prideId === pride)) {
+        s.records.members.push({
+          id: `member-${s.runId || 'run'}-${s.cat.catId}`,
+          catId: s.cat.catId, role: 'member', sex: s.cat.sex, prideId: pride, receipt
+        });
+      }
+      return true;
+    }
     function beginJoinAsk(s, pride, deps) {
       if (playerMated(s) || (s.records.pride && s.records.pride.id)) return { error: 'join.notLone' };
       const gate = joinBlockers(s, deps);
@@ -955,6 +977,7 @@
       const season = seasonIndex(s);
       const prior = s.records.joinAsk[pride];
       if (prior && (prior.season == null || prior.season === season)) return { error: 'duplicate', result: prior };
+      if (s.cat && s.cat.status === 'member') return { error: 'join.notLone' };
       if (gate.blockers.length) return { error: 'join.blocked', blockers: gate.blockers };
       const leader = gate.leader;
       const key = `${s.runId || ''}/join/${pride}/season${season}`;
@@ -966,16 +989,17 @@
       const relationDelta = !approved && !respected ? -5 : 0;
       if (relationDelta) shiftPride(s, pride, relationDelta, `${key}/refuse`, deps);
       if (!approved) s.records.admissionRefusals[pride] = (s.records.admissionRefusals[pride] || 0) + 1;
+      const joined = approved ? grantMembership(s, pride, key) : false;
       const result = {
         approved, roll, p: scored.p, points: scored.points, day: s.day, leaderId: leader.id,
-        requestType: 'b', relationDelta, season, scored
+        requestType: 'b', relationDelta, season, joined, scored
       };
       s.records.joinAsk[pride] = result;
       const prideName = PRIDE_NAMES[pride] || pride;
       const lines = [
         { kind: 'narration', text: `You ask ${leader.name} to let you join ${prideName}.` },
-        { kind: 'narration', text: approved
-          ? `${leader.name} approves the request. This ask does not make you a member.`
+        { kind: 'narration', text: joined
+          ? `${leader.name} approves the request. You are a member of ${prideName}.`
           : `${leader.name} refuses the request.` }
       ];
       if (!approved) {
@@ -986,7 +1010,7 @@
       const event = {
         bond: true, eventId: 'join.ask', kind: 'join', group: 'join', heading: 'Ask to join',
         catId: leader.id, catName: leader.name, day: s.day, lines, choices: [],
-        summary: approved ? `You asked to join ${prideName}. The request was approved.` : `You asked to join ${prideName}. The request was refused.`,
+        summary: joined ? `You asked to join ${prideName}. You are a member of ${prideName}.` : `You asked to join ${prideName}. The request was refused.`,
         choiceId: 'ask', result: true, seasonEnd: false, pride, leaderId: leader.id, join: result, showPortrait: true
       };
       remember(s, [s.cat.catId, leader.id], approved ? 'join_approved' : 'join_refused', event.summary, key, s.day);
