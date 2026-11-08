@@ -13,9 +13,9 @@
  * pride at Found; premade home lists are left as authored.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./speech'), require('./fight'), require('./pairs'));
-  else root.Pairing = factory(root.Rng, root.Speech, root.Fight, root.Pairs);
-})(typeof self !== 'undefined' ? self : this, function (Rng, Speech, Fight, Pairs) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./speech'), require('./fight'), require('./pairs'), require('./skills'));
+  else root.Pairing = factory(root.Rng, root.Speech, root.Fight, root.Pairs, root.Skills);
+})(typeof self !== 'undefined' ? self : this, function (Rng, Speech, Fight, Pairs, Skills) {
   const TRAITS = ['aggression', 'sociability', 'boldness', 'loyalty', 'curiosity'];
   const COURT_GAP = 5;
   const FOUND_CLAIM = 60;
@@ -299,6 +299,13 @@
       ensureCat(s, npc.id, npc.sex, false);
       const b = bondOf(s, npc.id);
       if (b.stage === 'none') b.stage = 'met';
+      if (Skills.LEADERS.includes(npc.id)) {
+        Skills.grant(s, 'standing', true, `${s.runId || ''}/skill/standing/meet/${npc.id}/${s.day}`);
+        if (Skills.has(s, 'courtesy')) {
+          const key = `${s.runId || ''}/courtesy/${npc.faction}/${Math.floor(((s.day || 1) - 1) / seasonDays)}`;
+          shiftPride(s, npc.faction, 10, key, { notePride: null });
+        }
+      }
     }
 
     function meetingEvent(s, npc, deps) {
@@ -334,6 +341,7 @@
       s.records.pairsStream = seeded.stream;
       const mates = Pairs.applyMates(s.npcs, s.records);
       s.records.mateAmbiguity = mates.ambiguity;
+      s.records.playerSkills = Skills.rollNew(s.seed);
       return s;
     }
 
@@ -376,6 +384,7 @@
       const unknownPast = !prior;
       if (s.cat) ensureCat(s, s.cat.catId, s.cat.sex, unknownPast);
       for (const n of Object.values(s.npcs || {})) ensureCat(s, n.id, n.sex, unknownPast);
+      if (!r.playerSkills) r.playerSkills = Skills.empty('missing-not-rolled');
       if (s.npcs) {
         const mates = Pairs.applyMates(s.npcs, r);
         if (mates.ambiguity.length) r.mateAmbiguity = (r.mateAmbiguity || []).concat(mates.ambiguity);
@@ -435,13 +444,17 @@
       }
       const compat = 0;
       points += compat / 2;
+      const displayMilestones = Skills.milestone(s, 'display');
+      const displayTerm = 3 * displayMilestones;
+      points += displayTerm;
       let standingTerm = null;
       if (npc.faction && npc.faction !== 'loner') {
         standingTerm = ((s.prideRelation && s.prideRelation[npc.faction]) || 0) / 10;
         points += standingTerm;
       }
       return {
-        points, p: Math.max(5, Math.min(90, points)), value, relationship, sociabilityTerm, compat, standingTerm
+        points, p: Math.max(5, Math.min(90, points)), value, relationship, sociabilityTerm, compat, standingTerm,
+        displayMilestones, displayTerm
       };
     }
 
@@ -532,11 +545,14 @@
       const support = npc.affinity >= 50 ? 10 : 0;
       const seasons = npc.faction === 'mistwood' ? (s.records.mistwoodSeasonsInRange || 0) : 0;
       const mistwoodTerm = npc.faction === 'mistwood' ? Math.min(10, 2 * seasons) : 0;
-      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + support + mistwoodTerm;
+      const standingMilestones = Skills.milestone(s, 'standing');
+      const standingSkillTerm = 3 * standingMilestones;
+      const proven = Skills.has(s, 'proven') && (s.records.fights || []).some((row) => row.won) ? 10 : 0;
+      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + support + mistwoodTerm + standingSkillTerm + proven;
       return {
         points, p: Math.max(5, Math.min(90, points)), relation, leaderValue, temperament: temp, targetSupport: support,
         mistwoodRangeSeasons: npc.faction === 'mistwood' ? seasons : undefined,
-        mistwoodTerm
+        mistwoodTerm, standingMilestones, standingSkillTerm, proven
       };
     }
     function storedMilestone(cat, key) {
@@ -553,8 +569,8 @@
         perks: (who && who.perks) || [],
         saberM: storedMilestone(who, 'saberM'),
         guardM: storedMilestone(who, 'guardM'),
-        standingM: storedMilestone(who, 'standingM'),
-        displayM: storedMilestone(who, 'displayM'),
+        standingM: player ? Skills.milestone(s, 'standing') : storedMilestone(who, 'standingM'),
+        displayM: player ? Skills.milestone(s, 'display') : storedMilestone(who, 'displayM'),
         mateChallenge: true
       };
     }
@@ -622,6 +638,7 @@
           };
           s.records.fights.push(stored);
           result = stored;
+          Skills.grant(s, 'standing', wonNow, `${s.runId || ''}/skill/standing/rival/${npc.id}`);
           if (!stored.replaced && playerTier && deps.injure) deps.injure(s, playerTier === 'crippling' ? 'serious' : playerTier, 'mate-challenge');
           if (!wonNow) shiftValue(s, npc, -10, `${key}/loss`, deps);
           else lowerPair(s, rival.id, npc.id, -10);
@@ -661,7 +678,7 @@
         kind: 'leader_audience', pride, leaderId: leader.id, candidateId: npc.id, day,
         witnesses: [leader.id, npc.id, s.cat.catId]
       });
-      if (!approved) {
+      if (!approved && !Skills.has(s, 'respected')) {
         shiftPride(s, pride, -5, `${key}/refuse`, deps);
         const bond = bondOf(s, npc.id);
         if (bond.stage === 'courting') bond.stage = 'close';
@@ -699,11 +716,12 @@
       if (spendEnergy) s.needs.energy = Math.max(0, s.needs.energy - 5);
       s.records.court[npc.id] = { attempts: attempt, lastDay: day };
       bondOf(s, npc.id).stage = 'courting';
-      if (!accept) {
+      if (!accept && !Skills.has(s, 'persistent')) {
         const lossKey = `${askKey}/decline`;
         if (once(s, lossKey)) npc.affinity = Math.max(-100, npc.affinity - 5);
         if (deps.notePersonal) deps.notePersonal(s, npc.id, -5, lossKey);
       }
+      Skills.grant(s, 'display', accept, `${askKey}/skill`);
       const event = resultScene(accept ? 'accepted' : 'declined', s, npc, deps, court);
       event.day = day;
       if (accept && isPrideMember(npc)) {
@@ -808,6 +826,7 @@
       if (!offer.allowed) return { error: 'unaffordable' };
       s.needs.energy = Math.max(0, s.needs.energy - offer.energy);
       if (offer.to !== s.region) deps.arrive(s, offer.to);
+      if (Skills.LEADERS.includes(npc.id)) Skills.grant(s, 'standing', true, `${s.runId || ''}/skill/standing/seek/${npc.id}/${s.day}`);
       return { event: meetingEvent(s, npc, deps) };
     }
 
@@ -862,7 +881,7 @@
       if (!event) return { error: 'court.ineligible' };
       return { event };
     }
-    function hasPerk(s, id) { return !!((s.cat && s.cat.perks) || []).includes(id); }
+    function hasPerk(s, id) { return Skills.has(s, id); }
     function challengeOffers(s, deps) {
       if (s.phase !== 'day' || s.travel || s.forced || !hasPerk(s, 'right_of_challenge')) return [];
       const out = [];
@@ -914,6 +933,11 @@
     function applyResult(s, npc, result, deps, day) {
       const key = `${s.runId || ''}/bond/${npc.id}/${day}/${result}`;
       if (!once(s, key)) return { applied: false };
+      if (result === 'talk_improve' || result === 'groom' || result === 'share') {
+        if (s.records.court[npc.id] || bondOf(s, npc.id).stage === 'courting') {
+          Skills.grant(s, 'charm', true, `${key}/charm`);
+        }
+      }
       if (result === 'talk_improve' || result === 'talk_unchanged' || result === 'talk_worsen') {
         const intent = result === 'talk_improve' ? 'improve' : result === 'talk_worsen' ? 'worsen' : 'unchanged';
         const delta = deps.applyIntent(s, npc.id, intent, day);

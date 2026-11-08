@@ -199,6 +199,62 @@
         mates.title = mate.name;
         h.append(mates);
       }
+      const skills = s.records && s.records.playerSkills;
+      if (skills) {
+        const strip = el('div', 'skill-strip');
+        strip.id = 'skill-strip';
+        for (const id of ['display', 'standing']) {
+          const xp = skills.xp[id] || 0;
+          const next = [100, 300, 600, 1000].find((n) => n > xp) || 1000;
+          const m = [100, 300, 600, 1000].filter((n) => xp >= n).length;
+          const row = el('p', 'skill-row', `${id === 'display' ? 'Display' : 'Standing'} ${xp}/${next} · M${m}`);
+          row.dataset.skill = id;
+          row.dataset.xp = String(xp);
+          row.dataset.milestone = String(m);
+          strip.append(row);
+        }
+        if (skills.waiting && skills.waiting.length) {
+          const chip = el('button', 'perk-ready', 'Perk ready');
+          chip.dataset.g = 'perkOpen';
+          chip.type = 'button';
+          strip.append(chip);
+        }
+        h.append(strip);
+      }
+    }
+    function renderPerkModal() {
+      const old = document.getElementById('perk-modal');
+      if (old) old.remove();
+      const skills = s.records && s.records.playerSkills;
+      const wait = skills && skills.modalOpen && skills.waiting && skills.waiting[0];
+      if (!wait) return;
+      const names = {
+        gift: 'Gift', call: 'Call', showdown: 'Showdown', persistent: 'Persistent',
+        again: 'Again', famous: 'Famous', chosen: 'Chosen', bonded_pair: 'Bonded Pair',
+        courtesy: 'Courtesy', right_of_challenge: 'Right of Challenge', respected: 'Respected', proven: 'Proven',
+        alliance_mate: 'Alliance Mate', kin_follow: 'Kin Follow', takeover: 'Takeover', elder_voice: 'Elder Voice'
+      };
+      const options = {
+        display: [['gift', 'call'], ['showdown', 'persistent'], ['again', 'famous'], ['chosen', 'bonded_pair']],
+        standing: [['courtesy', 'right_of_challenge'], ['respected', 'proven'], ['alliance_mate', 'kin_follow'], ['takeover', 'elder_voice']]
+      }[wait.skill][wait.milestone - 1];
+      const modal = el('div', 'perk-modal');
+      modal.id = 'perk-modal';
+      modal.append(el('h2', '', `${wait.skill === 'display' ? 'Display' : 'Standing'} milestone ${wait.milestone}`));
+      modal.append(el('p', '', 'Choose one. The choice stays until you pick it.'));
+      const row = el('div', 'perk-cards');
+      for (const id of options) {
+        const card = el('button', 'perk-card', names[id] || id);
+        card.type = 'button';
+        card.dataset.g = 'perkChoose';
+        card.dataset.perk = id;
+        row.append(card);
+      }
+      const later = el('button', 'perk-later', 'Later');
+      later.type = 'button';
+      later.dataset.g = 'perkLater';
+      modal.append(row, later);
+      document.querySelector('[data-screen="game"]').append(modal);
     }
     function renderPanel() {
       const p = $('#home-panel'); p.textContent = '';
@@ -534,10 +590,12 @@
     }
     function render() {
       if (!s) return;
-      renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent();
+      renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       const evOpen = !$('#game-event').hidden;
+      const perkOpen = !!document.getElementById('perk-modal');
       let target = null;
-      if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="encounterChoose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
+      if (perkOpen) target = document.querySelector('#perk-modal [data-g="perkChoose"]');
+      else if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="encounterChoose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
       else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
@@ -569,6 +627,9 @@
       if (d.g === 'court') return act({ type: 'court', catId: d.cat });
       if (d.g === 'askLeader') return act({ type: 'askLeader', catId: d.cat });
       if (d.g === 'challenge') return act({ type: 'challenge', catId: d.cat });
+      if (d.g === 'perkOpen') return act({ type: 'perkOpen' });
+      if (d.g === 'perkChoose') return act({ type: 'perkChoose', perkId: d.perk });
+      if (d.g === 'perkLater') return act({ type: 'perkLater' });
       if (d.g === 'found') return act({ type: 'found', name: d.name });
       if (d.g === 'inspectEncounter') {
         const src = document.querySelector('.encounter-img');

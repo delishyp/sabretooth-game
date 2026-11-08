@@ -8,9 +8,9 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A slug is kept as given. Anything else, including a legacy omission, is null. Never rewritten to another id. */
@@ -315,6 +315,20 @@
         endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'court', rested: false });
         return { state: s, report: s.report };
       }
+      if (s.phase === 'day' && action.type === 'perkChoose') {
+        const picked = Skills.choose(s, action.perkId);
+        if (picked.error) return { state: s0, error: picked.error };
+        return { state: s };
+      }
+      if (s.phase === 'day' && action.type === 'perkLater') {
+        Skills.later(s);
+        return { state: s };
+      }
+      if (s.phase === 'day' && action.type === 'perkOpen') {
+        const opened = Skills.open(s);
+        if (opened.error) return { state: s0, error: opened.error };
+        return { state: s };
+      }
       if (s.phase === 'day' && action.type === 'found') {
         const opened = Pair.beginFound(s, action.name, bondDeps(s, rep));
         if (opened.error) return { state: s0, error: opened.error };
@@ -346,7 +360,10 @@
         rep.push({ k: 'hunt', size, chance: p, ok, ate: ok ? N.eat[size] : 0 });
         const injPct = H.injuryPct[size] * (ok ? 1 : H.failInjuryMult) * H.styleInjuryMult;
         if (rng() * 100 < injPct) injure(s, tierRoll(rng), 'hunt', rep);
-      } else if (action.type === 'rest') { rested = true; restNow(s, rep); }
+      } else if (action.type === 'rest') {
+        rested = true; restNow(s, rep);
+        if (s.records && s.records.playerSkills && s.records.playerSkills.waiting.length) s.records.playerSkills.modalOpen = true;
+      }
       else if (action.type === 'travel') {
         const opt = av.travel.find((o) => o.to === action.to); if (!opt) return { state: s0, error: 'not_adjacent' };
         if (!opt.allowed) return { state: s0, error: opt.reason };
