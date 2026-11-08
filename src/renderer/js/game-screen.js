@@ -101,8 +101,21 @@
       ends.append(el('span', '', '-100'), el('span', '', '0'), el('span', '', '100'));
       meter.append(track, ends, el('p', 'meter-caption', known ? `Personal · ${who} → you ${signed(personal.value)} · ${tier}` : `Personal · ${who} → you · Unknown`));
       ul.append(meter);
+      const pair = s.records && s.records.matePair;
+      const mates = !!(pair && pair.mateId === catId);
+      if (mates) {
+        const bond = el('p', 'relation-mates', 'Mates');
+        bond.dataset.mate = catId;
+        ul.append(bond);
+      }
       const romance = s.worldMemory && s.worldMemory.romance && s.worldMemory.romance[catId];
-      ul.append(el('p', 'relation-romance', romance && romance.value != null ? `Romance · ${signed(romance.value)}` : 'Romance · Unknown'));
+      if (romance && romance.value != null) ul.append(el('p', 'relation-romance', `Romance · ${signed(romance.value)}`));
+      else if (!mates) ul.append(el('p', 'relation-romance', 'Romance · Unknown'));
+      if (mates) {
+        const attraction = el('p', 'relation-attraction', 'Attraction · Unknown');
+        attraction.dataset.attraction = 'unknown';
+        ul.append(attraction);
+      }
       if (!npc || !npc.faction || npc.faction === 'loner') ul.append(el('p', 'relation-faction', 'Faction · Unknown'));
       else {
         const pride = s.worldMemory && s.worldMemory.prideToPlayer && s.worldMemory.prideToPlayer[`${npc.faction}->player`];
@@ -175,9 +188,17 @@
       const dayLabel = t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) });
       const day = el('div', 'hud-day', s.records && s.day > E.rules.seasonDays ? `${dayLabel} · after the mating season` : dayLabel);
       day.id = 'game-day';
+      const pair = s.records && s.records.matePair;
+      const mate = pair && s.npcs[pair.mateId];
       const needs = el('div', 'hud-needs'); for (const k of ['health', 'hunger', 'thirst', 'energy']) needs.append(needBar(k, s.needs[k]));
       const inj = el('div', 'hud-injuries'); for (const i of s.injuries) inj.append(el('span', `chip chip-${i.tier}`, t.plural(`game.injury.${i.tier}`, i.daysLeft)));
       h.append(day, needs, inj);
+      if (mate) {
+        const mates = el('div', 'hud-mates', 'Mates');
+        mates.dataset.mate = pair.mateId;
+        mates.title = mate.name;
+        h.append(mates);
+      }
     }
     function renderPanel() {
       const p = $('#home-panel'); p.textContent = '';

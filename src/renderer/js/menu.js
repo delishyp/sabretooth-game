@@ -112,7 +112,15 @@
   }
   function focus(el) {
     $$('.focused').forEach((b) => b.classList.remove('focused'));
-    if (el) { el.classList.add('focused'); el.focus({ preventScroll: true }); }
+    if (!el) return;
+    el.classList.add('focused');
+    el.focus({ preventScroll: true });
+    const box = el.closest && el.closest('.bond-choices');
+    if (!box) return;
+    const er = el.getBoundingClientRect();
+    const br = box.getBoundingClientRect();
+    if (er.top < br.top) box.scrollTop -= br.top - er.top;
+    else if (er.bottom > br.bottom) box.scrollTop += er.bottom - br.bottom;
   }
   const current = () => $('.focused') || null;
   function scrollProse(a) {

@@ -9,7 +9,9 @@ const root = path.join(__dirname, '..', '..');
 const WorldMap = require(path.join(root, 'src/renderer/js/worldmap.js'));
 const W = WorldMap.create(require(path.join(root, 'src/renderer/data/map.json')));
 const OUT = '/opt/cursor/artifacts';
+const FIX = path.join(root, 'test/fixtures/presentation-same-save');
 fs.mkdirSync(OUT, { recursive: true });
+fs.mkdirSync(FIX, { recursive: true });
 
 async function launch(ud) {
   const app = await electron.launch({ executablePath: require('electron'), args: ['--no-sandbox', root], env: { ...process.env, SABRETOOTH_USERDATA: ud } });
@@ -49,6 +51,7 @@ async function captureCard(app, page, shots, name) {
   assert.strictEqual(separated.saveInChoices, 0);
   assert.strictEqual(separated.navInChoices, 0);
   assert.strictEqual(separated.headerSave, 1);
+  fs.writeFileSync(path.join(FIX, `${name}.json`), JSON.stringify((await g(page)).state));
   await size(app, 1280, 720);
   shots.push(await shot(page, `${name}-720`));
   await size(app, 1920, 1080);
@@ -78,7 +81,7 @@ async function clearPhase(app, page, shots, flags) {
         assert.ok(separated.court >= 1);
         flags.court = true;
       }
-      if (!flags.found && (choice === 'found_here' || (s.pending.group === 'founding'))) {
+      if (!flags.found && s.pending.group === 'founding') {
         await captureCard(app, page, shots, 'founding');
         flags.found = true;
       }
@@ -184,6 +187,7 @@ async function clearPhase(app, page, shots, flags) {
     assert.strictEqual(done.records.yearLengthDays, null);
     assert.strictEqual(done.cat.sex, 'male');
     assert.strictEqual(done.records.matePair.mateSex, mate.sex);
+    fs.writeFileSync(path.join(FIX, 'day21.json'), JSON.stringify(done));
     await size(app, 1280, 720);
     shots.push(await shot(page, 'day21-720'));
     await size(app, 1920, 1080);

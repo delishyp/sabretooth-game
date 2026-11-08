@@ -278,11 +278,18 @@ button.primary { border-color: var(--accent); }
 .action-group.is-bond h3 { color: #c6efd0; }
 .action-group.is-bond button.is-court { background: #1c3a28; border-color: #8fbf9a; }
 .action-group.is-bond button.is-found { background: #3a2e14; border-color: #e6c98a; }
-.bond-card .bond-choices { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 6px; padding: 10px; background: #142018; border: 2px solid #7dba8a; border-radius: 10px; }
+.bond-card.conversation-card { overflow: hidden; }
+.bond-card .event-scroll { flex: 0 1 auto; max-height: 132px; }
+.bond-card .bond-choices { display: flex; flex-direction: column; gap: 14px; width: 100%; margin-top: 8px; padding: 14px; box-sizing: border-box; background: #142018; border: 2px solid #7dba8a; border-radius: 10px; flex: 1 1 auto; min-height: 180px; overflow-x: hidden; overflow-y: auto; }
+.bond-card .bond-choices button { flex: 0 0 auto; min-height: 56px; font-size: 22px; line-height: 1.35; padding: 12px 18px; white-space: normal; text-align: left; border-width: 2px; border-radius: 8px; }
 .bond-card .bond-choices button.is-court { background: #1c3a28; border-color: #8fbf9a; }
 .bond-card .bond-choices button.is-found { background: #3a2e14; border-color: #e6c98a; }
 .bond-card .bond-choices button.is-route { background: #243044; border-color: #b7c7e6; }
-.bond-stage { margin: 4px 0 0; color: #c6efd0; font-size: 16px; }
+.bond-card .bond-choices button.is-bond { background: #1a2c24; border-color: #9fd0b0; }
+.action-group.is-bond button { min-height: 52px; font-size: 20px; padding: 10px 14px; }
+.relation-mates { font-size: 22px; color: #d7f5e2; letter-spacing: .4px; }
+.hud-mates { margin-top: 8px; padding: 6px 12px; width: fit-content; border: 2px solid #7dba8a; border-radius: 8px; color: #d7f5e2; font-size: 20px; background: #142018; }
+.bond-stage { margin: 4px 0 0; color: #c6efd0; font-size: 18px; }
 .conversation-card .talk-utility { flex: 0 0 auto; display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212, 176, 122, .4); }
 .conversation-card .talk-utility button { width: auto; min-height: 34px; padding: 4px 14px; font-size: 15px; letter-spacing: 1px; text-transform: uppercase; background: transparent; border: 1px dashed rgba(212, 176, 122, .75); color: #d4b07a; border-radius: 8px; }
 .conversation-card .talk-utility button:hover, .conversation-card .talk-utility button.focused, .conversation-card .talk-utility button:focus-visible { background: rgba(48, 32, 18, .55); border-color: #e6c98a; color: #fff8ea; outline: 2px solid #fff; outline-offset: 2px; }
