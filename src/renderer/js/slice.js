@@ -1,27 +1,29 @@
 /**
  * Slice 1 "first season as a loner" (docs/design/slice-1-scope.md v1.0.1), pure UMD, deterministic (seeded streams, see rng.js).
  * One action per day (hunt / rest / travel) → day end: free drink, hazards (map §6), one meeting or region moment (≤ 1 offline
- * event/day), overnight needs tick (needs §1/§2, Standard), day++ → day-20 summary or death summary. All numbers come from
+ * event/day), overnight needs tick (needs §1/§2, Standard), day++. Without the first-season handoff, day 20 ends the run.
+ * With it, day 20 closes the mating window and the next day continues. All numbers come from
  * data/slice-rules.json and data/map.json; event text comes from Saga's library (data/events/slice-1.json).
  *
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A slug is kept as given. Anything else, including a legacy omission, is null. Never rewritten to another id. */
   const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
-  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null, encounters = null }) {
+  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null, encounters = null, firstSeason = null }) {
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
     const C = Conversation.create(conversation, { ...(R.conversation || {}), affinityRange: M.affinityRange });
     const WM = WorldMemory.create(R, conversation, borderPolicy);
     const Enc = Encounter.create(encounters, R);
+    const Pair = Pairing.create(firstSeason, R);
     const EV = (events && events.events) || [];
     const season = (s) => s.season;
     /** needs §1.6a named state. */
@@ -64,7 +66,25 @@
       };
       Personality.applyNew(s, R);
       WM.initNew(s);
+      Pair.initNew(s);
       return s;
+    }
+    function bondDeps(s, rep) {
+      return {
+        regionName: (id) => W.region(id).name,
+        wild: (id) => W.ownership(s.map.claims, id).state === 'wild',
+        arrive: (st, to) => arrive(st, to, rep || []),
+        applyIntent: (st, catId, intent, day) => applyIntent(st, catId, intent, day),
+        notePersonal: (st, catId, delta, key) => WM.notePersonal(st, { catId, delta, receiptKey: key, sourceType: 'courtship', scope: 'private' }),
+        homeEdge: (st, npc) => {
+          for (const to of W.neighbours(st.region)) {
+            if (!(npc.homeZones || []).includes(to)) continue;
+            const blocked = (st.map.blockedEdges[WorldMap.edgeKey(st.region, to)] || 0) >= st.day;
+            if (travelDaysFrom(st, to) === 1 && !blocked) return { to, days: 1 };
+          }
+          return null;
+        }
+      };
     }
 
     // ---------- injuries ----------
@@ -105,7 +125,10 @@
         travel: W.neighbours(s.region).map((to) => ({ to, days: travelDaysFrom(s, to), allowed: !blocked(to), reason: blocked(to) ? 'blocked' : null })),
         talk,
         border: borderOffer(s),
-        seek: Enc.seekOffer(s)
+        seek: Enc.seekOffer(s),
+        seekMate: Pair.enabled ? Pair.seekOffers(s, bondDeps(s)) : [],
+        court: Pair.enabled ? Pair.courtOffers(s, bondDeps(s)) : [],
+        found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null
       };
     }
     function atHighcragBorder(s) {
@@ -218,6 +241,11 @@
         if (r.error) return { state: s0, error: r.error };
         return { state: s };
       }
+      if (s.phase === 'event' && Pair.enabled && s.pending && s.pending.bond) {
+        const picked = Pair.choose(s, action, bondDeps(s, rep));
+        if (picked.error) return { state: s0, error: picked.error };
+        return { state: s };
+      }
       if (s.phase === 'event' && action.type === 'choose' && s.pending && !s.pending.hostile) {
         const ev = EV.find((x) => x.id === s.pending.eventId);
         const greet = ev && (ev.choices || []).find((x) => x.id === action.choiceId);
@@ -234,10 +262,29 @@
       }
       if (s.phase === 'event') return choose(s, action);
       if (s.phase === 'eventResult') {
+        if (Pair.enabled && s.pending && s.pending.bond) return finishBond(s);
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
         else if (s.phase === 'day') WM.considerFord(s);
         return { state: s };
+      }
+      if (s.phase === 'day' && action.type === 'seekMate') {
+        const opened = Pair.beginSeek(s, action.catId, bondDeps(s, rep));
+        if (opened.error) return { state: s0, error: opened.error };
+        endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'seekMate', rested: false });
+        return { state: s, report: s.report };
+      }
+      if (s.phase === 'day' && action.type === 'court') {
+        const opened = Pair.beginCourt(s, action.catId, bondDeps(s, rep));
+        if (opened.error) return { state: s0, error: opened.error };
+        endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'court', rested: false });
+        return { state: s, report: s.report };
+      }
+      if (s.phase === 'day' && action.type === 'found') {
+        const opened = Pair.beginFound(s, action.name, bondDeps(s, rep));
+        if (opened.error) return { state: s0, error: opened.error };
+        endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'found', rested: false });
+        return { state: s, report: s.report };
       }
       const av = available(s); let rested = false; let travelledEdge = null;
       if (av.talkOnly) return { state: s0, error: 'talk' };
@@ -260,6 +307,7 @@
         const ok = rng() * 100 < p;
         s.needs.energy = clamp(s.needs.energy - N.energy.hunt, 0, 100);
         if (ok) s.needs.hunger = clamp(s.needs.hunger + N.eat[size], 0, 100);
+        if (Pair.enabled) Pair.noteHunt(s, ok);
         rep.push({ k: 'hunt', size, chance: p, ok, ate: ok ? N.eat[size] : 0 });
         const injPct = H.injuryPct[size] * (ok ? 1 : H.failInjuryMult) * H.styleInjuryMult;
         if (rng() * 100 < injPct) injure(s, tierRoll(rng), 'hunt', rep);
@@ -288,16 +336,50 @@
         if (!s.dead && !s.travel) hazardHit = rollHazards(s, rep, ctx);
         if (!s.dead && !s.travel && !ctx.slotTaken && Enc.intercept(s, ctx, W.hazardsFor, rep)) return;
       }
-      let ev = null;
-      if (!s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
+      let ev = ctx.forcedEvent || null;
+      if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
+      if (s.records) s.records._huntOk = false;
       overnight(s, rep, ctx.rested);
       s.report = { day: s.day, region: s.region, lines: rep };
       if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
-      const finished = s.day >= R.seasonDays;
-      if (!finished) s.day += 1;
-      if (ev) { s.pending = ev; s.phase = 'event'; if (finished) s.endsAfterEvent = true; }
-      else if (finished) { s.over = true; s.phase = 'over'; }
+      const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;
+      const finished = !Pair.enabled && s.day >= R.seasonDays;
+      if (!finished && !closing) s.day += 1;
+      if (ev) {
+        s.pending = ev; s.phase = ev.result ? 'eventResult' : 'event';
+        if (finished) s.endsAfterEvent = true;
+        if (closing) s.endsAtWindow = true;
+      } else if (closing) {
+        s.pending = Pair.seasonPending(s, bondDeps(s)); s.phase = 'event';
+      } else if (finished) { s.over = true; s.phase = 'over'; }
       else { s.phase = 'day'; if (!WM.considerFord(s)) WM.considerRelay(s); }
+    }
+    function finishBond(s) {
+      const p = s.pending;
+      if (p && p.seasonEnd) {
+        Pair.commitSeason(s);
+        s.pending = null;
+        s.endsAtWindow = false;
+        s.phase = s.dead ? 'over' : 'day';
+        if (s.dead) s.over = true;
+        return { state: s };
+      }
+      if (p && p.next) {
+        s.pending = p.next;
+        s.phase = p.next.result ? 'eventResult' : 'event';
+        return { state: s };
+      }
+      if (s.endsAtWindow && s.records && !s.records.seasonEndShown) {
+        s.endsAtWindow = false;
+        s.pending = Pair.seasonPending(s, bondDeps(s));
+        s.phase = 'event';
+        return { state: s };
+      }
+      s.pending = null;
+      s.phase = s.dead || s.over ? 'over' : 'day';
+      if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
+      else if (s.phase === 'day') WM.considerFord(s);
+      return { state: s };
     }
     function rollHazards(s, rep, ctx) {
       let hit = false;
@@ -358,14 +440,14 @@
         const pct = home ? M.lonerHomePct : near ? M.lonerAdjacentPct : 0;
         if (pct && Rng.chance(rng, pct)) {
           rep.push({ k: 'meetLoner', catId: n.id });
-          if (n.met) return null;                                  // Saga's loner greeting is once per pair; no repeat-meeting text yet
+          if (n.met) return Pair.enabled ? Pair.meetingEvent(s, n, bondDeps(s, rep)) : null;
           const e = eventFor('first_meeting', 'loner'); meet(s, n);
           return e ? bind(e, n, { day: s.day }) : null;
         }
       }
       return null;
     }
-    function meet(s, npc) { npc.met = true; }
+    function meet(s, npc) { npc.met = true; if (Pair.enabled) Pair.onMet(s, npc); }
     /** Saga: one spring moment per region, once per run; shown the first day the cat ends there with no meeting or hazard that day. */
     function regionMoment(s) {
       const e = EV.find((x) => x.kind === 'region' && x.regions.includes(s.region) && (!x.season || x.season === season(s)) && !s.usedEvents.includes(x.id));
@@ -439,6 +521,7 @@
       C.normalize(s);
       WM.migrate(s);
       Enc.normalize(s);
+      if (Pair.enabled) Pair.normalize(s);
       s.saveVersion = R.saveVersion;
       return s;
     }

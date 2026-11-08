@@ -18,7 +18,7 @@
     const framed = (canvas, size) => { const f = el('div', 'portrait-frame frame-' + size); f.append(canvas); return f; };
     const btn = (label, data, opts = {}) => { const b = el('button', opts.cls || '', label); Object.assign(b.dataset, data); if (opts.disabled) b.disabled = true; if (opts.title) b.title = opts.title; return b; };
     const regionName = (id) => (W.region(id) ? W.region(id).name : id);
-    const factionName = (id) => t(`game.faction.${id}`);
+    const factionName = (id) => (s && s.records && s.records.pride && id === s.records.pride.id) ? s.records.pride.name : t(`game.faction.${id}`);
     const fill = (str) => Slice.fill(str, { catName: s.pending && s.pending.catName ? s.pending.catName : '' });
 
     function start(newRun, mainCat, seed) {
@@ -53,6 +53,7 @@
     }
     function resultText() {
       const p = s.pending; if (!p) return '';
+      if (p.bond) return p.summary || (p.lines && p.lines[0] && p.lines[0].text) || 'bond';
       const e = E.eventById(p.eventId); if (p.hostile) return '';
       const c = e.choices.find((x) => x.id === p.choiceId); return c && c.text ? fill(c.text) : '';
     }
@@ -140,7 +141,7 @@
       cv.style.width = box.width + 'px'; cv.style.height = box.height + 'px';
     }
     function renderChrome() {
-      $('#home-pride-name').textContent = run && run.prideName ? run.prideName : '';
+      $('#home-pride-name').textContent = (s.records && s.records.pride && s.records.pride.name) || (run && run.prideName) || '';
       $('#home-player-name').textContent = s.cat.name;
       const cv = $('#home-cat');
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
@@ -171,7 +172,8 @@
     }
     function renderHud() {
       const h = $('#game-hud'); h.textContent = '';
-      const day = el('div', 'hud-day', t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) }));
+      const dayLabel = t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) });
+      const day = el('div', 'hud-day', s.records && s.day > E.rules.seasonDays ? `${dayLabel} · after the mating season` : dayLabel);
       day.id = 'game-day';
       const needs = el('div', 'hud-needs'); for (const k of ['health', 'hunger', 'thirst', 'energy']) needs.append(needBar(k, s.needs[k]));
       const inj = el('div', 'hud-injuries'); for (const i of s.injuries) inj.append(el('span', `chip chip-${i.tier}`, t.plural(`game.injury.${i.tier}`, i.daysLeft)));
@@ -201,6 +203,8 @@
           ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});
           li.append(framed(mini, 'sm'), el('span', 'met-name', n.name));
           li.append(relationMeters(n.id));
+          const stage = s.records && s.records.bonds && s.records.bonds[n.id] && s.records.bonds[n.id].stage;
+          if (stage && stage !== 'none') li.append(el('p', 'bond-stage', `Bond · ${stage === 'close' ? 'Bonded' : stage.charAt(0).toUpperCase() + stage.slice(1)}`));
           li.append(btn(t('portrait.expand'), { g: 'expandCat', source: mini.id, name: n.name }, { cls: 'portrait-expand' }));
           const known = (E.available(s).talk || []).find((row) => row.catId === n.id);
           if (known) li.append(el('p', 'met-note', talkNote(known)));
@@ -213,7 +217,8 @@
     function renderRegion() {
       const c = $('#game-region'); c.textContent = ''; const r = W.region(s.region); const se = s.season;
       const own = W.ownership(s.map.claims, s.region);
-      const owner = own.state !== 'wild' ? (own.disputedBy ? t('game.owner.disputed', { holder: factionName(own.holder), other: factionName(own.disputedBy) }) : factionName(own.holder)) : t('game.owner.wild');
+      const prideName = s.records && s.records.pride && own.holder === s.records.pride.id ? s.records.pride.name : null;
+      const owner = prideName || (own.state !== 'wild' ? (own.disputedBy ? t('game.owner.disputed', { holder: factionName(own.holder), other: factionName(own.disputedBy) }) : factionName(own.holder)) : t('game.owner.wild'));
       c.append(el('h2', 'region-name', r.name), el('div', 'region-biome', W.biome(r.biome).name));
       const dl = el('dl', 'region-facts');
       const fact = (k, v, cls = '') => { dl.append(el('dt', '', t(`game.region.${k}`)), el('dd', cls, v)); };
@@ -245,6 +250,16 @@
         a.append(hunt, rest, tr);
         if (talks.childElementCount) a.append(talks);
         if (av.seek) a.append(btn(`Seek out ${av.seek.name} · Energy −${av.seek.energy}`, { g: 'seek', cat: av.seek.catId }, { disabled: !av.seek.allowed, title: av.seek.reason || '' }));
+        const bond = el('div', 'action-group is-bond');
+        const seekers = av.seekMate || [];
+        const courts = av.court || [];
+        if (seekers.length || courts.length || av.found) {
+          bond.append(el('h3', '', 'Courtship and founding'));
+          for (const row of seekers) bond.append(btn(`Seek ${row.name} · Energy −${row.energy}`, { g: 'seekMate', cat: row.catId }, { cls: 'is-seek', disabled: !row.allowed, title: row.reason || '' }));
+          for (const row of courts) bond.append(btn(`Court ${row.name} · Energy −${row.energy}`, { g: 'court', cat: row.catId }, { cls: 'is-court', disabled: !row.allowed, title: row.reason || '' }));
+          if (av.found) bond.append(btn(`Found ${av.found.name}`, { g: 'found', name: av.found.name }, { cls: 'is-found', disabled: !av.found.allowed, title: av.found.reason || '' }));
+          a.append(bond);
+        }
         if (av.border && av.border.allowed) a.append(btn(`Ask ${av.border.name} at the Highcrag border`, { g: 'border', guard: av.border.guardId }));
         const spot = s.encounters && s.encounters.rendezvous;
         if (spot && spot.sought && s.region === spot.regionId && s.npcs[spot.catId]) a.append(btn(`Speak with ${s.npcs[spot.catId].name}`, { g: 'border', guard: spot.catId }));
@@ -424,11 +439,51 @@
       const wound = f.injury ? 'A failed contest at this stat also leaves a minor injury.' : 'This stat does not add an injury.';
       return `Drive-off is ${f.tier} (fight stat ${Math.round(f.stat * 10) / 10} against ${f.threat}). ${extra} ${wound} Failure, yielding, and retreat pay no standing.`;
     }
+    function renderBond() {
+      const box = $('#game-event'); const p = s.pending;
+      const show = !!p;
+      box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
+      if (!show) return;
+      box.textContent = '';
+      const card = el('div', 'event-card conversation-card bond-card');
+      card.dataset.kind = p.group || 'bond';
+      card.dataset.event = p.eventId || '';
+      card.dataset.variant = p.variant || '';
+      box.append(card);
+      if (p.showPortrait && p.catId && s.npcs[p.catId]) {
+        const npc = s.npcs[p.catId];
+        const who = el('div', 'event-cast');
+        const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
+        ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
+        who.append(framed(cv, 'md'), el('div', 'event-cast-name', npc.name), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
+        card.append(who, relationMeters(npc.id));
+      }
+      card.append(el('h2', 'event-title', p.heading || 'Bond'));
+      const scroll = el('div', 'event-scroll');
+      scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
+      for (const line of p.lines || []) {
+        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
+        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+      }
+      if (s.phase === 'eventResult' && p.summary) scroll.append(el('p', 'event-text result', p.summary));
+      card.append(scroll);
+      const ch = el('div', 'bond-choices');
+      ch.dataset.group = p.group || 'bond';
+      ch.setAttribute('aria-label', p.heading || 'Bond choices');
+      if (s.phase === 'eventResult' || !(p.choices || []).length) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      else for (const c of p.choices) {
+        const b = btn(c.label, { g: 'choose', choice: c.id }, { cls: c.group === 'courtship' ? 'is-court' : c.group === 'founding' ? 'is-found' : c.group === 'route' ? 'is-route' : 'is-bond', disabled: !!c.disabled, title: c.reason || '' });
+        b.dataset.group = c.group || 'bond';
+        ch.append(b);
+      }
+      card.append(ch);
+    }
     function renderEvent() {
       if (s.phase === 'encounter') return renderEncounter();
       if (s.phase === 'ford') return renderFord();
       if (s.phase === 'border') return renderBorder();
       if (s.phase === 'conversation') return renderTalk();
+      if (s.pending && s.pending.bond && (s.phase === 'event' || s.phase === 'eventResult')) return renderBond();
       const box = $('#game-event'); const p = s.pending;
       const show = s.phase === 'event' || s.phase === 'eventResult';
       box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
@@ -487,6 +542,9 @@
       if (d.g === 'choose') return act({ type: 'choose', choiceId: d.choice, nodeId: d.node, instanceId: d.instance });
       if (d.g === 'encounterChoose') return act({ type: 'encounterChoose', choiceId: d.choice });
       if (d.g === 'seek') return act({ type: 'seek', catId: d.cat });
+      if (d.g === 'seekMate') return act({ type: 'seekMate', catId: d.cat });
+      if (d.g === 'court') return act({ type: 'court', catId: d.cat });
+      if (d.g === 'found') return act({ type: 'found', name: d.name });
       if (d.g === 'inspectEncounter') {
         const src = document.querySelector('.encounter-img');
         const box = document.getElementById('encounter-inspect');

@@ -1,0 +1,1172 @@
+{
+  "status": "AUTHORING HANDOFF ONLY; reconciled to v0.6.2. Design defaults remain proposed where marked in spec; this file is not runtime or ordinary-play acceptance.",
+  "spec": "docs/design/milestone-2-spec.md v0.6.2, reported local ad097bd §3, §4, §6; Director 2026-11-08 full-gameplay instruction",
+  "families": [
+    {
+      "id": "m2.first_meeting.reuse",
+      "trigger": "first_meeting",
+      "stage": "met",
+      "cast": {
+        "A": "player",
+        "B": "candidate"
+      },
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "reuses": [
+        "slice.meeting.highcrag",
+        "slice.meeting.bonefield",
+        "slice.meeting.mistwood",
+        "slice.meeting.loner"
+      ],
+      "source": "docs/lore/events/slice-1-events.json",
+      "summary": null,
+      "beats": [],
+      "choices": [],
+      "notes": [
+        "Reuse existing entries and choice ids unchanged; §10.1 maps new talk results to slice affinityIntent. No mating/founding promise."
+      ]
+    },
+    {
+      "id": "m2.repeat_meeting",
+      "trigger": "repeat_meeting",
+      "stage": "met",
+      "cast": {
+        "A": "player",
+        "B": "candidate"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "A familiar scent crosses the trail. {catName} stops a little way off and waits."
+        },
+        {
+          "kind": "line",
+          "text": "“You again.”",
+          "speaker": "B",
+          "speechId": "m2.repeat_meeting|beats.1"
+        }
+      ],
+      "choices": [
+        {
+          "id": "talk_warm",
+          "label": "“Walk with me a while?”",
+          "summary": "You walked a while with {catName}.",
+          "result": "talk_improve"
+        },
+        {
+          "id": "talk_plain",
+          "label": "Trade a few words, then go.",
+          "summary": "You traded a few words with {catName}.",
+          "result": "talk_unchanged"
+        },
+        {
+          "id": "talk_curt",
+          "label": "“I have my own trail.”",
+          "summary": "You cut short your meeting with {catName}.",
+          "result": "talk_worsen"
+        },
+        {
+          "id": "groom",
+          "label": "Groom {catName}’s shoulder.",
+          "summary": "You groomed {catName}.",
+          "result": "groom",
+          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED)."
+        },
+        {
+          "id": "share",
+          "label": "Drag your kill closer and share it.",
+          "summary": "You shared your kill with {catName}.",
+          "result": "share",
+          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED)."
+        }
+      ],
+      "summary": "You met {catName} again.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "notes": [
+        "Existing recurring-conversation.json revision6 and personality-coverage.json remain authoritative for installed conversations, quiet-return promises, remembered choices and all five saved traits. Do not replace an installed pending scene with this earlier short repeat card.",
+        "Fallback repeat text may be used only for a cat without an installed authored arc and with actual prior-meeting facts. Same runtime reward/cooldown/receipt contract; no extra stage, greeting reward, or duplicate talk improve.",
+        "Read prior snapshot before writing current memory. Sharing never recalled without actual committed share fact; no cross-cat memory."
+      ],
+      "archivedVoiceVariants": [
+        {
+          "when": "lastArrival == seek_out (field present)",
+          "replaceBeat": 0,
+          "text": "You follow the old scent marks until they are fresh. {catName} lifts their head as you come over the rise.",
+          "speaker": "narrator"
+        },
+        {
+          "when": "meetCount[B] >= 2 and lastMeetDay[B] present and lastTalkIntent[B] == share (prior-meeting snapshot only)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "“You shared your kill last time. I remember.”"
+        },
+        {
+          "when": "B.sociability >= 70 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "“I hoped these tracks were yours.”"
+        },
+        {
+          "when": "B.sociability <= 30 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "A long look. “Mm. You.”"
+        },
+        {
+          "when": "B.aggression >= 70 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "“Close enough. Say what you came for.”"
+        }
+      ],
+      "voiceNote": "Archived examples are superseded by saved-trait speechCoverage and installed revision6 conversation continuity. Do not use generic baseline to bypass missing saved traits."
+    },
+    {
+      "id": "m2.acquainted",
+      "trigger": "acquainted",
+      "stage": "acquainted",
+      "cast": {
+        "A": "player",
+        "B": "candidate"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "{catName} pauses nearby. Your paths have crossed before; this meeting gives you another chance to speak."
+        },
+        {
+          "kind": "line",
+          "text": "“I know your scent now.”",
+          "speaker": "B",
+          "speechId": "m2.acquainted|beats.1"
+        }
+      ],
+      "choices": [
+        {
+          "id": "talk_warm",
+          "label": "“Walk with me a while?”",
+          "summary": "You walked a while with {catName}.",
+          "result": "talk_improve"
+        },
+        {
+          "id": "talk_plain",
+          "label": "Trade a few words, then go.",
+          "summary": "You traded a few words with {catName}.",
+          "result": "talk_unchanged"
+        },
+        {
+          "id": "talk_curt",
+          "label": "“I have my own trail.”",
+          "summary": "You cut short your meeting with {catName}.",
+          "result": "talk_worsen"
+        },
+        {
+          "id": "groom",
+          "label": "Groom {catName}’s shoulder.",
+          "summary": "You groomed {catName}.",
+          "result": "groom",
+          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED)."
+        },
+        {
+          "id": "share",
+          "label": "Drag your kill closer and share it.",
+          "summary": "You shared your kill with {catName}.",
+          "result": "share",
+          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED)."
+        }
+      ],
+      "summary": "You and {catName} grew used to each other.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "notes": [
+        "Offered when value ≥ 15 and player chooses the beat (§3.3). Choosing it sets stage; engine-owned."
+      ],
+      "archivedVoiceVariants": [
+        {
+          "when": "B.sociability >= 70 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "“You know, I look for your tracks now. Strange, isn’t it?”"
+        },
+        {
+          "when": "B.sociability <= 30 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "“You may walk here. I will not mind.”"
+        }
+      ],
+      "voiceNote": "Archived examples are superseded by saved-trait speechCoverage and installed revision6 conversation continuity. Do not use generic baseline to bypass missing saved traits."
+    },
+    {
+      "id": "m2.close",
+      "trigger": "close",
+      "stage": "close",
+      "cast": {
+        "A": "player",
+        "B": "candidate"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "{catName} stops beside the trail, leaving room for you to stay or move on."
+        },
+        {
+          "kind": "line",
+          "text": "“Will you stay a while?”",
+          "speaker": "B",
+          "speechId": "m2.close|beats.1"
+        }
+      ],
+      "choices": [
+        {
+          "id": "stay",
+          "label": "Stay a while with {catName}.",
+          "summary": "You spent time with {catName}.",
+          "result": "talk_improve"
+        },
+        {
+          "id": "speak",
+          "label": "“I am glad our trails keep meeting.”",
+          "summary": "You told {catName} you were glad to meet again.",
+          "result": "talk_improve"
+        },
+        {
+          "id": "go",
+          "label": "“I need to go.”",
+          "summary": "You left the meeting with {catName}.",
+          "result": "talk_unchanged"
+        },
+        {
+          "id": "groom",
+          "label": "Groom {catName}’s shoulder.",
+          "summary": "You groomed {catName}.",
+          "result": "groom",
+          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED)."
+        },
+        {
+          "id": "share",
+          "label": "Drag your kill closer and share it.",
+          "summary": "You shared your kill with {catName}.",
+          "result": "share",
+          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED)."
+        }
+      ],
+      "summary": "You spent time with {catName}.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "notes": [
+        "Offered at value ≥ 25 when chosen (§3.3). Resolving unlocks Court (PROPOSED §3.3). Stage `close` ≠ affinity band `close` (≥ 50)."
+      ],
+      "archivedVoiceVariants": [
+        {
+          "when": "B.boldness >= 70 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "“Stay. The night is better with two.”"
+        },
+        {
+          "when": "B.sociability <= 30 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "{catName} says nothing, but does not move away.",
+          "kind": "narration"
+        }
+      ],
+      "voiceNote": "Archived examples are superseded by saved-trait speechCoverage and installed revision6 conversation continuity. Do not use generic baseline to bypass missing saved traits."
+    },
+    {
+      "id": "m2.courtship",
+      "trigger": "courtship",
+      "stage": "courting",
+      "cast": {
+        "A": "player",
+        "B": "candidate"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "You face {catName} on the trail."
+        },
+        {
+          "kind": "line",
+          "text": "“Would you be my mate?”",
+          "speaker": "A"
+        }
+      ],
+      "choices": [],
+      "summary": "You asked {catName} to be your mate.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "results": {
+        "accepted": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "{catName} turns toward you to answer."
+            },
+            {
+              "kind": "line",
+              "text": "“Yes. I would like that.”",
+              "speaker": "B",
+              "speechId": "m2.courtship|results.accepted.beats.1"
+            }
+          ],
+          "summary": "{catName} welcomed your courtship.",
+          "note": "Willingness only: NOT mates until §3.4/§3.6 gates pass and engine selects mates_confirmed."
+        },
+        "declined": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "{catName} looks away toward the far hills, then back."
+            },
+            {
+              "kind": "line",
+              "text": "“Not now. I am not ready to answer yes.”",
+              "speaker": "B",
+              "speechId": "m2.courtship|results.declined.beats.1"
+            }
+          ],
+          "summary": "{catName} turned down your courtship for now.",
+          "note": "Engine applies −5 and consumes the 5-day attempt (§3.5.3, §4.5)."
+        },
+        "declined_attraction": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "{catName} answers without coming closer."
+            },
+            {
+              "kind": "line",
+              "text": "“I do not feel that way about you.”",
+              "speaker": "B",
+              "speechId": "m2.courtship|results.declined_attraction.beats.1"
+            }
+          ],
+          "summary": "{catName} gently turned down your courtship.",
+          "note": "No roll, no value change (§3.4.2). Reuses courtship-lines.md variant 2 wording."
+        }
+      },
+      "notes": [
+        "Court reached as meeting choice or day action (§3.5.2 PROPOSED); entry choice owned by engine. Personality must not route accepted/declined in text."
+      ]
+    },
+    {
+      "id": "m2.leader_approval",
+      "trigger": "leader_approval",
+      "stage": "courting",
+      "cast": {
+        "A": "player",
+        "B": "candidate",
+        "C": "leader"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "You and {catName} stand before {leaderName}."
+        },
+        {
+          "kind": "line",
+          "text": "“Tell me what you are asking of the pride.”",
+          "speaker": "C",
+          "speechId": "m2.leader_approval|beats.1"
+        },
+        {
+          "kind": "line",
+          "text": "“We want to be mates. Will your pride recognise our bond?”",
+          "speaker": "A"
+        }
+      ],
+      "choices": [],
+      "summary": "You asked {leaderName} to recognise your bond with {catName}.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "results": {
+        "approved": {
+          "beats": [
+            {
+              "kind": "line",
+              "text": "“I recognise your bond.”",
+              "speaker": "C",
+              "speechId": "m2.leader_approval|results.approved.beats.0"
+            },
+            {
+              "kind": "narration",
+              "text": "The leader has given approval. Your bond still follows the remaining requirements."
+            }
+          ],
+          "summary": "{leaderName} approved your bond with {catName}."
+        },
+        "refused": {
+          "beats": [
+            {
+              "kind": "line",
+              "text": "“Not this season.”",
+              "speaker": "C",
+              "speechId": "m2.leader_approval|results.refused.beats.0"
+            },
+            {
+              "kind": "narration",
+              "text": "The request has been refused. That answer does not replace {catName}’s own wishes."
+            }
+          ],
+          "summary": "{leaderName} refused your bond with {catName}.",
+          "note": "Engine: pride relation −5, request consumed (§3.6.1)."
+        }
+      },
+      "notes": [
+        "Approval is the pride’s blessing, not B’s consent; B already said yes in courtship.accepted. Leader wording must not imply ownership.",
+        "Bind actual living candidate and current leader at a real audience; this text never summons either or invents a previous relay. If no candidate is present use a supported separate audience template, not this three-cat staging.",
+        "Leader learns the request through the actual audience or recorded relay only. Approval is not candidate consent and does not itself set mates, departure or founding."
+      ]
+    },
+    {
+      "id": "m2.mate_rival",
+      "trigger": "mate_rival",
+      "stage": "courting",
+      "cast": {
+        "A": "player",
+        "B": "candidate",
+        "C": "rival"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "{rivalName} takes a place across the trail."
+        },
+        {
+          "kind": "line",
+          "text": "“You court {catName}. Face my challenge.”",
+          "speaker": "C",
+          "speechId": "m2.mate_rival|beats.1"
+        }
+      ],
+      "choices": [],
+      "summary": "{rivalName} challenged you over courting {catName}.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "results": {
+        "challenge_start": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "You face {rivalName} in a non-lethal challenge."
+            }
+          ],
+          "summary": "You faced {rivalName} in a non-lethal challenge."
+        },
+        "won": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "{rivalName} gives ground and backs off, panting."
+            },
+            {
+              "kind": "line",
+              "text": "“You won. It is {catName}’s choice.”",
+              "speaker": "C",
+              "speechId": "m2.mate_rival|results.won.beats.1"
+            }
+          ],
+          "summary": "You won the challenge against {rivalName}.",
+          "note": "Victory removes the obstacle only; B’s own consent was given in courtship. Engine: loser −10 value with B."
+        },
+        "lost": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "You give ground first, breath coming hard. {rivalName} holds the trail."
+            },
+            {
+              "kind": "narration",
+              "text": "The challenge has ended without a victory for you."
+            }
+          ],
+          "summary": "You lost the challenge against {rivalName}.",
+          "note": "Non-lethal (§3.6.1). Engine applies −10 value with B to the player."
+        }
+      },
+      "notes": [
+        "Only if a rival qualifies (§3.6.1). No injury/death text: non-lethal; any injury chip is engine-owned and not stated here."
+      ]
+    },
+    {
+      "id": "m2.mates_confirmed",
+      "trigger": "mates_confirmed",
+      "stage": "mates",
+      "cast": {
+        "A": "player",
+        "B": "candidate"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "{catName} stands beside you as you acknowledge the bond you have both chosen."
+        },
+        {
+          "kind": "line",
+          "text": "“Mates, then. You and me.”",
+          "speaker": "B",
+          "speechId": "m2.mates_confirmed|beats.1"
+        }
+      ],
+      "choices": [
+        {
+          "id": "acknowledge",
+          "label": "“You and me.”",
+          "summary": "You and {catName} became mates.",
+          "result": "acknowledge"
+        },
+        {
+          "id": "found_here",
+          "label": "“Let us make our home here, in {regionName}.”",
+          "summary": "You chose to found a pride with {catName} here.",
+          "result": "found",
+          "mappingNote": "Offer ONLY if engine reports current region wild (§3.7.2–3). Selecting it requests the Found action; founding scene follows only on engine success."
+        }
+      ],
+      "summary": "You and {catName} became mates.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "notes": [
+        "Fires only when all gates passed. Mates acknowledgment and Found are separate engine results. Same-sex safe; no cubs."
+      ],
+      "archivedVoiceVariants": [
+        {
+          "when": "B.sociability <= 30 (field present)",
+          "replaceBeat": 1,
+          "speaker": "B",
+          "text": "“Mates.” One word, and it is enough."
+        }
+      ],
+      "voiceNote": "Archived examples are superseded by saved-trait speechCoverage and installed revision6 conversation continuity. Do not use generic baseline to bypass missing saved traits."
+    },
+    {
+      "id": "m2.pride_founded",
+      "trigger": "pride_founded",
+      "stage": "mates",
+      "cast": {
+        "A": "player",
+        "B": "candidate"
+      },
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "You and {catName} leave your scent marks in {regionName}."
+        },
+        {
+          "kind": "line",
+          "text": "“Our own pride. {newPrideName}.”",
+          "speaker": "B",
+          "speechId": "m2.pride_founded|beats.1"
+        },
+        {
+          "kind": "narration",
+          "text": "This is the den of {newPrideName}. Another day of keeping it begins."
+        }
+      ],
+      "choices": [],
+      "summary": "You and {catName} founded {newPrideName} in {regionName}.",
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "notes": [
+        "After committed Found only: actual wild region, claim 60, den and named pride, mate first member. Not a victory/run-end screen. No prey, cubs, unseen shelter or safety invented.",
+        "Proposed leave-to-found default §3.6.3 is explicitly authorised for implementation by Director pending Anna confirmation. For a pride-origin mate, departure occurs only when Found commits, not at acceptance or mate confirmation. Remove old membership and add first member atomically; no recruitment penalty or duplicate +20 origin-pride bond reward.",
+        "After widowhood/homelessness, use actual living membership and claim state; do not replay first-founding celebration or revive the mate. Existing milestone remains history."
+      ],
+      "conditionalDeparture": {
+        "when": "Actual founder mate has committed originPrideId→newPrideId membership transfer with this Found receipt",
+        "afterCommitText": "{catName} has left {originPrideName} to make this pride with you.",
+        "otherwise": "Omit; loner mates have no invented former pride. Never use this at mates_confirmed."
+      }
+    },
+    {
+      "id": "m2.season_end",
+      "trigger": "season_end",
+      "stage": "post_window",
+      "cast": {
+        "A": "player",
+        "B": "Actual living current mate for mated variants; historical known best-stage cat for factual recap only; never stage a remembered/dead cat as physically present."
+      },
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "The mating season draws to a close. Scent trails cross the Vale, and another day waits beyond this one."
+        }
+      ],
+      "results": {
+        "mated_founded": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "{catName} stands beside you. You have founded {newPrideName}; now there are trails to watch and another day to feed yourselves."
+            }
+          ],
+          "summary": "The mating season ended with your mate and pride beside you.",
+          "choices": [
+            {
+              "id": "continue",
+              "label": "Continue.",
+              "summary": "Life continued after the mating season.",
+              "result": "acknowledge"
+            }
+          ]
+        },
+        "mated_unfounded": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "{catName} is still your mate. You have no pride of your own yet, but you can still find wild land and found one together."
+            }
+          ],
+          "summary": "The mating season ended; you can still found a pride with {catName}.",
+          "choices": [
+            {
+              "id": "continue",
+              "label": "Continue.",
+              "summary": "Life continued after the mating season.",
+              "result": "acknowledge"
+            }
+          ]
+        },
+        "unmated": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "You can try to earn a place in a pride, seek other loners, or keep yourself alive alone. None of those paths closes the others."
+            }
+          ],
+          "recapByBestStage": {
+            "none": {
+              "beats": [
+                {
+                  "kind": "narration",
+                  "text": "The mating season has ended, but your next trail is still yours to choose."
+                }
+              ],
+              "summary": "The mating season ended before you met another cat."
+            },
+            "met": {
+              "beats": [
+                {
+                  "kind": "narration",
+                  "text": "You remember {catName} where your trails crossed."
+                }
+              ],
+              "summary": "The mating season ended; you remembered {catName}."
+            },
+            "acquainted": {
+              "beats": [
+                {
+                  "kind": "narration",
+                  "text": "You still know {catName}’s scent among the others."
+                }
+              ],
+              "summary": "The mating season ended; you knew {catName}’s scent."
+            },
+            "close": {
+              "beats": [
+                {
+                  "kind": "narration",
+                  "text": "The time you spent with {catName} remains part of your story, even without a mate bond."
+                }
+              ],
+              "summary": "The mating season ended with {catName} close to you."
+            },
+            "courting": {
+              "beats": [
+                {
+                  "kind": "narration",
+                  "text": "You did not complete a mate bond with {catName} before the window closed. The attempt is not a promise of a later answer."
+                }
+              ],
+              "summary": "The mating season ended while you courted {catName}."
+            }
+          },
+          "summary": "The mating season ended; your life in the Vale continued.",
+          "choices": [
+            {
+              "id": "route_pride",
+              "label": "Seek a place in an existing pride.",
+              "summary": "You turned toward the prides of the Vale.",
+              "result": "route_intent.pride",
+              "mappingNote": "Sets route intent only, with no lock or cost, then continues into normal day21; no automatic acceptance, membership or encounter."
+            },
+            {
+              "id": "route_group",
+              "label": "Look for other loners to travel with.",
+              "summary": "You went looking for other loners.",
+              "result": "route_intent.loner_group",
+              "mappingNote": "Sets route intent only, with no lock or cost, then continues into normal day21; no automatic acceptance, membership or encounter."
+            },
+            {
+              "id": "route_alone",
+              "label": "Keep travelling alone.",
+              "summary": "You chose to walk on alone.",
+              "result": "route_intent.solitary",
+              "mappingNote": "Sets route intent only, with no lock or cost, then continues into normal day21; no automatic acceptance, membership or encounter."
+            }
+          ]
+        }
+      },
+      "summary": "The mating season ended.",
+      "notes": [
+        "End of day 20 once, then normal day 21. No later season name, year length, time skip or reachable next-year date asserted.",
+        "Use current committed mate/founding state, not historic milestones alone. Engine validates live cast before using catName.",
+        "Best-stage mates belongs only to mated_unfounded/mated_founded. Pending day20 chains resolve or lapse before this scene (§4.4–5); do not narrate a pending ask awaiting answer into day21.",
+        "v0.3.2: choose buttons from the engine-selected result only. Mated variants Continue; unmated has exactly three route intents, each continuing play. No shared buttons.",
+        "Recap counters come only from actual run state. Do not add days/met cats/kept promises. A stage is not evidence of dusk, shared food, physical touch or any particular memory.",
+        "Day20 pending chains resolve that day or lapse as §4; do not invent a promise that a new year/date will arrive. yearLengthDays remains null.",
+        "Reopened old day20-only endings show this once and enter day21; actual death endings remain ended. Missing old traits stay explicit, not newly rolled or borrowed from roster leans."
+      ],
+      "choices": []
+    },
+    {
+      "id": "m2.solo_continue",
+      "trigger": "solo_continue",
+      "stage": "post_window",
+      "cast": {
+        "A": "player"
+      },
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "You turn back toward your own tracks. For now there is water to find, prey to follow, and somewhere sheltered to rest."
+        }
+      ],
+      "choices": [],
+      "summary": "You continued on your own.",
+      "notes": [
+        "Once on alone intent; no forced lock, time skip or extra day. Existing daily survival loop continues."
+      ]
+    },
+    {
+      "id": "m2.loner_group",
+      "trigger": "loner_group",
+      "stage": "post_window",
+      "cast": {
+        "A": "player",
+        "C": "group member"
+      },
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "beats": [],
+      "choices": [],
+      "summary": "You met a group of loners.",
+      "notes": [
+        "Engine routes meet/join/refused; joining outcome only after committed membership. No invented food, den or safety benefits.",
+        "Any-sex group and player eligibility is a PROPOSED v0.6.2 §3.8 default, not a user-approved claim. Actual saved group, capacity and each member relationship gate remain authoritative; no group is spawned by route_group intent."
+      ],
+      "results": {
+        "meet": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "Several scent trails meet by the path. One of the loners rises as you approach."
+            },
+            {
+              "kind": "line",
+              "speaker": "C",
+              "text": "“What brings you along our trail?”",
+              "speechId": "m2.loner_group|results.meet.beats.1"
+            }
+          ],
+          "summary": "You met a group of loners."
+        },
+        "join": {
+          "beats": [
+            {
+              "kind": "line",
+              "speaker": "C",
+              "text": "“Come with us, then. We move together.”",
+              "speechId": "m2.loner_group|results.join.beats.0"
+            },
+            {
+              "kind": "narration",
+              "text": "The others leave a space for you as they set off."
+            }
+          ],
+          "summary": "The loners accepted you into their group."
+        },
+        "refused": {
+          "beats": [
+            {
+              "kind": "line",
+              "speaker": "C",
+              "text": "“No. We are not taking you with us.”",
+              "speechId": "m2.loner_group|results.refused.beats.0"
+            },
+            {
+              "kind": "narration",
+              "text": "The group moves on without making room."
+            }
+          ],
+          "summary": "The loners refused your request to join."
+        }
+      }
+    },
+    {
+      "id": "m2.pride_admission",
+      "trigger": "pride_admission",
+      "stage": "post_window",
+      "cast": {
+        "A": "player",
+        "C": "leader"
+      },
+      "status": "AUTHORING ONLY; engine commits gates/effects/costs/cursor; no independent acceptance claimed",
+      "beats": [],
+      "choices": [],
+      "summary": "You asked to join {originPrideName}.",
+      "notes": [
+        "Admission type (b), not mate approval. Engine-owned action, eligibility, attempt cadence and penalties.",
+        "Accept text only after engine commits membership. No rank, duties, guaranteed future acceptance or mate decision.",
+        "For this non-candidate scene, originPrideName must bind to the leader’s pride, not an absent B."
+      ],
+      "results": {
+        "attempt": {
+          "beats": [
+            {
+              "kind": "narration",
+              "text": "{leaderName} waits at the scent-marked trail. You stop in front of them."
+            },
+            {
+              "kind": "line",
+              "speaker": "A",
+              "text": "“I am asking for a place in {originPrideName}.”"
+            }
+          ],
+          "summary": "You asked to join {originPrideName}."
+        },
+        "accepted": {
+          "beats": [
+            {
+              "kind": "line",
+              "speaker": "C",
+              "text": "“You may stay. Walk beside us.”",
+              "speechId": "m2.pride_admission|results.accepted.beats.0"
+            },
+            {
+              "kind": "narration",
+              "text": "{leaderName} turns toward the pride and waits for you to follow."
+            }
+          ],
+          "summary": "You were accepted into {originPrideName}."
+        },
+        "refused": {
+          "beats": [
+            {
+              "kind": "line",
+              "speaker": "C",
+              "text": "“No. There is no place for you here now.”",
+              "speechId": "m2.pride_admission|results.refused.beats.0"
+            },
+            {
+              "kind": "narration",
+              "text": "{leaderName} stays between you and the pride."
+            }
+          ],
+          "summary": "{originPrideName} refused your request to join."
+        }
+      }
+    }
+  ],
+  "uiHints": {
+    "court.notInSeason": "The mating season is over. You can still spend time together, but cannot court now.",
+    "court.cooldown": "You asked {catName} recently. Give it a few days.",
+    "court.locked": "Spend more time with {catName} first.",
+    "court.ineligible": "{catName} cannot be courted.",
+    "found.notWild": "This land is claimed. Travel to wild land to found a pride.",
+    "found.noMate": "You need a mate to found a pride.",
+    "bondStage.met": "Met",
+    "bondStage.acquainted": "Acquainted",
+    "bondStage.close": "Bonded",
+    "bondStage.courting": "Courting",
+    "bondStage.mates": "Mates",
+    "bondStage.none": "Strangers",
+    "_note": "Bonded labels arc-stage close only, not affinity Close. Year length unset; mixed-sex group/leave-to-found remain proposed defaults. No new year date promised.",
+    "join.cooldown": "You have already asked this pride in the current period.",
+    "group.full": "This group has no room for another cat."
+  },
+  "revision": "first-season-v0.6.2-r1",
+  "personalityContract": {
+    "required": {
+      "identity": "Actual current saved id, generated name and portrait; no fixed name/roster-lean personality. Every active NPC speaker uses their own saved traits.",
+      "traits": [
+        "aggression",
+        "sociability",
+        "boldness",
+        "loyalty",
+        "curiosity"
+      ]
+    },
+    "bands": "low <=30, high >=70, otherwise baseline. Missing any required trait is an explicit unresolved speaker-data state, never a generic successful personality pass.",
+    "speechCoverage": [
+      {
+        "speechId": "m2.repeat_meeting|beats.1",
+        "familyId": "m2.repeat_meeting",
+        "location": "beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "sociability",
+        "low": "“You.”",
+        "baseline": "“You again.”",
+        "high": "“You came back. Will you stay a while?”"
+      },
+      {
+        "speechId": "m2.acquainted|beats.1",
+        "familyId": "m2.acquainted",
+        "location": "beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "sociability",
+        "low": "“I know your scent.”",
+        "baseline": "“I know your scent now.”",
+        "high": "“I know your scent now. I was wondering when we would meet again.”"
+      },
+      {
+        "speechId": "m2.close|beats.1",
+        "familyId": "m2.close",
+        "location": "beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "boldness",
+        "low": "“You could stay a while, if you want.”",
+        "baseline": "“Will you stay a while?”",
+        "high": "“Stay a while with me?”"
+      },
+      {
+        "speechId": "m2.courtship|results.accepted.beats.1",
+        "familyId": "m2.courtship",
+        "location": "results.accepted.beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "sociability",
+        "low": "“Yes. I want that.”",
+        "baseline": "“Yes. I would like that.”",
+        "high": "“Yes. I want to be your mate.”"
+      },
+      {
+        "speechId": "m2.courtship|results.declined.beats.1",
+        "familyId": "m2.courtship",
+        "location": "results.declined.beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "aggression",
+        "low": "“No. I cannot say yes now.”",
+        "baseline": "“Not now. I am not ready to answer yes.”",
+        "high": "“No. Not now.”"
+      },
+      {
+        "speechId": "m2.courtship|results.declined_attraction.beats.1",
+        "familyId": "m2.courtship",
+        "location": "results.declined_attraction.beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "sociability",
+        "low": "“No. I do not feel that way about you.”",
+        "baseline": "“I do not feel that way about you.”",
+        "high": "“We can still talk, but I do not feel that way about you.”"
+      },
+      {
+        "speechId": "m2.leader_approval|beats.1",
+        "familyId": "m2.leader_approval",
+        "location": "beats.1",
+        "speakerSlot": "C",
+        "focusTrait": "curiosity",
+        "low": "“State your request.”",
+        "baseline": "“Tell me what you are asking of the pride.”",
+        "high": "“Tell me what you both want the pride to recognise.”"
+      },
+      {
+        "speechId": "m2.leader_approval|results.approved.beats.0",
+        "familyId": "m2.leader_approval",
+        "location": "results.approved.beats.0",
+        "speakerSlot": "C",
+        "focusTrait": "loyalty",
+        "low": "“I recognise your bond.”",
+        "baseline": "“I recognise your bond.”",
+        "high": "“As leader, I recognise your bond before this pride.”"
+      },
+      {
+        "speechId": "m2.leader_approval|results.refused.beats.0",
+        "familyId": "m2.leader_approval",
+        "location": "results.refused.beats.0",
+        "speakerSlot": "C",
+        "focusTrait": "aggression",
+        "low": "“I cannot give that approval this season.”",
+        "baseline": "“Not this season.”",
+        "high": "“No. Not this season.”"
+      },
+      {
+        "speechId": "m2.mate_rival|beats.1",
+        "familyId": "m2.mate_rival",
+        "location": "beats.1",
+        "speakerSlot": "C",
+        "focusTrait": "aggression",
+        "low": "“I challenge you over courting {catName}.”",
+        "baseline": "“You court {catName}. Face my challenge.”",
+        "high": "“You want to court {catName}? Face me.”"
+      },
+      {
+        "speechId": "m2.mate_rival|results.won.beats.1",
+        "familyId": "m2.mate_rival",
+        "location": "results.won.beats.1",
+        "speakerSlot": "C",
+        "focusTrait": "boldness",
+        "low": "“I yield. {catName} still chooses.”",
+        "baseline": "“You won. It is {catName}’s choice.”",
+        "high": "“You won this challenge. {catName} still chooses.”"
+      },
+      {
+        "speechId": "m2.mates_confirmed|beats.1",
+        "familyId": "m2.mates_confirmed",
+        "location": "beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "loyalty",
+        "low": "“Mates. That is what I choose.”",
+        "baseline": "“Mates, then. You and me.”",
+        "high": "“Mates. I choose this bond with you.”"
+      },
+      {
+        "speechId": "m2.pride_founded|beats.1",
+        "familyId": "m2.pride_founded",
+        "location": "beats.1",
+        "speakerSlot": "B",
+        "focusTrait": "curiosity",
+        "low": "“Our pride. {newPrideName}.”",
+        "baseline": "“Our own pride. {newPrideName}.”",
+        "high": "“{newPrideName}. There is much here for us to learn.”"
+      },
+      {
+        "speechId": "m2.loner_group|results.meet.beats.1",
+        "familyId": "m2.loner_group",
+        "location": "results.meet.beats.1",
+        "speakerSlot": "C",
+        "focusTrait": "curiosity",
+        "low": "“What do you want?”",
+        "baseline": "“What brings you along our trail?”",
+        "high": "“Where has your trail brought you from?”"
+      },
+      {
+        "speechId": "m2.loner_group|results.join.beats.0",
+        "familyId": "m2.loner_group",
+        "location": "results.join.beats.0",
+        "speakerSlot": "C",
+        "focusTrait": "sociability",
+        "low": "“You can travel with us.”",
+        "baseline": "“Come with us, then. We move together.”",
+        "high": "“Come with us. There is room for you beside us.”"
+      },
+      {
+        "speechId": "m2.loner_group|results.refused.beats.0",
+        "familyId": "m2.loner_group",
+        "location": "results.refused.beats.0",
+        "speakerSlot": "C",
+        "focusTrait": "aggression",
+        "low": "“No. We will go on without you.”",
+        "baseline": "“No. We are not taking you with us.”",
+        "high": "“No. You are not coming with us.”"
+      },
+      {
+        "speechId": "m2.pride_admission|results.accepted.beats.0",
+        "familyId": "m2.pride_admission",
+        "location": "results.accepted.beats.0",
+        "speakerSlot": "C",
+        "focusTrait": "loyalty",
+        "low": "“You may stay with this pride.”",
+        "baseline": "“You may stay. Walk beside us.”",
+        "high": "“You may stay as a member of this pride.”"
+      },
+      {
+        "speechId": "m2.pride_admission|results.refused.beats.0",
+        "familyId": "m2.pride_admission",
+        "location": "results.refused.beats.0",
+        "speakerSlot": "C",
+        "focusTrait": "aggression",
+        "low": "“I cannot accept you into the pride now.”",
+        "baseline": "“No. There is no place for you here now.”",
+        "high": "“No. You are not joining the pride now.”"
+      }
+    ],
+    "fiveTraitActionCues": {
+      "aggression": {
+        "low": "Keeps the mouth relaxed while speaking.",
+        "middle": "Answers without a threatening display.",
+        "high": "Jaw tightens briefly; does not invent a strike or threat outcome."
+      },
+      "sociability": {
+        "low": "Keeps the exchange brief and leaves space between bodies.",
+        "middle": "Faces the listener during the reply.",
+        "high": "Turns fully toward the listener and sustains the exchange."
+      },
+      "boldness": {
+        "low": "Keeps a wider space from unfamiliar cats.",
+        "middle": "Holds position.",
+        "high": "Answers directly without stepping back."
+      },
+      "loyalty": {
+        "low": "Does not close the listener’s route away.",
+        "middle": "Stays through the answer.",
+        "high": "Remains beside the person or place of the actual chosen commitment; no sworn promise or loyalty fact invented."
+      },
+      "curiosity": {
+        "low": "Returns attention to the immediate meeting after answering.",
+        "middle": "Checks the listener’s expression.",
+        "high": "Pauses to study the listener before answering; no mind reading or hidden-history inference."
+      }
+    },
+    "application": "At every NPC speech and visible reaction, select saved focus-trait line plus concise context-compatible cues drawn from all five traits. All-five rendering follows installed revision6 personality contract; do not stack five canned action sentences. Affinity/actual knowledge modulate distance and recalled cause, never overwrite traits. Outcome chosen only by engine. Player lines/choices are intentions, not NPC-generated personality.",
+    "precedence": "Installed recurring conversation revision6 retains its exact pending lines/actions/receipts. This coverage is for stage-specific new scenes or explicit fallback only. A newly numeric stage never silently replaces a pending conversation. Archived voiceVariants do not execute.",
+    "noUnchosenContact": "No default cheek/nose/coat contact or grooming from numeric affinity alone. Offer appropriate player intent under actual eligibility; do not force the player’s feelings or a hidden promise.",
+    "persist": "Save actual NPC identity, trait snapshot/version, selected speechId/band/action, node and offered choices. Continue displays same line, not a rerolled personality."
+  },
+  "runtimeContract": {
+    "authority": "Semantic authoring schema only; Flint maps IDs/results to real engine APIs. Tundra spec and formulas own numerical gates/costs/rolls. No invented balance adjustment to force a successful run.",
+    "bond": "Met→acquainted≥15→close≥25 require actual chosen beats. Court requires close beat, adult/elder, attraction, kin and unpaired gates, correct window/cadence. A numeric value alone grants neither consent, crush nor mates. Accepted courtship expresses willingness only until all stable-bond/pride approval/rival conditions commit.",
+    "prideOrigin": "Leader approval type(a) and actual qualifying non-lethal rival required only where specified. Approval never transfers ownership of a cat, substitutes consent, sets a feud ruling or automatically teaches an absent leader.",
+    "commit": "At mate confirmation, actual reciprocal mate IDs/stage and mate_secured milestone commit once. Found commits actual legal region, pride/den/claim/membership once; pending acknowledgement never replicates +20 origin standing or source receipts.",
+    "costs": "Use current spec §3 actions, gate checks and originating-day budget exactly. Court meeting choice consumes no second day; Court-as-action Energy -5. Seek out same home zone -5 or legal one-day Travel -15; no same-day hunt. Found after day20 legal with existing mate; illegal Found and forced out-of-window Court reject atomically. Preserve affordable/free exits and earlier resource fixes.",
+    "continuation": "mate_secured and pride_founded are NONTERMINAL. Season_end occurs once after day20 chains resolve/lapse, then day21 actions continue. Mated results Continue only; unmated-without-pride three route-intent buttons each continue without locking route, charging a day, granting membership or creating groups. No new-run ending, time skip, year length, later season name or breeding.",
+    "knowledge": "Use actual participants/witnesses and explicit relays. Stage/proximity/affinity is not knowledge of a specific quiet walk, kill, promise, political dispute or approval. Never narrate leader knowledge from pride standing alone.",
+    "day20": "Resolve existing same-day chain or lapse per spec §4; no pending court/approval/rival rolls survive as a fresh day21 mate bond. Existing mate may Found later. Dead mate stays dead; historical milestone is not live mate state.",
+    "save": "Persist full stage, gates, attempt/cooldown receipts, chosen variants, cast/knowledge, reciprocal bond, origin membership, founding record, seasonEndShown and routeIntent. Save/Continue before/after each commit cannot reroll, redeliver, duplicate reward, lose a Continue button or resurrect a completed chain.",
+    "groups": "route_group intent promises no immediate group. Actual eligible saved group capacity/relationships/roll/membership remain required; mixed-sex eligibility is proposed per spec, not approved by narrative.",
+    "allModes": "Offline authored beats and online/local narration share exact state, eligibility, consent, knowledge and outcome constraints; no generated mechanics or free-text unlock implied."
+  },
+  "continuityDependencies": [
+    {
+      "file": "/workspace/saga-pairing-milestone/contract-v0.3/recurring-conversation.json",
+      "sha256": "a23596de92f141095bf11cd8294f20a3968d004da15c6f73f066343f3ab34fc5",
+      "role": "Preserve installed continuity; reuse as applicable, not a new competing scene or policy source."
+    },
+    {
+      "file": "/workspace/saga-pairing-milestone/contract-v0.3/personality-coverage.json",
+      "sha256": "f544ea67b78ac313e9c747b7505c2335e11d854981ef6ce3a4ed45ae214bcc03",
+      "role": "Preserve installed continuity; reuse as applicable, not a new competing scene or policy source."
+    },
+    {
+      "file": "/workspace/saga-pairing-milestone/contract-v0.3/faction-proof-reconciled.json",
+      "sha256": "9d85dc6f85d1ecda2d60ca9f3499ac0a5e6f2faa389d528713af6179c6d6b6be",
+      "role": "Preserve installed continuity; reuse as applicable, not a new competing scene or policy source."
+    }
+  ],
+  "implementationMilestones": [
+    {
+      "order": 1,
+      "deliverable": "Ordinary loner path: met→chosen acquainted→chosen close→eligible Court→actual mutual/stable mates, with refused/ineligible branches and save persistence. Keep existing remembered conversations intact.",
+      "acceptance": "No forced success, injected affinity, free greetings, new arbitrary threshold or generic missing traits. All actual five-trait speakers and exact pending scenes survive reload."
+    },
+    {
+      "order": 2,
+      "deliverable": "Wild-land Found from committed mates, named pride/claim60/den/mate membership, nonterminal continuation. Pride-origin optional harder path uses actual approval/rival and proposed departure at Found.",
+      "acceptance": "Ordinary paired/founded path, no double +20, no dual memberships, reject held/disputed Found with no cost, no breeding."
+    },
+    {
+      "order": 3,
+      "deliverable": "Day20 nonterminal season_end for mated founded, mated unfounded and unmated; day21 survival and bonds persist; old day20-only ending reopened, actual death stays final.",
+      "acceptance": "No skip/new year; mated on day20 can Found day22; unmated route intents do not fake membership; forced Court day21 has no state mutation."
+    }
+  ],
+  "edgeCaseForDesign": {
+    "case": "Mate dies before day20 while player already owns a pride: spec §4.6 preserves pride but three named season_end variants omit this combination.",
+    "proposedSafeCopy": "The mating season has ended. {newPrideName} remains your pride. Your mate is no longer beside you, but another day begins.",
+    "proposedUI": "Continue only; no living mate staging or automatic route switch. Uses existing continue result, no new mechanic.",
+    "status": "Nonblocking copy fallback PROPOSED for Tundra confirmation; do not use mated_founded with a dead mate."
+  },
+  "validation": {
+    "json": "PASS",
+    "npcSpeechLocations": 18,
+    "npcSpeechVariants": 54,
+    "coverage": "All actual B/C line locations mapped; source archives excluded",
+    "runtime": "NOT RUN",
+    "ordinaryReachability": "NOT VERIFIED",
+    "breeding": "DEFERRED"
+  }
+}

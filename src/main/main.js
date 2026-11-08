@@ -166,7 +166,7 @@ function loadCopy() {
   // Slice 1 (scope v1.0.1): map model, rules, Saga's offline event library, world slots.
   try {
     const d = (f) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'renderer', 'data', f), 'utf8'));
-    c.gameData = { map: d('map.json'), rules: d('slice-rules.json'), events: d('events/slice-1.json'), slots: d('world-slots.json'), conversation: d('events/recurring-conversation.json'), borderPolicy: d('events/faction-proof-reconciled.json'), encounters: d('events/encounters-v0.2.json') };
+    c.gameData = { map: d('map.json'), rules: d('slice-rules.json'), events: d('events/slice-1.json'), slots: d('world-slots.json'), conversation: d('events/recurring-conversation.json'), borderPolicy: d('events/faction-proof-reconciled.json'), encounters: d('events/encounters-v0.2.json'), firstSeason: d('events/first-season-v0.6.2.json') };
   } catch (e) { log(`slice data unavailable: ${e.message}`); c.gameData = null; }
   c.menuLock = menuLockFrom(c.gameData && c.gameData.rules, process.env);   // renderer shows only the locked cards
   return c;

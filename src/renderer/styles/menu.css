@@ -274,6 +274,15 @@ button.primary { border-color: var(--accent); }
 .conversation-card .event-choices button { white-space: normal; height: auto; min-height: 48px; line-height: 1.35; overflow: visible; text-align: left; }
 .conversation-card .event-text.gap { color: #e6c46a; font-style: normal; font-size: 16px; }
 .conversation-card .event-text.action { color: #d4b07a; font-style: italic; }
+.action-group.is-bond { background: #142018; border: 2px solid #7dba8a; border-radius: 8px; padding: 8px; }
+.action-group.is-bond h3 { color: #c6efd0; }
+.action-group.is-bond button.is-court { background: #1c3a28; border-color: #8fbf9a; }
+.action-group.is-bond button.is-found { background: #3a2e14; border-color: #e6c98a; }
+.bond-card .bond-choices { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 6px; padding: 10px; background: #142018; border: 2px solid #7dba8a; border-radius: 10px; }
+.bond-card .bond-choices button.is-court { background: #1c3a28; border-color: #8fbf9a; }
+.bond-card .bond-choices button.is-found { background: #3a2e14; border-color: #e6c98a; }
+.bond-card .bond-choices button.is-route { background: #243044; border-color: #b7c7e6; }
+.bond-stage { margin: 4px 0 0; color: #c6efd0; font-size: 16px; }
 .conversation-card .talk-utility { flex: 0 0 auto; display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212, 176, 122, .4); }
 .conversation-card .talk-utility button { width: auto; min-height: 34px; padding: 4px 14px; font-size: 15px; letter-spacing: 1px; text-transform: uppercase; background: transparent; border: 1px dashed rgba(212, 176, 122, .75); color: #d4b07a; border-radius: 8px; }
 .conversation-card .talk-utility button:hover, .conversation-card .talk-utility button.focused, .conversation-card .talk-utility button:focus-visible { background: rgba(48, 32, 18, .55); border-color: #e6c98a; color: #fff8ea; outline: 2px solid #fff; outline-offset: 2px; }
