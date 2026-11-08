@@ -207,7 +207,15 @@ test('ordinary Mistwood play reaches mates, departure, wild founding, and day 21
     assert.ok(played.ledger.length > 10);
     assert.ok(played.ledger.some((row) => row.action === 'court' && row.day <= 20));
     const keyRows = played.ledger.filter((row) => row.action === 'court' || row.action === 'askLeader' || row.action === 'found' || row.to === 'mistwood' || row.to === 'split_rock');
-    console.log('MISTWOOD', JSON.stringify({ seed: item.seed, sex: item.sex, mate: item.mate, day: s.day, receipts: s.records.receipts.length, rows: keyRows }));
+    const fresh = E.newRun({ mainCat: playerOf(item.sex), seed: item.seed, runId: `qual-${item.seed}` });
+    const qualified = Object.values(fresh.npcs).filter((n) => n.faction === 'mistwood' && n.sex === item.sex && (n.stage === 'adult' || n.stage === 'elder') && n.id !== item.mate && ((fresh.records.catToCat[[n.id, item.mate].sort().join('|')] || {}).value >= 15));
+    const fought = s.records.fights.find((row) => row.catId === item.mate);
+    if (qualified.length) {
+      assert.ok(fought, `${item.seed} had a seeded rival and no challenge`);
+      assert.strictEqual(fought.deathRoll, false);
+      assert.ok(qualified.some((n) => n.id === fought.rivalId));
+    } else assert.ok(!fought, `${item.seed} fought without a qualifying adult`);
+    console.log('MISTWOOD', JSON.stringify({ seed: item.seed, sex: item.sex, mate: item.mate, day: s.day, receipts: s.records.receipts.length, fights: s.records.fights.length, rows: keyRows }));
   }
 });
 

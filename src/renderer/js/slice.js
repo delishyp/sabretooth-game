@@ -80,6 +80,7 @@
         arrive: (st, to) => arrive(st, to, rep || []),
         applyIntent: (st, catId, intent, day) => applyIntent(st, catId, intent, day),
         notePersonal: (st, catId, delta, key) => WM.notePersonal(st, { catId, delta, receiptKey: key, sourceType: 'courtship', scope: 'private' }),
+        injure: (st, tier, source) => injure(st, tier, source, rep || [], { nonlethal: true }),
         notePride: (st, pride, delta, key) => {
           const led = st.worldMemory && st.worldMemory.ledger;
           if (led && led.some((row) => row.receiptKey === key)) return;
@@ -108,7 +109,7 @@
 
     // ---------- injuries ----------
     /** needs §2.1/§2.3: a second injury of the same tier raises it one tier; the slice has no crippling tier, so it caps at serious. */
-    function injure(s, tier, source, rep) {
+    function injure(s, tier, source, rep, opts) {
       if (tier === 'crippling') tier = 'serious';                         // Flint call: slice chips are minor/serious only
       const same = s.injuries.find((i) => i.tier === tier);
       if (same) { s.injuries = s.injuries.filter((i) => i !== same); tier = 'serious'; }
@@ -116,7 +117,8 @@
       s.injuries.push({ tier, daysLeft: R.injuries[tier].days, source });
       s.needs.health = clamp(s.needs.health - R.injuries[tier].health, 0, 100);
       rep.push({ k: 'injury', tier, source });
-      if (s.needs.health <= 0) die(s, source);
+      if (opts && opts.nonlethal) { if (s.needs.health <= 0) s.needs.health = 1; }
+      else if (s.needs.health <= 0) die(s, source);
     }
     const tierRoll = (rng) => { const r = rng() * 100; const sp = H.injuryTierSplit; return r < sp.minor ? 'minor' : r < sp.minor + sp.serious ? 'serious' : 'crippling'; };
     function die(s, cause) { if (!s.dead) { s.dead = { cause, day: s.day }; } }
@@ -366,6 +368,10 @@
       if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
       if (s.records) s.records._huntOk = false;
       overnight(s, rep, ctx.rested);
+      if (Pair.enabled && !s.dead && !s.travel && s.records) {
+        const own = W.ownership(s.map.claims, s.region);
+        if (own.holder === 'mistwood' && own.state === 'held') Pair.noteMistwoodDay(s);
+      }
       s.report = { day: s.day, region: s.region, lines: rep };
       if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;

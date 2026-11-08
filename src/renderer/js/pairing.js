@@ -13,9 +13,9 @@
  * pride at Found; premade home lists are left as authored.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./speech'));
-  else root.Pairing = factory(root.Rng, root.Speech);
-})(typeof self !== 'undefined' ? self : this, function (Rng, Speech) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./speech'), require('./fight'), require('./pairs'));
+  else root.Pairing = factory(root.Rng, root.Speech, root.Fight, root.Pairs);
+})(typeof self !== 'undefined' ? self : this, function (Rng, Speech, Fight, Pairs) {
   const TRAITS = ['aggression', 'sociability', 'boldness', 'loyalty', 'curiosity'];
   const COURT_GAP = 5;
   const FOUND_CLAIM = 60;
@@ -23,16 +23,16 @@
   const PRIDE_NAMES = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
   const GAPS = [
     {
-      id: 'cat-to-cat-value',
-      text: 'Section 3.6.1 qualifies a rival only with a stored value of at least 15 toward the candidate. Premades have no cat-to-cat edges, so a fresh run skips the challenge. No edge is invented.'
+      id: 'mistwood-range-held-land',
+      text: 'Tundra’s current proposal counts a season when the player spends at least one resolved day on land held by Mistwood. The attached sources do not define the range as a region list. Adjacent wild is not counted. This is not an Anna approval. Year length stays unset.'
     },
     {
-      id: 'mistwood-range-seasons',
-      text: 'Formulas section 3.2 adds +2 per season Mistwood has seen the player in range, max +10. That count is not stored, and year length is unset, so the term is 0.'
+      id: 'showdown-skill-text',
+      text: 'Skills §2.6 is not in the attached sources. A stored showdown perk skips the strength roll and the injury rolls, and the suitor keeps the right. No premade is given that perk.'
     },
     {
-      id: 'mate-rival-injury',
-      text: 'Formulas section 4.3 lists injury chances after fights. The mate-rival row in section 4.4 names a non-lethal result and a −10 value loss only, so no injury chip is applied.'
+      id: 'premade-milestones-unstored',
+      text: 'Premade skill milestones stay null on the cat. Fight factors that need a milestone use 0, and no perk is invented.'
     }
   ];
 
@@ -104,6 +104,9 @@
         willingness: {},
         approval: {},
         catToCat: {},
+        pairsSeeded: false,
+        mistwoodSeasonsInRange: 0,
+        mistwoodDaysThisWindow: 0,
         audience: [],
         fights: [],
         gaps: GAPS.map((g) => g.id)
@@ -328,6 +331,11 @@
         s.records.attraction[n.id] = attractionKind(roll);
       }
       for (const n of Object.values(s.npcs)) if (!s.records.cats[n.id]) ensureCat(s, n.id, n.sex, false);
+      const seeded = Pairs.seed(s.seed, s.npcs, s.records.attraction);
+      s.records.catToCat = seeded.pairs;
+      s.records.pairsDropped = seeded.dropped;
+      s.records.pairsSeeded = true;
+      s.records.pairsStream = seeded.stream;
       return s;
     }
 
@@ -361,6 +369,9 @@
       if (!r.willingness) r.willingness = {};
       if (!r.approval) r.approval = {};
       if (!r.catToCat) r.catToCat = {};
+      if (r.pairsSeeded == null) r.pairsSeeded = false;
+      if (r.mistwoodSeasonsInRange == null) r.mistwoodSeasonsInRange = 0;
+      if (r.mistwoodDaysThisWindow == null) r.mistwoodDaysThisWindow = 0;
       if (!Array.isArray(r.audience)) r.audience = [];
       if (!Array.isArray(r.fights)) r.fights = [];
       if (!Array.isArray(r.gaps)) r.gaps = GAPS.map((g) => g.id);
@@ -517,26 +528,53 @@
       const leaderValue = leader ? leader.affinity : 0;
       const temp = temperament(s, npc.faction);
       const support = npc.affinity >= 50 ? 10 : 0;
-      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + support;
+      const seasons = npc.faction === 'mistwood' ? (s.records.mistwoodSeasonsInRange || 0) : 0;
+      const mistwoodTerm = npc.faction === 'mistwood' ? Math.min(10, 2 * seasons) : 0;
+      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + support + mistwoodTerm;
       return {
         points, p: Math.max(5, Math.min(90, points)), relation, leaderValue, temperament: temp, targetSupport: support,
-        mistwoodRangeSeasons: npc.faction === 'mistwood' ? null : undefined
+        mistwoodRangeSeasons: npc.faction === 'mistwood' ? seasons : undefined,
+        mistwoodTerm
       };
     }
-    function fightStatOf(cat, player, s) {
-      let stat = 10;
-      const personality = player ? null : cat && cat.personality;
-      if (personality && Number.isInteger(personality.aggression)) stat *= (1 + (personality.aggression - 50) / 250);
-      const stage = player ? s.cat.lifeStage : cat && cat.stage;
-      if (stage === 'adolescent') stat *= 0.6;
-      else if (stage === 'elder') stat *= 0.85;
-      if (player && (s.needs.health || 0) < 50) stat *= 0.8;
-      if (player && (s.injuries || []).some((i) => i.tier === 'serious')) stat *= 0.7;
-      return stat;
+    function fighterOf(cat, player, s) {
+      if (player) {
+        return {
+          aggression: s.cat.personality && Number.isInteger(s.cat.personality.aggression) ? s.cat.personality.aggression : null,
+          stage: s.cat.lifeStage,
+          ageSeasons: Number.isInteger(s.cat.ageSeasons) ? s.cat.ageSeasons : null,
+          health: s.needs.health,
+          serious: (s.injuries || []).some((i) => i.tier === 'serious'),
+          perks: s.cat.perks || [],
+          saberM: s.cat.saberM || 0,
+          guardM: s.cat.guardM || 0,
+          standingM: 0,
+          mateChallenge: true
+        };
+      }
+      return {
+        aggression: cat && cat.personality && Number.isInteger(cat.personality.aggression) ? cat.personality.aggression : null,
+        stage: cat && cat.stage,
+        ageSeasons: cat && Number.isInteger(cat.ageSeasons) ? cat.ageSeasons : null,
+        health: null,
+        serious: false,
+        perks: (cat && cat.perks) || [],
+        saberM: 0,
+        guardM: 0,
+        standingM: 0,
+        mateChallenge: true
+      };
     }
     function regard(s, fromId, toId) {
-      const row = s.records.catToCat && s.records.catToCat[`${fromId}->${toId}`];
+      const row = Pairs.stored(s.records.catToCat, fromId, toId);
       return row && typeof row.value === 'number' ? row.value : null;
+    }
+    function lowerPair(s, fromId, toId, delta) {
+      const map = s.records.catToCat;
+      const legacy = map[`${fromId}->${toId}`];
+      const entry = legacy && typeof legacy.value === 'number' ? legacy : map[Pairs.pairKey(fromId, toId)];
+      if (!entry || typeof entry.value !== 'number') return;
+      entry.value = Math.max(-100, Math.min(100, entry.value + delta));
     }
     function qualifyingRival(s, target) {
       let best = null;
@@ -546,7 +584,7 @@
         if (!adult(n.stage) || n.sex !== s.cat.sex) continue;
         const value = regard(s, n.id, target.id);
         if (value == null || value < 15) continue;
-        const stat = fightStatOf(n, false, s);
+        const stat = Fight.fightStat(fighterOf(n, false, s));
         if (!best || stat > bestStat || (stat === bestStat && n.id < best.id)) { best = n; bestStat = stat; }
       }
       return best;
@@ -567,20 +605,35 @@
       return rivalScene(s, npc, rival, deps, day);
     }
     function rivalScene(s, npc, rival, deps, day) {
-      const rng = Rng.stream(s.seed, 'rival', npc.id, rival.id, day);
-      const playerStr = fightStatOf(null, true, s) * (0.8 + rng() * 0.4);
-      const rivalStr = fightStatOf(rival, false, s) * (0.8 + rng() * 0.4);
-      const won = playerStr >= rivalStr;
       const key = `${s.runId || ''}/rival/${npc.id}/${rival.id}/${day}`;
-      if (once(s, key)) {
-        s.records.fights.push({ day, catId: npc.id, rivalId: rival.id, won, playerStr, rivalStr, lethal: false });
-        if (!won) shiftValue(s, npc, -10, `${key}/loss`, deps);
-        else {
-          const edgeKey = `${rival.id}->${npc.id}`;
-          const edge = s.records.catToCat[edgeKey];
-          if (edge && typeof edge.value === 'number') edge.value = Math.max(-100, edge.value - 10);
+      const prior = (s.records.fights || []).find((row) => row.catId === npc.id && row.rivalId === rival.id && row.day === day);
+      let result = prior;
+      if (!prior) {
+        const rng = Rng.stream(s.seed, 'rival', npc.id, rival.id, day);
+        const suitor = fighterOf(null, true, s);
+        const defender = fighterOf(rival, false, s);
+        const showdown = (suitor.perks || []).includes('showdown') || (defender.perks || []).includes('showdown');
+        result = Fight.resolve({
+          rng, style: 'standard', showdown,
+          suitorStat: Fight.fightStat(suitor), rivalStat: Fight.fightStat(defender),
+          suitorGuard: suitor.guardM, rivalGuard: defender.guardM
+        });
+        if (once(s, `${key}/resolve`)) {
+          const wonNow = !!result.won;
+          const playerTier = result.replaced ? null : (wonNow ? result.injuries.winner : result.injuries.loser);
+          const stored = {
+            day, catId: npc.id, rivalId: rival.id, won: wonNow, playerStr: result.playerStr, rivalStr: result.rivalStr,
+            lethal: false, deathRoll: false, replaced: result.replaced, rolls: result.rolls,
+            injuries: result.injuries, playerTier
+          };
+          s.records.fights.push(stored);
+          result = stored;
+          if (!stored.replaced && playerTier && deps.injure) deps.injure(s, playerTier === 'crippling' ? 'serious' : playerTier, 'mate-challenge');
+          if (!wonNow) shiftValue(s, npc, -10, `${key}/loss`, deps);
+          else if (!stored.replaced) lowerPair(s, rival.id, npc.id, -10);
         }
       }
+      const won = !!(result && result.won);
       const family = families['m2.mate_rival'];
       const which = won ? 'won' : 'lost';
       const beats = family.beats.concat(family.results.challenge_start.beats, family.results[which].beats);
@@ -995,7 +1048,17 @@
       return npc;
     }
 
+    function noteMistwoodDay(s) {
+      if (!s.records) return;
+      s.records.mistwoodDaysThisWindow = (s.records.mistwoodDaysThisWindow || 0) + 1;
+    }
+
     function commitSeason(s) {
+      const closeKey = `${s.runId || ''}/season/close`;
+      if (!once(s, closeKey)) return;
+      const days = s.records.mistwoodDaysThisWindow || 0;
+      if (days >= 1) s.records.mistwoodSeasonsInRange = (s.records.mistwoodSeasonsInRange || 0) + 1;
+      s.records.mistwoodDaysThisWindow = 0;
       if (!s.records.matePair) {
         for (const [id, wish] of Object.entries(s.records.willingness || {})) {
           if (!wish || !wish.accepted) continue;
@@ -1017,7 +1080,7 @@
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
       courtOffers, beginCourt, audienceOffers, beginAudience, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
+      courtGate, noteHunt, noteMistwoodDay, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 

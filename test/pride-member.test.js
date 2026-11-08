@@ -141,15 +141,15 @@ function playPride(E, seed, faction, player) {
     else action = { type: 'rest' };
     s = actOk(E, s, action);
   }
-  return { s, target, started };
+  return { s, target, started, seed, faction };
 }
 
 test('the three pride contracts stay distinct and the known gaps are explicit', () => {
   const E = mk();
   const Pair = require('../src/renderer/js/pairing').create(firstSeason, rules);
-  assert.deepStrictEqual(Pair.gaps.map((g) => g.id), ['cat-to-cat-value', 'mistwood-range-seasons', 'mate-rival-injury']);
+  assert.deepStrictEqual(Pair.gaps.map((g) => g.id), ['mistwood-range-held-land', 'showdown-skill-text', 'premade-milestones-unstored']);
   const s = E.newRun({ mainCat: female, seed: 2, runId: 'gaps' });
-  assert.deepStrictEqual(s.records.catToCat, {});
+  assert.ok(Object.keys(s.records.catToCat).length > 0);
   assert.deepStrictEqual(s.records.gaps, Pair.gaps.map((g) => g.id));
   for (const pride of PRIDES) {
     const leader = s.npcs[Pair.leaders[pride]];
@@ -179,7 +179,10 @@ test('fresh approval points differ by pride and do not invent Mistwood seasons',
     assert.ok(!r.error, r.error);
     const scored = r.state.records.approval[pride].scored;
     assert.strictEqual(scored.points, expected[pride]);
-    if (pride === 'mistwood') assert.strictEqual(scored.mistwoodRangeSeasons, null);
+    if (pride === 'mistwood') {
+      assert.strictEqual(scored.mistwoodRangeSeasons, 0);
+      assert.strictEqual(scored.mistwoodTerm, 0);
+    }
     assert.strictEqual(r.state.records.matePair, null);
     assert.strictEqual(r.state.npcs[cat.id].faction, pride);
     const audience = r.state.records.audience[0];
@@ -228,6 +231,7 @@ test('FIXTURE: a stored cat-to-cat edge can start a rival challenge; a missing e
   plain.region = 'bonefield';
   plain.prideRelation.bonefield = 80;
   cat.affinity = 80;
+  for (const row of Object.values(plain.records.catToCat)) if (row && typeof row.value === 'number' && row.value >= 15) row.value = 14;
   const noEdge = E.act(plain, { type: 'askLeader', catId: cat.id });
   assert.ok(!noEdge.error);
   if (noEdge.state.records.approval.bonefield.approved) {
@@ -240,8 +244,8 @@ test('FIXTURE: a stored cat-to-cat edge can start a rival challenge; a missing e
   for (let seed = 1; seed < 25 && !fought; seed++) {
     const s = E.newRun({ mainCat: male, seed, runId: `edge-${seed}` });
     const target = Object.values(s.npcs).find((n) => n.faction === 'mistwood' && n.stage === 'adult' && n.sex === 'female' && n.id !== 'mw01');
-    const rival = Object.values(s.npcs).find((n) => n.faction === 'mistwood' && n.stage === 'adult' && n.sex === 'male' && n.id !== target.id);
-    s.records.catToCat[`${rival.id}->${target.id}`] = { value: 20 };
+    const rival = Object.values(s.npcs).find((n) => n.faction === 'mistwood' && n.stage === 'adult' && n.sex === 'male' && n.id !== target.id && (s.records.catToCat[[n.id, target.id].sort().join('|')] || {}).value >= 15);
+    if (!rival) continue;
     s.records.willingness[target.id] = { accepted: true, pride: 'mistwood', day: 1 };
     target.affinity = 80;
     s.prideRelation.mistwood = 80;
@@ -312,6 +316,15 @@ test('ordinary play can take one pride cat from consent through departure, found
   const second = E.act(reloaded, { type: 'found', name: 'Again' });
   assert.ok(second.error);
   assert.strictEqual(second.state.records.members.length, 2);
-  fs.writeFileSync('/tmp/pride-path.json', JSON.stringify({ seed: s.seed, faction: s.records.departure.from, mateId: mate.id, sex: s.cat.sex, day: s.day }));
+  const fresh = E.newRun({ mainCat: s.cat.sex === 'female' ? female : male, seed: win.seed, runId: 'qual-check' });
+  const qualified = Object.values(fresh.npcs).filter((n) => n.faction === win.faction && n.sex === fresh.cat.sex && n.id !== mate.id && ((fresh.records.catToCat[[n.id, mate.id].sort().join('|')] || {}).value >= 15));
+  if (qualified.length) {
+    const fought = s.records.fights.find((row) => row.catId === mate.id);
+    assert.ok(fought, 'a seeded qualifier did not produce a challenge');
+    assert.strictEqual(fought.deathRoll, false);
+    assert.strictEqual(fought.lethal, false);
+    assert.ok(qualified.some((n) => n.id === fought.rivalId));
+  }
+  fs.writeFileSync('/tmp/pride-path.json', JSON.stringify({ seed: s.seed, faction: s.records.departure.from, mateId: mate.id, sex: s.cat.sex, day: s.day, fights: s.records.fights.length }));
   console.log('PRIDE PATH', fs.readFileSync('/tmp/pride-path.json', 'utf8'));
 });
