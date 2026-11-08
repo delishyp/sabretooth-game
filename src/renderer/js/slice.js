@@ -73,12 +73,31 @@
       return {
         regionName: (id) => W.region(id).name,
         wild: (id) => W.ownership(s.map.claims, id).state === 'wild',
+        held: (region, faction) => {
+          const own = W.ownership(s.map.claims, region);
+          return own.holder === faction && own.state === 'held';
+        },
         arrive: (st, to) => arrive(st, to, rep || []),
         applyIntent: (st, catId, intent, day) => applyIntent(st, catId, intent, day),
         notePersonal: (st, catId, delta, key) => WM.notePersonal(st, { catId, delta, receiptKey: key, sourceType: 'courtship', scope: 'private' }),
+        notePride: (st, pride, delta, key) => {
+          const led = st.worldMemory && st.worldMemory.ledger;
+          if (led && led.some((row) => row.receiptKey === key)) return;
+          st.prideRelation[pride] = clamp((st.prideRelation[pride] || 0) + delta, -100, 100);
+          const rec = st.worldMemory && st.worldMemory.prideToPlayer && st.worldMemory.prideToPlayer[`${pride}->player`];
+          if (rec) rec.value = st.prideRelation[pride];
+          if (led) led.push({ receiptKey: key, sourceType: 'pride_bond', recordKind: 'prideToPlayer', actor: pride, target: 'player', delta, absDay: st.day });
+        },
         homeEdge: (st, npc) => {
+          const homes = new Set(npc.homeZones || []);
+          if (npc.faction && npc.faction !== 'loner') {
+            for (const region of W.regions) {
+              const own = W.ownership(st.map.claims, region.id);
+              if (own.holder === npc.faction && own.state === 'held') homes.add(region.id);
+            }
+          }
           for (const to of W.neighbours(st.region)) {
-            if (!(npc.homeZones || []).includes(to)) continue;
+            if (!homes.has(to)) continue;
             const blocked = (st.map.blockedEdges[WorldMap.edgeKey(st.region, to)] || 0) >= st.day;
             if (travelDaysFrom(st, to) === 1 && !blocked) return { to, days: 1 };
           }
@@ -128,6 +147,7 @@
         seek: Enc.seekOffer(s),
         seekMate: Pair.enabled ? Pair.seekOffers(s, bondDeps(s)) : [],
         court: Pair.enabled ? Pair.courtOffers(s, bondDeps(s)) : [],
+        audience: Pair.enabled ? Pair.audienceOffers(s, bondDeps(s)) : [],
         found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null
       };
     }
@@ -272,6 +292,12 @@
         const opened = Pair.beginSeek(s, action.catId, bondDeps(s, rep));
         if (opened.error) return { state: s0, error: opened.error };
         endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'seekMate', rested: false });
+        return { state: s, report: s.report };
+      }
+      if (s.phase === 'day' && action.type === 'askLeader') {
+        const opened = Pair.beginAudience(s, action.catId, bondDeps(s, rep));
+        if (opened.error) return { state: s0, error: opened.error };
+        endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'askLeader', rested: false });
         return { state: s, report: s.report };
       }
       if (s.phase === 'day' && action.type === 'court') {

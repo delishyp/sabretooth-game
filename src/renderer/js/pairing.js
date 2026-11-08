@@ -19,6 +19,22 @@
   const TRAITS = ['aggression', 'sociability', 'boldness', 'loyalty', 'curiosity'];
   const COURT_GAP = 5;
   const FOUND_CLAIM = 60;
+  const LEADERS = { highcrag: 'hc01', bonefield: 'bf01', mistwood: 'mw01' };
+  const PRIDE_NAMES = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
+  const GAPS = [
+    {
+      id: 'cat-to-cat-value',
+      text: 'Section 3.6.1 qualifies a rival only with a stored value of at least 15 toward the candidate. Premades have no cat-to-cat edges, so a fresh run skips the challenge. No edge is invented.'
+    },
+    {
+      id: 'mistwood-range-seasons',
+      text: 'Formulas section 3.2 adds +2 per season Mistwood has seen the player in range, max +10. That count is not stored, and year length is unset, so the term is 0.'
+    },
+    {
+      id: 'mate-rival-injury',
+      text: 'Formulas section 4.3 lists injury chances after fights. The mate-rival row in section 4.4 names a non-lethal result and a −10 value loss only, so no injury chip is applied.'
+    }
+  ];
 
   function create(doc, rules) {
     const enabled = !!(doc && Array.isArray(doc.families) && doc.personalityContract);
@@ -84,7 +100,13 @@
         history: [],
         historyUnknown: false,
         yearLengthDays: null,
-        compatTerm: 0
+        compatTerm: 0,
+        willingness: {},
+        approval: {},
+        catToCat: {},
+        audience: [],
+        fights: [],
+        gaps: GAPS.map((g) => g.id)
       };
     }
 
@@ -149,14 +171,16 @@
       return entry;
     }
 
-    function varsFor(s, npc, deps) {
+    function varsFor(s, npc, deps, cast) {
       const pride = s.records.pride;
       const origin = npc && s.records.bonds[npc.id] && s.records.bonds[npc.id].originPrideId;
       return {
         catName: npc ? npc.name : '',
         regionName: deps && deps.regionName ? deps.regionName(s.region) : s.region,
         newPrideName: pride ? pride.name : '',
-        originPrideName: origin || ''
+        originPrideName: PRIDE_NAMES[origin] || PRIDE_NAMES[(cast && cast.pride)] || origin || '',
+        leaderName: cast && cast.C ? cast.C.name : '',
+        rivalName: cast && cast.rival ? cast.rival.name : ''
       };
     }
 
@@ -173,15 +197,16 @@
       };
     }
 
-    function linesFrom(beats, s, npc, deps, familyId) {
-      const vars = varsFor(s, npc, deps);
+    function linesFrom(beats, s, npc, deps, familyId, cast) {
+      const vars = varsFor(s, npc, deps, cast);
       const lines = [];
       for (const beat of beats || []) {
         if (beat.kind === 'narration' || beat.speaker === 'A') {
           lines.push({ kind: beat.kind === 'narration' ? 'narration' : 'say', speaker: beat.speaker === 'A' ? s.cat.name : null, text: fill(beat.text, vars) });
         } else {
-          const said = speak(familyId, beat, npc, vars);
-          lines.push({ kind: 'say', speaker: npc ? npc.name : '', text: said.text, variantId: said.variantId, gap: said.gap });
+          const who = beat.speaker === 'C' ? ((cast && (cast.C || cast.rival)) || npc) : ((cast && cast.B) || npc);
+          const said = speak(familyId, beat, who, vars);
+          lines.push({ kind: 'say', speaker: who ? who.name : '', text: said.text, variantId: said.variantId, gap: said.gap });
           if (said.action) lines.push({ kind: 'action', text: said.action });
           if (said.gap) lines.push({ kind: 'gap', text: said.gap });
         }
@@ -244,7 +269,8 @@
 
     function scene(id, s, npc, deps, extra) {
       const family = families[id];
-      const vars = varsFor(s, npc, deps);
+      const cast = extra && extra.cast;
+      const vars = varsFor(s, npc, deps, cast);
       const beats = (extra && extra.beats) || (family && family.beats) || [];
       return {
         bond: true,
@@ -256,7 +282,7 @@
         catId: npc ? npc.id : null,
         catName: npc ? npc.name : null,
         day: (extra && extra.day) || s.day,
-        lines: linesFrom(beats, s, npc, deps, id),
+        lines: linesFrom(beats, s, npc, deps, id, cast),
         choices: extra && extra.choices ? extra.choices : meetingChoices(family, s, npc, deps),
         summary: fill((extra && extra.summary) || (family && family.summary) || '', vars),
         choiceId: null,
@@ -332,6 +358,12 @@
       }
       if (r.yearLengthDays === undefined) r.yearLengthDays = null;
       if (r.compatTerm == null) r.compatTerm = 0;
+      if (!r.willingness) r.willingness = {};
+      if (!r.approval) r.approval = {};
+      if (!r.catToCat) r.catToCat = {};
+      if (!Array.isArray(r.audience)) r.audience = [];
+      if (!Array.isArray(r.fights)) r.fights = [];
+      if (!Array.isArray(r.gaps)) r.gaps = GAPS.map((g) => g.id);
       const unknownPast = !prior;
       if (s.cat) ensureCat(s, s.cat.catId, s.cat.sex, unknownPast);
       for (const n of Object.values(s.npcs || {})) ensureCat(s, n.id, n.sex, unknownPast);
@@ -445,7 +477,8 @@
       const beats = family.beats.slice();
       const origin = s.records.bonds[npc.id] && s.records.bonds[npc.id].originPrideId;
       if (origin) {
-        beats.push({ kind: 'narration', text: `${npc.name} has left ${origin} to make this pride with you.` });
+        const named = PRIDE_NAMES[origin] || origin;
+        beats.splice(1, 0, { kind: 'narration', text: `${npc.name} has left ${named} to make this pride with you.` });
       }
       return scene('m2.pride_founded', s, npc, deps, {
         beats, heading: 'Founding', group: 'founding', result: true, choices: [], showPortrait: true,
@@ -453,6 +486,153 @@
       });
     }
 
+    function isPrideMember(npc) {
+      return !!(npc && npc.faction && npc.faction !== 'loner' && PRIDE_NAMES[npc.faction]);
+    }
+    function prideLand(s, pride, deps) {
+      return !!(deps && deps.held && deps.held(s.region, pride));
+    }
+    function atHome(s, npc, deps) {
+      if ((npc.homeZones || []).includes(s.region)) return true;
+      return isPrideMember(npc) && prideLand(s, npc.faction, deps);
+    }
+    function leaderOf(s, pride) {
+      const id = LEADERS[pride];
+      const leader = id && s.npcs[id];
+      if (!leader || leader.dead || leader.faction !== pride) return null;
+      return leader;
+    }
+    function temperament(s, pride) {
+      if (pride === 'highcrag') return -10;
+      if (pride === 'bonefield') {
+        const log = (s.encounters && s.encounters.log) || [];
+        const wonHyena = log.some((row) => row.outcomeId === 'hyena_driven' || row.tier === 'clean' || row.tier === 'partial');
+        const wonRecorded = (s.records.fights || []).some((row) => row.won);
+        return wonHyena || wonRecorded ? 10 : -5;
+      }
+      return 0;
+    }
+    function approvalPoints(s, npc, leader) {
+      const relation = (s.prideRelation && s.prideRelation[npc.faction]) || 0;
+      const leaderValue = leader ? leader.affinity : 0;
+      const temp = temperament(s, npc.faction);
+      const support = npc.affinity >= 50 ? 10 : 0;
+      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + support;
+      return {
+        points, p: Math.max(5, Math.min(90, points)), relation, leaderValue, temperament: temp, targetSupport: support,
+        mistwoodRangeSeasons: npc.faction === 'mistwood' ? null : undefined
+      };
+    }
+    function fightStatOf(cat, player, s) {
+      let stat = 10;
+      const personality = player ? null : cat && cat.personality;
+      if (personality && Number.isInteger(personality.aggression)) stat *= (1 + (personality.aggression - 50) / 250);
+      const stage = player ? s.cat.lifeStage : cat && cat.stage;
+      if (stage === 'adolescent') stat *= 0.6;
+      else if (stage === 'elder') stat *= 0.85;
+      if (player && (s.needs.health || 0) < 50) stat *= 0.8;
+      if (player && (s.injuries || []).some((i) => i.tier === 'serious')) stat *= 0.7;
+      return stat;
+    }
+    function regard(s, fromId, toId) {
+      const row = s.records.catToCat && s.records.catToCat[`${fromId}->${toId}`];
+      return row && typeof row.value === 'number' ? row.value : null;
+    }
+    function qualifyingRival(s, target) {
+      let best = null;
+      let bestStat = -1;
+      for (const n of Object.values(s.npcs)) {
+        if (n.id === target.id || n.dead || n.faction !== target.faction) continue;
+        if (!adult(n.stage) || n.sex !== s.cat.sex) continue;
+        const value = regard(s, n.id, target.id);
+        if (value == null || value < 15) continue;
+        const stat = fightStatOf(n, false, s);
+        if (!best || stat > bestStat || (stat === bestStat && n.id < best.id)) { best = n; bestStat = stat; }
+      }
+      return best;
+    }
+    function shiftValue(s, npc, delta, key, deps) {
+      if (!once(s, key)) return;
+      npc.affinity = Math.max(-100, Math.min(100, npc.affinity + delta));
+      if (deps.notePersonal) deps.notePersonal(s, npc.id, delta, key);
+    }
+    function shiftPride(s, pride, delta, key, deps) {
+      if (!once(s, key)) return;
+      if (deps.notePride) deps.notePride(s, pride, delta, key);
+      else s.prideRelation[pride] = Math.max(-100, Math.min(100, (s.prideRelation[pride] || 0) + delta));
+    }
+    function matesOrRival(s, npc, deps, day) {
+      const rival = qualifyingRival(s, npc);
+      if (!rival) return matesScene(s, npc, deps);
+      return rivalScene(s, npc, rival, deps, day);
+    }
+    function rivalScene(s, npc, rival, deps, day) {
+      const rng = Rng.stream(s.seed, 'rival', npc.id, rival.id, day);
+      const playerStr = fightStatOf(null, true, s) * (0.8 + rng() * 0.4);
+      const rivalStr = fightStatOf(rival, false, s) * (0.8 + rng() * 0.4);
+      const won = playerStr >= rivalStr;
+      const key = `${s.runId || ''}/rival/${npc.id}/${rival.id}/${day}`;
+      if (once(s, key)) {
+        s.records.fights.push({ day, catId: npc.id, rivalId: rival.id, won, playerStr, rivalStr, lethal: false });
+        if (!won) shiftValue(s, npc, -10, `${key}/loss`, deps);
+        else {
+          const edgeKey = `${rival.id}->${npc.id}`;
+          const edge = s.records.catToCat[edgeKey];
+          if (edge && typeof edge.value === 'number') edge.value = Math.max(-100, edge.value - 10);
+        }
+      }
+      const family = families['m2.mate_rival'];
+      const which = won ? 'won' : 'lost';
+      const beats = family.beats.concat(family.results.challenge_start.beats, family.results[which].beats);
+      const event = scene('m2.mate_rival', s, npc, deps, {
+        beats, heading: 'Courtship', group: 'courtship', result: true,
+        summary: family.results[which].summary,
+        cast: { B: npc, C: rival, rival, pride: npc.faction },
+        day, showPortrait: true,
+        next: won ? matesScene(s, npc, deps) : null
+      });
+      event.rivalId = rival.id;
+      remember(s, [s.cat.catId, npc.id, rival.id], won ? 'rival_won' : 'rival_lost', event.summary, key, day);
+      return event;
+    }
+    function approvalScene(s, npc, deps, day) {
+      const pride = npc.faction;
+      const leader = leaderOf(s, pride);
+      if (!leader) return null;
+      const prior = s.records.approval[pride];
+      if (prior) {
+        return prior.approved ? matesOrRival(s, npc, deps, day) : null;
+      }
+      const scored = approvalPoints(s, npc, leader);
+      const attempt = 1;
+      const roll = Rng.stream(s.seed, 'approval', pride, 'window', attempt)();
+      const approved = roll < scored.p / 100;
+      const key = `${s.runId || ''}/approval/${pride}/window`;
+      if (!once(s, key)) return s.records.approval[pride] && s.records.approval[pride].approved ? matesOrRival(s, npc, deps, day) : null;
+      s.records.approval[pride] = { approved, roll, p: scored.p, points: scored.points, day, leaderId: leader.id, candidateId: npc.id, scored };
+      s.records.audience.push({
+        kind: 'leader_audience', pride, leaderId: leader.id, candidateId: npc.id, day,
+        witnesses: [leader.id, npc.id, s.cat.catId]
+      });
+      if (!approved) {
+        shiftPride(s, pride, -5, `${key}/refuse`, deps);
+        const bond = bondOf(s, npc.id);
+        if (bond.stage === 'courting') bond.stage = 'close';
+      }
+      const family = families['m2.leader_approval'];
+      const which = approved ? 'approved' : 'refused';
+      const beats = family.beats.concat(family.results[which].beats);
+      const event = scene('m2.leader_approval', s, npc, deps, {
+        beats, heading: 'Courtship', group: 'courtship', result: true,
+        summary: family.results[which].summary,
+        cast: { B: npc, C: leader, pride },
+        day, showPortrait: true,
+        next: approved ? matesOrRival(s, npc, deps, day) : null
+      });
+      event.leaderId = leader.id;
+      remember(s, [s.cat.catId, npc.id, leader.id], approved ? 'approval' : 'approval_refused', event.summary, key, day);
+      return event;
+    }
     function resolveCourt(s, npc, deps, spendEnergy, attemptDay) {
       const gate = courtGate(s, npc);
       if (gate) return { error: gate.code };
@@ -479,6 +659,10 @@
       }
       const event = resultScene(accept ? 'accepted' : 'declined', s, npc, deps, court);
       event.day = day;
+      if (accept && isPrideMember(npc)) {
+        s.records.willingness[npc.id] = { accepted: true, pride: npc.faction, day };
+        if (prideLand(s, npc.faction, deps)) event.next = approvalScene(s, npc, deps, day);
+      }
       remember(s, [s.cat.catId, npc.id], accept ? 'court_accept' : 'court_decline', event.summary, askKey, day);
       return { event };
     }
@@ -498,6 +682,9 @@
         foundingDay: null
       };
       npc.mateId = s.cat.catId;
+      if (isPrideMember(npc)) {
+        shiftPride(s, npc.faction, 20, `${s.runId || ''}/pride-bond/${npc.faction}/${npc.id}`, deps);
+      }
       remember(s, [s.cat.catId, npc.id], 'mates', `You and ${npc.name} became mates.`, key, day);
       return true;
     }
@@ -521,9 +708,15 @@
       if (!once(s, key)) return { error: 'duplicate' };
       const prideId = `pride-${s.runId || 'run'}`;
       const day = s.pending && s.pending.day ? s.pending.day : s.day;
-      const origin = npc.faction && npc.faction !== 'loner' ? npc.faction : null;
+      const origin = npc.faction && npc.faction !== 'loner' && npc.faction !== prideId ? npc.faction : null;
       if (origin) bondOf(s, npc.id).originPrideId = origin;
       npc.faction = prideId;
+      if (origin) {
+        s.records.departure = {
+          catId: npc.id, from: origin, fromName: PRIDE_NAMES[origin] || origin, to: prideId, day,
+          witnesses: [s.cat.catId, npc.id]
+        };
+      }
       if (!s.map.claims[s.region]) s.map.claims[s.region] = {};
       s.map.claims[s.region][prideId] = FOUND_CLAIM;
       s.records.pride = {
@@ -547,7 +740,7 @@
       const out = [];
       for (const npc of Object.values(s.npcs)) {
         if (!npc.met || !adult(npc.stage)) continue;
-        const home = (npc.homeZones || []).includes(s.region);
+        const home = atHome(s, npc, deps);
         const edge = !home && deps.homeEdge(s, npc);
         if (!home && !edge) continue;
         const cost = home ? 5 : 15;
@@ -577,7 +770,7 @@
       for (const npc of Object.values(s.npcs)) {
         const stage = s.records.bonds[npc.id] && s.records.bonds[npc.id].stage;
         if (stage !== 'close' && stage !== 'courting') continue;
-        const here = (npc.homeZones || []).includes(s.region) || (s.records.pride && s.records.pride.denRegionId === s.region);
+        const here = atHome(s, npc, deps) || (s.records.pride && s.records.pride.denRegionId === s.region);
         if (!here) continue;
         const gate = courtGate(s, npc);
         const poor = !gate && s.needs.energy < 5;
@@ -595,11 +788,33 @@
       const gate = courtGate(s, npc);
       if (gate) return { error: gate.code };
       if (s.phase !== 'day' || s.travel || s.forced) return { error: 'court.busy' };
-      const here = npc && ((npc.homeZones || []).includes(s.region) || (s.records.pride && s.records.pride.denRegionId === s.region));
+      const here = npc && (atHome(s, npc, deps) || (s.records.pride && s.records.pride.denRegionId === s.region));
       if (!here) return { error: 'court.away' };
       return resolveCourt(s, npc, deps, true);
     }
 
+    function audienceOffers(s, deps) {
+      if (s.phase !== 'day' || s.travel || s.forced || s.records.matePair) return [];
+      const out = [];
+      for (const [catId, wish] of Object.entries(s.records.willingness || {})) {
+        if (!wish || !wish.accepted || s.records.approval[wish.pride]) continue;
+        const npc = s.npcs[catId];
+        const leader = npc && leaderOf(s, wish.pride);
+        if (!npc || npc.faction !== wish.pride || !leader || !prideLand(s, wish.pride, deps)) continue;
+        out.push({ catId, name: npc.name, leaderId: leader.id, leaderName: leader.name, allowed: true });
+      }
+      return out;
+    }
+    function beginAudience(s, catId, deps) {
+      const npc = s.npcs[catId];
+      const wish = npc && s.records.willingness[catId];
+      if (!wish || !wish.accepted) return { error: 'court.locked' };
+      if (s.records.approval[wish.pride]) return { error: 'duplicate' };
+      if (!prideLand(s, wish.pride, deps)) return { error: 'court.away' };
+      const event = approvalScene(s, npc, deps, s.day);
+      if (!event) return { error: 'court.ineligible' };
+      return { event };
+    }
     function foundOffer(s, deps) {
       if (s.phase !== 'day' || !s.records.matePair || s.records.pride) return null;
       const gate = foundGate(s, deps);
@@ -781,6 +996,15 @@
     }
 
     function commitSeason(s) {
+      if (!s.records.matePair) {
+        for (const [id, wish] of Object.entries(s.records.willingness || {})) {
+          if (!wish || !wish.accepted) continue;
+          const decided = s.records.approval[wish.pride];
+          if (decided && decided.approved) continue;
+          const bond = s.records.bonds[id];
+          if (bond && bond.stage === 'courting') bond.stage = 'close';
+        }
+      }
       s.records.seasonEndShown = true;
       if (s.day <= seasonDays) s.day = seasonDays + 1;
       else s.day += 1;
@@ -792,8 +1016,8 @@
 
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
-      courtOffers, beginCourt, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, FOUND_CLAIM
+      courtOffers, beginCourt, audienceOffers, beginAudience, foundOffer, beginFound, choose, seasonPending, commitSeason,
+      courtGate, noteHunt, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 

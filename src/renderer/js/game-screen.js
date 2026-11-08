@@ -278,6 +278,7 @@
           bond.append(el('h3', '', 'Courtship and founding'));
           for (const row of seekers) bond.append(btn(`Seek ${row.name} · Energy −${row.energy}`, { g: 'seekMate', cat: row.catId }, { cls: 'is-seek', disabled: !row.allowed, title: row.reason || '' }));
           for (const row of courts) bond.append(btn(`Court ${row.name} · Energy −${row.energy}`, { g: 'court', cat: row.catId }, { cls: 'is-court', disabled: !row.allowed, title: row.reason || '' }));
+          for (const row of av.audience || []) bond.append(btn(`Ask ${row.leaderName} about ${row.name}`, { g: 'askLeader', cat: row.catId }, { cls: 'is-court', disabled: !row.allowed }));
           if (av.found) bond.append(btn(`Found ${av.found.name}`, { g: 'found', name: av.found.name }, { cls: 'is-found', disabled: !av.found.allowed, title: av.found.reason || '' }));
           a.append(bond);
         }
@@ -565,6 +566,7 @@
       if (d.g === 'seek') return act({ type: 'seek', catId: d.cat });
       if (d.g === 'seekMate') return act({ type: 'seekMate', catId: d.cat });
       if (d.g === 'court') return act({ type: 'court', catId: d.cat });
+      if (d.g === 'askLeader') return act({ type: 'askLeader', catId: d.cat });
       if (d.g === 'found') return act({ type: 'found', name: d.name });
       if (d.g === 'inspectEncounter') {
         const src = document.querySelector('.encounter-img');
