@@ -56,6 +56,8 @@
     const extent = () => {
       let right = 0, bottom = 0;
       for (const el of sc.querySelectorAll('*')) {
+        // The cats list scrolls inside the dock. Its rows must not shrink the whole screen.
+        if (el.closest('.home-dock') && !el.classList.contains('home-dock')) continue;
         const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
         right = Math.max(right, r.right - R.left); bottom = Math.max(bottom, r.bottom - R.top);
       }
