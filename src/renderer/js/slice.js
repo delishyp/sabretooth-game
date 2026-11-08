@@ -13,8 +13,10 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
-  /** A slug is kept as given. Anything else, including a legacy omission, is null. Never rewritten to another id. */
+  /** A slug is kept as given. Anything else is not a saved choice. */
   const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
+  /** First registered static id. The creator opens on it. Legacy blanks use this same id. Not inferred from genes or a filename. */
+  const PLAYER_PRESENTATION_DEFAULT = 'cat-6e2d788dd48ff440';
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
   function loadPortraitDefaults(passed) {
@@ -596,22 +598,35 @@
       };
     }
     /**
-     * Legacy player art. A valid saved id stays. A blank or invalid id stays unassigned.
-     * Genes and the cat id are not a portrait map. The record is written once.
+     * Legacy player art. A valid saved id stays. A missing, null, or invalid id becomes the creator's
+     * presentation default. Genes, sex, and the cat id are not a portrait map. Repeating the load does not change the assignment.
      */
     function migratePlayerPortrait(cat) {
-      if (!cat || cat.portraitLegacy) return cat;
+      if (!cat) return cat;
       const had = Object.prototype.hasOwnProperty.call(cat, 'portraitId');
       const raw = cat.portraitId;
       const valid = keptPortraitId(raw);
       const genesPresent = !!(cat.genes && cat.genes.loci);
-      if (!had) cat.portraitLegacy = { status: 'field-absent', assigned: false, genesPresent };
-      else if (valid) cat.portraitLegacy = { status: 'kept', assigned: true, id: valid, genesPresent };
-      else if (raw == null) cat.portraitLegacy = { status: 'stored-null', assigned: false, genesPresent };
-      else cat.portraitLegacy = { status: 'invalid-cleared', assigned: false, rejected: String(raw), genesPresent };
-      if (!valid) cat.portraitLegacy.policy = 'no-genotype-map';
-      if (valid) cat.portraitId = valid;
-      else cat.portraitId = null;
+      if (valid) {
+        cat.portraitId = valid;
+        if (!cat.portraitLegacy) cat.portraitLegacy = { status: 'kept', assigned: true, id: valid, genesPresent, phenotypeMatch: false };
+        return cat;
+      }
+      const prior = cat.portraitLegacy || null;
+      if (prior && prior.status === 'presentation-default' && prior.id === PLAYER_PRESENTATION_DEFAULT && cat.portraitId === PLAYER_PRESENTATION_DEFAULT) return cat;
+      const earlier = prior && (prior.case || prior.status);
+      const sourceCase = !had ? 'field-absent' : raw == null ? 'stored-null' : 'invalid';
+      const caseName = earlier === 'invalid-cleared' ? 'invalid'
+        : (earlier === 'field-absent' || earlier === 'stored-null' || earlier === 'invalid') ? earlier
+        : sourceCase;
+      const rejected = caseName === 'invalid' ? String(raw != null ? raw : (prior && prior.rejected) || '') : (prior && prior.rejected) || null;
+      cat.portraitId = PLAYER_PRESENTATION_DEFAULT;
+      cat.portraitLegacy = {
+        status: 'presentation-default', assigned: true, id: PLAYER_PRESENTATION_DEFAULT,
+        source: 'new-creator-default', case: caseName, genesPresent, phenotypeMatch: false,
+        policy: 'presentation-default-not-genotype', ...(rejected ? { rejected } : {})
+      };
+      return cat;
     }
     /** Ochre presentation defaults. A valid saved id is kept. A blank is not left on the old layers. */
     function applyNpcPortraits(s) {

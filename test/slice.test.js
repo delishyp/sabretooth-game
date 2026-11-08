@@ -217,7 +217,7 @@ test('≤ 1 offline event per day; region moments fire once per run', () => {
   }
 });
 
-test('portrait id is kept verbatim, and a legacy or corrupt id becomes null instead of another cat', () => {
+test('portrait id is kept verbatim, and a legacy blank or corrupt id gets the creator default', () => {
   const marked = { ...cat, portraitId: 'cat-6e2d788dd48ff440' };
   const s = E.newRun({ mainCat: marked, seed: 1 });
   assert.strictEqual(s.cat.portraitId, 'cat-6e2d788dd48ff440');
@@ -229,9 +229,11 @@ test('portrait id is kept verbatim, and a legacy or corrupt id becomes null inst
   const geneCopy = JSON.parse(JSON.stringify(legacy.cat.genes));
   legacy.npcs.hc01.portraitId = 'Not A Cat';
   const m = E.migrate(legacy);
-  assert.strictEqual(m.cat.portraitId, null);
-  assert.strictEqual(m.cat.portraitLegacy.status, 'field-absent');
-  assert.strictEqual(m.cat.portraitLegacy.policy, 'no-genotype-map');
+  assert.strictEqual(m.cat.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(m.cat.portraitLegacy.status, 'presentation-default');
+  assert.strictEqual(m.cat.portraitLegacy.case, 'field-absent');
+  assert.strictEqual(m.cat.portraitLegacy.policy, 'presentation-default-not-genotype');
+  assert.strictEqual(m.cat.portraitLegacy.phenotypeMatch, false);
   assert.deepStrictEqual(m.cat.genes, geneCopy);
   assert.strictEqual(m.cat.catId, s.cat.catId);
   assert.strictEqual(m.cat.name, s.cat.name);
@@ -244,7 +246,10 @@ test('portrait id is kept verbatim, and a legacy or corrupt id becomes null inst
   const kept = E.migrate(JSON.parse(JSON.stringify(s)));
   assert.strictEqual(kept.cat.portraitId, 'cat-6e2d788dd48ff440');
   const missing = E.newRun({ mainCat: cat, seed: 1 });
-  assert.strictEqual(missing.cat.portraitId, null);
+  assert.strictEqual(missing.cat.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(missing.cat.portraitLegacy.case, 'stored-null');
+  assert.strictEqual(missing.cat.sex, cat.sex);
+  assert.strictEqual(missing.cat.name, cat.name);
 });
 
 test('migrate: rejects newer saves, upgrades old map dataVersion', () => {

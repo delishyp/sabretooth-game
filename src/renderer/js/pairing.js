@@ -100,6 +100,7 @@
         willingness: {},
         approval: {},
         joinAsk: {},
+        admissionRefusals: {},
         catToCat: {},
         pairsSeeded: false,
         mistwoodSeasonsInRange: 0,
@@ -367,6 +368,10 @@
       if (r.attractionRolled == null) r.attractionRolled = false;
       if (!r.court || typeof r.court !== 'object') r.court = {};
       if (!r.joinAsk || typeof r.joinAsk !== 'object') r.joinAsk = {};
+      if (!r.admissionRefusals || typeof r.admissionRefusals !== 'object') r.admissionRefusals = {};
+      for (const [pride, ask] of Object.entries(r.joinAsk || {})) {
+        if (ask && ask.approved === false && r.admissionRefusals[pride] == null) r.admissionRefusals[pride] = 1;
+      }
       if (!r.cats || typeof r.cats !== 'object') r.cats = {};
       if (!Object.prototype.hasOwnProperty.call(r, 'history')) {
         r.history = null;
@@ -896,7 +901,20 @@
       for (const pride of Object.keys(LEADERS)) if (prideLand(s, pride, deps)) return pride;
       return null;
     }
-    /** Formulas §3.2 type (b): the mate-route support term is absent and the request term is −10. No out-of-season −15. */
+    /** Day 1 through seasonDays is the mating window. Day 21 onward is out of season even when the year length is unset. */
+    function inMatingWindow(s) {
+      return s.day >= 1 && s.day <= seasonDays;
+    }
+    function seasonIndex(s) {
+      const year = s.records && s.records.yearLengthDays;
+      if (Number.isInteger(year) && year > 0) return Math.floor((Math.max(1, s.day) - 1) / year) + 1;
+      return 1;
+    }
+    /**
+     * Formulas §3.2 type (b), plus the ruled extras: −15 outside the mating window, and −5 per earlier
+     * refusal by this pride, capped at −15. The mate audience does not use this function.
+     * Leader value is the leader's affinity, the same field type (a) already reads.
+     */
     function joinPoints(s, pride, leader) {
       const relation = (s.prideRelation && s.prideRelation[pride]) || 0;
       const leaderValue = leader ? leader.affinity : 0;
@@ -908,10 +926,14 @@
       const proven = Skills.has(s, 'proven') && (s.records.fights || []).some((row) => row.won) ? 10 : 0;
       const elder = Skills.has(s, 'elder_voice') && s.cat && s.cat.lifeStage === 'elder' ? 15 : 0;
       const requestType = -10;
-      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + mistwoodTerm + standingSkillTerm + proven + elder + requestType;
+      const outOfSeason = inMatingWindow(s) ? 0 : -15;
+      const priorRefusals = Math.max(0, Math.floor((s.records.admissionRefusals && s.records.admissionRefusals[pride]) || 0));
+      const refusalTerm = priorRefusals === 0 ? 0 : Math.max(-15, -5 * priorRefusals);
+      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + mistwoodTerm + standingSkillTerm + proven + elder + requestType + outOfSeason + refusalTerm;
       return {
         points, p: Math.max(5, Math.min(90, points)), relation, leaderValue, temperament: temp,
-        requestType, mistwoodTerm, standingMilestones, standingSkillTerm, proven, elder
+        requestType, mistwoodTerm, mistwoodSeasons: seasons, standingMilestones, standingSkillTerm, proven, elder,
+        outOfSeason, inMatingWindow: outOfSeason === 0, priorRefusals, refusalTerm
       };
     }
     function joinBlockers(s, deps) {
@@ -922,28 +944,31 @@
       const blockers = [];
       if (!leader || !leader.met) blockers.push(`You have not met ${leader ? leader.name : 'the leader'}.`);
       const prior = s.records.joinAsk && s.records.joinAsk[pride];
-      if (prior) blockers.push(`You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
+      const season = seasonIndex(s);
+      if (prior && (prior.season == null || prior.season === season)) blockers.push(`You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
       return { pride, leader, blockers };
     }
     function beginJoinAsk(s, pride, deps) {
       if (playerMated(s) || (s.records.pride && s.records.pride.id)) return { error: 'join.notLone' };
       const gate = joinBlockers(s, deps);
       if (!gate.pride || gate.pride !== pride) return { error: 'join.notHeld' };
+      const season = seasonIndex(s);
       const prior = s.records.joinAsk[pride];
-      if (prior) return { error: 'duplicate', result: prior };
+      if (prior && (prior.season == null || prior.season === season)) return { error: 'duplicate', result: prior };
       if (gate.blockers.length) return { error: 'join.blocked', blockers: gate.blockers };
       const leader = gate.leader;
-      const key = `${s.runId || ''}/join/${pride}/season1`;
+      const key = `${s.runId || ''}/join/${pride}/season${season}`;
       if (!once(s, key)) return { error: 'duplicate', result: s.records.joinAsk[pride] };
       const scored = joinPoints(s, pride, leader);
-      const roll = Rng.stream(s.seed, 'join', pride, 'season1')();
+      const roll = Rng.stream(s.seed, 'join', pride, `season${season}`)();
       const approved = roll < scored.p / 100;
       const respected = Skills.has(s, 'respected');
       const relationDelta = !approved && !respected ? -5 : 0;
       if (relationDelta) shiftPride(s, pride, relationDelta, `${key}/refuse`, deps);
+      if (!approved) s.records.admissionRefusals[pride] = (s.records.admissionRefusals[pride] || 0) + 1;
       const result = {
         approved, roll, p: scored.p, points: scored.points, day: s.day, leaderId: leader.id,
-        requestType: 'b', relationDelta, scored
+        requestType: 'b', relationDelta, season, scored
       };
       s.records.joinAsk[pride] = result;
       const prideName = PRIDE_NAMES[pride] || pride;

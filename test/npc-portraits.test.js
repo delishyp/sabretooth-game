@@ -56,28 +56,55 @@ test('new games use the presentation default without rewriting the run name, sta
   }
 });
 
-test('a saved explicit portrait stays, and a legacy player blank is not given a guessed id', () => {
+test('a legacy player blank gets the creator default, and a saved id stays', () => {
   const E = mk();
-  const s = E.newRun({ mainCat: player, seed: 4, runId: 'keep' });
-  s.npcs.hc08.portraitId = 'cat-6477d01534355420';
-  const genes = JSON.parse(JSON.stringify(s.cat.genes));
-  delete s.cat.portraitId;
-  delete s.cat.portraitLegacy;
-  const once = E.migrate(JSON.parse(JSON.stringify(s)));
-  assert.strictEqual(once.npcs.hc08.portraitId, 'cat-6477d01534355420');
-  assert.strictEqual(once.npcs.hc08.stage, 'elder');
-  assert.strictEqual(once.cat.portraitId, null);
-  assert.strictEqual(once.cat.portraitLegacy.status, 'field-absent');
-  assert.strictEqual(once.cat.portraitLegacy.assigned, false);
-  assert.strictEqual(once.cat.name, 'Tester');
-  assert.strictEqual(once.cat.catId, 'c1');
-  assert.deepStrictEqual(once.cat.genes, genes);
-  const twice = E.migrate(JSON.parse(JSON.stringify(once)));
-  assert.deepStrictEqual(twice.cat.portraitLegacy, once.cat.portraitLegacy);
-  assert.strictEqual(twice.cat.portraitId, null);
-  s.cat.portraitId = 'cat-96beb4613b169dfd';
-  delete s.cat.portraitLegacy;
-  const kept = E.migrate(JSON.parse(JSON.stringify(s)));
-  assert.strictEqual(kept.cat.portraitId, 'cat-96beb4613b169dfd');
-  assert.strictEqual(kept.cat.portraitLegacy.status, 'kept');
+  const DEFAULT = 'cat-6e2d788dd48ff440';
+  for (const sex of ['female', 'male']) {
+    const s = E.newRun({ mainCat: { ...player, sex }, seed: 4, runId: `keep-${sex}` });
+    const genes = JSON.parse(JSON.stringify(s.cat.genes));
+    const name = s.cat.name;
+    const stage = s.cat.lifeStage;
+    s.npcs.hc08.portraitId = 'cat-6477d01534355420';
+    delete s.cat.portraitId;
+    delete s.cat.portraitLegacy;
+    const absent = E.migrate(JSON.parse(JSON.stringify(s)));
+    assert.strictEqual(absent.cat.portraitId, DEFAULT);
+    assert.strictEqual(absent.cat.portraitLegacy.status, 'presentation-default');
+    assert.strictEqual(absent.cat.portraitLegacy.case, 'field-absent');
+    assert.strictEqual(absent.cat.portraitLegacy.source, 'new-creator-default');
+    assert.strictEqual(absent.cat.portraitLegacy.phenotypeMatch, false);
+    assert.strictEqual(absent.cat.sex, sex);
+    assert.strictEqual(absent.cat.name, name);
+    assert.strictEqual(absent.cat.lifeStage, stage);
+    assert.strictEqual(absent.cat.catId, 'c1');
+    assert.deepStrictEqual(absent.cat.genes, genes);
+    assert.strictEqual(absent.npcs.hc08.portraitId, 'cat-6477d01534355420');
+    assert.strictEqual(absent.npcs.hc08.stage, 'elder');
+    const twice = E.migrate(JSON.parse(JSON.stringify(absent)));
+    assert.deepStrictEqual(twice.cat.portraitLegacy, absent.cat.portraitLegacy);
+    assert.strictEqual(twice.cat.portraitId, DEFAULT);
+    s.cat.portraitId = null;
+    delete s.cat.portraitLegacy;
+    const storedNull = E.migrate(JSON.parse(JSON.stringify(s)));
+    assert.strictEqual(storedNull.cat.portraitLegacy.case, 'stored-null');
+    assert.strictEqual(storedNull.cat.portraitId, DEFAULT);
+    s.cat.portraitId = 'Not A Cat';
+    delete s.cat.portraitLegacy;
+    const invalid = E.migrate(JSON.parse(JSON.stringify(s)));
+    assert.strictEqual(invalid.cat.portraitLegacy.case, 'invalid');
+    assert.strictEqual(invalid.cat.portraitLegacy.rejected, 'Not A Cat');
+    assert.strictEqual(invalid.cat.portraitId, DEFAULT);
+    assert.deepStrictEqual(invalid.cat.genes, genes);
+    const again = E.migrate(JSON.parse(JSON.stringify(invalid)));
+    assert.deepStrictEqual(again.cat.portraitLegacy, invalid.cat.portraitLegacy);
+    s.cat.portraitId = 'cat-96beb4613b169dfd';
+    delete s.cat.portraitLegacy;
+    const kept = E.migrate(JSON.parse(JSON.stringify(s)));
+    assert.strictEqual(kept.cat.portraitId, 'cat-96beb4613b169dfd');
+    assert.strictEqual(kept.cat.portraitLegacy.status, 'kept');
+    assert.strictEqual(kept.cat.sex, sex);
+    const still = E.migrate(JSON.parse(JSON.stringify(kept)));
+    assert.strictEqual(still.cat.portraitId, 'cat-96beb4613b169dfd');
+    assert.deepStrictEqual(still.cat.portraitLegacy, kept.cat.portraitLegacy);
+  }
 });
