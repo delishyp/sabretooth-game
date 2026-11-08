@@ -151,7 +151,8 @@
         court: Pair.enabled ? Pair.courtOffers(s, bondDeps(s)) : [],
         audience: Pair.enabled ? Pair.audienceOffers(s, bondDeps(s)) : [],
         challenge: Pair.enabled ? Pair.challengeOffers(s, bondDeps(s)) : [],
-        found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null
+        found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null,
+        route: Pair.enabled ? Pair.routeStatus(s, bondDeps(s)) : null
       };
     }
     function atHighcragBorder(s) {
@@ -286,6 +287,12 @@
       if (s.phase === 'event') return choose(s, action);
       if (s.phase === 'eventResult') {
         if (Pair.enabled && s.pending && s.pending.bond) return finishBond(s);
+        if (Pair.enabled && s.endsAtWindow && s.records && !s.records.seasonEndShown) {
+          s.endsAtWindow = false;
+          s.pending = Pair.seasonPending(s, bondDeps(s));
+          s.phase = 'event';
+          return { state: s };
+        }
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
         else if (s.phase === 'day') WM.considerFord(s);
@@ -322,6 +329,12 @@
       }
       if (s.phase === 'day' && action.type === 'perkLater') {
         Skills.later(s);
+        return { state: s };
+      }
+      if (s.phase === 'day' && action.type === 'setRoute') {
+        if (!Pair.enabled) return { state: s0, error: 'route.closed' };
+        const changed = Pair.setRoute(s, action.intent);
+        if (changed.error) return { state: s0, error: changed.error };
         return { state: s };
       }
       if (s.phase === 'day' && action.type === 'perkOpen') {

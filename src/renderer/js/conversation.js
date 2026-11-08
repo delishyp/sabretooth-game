@@ -218,7 +218,8 @@
         variantIds: (built.meta || []).map((m) => m.variantId),
         characterization: (built.meta[0] && built.meta[0].characterization) || 'unresolved',
         traits: npc.personality ? { ...npc.personality } : null,
-        choiceIds: presented(node).map((c) => c.id)
+        choiceIds: presented(node).map((c) => c.id),
+        choiceRows: presented(node).map((c) => ({ id: c.id, label: c.label, pause: !!c.pause, outcome: c.outcome || null }))
       };
     }
     function topicFor(outcome, cat) {
@@ -326,10 +327,14 @@
         : (!p.showingTerminal && node ? linesOf(node, npc, v).lines : []);
       const lines = (p.transcript || []).map((line) => ({ ...line, text: line.text })).concat(live);
       let choices = [];
-      if (!p.showingTerminal && node) choices = presented(node).map((c) => ({
-        id: c.id, label: c.label, pause: !!c.pause,
-        disabled: !p.slotCharged && !freeOpening(node, c) && !canAfford(s)
-      }));
+      if (!p.showingTerminal) {
+        const frozen = p.presentation && p.presentation.nodeId === p.nodeId && p.presentation.choiceRows;
+        const rows = frozen || (node ? presented(node).map((c) => ({ id: c.id, label: c.label, pause: !!c.pause })) : []);
+        choices = rows.map((c) => ({
+          id: c.id, label: c.label, pause: !!c.pause,
+          disabled: !p.slotCharged && !(c.pause || c.id === 'leave' || FREE_LEAVE.has(c.outcome)) && !canAfford(s)
+        }));
+      }
       return {
         catId: p.catId, catName: npc.name, portraitId: npc.portraitId || null, look: npc.look, sex: npc.sex,
         personality: npc.personality || null, personalityGap: npc.personalityGap || null,
@@ -473,8 +478,15 @@
         pushLog(cat, { day: s.day, instanceId: p.instanceId, nodeId: p.nodeId, choiceId: choice.id, outcome, factId: fact ? fact.factId : null, summary: fill(summary, v) });
         if (s.log) s.log.push({ day: s.day, text: fill(summary, v) });
         const reply = closing(node, choice, npc, v);
-        p.transcript = (p.transcript || []).concat(seen, reply);
-        p.presentation = { nodeId: p.nodeId, lines: reply, variantIds: reply.map((l) => l.variantId).filter(Boolean), characterization: npc.personality ? 'traits' : 'unresolved', traits: npc.personality ? { ...npc.personality } : null, choiceIds: [] };
+        const actual = affinityApplied + promiseApplied;
+        const receipt = [];
+        if (promiseFactId) receipt.push({ kind: 'narration', text: 'You kept your promise to return.' });
+        if (actual > 0) receipt.push({ kind: 'narration', text: `Your relationship with ${npc.name} improved by ${actual}.` });
+        else if (actual < 0) receipt.push({ kind: 'narration', text: `Your relationship with ${npc.name} worsened by ${Math.abs(actual)}.` });
+        else receipt.push({ kind: 'narration', text: `Your relationship with ${npc.name} did not change.` });
+        if (unresolvedBoundary(cat)) receipt.push({ kind: 'narration', text: `${npc.name} still wants space.` });
+        p.transcript = (p.transcript || []).concat(seen, reply, receipt);
+        p.presentation = { nodeId: p.nodeId, lines: reply.concat(receipt), variantIds: reply.map((l) => l.variantId).filter(Boolean), characterization: npc.personality ? 'traits' : 'unresolved', traits: npc.personality ? { ...npc.personality } : null, choiceIds: [], choiceRows: [] };
         p.showingTerminal = true;
         p.terminal = { outcome, choiceId: choice.id, nodeId: p.nodeId };
         p.presentedChoiceIds = [];
@@ -517,9 +529,12 @@
         if (!cat.nextInstance) cat.nextInstance = 1;
       }
       if (c.pending && enabled && !c.pending.showingTerminal && !nodeById(c.pending.nodeId)) {
-        c.pending.nodeId = 'repeat_fallback';
-        c.pending.stage = 'fallback';
-        c.pending.presentedChoiceIds = presented(nodeById('repeat_fallback')).map((x) => x.id);
+        const shown = c.pending.presentation && Array.isArray(c.pending.presentation.lines) && c.pending.presentation.lines.length;
+        if (!shown) {
+          c.pending.nodeId = 'repeat_fallback';
+          c.pending.stage = 'fallback';
+          c.pending.presentedChoiceIds = presented(nodeById('repeat_fallback')).map((x) => x.id);
+        }
       }
       return s;
     }

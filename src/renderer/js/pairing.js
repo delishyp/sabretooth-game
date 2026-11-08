@@ -1104,9 +1104,21 @@
       } else {
         const recap = bestUnmated(s);
         const row = block.recapByBestStage[recap.stage] || block.recapByBestStage.none;
-        beats = block.beats.concat(row.beats || []);
+        const met = Object.values(s.npcs || {}).some((n) => n.met);
+        const opening = met
+          ? 'The mating season has ended. The cats you met have not vanished from your life, and tomorrow still needs water, food and shelter.'
+          : 'The mating season has ended. Tomorrow still needs water, food and shelter.';
+        beats = [
+          { kind: 'narration', text: opening },
+          { kind: 'narration', text: 'You can seek a place in a pride, look for other loners, or continue alone. You can change your mind.' }
+        ].concat(row.beats || []);
         npc = recap.stage === 'none' ? null : recap.npc;
-        choices = block.choices;
+        const intentSummary = {
+          route_pride: 'You decide to seek a place in an existing pride.',
+          route_group: 'You decide to look for other loners.',
+          route_alone: 'For now, you choose your own company.'
+        };
+        choices = block.choices.map((c) => ({ ...c, summary: intentSummary[c.id] || c.summary }));
       }
       const vars = varsFor(s, npc, deps);
       const event = scene('m2.season_end', s, npc, deps, {
@@ -1157,11 +1169,30 @@
     }
 
     function noteHunt(s, ok) { if (s.records) s.records._huntOk = !!ok; }
+    function routeStatus(s, deps) {
+      if (!s.records || !s.records.seasonEndShown || s.records.matePair) return null;
+      const intent = s.records.routeIntent || null;
+      let reason = 'No route is chosen.';
+      if (intent === 'pride') {
+        const asks = audienceOffers(s, deps);
+        reason = asks.length
+          ? `Ask to join is available for ${asks.map((row) => row.name).join(', ')}.`
+          : 'Ask to join is not available. No accepted courtship is waiting on a leader from here.';
+      } else if (intent === 'group') reason = 'No eligible group is available.';
+      else if (intent === 'alone') reason = 'Hunt, rest, and travel stay available.';
+      return { intent, reason, choices: ['pride', 'group', 'alone'] };
+    }
+    function setRoute(s, intent) {
+      if (!s.records || !s.records.seasonEndShown || s.records.matePair) return { error: 'route.closed' };
+      if (!['pride', 'group', 'alone'].includes(intent)) return { error: 'route.unknown' };
+      s.records.routeIntent = intent;
+      return { ok: true, intent };
+    }
 
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
       courtOffers, beginCourt, audienceOffers, beginAudience, challengeOffers, beginChallenge, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
+      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 

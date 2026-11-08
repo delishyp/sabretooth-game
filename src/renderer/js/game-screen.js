@@ -339,6 +339,21 @@
           if (av.found) bond.append(btn(`Found ${av.found.name}`, { g: 'found', name: av.found.name }, { cls: 'is-found', disabled: !av.found.allowed, title: av.found.reason || '' }));
           a.append(bond);
         }
+        if (av.route) {
+          const route = el('div', 'action-group is-route');
+          const saying = av.route.intent === 'pride'
+            ? 'You decide to seek a place in an existing pride.'
+            : av.route.intent === 'group'
+              ? 'You decide to look for other loners.'
+              : av.route.intent === 'alone'
+                ? 'For now, you choose your own company.'
+                : 'You have not chosen a route.';
+          route.append(el('h3', '', 'Current route'), el('p', 'blocked-note', `${saying} ${av.route.reason}`));
+          route.append(btn('Seek a place in an existing pride.', { g: 'setRoute', intent: 'pride' }));
+          route.append(btn('Look for other loners.', { g: 'setRoute', intent: 'group' }));
+          route.append(btn('Keep travelling alone.', { g: 'setRoute', intent: 'alone' }));
+          a.append(route);
+        }
         if (av.border && av.border.allowed) a.append(btn(`Ask ${av.border.name} at the Highcrag border`, { g: 'border', guard: av.border.guardId }));
         const spot = s.encounters && s.encounters.rendezvous;
         if (spot && spot.sought && s.region === spot.regionId && s.npcs[spot.catId]) a.append(btn(`Speak with ${s.npcs[spot.catId].name}`, { g: 'border', guard: spot.catId }));
@@ -641,6 +656,7 @@
         ctx.focus(document.getElementById('encounter-inspect-close'));
         return;
       }
+      if (d.g === 'setRoute') return act({ type: 'setRoute', intent: d.intent });
       if (d.g === 'continue') return act({ type: 'continue' });
       if (d.g === 'save') return manualSave();
       if (d.g === 'menu' || d.g === 'summaryMenu') return ctx.leave();
