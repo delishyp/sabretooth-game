@@ -147,7 +147,7 @@ function playPride(E, seed, faction, player) {
 test('the three pride contracts stay distinct and the known gaps are explicit', () => {
   const E = mk();
   const Pair = require('../src/renderer/js/pairing').create(firstSeason, rules);
-  assert.deepStrictEqual(Pair.gaps.map((g) => g.id), ['mistwood-range-held-land', 'showdown-skill-text', 'premade-milestones-unstored']);
+  assert.deepStrictEqual(Pair.gaps.map((g) => g.id), ['mistwood-range-held-land', 'premade-display-standing-unstored']);
   const s = E.newRun({ mainCat: female, seed: 2, runId: 'gaps' });
   assert.ok(Object.keys(s.records.catToCat).length > 0);
   assert.deepStrictEqual(s.records.gaps, Pair.gaps.map((g) => g.id));

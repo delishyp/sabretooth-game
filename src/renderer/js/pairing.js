@@ -27,13 +27,9 @@
       text: 'Tundra’s current proposal counts a season when the player spends at least one resolved day on land held by Mistwood. The attached sources do not define the range as a region list. Adjacent wild is not counted. This is not an Anna approval. Year length stays unset.'
     },
     {
-      id: 'showdown-skill-text',
-      text: 'Skills §2.6 is not in the attached sources. A stored showdown perk skips the strength roll and the injury rolls, and the suitor keeps the right. No premade is given that perk.'
+      id: 'premade-display-standing-unstored',
+      text: 'Showdown uses each fighter’s stored Display milestones and the mate-rival fight uses each fighter’s stored Standing milestones. Premade skill histories stay null, so a missing milestone is 0. No perk is written onto a premade.'
     },
-    {
-      id: 'premade-milestones-unstored',
-      text: 'Premade skill milestones stay null on the cat. Fight factors that need a milestone use 0, and no perk is invented.'
-    }
   ];
 
   function create(doc, rules) {
@@ -336,6 +332,8 @@
       s.records.pairsDropped = seeded.dropped;
       s.records.pairsSeeded = true;
       s.records.pairsStream = seeded.stream;
+      const mates = Pairs.applyMates(s.npcs, s.records);
+      s.records.mateAmbiguity = mates.ambiguity;
       return s;
     }
 
@@ -378,6 +376,10 @@
       const unknownPast = !prior;
       if (s.cat) ensureCat(s, s.cat.catId, s.cat.sex, unknownPast);
       for (const n of Object.values(s.npcs || {})) ensureCat(s, n.id, n.sex, unknownPast);
+      if (s.npcs) {
+        const mates = Pairs.applyMates(s.npcs, r);
+        if (mates.ambiguity.length) r.mateAmbiguity = (r.mateAmbiguity || []).concat(mates.ambiguity);
+      }
       if (s.over && !s.dead && s.day >= seasonDays && !r.seasonEndShown) {
         s.over = false;
         s.phase = 'event';
@@ -407,9 +409,9 @@
       if (!npc) return { code: 'court.ineligible', hint: 'Nobody is there to court.' };
       if (!inWindow(s)) return { code: 'court.notInSeason', hint: hints['court.notInSeason'] };
       if (!adult(s.cat.lifeStage) || !adult(npc.stage)) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
+      if (playerMated(s) || targetMated(s, npc)) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
       if (!s.records.attractionRolled || !s.records.attraction[npc.id]) return { code: 'court.noAttraction', hint: 'Attraction was not rolled for this cat. It is not filled in after the fact.' };
       if (!compatible(s, npc)) return { code: 'court.declined_attraction', hint: `${npc.name} does not feel that way about you.` };
-      if (playerMated(s) || targetMated(s, npc)) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
       if (npc.affinity <= -15) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
       const stage = bondOf(s, npc.id).stage;
       if (stage !== 'close' && stage !== 'courting') return { code: 'court.locked', hint: fill(hints['court.locked'], { catName: npc.name }) };
@@ -537,31 +539,22 @@
         mistwoodTerm
       };
     }
+    function storedMilestone(cat, key) {
+      return cat && Number.isInteger(cat[key]) ? cat[key] : 0;
+    }
     function fighterOf(cat, player, s) {
-      if (player) {
-        return {
-          aggression: s.cat.personality && Number.isInteger(s.cat.personality.aggression) ? s.cat.personality.aggression : null,
-          stage: s.cat.lifeStage,
-          ageSeasons: Number.isInteger(s.cat.ageSeasons) ? s.cat.ageSeasons : null,
-          health: s.needs.health,
-          serious: (s.injuries || []).some((i) => i.tier === 'serious'),
-          perks: s.cat.perks || [],
-          saberM: s.cat.saberM || 0,
-          guardM: s.cat.guardM || 0,
-          standingM: 0,
-          mateChallenge: true
-        };
-      }
+      const who = player ? s.cat : cat;
       return {
-        aggression: cat && cat.personality && Number.isInteger(cat.personality.aggression) ? cat.personality.aggression : null,
-        stage: cat && cat.stage,
-        ageSeasons: cat && Number.isInteger(cat.ageSeasons) ? cat.ageSeasons : null,
-        health: null,
-        serious: false,
-        perks: (cat && cat.perks) || [],
-        saberM: 0,
-        guardM: 0,
-        standingM: 0,
+        aggression: who && who.personality && Number.isInteger(who.personality.aggression) ? who.personality.aggression : null,
+        stage: player ? s.cat.lifeStage : cat && cat.stage,
+        ageSeasons: who && Number.isInteger(who.ageSeasons) ? who.ageSeasons : null,
+        health: player ? s.needs.health : null,
+        serious: player ? (s.injuries || []).some((i) => i.tier === 'serious') : false,
+        perks: (who && who.perks) || [],
+        saberM: storedMilestone(who, 'saberM'),
+        guardM: storedMilestone(who, 'guardM'),
+        standingM: storedMilestone(who, 'standingM'),
+        displayM: storedMilestone(who, 'displayM'),
         mateChallenge: true
       };
     }
@@ -606,7 +599,7 @@
     }
     function rivalScene(s, npc, rival, deps, day) {
       const key = `${s.runId || ''}/rival/${npc.id}/${rival.id}/${day}`;
-      const prior = (s.records.fights || []).find((row) => row.catId === npc.id && row.rivalId === rival.id && row.day === day);
+      const prior = (s.records.fights || []).find((row) => row.catId === npc.id);
       let result = prior;
       if (!prior) {
         const rng = Rng.stream(s.seed, 'rival', npc.id, rival.id, day);
@@ -615,10 +608,11 @@
         const showdown = (suitor.perks || []).includes('showdown') || (defender.perks || []).includes('showdown');
         result = Fight.resolve({
           rng, style: 'standard', showdown,
+          suitorDisplayM: suitor.displayM, rivalDisplayM: defender.displayM,
           suitorStat: Fight.fightStat(suitor), rivalStat: Fight.fightStat(defender),
           suitorGuard: suitor.guardM, rivalGuard: defender.guardM
         });
-        if (once(s, `${key}/resolve`)) {
+        if (once(s, `${s.runId || ''}/rival/${npc.id}/resolve`)) {
           const wonNow = !!result.won;
           const playerTier = result.replaced ? null : (wonNow ? result.injuries.winner : result.injuries.loser);
           const stored = {
@@ -630,7 +624,7 @@
           result = stored;
           if (!stored.replaced && playerTier && deps.injure) deps.injure(s, playerTier === 'crippling' ? 'serious' : playerTier, 'mate-challenge');
           if (!wonNow) shiftValue(s, npc, -10, `${key}/loss`, deps);
-          else if (!stored.replaced) lowerPair(s, rival.id, npc.id, -10);
+          else lowerPair(s, rival.id, npc.id, -10);
         }
       }
       const won = !!(result && result.won);
@@ -868,6 +862,38 @@
       if (!event) return { error: 'court.ineligible' };
       return { event };
     }
+    function hasPerk(s, id) { return !!((s.cat && s.cat.perks) || []).includes(id); }
+    function challengeOffers(s, deps) {
+      if (s.phase !== 'day' || s.travel || s.forced || !hasPerk(s, 'right_of_challenge')) return [];
+      const out = [];
+      for (const [catId, wish] of Object.entries(s.records.willingness || {})) {
+        const npc = s.npcs[catId];
+        if (!wish || !wish.accepted || !npc || npc.dead) continue;
+        const approval = s.records.approval[wish.pride];
+        if (!approval || !approval.approved) continue;
+        if (playerMated(s) || targetMated(s, npc)) continue;
+        if (!prideLand(s, wish.pride, deps)) continue;
+        const rival = qualifyingRival(s, npc);
+        if (!rival) continue;
+        if ((s.records.fights || []).some((row) => row.catId === npc.id)) continue;
+        out.push({ catId, name: npc.name, rivalId: rival.id, rivalName: rival.name, allowed: true });
+      }
+      return out;
+    }
+    function beginChallenge(s, catId, deps) {
+      if (!hasPerk(s, 'right_of_challenge')) return { error: 'challenge.locked' };
+      const npc = s.npcs[catId];
+      const wish = npc && s.records.willingness[catId];
+      if (!wish || !wish.accepted) return { error: 'court.locked' };
+      const approval = s.records.approval[wish.pride];
+      if (!approval || !approval.approved) return { error: 'court.locked' };
+      if (playerMated(s) || targetMated(s, npc)) return { error: 'court.ineligible' };
+      if (!prideLand(s, wish.pride, deps)) return { error: 'court.away' };
+        const rival = qualifyingRival(s, npc);
+        if (!rival) return { error: 'challenge.none' };
+        if ((s.records.fights || []).some((row) => row.catId === npc.id)) return { error: 'duplicate' };
+        return { event: rivalScene(s, npc, rival, deps, s.day) };
+    }
     function foundOffer(s, deps) {
       if (s.phase !== 'day' || !s.records.matePair || s.records.pride) return null;
       const gate = foundGate(s, deps);
@@ -1079,7 +1105,7 @@
 
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
-      courtOffers, beginCourt, audienceOffers, beginAudience, foundOffer, beginFound, choose, seasonPending, commitSeason,
+      courtOffers, beginCourt, audienceOffers, beginAudience, challengeOffers, beginChallenge, foundOffer, beginFound, choose, seasonPending, commitSeason,
       courtGate, noteHunt, noteMistwoodDay, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }

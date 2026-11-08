@@ -3,7 +3,9 @@
  * Style multipliers are play-styles §2.3 as cited by formulas §1.6: Story 0.5, Standard 1, Sim 1.5.
  * Guard is (1 − 0.06 × M), minimum 0.7. A missing milestone is 0, not a guessed rank.
  * The mate challenge is non-lethal: there is no death roll.
- * Skills §2.6 is not in the attached sources. A stored `showdown` perk skips the strength roll and the injury rolls.
+ * Showdown (skills §2.6) replaces the strength roll. P(suitor wins) is
+ * 50 + 10 × (suitor Display milestones − rival Display milestones). Neither cat is injured.
+ * Equal milestones are 50%. A roll equal to that chance does not win.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -57,11 +59,16 @@
    * rng() is U(0, 1). Order when the fight is rolled: suitor, rival, loser hit, loser tier if hit, winner hit, winner tier if hit.
    * Ties go to the defender (the rival).
    */
+  function showdownChance(suitorDisplayM, rivalDisplayM) {
+    return 50 + 10 * ((suitorDisplayM || 0) - (rivalDisplayM || 0));
+  }
   function resolve(input) {
     if (input.showdown) {
+      const roll = input.rng();
+      const chance = showdownChance(input.suitorDisplayM, input.rivalDisplayM);
       return {
-        replaced: 'showdown', won: true, lethal: false, deathRoll: false,
-        injuries: { loser: null, winner: null }, rolls: null, playerStr: null, rivalStr: null
+        replaced: 'showdown', won: roll * 100 < chance, chance, lethal: false, deathRoll: false,
+        injuries: { loser: null, winner: null }, rolls: { showdown: roll, chance }, playerStr: null, rivalStr: null
       };
     }
     const pu = input.rng();
@@ -86,5 +93,5 @@
       rolls: { pu, ru, lHit, wHit, loserTierRoll, winnerTierRoll, loserP, winnerP }
     };
   }
-  return { STYLE, styleFactor, guardFactor, injuryChance, tierOf, fightStat, resolve };
+  return { STYLE, styleFactor, guardFactor, injuryChance, tierOf, fightStat, showdownChance, resolve };
 });

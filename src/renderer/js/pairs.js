@@ -153,6 +153,32 @@
     }
   }
 
+  /**
+   * World-gen §2.4 mates are mutual. A stored mateId that already differs is kept.
+   * A cat the player has actually paired with is not rewritten back to the premade mate.
+   */
+  function applyMates(npcs, records) {
+    const ambiguity = [];
+    const playerId = records && records.matePair && records.matePair.playerId;
+    const gameplayMate = records && records.matePair && records.matePair.mateId;
+    for (const [a, b] of MATES) {
+      for (const [id, other] of [[a, b], [b, a]]) {
+        const npc = npcs[id];
+        if (!npc) continue;
+        if (gameplayMate === id) {
+          if (npc.mateId == null && playerId) npc.mateId = playerId;
+          else if (npc.mateId && playerId && npc.mateId !== playerId) ambiguity.push({ id, stored: npc.mateId, canonical: other, reason: 'gameplay-mate-differs' });
+          continue;
+        }
+        if (npc.mateId == null) {
+          npc.mateId = other;
+          if (!npc.mateSource) npc.mateSource = 'world-gen-2.4';
+        } else if (npc.mateId !== other) ambiguity.push({ id, stored: npc.mateId, canonical: other, reason: 'stored-mate-kept' });
+      }
+    }
+    return { ambiguity };
+  }
+
   function seed(seed, npcs, attraction) {
     const map = {};
     const dropped = [];
@@ -169,5 +195,5 @@
     return map[pairKey(from, to)] || null;
   }
 
-  return { MATES, FLAGS, seed, stored, pairKey, roundHalfUp };
+  return { MATES, FLAGS, seed, stored, pairKey, roundHalfUp, applyMates };
 });

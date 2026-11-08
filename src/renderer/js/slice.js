@@ -150,6 +150,7 @@
         seekMate: Pair.enabled ? Pair.seekOffers(s, bondDeps(s)) : [],
         court: Pair.enabled ? Pair.courtOffers(s, bondDeps(s)) : [],
         audience: Pair.enabled ? Pair.audienceOffers(s, bondDeps(s)) : [],
+        challenge: Pair.enabled ? Pair.challengeOffers(s, bondDeps(s)) : [],
         found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null
       };
     }
@@ -294,6 +295,12 @@
         const opened = Pair.beginSeek(s, action.catId, bondDeps(s, rep));
         if (opened.error) return { state: s0, error: opened.error };
         endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'seekMate', rested: false });
+        return { state: s, report: s.report };
+      }
+      if (s.phase === 'day' && action.type === 'challenge') {
+        const opened = Pair.beginChallenge(s, action.catId, bondDeps(s, rep));
+        if (opened.error) return { state: s0, error: opened.error };
+        endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'challenge', rested: false });
         return { state: s, report: s.report };
       }
       if (s.phase === 'day' && action.type === 'askLeader') {
