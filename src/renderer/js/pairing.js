@@ -99,6 +99,7 @@
         compatTerm: 0,
         willingness: {},
         approval: {},
+        joinAsk: {},
         catToCat: {},
         pairsSeeded: false,
         mistwoodSeasonsInRange: 0,
@@ -365,6 +366,7 @@
       if (!r.attraction || typeof r.attraction !== 'object') r.attraction = {};
       if (r.attractionRolled == null) r.attractionRolled = false;
       if (!r.court || typeof r.court !== 'object') r.court = {};
+      if (!r.joinAsk || typeof r.joinAsk !== 'object') r.joinAsk = {};
       if (!r.cats || typeof r.cats !== 'object') r.cats = {};
       if (!Object.prototype.hasOwnProperty.call(r, 'history')) {
         r.history = null;
@@ -890,6 +892,81 @@
       return resolveCourt(s, npc, deps, true);
     }
 
+    function heldPride(s, deps) {
+      for (const pride of Object.keys(LEADERS)) if (prideLand(s, pride, deps)) return pride;
+      return null;
+    }
+    /** Formulas §3.2 type (b): the mate-route support term is absent and the request term is −10. No out-of-season −15. */
+    function joinPoints(s, pride, leader) {
+      const relation = (s.prideRelation && s.prideRelation[pride]) || 0;
+      const leaderValue = leader ? leader.affinity : 0;
+      const temp = temperament(s, pride);
+      const seasons = pride === 'mistwood' ? (s.records.mistwoodSeasonsInRange || 0) : 0;
+      const mistwoodTerm = pride === 'mistwood' ? Math.min(10, 2 * seasons) : 0;
+      const standingMilestones = Skills.milestone(s, 'standing');
+      const standingSkillTerm = 3 * standingMilestones;
+      const proven = Skills.has(s, 'proven') && (s.records.fights || []).some((row) => row.won) ? 10 : 0;
+      const elder = Skills.has(s, 'elder_voice') && s.cat && s.cat.lifeStage === 'elder' ? 15 : 0;
+      const requestType = -10;
+      const points = 30 + relation / 2 + 0.3 * leaderValue + temp + mistwoodTerm + standingSkillTerm + proven + elder + requestType;
+      return {
+        points, p: Math.max(5, Math.min(90, points)), relation, leaderValue, temperament: temp,
+        requestType, mistwoodTerm, standingMilestones, standingSkillTerm, proven, elder
+      };
+    }
+    function joinBlockers(s, deps) {
+      const pride = heldPride(s, deps);
+      if (!pride) return { pride: null, leader: null, blockers: ['You are not on land a pride holds.'] };
+      const leader = leaderOf(s, pride);
+      const name = PRIDE_NAMES[pride] || pride;
+      const blockers = [];
+      if (!leader || !leader.met) blockers.push(`You have not met ${leader ? leader.name : 'the leader'}.`);
+      const prior = s.records.joinAsk && s.records.joinAsk[pride];
+      if (prior) blockers.push(`You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
+      return { pride, leader, blockers };
+    }
+    function beginJoinAsk(s, pride, deps) {
+      if (playerMated(s) || (s.records.pride && s.records.pride.id)) return { error: 'join.notLone' };
+      const gate = joinBlockers(s, deps);
+      if (!gate.pride || gate.pride !== pride) return { error: 'join.notHeld' };
+      const prior = s.records.joinAsk[pride];
+      if (prior) return { error: 'duplicate', result: prior };
+      if (gate.blockers.length) return { error: 'join.blocked', blockers: gate.blockers };
+      const leader = gate.leader;
+      const key = `${s.runId || ''}/join/${pride}/season1`;
+      if (!once(s, key)) return { error: 'duplicate', result: s.records.joinAsk[pride] };
+      const scored = joinPoints(s, pride, leader);
+      const roll = Rng.stream(s.seed, 'join', pride, 'season1')();
+      const approved = roll < scored.p / 100;
+      const respected = Skills.has(s, 'respected');
+      const relationDelta = !approved && !respected ? -5 : 0;
+      if (relationDelta) shiftPride(s, pride, relationDelta, `${key}/refuse`, deps);
+      const result = {
+        approved, roll, p: scored.p, points: scored.points, day: s.day, leaderId: leader.id,
+        requestType: 'b', relationDelta, scored
+      };
+      s.records.joinAsk[pride] = result;
+      const prideName = PRIDE_NAMES[pride] || pride;
+      const lines = [
+        { kind: 'narration', text: `You ask ${leader.name} to let you join ${prideName}.` },
+        { kind: 'narration', text: approved
+          ? `${leader.name} approves the request. This ask does not make you a member.`
+          : `${leader.name} refuses the request.` }
+      ];
+      if (!approved) {
+        lines.push({ kind: 'narration', text: relationDelta
+          ? `Your standing with ${prideName} falls by ${Math.abs(relationDelta)}.`
+          : `Your standing with ${prideName} does not change.` });
+      }
+      const event = {
+        bond: true, eventId: 'join.ask', kind: 'join', group: 'join', heading: 'Ask to join',
+        catId: leader.id, catName: leader.name, day: s.day, lines, choices: [],
+        summary: approved ? `You asked to join ${prideName}. The request was approved.` : `You asked to join ${prideName}. The request was refused.`,
+        choiceId: 'ask', result: true, seasonEnd: false, pride, leaderId: leader.id, join: result, showPortrait: true
+      };
+      remember(s, [s.cat.catId, leader.id], approved ? 'join_approved' : 'join_refused', event.summary, key, s.day);
+      return { event };
+    }
     function audienceOffers(s, deps) {
       if (s.phase !== 'day' || s.travel || s.forced || s.records.matePair) return [];
       const out = [];
@@ -1174,10 +1251,8 @@
       const intent = s.records.routeIntent || null;
       let reason = 'No route is chosen.';
       if (intent === 'pride') {
-        const asks = audienceOffers(s, deps);
-        reason = asks.length
-          ? `Ask to join is available for ${asks.map((row) => row.name).join(', ')}.`
-          : 'Ask to join is not available. No accepted courtship is waiting on a leader from here.';
+        const gate = joinBlockers(s, deps);
+        reason = gate.blockers.length ? gate.blockers.join(' ') : `You can ask ${gate.leader.name} to join ${PRIDE_NAMES[gate.pride]}.`;
       } else if (intent === 'group') reason = 'No eligible group is available.';
       else if (intent === 'alone') reason = 'Hunt, rest, and travel stay available.';
       return { intent, reason, choices: ['pride', 'group', 'alone'] };
@@ -1192,7 +1267,7 @@
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
       courtOffers, beginCourt, audienceOffers, beginAudience, challengeOffers, beginChallenge, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
+      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, joinBlockers, beginJoinAsk, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 

@@ -17,9 +17,17 @@
   const keptPortraitId = (v) => (typeof v === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(v) ? v : null);
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 
-  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null, encounters = null, firstSeason = null }) {
+  function loadPortraitDefaults(passed) {
+    if (passed && passed.assignments) return passed.assignments;
+    if (typeof require === 'function') {
+      try { return require('../data/npc-portrait-defaults.json').assignments; } catch (e) { return {}; }
+    }
+    return {};
+  }
+  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null, encounters = null, firstSeason = null, npcPortraits = null }) {
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
+    const portraitDefaults = loadPortraitDefaults(npcPortraits);
     const C = Conversation.create(conversation, { ...(R.conversation || {}), affinityRange: M.affinityRange });
     const WM = WorldMemory.create(R, conversation, borderPolicy);
     const Enc = Encounter.create(encounters, R);
@@ -64,7 +72,9 @@
         conversation: C.empty(),
         encounters: Enc.empty()
       };
+      migratePlayerPortrait(s.cat);
       Personality.applyNew(s, R);
+      applyNpcPortraits(s);
       WM.initNew(s);
       Pair.initNew(s);
       return s;
@@ -150,6 +160,7 @@
         seekMate: Pair.enabled ? Pair.seekOffers(s, bondDeps(s)) : [],
         court: Pair.enabled ? Pair.courtOffers(s, bondDeps(s)) : [],
         audience: Pair.enabled ? Pair.audienceOffers(s, bondDeps(s)) : [],
+        joinAsk: Pair.enabled ? Pair.joinBlockers(s, bondDeps(s)) : null,
         challenge: Pair.enabled ? Pair.challengeOffers(s, bondDeps(s)) : [],
         found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null,
         route: Pair.enabled ? Pair.routeStatus(s, bondDeps(s)) : null
@@ -308,6 +319,12 @@
         const opened = Pair.beginChallenge(s, action.catId, bondDeps(s, rep));
         if (opened.error) return { state: s0, error: opened.error };
         endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'challenge', rested: false });
+        return { state: s, report: s.report };
+      }
+      if (s.phase === 'day' && action.type === 'joinAsk') {
+        const opened = Pair.beginJoinAsk(s, action.pride, bondDeps(s, rep));
+        if (opened.error) return { state: s0, error: opened.error, blockers: opened.blockers };
+        endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'joinAsk', rested: false });
         return { state: s, report: s.report };
       }
       if (s.phase === 'day' && action.type === 'askLeader') {
@@ -578,6 +595,47 @@
         bestAffinity: best ? { name: best.name, affinity: best.affinity, faction: best.faction } : null
       };
     }
+    /**
+     * Legacy player art. A valid saved id stays. A blank or invalid id stays unassigned.
+     * Genes and the cat id are not a portrait map. The record is written once.
+     */
+    function migratePlayerPortrait(cat) {
+      if (!cat || cat.portraitLegacy) return cat;
+      const had = Object.prototype.hasOwnProperty.call(cat, 'portraitId');
+      const raw = cat.portraitId;
+      const valid = keptPortraitId(raw);
+      const genesPresent = !!(cat.genes && cat.genes.loci);
+      if (!had) cat.portraitLegacy = { status: 'field-absent', assigned: false, genesPresent };
+      else if (valid) cat.portraitLegacy = { status: 'kept', assigned: true, id: valid, genesPresent };
+      else if (raw == null) cat.portraitLegacy = { status: 'stored-null', assigned: false, genesPresent };
+      else cat.portraitLegacy = { status: 'invalid-cleared', assigned: false, rejected: String(raw), genesPresent };
+      if (!valid) cat.portraitLegacy.policy = 'no-genotype-map';
+      if (valid) cat.portraitId = valid;
+      else cat.portraitId = null;
+    }
+    /** Ochre presentation defaults. A valid saved id is kept. A blank is not left on the old layers. */
+    function applyNpcPortraits(s) {
+      for (const npc of Object.values(s.npcs || {})) {
+        const spec = portraitDefaults[npc.id];
+        if (!spec || npc.portraitAssignment === 'cleared') continue;
+        const valid = keptPortraitId(npc.portraitId);
+        if (valid) {
+          if (!npc.portraitLegacy) npc.portraitLegacy = { status: 'kept', id: valid, phenotypeMatch: false };
+          if (!npc.portraitPresentation) npc.portraitPresentation = { adultArtOnly: npc.stage !== 'adult', phenotypeMatch: false, mismatchFlags: spec.flags || [] };
+          npc.portraitGap = null;
+          continue;
+        }
+        const rejected = npc.portraitRejected || (npc.portraitId != null && npc.portraitId !== spec.id ? String(npc.portraitId) : null);
+        delete npc.portraitRejected;
+        npc.portraitId = spec.id;
+        npc.portraitAssignment = npc.id === 'ln05' ? 'presentation-proof-v1' : 'ochre-presentation-default';
+        npc.portraitPresentation = { adultArtOnly: npc.stage !== 'adult', phenotypeMatch: false, mismatchFlags: spec.flags || [] };
+        npc.portraitGap = null;
+        if (rejected || !npc.portraitLegacy || npc.portraitLegacy.status !== 'presentation-default') {
+          npc.portraitLegacy = { status: 'presentation-default', id: spec.id, rejected, phenotypeMatch: false };
+        }
+      }
+    }
     /** Load path: saveVersion check + map migration (map-v1 §10.3). Throws on a newer save than this build. */
     function migrate(saved) {
       const s = clone(saved);
@@ -585,12 +643,18 @@
       if ((s.saveVersion || 0) > R.saveVersion) throw new Error(`save version ${s.saveVersion} is newer than ${R.saveVersion}`);
       if ((s.map.dataVersion || 0) < W.dataVersion) { s.map = WorldMap.migrateMap(s.map, W); s.dataVersion = W.dataVersion; }
       if (!W.regions.some((r) => r.id === s.region)) s.region = R.start.region;
-      if (s.cat) s.cat.portraitId = keptPortraitId(s.cat.portraitId);
+      if (s.cat) migratePlayerPortrait(s.cat);
       for (const n of Object.values(s.npcs || {})) {
         // A missing portraitId is not the same as a stored null. Only validate a field the save actually has.
-        if (Object.prototype.hasOwnProperty.call(n, 'portraitId')) n.portraitId = keptPortraitId(n.portraitId);
+        if (Object.prototype.hasOwnProperty.call(n, 'portraitId')) {
+          const raw = n.portraitId;
+          const valid = keptPortraitId(raw);
+          if (raw != null && !valid) n.portraitRejected = String(raw);
+          n.portraitId = valid;
+        }
       }
       Personality.migrate(s, R);
+      applyNpcPortraits(s);
       C.normalize(s);
       WM.migrate(s);
       Enc.normalize(s);

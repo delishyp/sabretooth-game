@@ -18,10 +18,11 @@ const mk = () => Slice.create({
   firstSeason: j('events/first-season-v0.6.2.json')
 });
 const female = { catId: 'c1', name: 'Tester', sex: 'female', lifeStage: 'adult', genes: {} };
+// Names and traits are unchanged. The hash moved when the Ochre portrait defaults replaced nulls.
 const IDENTITY = {
-  1: 'dd3618084a5ac1501b1b708c21a57cd0c1803d37abc70d5b227c2e49ac1cd37d',
-  2: 'acbafafef7c7d0b35e868de729b9efbebbb225de12f8b7c2a1d7cf9b65091a48',
-  9: '6834345c4437f60503060b3635e85627df0b1b6e70bd1e7f921e852daa0080e1'
+  1: 'e4844df7d574752ad3af1973d60f56d7e54d1e4288d8d117477a54d91a6c9e1a',
+  2: '747cf3fe04015696536f143a037b9ef99f636da4e306ca3b57a3841d60584bca',
+  9: 'a04420160fd43a885cd23caea72b84b81b9dbe4805b7be6d21ca140162475868'
 };
 
 function rosterHash(s) {

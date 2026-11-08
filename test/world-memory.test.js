@@ -31,7 +31,8 @@ test('new-game personalities use kin order and do not store the ln05 lean', () =
   assert.strictEqual(s.npcs.ln05.name, 'Bitterwatch');
   assert.strictEqual(s.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
   assert.strictEqual(s.npcs.ln05.portraitAssignment, 'presentation-proof-v1');
-  assert.strictEqual(s.npcs.hc01.portraitId, null);
+  assert.strictEqual(s.npcs.hc01.portraitId, 'cat-3f9fb78fb1697a76');
+  assert.notStrictEqual(s.npcs.hc01.name, 'Ashmane');
   assert.strictEqual(s.npcs.ln05.affinity, 0);
 });
 
@@ -149,8 +150,8 @@ test('a cleared or stored-null ln05 portrait stays empty, and a missing field is
   delete legacy.npcs.ln05.portraitAssignment;
   delete legacy.npcs.ln05.portraitGap;
   const keptNull = E.migrate(JSON.parse(JSON.stringify(legacy)));
-  assert.strictEqual(keptNull.npcs.ln05.portraitId, null);
-  assert.strictEqual(keptNull.npcs.ln05.portraitAssignment, 'legacy-null');
+  assert.strictEqual(keptNull.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(keptNull.npcs.ln05.name, legacy.npcs.ln05.name);
   const other = E.newRun({ mainCat: cat, seed: 2 });
   other.npcs.ln05.portraitId = 'cat-6477d01534355420';
   other.npcs.ln05.portraitAssignment = 'stored';

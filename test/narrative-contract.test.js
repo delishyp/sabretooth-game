@@ -164,7 +164,8 @@ test('FIXTURE: an unmated season choice is an intent, and day 21 can change it w
   assert.deepStrictEqual(s.records.playerSkills, xp);
   const offered = E.available(s);
   assert.strictEqual(offered.route.intent, 'pride');
-  assert.ok(offered.route.reason.includes('not available'));
+  assert.ok(offered.route.reason.includes('not on land a pride holds'));
+  assert.ok(!offered.route.reason.includes('courtship'));
   const changed = E.act(s, { type: 'setRoute', intent: 'alone' }).state;
   assert.strictEqual(changed.records.routeIntent, 'alone');
   assert.strictEqual(changed.day, 21);

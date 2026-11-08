@@ -250,12 +250,12 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       await page.waitForFunction((id) => document.getElementById('home-head').dataset.portraitId === id, chosen, { timeout: 8000 });
       assert.strictEqual(await page.evaluate(() => window.__menuDebug.game().state.cat.portraitId), chosen);
 
-      const legacy = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__menuDebug.game().state)); delete s.cat.portraitId; s.npcs.hc01.portraitId = 'Not A Cat'; return s; });
+      const legacy = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__menuDebug.game().state)); delete s.cat.portraitId; delete s.cat.portraitLegacy; s.npcs.hc01.portraitId = 'Not A Cat'; return s; });
       await page.evaluate((s) => window.__menuDebug.reloadGame(s), legacy);
       await page.waitForFunction(() => document.getElementById('home-head').dataset.runtime === '1');
       const after = await page.evaluate(() => { const s = window.__menuDebug.game().state; return { player: s.cat.portraitId, npc: s.npcs.hc01.portraitId, shown: document.getElementById('home-head').dataset.portraitId }; });
       assert.strictEqual(after.player, null);
-      assert.strictEqual(after.npc, null);
+      assert.strictEqual(after.npc, 'cat-3f9fb78fb1697a76');
       assert.strictEqual(after.shown, '');
     });
 

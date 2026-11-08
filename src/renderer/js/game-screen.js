@@ -339,6 +339,9 @@
           if (av.found) bond.append(btn(`Found ${av.found.name}`, { g: 'found', name: av.found.name }, { cls: 'is-found', disabled: !av.found.allowed, title: av.found.reason || '' }));
           a.append(bond);
         }
+        if (av.joinAsk && av.joinAsk.pride && !av.joinAsk.blockers.length) {
+          a.append(btn(`Ask ${av.joinAsk.leader.name} to join`, { g: 'joinAsk', pride: av.joinAsk.pride }));
+        }
         if (av.route) {
           const route = el('div', 'action-group is-route');
           const saying = av.route.intent === 'pride'
@@ -641,6 +644,7 @@
       if (d.g === 'seekMate') return act({ type: 'seekMate', catId: d.cat });
       if (d.g === 'court') return act({ type: 'court', catId: d.cat });
       if (d.g === 'askLeader') return act({ type: 'askLeader', catId: d.cat });
+      if (d.g === 'joinAsk') return act({ type: 'joinAsk', pride: d.pride });
       if (d.g === 'challenge') return act({ type: 'challenge', catId: d.cat });
       if (d.g === 'perkOpen') return act({ type: 'perkOpen' });
       if (d.g === 'perkChoose') return act({ type: 'perkChoose', perkId: d.perk });
