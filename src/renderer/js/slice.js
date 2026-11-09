@@ -547,7 +547,7 @@
         const own = W.ownership(s.map.claims, s.region);
         if (own.holder === 'mistwood' && own.state === 'held') Pair.noteMistwoodDay(s);
       }
-      ev = attachVoiceHunt(s, rep, ev);
+      ev = presentDay(s, rep, ev);
       s.report = { day: s.day, region: s.region, lines: rep };
       if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;
@@ -560,7 +560,16 @@
       } else if (closing) {
         s.pending = Pair.seasonPending(s, bondDeps(s)); s.phase = 'event';
       } else if (finished) { s.over = true; s.phase = 'over'; }
-      else { s.phase = 'day'; if (!WM.considerFord(s)) WM.considerRelay(s); }
+      else {
+        s.phase = 'day';
+        if (!WM.considerFord(s) && !WM.considerRelay(s) && !ctx.resumed) {
+          const now = s.day;
+          s.day = now - 1;
+          const filler = quietScene(s, rep);
+          s.day = now;
+          if (filler) { filler.day = now - 1; s.pending = filler; s.phase = 'event'; }
+        }
+      }
     }
     function finishBond(s) {
       const p = s.pending;
@@ -681,12 +690,19 @@
     }
     function choose(s, action) {
       if (action.type !== 'choose') return { state: s, error: 'choose' };
-      const p = s.pending; const e = EV.find((x) => x.id === p.eventId);
+      const p = s.pending;
+      if (p && (p.filler || p.voice || p.lone) && (action.choiceId === 'continue' || !(p.choices || []).length)) {
+        if (!p.summary && p.resultLine) p.summary = p.resultLine;
+        s.phase = 'eventResult';
+        return { state: s };
+      }
+      const e = EV.find((x) => x.id === p.eventId);
       if (p.hostile) { p.choiceId = 'hostile'; log(s, fill(e.hostileSummary, { catName: p.catName })); s.phase = 'eventResult'; return { state: s }; }
       const c = e.choices.find((x) => x.id === action.choiceId); if (!c) return { state: s, error: 'choice' };
       p.choiceId = c.id;
       if (p.catId) {
         const d = applyIntent(s, p.catId, c.affinityIntent, p.day);
+        if (d) p.resultLine = `Affinity ${d > 0 ? '+' : ''}${d}`;
         if (s.worldMemory) WM.notePersonal(s, { catId: p.catId, delta: d, receiptKey: `${s.runId || ''}/intent/${p.catId}/${p.eventId}/${c.id}/${p.day}`, sourceType: 'conversation_outcome', scope: 'private' });
       }
       log(s, fill(c.summary || e.summary, { catName: p.catName }));
@@ -829,6 +845,10 @@
       const pack = beatsByEvent[line.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail'];
       return fill((pack && pack.report) || (line.ok ? 'You caught {size} prey and ate. Hunger +{ate}.' : 'The prey escaped.'), { size: 'Medium', ate: line.ate });
     }
+    function huntNumbers(hunt) {
+      if (!hunt) return '';
+      return hunt.ok ? `Hunger +${hunt.ate}` : 'The prey escaped';
+    }
     function attachVoiceHunt(s, rep, ev) {
       const next = attachVoice(ev);
       const hunt = (rep || []).find((l) => l.k === 'hunt' && l.size === 'medium');
@@ -839,11 +859,116 @@
       const id = hunt.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail';
       const extra = beatsByEvent[id];
       if (!extra || !Array.isArray(extra.beats)) return next;
+      const resultLine = huntNumbers(hunt);
       return {
         eventId: id, title: 'The hunt', beats: extra.beats.map((b) => Object.assign({}, b)),
-        beatIndex: 0, choices: [], lone: true, voice: true,
-        summary: huntReportText(hunt, s.region), day: s.day, next
+        beatIndex: 0, choices: [], lone: true, voice: true, filler: true,
+        summary: resultLine, resultLine, day: s.day, next
       };
+    }
+    function plainHuntScene(s, rep) {
+      const hunt = (rep || []).find((l) => l.k === 'hunt');
+      if (!hunt) return null;
+      const resultLine = huntNumbers(hunt);
+      const prose = hunt.ok ? `You caught ${hunt.size} prey and ate.` : 'The prey escaped.';
+      return {
+        eventId: hunt.ok ? 'voice.hunt.result' : 'voice.hunt.miss', title: 'The hunt',
+        beats: [{ kind: 'narration', text: prose }], beatIndex: 0, choices: [],
+        lone: true, voice: true, filler: true, summary: resultLine, resultLine, day: s.day
+      };
+    }
+    function arrivalFallback(s, rep, regionId) {
+      const name = W.region(regionId).name;
+      const drink = (rep || []).some((l) => l.k === 'drink');
+      return drink ? `You reached ${name}. You drank your fill.` : `You reached ${name}.`;
+    }
+    function withArrival(s, rep, ev) {
+      const arrived = (rep || []).find((l) => l.k === 'arrive');
+      if (!arrived || s.dead) return ev;
+      let biome = 'unknown';
+      try { biome = W.region(arrived.region).biome; } catch (e) { biome = 'unknown'; }
+      const id = `travel.arrive.${biome}`;
+      const extra = beatsByEvent[id];
+      const fallback = arrivalFallback(s, rep, arrived.region);
+      if (!(extra && Array.isArray(extra.beats) && extra.beats.length)) return ev;
+      return {
+        eventId: id, title: W.region(arrived.region).name, filler: true, voice: true, lone: true,
+        beats: extra.beats.map((b) => Object.assign({}, b)), beatIndex: 0, choices: [],
+        summary: fallback, resultLine: fallback, day: s.day, next: ev || null
+      };
+    }
+    function arrivalFallbackScene(s, rep) {
+      const arrived = (rep || []).find((l) => l.k === 'arrive');
+      if (!arrived) return null;
+      const fallback = arrivalFallback(s, rep, arrived.region);
+      return {
+        eventId: `travel.arrive.${W.region(arrived.region).biome}`, title: W.region(arrived.region).name,
+        filler: true, voice: true, lone: true,
+        beats: [{ kind: 'narration', text: fallback }], beatIndex: 0, choices: [],
+        summary: fallback, resultLine: fallback, day: s.day
+      };
+    }
+    function approachOpts(s) {
+      const own = W.ownership(s.map.claims, s.region);
+      return {
+        neighbours: W.neighbours(s.region),
+        lonerHomePct: M.lonerHomePct,
+        lonerAdjacentPct: M.lonerAdjacentPct,
+        knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId),
+        zoneHolder: own.state === 'held' ? own.holder : null,
+        huntReady: !!(s.records && s.records._huntOk),
+        scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null
+      };
+    }
+    function quietLines(s, rep) {
+      const bits = [];
+      for (const l of rep || []) {
+        if (l.k === 'rest') bits.push(`You rested. Energy +${l.energy}.`);
+        else if (l.k === 'travelling') bits.push(`You are travelling to ${W.region(l.to).name}. ${l.daysLeft} days remain.`);
+        else if (l.k === 'drink') bits.push('You drank your fill.');
+        else if (l.k === 'arrive') bits.push(`You reached ${W.region(l.region).name}.`);
+      }
+      if (!bits.length) bits.push('Nothing else disturbed your day.');
+      return bits.join(' ');
+    }
+    function dayFiller(s, rep) {
+      const opts = approachOpts(s);
+      if (Lone.peekApproach(s, opts)) {
+        const opened = Lone.beginApproach(s, opts);
+        if (!opened.error && opened.event && opened.event.catId) {
+          opened.event.filler = true;
+          return opened.event;
+        }
+      }
+      if (!Lone.usedDay(s, 'scent')) {
+        const own = W.ownership(s.map.claims, s.region);
+        const opened = Lone.beginScent(s, {
+          neighbours: W.neighbours(s.region),
+          holder: own.holder,
+          metPride: !!(own.holder && Object.values(s.npcs).some((n) => n.met && n.faction === own.holder)),
+          preyValue: W.preyFor(s.region, season(s)),
+          hazards: W.hazardsFor(s.region, season(s)).map((h) => h.id),
+          report: s.report
+        });
+        if (!opened.error) {
+          opened.event.filler = true;
+          return opened.event;
+        }
+      }
+      const text = quietLines(s, rep);
+      return {
+        eventId: 'day.quiet', title: 'The day', filler: true, voice: true, lone: true,
+        beats: [{ kind: 'narration', text }], beatIndex: 0, choices: [],
+        summary: text, resultLine: text, day: s.day
+      };
+    }
+    function presentDay(s, rep, ev) {
+      return withArrival(s, rep, attachVoiceHunt(s, rep, ev));
+    }
+    function quietScene(s, rep) {
+      if (s.dead) return null;
+      if ((rep || []).some((l) => l.k === 'hunt')) return plainHuntScene(s, rep);
+      return arrivalFallbackScene(s, rep) || dayFiller(s, rep);
     }
     function beatContext(s) {
       const npc = s.pending && s.pending.catId ? s.npcs[s.pending.catId] : null;
@@ -863,7 +988,12 @@
     }
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;
-      if (!e) return null;
+      if (!e) {
+        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.')))) {
+          return { id, title: 'Scene', text: '', choices: [{ id: 'continue', label: 'Continue', summary: 'Continue', affinityIntent: 'unchanged' }] };
+        }
+        return null;
+      }
       const extra = beatsByEvent[id];
       if (!extra || !Array.isArray(extra.beats)) return e;
       return Object.assign({}, e, { beats: extra.beats });

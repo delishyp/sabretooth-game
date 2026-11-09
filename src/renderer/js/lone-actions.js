@@ -28,7 +28,8 @@
     return receipts(s).some((key) => key.startsWith(prefix) && key.endsWith(suffix));
   }
   function mark(s, action, targetId) {
-    if (!s.records.receipts) s.records.receipts = [];
+    if (!s.records) s.records = {};
+    if (!Array.isArray(s.records.receipts)) s.records.receipts = [];
     const key = `${s.runId || ''}/${action}/${targetId}/${s.day}`;
     if (s.records.receipts.includes(key)) return key;
     s.records.receipts.push(key);
@@ -304,17 +305,24 @@
     };
   }
 
+  function pickApproach(s, opts) {
+    const rng = Rng.stream(s.seed, 'approach', s.day);
+    const ids = Object.keys(s.npcs || {}).sort();
+    for (const id of ids) {
+      const npc = s.npcs[id];
+      const pct = eligiblePct(npc, s, opts || {});
+      if (pct && Rng.chance(rng, pct)) return npc;
+    }
+    return null;
+  }
+  function peekApproach(s, opts) {
+    if (usedDay(s, 'approach')) return null;
+    return pickApproach(s, opts);
+  }
   function beginApproach(s, opts) {
     opts = opts || {};
     if (usedDay(s, 'approach')) return { error: 'duplicate' };
-    const rng = Rng.stream(s.seed, 'approach', s.day);
-    const ids = Object.keys(s.npcs || {}).sort();
-    let picked = null;
-    for (const id of ids) {
-      const npc = s.npcs[id];
-      const pct = eligiblePct(npc, s, opts);
-      if (pct && Rng.chance(rng, pct)) { picked = npc; break; }
-    }
+    const picked = pickApproach(s, opts);
     mark(s, 'approach', picked ? picked.id : 'none');
     if (picked && (mistwoodRequest(picked, s, opts) || bringPrey(s, picked.id))) {
       return { event: mistwoodEvent(s, picked, opts) };
@@ -415,7 +423,7 @@
   }
 
   return {
-    offer, usedDay, scentLines, beginScent, beginApproach, choose, openerKind, OPENERS, preyWord,
+    offer, usedDay, scentLines, beginScent, beginApproach, peekApproach, choose, openerKind, OPENERS, preyWord,
     outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey
   };
 });

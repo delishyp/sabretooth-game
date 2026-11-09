@@ -225,6 +225,7 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .game-event .event-card { pointer-events: auto; }
 .game-event[hidden] { display: none; }
 .event-beat { max-height: min(42vh, 420px); overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere; white-space: pre-wrap; }
+.event-result-line { margin: 0; font-size: 16px; letter-spacing: .04em; color: #e6c98a; text-align: center; }
 .event-card.has-beats { box-sizing: border-box; width: min(820px, 100%); overflow: hidden; align-items: stretch; }
 .event-card.has-beats .event-title, .event-card.has-beats .event-text { max-width: 100%; overflow-wrap: anywhere; }
 .event-card.has-beats .event-beat { flex: 1 1 auto; min-height: 72px; min-width: 0; width: 100%; }

@@ -95,9 +95,16 @@ test('hunt: the first Split Rock hunt is the giant deer, and a later hunt still 
   assert.strictEqual(opened.state.phase, 'encounter');
   assert.strictEqual(opened.state.needs.energy, 70);
   const left = E.act(opened.state, { type: 'encounterChoose', choiceId: 'leave' }).state;
-  const done = E.act(left, { type: 'continue' }).state;
-  assert.strictEqual(done.phase === 'event' || done.phase === 'day' || done.phase === 'eventResult', true);
-  const again = E.act(done.phase === 'day' ? done : E.act(done, { type: 'continue' }).state, { type: 'hunt', size: 'small' });
+  let done = E.act(left, { type: 'continue' }).state;
+  for (let i = 0; i < 8 && done.phase !== 'day' && !done.over; i++) {
+    if (done.phase === 'event') {
+      const e = E.eventById(done.pending && done.pending.eventId);
+      const id = e && e.choices && e.choices[0] ? e.choices[0].id : 'continue';
+      done = E.act(done, { type: 'choose', choiceId: id }).state;
+    } else done = E.act(done, { type: 'continue' }).state;
+  }
+  assert.strictEqual(done.phase, 'day');
+  const again = E.act(done, { type: 'hunt', size: 'small' });
   const h = (again.state.report ? again.state.report.lines : []).find((l) => l.k === 'hunt');
   assert.ok(h); assert.strictEqual(h.ate, h.ok ? 25 : 0);
   const t = E.newRun({ mainCat: cat, seed: 5 }); t.needs.energy = 20;

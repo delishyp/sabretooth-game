@@ -661,7 +661,7 @@
         card.dataset.event = p.eventId || '';
         box.append(card);
         card.append(el('h2', 'event-title', p.title || (E.eventById(p.eventId) && E.eventById(p.eventId).title) || 'Scene'));
-        if (s.phase === 'eventResult' && p.summary) card.append(el('p', 'event-text result', p.summary));
+        if (s.phase === 'eventResult' && (p.resultLine || p.summary)) card.append(el('p', 'event-result-line', p.resultLine || p.summary));
         const library = p.eventId && E.eventById(p.eventId);
         const choices = p.choices && p.choices.length ? p.choices : (!p.lone && library && library.choices) || [];
         renderBeats(card, beatList, choices);
@@ -689,7 +689,9 @@
         else for (const c of e.choices) ch.append(btn(c.id === 'continue' && e.kind === 'region' ? t('game.event.continue') : c.label, { g: 'choose', choice: c.id }));
         card.append(ch);
       } else {
-        card.append(el('p', 'event-text result', resultText()), btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+        card.append(el('p', 'event-text result', resultText()));
+        if (p.resultLine) card.append(el('p', 'event-result-line', p.resultLine));
+        card.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       }
     }
     function render() {
