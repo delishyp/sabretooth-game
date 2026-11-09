@@ -14,7 +14,11 @@ const PHRASES = [
   /PROPOSED/i,
   /does not close/i,
   /receipt/i,
-  /ledger/i
+  /ledger/i,
+  /whether the limit/i,
+  /states the limit/i,
+  /lets you leave if/i,
+  /the limit is/i
 ];
 
 function files(dir, out = []) {
@@ -77,4 +81,34 @@ test('player-visible text does not contain spec or author notes', () => {
   }
   const bad = hits.filter((row) => PHRASES.some((phrase) => phrase.test(row.text)));
   assert.deepStrictEqual(bad.map((row) => `${row.at}: ${row.text}`), []);
+});
+
+test('the wolf card cost is Saga\'s line, and the ford boundary actions use the leak-fix cues', () => {
+  const leak = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/narrative/leak-fix-v1.json'), 'utf8'));
+  const screen = fs.readFileSync(path.join(ROOT, 'src/renderer/js/game-screen.js'), 'utf8');
+  const wolf = leak['game-screen.js:encounterCost'].wolf;
+  assert.ok(screen.includes(wolf));
+  assert.ok(!screen.includes('The pack lets you leave if you give ground.'));
+  const tree = fs.readFileSync(path.join(ROOT, 'src/renderer/js/encounter.js'), 'utf8')
+    + fs.readFileSync(path.join(DATA, 'events/encounters-v0.2.json'), 'utf8')
+    + fs.readFileSync(path.join(DATA, 'menu-copy.json'), 'utf8');
+  assert.ok(!tree.includes('The pack lets you leave if you give ground.'));
+
+  const Speech = require('../src/renderer/js/speech');
+  const conv = JSON.parse(fs.readFileSync(path.join(DATA, 'events/recurring-conversation.json'), 'utf8'));
+  const ford = JSON.parse(fs.readFileSync(path.join(DATA, 'events/faction-proof-reconciled.json'), 'utf8')).fordStory.speechLocations;
+  const cues = conv.personalityCoverage.contextActions.boundary;
+  const authored = leak['recurring-conversation.json'].boundary;
+  for (const trait of Object.keys(authored)) {
+    assert.deepStrictEqual(cues[trait], authored[trait].map((line) => line.replace(/\btheir\b/g, '{his}').replace(/\bthem\b/g, '{him}')));
+  }
+  for (const [id, row] of Object.entries(ford)) {
+    if (row.context !== 'boundary') continue;
+    for (const band of ['high', 'low']) {
+      const traits = { aggression: 50, sociability: 50, boldness: 50, loyalty: 50, curiosity: 50, [row.focusTrait]: band === 'high' ? 80 : 20 };
+      const spoken = Speech.resolve({ speechLocations: { [id]: { focusTrait: row.focusTrait, base: row.base, low: row.low, high: row.high, context: row.context } }, contextActions: { boundary: cues } }, id, traits, { catName: 'Ash' });
+      const cue = cues[row.focusTrait][band === 'high' ? 0 : 1].replaceAll('{catName}', 'Ash');
+      assert.strictEqual(spoken.action, cue, `${id} ${band}`);
+    }
+  }
 });

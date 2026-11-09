@@ -562,7 +562,7 @@
       if (view.encounterId === 'encounter.giant_deer.v1') {
         return fill('The search has used your day (Energy −{deerSearchEnergy}). Watching or leaving costs nothing more but brings no food. Going in for the kill costs Energy −{deerCommitEnergy}, and it may fail.', c);
       }
-      if (view.encounterId === 'encounter.wolf_pack.v1') return 'If you withdraw, the wolves may still give chase. A warning from wolves won\'t change how Highcrag sees you.';
+      if (view.encounterId === 'encounter.wolf_pack.v1') return "If you withdraw, the wolves may still give chase. A warning from wolves won't change how Highcrag sees you.";
       const f = view.forecast;
       if (!f) return 'You\'ve already helped here; more won\'t earn anything.';
       const extra = f.extraEnergy ? fill('It will cost Energy −{extraEnergy} more.', f) : 'It won\'t cost extra Energy.';
