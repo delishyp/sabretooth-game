@@ -52,9 +52,10 @@
       const want = cond.band === 'middle' ? 'baseline' : cond.band;
       return !!got && got === want;
     }
-    if (cond.knowsFact) {
+    if (Object.prototype.hasOwnProperty.call(cond, 'knowsFact')) {
       const who = cond.who || 'npc';
       const id = who === 'player' ? 'player' : (ctx && ctx.npc && ctx.npc.id);
+      if (cond.knowsFact === true) return !!(ctx && ctx.knowsAny && ctx.knowsAny(id));
       return !!(ctx && ctx.knowsFact && ctx.knowsFact(id, cond.knowsFact));
     }
     if (cond.injury) {

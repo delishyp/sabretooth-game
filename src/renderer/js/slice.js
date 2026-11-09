@@ -322,6 +322,18 @@
         if (r.error) return { state: s0, error: r.error };
         return { state: s };
       }
+      if (s.phase === 'event' && action.type === 'advanceBeat') {
+        const beats = sceneBeats(s);
+        const i = s.pending && s.pending.beatIndex || 0;
+        if (!beats) return { state: s0, error: 'beat.done' };
+        if (i + 1 < beats.length) { s.pending.beatIndex = i + 1; return { state: s }; }
+        if (!(s.pending.choices || []).length) {
+          s.pending.summary = s.pending.summary || 'You finished reading the scent.';
+          s.phase = 'eventResult';
+          return { state: s };
+        }
+        return { state: s0, error: 'beat.done' };
+      }
       if (s.phase === 'event' && Pair.enabled && s.pending && s.pending.bond) {
         const picked = Pair.choose(s, action, bondDeps(s, rep));
         if (picked.error) return { state: s0, error: picked.error };
@@ -341,21 +353,12 @@
           return { state: s };
         }
       }
-      if (s.phase === 'event' && action.type === 'advanceBeat') {
-        const beats = sceneBeats(s);
-        const i = s.pending && s.pending.beatIndex || 0;
-        if (!beats) return { state: s0, error: 'beat.done' };
-        if (i + 1 < beats.length) { s.pending.beatIndex = i + 1; return { state: s }; }
-        if (!(s.pending.choices || []).length) {
-          s.pending.summary = s.pending.summary || 'You finished reading the scent.';
-          s.phase = 'eventResult';
-          return { state: s };
-        }
-        return { state: s0, error: 'beat.done' };
-      }
       if (s.phase === 'event' && action.type === 'sceneChoose') {
         const picked = Lone.choose(s, action.choiceId);
         if (picked.error) return { state: s0, error: picked.error };
+        if (action.choiceId === 'rumor_spread' && s.pending && s.pending.rumorFactId && s.pending.catId) {
+          WM.disclose(s, { factId: s.pending.rumorFactId, toId: s.pending.catId, sourceEventId: 'lone.approach' });
+        }
         return { state: s };
       }
       if (s.phase === 'event') return choose(s, action);
@@ -363,6 +366,12 @@
         return { state: s0, error: 'duplicate' };
       }
       if (s.phase === 'eventResult') {
+        if (s.pending && s.pending.next && !s.pending.bond) {
+          const next = s.pending.next;
+          s.pending = next;
+          s.phase = next.result ? 'eventResult' : 'event';
+          return { state: s };
+        }
         if (Pair.enabled && s.pending && s.pending.bond) return finishBond(s);
         if (Pair.enabled && s.endsAtWindow && s.records && !s.records.seasonEndShown) {
           s.endsAtWindow = false;
@@ -376,7 +385,15 @@
         return { state: s };
       }
       if (s.phase === 'day' && action.type === 'scent') {
-        const opened = Lone.beginScent(s, W.neighbours(s.region));
+        const own = W.ownership(s.map.claims, s.region);
+        const opened = Lone.beginScent(s, {
+          neighbours: W.neighbours(s.region),
+          holder: own.holder,
+          metPride: !!(own.holder && Object.values(s.npcs).some((n) => n.met && n.faction === own.holder)),
+          preyValue: W.preyFor(s.region, season(s)),
+          hazards: W.hazardsFor(s.region, season(s)).map((h) => h.id),
+          report: s.report
+        });
         if (opened.error) return { state: s0, error: opened.error };
         s.pending = opened.event;
         s.phase = 'event';
@@ -512,6 +529,7 @@
         const own = W.ownership(s.map.claims, s.region);
         if (own.holder === 'mistwood' && own.state === 'held') Pair.noteMistwoodDay(s);
       }
+      ev = attachVoiceHunt(s, rep, ev);
       s.report = { day: s.day, region: s.region, lines: rep };
       if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;
@@ -629,7 +647,7 @@
         const pct = home ? M.lonerHomePct : near ? M.lonerAdjacentPct : 0;
         if (pct && Rng.chance(rng, pct)) {
           rep.push({ k: 'meetLoner', catId: n.id });
-          if (n.met) return Pair.enabled ? Pair.meetingEvent(s, n, bondDeps(s, rep)) : null;
+          if (n.met) return Pair.enabled ? attachVoice(Pair.meetingEvent(s, n, bondDeps(s, rep))) : null;
           const e = eventFor('first_meeting', 'loner'); meet(s, n);
           return e ? bind(e, n, { day: s.day }) : null;
         }
@@ -777,12 +795,45 @@
       s.saveVersion = R.saveVersion;
       return s;
     }
+    function attachVoice(ev) {
+      if (!ev || ev.beats || !ev.eventId) return ev;
+      const extra = beatsByEvent[ev.eventId];
+      if (!extra || !Array.isArray(extra.beats)) return ev;
+      ev.beats = extra.beats.map((b) => Object.assign({}, b));
+      ev.beatIndex = ev.beatIndex || 0;
+      return ev;
+    }
+    function huntReportText(line, regionId) {
+      if (!line || line.k !== 'hunt') return null;
+      let biome = null;
+      try { biome = W.region(regionId).biome; } catch (e) { return null; }
+      if (line.size !== 'medium' || biome !== 'steppe') return null;
+      const pack = beatsByEvent[line.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail'];
+      return fill((pack && pack.report) || (line.ok ? 'You caught {size} prey and ate. Hunger +{ate}.' : 'The prey escaped.'), { size: 'Medium', ate: line.ate });
+    }
+    function attachVoiceHunt(s, rep, ev) {
+      const next = attachVoice(ev);
+      const hunt = (rep || []).find((l) => l.k === 'hunt' && l.size === 'medium');
+      if (!hunt || s.dead) return next;
+      let biome = null;
+      try { biome = W.region(s.region).biome; } catch (e) { biome = null; }
+      if (biome !== 'steppe') return next;
+      const id = hunt.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail';
+      const extra = beatsByEvent[id];
+      if (!extra || !Array.isArray(extra.beats)) return next;
+      return {
+        eventId: id, title: 'The hunt', beats: extra.beats.map((b) => Object.assign({}, b)),
+        beatIndex: 0, choices: [], lone: true, voice: true,
+        summary: huntReportText(hunt, s.region), day: s.day, next
+      };
+    }
     function beatContext(s) {
       const npc = s.pending && s.pending.catId ? s.npcs[s.pending.catId] : null;
       return {
         player: Object.assign({}, s.cat, { injuries: s.injuries || [] }),
         npc, injured: !!(s.injuries && s.injuries.length),
-        knowsFact: (id, factId) => WM.knowsFact(s, id, factId)
+        knowsFact: (id, factId) => WM.knowsFact(s, id, factId),
+        knowsAny: (id) => Object.keys((s.worldMemory && s.worldMemory.knowledge) || {}).some((factId) => WM.knowsFact(s, id, factId))
       };
     }
     function sceneBeats(s) {
@@ -799,7 +850,7 @@
       if (!extra || !Array.isArray(extra.beats)) return e;
       return Object.assign({}, e, { beats: extra.beats });
     };
-    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
+    return { W, needState, newRun, available, huntChance, huntReportText, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

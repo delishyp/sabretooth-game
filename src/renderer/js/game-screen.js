@@ -402,7 +402,11 @@
     }
     const lineText = (l) => {
       switch (l.k) {
-        case 'hunt': return t(l.ok ? 'game.report.huntOk' : 'game.report.huntFail', { size: t(`game.size.${l.size}`), chance: l.chance, ate: l.ate });
+        case 'hunt': {
+          const voiced = E.huntReportText(l, s.report && s.report.region);
+          if (voiced) return voiced;
+          return t(l.ok ? 'game.report.huntOk' : 'game.report.huntFail', { size: t(`game.size.${l.size}`), chance: l.chance, ate: l.ate });
+        }
         case 'rest': return t('game.report.rest', { energy: l.energy });
         case 'arrive': return t('game.report.arrive', { region: regionName(l.region) });
         case 'travelling': return t.plural('game.report.travelling', l.daysLeft, { region: regionName(l.to) });
@@ -580,6 +584,28 @@
         card.append(who, relationMeters(npc.id));
       }
       card.append(el('h2', 'event-title', p.heading || 'Bond'));
+      const beatList = E.sceneBeats(s);
+      if (beatList) {
+        const idx = Math.min(p.beatIndex || 0, beatList.length - 1);
+        const shown = E.beats.line(beatList[idx], E.beatContext(s));
+        const prose = el('div', 'event-beat');
+        prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', shown.kind === 'speech' && shown.speaker ? `${shown.speaker}: ${shown.text}` : shown.text));
+        card.append(prose);
+        const last = idx >= beatList.length - 1;
+        const ch = el('div', 'bond-choices');
+        ch.dataset.group = p.group || 'bond';
+        if (s.phase === 'eventResult' || !last) {
+          ch.append(btn(s.phase === 'event' && !last ? 'Continue' : t('game.event.continue'), { g: s.phase === 'event' && !last ? 'advanceBeat' : 'continue' }, { cls: 'primary' }));
+        } else if (!(p.choices || []).length) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+        else for (const c of p.choices) {
+          const b = btn(c.label, { g: 'choose', choice: c.id }, { cls: c.group === 'courtship' ? 'is-court' : c.group === 'founding' ? 'is-found' : c.group === 'route' ? 'is-route' : 'is-bond', disabled: !!c.disabled, title: c.reason || '' });
+          b.dataset.group = c.group || 'bond';
+          ch.append(b);
+        }
+        if (s.phase === 'eventResult' && p.summary) card.append(el('p', 'event-text result', p.summary));
+        card.append(ch);
+        return;
+      }
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of p.lines || []) {

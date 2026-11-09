@@ -40,7 +40,14 @@ fs.mkdirSync(SHOTS, { recursive: true });
   await page.locator('[data-cnav="start"]').click();
   await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
 
-  await page.evaluate(() => window.__menuDebug.forceMeeting('hc01'));
+  await page.evaluate(() => {
+    const s = window.__menuDebug.game().state;
+    const n = s.npcs.bf01;
+    n.met = true;
+    s.phase = 'event';
+    s.pending = { eventId: 'slice.meeting.bonefield', kind: 'first_meeting', catId: 'bf01', catName: n.name, day: s.day, hostile: false, choiceId: null, beatIndex: 0 };
+    window.__menuDebug.assignPortrait('player', s.cat.portraitId);
+  });
   await page.waitForFunction(() => document.querySelector('.event-beat'));
   for (const [w, h, tag] of [[1280, 720, '720'], [1920, 1080, '1080']]) {
     await resize(w, h);
@@ -49,7 +56,9 @@ fs.mkdirSync(SHOTS, { recursive: true });
     await page.screenshot({ path: path.join(SHOTS, `beats-meeting-${tag}.png`) });
   }
   await resize(1280, 720);
-  await page.locator('[data-g="advanceBeat"]').click();
+  for (let i = 0; i < 4 && !(await page.locator('[data-g="choose"]').count()); i++) {
+    await page.locator('[data-g="advanceBeat"]').click();
+  }
   await page.waitForFunction(() => document.querySelector('[data-g="choose"]'));
   await page.screenshot({ path: path.join(SHOTS, 'beats-meeting-choices-720.png') });
 
@@ -82,7 +91,11 @@ fs.mkdirSync(SHOTS, { recursive: true });
 
   await page.evaluate(() => {
     const s = window.__menuDebug.game().state;
-    s.phase = 'day'; s.pending = null; s.region = 'ice_wall';
+    s.phase = 'day'; s.pending = null;
+    s.region = s.npcs.ln05.homeZones[0];
+    for (const n of Object.values(s.npcs)) if (n.faction === 'loner') { n.met = true; n.affinity = 25; }
+    const cat = s.npcs.ln01;
+    cat.personality = Object.assign({}, cat.personality, { sociability: 80, aggression: 40, loyalty: 40, curiosity: 40 });
     window.__menuDebug.assignPortrait('player', s.cat.portraitId);
   });
   await page.locator('[data-g="approach"]').click();

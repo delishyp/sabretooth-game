@@ -1,21 +1,41 @@
 {
-  "note": "Saga's existing first-meeting sentences, split into beats without new words. Hunt chance stays on the button and off this prose. text on each event remains the fallback.",
-  "slice.meeting.highcrag": {
+  "note": "Runtime beats copied from docs/narrative/voice-pass-1.md. Grassland is the map biome steppe (map-v1: Grassland / steppe). Other hunt sizes and biomes keep the old report string.",
+  "voice.hunt.medium.steppe.ok": {
+    "report": "You caught {size} prey and ate. Hunger +{ate}.",
     "beats": [
-      { "kind": "narration", "text": "{catName} stands on the path ahead, leaving enough space for you to stop." },
-      { "kind": "speech", "text": "“A stranger should give a name before coming closer.”" }
+      { "kind": "narration", "text": "The wind turns, and with it comes the warm, grassy musk of a horse foal that has strayed from its herd." },
+      { "kind": "narration", "text": "You drop until your belly brushes the frost-stiff stems. One paw, then the next. The foal tears at a tuft and swings its head away, and its ears flick at a fly and nothing else." },
+      { "kind": "narration", "text": "Three bounds. The grass whips your face, and the foal is only beginning to turn when your weight takes it down. Your sabers find the throat the way they were made to." },
+      { "kind": "narration", "text": "Afterwards you eat crouched low, ears turning to every sound. In the Vale, a kill out in the open draws company fast." }
+    ]
+  },
+  "voice.hunt.medium.steppe.fail": {
+    "report": "The prey escaped.",
+    "beats": [
+      { "kind": "narration", "text": "The wind turns, and with it comes the warm, grassy musk of a horse foal that has strayed from its herd." },
+      { "kind": "narration", "text": "You creep closer, closer, until you can hear it chewing. Then a stem snaps under your hind paw, louder than any stem has a right to be." },
+      { "kind": "narration", "text": "The foal's head snaps up. It squeals once and is gone, a brown streak racing back toward the herd, and the mares are already wheeling to meet it." },
+      { "kind": "narration", "text": "You stand in the flattened grass with your heart pounding and your belly still empty." }
+    ]
+  },
+  "m2.repeat_meeting": {
+    "beats": [
+      { "kind": "narration", "text": "You know the scent before you see its owner: {catName}, carried on the cold air with the dust of the trail." },
+      { "kind": "narration", "text": "{catName} is standing on a flat stone where the path bends, tail low and still." },
+      { "kind": "narration", "text": "There's a fresh scratch across one shoulder that wasn't there last time, and the smell of other cats is on the fur.", "when": { "injury": true, "who": "npc" } },
+      { "kind": "narration", "text": "For a heartbeat neither of you moves." },
+      { "kind": "speech", "text": "{catName}'s lip lifts just enough to show the tip of a saber. \"You. I'd hoped the wind had taken you somewhere else.\" The cat doesn't step aside.", "when": { "trait": "sociability", "band": "low", "who": "npc" } },
+      { "kind": "speech", "text": "\"You again.\" {catName} studies you, then glances back down the trail as if checking who else might be watching. \"Walk with me, if you're walking. I've somewhere to be.\"", "when": { "trait": "sociability", "band": "baseline", "who": "npc" } },
+      { "kind": "speech", "text": "{catName}'s ears come up, and the stiffness goes out of those shoulders all at once. \"You came back.\" A pause, a little embarrassed. \"Will you stay a while?\"", "when": { "trait": "sociability", "band": "high", "who": "npc" } },
+      { "kind": "speech", "text": "I've been saving something to tell you.", "when": [{ "trait": "sociability", "band": "high", "who": "npc" }, { "knowsFact": true, "who": "npc" }] }
     ]
   },
   "slice.meeting.bonefield": {
     "beats": [
-      { "kind": "narration", "text": "{catName} stops a few paces away and looks you over." },
-      { "kind": "speech", "text": "“Alone? Then those tracks behind you are all yours.”" }
-    ]
-  },
-  "slice.meeting.mistwood": {
-    "beats": [
-      { "kind": "speech", "text": "“You tread loudly.”" },
-      { "kind": "narration", "text": "{catName} is closer than you expected, watching from beside a tree." }
+      { "kind": "narration", "text": "The Bonefield smells of old blood and trampled grass. You are crossing the open ground in the shadow of a mammoth's ribs when the wind brings you a scent that is rank and fresh: a cat, close, and not hiding." },
+      { "kind": "narration", "text": "{catName} rises out of the tall grass as if the ground belongs to {him}, and by Bonefield law it does. {He} is broad through the chest and scarred along the forelegs, every mark a challenge won or survived. {He} walks a slow half-circle around you, letting you take in every scar." },
+      { "kind": "speech", "text": "\"Alone?\" {catName} snorts and looks past you at the empty grass. \"Then those tracks behind you are all yours. No pride, no kin, no one to drag you home if you fall.\"" },
+      { "kind": "speech", "text": "{catName} stops close enough for you to feel the hot breath. \"Scarjaw doesn't care where strays come from. He cares whether they run. So, do you?\"" }
     ]
   }
 }
