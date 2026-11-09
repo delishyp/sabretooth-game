@@ -52,7 +52,8 @@ test('beats keep order, honour conditions, and fall back when missing or invalid
   assert.deepStrictEqual(Beats.visible(repeat, calm).map((b) => b.text).filter((t) => t.includes('You again.') || t.includes('flat stone') || t.includes('heartbeat')).length, 3);
   const hurt = { npc: { id: 'n1', personality: { sociability: 80 }, injuries: [{ tier: 'minor' }] }, knowsAny: () => true, knowsFact: () => false };
   const hurtText = Beats.visible(repeat, hurt).map((b) => b.text).join('\n');
-  assert.ok(hurtText.includes('fresh scratch'));
+  assert.ok(hurtText.includes('coppery smell of a wound still healing'));
+  assert.ok(!hurtText.includes('fresh scratch'));
   assert.ok(hurtText.includes("I've been saving something to tell you."));
   assert.ok(!hurtText.includes('You again.'));
   const run = fresh(3);

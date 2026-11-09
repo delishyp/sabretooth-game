@@ -22,7 +22,7 @@
     "beats": [
       { "kind": "narration", "text": "You know the scent before you see its owner: {catName}, carried on the cold air with the dust of the trail." },
       { "kind": "narration", "text": "{catName} is standing on a flat stone where the path bends, tail low and still." },
-      { "kind": "narration", "text": "There's a fresh scratch across one shoulder that wasn't there last time, and the smell of other cats is on the fur.", "when": { "injury": true, "who": "npc" } },
+      { "kind": "narration", "text": "{catName} carries the sharp, coppery smell of a wound still healing, and the smell of other cats is on the fur.", "when": { "injury": true, "who": "npc" } },
       { "kind": "narration", "text": "For a heartbeat neither of you moves." },
       { "kind": "speech", "text": "{catName}'s lip lifts just enough to show the tip of a saber. \"You. I'd hoped the wind had taken you somewhere else.\" The cat doesn't step aside.", "when": { "trait": "sociability", "band": "low", "who": "npc" } },
       { "kind": "speech", "text": "\"You again.\" {catName} studies you, then glances back down the trail as if checking who else might be watching. \"Walk with me, if you're walking. I've somewhere to be.\"", "when": { "trait": "sociability", "band": "baseline", "who": "npc" } },
@@ -33,7 +33,7 @@
   "slice.meeting.bonefield": {
     "beats": [
       { "kind": "narration", "text": "The Bonefield smells of old blood and trampled grass. You are crossing the open ground in the shadow of a mammoth's ribs when the wind brings you a scent that is rank and fresh: a cat, close, and not hiding." },
-      { "kind": "narration", "text": "{catName} rises out of the tall grass as if the ground belongs to {him}, and by Bonefield law it does. {He} is broad through the chest and scarred along the forelegs, every mark a challenge won or survived. {He} walks a slow half-circle around you, letting you take in every scar." },
+      { "kind": "narration", "text": "{catName} rises out of the tall grass as if the ground belongs to {him}, and by Bonefield law it does. {catName} stands like a cat who has won every fight that mattered, and expects to win this one. {He} walks a slow half-circle around you, letting you take a good long look." },
       { "kind": "speech", "text": "\"Alone?\" {catName} snorts and looks past you at the empty grass. \"Then those tracks behind you are all yours. No pride, no kin, no one to drag you home if you fall.\"" },
       { "kind": "speech", "text": "{catName} stops close enough for you to feel the hot breath. \"Scarjaw doesn't care where strays come from. He cares whether they run. So, do you?\"" }
     ]

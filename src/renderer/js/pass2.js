@@ -244,28 +244,35 @@
     if (!npc || LEADERS[npc.faction] !== npc.id) return null;
     const look = appearance(npc);
     if (npc.faction === 'highcrag') {
-      const muzzle = look.silverMuzzle ? ', silver at the muzzle,' : '';
+      const beat = look.silverMuzzle
+        ? '{catName} sits at the top of the path in the slanting light, silver at the muzzle, and doesn\'t rise. The leader of Highcrag doesn\'t need to.'
+        : '{catName} sits at the top of the path in the slanting light, utterly still, and doesn\'t rise. The leader of Highcrag doesn\'t need to.';
       return [
         narrate('The cave-mouth scent is old and layered, generations deep, and over it lies one scent fresher and stronger than the rest.'),
-        narrate(`{catName} sits at the top of the path in the slanting light${muzzle} and doesn't rise. The leader of Highcrag doesn't need to.`),
+        narrate(beat),
         say('“Every cat on these cliffs can name their mother\'s mother\'s mother.” Calm, unhurried. “You come with no line at all. Tell me why I should remember your name.”')
       ];
     }
     if (npc.faction === 'bonefield') {
       const scar = look.scarred ? ' and scarred' : '';
       const lip = look.tornLip ? ' The torn lip leaves one saber always bare.' : '';
+      const beat = (look.scarred || look.tornLip)
+        ? `{catName} walks out of the stems, heavy-shouldered${scar}, with two guards flanking at a respectful distance.${lip}`
+        : '{catName} walks out of the stems with heavy shoulders and a heavier stare, two guards flanking at a respectful distance. Neither guard looks anywhere but at you.';
       return [
         narrate('The grass goes quiet. Insects, birds, all of it, as if the whole field has drawn a breath.'),
-        narrate(`{catName} walks out of the stems, heavy-shouldered${scar}, with two guards flanking at a respectful distance.${lip}`),
+        narrate(beat),
         say('“I\'ve held this field through three challenges.” The voice is a low rumble you feel in your paws. “Every cat who stood where you stand wanted something. Say what you want, stray, and say it without shaking.”')
       ];
     }
     if (npc.faction === 'mistwood') {
-      const age = look.elder ? 'old and ' : '';
+      const beat = look.elder
+        ? '{catName} steps out of the grey. The cat is old and thin, with eyes that have watched too many cats go under the water.'
+        : '{catName} steps out of the grey. {catName}\'s eyes look like they\'ve watched too many cats go under the water.';
       return [
         narrate('The fog thickens until you can\'t see your own tail. Then a voice, soft, close, from no direction at all.'),
         say('“Don\'t run. The ice is thin where you\'re standing.”'),
-        narrate(`{catName} steps out of the grey. The cat is ${age}thin, with eyes that have watched too many cats go under the water.`),
+        narrate(beat),
         say('“We lost half our pride to the Breaking. I don\'t lose more to strangers. Why are you in my wood?”')
       ];
     }

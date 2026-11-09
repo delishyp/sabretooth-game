@@ -59,7 +59,7 @@ test('leader meetings replace only that pride\'s leader, and appearance clauses 
   bone.scars = ['foreleg scar', 'torn lip'];
   s.pending = { eventId: 'slice.meeting.bonefield', catId: 'bf01', catName: bone.name, beatIndex: 0 };
   const current = E.sceneBeats(s).map((b) => b.text).join(' ');
-  assert.match(current, /heavy-shouldered,/);
+  assert.match(current, /heavier stare/);
   assert.ok(!/and scarred/.test(current));
   assert.ok(!/torn lip/.test(current), 'bf01 portrait has no torn lip');
   bone.portraitPresentation = { phenotypeMatch: false, mismatchFlags: [], details: ['scarred', 'tornLip'] };
@@ -86,7 +86,7 @@ test('Ashmane and Scarjaw use the neutral leader lines, and no player line names
   s.npcs.bf01.scars = ['torn lip'];
   s.pending = { eventId: 'slice.meeting.bonefield', catId: 'bf01', catName: s.npcs.bf01.name, beatIndex: 0 };
   const bone = E.sceneBeats(s).map((b) => b.text).join(' ');
-  assert.match(bone, /heavy-shouldered/);
+  assert.match(bone, /heavier stare/);
   assert.ok(!/torn lip/.test(bone));
   const colours = 'ivory|creamy|cream-yellow|stained|gold|amber|copper|black|white|yellow|brown|grey|gray|red|russet|blue|green|silver';
   const named = new RegExp(`\\b(${colours})\\b[^.]{0,40}\\bsabers?\\b|\\bsabers?\\b[^.]{0,40}\\b(${colours})\\b`, 'i');
@@ -98,4 +98,34 @@ test('Ashmane and Scarjaw use the neutral leader lines, and no player line names
     const text = fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
     assert.ok(!named.test(text), rel);
   }
+});
+
+test('neutral appearance lines render under the current portrait map', () => {
+  const s = E.newRun({ mainCat: player, seed: 5, runId: 'neutral-look' });
+  const text = (id, eventId) => {
+    s.pending = { eventId, catId: id, catName: s.npcs[id].name, beatIndex: 0 };
+    return E.sceneBeats(s).map((b) => b.text).join('\n');
+  };
+  const high = text('hc01', 'slice.meeting.highcrag');
+  assert.match(high, /utterly still, and doesn't rise/);
+  assert.ok(!/silver at the muzzle/.test(high));
+  const bone = text('bf01', 'slice.meeting.bonefield');
+  assert.match(bone, /heavy shoulders and a heavier stare/);
+  assert.match(bone, /Neither guard looks anywhere but at you/);
+  assert.ok(!/torn lip/.test(bone));
+  const mist = text('mw01', 'slice.meeting.mistwood');
+  assert.match(mist, /eyes look like they've watched too many cats go under the water/);
+  assert.ok(!/old and thin/.test(mist));
+  const other = Object.values(s.npcs).find((n) => n.faction === 'bonefield' && n.id !== 'bf01');
+  const meet = text(other.id, 'slice.meeting.bonefield');
+  assert.match(meet, /won every fight that mattered/);
+  assert.match(meet, /take a good long look/);
+  assert.ok(!/every scar/.test(meet));
+  assert.ok(!/scarred along the forelegs/.test(meet));
+  const hurt = E.beats.visible(j('events/sample-beats.json')['m2.repeat_meeting'].beats, {
+    npc: { id: 'n1', name: 'Copper', sex: 'male', personality: { sociability: 50 }, injuries: [{ tier: 'minor' }] },
+    knowsFact: () => false, knowsAny: () => false
+  }).map((b) => b.text).join('\n');
+  assert.match(hurt, /coppery smell of a wound still healing/);
+  assert.ok(!/fresh scratch/.test(hurt));
 });
