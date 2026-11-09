@@ -224,7 +224,13 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .game-event { position: absolute; left: 210px; right: 440px; top: 88px; bottom: 0; z-index: 5; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .game-event .event-card { pointer-events: auto; }
 .game-event[hidden] { display: none; }
-.event-card { width: min(820px, calc(100% - 280px)); max-height: calc(100% - 48px); overflow: auto; background: linear-gradient(180deg, rgba(42, 28, 18, .97), rgba(16, 11, 8, .97)); border: 2px solid #c6a15a; box-shadow: inset 0 0 0 1px #f3ddb0, 0 18px 48px rgba(0, 0, 0, .5); border-radius: 14px; padding: 22px 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f6efe2; }
+.event-beat { max-height: min(42vh, 420px); overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere; white-space: pre-wrap; }
+.event-card.has-beats { box-sizing: border-box; width: min(820px, 100%); overflow: hidden; align-items: stretch; }
+.event-card.has-beats .event-title, .event-card.has-beats .event-text { max-width: 100%; overflow-wrap: anywhere; }
+.event-card.has-beats .event-beat { flex: 1 1 auto; min-height: 72px; min-width: 0; width: 100%; }
+.event-card.has-beats .event-choices { flex: 0 0 auto; width: 100%; max-width: 100%; }
+.event-card.has-beats .event-choices button { white-space: normal; height: auto; max-width: 100%; overflow-wrap: anywhere; }
+.event-card { width: min(820px, calc(100% - 280px)); max-height: calc(100% - 48px); overflow-x: hidden; overflow-y: auto; background: linear-gradient(180deg, rgba(42, 28, 18, .97), rgba(16, 11, 8, .97)); border: 2px solid #c6a15a; box-shadow: inset 0 0 0 1px #f3ddb0, 0 18px 48px rgba(0, 0, 0, .5); border-radius: 14px; padding: 22px 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f6efe2; }
 .event-cat { font-family: var(--font-title); font-size: 28px; color: #f6efe2; letter-spacing: 1px; }
 .event-title { font-size: 34px; letter-spacing: 2px; margin: 4px 0 0; color: #f8efe0; }
 .event-text { font-size: 20px; line-height: 1.45; text-align: center; margin: 0; max-width: 640px; color: #f0e2cc; }

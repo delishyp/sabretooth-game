@@ -360,6 +360,8 @@
         if (av.joinAsk && av.joinAsk.pride && !av.joinAsk.blockers.length) {
           a.append(btn(`Ask ${av.joinAsk.leader.name} to join`, { g: 'joinAsk', pride: av.joinAsk.pride }));
         }
+        if (av.scent && av.scent.allowed) a.append(btn('Read scent sign', { g: 'scent' }));
+        if (av.approach && av.approach.allowed) a.append(btn('Wait for a cat to come', { g: 'approach' }));
         if (av.route) {
           const route = el('div', 'action-group is-route');
           const saying = av.route.intent === 'pride'
@@ -416,8 +418,11 @@
       }
     };
     function renderReport() {
-      const r = $('#game-report'); r.textContent = ''; r.hidden = !s.report;
-      if (!s.report) return;
+      const r = $('#game-report'); r.textContent = '';
+      const beats = E.sceneBeats(s);
+      const midBeat = !!(beats && s.phase === 'event' && (s.pending.beatIndex || 0) < beats.length - 1);
+      r.hidden = !s.report || midBeat;
+      if (!s.report || midBeat) return;
       r.append(el('h3', '', t('game.report.title', { day: s.report.day })));
       const ul = el('ul'); for (const l of s.report.lines) { const x = lineText(l); if (x) ul.append(el('li', `rep-${l.k}`, x)); }
       if (!ul.children.length) ul.append(el('li', '', t('game.report.quiet')));
@@ -594,12 +599,46 @@
       }
       card.append(ch);
     }
+    function renderBeats(card, beats, choices) {
+      const idx = Math.min(s.pending.beatIndex || 0, beats.length - 1);
+      const beat = beats[idx];
+      const shown = (typeof Beats !== 'undefined' ? Beats : E.beats).line(beat, E.beatContext(s));
+      const prose = el('div', 'event-beat');
+      prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', shown.kind === 'speech' && shown.speaker ? `${shown.speaker}: ${shown.text}` : shown.text));
+      card.append(prose);
+      const last = idx >= beats.length - 1;
+      const ch = el('div', 'event-choices');
+      if (s.phase === 'eventResult') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      else if (!last) ch.append(btn('Continue', { g: 'advanceBeat' }, { cls: 'primary' }));
+      else if (!(choices || []).length) ch.append(btn(t('game.event.continue'), { g: 'advanceBeat' }, { cls: 'primary' }));
+      else for (const c of choices) {
+        const kind = s.pending.lone ? 'sceneChoose' : 'choose';
+        ch.append(btn(c.id === 'continue' ? t('game.event.continue') : c.label, { g: kind, choice: c.id }));
+      }
+      card.append(ch);
+    }
     function renderEvent() {
       if (s.phase === 'encounter') return renderEncounter();
       if (s.phase === 'ford') return renderFord();
       if (s.phase === 'border') return renderBorder();
       if (s.phase === 'conversation') return renderTalk();
       if (s.pending && s.pending.bond && (s.phase === 'event' || s.phase === 'eventResult')) return renderBond();
+      const beatList = E.sceneBeats(s);
+      const p0 = s.pending;
+      if (beatList && p0 && !p0.hostile && (s.phase === 'event' || s.phase === 'eventResult')) {
+        const box = $('#game-event'); const p = p0;
+        box.hidden = false; $('#game-main').classList.toggle('dimmed', true);
+        box.textContent = '';
+        const card = el('div', 'event-card has-beats');
+        card.dataset.event = p.eventId || '';
+        box.append(card);
+        card.append(el('h2', 'event-title', p.title || (E.eventById(p.eventId) && E.eventById(p.eventId).title) || 'Scene'));
+        if (s.phase === 'eventResult' && p.summary) card.append(el('p', 'event-text result', p.summary));
+        const library = p.eventId && E.eventById(p.eventId);
+        const choices = p.choices && p.choices.length ? p.choices : (!p.lone && library && library.choices) || [];
+        renderBeats(card, beatList, choices);
+        return;
+      }
       const box = $('#game-event'); const p = s.pending;
       const show = s.phase === 'event' || s.phase === 'eventResult';
       box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
@@ -632,7 +671,7 @@
       const perkOpen = !!document.getElementById('perk-modal');
       let target = null;
       if (perkOpen) target = document.querySelector('#perk-modal [data-g="perkChoose"]');
-      else if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="encounterChoose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
+      else if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="advanceBeat"], [data-g="sceneChoose"], [data-g="encounterChoose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
       else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
@@ -664,6 +703,10 @@
       if (d.g === 'court') return act({ type: 'court', catId: d.cat });
       if (d.g === 'askLeader') return act({ type: 'askLeader', catId: d.cat });
       if (d.g === 'joinAsk') return act({ type: 'joinAsk', pride: d.pride });
+      if (d.g === 'scent') return act({ type: 'scent' });
+      if (d.g === 'approach') return act({ type: 'approach' });
+      if (d.g === 'advanceBeat') return act({ type: 'advanceBeat' });
+      if (d.g === 'sceneChoose') return act({ type: 'sceneChoose', choiceId: d.choice });
       if (d.g === 'challenge') return act({ type: 'challenge', catId: d.cat });
       if (d.g === 'perkOpen') return act({ type: 'perkOpen' });
       if (d.g === 'perkChoose') return act({ type: 'perkChoose', perkId: d.perk });

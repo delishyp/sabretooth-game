@@ -8,9 +8,9 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
@@ -52,7 +52,22 @@
     }
     return {};
   }
-  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null, encounters = null, firstSeason = null, npcPortraits = null }) {
+  function loadSampleBeats(passed) {
+    if (passed && typeof passed === 'object') return passed;
+    if (typeof require === 'function') {
+      try { return require('../data/events/sample-beats.json'); } catch (e) { /* the page loads the same file below */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/sample-beats.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) return JSON.parse(xhr.responseText);
+      } catch (e) { /* missing beats fall back to each event's text */ }
+    }
+    return {};
+  }
+  function create({ map, rules, events, slots, nameData = null, looks = null, conversation = null, borderPolicy = null, encounters = null, firstSeason = null, npcPortraits = null, sampleBeats = null }) {
     const W = WorldMap.create(map);
     const R = rules; const N = R.needs; const H = R.hunt; const Z = R.hazards; const M = R.meetings;
     const portraitDefaults = loadPortraitDefaults(npcPortraits);
@@ -61,6 +76,7 @@
     const Enc = Encounter.create(encounters, R);
     const Pair = Pairing.create(firstSeason, R);
     const EV = (events && events.events) || [];
+    const beatsByEvent = loadSampleBeats(sampleBeats);
     const season = (s) => s.season;
     /** needs §1.6a named state. */
     const needState = (v) => (v <= 0 ? 'empty' : v < N.thresholds.critical ? 'critical' : v < N.thresholds.low ? 'low' : 'ok');
@@ -191,7 +207,9 @@
         joinAsk: Pair.enabled ? Pair.joinBlockers(s, bondDeps(s)) : null,
         challenge: Pair.enabled ? Pair.challengeOffers(s, bondDeps(s)) : [],
         found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null,
-        route: Pair.enabled ? Pair.routeStatus(s, bondDeps(s)) : null
+        route: Pair.enabled ? Pair.routeStatus(s, bondDeps(s)) : null,
+        scent: Lone.offer(s, 'scent'),
+        approach: Lone.offer(s, 'approach')
       };
     }
     function atHighcragBorder(s) {
@@ -323,7 +341,27 @@
           return { state: s };
         }
       }
+      if (s.phase === 'event' && action.type === 'advanceBeat') {
+        const beats = sceneBeats(s);
+        const i = s.pending && s.pending.beatIndex || 0;
+        if (!beats) return { state: s0, error: 'beat.done' };
+        if (i + 1 < beats.length) { s.pending.beatIndex = i + 1; return { state: s }; }
+        if (!(s.pending.choices || []).length) {
+          s.pending.summary = s.pending.summary || 'You finished reading the scent.';
+          s.phase = 'eventResult';
+          return { state: s };
+        }
+        return { state: s0, error: 'beat.done' };
+      }
+      if (s.phase === 'event' && action.type === 'sceneChoose') {
+        const picked = Lone.choose(s, action.choiceId);
+        if (picked.error) return { state: s0, error: picked.error };
+        return { state: s };
+      }
       if (s.phase === 'event') return choose(s, action);
+      if (s.phase === 'eventResult' && action.type === 'sceneChoose') {
+        return { state: s0, error: 'duplicate' };
+      }
       if (s.phase === 'eventResult') {
         if (Pair.enabled && s.pending && s.pending.bond) return finishBond(s);
         if (Pair.enabled && s.endsAtWindow && s.records && !s.records.seasonEndShown) {
@@ -335,6 +373,25 @@
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
         else if (s.phase === 'day') WM.considerFord(s);
+        return { state: s };
+      }
+      if (s.phase === 'day' && action.type === 'scent') {
+        const opened = Lone.beginScent(s, W.neighbours(s.region));
+        if (opened.error) return { state: s0, error: opened.error };
+        s.pending = opened.event;
+        s.phase = 'event';
+        return { state: s };
+      }
+      if (s.phase === 'day' && action.type === 'approach') {
+        const opened = Lone.beginApproach(s, {
+          neighbours: W.neighbours(s.region),
+          lonerHomePct: M.lonerHomePct,
+          lonerAdjacentPct: M.lonerAdjacentPct,
+          knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId)
+        });
+        if (opened.error) return { state: s0, error: opened.error };
+        s.pending = opened.event;
+        s.phase = 'event';
         return { state: s };
       }
       if (s.phase === 'day' && action.type === 'seekMate') {
@@ -720,8 +777,29 @@
       s.saveVersion = R.saveVersion;
       return s;
     }
-    const eventById = (id) => EV.find((e) => e.id === id) || null;
-    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, applyIntent, fill, rules: R, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc };
+    function beatContext(s) {
+      const npc = s.pending && s.pending.catId ? s.npcs[s.pending.catId] : null;
+      return {
+        player: Object.assign({}, s.cat, { injuries: s.injuries || [] }),
+        npc, injured: !!(s.injuries && s.injuries.length),
+        knowsFact: (id, factId) => WM.knowsFact(s, id, factId)
+      };
+    }
+    function sceneBeats(s) {
+      const p = s.pending;
+      if (!p) return null;
+      if (Array.isArray(p.beats)) return Beats.visible(p.beats, beatContext(s));
+      const e = p.eventId && eventById(p.eventId);
+      return e && e.beats ? Beats.visible(e.beats, beatContext(s)) : null;
+    }
+    const eventById = (id) => {
+      const e = EV.find((row) => row.id === id) || null;
+      if (!e) return null;
+      const extra = beatsByEvent[id];
+      if (!extra || !Array.isArray(extra.beats)) return e;
+      return Object.assign({}, e, { beats: extra.beats });
+    };
+    return { W, needState, newRun, available, huntChance, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

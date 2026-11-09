@@ -1,0 +1,21 @@
+{
+  "note": "Saga's existing first-meeting sentences, split into beats without new words. Hunt chance stays on the button and off this prose. text on each event remains the fallback.",
+  "slice.meeting.highcrag": {
+    "beats": [
+      { "kind": "narration", "text": "{catName} stands on the path ahead, leaving enough space for you to stop." },
+      { "kind": "speech", "text": "“A stranger should give a name before coming closer.”" }
+    ]
+  },
+  "slice.meeting.bonefield": {
+    "beats": [
+      { "kind": "narration", "text": "{catName} stops a few paces away and looks you over." },
+      { "kind": "speech", "text": "“Alone? Then those tracks behind you are all yours.”" }
+    ]
+  },
+  "slice.meeting.mistwood": {
+    "beats": [
+      { "kind": "speech", "text": "“You tread loudly.”" },
+      { "kind": "narration", "text": "{catName} is closer than you expected, watching from beside a tree." }
+    ]
+  }
+}
