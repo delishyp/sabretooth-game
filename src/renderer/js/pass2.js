@@ -284,5 +284,61 @@
     return { arrive, drink, beats: [narrate(arrive)].concat(drink ? [narrate(drink)] : []) };
   }
   const SCOUT = 'They remember the ford. A guard\'s eyes follow you longer than they need to.';
-  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, leaderMeeting, appearance, arrival, fill, lines };
+  function loadPass4() {
+    if (typeof require === 'function') {
+      try { return require('../data/events/pass-4-tracker.json'); } catch (e) { /* browser loads it below */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/pass-4-tracker.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) return JSON.parse(xhr.responseText);
+      } catch (e) { /* no pass 4 file: gossip beats are dropped */ }
+    }
+    return {};
+  }
+  const PASS4 = loadPass4() || {};
+  const PRIDE_NAME = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
+  function gossipPhrase(factId, runId) {
+    const phrases = PASS4.bug1_gossipPhrases || {};
+    let path = String(factId || '');
+    if (runId && path.indexOf(runId + '/') === 0) path = path.slice(runId.length + 1);
+    if (Object.prototype.hasOwnProperty.call(phrases, path) && path.charAt(0) !== '_') return phrases[path];
+    const keys = Object.keys(phrases);
+    for (let i = 0; i < keys.length; i++) {
+      const pat = keys[i];
+      if (pat.charAt(0) === '_') continue;
+      const star = pat.slice(-2) === '/*';
+      const body = star ? pat.slice(0, -1) : pat;
+      const parts = body.split('{pride}');
+      if (parts.length === 1 && !star) continue;
+      const head = parts[0];
+      if (path.indexOf(head) !== 0) continue;
+      if (parts.length === 1) {
+        if (!star || path.length <= head.length) continue;
+        return phrases[pat];
+      }
+      const rest = path.slice(head.length);
+      const slash = rest.indexOf('/');
+      const prideId = slash === -1 ? rest : rest.slice(0, slash);
+      const tail = slash === -1 ? '' : rest.slice(slash);
+      if (!prideId || !/^[A-Za-z0-9_]+$/.test(prideId)) continue;
+      const after = parts[1] || '';
+      if (star) {
+        if (tail.indexOf(after) !== 0 || tail.length <= after.length) continue;
+      } else if (tail !== after) continue;
+      const pride = PRIDE_NAME[prideId] || prideId;
+      return String(phrases[pat]).split('{pride}').join(pride);
+    }
+    return null;
+  }
+  function scoutStanding(standing, pride) {
+    const rows = PASS4.bug3_scoutStanding || {};
+    const key = standing >= 15 ? 'high_ge_15' : standing <= -15 ? 'low_le_minus_15' : 'middle';
+    const line = rows[key];
+    if (typeof line !== 'string' || !line) return null;
+    return line.split('{pride}').join(pride || '');
+  }
+  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, leaderMeeting, appearance, arrival, fill, lines, gossipPhrase, scoutStanding };
 });

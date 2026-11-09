@@ -88,12 +88,16 @@
     function gossipFact(s, npc) {
       if (!npc || npc.noPrideGossip) return null;
       const known = knowledge(s);
-      const id = Object.keys(known).find((factId) => {
+      const ids = Object.keys(known).filter((factId) => {
         const k = known[factId];
         if (!k) return false;
         return (k.prideIds || []).includes(npc.faction) || (k.participantIds || []).includes(npc.id) || (k.witnessIds || []).includes(npc.id) || (k.disclosedTo || []).includes(npc.id);
       });
-      return id || null;
+      for (let i = 0; i < ids.length; i++) {
+        const line = Pass2.gossipPhrase(ids[i], s.runId);
+        if (line) return { id: ids[i], line };
+      }
+      return null;
     }
     function learn(s, factId) {
       const k = knowledge(s)[factId];
@@ -110,9 +114,9 @@
       if (!present(s, npc, ctx)) return null;
       const beats = Pass2.openingBeats(row.kind, npc);
       const told = row.kind === 'ford_friend' ? gossipFact(s, npc) : null;
-      if (told) {
-        beats.push({ kind: 'speech', speaker: npc.name, text: Pass2.lines()['followups.js:gossipBeat'].replace('{fact}', told) });
-        learn(s, told);
+      if (told && told.line) {
+        beats.push({ kind: 'speech', speaker: npc.name, text: Pass2.lines()['followups.js:gossipBeat'].replace('{fact}', told.line) });
+        learn(s, told.id);
       }
       return {
         lone: true, followUp: true, eventId: `followup.${row.sourceEventId}.${row.choiceId}`,
@@ -168,7 +172,7 @@
         p.beatIndex = p.beats.length - 1;
       }
       p.choiceId = id;
-      p.resultLine = delta ? `Affinity ${delta > 0 ? '+' : ''}${delta}` : '';
+      p.resultLine = '';
       s.phase = 'eventResult';
       return { ok: true, delta, choiceId: id, memberShare: id === 'take_share' };
     }

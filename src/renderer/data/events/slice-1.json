@@ -799,12 +799,27 @@
         },
         {
           "kind": "speech",
-          "when": {
-            "trait": "sociability",
-            "band": "baseline",
-            "who": "npc"
-          },
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "high", "who": "npc" }
+          ],
+          "text": "\"Just you, then.\" {catName} looks you over, unhurried, from ears to bobtail. \"Good. I don't like being outnumbered on my own trail.\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "baseline", "who": "npc" }
+          ],
           "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "low", "who": "npc" }
+          ],
+          "text": "\"Are you…\" {catName} swallows and tries again, quieter. \"Are you on your own? I don't want any trouble.\""
         },
         {
           "kind": "speech",

@@ -167,7 +167,7 @@ test('at most one approach a day, gossip uses a real fact, and a promise is reco
   const prose = opened.pending.beats.map((b) => b.text).join('\n');
   assert.ok(!prose.includes('PLACEHOLDER'));
   assert.ok(prose.includes('matters to'));
-  assert.ok(prose.includes(factId));
+  assert.ok(!prose.includes(factId));
   assert.ok(!prose.includes('invented'));
   assert.ok(!prose.includes(playerFact));
   const affinity = opened.npcs[found.id].affinity;

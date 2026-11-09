@@ -47,7 +47,7 @@ function advance(s) {
     return act(s, { type: 'choose', choiceId: c.id, nodeId: v.nodeId, instanceId: v.instanceId });
   }
   if (s.phase === 'event') {
-    if (s.pending && s.pending.cub) return act(s, { type: 'choose', choiceId: 'guide' });
+    if (s.pending && s.pending.cub) return act(s, { type: 'sceneChoose', choiceId: 'guide' });
     if (s.pending && s.pending.bond) {
       const c = (s.pending.choices || []).find((x) => !x.disabled);
       if (c) return act(s, { type: 'choose', choiceId: c.id });
@@ -74,7 +74,7 @@ test('seed 8 starts with several real choices, including watch and a border scou
   assert.ok(av.lone.scout.some((row) => row.pride === 'bonefield'));
   assert.ok(av.lone.cub);
   assert.ok(av.scent.allowed);
-  assert.strictEqual(av.approach, null);
+  assert.ok(av.approach && av.approach.allowed, 'wait for a cat is offered even when nobody is close enough to come');
   const meaningful = [av.hunt, av.lone.watch, av.lone.scout[0], av.lone.cub, av.scent].filter(Boolean);
   assert.ok(meaningful.length >= 4);
 });
@@ -85,10 +85,21 @@ test('seed 8 Ravenmark: two approaches, a hyena or its follow-up, and the empty 
   let wind = 0;
   let hyena = false;
   let follow = false;
+  let cubHelp = false;
+  let sparOffered = false;
+  const dayMenus = new Set();
   const reports = [];
+  const factPath = /[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+){2,}|[A-Za-z0-9_.]+\/[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+)+/;
   for (let i = 0; i < 160 && s.day <= 10 && !s.over; i++) {
-    const text = ((s.pending && s.pending.beats) || []).map((b) => b.text).filter(Boolean).join(' ');
+    const beats = ((s.pending && s.pending.beats) || []).map((b) => b.text).filter(Boolean);
+    const text = beats.join(' ');
     if (text.includes(WIND)) wind += 1;
+    if (text.includes('walk beside it')) cubHelp = true;
+    for (const line of beats) {
+      assert.ok(!factPath.test(line), line);
+      assert.ok(!/\d/.test(line), line);
+    }
+    if (s.pending && s.pending.resultLine) assert.ok(!/Affinity/.test(s.pending.resultLine), s.pending.resultLine);
     if (s.pending && s.pending.eventId === 'lone.approach' && s.pending.catId) visits.add(s.day);
     if (s.phase === 'encounter' && E.encounterView(s) && E.encounterView(s).encounterId === 'encounter.cave_hyena.v1') hyena = true;
     if (s.pending && String(s.pending.eventId || '').startsWith('followup.')) follow = true;
@@ -99,6 +110,9 @@ test('seed 8 Ravenmark: two approaches, a hyena or its follow-up, and the empty 
     if (stepped) { s = stepped; continue; }
     const av = E.available(s);
     if (av.forced) { s = act(s, { type: 'forced' }); continue; }
+    dayMenus.add(s.day);
+    assert.ok(av.approach, `day ${s.day} hid wait-for-a-cat`);
+    if ((av.lone.spar || []).length) sparOffered = true;
     const mother = s.npcs.bf04;
     if ((av.lone.share || []).some((row) => row.id === 'bf04') && mother.affinity < 20) {
       s = act(s, { type: 'shareKill', catId: 'bf04' });
@@ -121,6 +135,9 @@ test('seed 8 Ravenmark: two approaches, a hyena or its follow-up, and the empty 
   assert.ok(visits.size >= 2, `approaches ${[...visits].join(',')}`);
   assert.ok(hyena || follow, 'hyena or a follow-up');
   assert.ok(wind < 2, `empty wait showed ${wind} times`);
+  assert.ok(cubHelp, 'the cub help scene did not render');
+  assert.ok(sparOffered, 'spar was never offered');
+  for (let day = 1; day <= 10; day++) assert.ok(dayMenus.has(day), `no day menu on day ${day}`);
   for (const line of reports) {
     assert.ok(!/% chance/.test(line), line);
     assert.ok(!/Hunger \+/.test(line), line);

@@ -19,7 +19,8 @@ const PHRASES = [
   /states the limit/i,
   /lets you leave if/i,
   /the limit is/i,
-  /% chance/i
+  /% chance/i,
+  /[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+){2,}|[A-Za-z0-9_.]+\/[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+)+/
 ];
 
 function files(dir, out = []) {

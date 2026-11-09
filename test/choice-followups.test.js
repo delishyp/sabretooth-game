@@ -126,7 +126,7 @@ test('sharing the foal needs today\'s kill and pays the existing +10 once', () =
   assert.strictEqual(ready.pending.huntReady, true);
   const shared = E.act(ready, { type: 'choose', choiceId: 'share' }).state;
   assert.strictEqual(shared.npcs.ln01.affinity, 10);
-  assert.strictEqual(shared.pending.resultLine, 'Affinity +10');
+  assert.strictEqual(shared.pending.resultLine, '');
   const loaded = E.migrate(JSON.parse(JSON.stringify(shared)));
   assert.strictEqual(loaded.npcs.ln01.affinity, 10);
   assert.strictEqual(E.act(loaded, { type: 'choose', choiceId: 'share' }).error, 'duplicate');

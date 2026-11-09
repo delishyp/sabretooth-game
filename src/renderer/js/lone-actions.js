@@ -326,11 +326,7 @@
     return null;
   }
   function speakableFact(s, factId) {
-    const fact = ((s.worldMemory && s.worldMemory.facts) || []).find((row) => row.factId === factId);
-    if (!fact) return null;
-    if (typeof fact.gossip === 'string' && fact.gossip) return fact.gossip;
-    if (typeof fact.summary === 'string' && fact.summary) return fact.summary;
-    return null;
+    return Pass2.gossipPhrase(factId, s && s.runId);
   }
   function peekApproach(s, opts) {
     if (usedDay(s, 'approach')) return null;
@@ -357,7 +353,7 @@
       kind = openerKind(picked);
       beats.push({ kind: 'narration', speaker: 'npc', text: OPENERS[kind] || OPENERS.baseline });
       facts = knownFacts(s, picked.id, opts.knowsFact || (() => false));
-      const told = facts.map((id) => speakableFact(s, id) || id).find(Boolean);
+      const told = facts.map((id) => speakableFact(s, id)).find(Boolean);
       if (told) {
         beats.push({ kind: 'speech', speaker: picked.name, text: Pass2.lines()['lone-actions.js:gossipBeat'].replace('{fact}', told) });
       }
@@ -517,14 +513,15 @@
     const summary = `${npc.name} was headed toward ${opts && opts.regionName ? opts.regionName(next) : next}.`;
     rememberFact(s, factId, { kind: 'route', summary, participants: ['player', catId], skill: 'trailReading', xpOutcome: spotted ? 4 : 10, xpGranted: false });
     const text = fillTokens(LINES[spotted ? 'shadow.caught' : 'shadow.success'], { name: npc.name });
-    return { event: sceneEvent('lone.shadow', 'Following', text, { catId, resultLine: delta ? 'Affinity −5' : '' }) };
+    return { event: sceneEvent('lone.shadow', 'Following', text, { catId, resultLine: '' }) };
   }
-  function sparTargets(s) {
+  function sparTargets(s, opts) {
     return Object.values(s.npcs || {}).filter((npc) => {
       if (!npc || npc.dead || !npc.met) return false;
       if (npc.stage !== 'adult') return false;
       if ((npc.affinity || 0) < 20) return false;
       if (isRival(npc)) return false;
+      if (!zoneBand(npc, s, opts || {})) return false;
       if ((s.injuries || []).length || (npc.injuries || []).length) return false;
       if ((s.needs.energy || 0) < 25) return false;
       return true;
@@ -533,7 +530,7 @@
   function beginSpar(s, catId, opts) {
     if (usedDay(s, 'spar')) return { error: 'duplicate' };
     const npc = s.npcs[catId];
-    if (!npc || !sparTargets(s).some((row) => row.id === catId)) return { error: 'target' };
+    if (!npc || !sparTargets(s, opts).some((row) => row.id === catId)) return { error: 'target' };
     const paid = fieldCost(s);
     if (paid.error) return paid;
     mark(s, 'spar', catId);
@@ -552,7 +549,7 @@
       participants: ['player', catId], skill: 'saberStrike', xpOutcome: fought.won ? 10 : 4, xpGranted: false
     });
     const text = fillTokens(LINES[fought.won ? 'spar.win' : 'spar.lose'], { name: npc.name });
-    return { event: sceneEvent('lone.spar', 'Play-fight', text, { catId, resultLine: delta ? 'Affinity +5' : '' }) };
+    return { event: sceneEvent('lone.spar', 'Play-fight', text, { catId, resultLine: '' }) };
   }
   function adjacentPrides(s, opts) {
     const here = opts.ownership(s.region);
@@ -581,7 +578,8 @@
     if (leader) lines.push(`${leader.name} is at ${opts.regionName(leader.lastRegion || den || s.region)}.`);
     if (den) lines.push(`Prey on their land looks ${preyWord(opts.preyValue(den))}.`);
     const standing = (opts.standing && opts.standing(pride)) || 0;
-    lines.push(`${name}'s standing toward you is ${standing}.`);
+    const standingLine = Pass2.scoutStanding(standing, name);
+    if (standingLine) lines.push(standingLine);
     const feud = opts.feud && opts.feud(pride);
     if (feud) lines.push(feud);
     let warning = false;
@@ -698,7 +696,7 @@
       const factId = `${s.runId || ''}/cub/${p.cubId}`;
       rememberFact(s, factId, { kind: 'pride_aid', summary: `You walked a cub back to ${mother.name}.`, participants: ['player', mother.id, p.cubId], prideIds: [p.pride], skill: 'grooming', xpOutcome: 10, xpGranted: false });
       p.beats = (p.beats || []).concat([{ kind: 'narration', text: fillTokens(LINES['cub.help'], { mother: mother.name }) }]);
-      p.resultLine = 'Affinity +10';
+      p.resultLine = '';
       p.prideDelta = 5;
     } else {
       p.beats = (p.beats || []).concat([{ kind: 'narration', text: LINES['cub.leave'] }]);
@@ -724,7 +722,7 @@
     npc.met = true;
     return {
       ok: true, delta: 10,
-      event: sceneEvent('lone.share', 'The kill', fillTokens(LINES.share, { name: npc.name }), { catId, resultLine: 'Affinity +10' })
+      event: sceneEvent('lone.share', 'The kill', fillTokens(LINES.share, { name: npc.name }), { catId, resultLine: '' })
     };
   }
   function watchText() {
@@ -737,11 +735,11 @@
       watch: s.phase === 'day' && !s.travel && !s.forced ? { allowed: true } : null,
       scout: adjacentPrides(s, opts),
       shadow: shadowTargets(s, opts),
-      spar: sparTargets(s),
+      spar: sparTargets(s, opts),
       steal: stealOffer(s, opts),
       cub: cubOffer(s, opts),
       share: shareTargets(s, opts),
-      approach: approachIds.length ? { allowed: !usedDay(s, 'approach'), ids: approachIds } : null
+      approach: s.phase === 'day' && !s.travel && !s.forced ? { allowed: !usedDay(s, 'approach'), ids: approachIds } : null
     };
   }
   function sceneEvent(eventId, title, text, extra) {

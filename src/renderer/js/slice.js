@@ -520,7 +520,7 @@
         if (picked.memberShare) shareKill(s, rep);
         return { state: s };
       }
-      if (s.phase === 'event' && s.pending && s.pending.cub && action.type === 'choose') {
+      if (s.phase === 'event' && s.pending && s.pending.cub && (action.type === 'choose' || action.type === 'sceneChoose')) {
         const resolved = Lone.resolveCub(s, action.choiceId);
         if (resolved.error) return { state: s0, error: resolved.error };
         if (resolved.delta && resolved.pride) {
@@ -536,9 +536,10 @@
         const ev = s.pending;
         ev.cub = false;
         ev.choices = [];
-        s.pending = null;
-        s.phase = 'day';
-        endDay(s, [], { action: 'helpCub', rested: false, slotTaken: true, forcedEvent: ev });
+        ev.settleDay = true;
+        ev.beatIndex = Math.max(0, (ev.beats || []).length - 1);
+        ev.resultLine = '';
+        s.phase = 'eventResult';
         return { state: s };
       }
       if (s.phase === 'event' && action.type === 'sceneChoose') {
@@ -567,8 +568,10 @@
           s.phase = 'event';
           return { state: s };
         }
+        const settle = s.pending && s.pending.settleDay;
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
+        else if (settle) endDay(s, [], { action: 'helpCub', rested: false, slotTaken: true });
         else if (s.phase === 'day' && !WM.considerFord(s) && !WM.considerRelay(s)) offerMeadow(s);
         return { state: s };
       }
@@ -718,7 +721,13 @@
     }
     function passers(s) {
       const near = new Set([s.region].concat(W.neighbours(s.region)));
-      return Object.values(s.npcs || {}).filter((n) => n && !n.dead && (n.stage === 'adult' || n.stage === 'elder') && (n.homeZones || []).some((zone) => near.has(zone)));
+      const own = W.ownership(s.map.claims, s.region);
+      return Object.values(s.npcs || {}).filter((n) => {
+        if (!n || n.dead || (n.stage !== 'adult' && n.stage !== 'elder')) return false;
+        if ((n.homeZones || []).some((zone) => near.has(zone))) return true;
+        if (n.visit && n.visit.region === s.region && s.day <= n.visit.until) return true;
+        return !!(n.faction && n.faction !== 'loner' && own.state === 'held' && own.holder === n.faction);
+      });
     }
     function offerMeadow(s) {
       if (s.phase !== 'day' || s.region !== 'horse_meadows' || s.pending) return false;
@@ -964,7 +973,7 @@
       p.choiceId = c.id;
       if (p.catId) {
         const d = applyIntent(s, p.catId, c.affinityIntent, p.day);
-        if (d) p.resultLine = `Affinity ${d > 0 ? '+' : ''}${d}`;
+        if (d) p.resultLine = '';
         if (s.worldMemory) WM.notePersonal(s, { catId: p.catId, delta: d, receiptKey: `${s.runId || ''}/intent/${p.catId}/${p.eventId}/${c.id}/${p.day}`, sourceType: 'conversation_outcome', scope: 'private' });
       }
       log(s, fill(c.summary || e.summary, { catName: p.catName }));
