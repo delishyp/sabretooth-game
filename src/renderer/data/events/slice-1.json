@@ -738,6 +738,84 @@
       "cast": "adult_or_elder",
       "oncePerPair": true,
       "title": "Another solitary trail",
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "A scent crosses yours on the trail: a lone cat, with no pride-smell on {him}, only dust and old kills. Then {catName} steps out where the two trails meet."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "aggression",
+            "band": "high",
+            "who": "npc"
+          },
+          "text": "{catName} stops square in the path, shoulders bunched, and lets you see the full length of {his} sabers."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "aggression",
+            "band": "baseline",
+            "who": "npc"
+          },
+          "text": "{catName} stops a few lengths off and goes very still, weighing you up."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "aggression",
+            "band": "low",
+            "who": "npc"
+          },
+          "text": "{catName} stops short and half-turns away, ready to give ground if this goes badly."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "curiosity",
+            "band": "high",
+            "who": "npc"
+          },
+          "text": "{His} nose works at the air between you, sorting through every place you've been."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "boldness",
+            "band": "low",
+            "who": "npc"
+          },
+          "text": "{His} eyes keep flicking to the brush on either side, as if {he} expects something else to come out of it."
+        },
+        {
+          "kind": "speech",
+          "when": {
+            "trait": "sociability",
+            "band": "high",
+            "who": "npc"
+          },
+          "text": "\"Another cat on {his} own!\" {catName}'s stubby tail flicks up. \"I was starting to think I was the only one out here. Is it just you?\""
+        },
+        {
+          "kind": "speech",
+          "when": {
+            "trait": "sociability",
+            "band": "baseline",
+            "who": "npc"
+          },
+          "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\""
+        },
+        {
+          "kind": "speech",
+          "when": {
+            "trait": "sociability",
+            "band": "low",
+            "who": "npc"
+          },
+          "text": "\"Keep walking.\" {catName} won't quite look at you. \"I didn't come out here for company.\""
+        }
+      ],
       "text": "{catName} stops where your paths cross. For a moment, both of you look behind the other for companions.",
       "summary": "You met {catName}.",
       "choices": [

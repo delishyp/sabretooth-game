@@ -84,12 +84,13 @@ test('player-visible text does not contain spec or author notes', () => {
   assert.deepStrictEqual(bad.map((row) => `${row.at}: ${row.text}`), []);
 });
 
-test('the wolf card cost is Saga\'s line, and the ford boundary actions use the leak-fix cues', () => {
-  const leak = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/narrative/leak-fix-v1.json'), 'utf8'));
+test('the wolf card cost is Saga\'s line, and the ford boundary actions use her cues', () => {
+  const pass3 = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/narrative/pass-3-loner-meeting-and-nits.json'), 'utf8'));
   const screen = fs.readFileSync(path.join(ROOT, 'src/renderer/js/game-screen.js'), 'utf8');
-  const wolf = leak['game-screen.js:encounterCost'].wolf;
+  const wolf = pass3['B_encounterCost.wolf'];
   assert.ok(screen.includes(wolf));
   assert.ok(!screen.includes('The pack lets you leave if you give ground.'));
+  assert.ok(!screen.includes("If you withdraw, the wolves may still give chase."));
   const tree = fs.readFileSync(path.join(ROOT, 'src/renderer/js/encounter.js'), 'utf8')
     + fs.readFileSync(path.join(DATA, 'events/encounters-v0.2.json'), 'utf8')
     + fs.readFileSync(path.join(DATA, 'menu-copy.json'), 'utf8');
@@ -99,10 +100,8 @@ test('the wolf card cost is Saga\'s line, and the ford boundary actions use the 
   const conv = JSON.parse(fs.readFileSync(path.join(DATA, 'events/recurring-conversation.json'), 'utf8'));
   const ford = JSON.parse(fs.readFileSync(path.join(DATA, 'events/faction-proof-reconciled.json'), 'utf8')).fordStory.speechLocations;
   const cues = conv.personalityCoverage.contextActions.boundary;
-  const authored = leak['recurring-conversation.json'].boundary;
-  for (const trait of Object.keys(authored)) {
-    assert.deepStrictEqual(cues[trait], authored[trait].map((line) => line.replace(/\btheir\b/g, '{his}').replace(/\bthem\b/g, '{him}')));
-  }
+  const authored = pass3['C_recurring-conversation.json.contextActions.boundary'];
+  assert.deepStrictEqual(cues, authored);
   for (const [id, row] of Object.entries(ford)) {
     if (row.context !== 'boundary') continue;
     for (const band of ['high', 'low']) {

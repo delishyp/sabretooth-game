@@ -1231,24 +1231,24 @@
       },
       "boundary": {
         "aggression": [
-          "{catName}'s fur lifts along the spine. The answer is not going to change.",
-          "{catName} lowers {his} head and steps back, refusing to make it a fight."
+          "{catName}'s hackles rise, and claws slide out against the stone.",
+          "{catName} drops that heavy head and steps back, claws sheathed."
         ],
         "sociability": [
-          "{catName} stays close even now; being fond of you doesn't move the line.",
-          "{catName} pulls away, putting cold air between you."
+          "{catName} stays close enough to touch, and still doesn't budge.",
+          "{catName} turns side-on, putting cold air between you."
         ],
         "boldness": [
-          "{catName} meets your eyes and holds {him} while saying no.",
-          "{catName} says it to the ground between your paws, but says it all the same."
+          "{catName} stares straight at you and doesn't blink.",
+          "{catName}'s gaze drops to your paws, but the words still come."
         ],
         "loyalty": [
-          "{catName} watches you closely, waiting to see if you'll honour what was said.",
-          "{catName} shrugs it off as if it were only about today."
+          "{catName}'s eyes stay fixed on yours, measuring you.",
+          "{catName} flicks an ear, as if none of it matters past today."
         ],
         "curiosity": [
-          "{catName} waits, clearly wanting to hear how you'll answer this.",
-          "{catName} turns {his} head away. The subject is closed."
+          "{catName} tilts that broad head, waiting to hear what you'll say.",
+          "{catName} looks off toward the trees. That's the end of it."
         ]
       },
       "return": {
