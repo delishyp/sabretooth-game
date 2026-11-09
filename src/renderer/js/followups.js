@@ -111,7 +111,7 @@
       const beats = Pass2.openingBeats(row.kind, npc);
       const told = row.kind === 'ford_friend' ? gossipFact(s, npc) : null;
       if (told) {
-        beats.push({ kind: 'speech', speaker: npc.name, text: `${npc.name} tells you what ${npc.sex === 'female' ? 'she' : 'he'} knows, and nothing past it.` });
+        beats.push({ kind: 'speech', speaker: npc.name, text: Pass2.lines()['followups.js:gossipBeat'].replace('{fact}', told) });
         learn(s, told);
       }
       return {

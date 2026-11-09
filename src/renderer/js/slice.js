@@ -974,11 +974,10 @@
       if (!hunt) return null;
       const resultLine = huntNumbers(hunt);
       if (hunt.foal) {
-        const id = hunt.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail';
-        const extra = beatsByEvent[id];
+        const prose = Pass2.lines()['slice.js:foalResult'][hunt.ok ? 'ok' : 'fail'];
         return {
-          eventId: id, title: 'The hunt',
-          beats: extra && extra.beats ? extra.beats.map((b) => Object.assign({}, b)) : [{ kind: 'narration', text: hunt.ok ? 'You caught the foal.' : 'The foal got away.' }],
+          eventId: hunt.ok ? 'voice.hunt.foal.ok' : 'voice.hunt.foal.fail', title: 'The hunt',
+          beats: [{ kind: 'narration', text: prose }],
           beatIndex: 0, choices: [], lone: true, voice: true, filler: true, summary: resultLine, resultLine, day: s.day
         };
       }
@@ -1079,8 +1078,17 @@
     function presentDay(s, rep, ev) {
       return withArrival(s, rep, attachVoiceHunt(s, rep, ev));
     }
-    function watchScene(s) {
-      const beats = Pass2.meadow().watch;
+    function watchScene(s, line) {
+      const pack = Pass2.lines()['slice.js:watchSighting'];
+      const beats = [{ kind: 'narration', text: Pass2.lines()['slice.js:horses'].watch_result }];
+      const cats = (line && line.cats) || [];
+      if (!cats.length) beats.push({ kind: 'narration', text: pack.none });
+      else cats.forEach((cat) => {
+        const npc = s.npcs[cat.id] || { name: cat.name, sex: 'male' };
+        const words = npc.sex === 'female' ? { he: 'she', his: 'her', He: 'She' } : { he: 'he', his: 'his', He: 'He' };
+        const text = String(pack[cat.doing] || pack['crossing the hillside']).replace(/\{(\w+)\}/g, (m, k) => (k === 'catName' ? npc.name : words[k] || m));
+        beats.push({ kind: 'narration', text });
+      });
       return {
         eventId: 'action.watch', title: 'The hillside', filler: true, voice: true, lone: true,
         beats, beatIndex: 0, choices: [], summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
@@ -1090,7 +1098,7 @@
       if (s.dead) return null;
       if ((rep || []).some((l) => l.k === 'hunt')) return plainHuntScene(s, rep);
       const watch = (rep || []).find((l) => l.k === 'watch');
-      if (watch) return watchScene(s);
+      if (watch) return watchScene(s, watch);
       return arrivalFallbackScene(s, rep) || dayFiller(s, rep);
     }
     function beatContext(s) {

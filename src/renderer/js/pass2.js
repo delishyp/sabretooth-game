@@ -44,34 +44,117 @@
     if (v <= 30) return 'low';
     return 'baseline';
   }
+  const DENY = /absent|not present|unavailable|not reproduced|unverified|differs|not exact|replaced|not verified/;
+  const DETAIL = {
+    silverMuzzle: /silver/,
+    tornLip: /torn lip|split-lip|split lip/,
+    scarred: /scar/,
+    elder: /aging/,
+    markings: /stripe|spot|rosette|brindle|blaze|marking/,
+    coat: /coat/,
+    eyes: /eye/,
+    saberColor: /saber/
+  };
   function appearance(npc) {
     const look = (npc && npc.look) || {};
     const scars = [].concat(npc && npc.scars || [], look.scars || []).map((s) => String(s).toLowerCase());
     const blob = [look.coat, look.markings, look.muzzle, look.age].concat(scars).join(' ').toLowerCase();
+    const flags = ((npc && npc.portraitPresentation && npc.portraitPresentation.mismatchFlags) || []).map((f) => String(f).toLowerCase());
+    const unavailable = flags.some((f) => f.includes('fixed appearance unavailable'));
+    const confirmed = (npc && npc.portraitPresentation && npc.portraitPresentation.details) || [];
+    const portraitHas = (detail) => {
+      if (unavailable) return false;
+      const needle = DETAIL[detail];
+      if (needle && flags.some((f) => needle.test(f) && DENY.test(f))) return false;
+      return confirmed.includes(detail);
+    };
+    const both = (detail, saved) => !!(saved && portraitHas(detail));
     return {
-      silverMuzzle: look.silverMuzzle === true || look.muzzle === 'silver' || /silver muzzle/.test(blob),
-      scarred: look.scarred === true || scars.some((s) => /scar/.test(s)) || /\bscar/.test(blob),
-      tornLip: look.tornLip === true || scars.some((s) => /torn lip/.test(s)) || /torn lip/.test(blob),
-      elder: !!(npc && (npc.stage === 'elder' || npc.lifeStage === 'elder' || look.age === 'elder'))
+      silverMuzzle: both('silverMuzzle', look.silverMuzzle === true || look.muzzle === 'silver' || /silver muzzle/.test(blob) || /silver mane/.test(blob)),
+      scarred: both('scarred', look.scarred === true || scars.some((s) => /scar/.test(s))),
+      tornLip: both('tornLip', look.tornLip === true || scars.some((s) => /torn lip/.test(s) || /split lip/.test(s))),
+      elder: both('elder', !!(npc && (npc.stage === 'elder' || npc.lifeStage === 'elder' || look.age === 'elder')))
     };
   }
   function narrate(text) { return { kind: 'narration', text }; }
   function say(text) { return { kind: 'speech', text }; }
 
+  const LINES = {
+    "followups.js:opener": {
+      "ford_friend": "{catName} spots you from a distance and comes straight over, without the usual wary circling. “You stood with me at the ford. I haven't forgotten.”",
+      "ford_cold": "{catName}'s ears flatten the moment your scent arrives. “The ford. You chose your side.”",
+      "ford_stay": "{catName} looks you over, unimpressed. “You stood there and watched us at the ford. Why didn't you pick a side?”",
+      "foal_hit": "“I saw you take that foal at the meadows.” {catName}'s eyes are bright. “You came out of the grass like a rockfall.”",
+      "foal_miss": "{catName}'s whiskers twitch with laughter. “I saw the foal get away from you. Those long legs fool everyone once.”",
+      "hillside": "“You were on the hillside yesterday.” {catName} tilts {his} head. “I felt eyes on me all the way across the meadow.”",
+      "hyena_drive": "{catName} greets you with a low chuff, the kind kept for pride-mates. “The hyena. I keep thinking about how you went at it. Most loners would have waited for scraps.”",
+      "hyena_share": "{catName} greets you with a low chuff, the kind kept for pride-mates. “You drove off that hyena, and then you shared. Highcrag remembers manners as well as courage.”",
+      "hyena_leave": "{catName} doesn't come any closer. “You watched, and you did nothing.”",
+      "default": "{catName} stops when {he} sees you. The look says {he} remembers exactly what you chose."
+    },
+    "followups.js:gossipBeat": "{catName} lowers {his} voice and glances over {his} shoulder. “{fact}”",
+    "followups.js:relayBeat": "“I'll tell our leader what I saw. Whether that's enough to get you heard is the leader's choice, not mine.”",
+    "followups.js:choices": {
+      "listen": "Listen.",
+      "honest_limit": "“I can't promise I'll always be near.”",
+      "leave": "Walk away.",
+      "explain": "“It wasn't about your pride.”",
+      "repair": "“I'd like to make it right.”",
+      "neutral": "“It wasn't my fight.”",
+      "ask_what_happened": "“What's really between your prides?”",
+      "share": "Push today's kill toward {catName}.",
+      "talk": "Stay and talk.",
+      "take_share": "Take your share of the pride's kill."
+    },
+    "lone-actions.js:approachOpeners": {
+      "sociable": "{catName} trots over with {his} tail high, already talking before {he}'s close enough to hear properly.",
+      "rival": "{catName} walks straight at you and stops a whisker too close, sabers level with your eyes. {He} doesn't blink.",
+      "loyal": "{catName} comes to you quickly and quietly, with a glance back the way {he} came. Whatever this is, it matters to {him}.",
+      "curious": "{catName} circles once, sniffing the air around you, ears pricked. Clearly {he} has a question.",
+      "baseline": "{catName} comes as far as the edge of your scent and stops there, waiting to see what you'll do."
+    },
+    "lone-actions.js:noApproach": "You wait while the light shifts across the ground. No cat comes to you today, only the wind.",
+    "lone-actions.js:gossipBeat": "{catName} leans closer, and {npcHe} drops {his} voice. “{fact}”",
+    "lone-actions.js:summary": {
+      "accepted": "You gave your word. {catName} will be waiting to see if you keep it.",
+      "passed_on": "You passed on what you knew, and {catName} tucked it away.",
+      "listen": "You listened, and made no promises.",
+      "leave": "You let it lie and went your own way."
+    },
+    "slice.js:horses": {
+      "beats": [
+        "The meadow grass is cropped short and sweet-smelling, and the wind brings you horse long before you see them: dung, sweat, the green breath of chewed stems.",
+        "A herd grazes downslope. One mare lifts her head, then another, until every long face is turned toward your hillside.",
+        "Near the edge, a foal has wandered after a patch of clover, a few lengths from its mother. Its legs are still too long for it."
+      ],
+      "stalk_foal": "Stalk the foal.",
+      "watch_herd": "Settle on the rise and watch.",
+      "move_on": "Leave them be.",
+      "move_on_result": "You turn away. Behind you, the mares go back to grazing as if you were never there.",
+      "watch_result": "You fold your paws under you on the warm rise. The herd drifts, the clouds drift, and the valley passes beneath you."
+    },
+    "slice.js:foalResult": {
+      "ok": "Three bounds, and the grass whips your face. The foal is only starting to turn when your weight takes it down. Afterwards you eat crouched low, ears turning to every sound. A kill out in the open draws company fast.",
+      "fail": "A stem snaps under your hind paw, louder than any stem has a right to be. The foal squeals and bolts for the herd, and the mares are already wheeling to meet it. You're left in the flattened grass with an empty belly."
+    },
+    "slice.js:watchSighting": {
+      "on their own ground": "Below you, {catName} moves along {his} own trails, unhurried, marking a stone as {he} passes.",
+      "crossing the hillside": "{catName} crosses the hillside below, quick and low, glancing back once as if feeling watched.",
+      "none": "No cat crosses the slope today. Only the herd moves, slow as cloud-shadow."
+    }
+  };
+  function lines() { return LINES; }
   function meadow() {
+    const horses = LINES['slice.js:horses'];
     return {
-      beats: [
-        narrate('The meadow grass is cropped short and sweet-smelling, and the wind brings you horse long before you see them: dung, sweat, the green breath of chewed stems.'),
-        narrate('A herd grazes downslope. One mare lifts her head, then another, until every long face is turned toward your hillside.'),
-        narrate('Near the edge, a foal has wandered after a patch of clover, a few lengths from its mother. Its legs are still too long for it.')
-      ],
+      beats: horses.beats.map(narrate),
       choices: [
-        { id: 'stalk_foal', label: 'Stalk the foal.' },
-        { id: 'watch_herd', label: 'Settle on the rise and watch.' },
-        { id: 'move_on', label: 'Leave them be.' }
+        { id: 'stalk_foal', label: horses.stalk_foal },
+        { id: 'watch_herd', label: horses.watch_herd },
+        { id: 'move_on', label: horses.move_on }
       ],
-      watch: [narrate('You fold your paws under you on the warm rise. The herd drifts, the clouds drift, and the whole valley seems to pass beneath you, cat by cat.')],
-      moveOn: [narrate('You turn away. Behind you, the mares go back to grazing as if you were never there.')]
+      watch: [narrate(horses.watch_result)],
+      moveOn: [narrate(horses.move_on_result)]
     };
   }
   function foalOpener(npc) {
@@ -99,20 +182,12 @@
     if (kind === 'hyena_leave') return narrate(`${name} doesn't come closer.`);
     return say('The cat remembers what you chose.');
   }
-  function openingBeats(kind, npc) {
-    const name = npc && npc.name || 'A cat';
-    const first = opener(kind, npc);
-    if (kind === 'ford_friend') {
-      return [first, say('“You stood with me at the ford. I haven\'t forgotten.”')];
-    }
-    if (kind === 'ford_cold') return [first, say('“The ford. You chose your side.”')];
-    if (kind === 'hyena_drive' || kind === 'hyena_share') {
-      const beats = [first, say('“The hyena. I keep thinking about how you came at it. Most loners would have waited for scraps.”'), say('“I\'ll tell our leader what I saw. Whether that\'s enough to get you heard is for the leader to decide.”')];
-      if (kind === 'hyena_share') beats.push(say('“And you shared. Highcrag remembers manners as well as courage.”'));
-      return beats;
-    }
-    if (kind === 'hyena_leave') return [first, say('“You watched, and you did nothing.”')];
-    return [first];
+  function openingBeats(kind) {
+    const openers = LINES['followups.js:opener'];
+    const text = openers[kind] || openers.default;
+    const beats = [{ kind: 'speech', text }];
+    if (kind === 'hyena_drive' || kind === 'hyena_share') beats.push({ kind: 'speech', text: LINES['followups.js:relayBeat'] });
+    return beats;
   }
   function reply(kind, choiceId, npc) {
     const name = npc && npc.name || 'A cat';
@@ -129,46 +204,41 @@
     }
     return null;
   }
+  function choiceLabel(id) { return LINES['followups.js:choices'][id] || id; }
   function choices(kind, ctx) {
+    const label = choiceLabel;
     if (kind === 'ford_friend' || kind === 'hyena_drive') {
       return [
-        { id: 'listen', label: '“You can ask me now.”' },
-        { id: 'honest_limit', label: '“I like this, but I cannot always stay.”' },
-        { id: 'leave', label: 'Leave it there.' }
+        { id: 'listen', label: label('listen') },
+        { id: 'honest_limit', label: label('honest_limit') },
+        { id: 'leave', label: label('leave') }
       ];
     }
-    if (kind === 'ford_cold') {
+    if (kind === 'ford_cold' || kind === 'hyena_leave') {
       return [
-        { id: 'explain', label: '“It wasn\'t about your pride.”' },
-        { id: 'repair', label: '“I pushed. That was not fair. We can leave it there.”' },
-        { id: 'leave', label: 'Leave.' }
-      ];
-    }
-    if (kind === 'hyena_leave') {
-      return [
-        { id: 'explain', label: '“I didn\'t know if I could win.”' },
-        { id: 'repair', label: '“I pushed. That was not fair. We can leave it there.”' },
-        { id: 'leave', label: 'Leave.' }
+        { id: 'explain', label: label('explain') },
+        { id: 'repair', label: label('repair') },
+        { id: 'leave', label: label('leave') }
       ];
     }
     if (kind === 'ford_stay') {
       return [
-        { id: 'neutral', label: '“It wasn\'t my fight.”' },
-        { id: 'ask_what_happened', label: '“What\'s really between your prides?”' },
-        { id: 'leave', label: 'Leave.' }
+        { id: 'neutral', label: label('neutral') },
+        { id: 'ask_what_happened', label: label('ask_what_happened') },
+        { id: 'leave', label: label('leave') }
       ];
     }
-    if (kind === 'foal_hit') return [{ id: 'share', label: 'Share today\'s kill.', needsKill: true }, { id: 'talk', label: 'Talk.' }];
-    if (kind === 'foal_miss' || kind === 'hillside') return [{ id: 'talk', label: 'Talk.' }, { id: 'leave', label: 'Leave.' }];
+    if (kind === 'foal_hit') return [{ id: 'share', label: label('share'), needsKill: true }, { id: 'talk', label: label('talk') }];
+    if (kind === 'foal_miss' || kind === 'hillside') return [{ id: 'talk', label: label('talk') }, { id: 'leave', label: label('leave') }];
     if (kind === 'hyena_share') {
       const rows = [
-        { id: 'listen', label: '“You can ask me now.”' },
-        { id: 'leave', label: 'Leave it there.' }
+        { id: 'listen', label: label('listen') },
+        { id: 'leave', label: label('leave') }
       ];
-      if (ctx && ctx.memberShare) rows.unshift({ id: 'take_share', label: 'Take the pride\'s share.' });
+      if (ctx && ctx.memberShare) rows.unshift({ id: 'take_share', label: label('take_share') });
       return rows;
     }
-    return [{ id: 'leave', label: 'Leave.' }];
+    return [{ id: 'leave', label: label('leave') }];
   }
   function leaderMeeting(npc) {
     if (!npc || LEADERS[npc.faction] !== npc.id) return null;
@@ -207,5 +277,5 @@
     return { arrive, drink, beats: [narrate(arrive)].concat(drink ? [narrate(drink)] : []) };
   }
   const SCOUT = 'They remember the ford. A guard\'s eyes follow you longer than they need to.';
-  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, leaderMeeting, appearance, arrival, fill };
+  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, leaderMeeting, appearance, arrival, fill, lines };
 });

@@ -3,7 +3,6 @@
  * Both are free: no energy, and they do not take the day's main action.
  * threatScent is not one of the courtship skills the runtime grants, so the
  * 10/4 table is recorded on the fact and no XP pool is added.
- * Approach openers stay PLACEHOLDER until Saga writes them.
  * A request is stored as a pending §11.3 promise. Kept is +5 and broken is −5,
  * once, when that promise is resolved. This action does not resolve it.
  */
@@ -12,13 +11,8 @@
   else root.LoneActions = factory(root.Rng, root.Speech);
 })(typeof self !== 'undefined' ? self : this, function (Rng, Speech) {
   const PRIDE_NAMES = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
-  const OPENERS = {
-    sociable: 'PLACEHOLDER: {catName} comes over to talk. {He} stops where you can hear {him}.',
-    rival: 'PLACEHOLDER: {catName} comes in close and does not drop {his} stare.',
-    loyal: 'PLACEHOLDER: {catName} asks you for help and waits for an answer.',
-    curious: 'PLACEHOLDER: {catName} comes with a question and waits.',
-    baseline: 'PLACEHOLDER: {catName} comes as far as the scent and stops.'
-  };
+  const Pass2 = (typeof require === 'function' ? require('./pass2') : (typeof self !== 'undefined' ? self.Pass2 : null));
+  const OPENERS = Pass2.lines()['lone-actions.js:approachOpeners'];
 
   function receipts(s) { return (s.records && s.records.receipts) || []; }
   function dayPrefix(s, action) { return `${s.runId || ''}/${action}/`; }
@@ -336,13 +330,13 @@
     let facts = [];
     let kind = null;
     if (!picked) {
-      beats.push({ kind: 'narration', text: 'PLACEHOLDER: You wait. No cat comes to you.' });
+      beats.push({ kind: 'narration', text: Pass2.lines()['lone-actions.js:noApproach'] });
     } else {
       kind = openerKind(picked);
       beats.push({ kind: 'narration', speaker: 'npc', text: OPENERS[kind] || OPENERS.baseline });
       facts = knownFacts(s, picked.id, opts.knowsFact || (() => false));
       if (facts.length) {
-        beats.push({ kind: 'speech', speaker: picked.name, text: `PLACEHOLDER: {catName} tells you only a thing {npcHe} already knows: ${facts[0]}.` });
+        beats.push({ kind: 'speech', speaker: picked.name, text: Pass2.lines()['lone-actions.js:gossipBeat'].replace('{fact}', facts[0]) });
       }
     }
     const knows = opts.knowsFact || (() => false);
@@ -417,11 +411,12 @@
           });
         }
       }
-      p.summary = 'PLACEHOLDER: You accepted the request. The promise is pending.';
+      p.summary = Pass2.lines()['lone-actions.js:summary'].accepted.replace('{catName}', p.catName || '');
     } else if (choiceId === 'rumor_spread') {
-      p.summary = 'PLACEHOLDER: You passed on something you already knew.';
+      p.summary = Pass2.lines()['lone-actions.js:summary'].passed_on.replace('{catName}', p.catName || '');
     } else if (p.eventId === 'lone.approach') {
-      p.summary = choiceId === 'listen' ? 'PLACEHOLDER: You listened, and promised nothing.' : 'PLACEHOLDER: You left it there.';
+      const sum = Pass2.lines()['lone-actions.js:summary'];
+      p.summary = (choiceId === 'listen' ? sum.listen : sum.leave).replace('{catName}', p.catName || '');
     } else p.summary = 'You finished reading the scent.';
     s.phase = 'eventResult';
     return { state: s };

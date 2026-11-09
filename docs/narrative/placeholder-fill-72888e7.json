@@ -1,0 +1,65 @@
+{
+  "_readme": "Saga fill for every PLACEHOLDER at PR2 72888e7, keyed by file:location. Tokens: {catName}, {He}/{he}/{him}/{his} (speaker, beats.js), {npcHe}, {fact} (the fact text the code already passes), {catNameList}. Mechanics, choice IDs and deltas are unchanged. Openers are written as one speech beat; the narration before the quote is fine inside it, or split at the first quote mark if you'd rather make it a narration beat.",
+  "followups.js:opener": {
+    "ford_friend": "{catName} spots you from a distance and comes straight over, without the usual wary circling. “You stood with me at the ford. I haven't forgotten.”",
+    "ford_cold": "{catName}'s ears flatten the moment your scent arrives. “The ford. You chose your side.”",
+    "ford_stay": "{catName} looks you over, unimpressed. “You stood there and watched us at the ford. Why didn't you pick a side?”",
+    "foal_hit": "“I saw you take that foal at the meadows.” {catName}'s eyes are bright. “You came out of the grass like a rockfall.”",
+    "foal_miss": "{catName}'s whiskers twitch with laughter. “I saw the foal get away from you. Those long legs fool everyone once.”",
+    "hillside": "“You were on the hillside yesterday.” {catName} tilts {his} head. “I felt eyes on me all the way across the meadow.”",
+    "hyena_drive": "{catName} greets you with a low chuff, the kind kept for pride-mates. “The hyena. I keep thinking about how you went at it. Most loners would have waited for scraps.”",
+    "hyena_share": "{catName} greets you with a low chuff, the kind kept for pride-mates. “You drove off that hyena, and then you shared. Highcrag remembers manners as well as courage.”",
+    "hyena_leave": "{catName} doesn't come any closer. “You watched, and you did nothing.”",
+    "default": "{catName} stops when {he} sees you. The look says {he} remembers exactly what you chose."
+  },
+  "followups.js:gossipBeat": "{catName} lowers {his} voice and glances over {his} shoulder. “{fact}”",
+  "followups.js:relayBeat": "“I'll tell our leader what I saw. Whether that's enough to get you heard is the leader's choice, not mine.”",
+  "followups.js:choices": {
+    "listen": "Listen.",
+    "honest_limit": "“I can't promise I'll always be near.”",
+    "leave": "Walk away.",
+    "explain": "“It wasn't about your pride.”",
+    "repair": "“I'd like to make it right.”",
+    "neutral": "“It wasn't my fight.”",
+    "ask_what_happened": "“What's really between your prides?”",
+    "share": "Push today's kill toward {catName}.",
+    "talk": "Stay and talk.",
+    "take_share": "Take your share of the pride's kill."
+  },
+  "lone-actions.js:approachOpeners": {
+    "sociable": "{catName} trots over with {his} tail high, already talking before {he}'s close enough to hear properly.",
+    "rival": "{catName} walks straight at you and stops a whisker too close, sabers level with your eyes. {He} doesn't blink.",
+    "loyal": "{catName} comes to you quickly and quietly, with a glance back the way {he} came. Whatever this is, it matters to {him}.",
+    "curious": "{catName} circles once, sniffing the air around you, ears pricked. Clearly {he} has a question.",
+    "baseline": "{catName} comes as far as the edge of your scent and stops there, waiting to see what you'll do."
+  },
+  "lone-actions.js:noApproach": "You wait while the light shifts across the ground. No cat comes to you today, only the wind.",
+  "lone-actions.js:gossipBeat": "{catName} leans closer, and {npcHe} drops {his} voice. “{fact}”",
+  "lone-actions.js:summary": {
+    "accepted": "You gave your word. {catName} will be waiting to see if you keep it.",
+    "passed_on": "You passed on what you knew, and {catName} tucked it away.",
+    "listen": "You listened, and made no promises.",
+    "leave": "You let it lie and went your own way."
+  },
+  "slice.js:horses": {
+    "beats": [
+      "The meadow grass is cropped short and sweet-smelling, and the wind brings you horse long before you see them: dung, sweat, the green breath of chewed stems.",
+      "A herd grazes downslope. One mare lifts her head, then another, until every long face is turned toward your hillside.",
+      "Near the edge, a foal has wandered after a patch of clover, a few lengths from its mother. Its legs are still too long for it."
+    ],
+    "stalk_foal": "Stalk the foal.",
+    "watch_herd": "Settle on the rise and watch.",
+    "move_on": "Leave them be.",
+    "move_on_result": "You turn away. Behind you, the mares go back to grazing as if you were never there.",
+    "watch_result": "You fold your paws under you on the warm rise. The herd drifts, the clouds drift, and the valley passes beneath you."
+  },
+  "slice.js:foalResult": {
+    "ok": "Three bounds, and the grass whips your face. The foal is only starting to turn when your weight takes it down. Afterwards you eat crouched low, ears turning to every sound. A kill out in the open draws company fast.",
+    "fail": "A stem snaps under your hind paw, louder than any stem has a right to be. The foal squeals and bolts for the herd, and the mares are already wheeling to meet it. You're left in the flattened grass with an empty belly."
+  },
+  "slice.js:watchSighting": {
+    "on their own ground": "Below you, {catName} moves along {his} own trails, unhurried, marking a stone as {he} passes.",
+    "crossing the hillside": "{catName} crosses the hillside below, quick and low, glancing back once as if feeling watched.",
+    "none": "No cat crosses the slope today. Only the herd moves, slow as cloud-shadow."
+  }
+}
