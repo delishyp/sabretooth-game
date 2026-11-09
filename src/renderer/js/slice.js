@@ -8,9 +8,9 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
@@ -75,6 +75,7 @@
     const WM = WorldMemory.create(R, conversation, borderPolicy);
     const Enc = Encounter.create(encounters, R);
     const Pair = Pairing.create(firstSeason, R);
+    const Follow = Followups.create(R);
     const EV = (events && events.events) || [];
     const beatsByEvent = loadSampleBeats(sampleBeats);
     const season = (s) => s.season;
@@ -114,7 +115,8 @@
         prideRelation: Object.fromEntries(map.factions.filter((f) => f.kind === 'pride').map((f) => [f.id, 0])),
         npcs: rollNpcs(seed, mainCat.name), usedEvents: [], pending: null, report: null, log: [], dead: null, over: false,
         conversation: C.empty(),
-        encounters: Enc.empty()
+        encounters: Enc.empty(),
+        followups: []
       };
       migratePlayerPortrait(s.cat);
       Personality.applyNew(s, R);
@@ -209,7 +211,27 @@
         found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null,
         route: Pair.enabled ? Pair.routeStatus(s, bondDeps(s)) : null,
         scent: Lone.offer(s, 'scent'),
-        approach: Lone.offer(s, 'approach')
+        approach: Lone.offer(s, 'approach'),
+        scout: scoutOffer(s)
+      };
+    }
+    function scoutOffer(s) {
+      const own = W.ownership(s.map.claims, s.region);
+      const report = Follow.scoutReport(s, own.holder);
+      return report ? { allowed: true, report } : null;
+    }
+    function followCtx(s, npc) {
+      const own = W.ownership(s.map.claims, s.region);
+      const member = !!(s.cat && s.cat.status === 'member' && npc && s.cat.prideId === npc.faction && own.holder === npc.faction && own.state === 'held');
+      return {
+        huntReady: !!(s.records && s.records._huntOk),
+        memberShare: member,
+        present: (cat) => {
+          if (!cat || cat.dead) return false;
+          const homes = cat.homeZones || [];
+          if (homes.includes(s.region)) return true;
+          return homes.some((zone) => W.neighbours(zone).includes(s.region));
+        }
       };
     }
     function atHighcragBorder(s) {
@@ -266,6 +288,7 @@
         if (action.type === 'fordChoose') {
           const r = WM.fordChoose(s, action.choiceId);
           if (r.error) return { state: s0, error: r.error };
+          Follow.noteFord(s);
           return { state: s };
         }
         if (action.type === 'continue') { WM.closeFord(s); return { state: s }; }
@@ -308,6 +331,7 @@
           recordDeed: (st, spec) => WM.recordDeed(st, spec)
         });
         if (picked.error) return { state: s0, error: picked.error };
+        Follow.noteHyena(s);
         return { state: s };
       }
       if (action.type === 'seek') {
@@ -318,6 +342,8 @@
         return { state: s };
       }
       if (action.type === 'talk') {
+        const follow = Follow.scene(s, action.catId, followCtx(s, s.npcs[action.catId]));
+        if (follow) { s.pending = follow; s.phase = 'event'; return { state: s }; }
         const r = C.begin(s, action.catId);
         if (r.error) return { state: s0, error: r.error };
         return { state: s };
@@ -367,6 +393,13 @@
           return { state: s };
         }
       }
+      if (s.phase === 'event' && (action.type === 'sceneChoose' || action.type === 'choose') && s.pending && (s.pending.followUp || s.pending.meadow)) {
+        if (s.pending.meadow) return meadowChoose(s, action.choiceId === 'continue' ? 'move_on' : action.choiceId, rep);
+        const picked = Follow.apply(s, action.choiceId);
+        if (picked.error) return { state: s0, error: picked.error };
+        if (picked.memberShare) shareKill(s, rep);
+        return { state: s };
+      }
       if (s.phase === 'event' && action.type === 'sceneChoose') {
         const picked = Lone.choose(s, action.choiceId);
         if (picked.error) return { state: s0, error: picked.error };
@@ -395,7 +428,7 @@
         }
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
-        else if (s.phase === 'day') WM.considerFord(s);
+        else if (s.phase === 'day' && !WM.considerFord(s) && !WM.considerRelay(s)) offerMeadow(s);
         return { state: s };
       }
       if (s.phase === 'day' && action.type === 'scent') {
@@ -422,7 +455,9 @@
           knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId),
           zoneHolder: own.state === 'held' ? own.holder : null,
           huntReady: !!(s.records && s.records._huntOk),
-          scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null
+          scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
+          priorityIds: Follow.priorityIds(s),
+          followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc))
         });
         if (opened.error) return { state: s0, error: opened.error };
         s.pending = opened.event;
@@ -502,17 +537,15 @@
           if (opened.error) return { state: s0, error: opened.error };
           return { state: s };
         }
-        const p = huntChance(s, size); const rng = Rng.stream(s.seed, 'hunt', s.day);
-        const ok = rng() * 100 < p;
-        s.needs.energy = clamp(s.needs.energy - N.energy.hunt, 0, 100);
-        if (ok) s.needs.hunger = clamp(s.needs.hunger + N.eat[size], 0, 100);
-        if (Pair.enabled) Pair.noteHunt(s, ok);
-        rep.push({ k: 'hunt', size, chance: p, ok, ate: ok ? N.eat[size] : 0 });
-        const injPct = H.injuryPct[size] * (ok ? 1 : H.failInjuryMult) * H.styleInjuryMult;
-        if (rng() * 100 < injPct) injure(s, tierRoll(rng), 'hunt', rep);
+        performHunt(s, rep, size);
       } else if (action.type === 'rest') {
         rested = true; restNow(s, rep);
         if (s.records && s.records.playerSkills && s.records.playerSkills.waiting.length) s.records.playerSkills.modalOpen = true;
+      }
+      else if (action.type === 'scout') {
+        const offer = scoutOffer(s);
+        if (!offer) return { state: s0, error: 'scout' };
+        rep.push({ k: 'scout', text: offer.report });
       }
       else if (action.type === 'travel') {
         const opt = av.travel.find((o) => o.to === action.to); if (!opt) return { state: s0, error: 'not_adjacent' };
@@ -524,6 +557,64 @@
       endDay(s, rep, { rested, travelledEdge, action: action.type, start: ag });
       return { state: s, report: s.report };
     }
+    function performHunt(s, rep, size, extra) {
+      const p = huntChance(s, size);
+      const rng = Rng.stream(s.seed, 'hunt', s.day);
+      const ok = rng() * 100 < p;
+      s.needs.energy = clamp(s.needs.energy - N.energy.hunt, 0, 100);
+      if (ok) s.needs.hunger = clamp(s.needs.hunger + N.eat[size], 0, 100);
+      if (Pair.enabled) Pair.noteHunt(s, ok);
+      else if (s.records) s.records._huntOk = !!ok;
+      if (Pair.enabled && s.records) s.records._huntOk = !!ok;
+      rep.push(Object.assign({ k: 'hunt', size, chance: p, ok, ate: ok ? N.eat[size] : 0 }, extra || {}));
+      const injPct = H.injuryPct[size] * (ok ? 1 : H.failInjuryMult) * H.styleInjuryMult;
+      if (rng() * 100 < injPct) injure(s, tierRoll(rng), 'hunt', rep);
+      return { ok, chance: p };
+    }
+    function passers(s) {
+      const near = new Set([s.region].concat(W.neighbours(s.region)));
+      return Object.values(s.npcs || {}).filter((n) => n && !n.dead && (n.stage === 'adult' || n.stage === 'elder') && (n.homeZones || []).some((zone) => near.has(zone)));
+    }
+    function offerMeadow(s) {
+      if (s.phase !== 'day' || s.region !== 'horse_meadows' || s.pending) return false;
+      if (!Array.isArray(s.usedEvents)) s.usedEvents = [];
+      if (s.usedEvents.includes('slice.region.horse_meadows')) return false;
+      s.pending = {
+        meadow: true, eventId: 'slice.region.horse_meadows', title: 'Heads raised', day: s.day, beatIndex: 0,
+        beats: [{ kind: 'narration', text: 'PLACEHOLDER: The horses are in the meadow.' }],
+        choices: [
+          { id: 'stalk_foal', label: 'PLACEHOLDER: Stalk a foal.' },
+          { id: 'watch_herd', label: 'PLACEHOLDER: Watch from the hillside.' },
+          { id: 'move_on', label: 'PLACEHOLDER: Move on.' }
+        ]
+      };
+      s.phase = 'event';
+      return true;
+    }
+    function meadowChoose(s, choiceId, rep) {
+      if (choiceId === 'stalk_foal' && tired(s)) return { error: 'tired' };
+      if (!s.usedEvents.includes('slice.region.horse_meadows')) s.usedEvents.push('slice.region.horse_meadows');
+      if (choiceId === 'move_on') { s.pending = null; s.phase = 'day'; return { state: s }; }
+      if (choiceId === 'watch_herd') {
+        s.needs.energy = clamp(s.needs.energy + 20, 0, 100);
+        if (!s.records) s.records = {};
+        s.records.lastPrimary = 'trailReading';
+        Skills.grant(s, 'trailReading', true, `${s.runId || ''}/watch/${s.day}`);
+        const seen = passers(s);
+        rep.push({ k: 'watch', energy: 20, cats: seen.map((n) => ({ id: n.id, name: n.name, doing: (n.homeZones || []).includes(s.region) ? 'on their own ground' : 'crossing the hillside' })) });
+        Follow.noteMeadow(s, { choiceId, passers: seen.map((n) => n.id) });
+        endDay(s, rep, { action: 'watch', rested: false });
+        return { state: s };
+      }
+      if (choiceId === 'stalk_foal') {
+        const hunt = performHunt(s, rep, 'small', { foal: true });
+        const here = Object.values(s.npcs || {}).filter((n) => n && !n.dead && (n.stage === 'adult' || n.stage === 'elder') && (n.homeZones || []).includes(s.region));
+        Follow.noteMeadow(s, { choiceId, ok: hunt.ok, witnesses: here.map((n) => n.id) });
+        endDay(s, rep, { action: 'hunt', rested: false });
+        return { state: s };
+      }
+      return { error: 'choice' };
+    }
     function restNow(s, rep) {
       const g = hungry(s) || thirsty(s) ? Math.floor(N.energy.rest / 2) : N.energy.rest;
       s.needs.energy = clamp(s.needs.energy + g, 0, 100); rep.push({ k: 'rest', energy: g });
@@ -532,6 +623,7 @@
     // ---------- day end ----------
     function endDay(s, rep, ctx) {
       ctx = ctx || {};
+      Follow.spreadRumors(s);
       let hazardHit = false;
       if (!ctx.resumed) {
         if (!s.dead && W.hasWater(s.region, season(s)) && !s.travel) { if (s.needs.thirst < N.drink) rep.push({ k: 'drink' }); s.needs.thirst = clamp(s.needs.thirst + N.drink, 0, 100); }
@@ -562,7 +654,9 @@
       } else if (finished) { s.over = true; s.phase = 'over'; }
       else {
         s.phase = 'day';
-        if (!WM.considerFord(s) && !WM.considerRelay(s) && !ctx.resumed) {
+        const open = !WM.considerFord(s) && !WM.considerRelay(s);
+        if (open && offerMeadow(s)) return;
+        if (open && !ctx.resumed) {
           const now = s.day;
           s.day = now - 1;
           const filler = quietScene(s, rep);
@@ -595,7 +689,7 @@
       s.pending = null;
       s.phase = s.dead || s.over ? 'over' : 'day';
       if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
-      else if (s.phase === 'day') WM.considerFord(s);
+      else if (s.phase === 'day' && !WM.considerFord(s) && !WM.considerRelay(s)) offerMeadow(s);
       return { state: s };
     }
     function rollHazards(s, rep, ctx) {
@@ -658,6 +752,8 @@
         rep.push({ k: 'patrol', faction, relation: M.patrolRelation });
         const cast = Object.values(s.npcs).filter((n) => n.faction === faction && (n.stage === 'adult' || n.stage === 'elder'));
         const npc = cast.length ? Rng.pick(rng, cast) : null;
+        const followed = npc && meetingFollow(s, npc);
+        if (followed) { meet(s, npc); return followed; }
         const hostile = s.prideRelation[faction] <= M.hostileAtOrBelow;
         if (hostile) {
           if (Rng.chance(rng, M.patrolMinorInjuryPct)) injure(s, 'minor', 'patrol', rep);
@@ -674,6 +770,8 @@
         const pct = home ? M.lonerHomePct : near ? M.lonerAdjacentPct : 0;
         if (pct && Rng.chance(rng, pct)) {
           rep.push({ k: 'meetLoner', catId: n.id });
+          const followed = meetingFollow(s, n);
+          if (followed) { meet(s, n); return followed; }
           if (n.met) return Pair.enabled ? attachVoice(Pair.meetingEvent(s, n, bondDeps(s, rep))) : null;
           const e = eventFor('first_meeting', 'loner'); meet(s, n);
           return e ? bind(e, n, { day: s.day }) : null;
@@ -682,9 +780,12 @@
       return null;
     }
     function meet(s, npc) { npc.met = true; if (Pair.enabled) Pair.onMet(s, npc); }
+    function meetingFollow(s, npc) {
+      return Follow.scene(s, npc.id, followCtx(s, npc));
+    }
     /** Saga: one spring moment per region, once per run; shown the first day the cat ends there with no meeting or hazard that day. */
     function regionMoment(s) {
-      const e = EV.find((x) => x.kind === 'region' && x.regions.includes(s.region) && (!x.season || x.season === season(s)) && !s.usedEvents.includes(x.id));
+      const e = EV.find((x) => x.kind === 'region' && x.id !== 'slice.region.horse_meadows' && x.regions.includes(s.region) && (!x.season || x.season === season(s)) && !s.usedEvents.includes(x.id));
       if (!e) return null; s.usedEvents.push(e.id);
       return bind(e, null, { day: s.day });
     }
@@ -826,6 +927,7 @@
       WM.migrate(s);
       Enc.normalize(s);
       if (Pair.enabled) Pair.normalize(s);
+      if (!Array.isArray(s.followups)) s.followups = [];
       s.saveVersion = R.saveVersion;
       return s;
     }
@@ -870,7 +972,9 @@
       const hunt = (rep || []).find((l) => l.k === 'hunt');
       if (!hunt) return null;
       const resultLine = huntNumbers(hunt);
-      const prose = hunt.ok ? `You caught ${hunt.size} prey and ate.` : 'The prey escaped.';
+      const prose = hunt.foal
+        ? (hunt.ok ? 'PLACEHOLDER: You take the foal.' : 'PLACEHOLDER: The foal gets away.')
+        : (hunt.ok ? `You caught ${hunt.size} prey and ate.` : 'The prey escaped.');
       return {
         eventId: hunt.ok ? 'voice.hunt.result' : 'voice.hunt.miss', title: 'The hunt',
         beats: [{ kind: 'narration', text: prose }], beatIndex: 0, choices: [],
@@ -917,7 +1021,9 @@
         knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId),
         zoneHolder: own.state === 'held' ? own.holder : null,
         huntReady: !!(s.records && s.records._huntOk),
-        scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null
+        scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
+        priorityIds: Follow.priorityIds(s),
+        followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc))
       };
     }
     function quietLines(s, rep) {
@@ -965,9 +1071,19 @@
     function presentDay(s, rep, ev) {
       return withArrival(s, rep, attachVoiceHunt(s, rep, ev));
     }
+    function watchScene(s, line) {
+      const beats = (line.cats || []).map((cat) => ({ kind: 'narration', text: `PLACEHOLDER: ${cat.name} is ${cat.doing}.` }));
+      if (!beats.length) beats.push({ kind: 'narration', text: 'PLACEHOLDER: No cat passes the hillside.' });
+      return {
+        eventId: 'action.watch', title: 'The hillside', filler: true, voice: true, lone: true,
+        beats, beatIndex: 0, choices: [], summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
+      };
+    }
     function quietScene(s, rep) {
       if (s.dead) return null;
       if ((rep || []).some((l) => l.k === 'hunt')) return plainHuntScene(s, rep);
+      const watch = (rep || []).find((l) => l.k === 'watch');
+      if (watch) return watchScene(s, watch);
       return arrivalFallbackScene(s, rep) || dayFiller(s, rep);
     }
     function beatContext(s) {
@@ -989,7 +1105,7 @@
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;
       if (!e) {
-        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.')))) {
+        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.')))) {
           return { id, title: 'Scene', text: '', choices: [{ id: 'continue', label: 'Continue', summary: 'Continue', affinityIntent: 'unchanged' }] };
         }
         return null;

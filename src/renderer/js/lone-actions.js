@@ -307,7 +307,8 @@
 
   function pickApproach(s, opts) {
     const rng = Rng.stream(s.seed, 'approach', s.day);
-    const ids = Object.keys(s.npcs || {}).sort();
+    const first = new Set((opts && opts.priorityIds) || []);
+    const ids = Object.keys(s.npcs || {}).sort((a, b) => (first.has(a) ? 0 : 1) - (first.has(b) ? 0 : 1) || (a < b ? -1 : a > b ? 1 : 0));
     for (const id of ids) {
       const npc = s.npcs[id];
       const pct = eligiblePct(npc, s, opts || {});
@@ -324,6 +325,10 @@
     if (usedDay(s, 'approach')) return { error: 'duplicate' };
     const picked = pickApproach(s, opts);
     mark(s, 'approach', picked ? picked.id : 'none');
+    if (picked && opts.followScene) {
+      const follow = opts.followScene(picked);
+      if (follow) return { event: follow };
+    }
     if (picked && (mistwoodRequest(picked, s, opts) || bringPrey(s, picked.id))) {
       return { event: mistwoodEvent(s, picked, opts) };
     }
