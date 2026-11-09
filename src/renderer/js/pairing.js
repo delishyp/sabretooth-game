@@ -944,16 +944,32 @@
         outOfSeason, inMatingWindow: outOfSeason === 0, priorRefusals, refusalTerm
       };
     }
+    function memberName(s) {
+      if (!s.cat || s.cat.status !== 'member' || !s.cat.prideId) return null;
+      return PRIDE_NAMES[s.cat.prideId] || s.cat.prideId;
+    }
     function joinBlockers(s, deps) {
       const pride = heldPride(s, deps);
-      if (!pride) return { pride: null, leader: null, blockers: ['You are not on land a pride holds.'] };
+      const mine = memberName(s);
+      if (!pride) {
+        const blockers = [];
+        if (mine) blockers.push(`You are a member of ${mine}.`);
+        blockers.push('You are not on land a pride holds.');
+        return { pride: null, leader: null, blockers };
+      }
       const leader = leaderOf(s, pride);
       const name = PRIDE_NAMES[pride] || pride;
       const blockers = [];
       if (!leader || !leader.met) blockers.push(`You have not met ${leader ? leader.name : 'the leader'}.`);
       const prior = s.records.joinAsk && s.records.joinAsk[pride];
       const season = seasonIndex(s);
-      if (prior && (prior.season == null || prior.season === season)) blockers.push(`You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
+      const memberHere = !!(s.cat && s.cat.status === 'member' && s.cat.prideId === pride && prior && prior.approved);
+      if (prior && (prior.season == null || prior.season === season)) {
+        blockers.push(memberHere
+          ? `You are a member of ${name}.`
+          : `You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
+      }
+      if (mine && !blockers.some((line) => line === `You are a member of ${mine}.`)) blockers.push(`You are a member of ${mine}.`);
       return { pride, leader, blockers };
     }
     function grantMembership(s, pride, receipt) {

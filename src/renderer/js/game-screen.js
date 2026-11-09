@@ -9,6 +9,28 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.GameScreen = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
+  function signedNumber(n) {
+    const v = Math.trunc(Number(n) || 0);
+    return v > 0 ? `+${v}` : (v === 0 ? '+0' : String(v));
+  }
+  /** Founded pride name, then a joined pride, then the loner label. */
+  function presentationPrideName(s, fallback, label) {
+    if (s && s.records && s.records.pride && s.records.pride.name) return s.records.pride.name;
+    if (s && s.cat && s.cat.status === 'member' && s.cat.prideId) return label(s.cat.prideId);
+    return fallback || '';
+  }
+  /** The cat card reads the saved pride relation, not the separate world-memory standing. */
+  function factionStandingText(s, factionId, label) {
+    if (!factionId || factionId === 'loner') return 'Faction · Unknown';
+    const name = label(factionId);
+    const has = !!(s && s.prideRelation && Object.prototype.hasOwnProperty.call(s.prideRelation, factionId));
+    if (!has) return `Faction · ${name} → you · Unknown`;
+    return `Faction · ${name} → you ${signedNumber(s.prideRelation[factionId])}`;
+  }
+  function killShareText(prideName, hunger) {
+    const n = Math.trunc(Number(hunger) || 0);
+    return `${prideName} shares a kill with you. Hunger ${n >= 0 ? `+${n}` : String(n)}.`;
+  }
   function create(ctx, gameData, nameData) {
     const { t, $ } = ctx;
     const E = Slice.create({ ...gameData, nameData, looks: ctx.creatorLooks });
@@ -59,10 +81,7 @@
     }
 
     // ---------- game screen ----------
-    function signed(n) {
-      const v = Math.trunc(Number(n) || 0);
-      return v > 0 ? `+${v}` : (v === 0 ? '+0' : String(v));
-    }
+    function signed(n) { return signedNumber(n); }
     function needBar(id, v) {
       const name = t(`game.need.${id}`);
       const row = el('div', `need need-${id} state-${E.needState(v)}`);
@@ -116,11 +135,7 @@
         attraction.dataset.attraction = 'unknown';
         ul.append(attraction);
       }
-      if (!npc || !npc.faction || npc.faction === 'loner') ul.append(el('p', 'relation-faction', 'Faction · Unknown'));
-      else {
-        const pride = s.worldMemory && s.worldMemory.prideToPlayer && s.worldMemory.prideToPlayer[`${npc.faction}->player`];
-        ul.append(el('p', 'relation-faction', pride ? `Faction · ${factionName(npc.faction)} → you ${signed(pride.value)}` : `Faction · ${factionName(npc.faction)} → you · Unknown`));
-      }
+      ul.append(el('p', 'relation-faction', factionStandingText(s, npc && npc.faction, factionName)));
       return ul;
     }
     function costNote() {
@@ -154,7 +169,7 @@
       cv.style.width = box.width + 'px'; cv.style.height = box.height + 'px';
     }
     function renderChrome() {
-      $('#home-pride-name').textContent = (s.records && s.records.pride && s.records.pride.name) || (run && run.prideName) || '';
+      $('#home-pride-name').textContent = presentationPrideName(s, run && run.prideName, factionName);
       $('#home-player-name').textContent = s.cat.name;
       const cv = $('#home-cat');
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
@@ -262,7 +277,10 @@
         p.append(el('h2', 'home-panel-title', t('home.nav.pride')));
         const dl = el('dl', 'home-facts');
         const row = (k, v) => { dl.append(el('dt', '', k), el('dd', '', v)); };
-        row(t('home.nav.pride'), (run && run.prideName) || '');
+        row(t('home.nav.pride'), presentationPrideName(s, run && run.prideName, factionName));
+        if (s.cat && s.cat.status === 'member' && s.cat.prideId && !(s.records && s.records.pride && s.records.pride.name)) {
+          row('Standing', `You are a member of ${factionName(s.cat.prideId)}.`);
+        }
         row(t('home.you'), s.cat.name);
         row(t('creator.row.sex'), s.cat.sex === 'female' ? t('creator.sex.female') : t('creator.sex.male'));
         for (const [id, rel] of Object.entries(s.prideRelation || {})) row(`Faction · ${factionName(id)} → you`, signed(rel));
@@ -391,6 +409,7 @@
         case 'edgeBlocked': return t.plural('game.report.edgeBlocked', l.days, { region: regionName(l.to) });
         case 'fled': return t('game.report.fled', { from: t(`game.hazard.${l.from}`) });
         case 'patrol': return t('game.report.patrol', { faction: factionName(l.faction), relation: l.relation });
+        case 'killShare': return killShareText(factionName(l.pride), l.hunger);
         case 'healed': return t(`game.report.healed.${l.tier}`);
         case 'drink': case 'tarEscaped': case 'starving': case 'parched': case 'stuck': case 'lost': return t(`game.report.${l.k}`);
         default: return null;                              // meetLoner: the event itself is the report
@@ -706,5 +725,5 @@
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }
-  return { create };
+  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber };
 });
