@@ -1,0 +1,82 @@
+{
+  "_readme": "Hunt prose for every biome and prey size (pin 4bc7150). It builds the beats for voice.hunt.{size}.{biome}.{ok|fail} as open[biome][size] + middle[size][ok|fail] (2 beats) + close[biome][ok|fail]. That's 4 beats per hunt and 66 combinations from 61 lines. Prey animals come from lore/world-and-prides.md: small is hares, geese and marmots; medium is deer, horse foals and young camels; large is bison, adult horses and stray mammoth calves. The fail lines never say the cat is hurt, because injury is its own roll and gets its own line. The numbers stay on the result line (huntNumbers). The existing medium/steppe pack in sample-beats.json still takes priority if you want to keep it.",
+  "open": {
+    "alpine":    { "small": "Up among the high rocks, a marmot whistles once and goes quiet. You know exactly which boulder it is under.",
+                   "medium": "A young deer picks its way across the scree below you, placing each hoof with care. The wind is in your face.",
+                   "large": "A bull bison grazes the high meadow alone, breath steaming in the thin air. One cat against that much animal is a gamble." },
+    "ashscape":  { "small": "Something small scratches among the grey stones, kicking up little puffs of ash that drift on the wind.",
+                   "medium": "A young camel browses the dry slope, head down, its long legs dusted grey to the knees.",
+                   "large": "A big horse stands alone in a hollow of the ash hills, shifting its weight off a sore hoof. Wolf country, this. You'll have to be quick." },
+    "glacier":   { "small": "Out on the bare ice, a hare in its white winter coat would be invisible if it would only stop moving. It doesn't stop.",
+                   "medium": "A deer has come down to lick the mineral crust where the meltwater runs off the ice. Blue light shivers over its back.",
+                   "large": "At the foot of the ice wall, a bison stands half asleep in the cold. Meltwater drips somewhere behind it, and the echo hides every sound." },
+    "gorge":     { "small": "A hare lopes along the narrow ledge, far too pleased with itself. The ledge has only one way off.",
+                   "medium": "Down in the gorge, a deer drinks at the bottom of a steep cut. Its back is to the stone, and there's only one way out.",
+                   "large": "A horse has wandered into the gorge and found the far end closed. It paces, snorting. Cornered prey fights hard, but it can't run." },
+    "lakeshore": { "small": "A goose sleeps on the shingle with its head tucked under its wing, a little apart from the rest of the flock.",
+                   "medium": "A deer stands knee-deep in the shallows, drinking, while ripples spread out from its muzzle across the still water.",
+                   "large": "A bison wallows in the mud at the water's edge, groaning with pleasure. Its eyes are half closed against the flies." },
+    "pinewood":  { "small": "A hare's scent runs fresh across the needles and doubles back on itself. Somewhere close, it's sitting very still.",
+                   "medium": "Between the dark trunks, a deer browses on low branches. Each step it takes is hushed by the deep needle-fall.",
+                   "large": "A big stag shoulders through the pines, antlers knocking at branches. The trees are close here, too close for it to run well." },
+    "riverine":  { "small": "A goose waddles up the gravel bar, grumbling to itself, far from the safety of the water.",
+                   "medium": "A horse foal splashes in the shallows at the river's edge. Its mother has wandered a little way upstream.",
+                   "large": "A horse comes down to the crossing to drink, alone, ears swivelling at every sound the river makes." },
+    "steppe":    { "small": "A hare sits up in the long grass, nose twitching, ears turning toward every rustle but yours.",
+                   "medium": "The wind turns, and with it comes the warm, grassy musk of a horse foal that has strayed from its herd.",
+                   "large": "A mammoth calf has wandered from the herd, chasing a patch of greener grass. Its mother is still a long way off. For now." },
+    "tarlands":  { "small": "A hare edges around the black pools, sniffing at the stink. One wrong hop and the tar will hold it for you.",
+                   "medium": "A young deer is stuck at the edge of a seep, fighting to drag a hind leg free of the tar. Others will smell it too, and soon.",
+                   "large": "A bison stands fetlock-deep in tar, bellowing. Every hunter in the Vale will hear it, and the black ground is as dangerous to you as it is to the bison." },
+    "tundra":    { "small": "A hare's tracks stitch across the frozen moss. They're so fresh the edges haven't crusted over yet.",
+                   "medium": "A deer paws through the snow for lichen, flank to the wind. Each breath hangs in front of it like smoke.",
+                   "large": "A bison stands with its back to the wind, shaggy with frost. On open ground like this, there's nowhere for you to hide." },
+    "wetland":   { "small": "Geese sleep among the reeds, a soft muttering mass. One has drifted a little apart from the rest.",
+                   "medium": "A deer wades through the fog marsh, belly-deep, and every slow step makes the water slosh.",
+                   "large": "A big stag stands in the reeds, antlers pale in the fog. The mud will slow it down. It will slow you down too." }
+  },
+  "middle": {
+    "small": {
+      "ok":   ["You flatten yourself against the ground and wait, letting the cold seep into your belly fur. Your whiskers tremble with the effort of keeping still.",
+               "Then you pounce. It's one short, perfect spring, and it's over before your prey even knows you were there."],
+      "fail": ["You flatten yourself against the ground and wait, letting the cold seep into your belly fur. Your whiskers tremble with the effort of keeping still.",
+               "You spring a heartbeat too soon. Your paws come down on empty ground, and your prey is already gone, darting off faster than a cat your size could ever follow."]
+    },
+    "medium": {
+      "ok":   ["You creep closer one paw at a time, freezing every time an ear flicks your way. Closer. Closer.",
+               "Three bounds, and your weight takes it down. Your sabers find the throat the way they were made to."],
+      "fail": ["You creep closer one paw at a time, freezing every time an ear flicks your way. Closer. Closer.",
+               "Then the wind shifts behind you. The head snaps up, and your prey bolts. You give chase, but your heavy body isn't built for a long run, and the gap only grows."]
+    },
+    "large": {
+      "ok":   ["You circle wide and come in from behind, keeping clear of hooves and horns. Your heart hammers so hard you're sure it can be heard.",
+               "You hit it at full charge, forelegs locking around its neck, and hang on through every bellowing, bucking stride until it finally sinks to its knees."],
+      "fail": ["You circle wide and come in from behind, keeping clear of hooves and horns. Your heart hammers so hard you're sure it can be heard.",
+               "You hit it hard, but it's simply too big. It throws you off with one mighty twist and thunders away, leaving you sprawled in its wake with nothing but a mouthful of fur."]
+    }
+  },
+  "close": {
+    "alpine":    { "ok": "You eat in the lee of a boulder, high above everything, with the whole range spread blue and cold below you.",
+                   "fail": "The wind whistles mockingly through the rocks. Up here, an empty belly feels emptier still." },
+    "ashscape":  { "ok": "You eat fast, ears turning toward every ridge. In wolf country, a fresh kill doesn't stay yours for long.",
+                   "fail": "Ash settles on your fur as you stand there, grey and gritty, and your stomach growls in the silence." },
+    "glacier":   { "ok": "You eat in the blue shadow of the ice, the warm meat steaming in the cold. For a while, the glacier doesn't feel so cruel.",
+                   "fail": "The glacier creaks somewhere deep inside itself. You lick your cold nose and turn away hungry." },
+    "gorge":     { "ok": "The gorge walls rise around you while you eat, keeping out the wind. For once, the narrow place feels safe.",
+                   "fail": "The rock walls echo back your panting breaths, and your empty belly feels twice as loud." },
+    "lakeshore": { "ok": "You eat at the water's edge and drink when you're done, the lake lapping softly at your paws.",
+                   "fail": "Ripples spread across the lake and fade away. You stand on the shingle with nothing to show for it." },
+    "pinewood":  { "ok": "You drag your kill beneath the low branches and eat in the resin-scented dark, hidden from every eye.",
+                   "fail": "The pines sigh overhead. Somewhere far off, a jay screeches, and it sounds like it's laughing at you." },
+    "riverine":  { "ok": "You eat on the bank with the river's roar in your ears, drowning out every other sound.",
+                   "fail": "You lap at the cold river water instead. It fills your belly, but it's not the same." },
+    "steppe":    { "ok": "Afterwards you eat crouched low, ears turning at every sound. Out on open grass like this, a kill draws company fast.",
+                   "fail": "You stand in the flattened grass with your heart pounding and your belly still empty." },
+    "tarlands":  { "ok": "You eat at the edge of the seeps, keeping your paws on firm ground, the stink of tar thick in your nose.",
+                   "fail": "The tar gurgles and pops beside you. You back away carefully, glad at least that it hasn't caught you." },
+    "tundra":    { "ok": "You eat quickly, before the meat freezes. On the open tundra, the wind brings you every scent, and it carries yours away to anything downwind.",
+                   "fail": "Snow swirls across the frozen moss and fills in the tracks. The tundra keeps its prey for another day." },
+    "wetland":   { "ok": "You haul your kill up onto a hummock of dry reeds and eat in the fog, hidden from the world.",
+                   "fail": "You stand in the cold marsh water, dripping and hungry, while the fog rolls quietly back over the place your prey fled." }
+  }
+}

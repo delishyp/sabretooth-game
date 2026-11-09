@@ -52,6 +52,21 @@
     }
     return {};
   }
+  function loadHuntProse() {
+    if (typeof require === 'function') {
+      try { return require('../data/events/hunt-prose-v1.json'); } catch (e) { /* the page loads the same file below */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/hunt-prose-v1.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) return JSON.parse(xhr.responseText);
+      } catch (e) { /* missing prose falls back to the one-line hunt sentence */ }
+    }
+    return null;
+  }
+  const HUNT_PROSE = loadHuntProse();
   function loadSampleBeats(passed) {
     if (passed && typeof passed === 'object') return passed;
     if (typeof require === 'function') {
@@ -1085,6 +1100,34 @@
       ev.beatIndex = ev.beatIndex || 0;
       return ev;
     }
+    /** Four beats: biome/size opener, two size hit-or-miss beats, biome closer. Null keeps the one-line fallback. */
+    function huntBeats(biome, size, ok) {
+      const prose = HUNT_PROSE;
+      const open = prose && prose.open && prose.open[biome] && prose.open[biome][size];
+      const mid = prose && prose.middle && prose.middle[size] && prose.middle[size][ok ? 'ok' : 'fail'];
+      const end = prose && prose.close && prose.close[biome] && prose.close[biome][ok ? 'ok' : 'fail'];
+      if (!open || !mid || mid.length !== 2 || !end) return null;
+      return [open, mid[0], mid[1], end].map((text) => ({ kind: 'narration', text }));
+    }
+    function huntScene(s, hunt) {
+      let biome = null;
+      try { biome = W.region(s.region).biome; } catch (e) { biome = null; }
+      const beats = huntBeats(biome, hunt.size, hunt.ok);
+      const resultLine = huntNumbers(hunt);
+      if (!beats) {
+        const prose = hunt.ok ? `You caught ${hunt.size} prey and ate.` : 'The prey escaped.';
+        return {
+          eventId: hunt.ok ? 'voice.hunt.result' : 'voice.hunt.miss', title: 'The hunt',
+          beats: [{ kind: 'narration', text: prose }], beatIndex: 0, choices: [],
+          lone: true, voice: true, filler: true, summary: resultLine, resultLine, day: s.day
+        };
+      }
+      return {
+        eventId: `voice.hunt.${hunt.size}.${biome}.${hunt.ok ? 'ok' : 'fail'}`, title: 'The hunt',
+        beats, beatIndex: 0, choices: [], lone: true, voice: true, filler: true,
+        summary: resultLine, resultLine, day: s.day
+      };
+    }
     function huntReportText(line, regionId) {
       if (!line || line.k !== 'hunt') return null;
       let biome = null;
@@ -1099,20 +1142,12 @@
     }
     function attachVoiceHunt(s, rep, ev) {
       const next = attachVoice(ev);
-      const hunt = (rep || []).find((l) => l.k === 'hunt' && l.size === 'medium');
-      if (!hunt || s.dead) return next;
-      let biome = null;
-      try { biome = W.region(s.region).biome; } catch (e) { biome = null; }
-      if (biome !== 'steppe') return next;
-      const id = hunt.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail';
-      const extra = beatsByEvent[id];
-      if (!extra || !Array.isArray(extra.beats)) return next;
-      const resultLine = huntNumbers(hunt);
-      return {
-        eventId: id, title: 'The hunt', beats: extra.beats.map((b) => Object.assign({}, b)),
-        beatIndex: 0, choices: [], lone: true, voice: true, filler: true,
-        summary: resultLine, resultLine, day: s.day, next
-      };
+      const hunt = (rep || []).find((l) => l.k === 'hunt');
+      if (!hunt || s.dead || hunt.foal) return next;
+      const scene = huntScene(s, hunt);
+      if (!scene.beats || scene.beats.length !== 4) return next;
+      scene.next = next;
+      return scene;
     }
     function plainHuntScene(s, rep) {
       const hunt = (rep || []).find((l) => l.k === 'hunt');
@@ -1126,12 +1161,7 @@
           beatIndex: 0, choices: [], lone: true, voice: true, filler: true, summary: resultLine, resultLine, day: s.day
         };
       }
-      const prose = hunt.ok ? `You caught ${hunt.size} prey and ate.` : 'The prey escaped.';
-      return {
-        eventId: hunt.ok ? 'voice.hunt.result' : 'voice.hunt.miss', title: 'The hunt',
-        beats: [{ kind: 'narration', text: prose }], beatIndex: 0, choices: [],
-        lone: true, voice: true, filler: true, summary: resultLine, resultLine, day: s.day
-      };
+      return huntScene(s, hunt);
     }
     function arrivalFallback(s, rep, regionId) {
       const region = W.region(regionId);
@@ -1284,7 +1314,7 @@
       const spoken = Pass2.arrival(region.biome, region.name, true);
       return kind === 'drink' ? spoken.drink : spoken.arrive;
     };
-    return { W, needState, newRun, available, huntChance, huntReportText, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
+    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });
