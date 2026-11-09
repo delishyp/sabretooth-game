@@ -108,6 +108,37 @@ fs.mkdirSync(SHOTS, { recursive: true });
   }
   const who = await page.evaluate(() => window.__menuDebug.game().state.pending.catId);
   assert.ok(who);
+
+  await page.evaluate(() => {
+    const s = window.__menuDebug.game().state;
+    s.phase = 'day'; s.pending = null; s.day = 1; s.region = 'mistwood';
+    s.records.receipts = (s.records.receipts || []).filter((k) => !k.includes('/approach/'));
+    for (const n of Object.values(s.npcs)) if (n.faction === 'loner') { n.met = false; n.affinity = 0; }
+    const n = s.npcs.mw04;
+    n.met = true; n.affinity = 25;
+    n.personality = { aggression: 40, sociability: 50, boldness: 40, loyalty: 90, curiosity: 40 };
+    window.__menuDebug.assignPortrait('player', s.cat.portraitId);
+  });
+  await page.locator('[data-g="approach"]').click();
+  await page.waitForFunction(() => document.querySelector('.event-beat') && document.querySelector('.event-beat').textContent.includes('Fog lies on the marsh'));
+  for (const [w, h, tag] of [[1280, 720, '720'], [1920, 1080, '1080']]) {
+    await resize(w, h);
+    const fit = await overflow();
+    assert.deepStrictEqual(fit, { page: true, card: true, beat: true });
+    await page.screenshot({ path: path.join(SHOTS, `mistwood-request-${tag}.png`) });
+  }
+  for (let i = 0; i < 8 && !(await page.locator('[data-g="sceneChoose"]').count()); i++) {
+    await page.locator('[data-g="advanceBeat"]').click();
+  }
+  await page.waitForFunction(() => document.querySelector('[data-g="sceneChoose"]'));
+  const ask = await page.evaluate(() => document.querySelector('.event-beat').textContent);
+  assert.ok(ask.includes('Bring me a hare'));
+  for (const [w, h, tag] of [[1280, 720, '720'], [1920, 1080, '1080']]) {
+    await resize(w, h);
+    const fit = await overflow();
+    assert.deepStrictEqual(fit, { page: true, card: true, beat: true });
+    await page.screenshot({ path: path.join(SHOTS, `mistwood-request-choices-${tag}.png`) });
+  }
   await app.close();
   console.log('scene captures', SHOTS, who);
 })().catch((e) => { console.error(e); process.exit(1); });

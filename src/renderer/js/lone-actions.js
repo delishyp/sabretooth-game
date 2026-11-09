@@ -136,15 +136,172 @@
     return Object.keys(knowledge).filter((id) => knowsFact(catId, id)).sort();
   }
 
+  function inZone(npc, s, opts) {
+    if ((npc.homeZones || []).includes(s.region)) return true;
+    return !!(npc.faction && npc.faction !== 'loner' && opts.zoneHolder === npc.faction);
+  }
   function eligiblePct(npc, s, opts) {
-    if (!npc || !npc.met || npc.faction !== 'loner') return 0;
-    if (npc.stage !== 'adult' && npc.stage !== 'elder') return 0;
-    if (Math.abs(npc.affinity || 0) < 20) return 0;
-    const home = (npc.homeZones || []).includes(s.region);
-    const near = !home && (npc.homeZones || []).some((z) => (opts.neighbours || []).includes(z));
-    if (home) return opts.lonerHomePct;
-    if (near) return opts.lonerAdjacentPct;
-    return 0;
+    if (!npc || !npc.met) return 0;
+    if (npc.faction === 'loner') {
+      if (npc.stage !== 'adult' && npc.stage !== 'elder') return 0;
+      if (Math.abs(npc.affinity || 0) < 20) return 0;
+      const home = (npc.homeZones || []).includes(s.region);
+      const near = !home && (npc.homeZones || []).some((z) => (opts.neighbours || []).includes(z));
+      if (home) return opts.lonerHomePct;
+      if (near) return opts.lonerAdjacentPct;
+      return 0;
+    }
+    if (!mistwoodRequest(npc, s, opts)) return 0;
+    return opts.lonerHomePct || 0;
+  }
+  function mistwoodRequest(npc, s, opts) {
+    if (!npc || npc.faction !== 'mistwood' || npc.stage !== 'adult' || !npc.met) return false;
+    if ((npc.affinity || 0) < 20) return false;
+    if (!inZone(npc, s, opts || {})) return false;
+    const top = Speech.topTrait(npc.personality);
+    return !!(top && top.trait === 'loyalty' && top.band === 'high');
+  }
+
+  function catBox(s, catId) {
+    if (!s.conversation) s.conversation = { schema: 1, slotDay: null, sequence: 0, ledger: [], pending: null, cats: {} };
+    if (!s.conversation.cats[catId]) s.conversation.cats[catId] = { facts: [], activeByTopic: {}, log: [] };
+    return s.conversation.cats[catId];
+  }
+  function bringPrey(s, catId) {
+    const cat = s.conversation && s.conversation.cats && s.conversation.cats[catId];
+    return (cat && cat.facts || []).find((f) => f.promiseId === 'bring_prey' && f.promise === 'pending' && f.catId === catId) || null;
+  }
+  function promiseReceipt(s, catId, factId) { return `${s.runId || ''}/${catId}/${factId}`; }
+  function hasReceipt(s, key) {
+    return receipts(s).includes(key) || ((s.worldMemory && s.worldMemory.ledger) || []).some((row) => row.receiptKey === key);
+  }
+  function pushReceipt(s, key, catId, factId, delta, sourceType) {
+    if (!s.records) s.records = {};
+    if (!s.records.receipts) s.records.receipts = [];
+    if (!s.records.receipts.includes(key)) s.records.receipts.push(key);
+    if (!s.worldMemory) return;
+    if (!Array.isArray(s.worldMemory.ledger)) s.worldMemory.ledger = [];
+    if (!s.worldMemory.ledger.some((row) => row.receiptKey === key)) {
+      s.worldMemory.ledger.push({
+        receiptKey: key, sourceType, recordKind: 'catToPlayer',
+        actor: catId, target: 'player', delta, factId, absDay: s.day
+      });
+    }
+  }
+  function fillName(text, name) {
+    return String(text || '').replace(/\{catName\}/g, name || '');
+  }
+  function keepBringPrey(s, catId) {
+    const fact = bringPrey(s, catId);
+    if (!fact) return { kept: false };
+    const key = promiseReceipt(s, catId, fact.factId);
+    if (hasReceipt(s, key)) return { kept: false, duplicate: true };
+    fact.promise = 'kept';
+    fact.resolvedDay = s.day;
+    fact.told = true;
+    pushReceipt(s, key, catId, fact.factId, 0, 'promise_kept');
+    const name = s.npcs[catId] && s.npcs[catId].name;
+    return { kept: true, delta: 0, summary: fillName(fact.keptText, name) };
+  }
+  function breakBringPrey(s, catId, how) {
+    const fact = bringPrey(s, catId);
+    if (!fact) return { broken: false };
+    const key = promiseReceipt(s, catId, fact.factId);
+    if (hasReceipt(s, key)) return { broken: false, duplicate: true };
+    fact.promise = 'broken';
+    fact.brokenAt = how;
+    fact.resolvedDay = s.day;
+    fact.told = how === 'refused';
+    const npc = s.npcs[catId];
+    if (npc) npc.affinity = Math.max(-100, Math.min(100, (npc.affinity || 0) - 5));
+    pushReceipt(s, key, catId, fact.factId, -5, 'promise_broken');
+    const name = npc && npc.name;
+    return { broken: true, delta: -5, summary: fillName(fact.brokenText, name) };
+  }
+  function breakOtherBringPrey(s, exceptId) {
+    const cats = (s.conversation && s.conversation.cats) || {};
+    const broken = [];
+    for (const id of Object.keys(cats)) {
+      if (id === exceptId || !bringPrey(s, id)) continue;
+      const row = breakBringPrey(s, id, 'given_away');
+      if (row.broken) broken.push(id);
+    }
+    return broken;
+  }
+  function bonefieldBorder(fact) {
+    if (!fact) return false;
+    const id = String(fact.factId || '');
+    const bonefield = fact.faction === 'bonefield' || fact.prideId === 'bonefield' || id.indexOf('bonefield') !== -1;
+    const border = fact.kind === 'border' || fact.topicId === 'border' || id.indexOf('border') !== -1;
+    return bonefield && border;
+  }
+  function gossipLine(fact, scene) {
+    if (!fact) return null;
+    const line = scene && scene.gossip && scene.gossip.bonefieldBorder;
+    if (bonefieldBorder(fact) && line) return line;
+    if (typeof fact.gossip === 'string' && fact.gossip) return fact.gossip;
+    if (typeof fact.summary === 'string' && fact.summary) return fact.summary;
+    return null;
+  }
+  function createBringPrey(s, catId, scene) {
+    const factId = `bring_prey/${s.day}`;
+    const box = catBox(s, catId);
+    if (box.facts.some((f) => f.factId === factId && f.catId === catId)) return factId;
+    box.facts.push({
+      factId, catId, topicId: 'approach', stanceId: 'request',
+      sourceChoiceKey: 'npc_initiative.mistwood.request_help.v1/bring_prey',
+      absDay: s.day, sequence: s.conversation.sequence || 0,
+      promise: 'pending', promiseId: 'bring_prey', kind: 'bring_prey', want: 'feed_the_pride',
+      insult: false, help: false, supersedesFactId: null, status: 'active', told: false,
+      keptText: scene && scene.replies && scene.replies.kept,
+      brokenText: scene && scene.replies && scene.replies.broken
+    });
+    return factId;
+  }
+  function mistwoodEvent(s, npc, opts) {
+    const scene = opts.scene || {};
+    const pending = bringPrey(s, npc.id);
+    const replies = scene.replies || {};
+    if (pending) {
+      const choices = [];
+      if (opts.huntReady) choices.push({ id: 'share', label: 'Drag your kill closer and share it.', result: 'share' });
+      choices.push({ id: 'refuse_prey', label: '“I can\'t.”', result: 'refuse_prey' });
+      choices.push({ id: 'leave', label: 'Leave it there.', result: 'leave' });
+      const ask = (scene.beats || []).find((b) => /hare from these marshes/.test(b.text));
+      return {
+        bond: !!opts.huntReady, lone: !opts.huntReady, followUp: 'bring_prey',
+        eventId: 'npc_initiative.mistwood.request_help.v1', title: 'A cat comes to you',
+        catId: npc.id, catName: npc.name, want: 'feed_the_pride',
+        beats: ask ? [ask] : [{ kind: 'speech', text: '“Bring me a hare from these marshes, or anything small. I\'ll carry it to them myself, and no one has to know where it came from.”' }],
+        beatIndex: 0, day: s.day, choices, replies
+      };
+    }
+    const told = (s.conversation && s.conversation.cats && s.conversation.cats[npc.id] && s.conversation.cats[npc.id].facts || [])
+      .find((f) => f.promiseId === 'bring_prey' && f.promise === 'broken' && f.brokenAt === 'given_away' && !f.told);
+    if (told) {
+      return {
+        lone: true, promiseTell: npc.id, eventId: 'npc_initiative.mistwood.request_help.v1',
+        title: 'A cat comes to you', catId: npc.id, catName: npc.name,
+        beats: [{ kind: 'narration', text: fillName(told.brokenText, npc.name) }],
+        beatIndex: 0, day: s.day, choices: []
+      };
+    }
+    const knows = opts.knowsFact || (() => false);
+    const facts = knownFacts(s, npc.id, knows);
+    const beats = (scene.beats || []).map((b) => Object.assign({}, b));
+    const gossipFact = (s.worldMemory && s.worldMemory.facts || []).filter((f) => facts.includes(f.factId)).map((f) => gossipLine(f, scene)).find(Boolean);
+    if (gossipFact) {
+      const at = beats.findIndex((b) => /hare from these marshes/.test(b.text));
+      const line = { kind: 'speech', text: gossipFact };
+      if (at === -1) beats.push(line); else beats.splice(at, 0, line);
+    }
+    return {
+      lone: true, eventId: 'npc_initiative.mistwood.request_help.v1', title: 'A cat comes to you',
+      catId: npc.id, catName: npc.name, want: scene.want || 'feed_the_pride',
+      text: scene.text || '', beats, beatIndex: 0, day: s.day,
+      choices: (scene.choices || []).map((c) => Object.assign({}, c)),
+      replies
+    };
   }
 
   function beginApproach(s, opts) {
@@ -159,6 +316,9 @@
       if (pct && Rng.chance(rng, pct)) { picked = npc; break; }
     }
     mark(s, 'approach', picked ? picked.id : 'none');
+    if (picked && (mistwoodRequest(picked, s, opts) || bringPrey(s, picked.id))) {
+      return { event: mistwoodEvent(s, picked, opts) };
+    }
     const beats = [];
     let facts = [];
     let kind = null;
@@ -191,12 +351,38 @@
     };
   }
 
+  function sociabilityBand(npc) {
+    const b = Speech.band(npc && npc.personality && npc.personality.sociability);
+    if (b === 'high') return 'high';
+    if (b === 'low') return 'low';
+    return 'mid';
+  }
   function choose(s, choiceId) {
     const p = s.pending;
     if (!p || !p.lone) return { error: 'scene' };
     if (p.choiceId) return { error: 'duplicate' };
+    const scene = p.eventId === 'npc_initiative.mistwood.request_help.v1';
+    if (scene && choiceId === 'ask_pride') {
+      if (p.asked) return { error: 'duplicate' };
+      p.asked = true;
+      p.choices = (p.choices || []).filter((c) => c.id !== 'ask_pride');
+      p.reply = p.replies && p.replies.ask;
+      return { state: s };
+    }
     p.choiceId = choiceId;
-    if (choiceId === 'accept_request' && p.catId) {
+    if (scene && choiceId === 'bring_prey') {
+      createBringPrey(s, p.catId, { replies: p.replies, want: p.want });
+      const name = p.catName || '';
+      p.summary = `${p.replies.bring} ${fillName(p.replies.bringNarration, name)}`;
+    } else if (scene && choiceId === 'decline') {
+      const band = sociabilityBand(s.npcs[p.catId]);
+      p.summary = band === 'low' ? p.replies.declineLow : p.replies.decline;
+    } else if (scene && choiceId === 'refuse_prey') {
+      const broken = breakBringPrey(s, p.catId, 'refused');
+      p.summary = broken.summary || p.summary;
+    } else if (scene && choiceId === 'leave') {
+      p.summary = 'You left the promise where it was.';
+    } else if (choiceId === 'accept_request' && p.catId) {
       const factId = `${s.runId || ''}/${p.catId}/approach_request/${s.day}`;
       if (!s.conversation) s.conversation = { schema: 1, slotDay: null, sequence: 0, ledger: [], pending: null, cats: {} };
       if (!s.conversation.cats[p.catId]) s.conversation.cats[p.catId] = { facts: [], activeByTopic: {}, log: [] };
@@ -228,5 +414,8 @@
     return { state: s };
   }
 
-  return { offer, usedDay, scentLines, beginScent, beginApproach, choose, openerKind, OPENERS, preyWord, outcomeXp: (found) => (found ? 10 : 4) };
+  return {
+    offer, usedDay, scentLines, beginScent, beginApproach, choose, openerKind, OPENERS, preyWord,
+    outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey
+  };
 });

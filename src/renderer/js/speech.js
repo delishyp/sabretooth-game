@@ -65,5 +65,17 @@
       traits: Object.fromEntries(TRAITS.map((t) => [t, personality[t]]))
     };
   }
-  return { TRAITS, GAP, band, complete, resolve };
+  /** The extreme trait farthest from 50. Ties keep the trait order. A middle band is not a top trait. */
+  function topTrait(personality) {
+    if (!personality) return null;
+    let best = null; let bestDist = -1; let bestBand = null;
+    for (const t of TRAITS) {
+      const b = band(personality[t]);
+      if (b !== 'high' && b !== 'low') continue;
+      const d = Math.abs(personality[t] - 50);
+      if (d > bestDist) { best = t; bestDist = d; bestBand = b; }
+    }
+    return best ? { trait: best, band: bestBand } : null;
+  }
+  return { TRAITS, GAP, band, complete, resolve, topTrait };
 });

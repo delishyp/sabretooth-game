@@ -49,7 +49,7 @@
     if (cond.trait) {
       const who = cond.who || 'npc';
       const got = band(personality(ctx, who) && personality(ctx, who)[cond.trait]);
-      const want = cond.band === 'middle' ? 'baseline' : cond.band;
+      const want = cond.band === 'middle' || cond.band === 'mid' ? 'baseline' : cond.band;
       return !!got && got === want;
     }
     if (Object.prototype.hasOwnProperty.call(cond, 'knowsFact')) {

@@ -334,9 +334,23 @@
         }
         return { state: s0, error: 'beat.done' };
       }
+      if (s.phase === 'event' && Pair.enabled && s.pending && s.pending.bond && action.type === 'choose' && action.choiceId === 'refuse_prey') {
+        const broken = Lone.breakBringPrey(s, s.pending.catId, 'refused');
+        if (!broken.broken && broken.duplicate) return { state: s0, error: 'duplicate' };
+        s.pending.choiceId = 'refuse_prey';
+        s.pending.summary = broken.summary;
+        s.phase = 'eventResult';
+        return { state: s };
+      }
       if (s.phase === 'event' && Pair.enabled && s.pending && s.pending.bond) {
+        const catId = s.pending.catId;
         const picked = Pair.choose(s, action, bondDeps(s, rep));
         if (picked.error) return { state: s0, error: picked.error };
+        if (action.type === 'choose' && action.choiceId === 'share' && s.pending && s.pending.choiceId === 'share') {
+          const kept = Lone.keepBringPrey(s, catId);
+          if (kept.kept && kept.summary) s.pending.summary = kept.summary;
+          Lone.breakOtherBringPrey(s, catId);
+        }
         return { state: s };
       }
       if (s.phase === 'event' && action.type === 'choose' && s.pending && !s.pending.hostile) {
@@ -362,7 +376,7 @@
         return { state: s };
       }
       if (s.phase === 'event') return choose(s, action);
-      if (s.phase === 'eventResult' && action.type === 'sceneChoose') {
+      if (s.phase === 'eventResult' && (action.type === 'sceneChoose' || (action.type === 'choose' && s.pending && s.pending.choiceId))) {
         return { state: s0, error: 'duplicate' };
       }
       if (s.phase === 'eventResult') {
@@ -400,11 +414,15 @@
         return { state: s };
       }
       if (s.phase === 'day' && action.type === 'approach') {
+        const own = W.ownership(s.map.claims, s.region);
         const opened = Lone.beginApproach(s, {
           neighbours: W.neighbours(s.region),
           lonerHomePct: M.lonerHomePct,
           lonerAdjacentPct: M.lonerAdjacentPct,
-          knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId)
+          knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId),
+          zoneHolder: own.state === 'held' ? own.holder : null,
+          huntReady: !!(s.records && s.records._huntOk),
+          scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null
         });
         if (opened.error) return { state: s0, error: opened.error };
         s.pending = opened.event;

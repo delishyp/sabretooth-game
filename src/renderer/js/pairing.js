@@ -1125,7 +1125,8 @@
         return { applied: true, delta };
       }
       if (result === 'share') {
-        if (!huntOk(s)) return { applied: false, error: 'share' };
+        const hunted = huntOk(s) || !!(s.report && s.report.day === day && (s.report.lines || []).some((l) => l.k === 'hunt' && l.ok));
+        if (!hunted) return { applied: false, error: 'share' };
         npc.affinity = Math.max(-100, Math.min(100, npc.affinity + 10));
         if (deps.notePersonal) deps.notePersonal(s, npc.id, 10, key);
         s.records._huntOk = false;

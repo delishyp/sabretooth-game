@@ -632,6 +632,7 @@
       const prose = el('div', 'event-beat');
       prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', shown.kind === 'speech' && shown.speaker ? `${shown.speaker}: ${shown.text}` : shown.text));
       card.append(prose);
+      if (s.pending.reply) card.append(el('p', 'event-text say', s.pending.reply));
       const last = idx >= beats.length - 1;
       const ch = el('div', 'event-choices');
       if (s.phase === 'eventResult') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
