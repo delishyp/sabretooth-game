@@ -231,13 +231,13 @@
         || (producer && producer.personalityCoverage && producer.personalityCoverage.speechLocations)
         || {};
     }
-    function speak(npc, location, locations) {
+    function speak(npc, location, locations, extra) {
       if (!Speech || !graph || !npc) return null;
       const coverage = {
         speechLocations: locations || speechLocations(),
         contextActions: graph.personalityCoverage && graph.personalityCoverage.contextActions
       };
-      return Speech.resolve(coverage, location, npc.personality, Speech.nameVars(npc));
+      return Speech.resolve(coverage, location, npc.personality, Speech.nameVars(npc, extra));
     }
     function linesFrom(npc, resolved) {
       if (!resolved) return [];
@@ -554,13 +554,13 @@
     }
     function fordLines(hc, bf, ids) {
       const locs = fordDoc && fordDoc.speechLocations;
+      const names = { highcragCatName: hc && hc.name, bonefieldCatName: bf && bf.name };
       const lines = [];
       for (const id of ids) {
-        const npc = id.includes('bonefield') || id.startsWith('aid_bonefield') || id.startsWith('side_bonefield') || id.startsWith('stay_bonefield') ? bf : hc;
         if (id === 'bonefield_answer' || id === 'aid_bonefield_response' || id === 'side_bonefield_response' || id === 'stay_bonefield_response') {
-          const spoken = speak(bf, id, locs); if (spoken) lines.push(...linesFrom(bf, spoken));
+          const spoken = speak(bf, id, locs, names); if (spoken) lines.push(...linesFrom(bf, spoken));
         } else {
-          const spoken = speak(hc, id, locs); if (spoken) lines.push(...linesFrom(hc, spoken));
+          const spoken = speak(hc, id, locs, names); if (spoken) lines.push(...linesFrom(hc, spoken));
         }
       }
       return lines;
@@ -574,7 +574,7 @@
       if (!hc || !bf || !Speech || !Speech.complete(hc.personality) || !Speech.complete(bf.personality)) return false;
       applyFordEdges(s, hc.id, bf.id);
       hc.met = true; bf.met = true;
-      const narration = String(fordDoc.openingNarration || '').replace('{highcragCatName}', hc.name).replace('{bonefieldCatName}', bf.name);
+      const narration = String(fordDoc.openingNarration || '').replace(/\{highcragCatName\}/g, hc.name).replace(/\{bonefieldCatName\}/g, bf.name);
       const lines = [{ kind: 'narration', text: narration }].concat(fordLines(hc, bf, ['highcrag_open', 'bonefield_answer']));
       s.ford = { hcId: hc.id, bfId: bf.id, node: 'open', choiceId: null, lines };
       s.phase = 'ford';

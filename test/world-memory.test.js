@@ -283,6 +283,24 @@ function restUntil(s, pred) {
   return cur;
 }
 
+test('rendered ford opener and the high-aggression Highcrag line match Saga\'s file', () => {
+  const voice = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/narrative/ford-voice-v1.json'), 'utf8'));
+  let s = E.newRun({ mainCat: cat, seed: 4, runId: 'ford-voice' });
+  s.npcs.hc07.personality = { aggression: 80, sociability: 50, boldness: 50, loyalty: 50, curiosity: 50 };
+  s = toDay(E.act(s, { type: 'travel', to: 'greywater_ford' }).state);
+  assert.strictEqual(s.phase, 'ford');
+  assert.strictEqual(s.ford.hcId, 'hc07');
+  const hc = s.npcs[s.ford.hcId];
+  const bf = s.npcs[s.ford.bfId];
+  const narration = s.ford.lines.find((l) => l.kind === 'narration').text;
+  const expected = voice.openingNarration.replaceAll('{highcragCatName}', hc.name).replaceAll('{bonefieldCatName}', bf.name);
+  assert.strictEqual(narration, expected);
+  assert.strictEqual(narration.includes('{'), false);
+  const spoken = s.ford.lines.find((l) => l.kind === 'say' && l.speaker === hc.name);
+  assert.strictEqual(spoken.variantId, 'highcrag_open#high');
+  assert.strictEqual(spoken.text, voice.speechLocations.highcrag_open.high);
+});
+
 test('ordinary play records both ford edges once, then a witnessed relay makes the leader defer', () => {
   let s = E.newRun({ mainCat: cat, seed: 4, runId: 'defer-play' });
   const portrait = s.npcs.ln05.portraitId;
