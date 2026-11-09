@@ -45,7 +45,7 @@ test('a follow-up fires once, only from a recorded fact, and not for a dead or a
   arm(s, { sourceEventId: 'm2.ford_prey_dispute', choiceId: 'help_bonefield_cat', catId: 'ln01', kind: 'ford_cold', factId: 'aided' });
   let opened = E.act(s, { type: 'talk', catId: 'ln01' }).state;
   assert.strictEqual(opened.pending.eventId, 'followup.m2.ford_prey_dispute.help_bonefield_cat');
-  assert.match(opened.pending.beats[0].text, /^PLACEHOLDER:/);
+  assert.match(opened.pending.beats.map((b) => b.text).join(' '), /The ford/);
   const before = opened.npcs.ln01.affinity;
   opened = E.act(opened, { type: 'choose', choiceId: 'repair' }).state;
   assert.strictEqual(opened.npcs.ln01.affinity, before + 5);

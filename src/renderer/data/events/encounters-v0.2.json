@@ -149,7 +149,7 @@
           ]
         },
         "observe": {
-          "text": "The deer turns its head, sweeping the antlers through the space in front of it. Getting close would not mean getting past them. Watching has given you a clearer view, not a guaranteed opening.",
+          "text": "The deer swings its great head, and the antlers sweep the air like a falling branch. You see now how it guards its throat, turning to face every rustle. If there's a way in, it's narrow.",
           "choices": [
             {
               "id": "stalk",
@@ -166,7 +166,7 @@
           "effect": "Observation only. No automatic accuracy bonus, extra hunger, consumed day, injury, attraction or knowledge of hidden numerical odds."
         },
         "approach": {
-          "text": "You keep your body low and work toward the edge of the cover. Beyond it, you would be exposed. The deer is still upright; nothing has been won yet.",
+          "text": "Belly to the ground, you creep to the last of the cover. One more step and you'll be in the open. The deer is still upright, still chewing, and your heart is hammering.",
           "choices": [
             {
               "id": "commit_hunt",
@@ -185,7 +185,7 @@
       },
       "outcomeRendering": {
         "prey_attempt_abandoned": {
-          "text": "You leave the deer where it stands. There is no carcass to eat or share.",
+          "text": "You back away and leave the deer standing. Your belly complains all the way back.",
           "writes": "One actual abandoned-attempt event; any already-spent action/day cost follows Tundra’s phase rule. No fabricated food, wound or free refund."
         },
         "resolve_one_large_prey_attempt": {
@@ -202,7 +202,7 @@
         }
       },
       "nonHuntSighting": {
-        "text": "You watch the giant deer from a distance, then let it move on. Seeing it has not made it a successful hunt.",
+        "text": "You watch the giant deer until it fades into the trees. A beast like that would have fed you for days, if you'd dared.",
         "writes": "Optional witnessed sighting event only, no food or extra resolution."
       },
       "memory": {
@@ -260,7 +260,7 @@
           "effect": "The warning is visible now. No injury/food loss follows merely from the enemy label or image."
         },
         "watch": {
-          "text": "The wolves keep facing your position. Watching has not made a route through them safe, and you cannot tell from their teeth alone whether they will follow.",
+          "text": "The wolves keep facing you, ears pricked. No way through them looks safe, and there's no telling whether they'll follow if you run.",
           "choices": [
             {
               "id": "withdraw",
@@ -406,7 +406,7 @@
             "deed": "drive_hyena"
           },
           "fail": {
-            "text": "The hyena still holds the space around the carcass. You have not driven it away.",
+            "text": "The hyena whoops and stands its ground over the carcass. It isn't going anywhere.",
             "outcome": "hyena_keeps_kill",
             "speech": "failed",
             "noDeeds": true
@@ -414,12 +414,12 @@
           "injuryOverlay": "The attempt has left you with an injury. Show this only when the actual minor-injury effect is committed."
         },
         "hyena_keeps_kill": {
-          "text": "You leave the carcass within the hyena’s reach. You take no meat and claim no successful aid.",
+          "text": "You turn from the carcass and leave it to the hyena's cackling. There's no meat for you, and no help given.",
           "standing": 0,
           "terminal": true
         },
         "player_takes_kill": {
-          "text": "You take meat from the Highcrag kill. {hunterName} sees you feed. This was not your hunt.",
+          "text": "You tear a mouthful from the Highcrag kill. {hunterName} sees you do it, and the look says it plainly: this was not your hunt.",
           "speech": "steal",
           "effects": "v0.6 Hunger +50 and witnessed Highcrag standing -5 hunt_steal once; no private/automatic spillover, extra player kill, predator defeat or carried carcass.",
           "terminal": true
@@ -527,32 +527,38 @@
         },
         "allTraitActionCues": {
           "aggression": {
-            "low": "Keeps teeth covered while speaking.",
-            "middle": "Speaks without baring teeth.",
-            "high": "Lifts the lip briefly.",
-            "devNote": { "high": "Lifts the lip briefly, without an unchosen attack." }
+            "low": "{catName} speaks with the teeth hidden.",
+            "middle": "{catName} speaks evenly.",
+            "high": "{catName}'s lip curls back from a saber, just for a moment.",
+            "devNote": {
+              "high": "Lifts the lip briefly, without an unchosen attack."
+            }
           },
           "sociability": {
-            "low": "A brief glance, then looks back at the scene.",
-            "middle": "Looks toward you for the reply.",
-            "high": "Turns toward you and holds the exchange open."
+            "low": "{catName} spares you a glance, then fixes again on the hyena.",
+            "middle": "{catName} looks your way for an answer.",
+            "high": "{catName} turns toward you, glad of the company."
           },
           "boldness": {
-            "low": "Keeps a wider distance from the threat or the unfamiliar cat.",
-            "middle": "Holds position without moving closer.",
-            "high": "Stands in the open and does not come closer.",
-            "devNote": { "high": "Stands openly without retreating; does not approach an unsupported danger." }
+            "low": "{catName} keeps well back from the hyena's snapping jaws.",
+            "middle": "{catName} holds ground.",
+            "high": "{catName} stands in the open, daring the hyena to come.",
+            "devNote": {
+              "high": "Stands openly without retreating; does not approach an unsupported danger."
+            }
           },
           "loyalty": {
-            "low": "Stays by the carcass instead of coming toward you.",
-            "middle": "Checks the carcass between replies.",
-            "high": "Keeps between the carcass and the other animal."
+            "low": "{catName} hunches over the kill, ignoring you.",
+            "middle": "{catName} keeps checking the carcass between words.",
+            "high": "{catName} keeps {his} body between the kill and anything that wants it."
           },
           "curiosity": {
-            "low": "Returns attention to the immediate task after the reply.",
-            "middle": "Checks the surroundings once.",
-            "high": "Studies the tracks and where everyone stands before answering.",
-            "devNote": { "high": "Studies the visible tracks and positions before replying; learns no hidden facts." }
+            "low": "{catName} answers and turns straight back to the kill.",
+            "middle": "{catName} glances around once.",
+            "high": "{catName} reads the tracks around the carcass before answering, nose low.",
+            "devNote": {
+              "high": "Studies the visible tracks and positions before replying; learns no hidden facts."
+            }
           }
         },
         "application": "At every actual NPC speech beat select focus-trait utterance plus context-compatible visible action cues from all five saved traits. Do not stack all five cues as five repetitive sentences: compose concise action with the established revision6 presentation contract. Hunter cues referring to carcass apply only while present; outsider uses only compatible neutral/spacing cues, never claims ownership of Highcrag kill. Request/ack are hunter, outsider_request is the actual outsider. Save selected lines/actions at pending node. Traits alter voice/spacing, not reward, success, consent or unseen facts."

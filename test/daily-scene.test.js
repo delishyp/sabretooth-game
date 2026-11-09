@@ -89,8 +89,8 @@ test('a quiet arrival uses the reached-and-drank line until a biome scene exists
   const arrived = quiet.act(s, { type: 'travel', to: dest.to }).state;
   assert.strictEqual(arrived.pending.eventId, `travel.arrive.${quiet.W.region(dest.to).biome}`);
   const text = arrived.pending.beats.map((b) => b.text).join(' ');
-  assert.ok(text.startsWith('You reached '));
-  assert.ok(text.includes('You drank your fill.'));
+  assert.match(text, /Grass runs to the horizon in /);
+  assert.match(text, /hoof-churned waterhole/);
   const beats = JSON.parse(JSON.stringify(j('events/sample-beats.json')));
   beats['travel.arrive.steppe'] = { beats: [{ kind: 'narration', text: 'The grass opens in front of you.' }] };
   const voiced = engine({
@@ -104,5 +104,5 @@ test('a quiet arrival uses the reached-and-drank line until a biome scene exists
   const steppe = voiced.available(start).travel.find((t) => t.allowed && t.to === 'tallgrass');
   const scene = voiced.act(start, { type: 'travel', to: steppe.to }).state;
   assert.strictEqual(scene.pending.beats[0].text, 'The grass opens in front of you.');
-  assert.ok(scene.pending.resultLine.startsWith('You reached '));
+  assert.match(scene.pending.resultLine, /hoof-churned waterhole/);
 });

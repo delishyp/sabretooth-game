@@ -409,7 +409,7 @@
           return t(l.ok ? 'game.report.huntOk' : 'game.report.huntFail', { size: t(`game.size.${l.size}`), chance: l.chance, ate: l.ate });
         }
         case 'rest': return t('game.report.rest', { energy: l.energy });
-        case 'arrive': return t('game.report.arrive', { region: regionName(l.region) });
+        case 'arrive': return E.arrivalText(l.region, 'arrive') || t('game.report.arrive', { region: regionName(l.region) });
         case 'travelling': return t.plural('game.report.travelling', l.daysLeft, { region: regionName(l.to) });
         case 'injury': return t(`game.report.injury.${l.tier}`);
         case 'hazard': return t('game.report.hazard', { hazard: t(`game.hazard.${l.id}`) });
@@ -418,7 +418,8 @@
         case 'patrol': return t('game.report.patrol', { faction: factionName(l.faction), relation: l.relation });
         case 'killShare': return killShareText(factionName(l.pride), l.hunger);
         case 'healed': return t(`game.report.healed.${l.tier}`);
-        case 'drink': case 'tarEscaped': case 'starving': case 'parched': case 'stuck': case 'lost': return t(`game.report.${l.k}`);
+        case 'drink': return (s.report && E.arrivalText(s.report.region, 'drink')) || t('game.report.drink');
+        case 'tarEscaped': case 'starving': case 'parched': case 'stuck': case 'lost': return t(`game.report.${l.k}`);
         case 'watch': return `You watched from the hillside. Energy +${l.energy}.`;
         case 'scout': return l.text;
         default: return null;                              // meetLoner: the event itself is the report
@@ -557,16 +558,18 @@
     }
     function encounterCost(view) {
       const c = (E.rules && E.rules.encounter) || {};
+      const fill = (text, vars) => String(text).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
       if (view.encounterId === 'encounter.giant_deer.v1') {
-        return `This hunt has spent the day and Energy −${c.deerSearchEnergy}. Watching or leaving adds nothing and awards no food. Committing costs Energy −${c.deerCommitEnergy} and is not a guaranteed kill.`;
+        return fill('The search has used your day (Energy −{deerSearchEnergy}). Watching or leaving costs nothing more but brings no food. Going in for the kill costs Energy −{deerCommitEnergy}, and it may fail.', c);
       }
-      const devNote = { wolf: 'Withdrawing uses the existing flee. A wolf warning does not change Highcrag standing.' };
-      if (view.encounterId === 'encounter.wolf_pack.v1') return devNote && 'The pack lets you leave if you give ground.';
+      if (view.encounterId === 'encounter.wolf_pack.v1') return 'If you withdraw, the wolves may still give chase. A warning from wolves won\'t change how Highcrag sees you.';
       const f = view.forecast;
-      if (!f) return 'Finished help adds no further standing.';
-      const extra = f.extraEnergy ? `Extra Energy −${f.extraEnergy}.` : 'No extra Energy.';
-      const wound = f.injury ? 'A failed contest at this stat also leaves a minor injury.' : 'This stat does not add an injury.';
-      return `Drive-off is ${f.tier} (fight stat ${Math.round(f.stat * 10) / 10} against ${f.threat}). ${extra} ${wound} Failure, yielding, and retreat pay no standing.`;
+      if (!f) return 'You\'ve already helped here; more won\'t earn anything.';
+      const extra = f.extraEnergy ? fill('It will cost Energy −{extraEnergy} more.', f) : 'It won\'t cost extra Energy.';
+      const wound = f.injury ? 'If you fail, you\'ll come away with a minor injury.' : 'Even if you fail, you won\'t be hurt.';
+      return fill('Your odds of driving it off look {tier} (fight {stat} against {threat}). {extra} {wound} Backing down earns nothing with Highcrag.', {
+        tier: f.tier, stat: Math.round(f.stat * 10) / 10, threat: f.threat, extra, wound
+      });
     }
     function renderBond() {
       const box = $('#game-event'); const p = s.pending;

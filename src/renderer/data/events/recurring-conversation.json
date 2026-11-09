@@ -1165,156 +1165,156 @@
     "contextActions": {
       "opening": {
         "aggression": [
-          "{catName} holds their place and waits for a plain answer.",
-          "{catName} leaves a clear path past them rather than blocking you."
+          "{catName} plants {his} paws square in the trail and waits, sabers resting against {his} chin.",
+          "{catName} steps half off the trail, leaving you a clear way past."
         ],
         "sociability": [
-          "{catName} turns fully toward you and makes room at their side.",
-          "{catName} leaves a little distance for you to choose whether to close."
+          "{catName} turns toward you with a soft chuff, as if you were expected.",
+          "{catName} hangs back a tail-length, letting you decide whether to come closer."
         ],
         "boldness": [
-          "{catName} takes the first step toward a place to pause, then waits.",
-          "{catName} waits for you to stop before moving closer."
+          "{catName} strides straight to a flat stone and settles there, waiting for you to follow.",
+          "{catName} doesn't move until you've stopped, then edges a pace nearer."
         ],
         "loyalty": [
-          "{catName} waits for an answer rather than treating your approach as an agreement.",
-          "{catName} offers only this moment, without pressing for another meeting."
+          "{catName}'s gaze goes to you and stays there, steady as stone.",
+          "{catName} keeps glancing at the far trail, half ready to be gone."
         ],
         "curiosity": [
-          "{catName} watches for whether you mean to stop or keep moving.",
-          "{catName} waits for a direct answer instead of looking for another question."
+          "{catName}'s ears swivel forward, reading every twitch of your whiskers.",
+          "{catName} gives you one look and then studies the horizon instead."
         ]
       },
       "walking": {
         "aggression": [
-          "{catName} chooses a steady line beside you, leaving room between your shoulders.",
-          "{catName} shifts aside to leave you room to choose your pace."
+          "{catName} walks shoulder to shoulder with you, a little too close, testing.",
+          "{catName} drifts a pace to the side so your flanks never brush."
         ],
         "sociability": [
-          "{catName} keeps beside you rather than moving out ahead.",
-          "{catName} keeps a small, comfortable gap without leaving the walk."
+          "{catName} keeps right beside you, tail swaying, chattering about nothing much.",
+          "{catName} pads along in silence, a comfortable gap between you."
         ],
         "boldness": [
-          "{catName} offers to set the pace, then checks that you are alongside.",
-          "{catName} matches the slower pace instead of urging you farther."
+          "{catName} takes the lead without asking and glances back once to see you're still there.",
+          "{catName} matches your pace exactly and lets you choose the way."
         ],
         "loyalty": [
-          "{catName} keeps to the pace and quiet being offered now.",
-          "{catName} limits the invitation to this stretch rather than promising more."
+          "{catName} keeps to your side even where the path narrows and one of you should drop back.",
+          "{catName} lingers at every scent-mark you pass, as if weighing whether to turn off."
         ],
         "curiosity": [
-          "{catName} watches how you match each other’s steps.",
-          "{catName} keeps attention on the walk rather than looking for a new subject."
+          "{catName} keeps sniffing the air you've just walked through, learning you.",
+          "{catName} watches the trail ahead, ignoring everything but the next step."
         ]
       },
       "question": {
         "aggression": [
-          "{catName} faces the question directly, without crowding you.",
-          "{catName} gives you room to finish before answering."
+          "{catName}'s tail lashes once before the answer comes out, blunt as a paw-strike.",
+          "{catName} lets you finish, ears soft, before saying anything at all."
         ],
         "sociability": [
-          "{catName} stays turned toward you, inviting an answer in return.",
-          "{catName} answers without moving closer or extending the talk."
+          "{catName} answers, then tilts {his} head: your turn.",
+          "{catName} gives the shortest answer possible and looks away."
         ],
         "boldness": [
-          "{catName} answers without waiting for you to make the question easier.",
-          "{catName} pauses to choose an answer rather than rushing it."
+          "{catName} answers at once, without a flicker of doubt.",
+          "{catName} is quiet for a long breath, choosing each word."
         ],
         "loyalty": [
-          "{catName} keeps the answer to what they can actually offer.",
-          "{catName} speaks about today rather than binding either of you to more."
+          "{catName} answers carefully, like someone who keeps every word they give.",
+          "{catName} answers lightly, as though nothing said today needs to count tomorrow."
         ],
         "curiosity": [
-          "{catName} leaves a pause for you to explain what you meant.",
-          "{catName} answers the question at hand without opening another subject."
+          "{catName} leans in, plainly wanting to know why you asked.",
+          "{catName} answers and leaves it at that, uninterested in where the question came from."
         ]
       },
       "boundary": {
         "aggression": [
-          "{catName} plants their paws and holds the space they have asked for.",
-          "{catName} eases back rather than turning the disagreement into a confrontation."
+          "{catName}'s fur lifts along the spine. The answer is not going to change.",
+          "{catName} lowers {his} head and steps back, refusing to make it a fight."
         ],
         "sociability": [
-          "{catName} stays facing you; wanting company has not removed the limit.",
-          "{catName} leaves more room between you instead of seeking reassurance."
+          "{catName} stays close even now; being fond of you doesn't move the line.",
+          "{catName} pulls away, putting cold air between you."
         ],
         "boldness": [
-          "{catName} meets your gaze while stating the limit.",
-          "{catName} states the limit from a little farther away."
+          "{catName} meets your eyes and holds {him} while saying no.",
+          "{catName} says it to the ground between your paws, but says it all the same."
         ],
         "loyalty": [
-          "{catName} waits to see whether the limit is respected before offering more.",
-          "{catName} keeps the question to what each of you wants now."
+          "{catName} watches you closely, waiting to see if you'll honour what was said.",
+          "{catName} shrugs it off as if it were only about today."
         ],
         "curiosity": [
-          "{catName} waits for your answer rather than deciding what you meant.",
-          "{catName} does not prolong the disagreement with more questions."
+          "{catName} waits, clearly wanting to hear how you'll answer this.",
+          "{catName} turns {his} head away. The subject is closed."
         ]
       },
       "return": {
         "aggression": [
-          "{catName} waits squarely for your answer without stepping into your way.",
-          "{catName} leaves you room to answer or pass."
+          "{catName} stands squarely in the open, waiting for your answer.",
+          "{catName} steps aside, leaving it entirely up to you."
         ],
         "sociability": [
-          "{catName} makes space beside them for the invitation they are offering.",
-          "{catName} offers a little room without closing the whole gap."
+          "{catName} shuffles over, making room on the warm ground beside {him}.",
+          "{catName} makes a little room, though not all of it."
         ],
         "boldness": [
-          "{catName} makes the invitation plainly, then waits.",
-          "{catName} waits until you have stopped before making the invitation."
+          "{catName} says it plainly and waits, chin up.",
+          "{catName} waits until you've settled before daring to ask."
         ],
         "loyalty": [
-          "{catName} leaves the earlier words as they were, waiting to hear what you choose now.",
-          "{catName} makes today’s invitation without asking for a longer promise."
+          "{catName} remembers what you said last time. You can see it in the way they look at you.",
+          "{catName} doesn't mention last time at all, as if each meeting starts fresh."
         ],
         "curiosity": [
-          "{catName} watches for your answer rather than assuming you want the same thing again.",
-          "{catName} waits on the present invitation without adding another subject."
+          "{catName} watches you closely, trying to guess what you'll choose this time.",
+          "{catName} asks once and doesn't press."
         ]
       },
       "departure": {
         "aggression": [
-          "{catName} steps aside rather than turning an ending into a confrontation.",
-          "{catName} lets the exchange end without following you."
+          "{catName} steps off the trail and lets you pass without a growl.",
+          "{catName} doesn't follow you, not even with {his} eyes."
         ],
         "sociability": [
-          "{catName} stays facing you for the last words, but does not delay your leaving.",
-          "{catName} gives you room to leave without stretching the farewell."
+          "{catName} watches you go until the grass closes behind you.",
+          "{catName} is already turning away before you've said goodbye."
         ],
         "boldness": [
-          "{catName} turns toward their own path once the answer is given.",
-          "{catName} waits for a little distance before turning away."
+          "{catName} turns down {his} own path without a backward glance.",
+          "{catName} waits until you're a few lengths off before slipping away."
         ],
         "loyalty": [
-          "{catName} leaves the answer as given, without extracting another promise.",
-          "{catName} lets today’s meeting end without making arrangements for another."
+          "{catName} stands where you left {him}, as if marking the place.",
+          "{catName} melts into the landscape like the meeting never happened."
         ],
         "curiosity": [
-          "{catName} lets the question wait rather than calling you back.",
-          "{catName} adds no further question to the farewell."
+          "{catName} looks after you a long moment, as if a question is still waiting to be asked.",
+          "{catName} has already lost interest by the time you turn to look."
         ]
       },
       "confiding": {
         "aggression": [
-          "{catName} makes the request without stepping into your way.",
-          "{catName} leaves you room to answer without pressure."
+          "{catName} asks it straight out, almost a challenge.",
+          "{catName} asks softly, giving you every chance to refuse."
         ],
         "sociability": [
-          "{catName} offers a place beside them, waiting to see whether you take it.",
-          "{catName} offers the nearness without asking for constant talk."
+          "{catName} settles close beside you, fur nearly touching, while asking.",
+          "{catName} asks from a little way off, still keeping {his} own space."
         ],
         "boldness": [
-          "{catName} holds your gaze while making the request.",
-          "{catName} glances aside, then gives you time to answer."
+          "{catName} holds your gaze the whole time, unashamed of wanting this.",
+          "{catName} glances away as soon as the words are out."
         ],
         "loyalty": [
-          "{catName} waits for the limit of what you are willing to offer.",
-          "{catName} keeps the request to this meeting rather than asking for a lasting commitment."
+          "{catName} asks the way a cat asks for something they'd never forget.",
+          "{catName} keeps it light, as if it's only about today."
         ],
         "curiosity": [
-          "{catName} gives you time to say what staying would mean to you.",
-          "{catName} waits for your answer without questioning it in advance."
+          "{catName} watches your face for the answer before you give it.",
+          "{catName} doesn't wonder aloud what your answer might mean."
         ]
       }
     },

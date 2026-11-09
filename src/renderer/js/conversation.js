@@ -60,7 +60,7 @@
       return c.cats[catId];
     }
     function varsFor(s, npc) {
-      return { catName: npc ? npc.name : '', playerName: s.cat ? s.cat.name : '', region: s.region, regionName: s.region, day: s.day };
+      return Speech.nameVars(npc, { playerName: s.cat ? s.cat.name : '', region: s.region, regionName: s.region, day: s.day });
     }
     function traitMatch(when, personality) {
       const m = String(when || '').match(/B\.(aggression|sociability|boldness|loyalty|curiosity)\s*(>=|<=)\s*(\d+)/);

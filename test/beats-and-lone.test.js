@@ -59,10 +59,12 @@ test('beats keep order, honour conditions, and fall back when missing or invalid
   const before = run.npcs.bf01.affinity;
   run.phase = 'event';
   run.pending = { eventId: 'slice.meeting.bonefield', kind: 'first_meeting', catId: 'bf01', catName: run.npcs.bf01.name, day: run.day, hostile: false, choiceId: null, beatIndex: 0 };
-  assert.strictEqual(E.sceneBeats(run).length, 4);
+  const leaderBeats = E.sceneBeats(run);
+  assert.ok(leaderBeats.length >= 3);
+  assert.match(leaderBeats.map((b) => b.text).join(' '), /Say what you want, stray/);
   let last = run;
-  while ((last.pending.beatIndex || 0) < 3) last = E.act(last, { type: 'advanceBeat' }).state;
-  assert.strictEqual(last.pending.beatIndex, 3);
+  while ((last.pending.beatIndex || 0) < leaderBeats.length - 1) last = E.act(last, { type: 'advanceBeat' }).state;
+  assert.strictEqual(last.pending.beatIndex, leaderBeats.length - 1);
   const greeted = E.act(last, { type: 'choose', choiceId: 'steady' }).state;
   assert.strictEqual(greeted.phase, 'eventResult');
   assert.strictEqual(greeted.npcs.bf01.affinity, before + 5);

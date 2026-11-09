@@ -402,7 +402,7 @@
             },
             {
               "kind": "narration",
-              "text": "The request has been refused. That answer does not replace {catName}’s own wishes."
+              "text": "The answer is no. {catName} looks at you for a long moment, and whatever {catName} feels about it stays unspoken."
             }
           ],
           "summary": "{leaderName} refused your bond with {catName}.",
@@ -670,7 +670,7 @@
               "beats": [
                 {
                   "kind": "narration",
-                  "text": "You did not complete a mate bond with {catName} before the window closed. The attempt is not a promise of a later answer."
+                  "text": "The season turned before you and {catName} became mates. What might have been is still unsettled, and tomorrow is another day."
                 }
               ],
               "summary": "The mating season ended while you courted {catName}."
@@ -1077,35 +1077,39 @@
     ],
     "fiveTraitActionCues": {
       "aggression": {
-        "low": "Keeps the mouth relaxed while speaking.",
-        "middle": "Answers without a threatening display.",
-        "high": "The jaw tightens briefly.",
-        "devNote": { "high": "Jaw tightens briefly; does not invent a strike or threat outcome." }
+        "low": "{catName}'s voice stays soft and the sabers stay hidden.",
+        "middle": "{catName} answers evenly.",
+        "high": "{catName}'s jaw tightens around the words, and the tips of the sabers gleam.",
+        "devNote": {
+          "high": "Jaw tightens briefly; does not invent a strike or threat outcome."
+        }
       },
       "sociability": {
-        "low": "Keeps the exchange brief and leaves space between bodies.",
-        "middle": "Faces you while answering.",
-        "high": "Turns fully toward you and stays with the talk."
+        "low": "{catName} keeps it short and keeps a cool distance.",
+        "middle": "{catName} faces you while answering.",
+        "high": "{catName} turns fully toward you, warm and close."
       },
       "boldness": {
-        "low": "Keeps a wider space from unfamiliar cats.",
-        "middle": "Holds position.",
-        "high": "Answers directly without stepping back."
+        "low": "{catName} keeps well back, watchful of a stranger.",
+        "middle": "{catName} stays where they are.",
+        "high": "{catName} answers without giving an inch of ground."
       },
       "loyalty": {
-        "low": "Leaves the way past them open.",
-        "middle": "Stays through the answer.",
-        "high": "Stays close to what they have chosen.",
+        "low": "{catName}'s eyes flick toward the open land, as if half ready to leave.",
+        "middle": "{catName} stays until the answer is given.",
+        "high": "{catName} won't leave the side of whoever they've chosen.",
         "devNote": {
           "low": "Does not close the listener’s route away.",
           "high": "Remains beside the person or place of the actual chosen commitment; no sworn promise or loyalty fact invented."
         }
       },
       "curiosity": {
-        "low": "Returns attention to the immediate meeting after answering.",
-        "middle": "Checks your expression.",
-        "high": "Pauses to study you before answering.",
-        "devNote": { "high": "Pauses to study the listener before answering; no mind reading or hidden-history inference." }
+        "low": "{catName} answers, then looks back at what matters here.",
+        "middle": "{catName} watches your expression.",
+        "high": "{catName} studies you for a long moment before answering.",
+        "devNote": {
+          "high": "Pauses to study the listener before answering; no mind reading or hidden-history inference."
+        }
       }
     },
     "application": "At every NPC speech and visible reaction, select saved focus-trait line plus concise context-compatible cues drawn from all five traits. All-five rendering follows installed revision6 personality contract; do not stack five canned action sentences. Affinity/actual knowledge modulate distance and recalled cause, never overwrite traits. Outcome chosen only by engine. Player lines/choices are intentions, not NPC-generated personality.",

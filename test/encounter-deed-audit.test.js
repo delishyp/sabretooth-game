@@ -87,7 +87,7 @@ test('canonical JSON uses one outcome id for clean and partial, with different t
   const correction = CONTEST.thresholdCorrection;
   assert.strictEqual(correction.handoffSha256, '66de49ea1afaf66b11e04d41256d201446735827e94241811914044b8909b475');
   assert.strictEqual(correction.handoffCleanCut, 12);
-  assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'), '9c5d479c6d767a66f0206e2fae8f859e13fbef49f7b116fb2bb14202464412c4');
+  assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'), '12e8e34a2a5d9c1db2cae5d9739193589c01ce36da99876bd7377b0c21bbcb47');
   assert.match(CONTEST.authority, />=11 clean/);
   assert.strictEqual(CONTEST.clean.outcome, 'hyena_driven');
   assert.strictEqual(CONTEST.partial.outcome, 'hyena_driven');

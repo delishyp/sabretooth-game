@@ -175,14 +175,13 @@
     function varsFor(s, npc, deps, cast) {
       const pride = s.records.pride;
       const origin = npc && s.records.bonds[npc.id] && s.records.bonds[npc.id].originPrideId;
-      return {
-        catName: npc ? npc.name : '',
+      return Speech.nameVars(npc, {
         regionName: deps && deps.regionName ? deps.regionName(s.region) : s.region,
         newPrideName: pride ? pride.name : '',
         originPrideName: PRIDE_NAMES[origin] || PRIDE_NAMES[(cast && cast.pride)] || origin || '',
         leaderName: cast && cast.C ? cast.C.name : '',
         rivalName: cast && cast.rival ? cast.rival.name : ''
-      };
+      });
     }
 
     function speak(familyId, beat, npc, vars) {

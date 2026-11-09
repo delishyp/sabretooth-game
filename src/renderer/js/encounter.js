@@ -117,7 +117,7 @@
 
     function speak(npc, location, outsider) {
       if (!npc) return [];
-      const resolved = Speech.resolve(outsider ? outsiderCoverage : hunterCoverage, location, npc.personality, { catName: npc.name, hunterName: npc.name });
+      const resolved = Speech.resolve(outsider ? outsiderCoverage : hunterCoverage, location, npc.personality, Speech.nameVars(npc, { hunterName: npc.name }));
       const lines = [];
       if (resolved.gap) lines.push({ kind: 'gap', speaker: npc.name, text: resolved.gap, variantId: resolved.variantId });
       if (resolved.action) lines.push({ kind: 'action', speaker: npc.name, text: resolved.action, variantId: resolved.actionId });

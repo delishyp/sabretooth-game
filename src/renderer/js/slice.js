@@ -8,9 +8,9 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'), require('./pass2'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
@@ -579,14 +579,10 @@
       if (s.phase !== 'day' || s.region !== 'horse_meadows' || s.pending) return false;
       if (!Array.isArray(s.usedEvents)) s.usedEvents = [];
       if (s.usedEvents.includes('slice.region.horse_meadows')) return false;
+      const meadow = Pass2.meadow();
       s.pending = {
         meadow: true, eventId: 'slice.region.horse_meadows', title: 'Heads raised', day: s.day, beatIndex: 0,
-        beats: [{ kind: 'narration', text: 'PLACEHOLDER: The horses are in the meadow.' }],
-        choices: [
-          { id: 'stalk_foal', label: 'PLACEHOLDER: Stalk a foal.' },
-          { id: 'watch_herd', label: 'PLACEHOLDER: Watch from the hillside.' },
-          { id: 'move_on', label: 'PLACEHOLDER: Move on.' }
-        ]
+        beats: meadow.beats, choices: meadow.choices
       };
       s.phase = 'event';
       return true;
@@ -594,7 +590,12 @@
     function meadowChoose(s, choiceId, rep) {
       if (choiceId === 'stalk_foal' && tired(s)) return { error: 'tired' };
       if (!s.usedEvents.includes('slice.region.horse_meadows')) s.usedEvents.push('slice.region.horse_meadows');
-      if (choiceId === 'move_on') { s.pending = null; s.phase = 'day'; return { state: s }; }
+      if (choiceId === 'move_on') {
+        const gone = Pass2.meadow().moveOn;
+        s.pending = { meadow: true, movedOn: true, eventId: 'slice.region.horse_meadows', title: 'Heads raised', beats: gone, beatIndex: 0, choices: [], day: s.day };
+        s.phase = 'eventResult';
+        return { state: s };
+      }
       if (choiceId === 'watch_herd') {
         s.needs.energy = clamp(s.needs.energy + 20, 0, 100);
         if (!s.records) s.records = {};
@@ -972,9 +973,16 @@
       const hunt = (rep || []).find((l) => l.k === 'hunt');
       if (!hunt) return null;
       const resultLine = huntNumbers(hunt);
-      const prose = hunt.foal
-        ? (hunt.ok ? 'PLACEHOLDER: You take the foal.' : 'PLACEHOLDER: The foal gets away.')
-        : (hunt.ok ? `You caught ${hunt.size} prey and ate.` : 'The prey escaped.');
+      if (hunt.foal) {
+        const id = hunt.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail';
+        const extra = beatsByEvent[id];
+        return {
+          eventId: id, title: 'The hunt',
+          beats: extra && extra.beats ? extra.beats.map((b) => Object.assign({}, b)) : [{ kind: 'narration', text: hunt.ok ? 'You caught the foal.' : 'The foal got away.' }],
+          beatIndex: 0, choices: [], lone: true, voice: true, filler: true, summary: resultLine, resultLine, day: s.day
+        };
+      }
+      const prose = hunt.ok ? `You caught ${hunt.size} prey and ate.` : 'The prey escaped.';
       return {
         eventId: hunt.ok ? 'voice.hunt.result' : 'voice.hunt.miss', title: 'The hunt',
         beats: [{ kind: 'narration', text: prose }], beatIndex: 0, choices: [],
@@ -982,9 +990,9 @@
       };
     }
     function arrivalFallback(s, rep, regionId) {
-      const name = W.region(regionId).name;
+      const region = W.region(regionId);
       const drink = (rep || []).some((l) => l.k === 'drink');
-      return drink ? `You reached ${name}. You drank your fill.` : `You reached ${name}.`;
+      return Pass2.arrival(region.biome, region.name, drink);
     }
     function withArrival(s, rep, ev) {
       const arrived = (rep || []).find((l) => l.k === 'arrive');
@@ -993,23 +1001,23 @@
       try { biome = W.region(arrived.region).biome; } catch (e) { biome = 'unknown'; }
       const id = `travel.arrive.${biome}`;
       const extra = beatsByEvent[id];
-      const fallback = arrivalFallback(s, rep, arrived.region);
+      const spoken = arrivalFallback(s, rep, arrived.region);
       if (!(extra && Array.isArray(extra.beats) && extra.beats.length)) return ev;
       return {
         eventId: id, title: W.region(arrived.region).name, filler: true, voice: true, lone: true,
         beats: extra.beats.map((b) => Object.assign({}, b)), beatIndex: 0, choices: [],
-        summary: fallback, resultLine: fallback, day: s.day, next: ev || null
+        summary: spoken.drink || '', resultLine: spoken.drink || '', day: s.day, next: ev || null
       };
     }
     function arrivalFallbackScene(s, rep) {
       const arrived = (rep || []).find((l) => l.k === 'arrive');
       if (!arrived) return null;
-      const fallback = arrivalFallback(s, rep, arrived.region);
+      const spoken = arrivalFallback(s, rep, arrived.region);
       return {
         eventId: `travel.arrive.${W.region(arrived.region).biome}`, title: W.region(arrived.region).name,
         filler: true, voice: true, lone: true,
-        beats: [{ kind: 'narration', text: fallback }], beatIndex: 0, choices: [],
-        summary: fallback, resultLine: fallback, day: s.day
+        beats: spoken.beats, beatIndex: 0, choices: [],
+        summary: spoken.drink || '', resultLine: spoken.drink || '', day: s.day
       };
     }
     function approachOpts(s) {
@@ -1071,9 +1079,8 @@
     function presentDay(s, rep, ev) {
       return withArrival(s, rep, attachVoiceHunt(s, rep, ev));
     }
-    function watchScene(s, line) {
-      const beats = (line.cats || []).map((cat) => ({ kind: 'narration', text: `PLACEHOLDER: ${cat.name} is ${cat.doing}.` }));
-      if (!beats.length) beats.push({ kind: 'narration', text: 'PLACEHOLDER: No cat passes the hillside.' });
+    function watchScene(s) {
+      const beats = Pass2.meadow().watch;
       return {
         eventId: 'action.watch', title: 'The hillside', filler: true, voice: true, lone: true,
         beats, beatIndex: 0, choices: [], summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
@@ -1083,7 +1090,7 @@
       if (s.dead) return null;
       if ((rep || []).some((l) => l.k === 'hunt')) return plainHuntScene(s, rep);
       const watch = (rep || []).find((l) => l.k === 'watch');
-      if (watch) return watchScene(s, watch);
+      if (watch) return watchScene(s);
       return arrivalFallbackScene(s, rep) || dayFiller(s, rep);
     }
     function beatContext(s) {
@@ -1098,6 +1105,9 @@
     function sceneBeats(s) {
       const p = s.pending;
       if (!p) return null;
+      const npc = p.catId && s.npcs[p.catId];
+      const leader = npc && p.eventId === `slice.meeting.${npc.faction}` && Pass2.leaderMeeting(npc);
+      if (leader) return Beats.visible(leader, beatContext(s));
       if (Array.isArray(p.beats)) return Beats.visible(p.beats, beatContext(s));
       const e = p.eventId && eventById(p.eventId);
       return e && e.beats ? Beats.visible(e.beats, beatContext(s)) : null;
@@ -1114,7 +1124,13 @@
       if (!extra || !Array.isArray(extra.beats)) return e;
       return Object.assign({}, e, { beats: extra.beats });
     };
-    return { W, needState, newRun, available, huntChance, huntReportText, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
+    const arrivalText = (regionId, kind) => {
+      let region;
+      try { region = W.region(regionId); } catch (e) { return null; }
+      const spoken = Pass2.arrival(region.biome, region.name, true);
+      return kind === 'drink' ? spoken.drink : spoken.arrive;
+    };
+    return { W, needState, newRun, available, huntChance, huntReportText, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

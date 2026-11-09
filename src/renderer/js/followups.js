@@ -3,9 +3,9 @@
  * Placeholder lines stand in until Saga's prose. Deltas are the existing repair +5 and share +10, inside the ±10 cap.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.Followups = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pass2'));
+  else root.Followups = factory(root.Pass2);
+})(typeof self !== 'undefined' ? self : this, function (Pass2) {
   const SHARE = 10;
   const CAP = 10;
   const ONCE = new Set(['stay_out', 'stalk_foal', 'watch_herd']);
@@ -101,71 +101,18 @@
       if (!(k.disclosedTo || []).includes('player')) k.disclosedTo.push('player');
       return true;
     }
-    function opener(kind, npc) {
-      const name = npc && npc.name ? npc.name : 'A cat';
-      if (kind === 'ford_friend') return `PLACEHOLDER: ${name} recalls the ford, and speaks only of what that pride already knows.`;
-      if (kind === 'ford_cold') return `PLACEHOLDER: ${name} is cold about the ford.`;
-      if (kind === 'ford_stay') return 'PLACEHOLDER: "Why didn\'t you pick a side?"';
-      if (kind === 'foal_hit') return 'PLACEHOLDER: "I saw you take the foal."';
-      if (kind === 'foal_miss') return 'PLACEHOLDER: The cat teases you for missing the foal.';
-      if (kind === 'hillside') return 'PLACEHOLDER: "You were on the hillside yesterday."';
-      if (kind === 'hyena_drive' || kind === 'hyena_share') return 'PLACEHOLDER: "I\'ll tell hc01 what I saw."';
-      if (kind === 'hyena_leave') return 'PLACEHOLDER: "You watched and did nothing."';
-      return 'PLACEHOLDER: The cat remembers what you chose.';
-    }
-    function choicesFor(row, ctx) {
-      if (row.kind === 'ford_friend' || row.kind === 'hyena_drive') {
-        return [
-          { id: 'listen', label: 'PLACEHOLDER: Listen.' },
-          { id: 'honest_limit', label: 'PLACEHOLDER: Tell them you cannot always stay.' },
-          { id: 'leave', label: 'PLACEHOLDER: Leave.' }
-        ];
-      }
-      if (row.kind === 'ford_cold' || row.kind === 'hyena_leave') {
-        return [
-          { id: 'explain', label: 'PLACEHOLDER: Explain.' },
-          { id: 'repair', label: 'PLACEHOLDER: Try to repair it.' },
-          { id: 'leave', label: 'PLACEHOLDER: Leave.' }
-        ];
-      }
-      if (row.kind === 'ford_stay') {
-        return [
-          { id: 'neutral', label: 'PLACEHOLDER: Stay neutral.' },
-          { id: 'ask_what_happened', label: 'PLACEHOLDER: Ask what happened.' },
-          { id: 'leave', label: 'PLACEHOLDER: Leave.' }
-        ];
-      }
-      if (row.kind === 'foal_hit') {
-        return [
-          { id: 'share', label: 'PLACEHOLDER: Share today\'s kill.', needsKill: true },
-          { id: 'talk', label: 'PLACEHOLDER: Talk.' }
-        ];
-      }
-      if (row.kind === 'foal_miss' || row.kind === 'hillside') return [{ id: 'talk', label: 'PLACEHOLDER: Talk.' }, { id: 'leave', label: 'PLACEHOLDER: Leave.' }];
-      if (row.kind === 'hyena_share') {
-        const choices = [
-          { id: 'listen', label: 'PLACEHOLDER: Listen.' },
-          { id: 'leave', label: 'PLACEHOLDER: Leave.' }
-        ];
-        if (ctx && ctx.memberShare) choices.unshift({ id: 'take_share', label: 'PLACEHOLDER: Take the pride\'s share.' });
-        return choices;
-      }
-      return [{ id: 'leave', label: 'PLACEHOLDER: Leave.' }];
-    }
+    function choicesFor(row, ctx) { return Pass2.choices(row.kind, ctx); }
     function scene(s, catId, ctx) {
       ctx = ctx || {};
       const row = list(s).find((item) => item.catId === catId && live(s, item));
       if (!row) return null;
       const npc = s.npcs[catId];
       if (!present(s, npc, ctx)) return null;
-      const beats = [{ kind: 'speech', speaker: npc.name, text: opener(row.kind, npc) }];
+      const beats = Pass2.openingBeats(row.kind, npc);
       const told = row.kind === 'ford_friend' ? gossipFact(s, npc) : null;
       if (told) {
-        beats.push({ kind: 'speech', speaker: npc.name, text: `PLACEHOLDER: ${npc.name} tells you only a fact already known.` });
+        beats.push({ kind: 'speech', speaker: npc.name, text: `${npc.name} tells you what ${npc.sex === 'female' ? 'she' : 'he'} knows, and nothing past it.` });
         learn(s, told);
-      }
-      if (row.kind === 'hyena_drive' || row.kind === 'hyena_share') {
-        beats.push({ kind: 'speech', speaker: npc.name, text: 'PLACEHOLDER: "I\'ll tell hc01 what I saw."' });
       }
       return {
         lone: true, followUp: true, eventId: `followup.${row.sourceEventId}.${row.choiceId}`,
@@ -215,6 +162,11 @@
         }
       }
       mark(s, row, delta);
+      const extra = Pass2.reply(row.kind, id, npc);
+      if (extra && extra.length) {
+        p.beats = (p.beats || []).concat(extra);
+        p.beatIndex = p.beats.length - 1;
+      }
       p.choiceId = id;
       p.resultLine = delta ? `Affinity ${delta > 0 ? '+' : ''}${delta}` : '';
       s.phase = 'eventResult';
@@ -302,7 +254,7 @@
         const k = known[factId];
         return k && k.rumorLanded && k.rumorPride === holder && (k.disclosedTo || []).some((id) => id !== 'player');
       });
-      return ready ? 'They remember the ford.' : null;
+      return ready ? Pass2.SCOUT : null;
     }
     return { priorityIds, scene, apply, noteFord, noteHyena, noteMeadow, spreadRumors, scoutReport, receipt, list };
   }

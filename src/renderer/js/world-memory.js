@@ -237,7 +237,7 @@
         speechLocations: locations || speechLocations(),
         contextActions: graph.personalityCoverage && graph.personalityCoverage.contextActions
       };
-      return Speech.resolve(coverage, location, npc.personality, { catName: npc.name });
+      return Speech.resolve(coverage, location, npc.personality, Speech.nameVars(npc));
     }
     function linesFrom(npc, resolved) {
       if (!resolved) return [];

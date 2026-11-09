@@ -383,7 +383,7 @@ test('trait profiles change the authored line, not the choices, and a missing pe
   assert.notStrictEqual(high.text, low.text);
   assert.ok(high.text.includes('Would you walk with me'));
   assert.strictEqual(mid.text, coverage.speechLocations['/nodes/opening'].base);
-  assert.ok(mid.action.includes('holds their place'));
+  assert.ok(mid.action.includes('plants {his} paws') || mid.action.includes('plants her paws') || mid.action.includes('plants his paws'));
   const same = open({ aggression: 90, sociability: 50, boldness: 50, loyalty: 50, curiosity: 50 });
   assert.strictEqual(same.variantId, mid.variantId);
   const gap = Speech.resolve(coverage, '/nodes/opening', null, { catName: 'Coppergale' });

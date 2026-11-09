@@ -10,6 +10,17 @@
   const GAP = 'Personality is not on this save. This line is an incomplete stand-in, not this cat\'s voice.';
   const NEUTRAL = '{catName} waits for your answer without hurrying you.';
 
+  function pronouns(sex) {
+    const female = sex === 'female';
+    const he = female ? 'she' : 'he';
+    const him = female ? 'her' : 'him';
+    const his = female ? 'her' : 'his';
+    const cap = (w) => w.charAt(0).toUpperCase() + w.slice(1);
+    return { he, him, his, He: cap(he), Him: cap(him), His: cap(his) };
+  }
+  function nameVars(npc, extra) {
+    return Object.assign({ catName: npc && npc.name || '' }, pronouns(npc && npc.sex), extra || {});
+  }
   function fill(s, vars) {
     return String(s || '').replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? String(vars[k]) : m));
   }
@@ -77,5 +88,5 @@
     }
     return best ? { trait: best, band: bestBand } : null;
   }
-  return { TRAITS, GAP, band, complete, resolve, topTrait };
+  return { TRAITS, GAP, band, complete, resolve, topTrait, pronouns, nameVars };
 });
