@@ -809,7 +809,25 @@
           "kind": "speech",
           "when": [
             { "trait": "sociability", "band": "baseline", "who": "npc" },
-            { "trait": "boldness", "band": "baseline", "who": "npc" }
+            { "trait": "boldness", "band": "low", "who": "npc" }
+          ],
+          "text": "\"Are you…\" {catName} swallows and tries again, quieter. \"Are you on your own? I don't want any trouble.\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "baseline", "who": "npc" },
+            { "trait": "aggression", "band": "high", "who": "npc" }
+          ],
+          "text": "\"Just you?\" {catName}'s tail lashes once. \"Then you've got no one to blame if you put a paw wrong out here.\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "baseline", "who": "npc" },
+            { "trait": "aggression", "band": "baseline", "who": "npc" }
           ],
           "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\""
         },
@@ -817,9 +835,10 @@
           "kind": "speech",
           "when": [
             { "trait": "sociability", "band": "baseline", "who": "npc" },
-            { "trait": "boldness", "band": "low", "who": "npc" }
+            { "trait": "boldness", "band": "baseline", "who": "npc" },
+            { "trait": "aggression", "band": "low", "who": "npc" }
           ],
-          "text": "\"Are you…\" {catName} swallows and tries again, quieter. \"Are you on your own? I don't want any trouble.\""
+          "text": "\"Just you? Me too.\" {catName}'s shoulders ease a little. \"There's room on this trail for two, if neither of us makes a fuss.\""
         },
         {
           "kind": "speech",
@@ -829,6 +848,11 @@
             "who": "npc"
           },
           "text": "\"Keep walking.\" {catName} won't quite look at you. \"I didn't come out here for company.\""
+        },
+        {
+          "kind": "speech",
+          "when": { "trait": "curiosity", "band": "high", "who": "npc" },
+          "text": "\"Where did you come from, anyway? Nobody just appears out here.\""
         }
       ],
       "text": "{catName} stops where your paths cross. For a moment, both of you look behind the other for companions.",

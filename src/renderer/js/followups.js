@@ -85,16 +85,23 @@
       if (ctx && typeof ctx.present === 'function') return ctx.present(npc);
       return true;
     }
-    function gossipFact(s, npc) {
+    function gossipFact(s, npc, ctx) {
       if (!npc || npc.noPrideGossip) return null;
       const known = knowledge(s);
+      const phraseCtx = {
+        holder: (region) => (ctx && typeof ctx.ownership === 'function' ? ctx.ownership(region) : null),
+        cubPride: (cubId) => {
+          const cub = s.npcs && s.npcs[cubId];
+          return cub && cub.faction || null;
+        }
+      };
       const ids = Object.keys(known).filter((factId) => {
         const k = known[factId];
         if (!k) return false;
         return (k.prideIds || []).includes(npc.faction) || (k.participantIds || []).includes(npc.id) || (k.witnessIds || []).includes(npc.id) || (k.disclosedTo || []).includes(npc.id);
       });
       for (let i = 0; i < ids.length; i++) {
-        const line = Pass2.gossipPhrase(ids[i], s.runId);
+        const line = Pass2.gossipPhrase(ids[i], s.runId, phraseCtx);
         if (line) return { id: ids[i], line };
       }
       return null;
@@ -113,7 +120,7 @@
       const npc = s.npcs[catId];
       if (!present(s, npc, ctx)) return null;
       const beats = Pass2.openingBeats(row.kind, npc);
-      const told = row.kind === 'ford_friend' ? gossipFact(s, npc) : null;
+      const told = row.kind === 'ford_friend' ? gossipFact(s, npc, ctx) : null;
       if (told && told.line) {
         beats.push({ kind: 'speech', speaker: npc.name, text: Pass2.lines()['followups.js:gossipBeat'].replace('{fact}', told.line) });
         learn(s, told.id);

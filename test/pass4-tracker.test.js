@@ -117,38 +117,86 @@ test('scout standing is a spoken band, with no affinity on the result line', () 
   }
 });
 
-test('seed 8 Sleet and Cragward share the baseline greeting and drop the fallback while beats play', () => {
+test('seed 8 Sleet and Cragward get different baseline greetings, and the fallback stays unused', () => {
   const s = E.newRun({ mainCat: player, seed: 8, runId: 'ravenmark' });
   const sleet = s.npcs.ln02;
   const crag = s.npcs.ln01;
   assert.strictEqual(sleet.name, 'Sleet');
   assert.strictEqual(crag.name, 'Cragward');
-  assert.deepStrictEqual(
-    { sociability: sleet.personality.sociability, boldness: sleet.personality.boldness },
-    { sociability: 58, boldness: 45 }
-  );
-  assert.deepStrictEqual(
-    { sociability: crag.personality.sociability, boldness: crag.personality.boldness },
-    { sociability: 57, boldness: 52 }
-  );
+  assert.strictEqual(sleet.personality.aggression, 58);
+  assert.strictEqual(crag.personality.aggression, 28);
+  assert.strictEqual(E.beats.band(sleet.personality.aggression), 'baseline');
+  assert.strictEqual(E.beats.band(crag.personality.aggression), 'low');
   const event = E.eventById('slice.meeting.loner');
   const authored = pass4['bug4_slice.meeting.loner'].beats;
   const stored = event.beats.filter((beat) => Array.isArray(beat.when) && beat.when.some((cond) => cond.trait === 'boldness'));
   assert.deepStrictEqual(stored, authored);
+  const tail = pass4.bug4_curiosity_tail;
+  assert.deepStrictEqual(event.beats.find((beat) => beat.text === tail.text), { kind: tail.kind, when: tail.when, text: tail.text });
   const fallback = 'stops where your paths cross';
   assert.ok(event.text.includes(fallback));
   const a = rendered(s, sleet.id);
   const b = rendered(s, crag.id);
-  const greet = (lines, name) => lines.find((line) => line.includes('Just you') || line.includes('Are you')).replaceAll(name, 'Cat');
-  assert.strictEqual(greet(a, 'Sleet'), greet(b, 'Cragward'));
-  assert.ok(greet(a, 'Sleet').includes('Or is someone following you?'));
+  const greet = (lines) => lines.filter((line) => line.includes('Just you') || line.includes('Are you'));
+  assert.strictEqual(greet(a).length, 1);
+  assert.strictEqual(greet(b).length, 1);
+  assert.ok(greet(a)[0].includes('Or is someone following you?'));
+  assert.ok(greet(b)[0].includes('There\'s room on this trail for two'));
+  assert.notStrictEqual(greet(a)[0], greet(b)[0]);
+  assert.ok(a.some((line) => line.includes('Where did you come from, anyway?')));
+  assert.ok(!b.join('\n').includes('Where did you come from, anyway?'));
   assert.ok(!a.join('\n').includes(fallback));
   assert.ok(!b.join('\n').includes(fallback));
-  assert.notStrictEqual(a.join('\n'), b.join('\n'));
-  const quiet = { player: s.cat, npc: Object.assign({}, sleet, { personality: { aggression: 50, sociability: 10, boldness: 10, loyalty: 50, curiosity: 50 } }) };
-  assert.strictEqual(E.beats.visible([
-    { kind: 'speech', when: [{ trait: 'sociability', band: 'baseline', who: 'npc' }, { trait: 'boldness', band: 'baseline', who: 'npc' }], text: 'no' }
-  ], quiet), null);
+});
+
+test('each gossip alias renders only for a cat who knows the stored fact', () => {
+  const phrases = pass4.bug1_gossipPhrases;
+  const cases = [
+    { id: 'player_aided_bonefield', line: phrases['ford_choice/help_bonefield_cat'] },
+    { id: 'player_sided_highcrag', line: phrases['ford_choice/side_with_highcrag'] },
+    { id: 'player_stayed_out_ford', line: phrases['ford_choice/stay_out'] },
+    { id: 'steal/horse_meadows/3', line: phrases['hunt_steal/{pride}'].replaceAll('{pride}', 'Highcrag') },
+    { id: 'cub/hc10', line: phrases['pride_aid/{pride}'].replaceAll('{pride}', 'Highcrag') }
+  ];
+  function approach(runId, factPath, knows) {
+    const s = E.newRun({ mainCat: player, seed: 8, runId });
+    const cat = s.npcs.ln05;
+    const factId = `${runId}/${factPath}`;
+    s.region = cat.homeZones[0];
+    for (const npc of Object.values(s.npcs)) {
+      npc.met = npc.id === cat.id;
+      npc.affinity = npc.id === cat.id ? 25 : 0;
+    }
+    cat.personality = Object.assign({}, cat.personality, { sociability: 40, aggression: 40, loyalty: 40, curiosity: 40 });
+    s.worldMemory.facts.push({ factId, kind: 'note' });
+    s.worldMemory.knowledge[factId] = {
+      scope: 'private',
+      participantIds: knows ? [cat.id] : ['player'],
+      witnessIds: [],
+      disclosedTo: [],
+      prideIds: [],
+      learnedAbsDay: 1
+    };
+    const opened = E.lone.beginApproach(s, {
+      neighbours: E.W.neighbours(s.region),
+      lonerHomePct: 100,
+      lonerAdjacentPct: 0,
+      knowsFact: (id, knownId) => E.world.knowsFact(s, id, knownId),
+      ownership: (id) => E.W.ownership(s.map.claims, id)
+    });
+    assert.strictEqual(opened.event.catId, cat.id);
+    return opened.event.beats.map((beat) => beat.text).join('\n');
+  }
+  for (const row of cases) {
+    const slug = row.id.replace(/[^A-Za-z0-9]+/g, '-');
+    const heard = approach(`alias-${slug}`, row.id, true);
+    assert.ok(heard.includes(row.line), `${row.id}\n${heard}`);
+    assert.ok(!FACT_PATH.test(heard), heard);
+    const silent = approach(`silent-${slug}`, row.id, false);
+    assert.ok(!silent.includes(row.line), row.id);
+  }
+  const wild = approach('wild-steal', 'steal/split_rock/3', true);
+  assert.ok(!wild.includes('stealing from'), wild);
 });
 
 test('a held-land watch counts pride adults, and the cub help scene shows before the day ends', () => {

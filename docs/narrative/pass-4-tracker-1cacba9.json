@@ -1,31 +1,133 @@
 {
-  "_readme": "Text for Tracker's 1cacba9 bugs 1, 3 and 4. No new facts or mechanics.",
-  "bug1_gossipPhrases": {
-    "_rule": "Match on the fact id's path after runId. Use the line, filling {pride} with the pride name taken from the path. If nothing matches, DROP the gossip beat entirely. Never fall back to the raw id or to fact.summary (summaries are in second person). This applies to both followups.js gossipFact and lone-actions.js speakableFact.",
-    "ford_dispute/*": "There was trouble at Greywater Ford. A Highcrag cat and a Bonefield cat, nose to nose over a carcass in the water, and neither one would give way.",
-    "player_aided_bonefield": "They're saying it was you who helped that Bonefield cat drag the kill out of the ford, right in front of Highcrag.",
-    "ford_choice/help_bonefield_cat": "They're saying it was you who helped that Bonefield cat drag the kill out of the ford, right in front of Highcrag.",
-    "player_sided_highcrag": "They're saying you stood shoulder to shoulder with Highcrag at the ford.",
-    "ford_choice/side_with_highcrag": "They're saying you stood shoulder to shoulder with Highcrag at the ford.",
-    "player_stayed_out_ford": "I heard you kept clear at the ford and let the two of them sort it out. Clever or cowardly, depending on who's telling it.",
-    "ford_choice/stay_out": "I heard you kept clear at the ford and let the two of them sort it out. Clever or cowardly, depending on who's telling it.",
-    "hunt_steal/{pride}": "Someone's been stealing from {pride} kills. They're furious about it.",
-    "pride_aid/{pride}": "A loner walked a lost {pride} cub all the way home. The whole pride is talking about it.",
-    "scout/{pride}/*": "{pride} cats say they've seen a loner up on the ridges, watching their border.",
-    "encounter/encounter.wolf_pack.v1/first_sighting": "The wolves are on the move again. Someone saw a whole pack, and close."
+ "_readme": "Text for Tracker's 1cacba9 bugs 1, 3 and 4. No new facts or mechanics.",
+ "bug1_gossipPhrases": {
+  "_rule": "Match on the fact id's path after runId. Use the line, filling {pride} with the pride name taken from the path. If nothing matches, DROP the gossip beat entirely. Never fall back to the raw id or to fact.summary (summaries are in second person). This applies to both followups.js gossipFact and lone-actions.js speakableFact.",
+  "ford_dispute/*": "There was trouble at Greywater Ford. A Highcrag cat and a Bonefield cat, nose to nose over a carcass in the water, and neither one would give way.",
+  "player_aided_bonefield": "They're saying it was you who helped that Bonefield cat drag the kill out of the ford, right in front of Highcrag.",
+  "ford_choice/help_bonefield_cat": "They're saying it was you who helped that Bonefield cat drag the kill out of the ford, right in front of Highcrag.",
+  "player_sided_highcrag": "They're saying you stood shoulder to shoulder with Highcrag at the ford.",
+  "ford_choice/side_with_highcrag": "They're saying you stood shoulder to shoulder with Highcrag at the ford.",
+  "player_stayed_out_ford": "I heard you kept clear at the ford and let the two of them sort it out. Clever or cowardly, depending on who's telling it.",
+  "ford_choice/stay_out": "I heard you kept clear at the ford and let the two of them sort it out. Clever or cowardly, depending on who's telling it.",
+  "hunt_steal/{pride}": "Someone's been stealing from {pride} kills. They're furious about it.",
+  "pride_aid/{pride}": "A loner walked a lost {pride} cub all the way home. The whole pride is talking about it.",
+  "scout/{pride}/*": "{pride} cats say they've seen a loner up on the ridges, watching their border.",
+  "encounter/encounter.wolf_pack.v1/first_sighting": "The wolves are on the move again. Someone saw a whole pack, and close."
+ },
+ "bug3_scoutStanding": {
+  "_rule": "Replaces lone-actions.js:584 `${name}'s standing toward you is ${standing}.` Pick by standing, using the same thresholds as the code. The number can go on the result line if Tundra wants it shown.",
+  "high_ge_15": "The {pride} cats on the border barely bristle at your scent. You're no stranger to them anymore.",
+  "middle": "The {pride} cats on the border don't seem to know what to make of you yet.",
+  "low_le_minus_15": "Every {pride} cat on that border would run you off on sight."
+ },
+ "bug4_slice.meeting.loner": {
+  "_rule": "Replace the single sociability-baseline speech beat with these five. Middle sociability with high or low boldness gets its own line. Middle sociability with middle boldness then splits by aggression, so exactly one greeting plays.",
+  "beats": [
+   {
+    "kind": "speech",
+    "when": [
+     {
+      "trait": "sociability",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "boldness",
+      "band": "high",
+      "who": "npc"
+     }
+    ],
+    "text": "\"Just you, then.\" {catName} looks you over, unhurried, from ears to bobtail. \"Good. I don't like being outnumbered on my own trail.\""
+   },
+   {
+    "kind": "speech",
+    "when": [
+     {
+      "trait": "sociability",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "boldness",
+      "band": "low",
+      "who": "npc"
+     }
+    ],
+    "text": "\"Are you…\" {catName} swallows and tries again, quieter. \"Are you on your own? I don't want any trouble.\""
+   },
+   {
+    "kind": "speech",
+    "when": [
+     {
+      "trait": "sociability",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "boldness",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "aggression",
+      "band": "high",
+      "who": "npc"
+     }
+    ],
+    "text": "\"Just you?\" {catName}'s tail lashes once. \"Then you've got no one to blame if you put a paw wrong out here.\""
+   },
+   {
+    "kind": "speech",
+    "when": [
+     {
+      "trait": "sociability",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "boldness",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "aggression",
+      "band": "baseline",
+      "who": "npc"
+     }
+    ],
+    "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\""
+   },
+   {
+    "kind": "speech",
+    "when": [
+     {
+      "trait": "sociability",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "boldness",
+      "band": "baseline",
+      "who": "npc"
+     },
+     {
+      "trait": "aggression",
+      "band": "low",
+      "who": "npc"
+     }
+    ],
+    "text": "\"Just you? Me too.\" {catName}'s shoulders ease a little. \"There's room on this trail for two, if neither of us makes a fuss.\""
+   }
+  ]
+ },
+ "bug4_curiosity_tail": {
+  "kind": "speech",
+  "when": {
+   "trait": "curiosity",
+   "band": "high",
+   "who": "npc"
   },
-  "bug3_scoutStanding": {
-    "_rule": "Replaces lone-actions.js:584 `${name}'s standing toward you is ${standing}.` Pick by standing, using the same thresholds as the code. The number can go on the result line if Tundra wants it shown.",
-    "high_ge_15": "The {pride} cats on the border barely bristle at your scent. You're no stranger to them anymore.",
-    "middle": "The {pride} cats on the border don't seem to know what to make of you yet.",
-    "low_le_minus_15": "Every {pride} cat on that border would run you off on sight."
-  },
-  "bug4_slice.meeting.loner": {
-    "_rule": "Replace the single sociability-baseline speech beat with these three, each also gated on boldness, so two baseline-sociability loners with different boldness sound different. The high and low sociability beats stay as they are.",
-    "beats": [
-      { "kind": "speech", "when": [{ "trait": "sociability", "band": "baseline", "who": "npc" }, { "trait": "boldness", "band": "high", "who": "npc" }], "text": "\"Just you, then.\" {catName} looks you over, unhurried, from ears to bobtail. \"Good. I don't like being outnumbered on my own trail.\"" },
-      { "kind": "speech", "when": [{ "trait": "sociability", "band": "baseline", "who": "npc" }, { "trait": "boldness", "band": "baseline", "who": "npc" }], "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\"" },
-      { "kind": "speech", "when": [{ "trait": "sociability", "band": "baseline", "who": "npc" }, { "trait": "boldness", "band": "low", "who": "npc" }], "text": "\"Are you…\" {catName} swallows and tries again, quieter. \"Are you on your own? I don't want any trouble.\"" }
-    ]
-  }
+  "text": "\"Where did you come from, anyway? Nobody just appears out here.\"",
+  "_note": "Optional last beat, after the greeting. It plays for any loner with curiosity >= 70."
+ }
 }

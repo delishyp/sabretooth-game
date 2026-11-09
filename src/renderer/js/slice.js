@@ -348,7 +348,8 @@
       return {
         huntReady: !!(s.records && s.records._huntOk),
         memberShare: member,
-        present: (cat) => catHere(s, cat)
+        present: (cat) => catHere(s, cat),
+        ownership: (id) => W.ownership(s.map.claims, id)
       };
     }
     function atHighcragBorder(s) {
@@ -1215,7 +1216,8 @@
         scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
         priorityIds: Follow.priorityIds(s),
         presentIds: followPresentIds(s),
-        followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc))
+        followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc)),
+        ownership: (id) => W.ownership(s.map.claims, id)
       };
     }
     function quietLines(s, rep) {

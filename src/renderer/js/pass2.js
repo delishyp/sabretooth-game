@@ -300,10 +300,35 @@
   }
   const PASS4 = loadPass4() || {};
   const PRIDE_NAME = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
-  function gossipPhrase(factId, runId) {
+  // Saga's pattern keys stay as written. These point a stored fact id at that pattern.
+  const FACT_ALIAS = {
+    player_aided_bonefield: 'ford_choice/help_bonefield_cat',
+    player_sided_highcrag: 'ford_choice/side_with_highcrag',
+    player_stayed_out_ford: 'ford_choice/stay_out'
+  };
+  function aliasPath(path, ctx) {
+    if (Object.prototype.hasOwnProperty.call(FACT_ALIAS, path)) return FACT_ALIAS[path];
+    const steal = /^steal\/([A-Za-z0-9_]+)\/[A-Za-z0-9_]+$/.exec(path);
+    if (steal) {
+      const own = ctx && typeof ctx.holder === 'function' ? ctx.holder(steal[1]) : null;
+      const pride = own && own.state === 'held' ? own.holder : own;
+      if (!pride || !PRIDE_NAME[pride]) return null;
+      return 'hunt_steal/' + pride;
+    }
+    const cub = /^cub\/([A-Za-z0-9_]+)$/.exec(path);
+    if (cub) {
+      const pride = ctx && typeof ctx.cubPride === 'function' ? ctx.cubPride(cub[1]) : null;
+      if (!pride || !PRIDE_NAME[pride]) return null;
+      return 'pride_aid/' + pride;
+    }
+    return path;
+  }
+  function gossipPhrase(factId, runId, ctx) {
     const phrases = PASS4.bug1_gossipPhrases || {};
     let path = String(factId || '');
     if (runId && path.indexOf(runId + '/') === 0) path = path.slice(runId.length + 1);
+    path = aliasPath(path, ctx);
+    if (path == null) return null;
     if (Object.prototype.hasOwnProperty.call(phrases, path) && path.charAt(0) !== '_') return phrases[path];
     const keys = Object.keys(phrases);
     for (let i = 0; i < keys.length; i++) {

@@ -325,8 +325,17 @@
     }
     return null;
   }
-  function speakableFact(s, factId) {
-    return Pass2.gossipPhrase(factId, s && s.runId);
+  function phraseCtx(s, opts) {
+    return {
+      holder: (region) => (opts && typeof opts.ownership === 'function' ? opts.ownership(region) : null),
+      cubPride: (cubId) => {
+        const cub = s.npcs && s.npcs[cubId];
+        return cub && cub.faction || null;
+      }
+    };
+  }
+  function speakableFact(s, factId, opts) {
+    return Pass2.gossipPhrase(factId, s && s.runId, phraseCtx(s, opts));
   }
   function peekApproach(s, opts) {
     if (usedDay(s, 'approach')) return null;
@@ -353,7 +362,7 @@
       kind = openerKind(picked);
       beats.push({ kind: 'narration', speaker: 'npc', text: OPENERS[kind] || OPENERS.baseline });
       facts = knownFacts(s, picked.id, opts.knowsFact || (() => false));
-      const told = facts.map((id) => speakableFact(s, id)).find(Boolean);
+      const told = facts.map((id) => speakableFact(s, id, opts)).find(Boolean);
       if (told) {
         beats.push({ kind: 'speech', speaker: picked.name, text: Pass2.lines()['lone-actions.js:gossipBeat'].replace('{fact}', told) });
       }
