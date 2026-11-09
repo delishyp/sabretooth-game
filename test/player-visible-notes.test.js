@@ -18,7 +18,8 @@ const PHRASES = [
   /whether the limit/i,
   /states the limit/i,
   /lets you leave if/i,
-  /the limit is/i
+  /the limit is/i,
+  /% chance/i
 ];
 
 function files(dir, out = []) {

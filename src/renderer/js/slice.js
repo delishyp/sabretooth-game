@@ -211,9 +211,116 @@
         found: Pair.enabled ? Pair.foundOffer(s, bondDeps(s)) : null,
         route: Pair.enabled ? Pair.routeStatus(s, bondDeps(s)) : null,
         scent: Lone.offer(s, 'scent'),
-        approach: Lone.offer(s, 'approach'),
-        scout: scoutOffer(s)
+        approach: loneMenu(s).approach,
+        lone: loneMenu(s),
+        scout: loneMenu(s).scout.length ? { allowed: true } : scoutOffer(s)
       };
+    }
+    function loneOpts(s) {
+      const own = W.ownership(s.map.claims, s.region);
+      return {
+        neighbours: W.neighbours(s.region),
+        lonerHomePct: M.lonerHomePct,
+        lonerAdjacentPct: M.lonerAdjacentPct,
+        knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId),
+        zoneHolder: own.state === 'held' ? own.holder : null,
+        huntReady: !!(s.records && s.records._huntOk),
+        scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
+        priorityIds: Follow.priorityIds(s),
+        presentIds: followPresentIds(s),
+        followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc)),
+        ownership: (id) => W.ownership(s.map.claims, id),
+        regionName: (id) => { try { return W.region(id).name; } catch (e) { return id; } },
+        preyValue: (id) => W.preyFor(id, season(s)),
+        standing: (pride) => (s.prideRelation && s.prideRelation[pride]) || 0,
+        leaderIds: ['hc01', 'bf01', 'mw01'],
+        den: (pride) => {
+          const row = W.regions.find((r) => r.coreDen && W.ownership(s.map.claims, r.id).holder === pride);
+          return row ? row.id : null;
+        },
+        feud: (pride) => {
+          const text = Follow.scoutReport(s, pride);
+          return text || null;
+        },
+        huntChance: (st, size) => huntChance(st, size),
+        trailReadingM: 0,
+        fight: (st, npc) => {
+          const player = FightStat(st);
+          const other = FightStatNpc(npc);
+          const rng = Rng.stream(st.seed, 'spar', st.day, npc.id);
+          const ps = player * (0.8 + rng() * 0.4);
+          const os = other * (0.8 + rng() * 0.4);
+          return { won: ps > os };
+        }
+      };
+    }
+    function FightStat(s) {
+      let stat = 10;
+      const p = s.cat && (s.cat.personality || (s.cat.genes && s.cat.genes.personality));
+      if (p && Number.isInteger(p.aggression)) stat *= (1 + (p.aggression - 50) / 250);
+      if (s.cat && s.cat.lifeStage === 'adolescent') stat *= 0.6;
+      else if (s.cat && s.cat.lifeStage === 'elder') stat *= 0.85;
+      if ((s.needs.health || 0) < 50) stat *= 0.8;
+      if ((s.injuries || []).some((i) => i.tier === 'serious')) stat *= 0.7;
+      return stat;
+    }
+    function FightStatNpc(npc) {
+      let stat = 10;
+      const p = npc.personality;
+      if (p && Number.isInteger(p.aggression)) stat *= (1 + (p.aggression - 50) / 250);
+      if (npc.stage === 'adolescent') stat *= 0.6;
+      else if (npc.stage === 'elder') stat *= 0.85;
+      return stat;
+    }
+    function followPresentIds(s) {
+      return (s.followups || []).filter((row) => {
+        if (!row || row.fired) return false;
+        if (row.region === s.region) return true;
+        return row.region && W.neighbours(row.region).includes(s.region);
+      }).map((row) => row.catId);
+    }
+    function loneMenu(s) {
+      if (s.phase !== 'day' || s.travel || s.forced) return { watch: null, scout: [], shadow: [], spar: [], steal: null, cub: null, share: [], approach: null };
+      return Lone.menu(s, loneOpts(s));
+    }
+    function openLone(s, action, rep) {
+      const opts = loneOpts(s);
+      let opened = null;
+      if (action.type === 'shadow') opened = Lone.beginShadow(s, action.catId, opts);
+      else if (action.type === 'spar') opened = Lone.beginSpar(s, action.catId, opts);
+      else if (action.type === 'scout') opened = Lone.beginScout(s, action.pride, opts);
+      else if (action.type === 'steal') opened = Lone.beginSteal(s, opts);
+      else if (action.type === 'shareKill') opened = Lone.shareKill(s, action.catId);
+      else if (action.type === 'helpCub') opened = Lone.beginCub(s, opts);
+      else if (action.type === 'watch') {
+        s.needs.energy = clamp(s.needs.energy + 20, 0, 100);
+        const seen = passers(s);
+        const spoken = Lone.watchText();
+        rep.push({ k: 'watch', energy: 20, cats: seen.map((n) => ({ id: n.id, name: n.name, doing: (n.homeZones || []).includes(s.region) ? 'on their own ground' : 'crossing the hillside' })) });
+        opened = {
+          event: {
+            lone: true, eventId: 'action.watch', title: 'The vantage', devNote: spoken.devNote,
+            beats: [{ kind: 'narration', text: spoken.text }], beatIndex: 0, choices: [],
+            summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
+          }
+        };
+      }
+      if (!opened || opened.error) return opened || { error: 'action' };
+      if (action.type === 'steal' && opened.ok === false) {
+        if (s.npcs[opened.owner]) s.npcs[opened.owner].affinity = clamp((s.npcs[opened.owner].affinity || 0) - 5, -100, 100);
+        else if (opened.owner) {
+          const key = `${s.runId || ''}/hunt_steal/${opened.owner}/${s.day}`;
+          const led = s.worldMemory && s.worldMemory.ledger;
+          if (!led || !led.some((row) => row.receiptKey === key)) {
+            s.prideRelation[opened.owner] = clamp((s.prideRelation[opened.owner] || 0) - 5, -100, 100);
+            if (led) led.push({ receiptKey: key, sourceType: 'hunt_steal', recordKind: 'prideToPlayer', actor: opened.owner, target: 'player', delta: -5, absDay: s.day });
+          }
+        }
+        if (Rng.chance(Rng.stream(s.seed, 'steal-injury', s.day), 40)) injure(s, 'minor', 'steal', rep, { nonlethal: true });
+      }
+      opened.end = action.type !== 'helpCub' && action.type !== 'shareKill';
+      if (opened.event) opened.event.day = s.day;
+      return opened;
     }
     function scoutOffer(s) {
       const own = W.ownership(s.map.claims, s.region);
@@ -226,12 +333,7 @@
       return {
         huntReady: !!(s.records && s.records._huntOk),
         memberShare: member,
-        present: (cat) => {
-          if (!cat || cat.dead) return false;
-          const homes = cat.homeZones || [];
-          if (homes.includes(s.region)) return true;
-          return homes.some((zone) => W.neighbours(zone).includes(s.region));
-        }
+        present: (cat) => catHere(s, cat)
       };
     }
     function atHighcragBorder(s) {
@@ -315,7 +417,10 @@
             const rng = Rng.stream(st.seed, 'hunt', st.day);
             const ok = rng() * 100 < p;
             const ate = ok ? N.eat[size] : 0;
-            if (ok) st.needs.hunger = clamp(st.needs.hunger + ate, 0, 100);
+            if (ok) {
+              st.needs.hunger = clamp(st.needs.hunger + ate, 0, 100);
+              Lone.noteKill(st, null);
+            }
             let injuryTier = null;
             const injPct = H.injuryPct[size] * (ok ? 1 : H.failInjuryMult) * H.styleInjuryMult;
             if (rng() * 100 < injPct) {
@@ -400,6 +505,27 @@
         if (picked.memberShare) shareKill(s, rep);
         return { state: s };
       }
+      if (s.phase === 'event' && s.pending && s.pending.cub && action.type === 'choose') {
+        const resolved = Lone.resolveCub(s, action.choiceId);
+        if (resolved.error) return { state: s0, error: resolved.error };
+        if (resolved.delta && resolved.pride) {
+          const key = `${s.runId || ''}/pride_aid/${resolved.pride}/${s.day}`;
+          const led = s.worldMemory && s.worldMemory.ledger;
+          if (!led || !led.some((row) => row.receiptKey === key)) {
+            s.prideRelation[resolved.pride] = clamp((s.prideRelation[resolved.pride] || 0) + resolved.delta, -100, 100);
+            const rec = s.worldMemory && s.worldMemory.prideToPlayer && s.worldMemory.prideToPlayer[`${resolved.pride}->player`];
+            if (rec) rec.value = s.prideRelation[resolved.pride];
+            if (led) led.push({ receiptKey: key, sourceType: 'pride_aid', recordKind: 'prideToPlayer', actor: resolved.pride, target: 'player', delta: resolved.delta, absDay: s.day });
+          }
+        }
+        const ev = s.pending;
+        ev.cub = false;
+        ev.choices = [];
+        s.pending = null;
+        s.phase = 'day';
+        endDay(s, [], { action: 'helpCub', rested: false, slotTaken: true, forcedEvent: ev });
+        return { state: s };
+      }
       if (s.phase === 'event' && action.type === 'sceneChoose') {
         const picked = Lone.choose(s, action.choiceId);
         if (picked.error) return { state: s0, error: picked.error };
@@ -447,22 +573,23 @@
         return { state: s };
       }
       if (s.phase === 'day' && action.type === 'approach') {
-        const own = W.ownership(s.map.claims, s.region);
-        const opened = Lone.beginApproach(s, {
-          neighbours: W.neighbours(s.region),
-          lonerHomePct: M.lonerHomePct,
-          lonerAdjacentPct: M.lonerAdjacentPct,
-          knowsFact: (catId, factId) => WM.knowsFact(s, catId, factId),
-          zoneHolder: own.state === 'held' ? own.holder : null,
-          huntReady: !!(s.records && s.records._huntOk),
-          scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
-          priorityIds: Follow.priorityIds(s),
-          followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc))
-        });
+        const opened = Lone.beginApproach(s, loneOpts(s));
         if (opened.error) return { state: s0, error: opened.error };
         s.pending = opened.event;
         s.phase = 'event';
         return { state: s };
+      }
+      if (s.phase === 'day' && (action.type === 'shadow' || action.type === 'spar' || action.type === 'steal' || action.type === 'watch' || action.type === 'shareKill' || action.type === 'helpCub' || (action.type === 'scout' && action.pride))) {
+        const opened = openLone(s, action, rep);
+        if (opened.error) return { state: s0, error: opened.error };
+        if (opened.event && !opened.end) {
+          s.pending = opened.event;
+          s.pending.day = s.day;
+          s.phase = 'event';
+          return { state: s };
+        }
+        endDay(s, rep, { action: action.type, rested: false, slotTaken: true, forcedEvent: opened.event });
+        return { state: s, report: s.report };
       }
       if (s.phase === 'day' && action.type === 'seekMate') {
         const opened = Pair.beginSeek(s, action.catId, bondDeps(s, rep));
@@ -562,7 +689,10 @@
       const rng = Rng.stream(s.seed, 'hunt', s.day);
       const ok = rng() * 100 < p;
       s.needs.energy = clamp(s.needs.energy - N.energy.hunt, 0, 100);
-      if (ok) s.needs.hunger = clamp(s.needs.hunger + N.eat[size], 0, 100);
+      if (ok) {
+        s.needs.hunger = clamp(s.needs.hunger + N.eat[size], 0, 100);
+        Lone.noteKill(s, null);
+      }
       if (Pair.enabled) Pair.noteHunt(s, ok);
       else if (s.records) s.records._huntOk = !!ok;
       if (Pair.enabled && s.records) s.records._huntOk = !!ok;
@@ -778,7 +908,22 @@
           return e ? bind(e, n, { day: s.day }) : null;
         }
       }
+      for (const id of Follow.priorityIds(s)) {
+        const n = s.npcs[id];
+        if (!n || !catHere(s, n)) continue;
+        const followed = meetingFollow(s, n);
+        if (followed) { meet(s, n); return followed; }
+      }
       return null;
+    }
+    function catHere(s, cat) {
+      if (!cat || cat.dead) return false;
+      if (cat.visit && cat.visit.region === s.region && s.day <= cat.visit.until) return true;
+      if (cat.lastRegion === s.region) return true;
+      const homes = cat.homeZones || [];
+      if (homes.includes(s.region)) return true;
+      if (homes.some((zone) => W.neighbours(zone).includes(s.region))) return true;
+      return (s.followups || []).some((row) => row.catId === cat.id && !row.fired && (row.region === s.region || (row.region && W.neighbours(row.region).includes(s.region))));
     }
     function meet(s, npc) { npc.met = true; if (Pair.enabled) Pair.onMet(s, npc); }
     function meetingFollow(s, npc) {
@@ -946,7 +1091,7 @@
       try { biome = W.region(regionId).biome; } catch (e) { return null; }
       if (line.size !== 'medium' || biome !== 'steppe') return null;
       const pack = beatsByEvent[line.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail'];
-      return fill((pack && pack.report) || (line.ok ? 'You caught {size} prey and ate. Hunger +{ate}.' : 'The prey escaped.'), { size: 'Medium', ate: line.ate });
+      return fill((pack && pack.report) || (line.ok ? 'You caught {size} prey and ate.' : 'The prey escaped.'), { size: 'Medium', ate: line.ate });
     }
     function huntNumbers(hunt) {
       if (!hunt) return '';
@@ -1030,6 +1175,7 @@
         huntReady: !!(s.records && s.records._huntOk),
         scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
         priorityIds: Follow.priorityIds(s),
+        presentIds: followPresentIds(s),
         followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc))
       };
     }
@@ -1123,7 +1269,7 @@
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;
       if (!e) {
-        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.')))) {
+        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || id === 'lone.shadow' || id === 'lone.spar' || id === 'lone.scout' || id === 'lone.steal' || id === 'lone.cub' || id === 'lone.share' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.')))) {
           return { id, title: 'Scene', text: '', choices: [{ id: 'continue', label: 'Continue', summary: 'Continue', affinityIntent: 'unchanged' }] };
         }
         return null;

@@ -63,7 +63,7 @@
       if (prior) return prior;
       const made = {
         sourceEventId: row.sourceEventId, choiceId: row.choiceId, catId: row.catId, kind: row.kind,
-        factId: row.factId, notBefore: row.notBefore || null, expiresDay: row.expiresDay || null, fired: false
+        factId: row.factId, region: row.region || s.region, notBefore: row.notBefore || null, expiresDay: row.expiresDay || null, fired: false
       };
       rows.push(made);
       return made;
@@ -179,8 +179,8 @@
       if (ford.choiceId === 'stay_out') {
         const factId = `${s.runId || 'run'}/player_stayed_out_ford`;
         remember(s, { factId, kind: 'observation', participants: ['player', ford.hcId, ford.bfId], witnesses: [ford.hcId, ford.bfId], scope: 'witnessed' });
-        arm(s, { sourceEventId, choiceId: 'stay_out', catId: ford.bfId, kind: 'ford_stay', factId });
-        arm(s, { sourceEventId, choiceId: 'stay_out', catId: ford.hcId, kind: 'ford_stay', factId });
+        arm(s, { sourceEventId, choiceId: 'stay_out', catId: ford.bfId, kind: 'ford_stay', factId, region: s.region });
+        arm(s, { sourceEventId, choiceId: 'stay_out', catId: ford.hcId, kind: 'ford_stay', factId, region: s.region });
         return;
       }
       const backed = ford.choiceId === 'help_bonefield_cat' ? ford.bfId : ford.hcId;
@@ -189,8 +189,8 @@
       const witnessNpc = s.npcs && s.npcs[witness];
       const k = knowledge(s)[factId];
       if (k && witnessNpc && !k.rumorPride) { k.rumorPride = witnessNpc.faction; k.rumorDay = (k.learnedAbsDay || s.day) + 3; }
-      arm(s, { sourceEventId, choiceId: ford.choiceId, catId: backed, kind: 'ford_friend', factId });
-      arm(s, { sourceEventId, choiceId: ford.choiceId, catId: witness, kind: 'ford_cold', factId });
+      arm(s, { sourceEventId, choiceId: ford.choiceId, catId: backed, kind: 'ford_friend', factId, region: s.region });
+      arm(s, { sourceEventId, choiceId: ford.choiceId, catId: witness, kind: 'ford_cold', factId, region: s.region });
     }
     function noteHyena(s) {
       const p = s.encounters && s.encounters.pending;
@@ -201,7 +201,7 @@
       if (p.result && p.result.outcomeId === 'hyena_retreated') {
         const factId = `${s.runId || 'run'}/player_left_hyena`;
         remember(s, { factId, kind: 'observation', participants: ['player', hunterId], witnesses: [hunterId], scope: 'witnessed' });
-        arm(s, { sourceEventId, choiceId: 'leave', catId: hunterId, kind: 'hyena_leave', factId });
+        arm(s, { sourceEventId, choiceId: 'leave', catId: hunterId, kind: 'hyena_leave', factId, region: s.region });
         return;
       }
       const driven = (p.deedResults || []).some((d) => d.deedId === 'drive_hyena' && d.applied);
@@ -211,8 +211,8 @@
       const shared = (p.deedResults || []).some((d) => d.deedId === 'share_kill' && d.applied);
       if (shared) {
         list(s).forEach((row) => { if (row.catId === hunterId && row.choiceId === 'drive_off' && !row.fired) row.fired = true; });
-        arm(s, { sourceEventId, choiceId: 'share_remains', catId: hunterId, kind: 'hyena_share', factId });
-      } else arm(s, { sourceEventId, choiceId: 'drive_off', catId: hunterId, kind: 'hyena_drive', factId });
+        arm(s, { sourceEventId, choiceId: 'share_remains', catId: hunterId, kind: 'hyena_share', factId, region: s.region });
+      } else arm(s, { sourceEventId, choiceId: 'drive_off', catId: hunterId, kind: 'hyena_drive', factId, region: s.region });
     }
     function noteMeadow(s, { choiceId, ok, witnesses, passers }) {
       if (choiceId === 'move_on') return;
@@ -221,7 +221,7 @@
         remember(s, { factId, kind: ok ? 'hit' : 'miss', participants: ['player'].concat(witnesses || []), witnesses: witnesses || [], scope: 'witnessed' });
         (witnesses || []).forEach((catId) => arm(s, {
           sourceEventId: 'slice.region.horse_meadows', choiceId: 'stalk_foal', catId,
-          kind: ok ? 'foal_hit' : 'foal_miss', factId
+          kind: ok ? 'foal_hit' : 'foal_miss', factId, region: s.region
         }));
         return;
       }
@@ -230,7 +230,7 @@
         remember(s, { factId, kind: 'watch', participants: ['player'].concat(passers || []), witnesses: passers || [], scope: 'witnessed' });
         (passers || []).forEach((catId) => arm(s, {
           sourceEventId: 'slice.region.horse_meadows', choiceId: 'watch_herd', catId, kind: 'hillside', factId,
-          notBefore: s.day + 1, expiresDay: s.day + 1
+          region: s.region, notBefore: s.day + 1, expiresDay: s.day + 1
         }));
       }
     }

@@ -106,6 +106,8 @@
     if (usedDay(s, 'scent')) return { error: 'duplicate' };
     const read = scentLines(s, spec || {});
     const key = mark(s, 'scent', s.region);
+    if (!s.records.seenCats) s.records.seenCats = {};
+    s.records.seenCats[s.day] = read.cats.map((c) => c.id);
     remember(s, key, read.cats.map((c) => c.id), read.found);
     return {
       event: {
@@ -135,19 +137,25 @@
     if ((npc.homeZones || []).includes(s.region)) return true;
     return !!(npc.faction && npc.faction !== 'loner' && opts.zoneHolder === npc.faction);
   }
+  function visiting(npc, s) {
+    return !!(npc && npc.visit && npc.visit.region === s.region && s.day <= npc.visit.until);
+  }
+  function zoneBand(npc, s, opts) {
+    if (!npc) return null;
+    if ((npc.homeZones || []).includes(s.region) || visiting(npc, s) || npc.lastRegion === s.region) return 'home';
+    if ((npc.homeZones || []).some((z) => (opts.neighbours || []).includes(z))) return 'near';
+    if (npc.faction && npc.faction !== 'loner' && opts.zoneHolder === npc.faction) return 'home';
+    if ((opts.presentIds || []).includes(npc.id)) return 'home';
+    return null;
+  }
   function eligiblePct(npc, s, opts) {
-    if (!npc || !npc.met) return 0;
-    if (npc.faction === 'loner') {
-      if (npc.stage !== 'adult' && npc.stage !== 'elder') return 0;
-      if (Math.abs(npc.affinity || 0) < 20) return 0;
-      const home = (npc.homeZones || []).includes(s.region);
-      const near = !home && (npc.homeZones || []).some((z) => (opts.neighbours || []).includes(z));
-      if (home) return opts.lonerHomePct;
-      if (near) return opts.lonerAdjacentPct;
-      return 0;
-    }
-    if (!mistwoodRequest(npc, s, opts)) return 0;
-    return opts.lonerHomePct || 0;
+    if (!npc || npc.dead || !npc.met) return 0;
+    if (npc.stage !== 'adult' && npc.stage !== 'elder') return 0;
+    if (Math.abs(npc.affinity || 0) < 20) return 0;
+    const where = zoneBand(npc, s, opts || {});
+    if (!where) return 0;
+    if (where === 'home') return (opts && opts.lonerHomePct) || 0;
+    return (opts && opts.lonerAdjacentPct) || 0;
   }
   function mistwoodRequest(npc, s, opts) {
     if (!npc || npc.faction !== 'mistwood' || npc.stage !== 'adult' || !npc.met) return false;
@@ -299,15 +307,29 @@
     };
   }
 
-  function pickApproach(s, opts) {
-    const rng = Rng.stream(s.seed, 'approach', s.day);
+  function approachOrder(s, opts) {
     const first = new Set((opts && opts.priorityIds) || []);
-    const ids = Object.keys(s.npcs || {}).sort((a, b) => (first.has(a) ? 0 : 1) - (first.has(b) ? 0 : 1) || (a < b ? -1 : a > b ? 1 : 0));
-    for (const id of ids) {
+    return Object.keys(s.npcs || {}).sort((a, b) => (first.has(a) ? 0 : 1) - (first.has(b) ? 0 : 1) || (a < b ? -1 : a > b ? 1 : 0));
+  }
+  function candidates(s, opts) {
+    return approachOrder(s, opts).filter((id) => eligiblePct(s.npcs[id], s, opts));
+  }
+  function pickApproach(s, opts) {
+    // Each cat rolls on its own stream. One shared stream made later cats inherit the first cat's miss.
+    for (const id of approachOrder(s, opts)) {
       const npc = s.npcs[id];
       const pct = eligiblePct(npc, s, opts || {});
-      if (pct && Rng.chance(rng, pct)) return npc;
+      if (!pct) continue;
+      const rng = Rng.stream(s.seed, 'approach', s.day, id);
+      if (Rng.chance(rng, pct)) return npc;
     }
+    return null;
+  }
+  function speakableFact(s, factId) {
+    const fact = ((s.worldMemory && s.worldMemory.facts) || []).find((row) => row.factId === factId);
+    if (!fact) return null;
+    if (typeof fact.gossip === 'string' && fact.gossip) return fact.gossip;
+    if (typeof fact.summary === 'string' && fact.summary) return fact.summary;
     return null;
   }
   function peekApproach(s, opts) {
@@ -335,8 +357,9 @@
       kind = openerKind(picked);
       beats.push({ kind: 'narration', speaker: 'npc', text: OPENERS[kind] || OPENERS.baseline });
       facts = knownFacts(s, picked.id, opts.knowsFact || (() => false));
-      if (facts.length) {
-        beats.push({ kind: 'speech', speaker: picked.name, text: Pass2.lines()['lone-actions.js:gossipBeat'].replace('{fact}', facts[0]) });
+      const told = facts.map((id) => speakableFact(s, id) || id).find(Boolean);
+      if (told) {
+        beats.push({ kind: 'speech', speaker: picked.name, text: Pass2.lines()['lone-actions.js:gossipBeat'].replace('{fact}', told) });
       }
     }
     const knows = opts.knowsFact || (() => false);
@@ -422,8 +445,313 @@
     return { state: s };
   }
 
+  const devNote = {
+    shadow: 'Placeholder until Saga writes the shadow scene. Unseen and spotted both need her prose.',
+    spar: 'Placeholder until Saga writes the play-fight.',
+    scout: 'Placeholder until Saga writes the border scout.',
+    steal: 'Placeholder until Saga writes taking from a kill, and being caught at it.',
+    cub: 'Placeholder until Saga writes the lost cub.',
+    watch: 'Placeholder until Saga writes watching from a vantage.',
+    share: 'Placeholder until Saga writes sharing a kill.'
+  };
+
+  function courtCooling(s, id) {
+    const row = s.records && s.records.court && s.records.court[id];
+    return !!(row && row.lastDay != null && s.day < row.lastDay + 5);
+  }
+  function knownHere(s, opts) {
+    const ids = new Set((s.records && s.records.seenCats && s.records.seenCats[s.day]) || []);
+    for (const npc of Object.values(s.npcs || {})) {
+      if (!npc || npc.dead || !npc.met) continue;
+      if (zoneBand(npc, s, opts || {})) ids.add(npc.id);
+    }
+    return [...ids].filter((id) => s.npcs[id] && !s.npcs[id].dead);
+  }
+  function rememberFact(s, factId, extra) {
+    if (!s.worldMemory) return;
+    if (!Array.isArray(s.worldMemory.facts)) s.worldMemory.facts = [];
+    if (!s.worldMemory.knowledge) s.worldMemory.knowledge = {};
+    if (s.worldMemory.facts.some((f) => f.factId === factId)) return;
+    s.worldMemory.facts.push(Object.assign({ factId }, extra || {}));
+    s.worldMemory.knowledge[factId] = {
+      scope: 'witnessed', participantIds: extra && extra.participants || ['player'],
+      witnessIds: extra && extra.witnesses || [], disclosedTo: [], prideIds: extra && extra.prideIds || [],
+      learnedAbsDay: s.day
+    };
+  }
+  function fieldCost(s) {
+    if ((s.needs.energy || 0) < 15) return { error: 'tired' };
+    s.needs.energy -= 15;
+    return { ok: true };
+  }
+  function shadowTargets(s, opts) {
+    return knownHere(s, opts).filter((id) => !courtCooling(s, id)).map((id) => ({ id, name: s.npcs[id].name }));
+  }
+  function beginShadow(s, catId, opts) {
+    if (usedDay(s, 'shadow')) return { error: 'duplicate' };
+    const npc = s.npcs[catId];
+    if (!npc || !shadowTargets(s, opts).some((row) => row.id === catId)) return { error: 'target' };
+    const paid = fieldCost(s);
+    if (paid.error) return paid;
+    mark(s, 'shadow', catId);
+    const curiosity = npc.personality && Number.isInteger(npc.personality.curiosity) ? npc.personality.curiosity : 50;
+    const milestone = opts && opts.trailReadingM || 0;
+    const pct = Math.max(5, Math.min(90, 30 + (curiosity - 50) / 2 - 3 * milestone));
+    const spotted = Rng.chance(Rng.stream(s.seed, 'shadow', s.day, catId), pct);
+    let delta = 0;
+    if (spotted && Math.abs(npc.affinity || 0) < 20) {
+      npc.affinity = Math.max(-100, (npc.affinity || 0) - 5);
+      delta = -5;
+    }
+    const next = (npc.homeZones || []).find((z) => z !== s.region) || (npc.homeZones || [])[0] || s.region;
+    npc.lastRegion = next;
+    const factId = `${s.runId || ''}/shadow/${catId}/${s.day}`;
+    const summary = `${npc.name} was headed toward ${opts && opts.regionName ? opts.regionName(next) : next}.`;
+    rememberFact(s, factId, { kind: 'route', summary, participants: ['player', catId], skill: 'trailReading', xpOutcome: spotted ? 4 : 10, xpGranted: false });
+    const text = spotted
+      ? `${npc.name} catches you watching and stops. The quiet following is over.`
+      : `You keep ${npc.name} in sight and learn the way they are headed.`;
+    return { event: sceneEvent('lone.shadow', 'Following', text, devNote.shadow, { catId, resultLine: delta ? 'Affinity −5' : '' }) };
+  }
+  function sparTargets(s) {
+    return Object.values(s.npcs || {}).filter((npc) => {
+      if (!npc || npc.dead || !npc.met) return false;
+      if (npc.stage !== 'adult') return false;
+      if ((npc.affinity || 0) < 20) return false;
+      if (isRival(npc)) return false;
+      if ((s.injuries || []).length || (npc.injuries || []).length) return false;
+      if ((s.needs.energy || 0) < 25) return false;
+      return true;
+    }).map((npc) => ({ id: npc.id, name: npc.name }));
+  }
+  function beginSpar(s, catId, opts) {
+    if (usedDay(s, 'spar')) return { error: 'duplicate' };
+    const npc = s.npcs[catId];
+    if (!npc || !sparTargets(s).some((row) => row.id === catId)) return { error: 'target' };
+    const paid = fieldCost(s);
+    if (paid.error) return paid;
+    mark(s, 'spar', catId);
+    const fought = opts.fight(s, npc);
+    if (!s.records.sparDay) s.records.sparDay = {};
+    const last = s.records.sparDay[catId];
+    let delta = 0;
+    if (last == null || s.day >= last + 5) {
+      npc.affinity = Math.min(100, (npc.affinity || 0) + 5);
+      s.records.sparDay[catId] = s.day;
+      delta = 5;
+    }
+    const factId = `${s.runId || ''}/spar/${catId}/${s.day}`;
+    rememberFact(s, factId, {
+      kind: 'spar', summary: fought.won ? `You came out ahead in a play-fight with ${npc.name}.` : `You and ${npc.name} played at fighting.`,
+      participants: ['player', catId], skill: 'saberStrike', xpOutcome: fought.won ? 10 : 4, xpGranted: false
+    });
+    const text = fought.won
+      ? `You and ${npc.name} tumble through a play-fight. You come out on top, and neither of you is hurt.`
+      : `You and ${npc.name} tumble through a play-fight. They pin you, and neither of you is hurt.`;
+    return { event: sceneEvent('lone.spar', 'Play-fight', text, devNote.spar, { catId, resultLine: delta ? 'Affinity +5' : '' }) };
+  }
+  function adjacentPrides(s, opts) {
+    const here = opts.ownership(s.region);
+    if (here.state === 'held') return [];
+    const out = [];
+    for (const id of opts.neighbours || []) {
+      const own = opts.ownership(id);
+      if (own.state !== 'held' || !own.holder || own.holder === 'neutral' || own.holder === 'wolves') continue;
+      if (!out.some((row) => row.pride === own.holder)) out.push({ pride: own.holder, name: PRIDE_NAMES[own.holder] || own.holder });
+    }
+    return out;
+  }
+  function beginScout(s, pride, opts) {
+    if (usedDay(s, 'scout')) return { error: 'duplicate' };
+    if (!adjacentPrides(s, opts).some((row) => row.pride === pride)) return { error: 'border' };
+    const paid = fieldCost(s);
+    if (paid.error) return paid;
+    mark(s, 'scout', pride);
+    const name = PRIDE_NAMES[pride] || pride;
+    const members = Object.values(s.npcs || {}).filter((n) => n && !n.dead && n.faction === pride && (n.stage === 'adult' || n.stage === 'elder'));
+    const leader = members.find((n) => opts.leaderIds && opts.leaderIds.includes(n.id)) || null;
+    const den = (opts.den && opts.den(pride)) || null;
+    const lines = [`From a ridge that is still outside ${name}, you watch the border.`];
+    if (members.length) lines.push(`${members.map((n) => n.name).slice(0, 3).join(', ')} ${members.length > 1 ? 'are' : 'is'} on the border.`);
+    else lines.push(`You see no ${name} cats on the border.`);
+    if (leader) lines.push(`${leader.name} is at ${opts.regionName(leader.lastRegion || den || s.region)}.`);
+    if (den) lines.push(`Prey on their land looks ${preyWord(opts.preyValue(den))}.`);
+    const standing = (opts.standing && opts.standing(pride)) || 0;
+    lines.push(`${name}'s standing toward you is ${standing}.`);
+    const feud = opts.feud && opts.feud(pride);
+    if (feud) lines.push(feud);
+    let warning = false;
+    if (standing <= -15) {
+      warning = true;
+      lines.push(`A ${name} patrol sees you and warns you away. They do not come across.`);
+    }
+    const factId = `${s.runId || ''}/scout/${pride}/${s.day}`;
+    rememberFact(s, factId, {
+      kind: 'scout', summary: lines[0], participants: ['player'].concat(members.map((n) => n.id)),
+      prideIds: [pride], skill: 'threatScent', xpOutcome: 10, xpGranted: false
+    });
+    members.slice(0, 3).forEach((n) => { n.met = true; n.lastRegion = den || s.region; });
+    return {
+      event: sceneEvent('lone.scout', 'The border', lines.join(' '), devNote.scout, { warning, resultLine: '' }),
+      lines
+    };
+  }
+  function freshKill(s) {
+    const kill = s.records && s.records.freshKill;
+    if (!kill || s.day - kill.day > 2) return null;
+    return kill;
+  }
+  function noteKill(s, owner) {
+    if (!s.records) s.records = {};
+    s.records.freshKill = { day: s.day, region: s.region, owner: owner || null };
+  }
+  function stealOffer(s, opts) {
+    const kill = freshKill(s);
+    if (!kill || kill.stolen) return null;
+    const own = opts.ownership(kill.region);
+    const loner = Object.values(s.npcs || {}).find((n) => n && !n.dead && n.faction === 'loner' && (n.homeZones || []).includes(kill.region));
+    const owner = own.state === 'held' ? own.holder : (loner ? loner.id : null);
+    if (!owner) return null;
+    return { owner, region: kill.region, day: kill.day };
+  }
+  function beginSteal(s, opts) {
+    if (usedDay(s, 'steal')) return { error: 'duplicate' };
+    const offer = stealOffer(s, opts);
+    if (!offer) return { error: 'kill' };
+    const paid = fieldCost(s);
+    if (paid.error) return paid;
+    mark(s, 'steal', `${offer.region}/${offer.day}`);
+    s.records.freshKill.stolen = true;
+    const ownerHere = typeof offer.owner === 'string' && s.npcs[offer.owner]
+      ? zoneBand(s.npcs[offer.owner], s, opts)
+      : (opts.ownership(s.region).holder === offer.owner);
+    let chance = opts.huntChance(s, 'small');
+    if (ownerHere) chance = Math.max(5, chance - 10);
+    const ok = Rng.chance(Rng.stream(s.seed, 'steal', s.day), chance);
+    const factId = `${s.runId || ''}/steal/${offer.region}/${offer.day}`;
+    if (ok) s.needs.hunger = Math.min(100, (s.needs.hunger || 0) + 25);
+    rememberFact(s, factId, {
+      kind: 'steal', summary: ok ? 'You took a meal from a kill that was not yours.' : 'You were caught at a kill that was not yours.',
+      participants: ['player'].concat(s.npcs[offer.owner] ? [offer.owner] : []),
+      prideIds: s.npcs[offer.owner] ? [] : [offer.owner],
+      skill: 'stalk', xpOutcome: ok ? 10 : 4, xpGranted: false
+    });
+    const text = ok
+      ? 'You take a meal from the kill and slip away.'
+      : 'The owner of the kill finds you there.';
+    return {
+      ok, owner: offer.owner, text,
+      event: sceneEvent('lone.steal', 'The kill', text, devNote.steal, { resultLine: ok ? 'Hunger +25' : '' })
+    };
+  }
+  function cubOffer(s, opts) {
+    if (!s.records) s.records = {};
+    if (!s.records.cubPrideDay) s.records.cubPrideDay = {};
+    if (!s.records.cubs) s.records.cubs = {};
+    for (const pride of adjacentPrides(s, opts).map((row) => row.pride)) {
+      const last = s.records.cubPrideDay[pride];
+      if (last != null && s.day < last + 5) continue;
+      const cubs = Object.values(s.npcs || {}).filter((n) => n && !n.dead && n.faction === pride && n.stage === 'cub' && !s.records.cubs[n.id]);
+      cubs.sort((a, b) => (a.id < b.id ? -1 : 1));
+      const cub = cubs[0];
+      if (!cub) continue;
+      const adults = Object.values(s.npcs || {}).filter((n) => n && !n.dead && n.faction === pride && n.stage === 'adult' && n.sex === 'female');
+      adults.sort((a, b) => (a.id < b.id ? -1 : 1));
+      const mother = adults[0] || Object.values(s.npcs).find((n) => n && n.faction === pride && n.stage === 'adult');
+      if (!mother) continue;
+      return { pride, cubId: cub.id, motherId: mother.id, mother: mother.name, name: PRIDE_NAMES[pride] || pride };
+    }
+    return null;
+  }
+  function beginCub(s, opts) {
+    const offer = cubOffer(s, opts);
+    if (!offer) return { error: 'cub' };
+    if ((s.needs.energy || 0) < 15) return { error: 'tired' };
+    s.needs.energy -= 15;
+    s.records.cubPrideDay[offer.pride] = s.day;
+    return {
+      event: {
+        lone: true, cub: true, eventId: 'lone.cub', title: 'A cub', devNote: devNote.cub,
+        pride: offer.pride, cubId: offer.cubId, motherId: offer.motherId,
+        beats: [{ kind: 'narration', text: `A ${offer.name} cub is stuck near the border, too small to get home alone.` }],
+        beatIndex: 0, day: s.day, choices: [
+          { id: 'guide', label: 'Walk the cub back to its mother.' },
+          { id: 'ignore', label: 'Leave the cub where it is.' }
+        ]
+      }
+    };
+  }
+  function resolveCub(s, choiceId) {
+    const p = s.pending;
+    if (!p || !p.cub) return { error: 'scene' };
+    if (p.choiceId) return { error: 'duplicate' };
+    p.choiceId = choiceId;
+    const mother = s.npcs[p.motherId];
+    if (choiceId === 'guide' && mother) {
+      mother.affinity = Math.min(100, (mother.affinity || 0) + 10);
+      mother.met = true;
+      mother.visit = { region: s.region, until: s.day + 20 };
+      if (s.records && s.records.cubs) s.records.cubs[p.cubId] = s.day;
+      else if (s.records) s.records.cubs = { [p.cubId]: s.day };
+      const factId = `${s.runId || ''}/cub/${p.cubId}`;
+      rememberFact(s, factId, { kind: 'pride_aid', summary: `You walked a cub back to ${mother.name}.`, participants: ['player', mother.id, p.cubId], prideIds: [p.pride], skill: 'grooming', xpOutcome: 10, xpGranted: false });
+      p.beats = (p.beats || []).concat([{ kind: 'narration', text: `You walk the cub back to ${mother.name}.` }]);
+      p.resultLine = 'Affinity +10';
+      p.prideDelta = 5;
+    } else {
+      p.beats = (p.beats || []).concat([{ kind: 'narration', text: 'You leave the cub where it is.' }]);
+      p.resultLine = '';
+      p.prideDelta = 0;
+    }
+    return { ok: true, pride: p.pride, delta: p.prideDelta || 0 };
+  }
+  function shareTargets(s, opts) {
+    const kill = freshKill(s);
+    if (!kill || kill.shared || kill.stolen) return [];
+    return knownHere(s, opts).filter((id) => s.npcs[id].met).map((id) => ({ id, name: s.npcs[id].name }));
+  }
+  function shareKill(s, catId) {
+    const npc = s.npcs[catId];
+    const kill = freshKill(s);
+    if (!npc || !kill || kill.shared) return { error: 'kill' };
+    const key = `${s.runId || ''}/share/${catId}/${kill.day}`;
+    if (receipts(s).includes(key)) return { error: 'duplicate' };
+    mark(s, 'share', `${catId}/${kill.day}`);
+    kill.shared = true;
+    npc.affinity = Math.min(100, (npc.affinity || 0) + 10);
+    npc.met = true;
+    return {
+      ok: true, delta: 10,
+      event: sceneEvent('lone.share', 'The kill', `You set part of the kill where ${npc.name} can take it.`, devNote.share, { catId, resultLine: 'Affinity +10' })
+    };
+  }
+  function watchText() {
+    return { text: 'You settle where the land is in front of you and watch the day go by.', devNote: devNote.watch };
+  }
+  function menu(s, opts) {
+    opts = opts || {};
+    const approachIds = candidates(s, opts);
+    return {
+      watch: s.phase === 'day' && !s.travel && !s.forced ? { allowed: true } : null,
+      scout: adjacentPrides(s, opts),
+      shadow: shadowTargets(s, opts),
+      spar: sparTargets(s),
+      steal: stealOffer(s, opts),
+      cub: cubOffer(s, opts),
+      share: shareTargets(s, opts),
+      approach: approachIds.length ? { allowed: !usedDay(s, 'approach'), ids: approachIds } : null
+    };
+  }
+  function sceneEvent(eventId, title, text, note, extra) {
+    return Object.assign({
+      lone: true, eventId, title, devNote: note,
+      beats: [{ kind: 'narration', text }], beatIndex: 0, day: null, choices: []
+    }, extra || {});
+  }
+
   return {
     offer, usedDay, scentLines, beginScent, beginApproach, peekApproach, choose, openerKind, OPENERS, preyWord,
-    outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey
+    outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey,
+    candidates, menu, beginShadow, beginSpar, beginScout, beginSteal, beginCub, resolveCub, shareKill, noteKill, watchText, adjacentPrides
   };
 });

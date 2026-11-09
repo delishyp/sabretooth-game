@@ -1,7 +1,7 @@
 {
   "note": "Runtime beats copied from docs/narrative/voice-pass-1.md. Grassland is the map biome steppe (map-v1: Grassland / steppe). Other hunt sizes and biomes keep the old report string.",
   "voice.hunt.medium.steppe.ok": {
-    "report": "You caught {size} prey and ate. Hunger +{ate}.",
+    "report": "You caught {size} prey and ate.",
     "beats": [
       { "kind": "narration", "text": "The wind turns, and with it comes the warm, grassy musk of a horse foal that has strayed from its herd." },
       { "kind": "narration", "text": "You drop until your belly brushes the frost-stiff stems. One paw, then the next. The foal tears at a tuft and swings its head away, and its ears flick at a fly and nothing else." },

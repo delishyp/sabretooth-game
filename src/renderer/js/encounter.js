@@ -172,7 +172,7 @@
         return true;
       }
       const action = ctx && ctx.action;
-      if ((action === 'hunt' || action === 'travel') && s.region === 'twin_forks' && !seen(s, HYENA)) {
+      if (s.region === 'twin_forks' && !seen(s, HYENA)) {
         const hunter = hunterOf(s);
         if (!hunter) return false;
         const outsider = outsiderOf(s, hunter.id);

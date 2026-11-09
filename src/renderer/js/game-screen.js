@@ -343,7 +343,14 @@
         }
         const talks = talkGroup(av.talk);
         a.append(hunt, rest, tr);
-        if (av.scout && av.scout.allowed) a.append(btn('Scout the border', { g: 'scout' }));
+        const lone = av.lone || {};
+        if (lone.watch) a.append(btn('Watch from a vantage', { g: 'watch' }));
+        for (const row of lone.scout || []) a.append(btn(`Scout the ${row.name} border`, { g: 'scout', pride: row.pride }));
+        for (const row of lone.shadow || []) a.append(btn(`Shadow ${row.name}`, { g: 'shadow', cat: row.id }));
+        for (const row of lone.spar || []) a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }));
+        if (lone.steal) a.append(btn('Steal from the kill', { g: 'steal' }));
+        if (lone.cub) a.append(btn('Help the cub', { g: 'helpCub' }));
+        for (const row of lone.share || []) a.append(btn(`Share the kill with ${row.name}`, { g: 'shareKill', cat: row.id }));
         if (talks.childElementCount) a.append(talks);
         if (av.seek) a.append(btn(`Seek out ${av.seek.name} · Energy −${av.seek.energy}`, { g: 'seek', cat: av.seek.catId }, { disabled: !av.seek.allowed, title: av.seek.reason || '' }));
         const bond = el('div', 'action-group is-bond');
@@ -420,7 +427,7 @@
         case 'healed': return t(`game.report.healed.${l.tier}`);
         case 'drink': return (s.report && E.arrivalText(s.report.region, 'drink')) || t('game.report.drink');
         case 'tarEscaped': case 'starving': case 'parched': case 'stuck': case 'lost': return t(`game.report.${l.k}`);
-        case 'watch': return `You watched from the hillside. Energy +${l.energy}.`;
+        case 'watch': return 'You watched the land from a vantage.';
         case 'scout': return l.text;
         default: return null;                              // meetLoner: the event itself is the report
       }
@@ -726,7 +733,13 @@
       if (d.g === 'wild') return showView('wilderness');
       if (d.g === 'hunt') return act({ type: 'hunt', size: d.size });
       if (d.g === 'rest') return act({ type: 'rest' });
-      if (d.g === 'scout') return act({ type: 'scout' });
+      if (d.g === 'scout') return act({ type: 'scout', pride: d.pride });
+      if (d.g === 'watch') return act({ type: 'watch' });
+      if (d.g === 'shadow') return act({ type: 'shadow', catId: d.cat });
+      if (d.g === 'spar') return act({ type: 'spar', catId: d.cat });
+      if (d.g === 'steal') return act({ type: 'steal' });
+      if (d.g === 'helpCub') return act({ type: 'helpCub' });
+      if (d.g === 'shareKill') return act({ type: 'shareKill', catId: d.cat });
       if (d.g === 'travel') return act({ type: 'travel', to: d.to });
       if (d.g === 'forced') return act({ type: 'forced' });
       if (d.g === 'border') return act({ type: 'border', guardId: d.guard });
