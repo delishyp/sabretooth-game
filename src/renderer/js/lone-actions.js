@@ -445,15 +445,23 @@
     return { state: s };
   }
 
-  const devNote = {
-    shadow: 'Placeholder until Saga writes the shadow scene. Unseen and spotted both need her prose.',
-    spar: 'Placeholder until Saga writes the play-fight.',
-    scout: 'Placeholder until Saga writes the border scout.',
-    steal: 'Placeholder until Saga writes taking from a kill, and being caught at it.',
-    cub: 'Placeholder until Saga writes the lost cub.',
-    watch: 'Placeholder until Saga writes watching from a vantage.',
-    share: 'Placeholder until Saga writes sharing a kill.'
+  const LINES = {
+    'shadow.success': "You stay downwind and keep to the brush, always one rise behind. {name} never looks back. By the time the light shifts, you know exactly where {name} is headed.",
+    'shadow.caught': "A twig gives under your paw. {name} whips around and stares straight at your hiding place. There's no pretending now. The quiet following is over.",
+    'spar.win': "{name} crouches, rump wiggling, and pounces. You meet the pounce, roll, and come up on top with your paws planted on {name}'s chest. You're both panting and dusty, and neither of you is hurt.",
+    'spar.lose': "{name} crouches, rump wiggling, and pounces. You twist, but {name} is quicker, and you end up flat in the dirt, pinned and wheezing for breath. Neither of you is hurt.",
+    'scout': "You climb to a ridge just outside {pride} ground and lie flat among the stones. Below you, the scent-marks run along the border like a line drawn in the air, and you watch to see who walks it.",
+    'steal.success': "The kill's owner has wandered off to drink. You slip in low, tear off a mouthful while it's still warm, and are gone before anyone comes back.",
+    'steal.caught': "You're still bent over the kill when the owner's scent hits you, strong and close. You look up straight into a furious stare.",
+    'cub.intro': "A thin, high mewling carries on the wind. A {pride} cub, all fuzz and oversized paws, is caught near the border, too small to find the way home alone.",
+    'cub.help': "You nose the cub to its feet and walk beside it, slowly, step by step, until {mother} comes bounding out to meet you. The cub tumbles to safety between those big forepaws.",
+    'cub.leave': "You turn away. The mewling follows you a long way before the wind finally carries it off.",
+    'watch': "You find a high, sheltered spot and let the land spread out below you. The wind brings every scent up to you. For once you don't chase anything. You just rest, and watch.",
+    'share': "You tear off a good portion of the kill and set it down where {name} can reach it, then step back so the offer is plain."
   };
+  function fillTokens(text, vars) {
+    return String(text).replace(/\{(name|pride|mother)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
+  }
 
   function courtCooling(s, id) {
     const row = s.records && s.records.court && s.records.court[id];
@@ -508,10 +516,8 @@
     const factId = `${s.runId || ''}/shadow/${catId}/${s.day}`;
     const summary = `${npc.name} was headed toward ${opts && opts.regionName ? opts.regionName(next) : next}.`;
     rememberFact(s, factId, { kind: 'route', summary, participants: ['player', catId], skill: 'trailReading', xpOutcome: spotted ? 4 : 10, xpGranted: false });
-    const text = spotted
-      ? `${npc.name} catches you watching and stops. The quiet following is over.`
-      : `You keep ${npc.name} in sight and learn the way they are headed.`;
-    return { event: sceneEvent('lone.shadow', 'Following', text, devNote.shadow, { catId, resultLine: delta ? 'Affinity −5' : '' }) };
+    const text = fillTokens(LINES[spotted ? 'shadow.caught' : 'shadow.success'], { name: npc.name });
+    return { event: sceneEvent('lone.shadow', 'Following', text, { catId, resultLine: delta ? 'Affinity −5' : '' }) };
   }
   function sparTargets(s) {
     return Object.values(s.npcs || {}).filter((npc) => {
@@ -545,10 +551,8 @@
       kind: 'spar', summary: fought.won ? `You came out ahead in a play-fight with ${npc.name}.` : `You and ${npc.name} played at fighting.`,
       participants: ['player', catId], skill: 'saberStrike', xpOutcome: fought.won ? 10 : 4, xpGranted: false
     });
-    const text = fought.won
-      ? `You and ${npc.name} tumble through a play-fight. You come out on top, and neither of you is hurt.`
-      : `You and ${npc.name} tumble through a play-fight. They pin you, and neither of you is hurt.`;
-    return { event: sceneEvent('lone.spar', 'Play-fight', text, devNote.spar, { catId, resultLine: delta ? 'Affinity +5' : '' }) };
+    const text = fillTokens(LINES[fought.won ? 'spar.win' : 'spar.lose'], { name: npc.name });
+    return { event: sceneEvent('lone.spar', 'Play-fight', text, { catId, resultLine: delta ? 'Affinity +5' : '' }) };
   }
   function adjacentPrides(s, opts) {
     const here = opts.ownership(s.region);
@@ -571,7 +575,7 @@
     const members = Object.values(s.npcs || {}).filter((n) => n && !n.dead && n.faction === pride && (n.stage === 'adult' || n.stage === 'elder'));
     const leader = members.find((n) => opts.leaderIds && opts.leaderIds.includes(n.id)) || null;
     const den = (opts.den && opts.den(pride)) || null;
-    const lines = [`From a ridge that is still outside ${name}, you watch the border.`];
+    const lines = [fillTokens(LINES.scout, { pride: name })];
     if (members.length) lines.push(`${members.map((n) => n.name).slice(0, 3).join(', ')} ${members.length > 1 ? 'are' : 'is'} on the border.`);
     else lines.push(`You see no ${name} cats on the border.`);
     if (leader) lines.push(`${leader.name} is at ${opts.regionName(leader.lastRegion || den || s.region)}.`);
@@ -592,7 +596,7 @@
     });
     members.slice(0, 3).forEach((n) => { n.met = true; n.lastRegion = den || s.region; });
     return {
-      event: sceneEvent('lone.scout', 'The border', lines.join(' '), devNote.scout, { warning, resultLine: '' }),
+      event: sceneEvent('lone.scout', 'The border', lines.join(' '), { warning, resultLine: '' }),
       lines
     };
   }
@@ -636,12 +640,10 @@
       prideIds: s.npcs[offer.owner] ? [] : [offer.owner],
       skill: 'stalk', xpOutcome: ok ? 10 : 4, xpGranted: false
     });
-    const text = ok
-      ? 'You take a meal from the kill and slip away.'
-      : 'The owner of the kill finds you there.';
+    const text = LINES[ok ? 'steal.success' : 'steal.caught'];
     return {
       ok, owner: offer.owner, text,
-      event: sceneEvent('lone.steal', 'The kill', text, devNote.steal, { resultLine: ok ? 'Hunger +25' : '' })
+      event: sceneEvent('lone.steal', 'The kill', text, { resultLine: ok ? 'Hunger +25' : '' })
     };
   }
   function cubOffer(s, opts) {
@@ -671,9 +673,9 @@
     s.records.cubPrideDay[offer.pride] = s.day;
     return {
       event: {
-        lone: true, cub: true, eventId: 'lone.cub', title: 'A cub', devNote: devNote.cub,
+        lone: true, cub: true, eventId: 'lone.cub', title: 'A cub',
         pride: offer.pride, cubId: offer.cubId, motherId: offer.motherId,
-        beats: [{ kind: 'narration', text: `A ${offer.name} cub is stuck near the border, too small to get home alone.` }],
+        beats: [{ kind: 'narration', text: fillTokens(LINES['cub.intro'], { pride: offer.name }) }],
         beatIndex: 0, day: s.day, choices: [
           { id: 'guide', label: 'Walk the cub back to its mother.' },
           { id: 'ignore', label: 'Leave the cub where it is.' }
@@ -695,11 +697,11 @@
       else if (s.records) s.records.cubs = { [p.cubId]: s.day };
       const factId = `${s.runId || ''}/cub/${p.cubId}`;
       rememberFact(s, factId, { kind: 'pride_aid', summary: `You walked a cub back to ${mother.name}.`, participants: ['player', mother.id, p.cubId], prideIds: [p.pride], skill: 'grooming', xpOutcome: 10, xpGranted: false });
-      p.beats = (p.beats || []).concat([{ kind: 'narration', text: `You walk the cub back to ${mother.name}.` }]);
+      p.beats = (p.beats || []).concat([{ kind: 'narration', text: fillTokens(LINES['cub.help'], { mother: mother.name }) }]);
       p.resultLine = 'Affinity +10';
       p.prideDelta = 5;
     } else {
-      p.beats = (p.beats || []).concat([{ kind: 'narration', text: 'You leave the cub where it is.' }]);
+      p.beats = (p.beats || []).concat([{ kind: 'narration', text: LINES['cub.leave'] }]);
       p.resultLine = '';
       p.prideDelta = 0;
     }
@@ -722,11 +724,11 @@
     npc.met = true;
     return {
       ok: true, delta: 10,
-      event: sceneEvent('lone.share', 'The kill', `You set part of the kill where ${npc.name} can take it.`, devNote.share, { catId, resultLine: 'Affinity +10' })
+      event: sceneEvent('lone.share', 'The kill', fillTokens(LINES.share, { name: npc.name }), { catId, resultLine: 'Affinity +10' })
     };
   }
   function watchText() {
-    return { text: 'You settle where the land is in front of you and watch the day go by.', devNote: devNote.watch };
+    return LINES.watch;
   }
   function menu(s, opts) {
     opts = opts || {};
@@ -742,9 +744,9 @@
       approach: approachIds.length ? { allowed: !usedDay(s, 'approach'), ids: approachIds } : null
     };
   }
-  function sceneEvent(eventId, title, text, note, extra) {
+  function sceneEvent(eventId, title, text, extra) {
     return Object.assign({
-      lone: true, eventId, title, devNote: note,
+      lone: true, eventId, title,
       beats: [{ kind: 'narration', text }], beatIndex: 0, day: null, choices: []
     }, extra || {});
   }

@@ -299,8 +299,8 @@
         rep.push({ k: 'watch', energy: 20, cats: seen.map((n) => ({ id: n.id, name: n.name, doing: (n.homeZones || []).includes(s.region) ? 'on their own ground' : 'crossing the hillside' })) });
         opened = {
           event: {
-            lone: true, eventId: 'action.watch', title: 'The vantage', devNote: spoken.devNote,
-            beats: [{ kind: 'narration', text: spoken.text }], beatIndex: 0, choices: [],
+            lone: true, eventId: 'action.watch', title: 'The vantage',
+            beats: [{ kind: 'narration', text: spoken }], beatIndex: 0, choices: [],
             summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
           }
         };
