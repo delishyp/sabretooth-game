@@ -1079,12 +1079,13 @@
       "aggression": {
         "low": "Keeps the mouth relaxed while speaking.",
         "middle": "Answers without a threatening display.",
-        "high": "Jaw tightens briefly; does not invent a strike or threat outcome."
+        "high": "The jaw tightens briefly.",
+        "devNote": { "high": "Jaw tightens briefly; does not invent a strike or threat outcome." }
       },
       "sociability": {
         "low": "Keeps the exchange brief and leaves space between bodies.",
-        "middle": "Faces the listener during the reply.",
-        "high": "Turns fully toward the listener and sustains the exchange."
+        "middle": "Faces you while answering.",
+        "high": "Turns fully toward you and stays with the talk."
       },
       "boldness": {
         "low": "Keeps a wider space from unfamiliar cats.",
@@ -1092,14 +1093,19 @@
         "high": "Answers directly without stepping back."
       },
       "loyalty": {
-        "low": "Does not close the listener’s route away.",
+        "low": "Leaves the way past them open.",
         "middle": "Stays through the answer.",
-        "high": "Remains beside the person or place of the actual chosen commitment; no sworn promise or loyalty fact invented."
+        "high": "Stays close to what they have chosen.",
+        "devNote": {
+          "low": "Does not close the listener’s route away.",
+          "high": "Remains beside the person or place of the actual chosen commitment; no sworn promise or loyalty fact invented."
+        }
       },
       "curiosity": {
         "low": "Returns attention to the immediate meeting after answering.",
-        "middle": "Checks the listener’s expression.",
-        "high": "Pauses to study the listener before answering; no mind reading or hidden-history inference."
+        "middle": "Checks your expression.",
+        "high": "Pauses to study you before answering.",
+        "devNote": { "high": "Pauses to study the listener before answering; no mind reading or hidden-history inference." }
       }
     },
     "application": "At every NPC speech and visible reaction, select saved focus-trait line plus concise context-compatible cues drawn from all five traits. All-five rendering follows installed revision6 personality contract; do not stack five canned action sentences. Affinity/actual knowledge modulate distance and recalled cause, never overwrite traits. Outcome chosen only by engine. Player lines/choices are intentions, not NPC-generated personality.",

@@ -381,7 +381,7 @@
       const broken = breakBringPrey(s, p.catId, 'refused');
       p.summary = broken.summary || p.summary;
     } else if (scene && choiceId === 'leave') {
-      p.summary = 'You left the promise where it was.';
+      p.summary = 'You left it there.';
     } else if (choiceId === 'accept_request' && p.catId) {
       const factId = `${s.runId || ''}/${p.catId}/approach_request/${s.day}`;
       if (!s.conversation) s.conversation = { schema: 1, slotDay: null, sequence: 0, ledger: [], pending: null, cats: {} };

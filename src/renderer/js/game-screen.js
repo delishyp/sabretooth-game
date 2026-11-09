@@ -557,7 +557,8 @@
       if (view.encounterId === 'encounter.giant_deer.v1') {
         return `This hunt has spent the day and Energy −${c.deerSearchEnergy}. Watching or leaving adds nothing and awards no food. Committing costs Energy −${c.deerCommitEnergy} and is not a guaranteed kill.`;
       }
-      if (view.encounterId === 'encounter.wolf_pack.v1') return 'Withdrawing uses the existing flee. A wolf warning does not change Highcrag standing.';
+      const devNote = { wolf: 'Withdrawing uses the existing flee. A wolf warning does not change Highcrag standing.' };
+      if (view.encounterId === 'encounter.wolf_pack.v1') return devNote && 'The pack lets you leave if you give ground.';
       const f = view.forecast;
       if (!f) return 'Finished help adds no further standing.';
       const extra = f.extraEnergy ? `Extra Energy −${f.extraEnergy}.` : 'No extra Energy.';

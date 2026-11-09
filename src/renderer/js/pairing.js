@@ -434,7 +434,8 @@
       if (!inWindow(s)) return { code: 'court.notInSeason', hint: hints['court.notInSeason'] };
       if (!adult(s.cat.lifeStage) || !adult(npc.stage)) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
       if (playerMated(s) || targetMated(s, npc)) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
-      if (!s.records.attractionRolled || !s.records.attraction[npc.id]) return { code: 'court.noAttraction', hint: 'Attraction was not rolled for this cat. It is not filled in after the fact.' };
+      const devNote = { attractionUnrolled: 'Attraction was not rolled for this cat. It is not filled in after the fact.' };
+      if (!s.records.attractionRolled || !s.records.attraction[npc.id]) return { code: 'court.noAttraction', hint: devNote && 'You have not learned how this cat feels.' };
       if (!compatible(s, npc)) return { code: 'court.declined_attraction', hint: `${npc.name} does not feel that way about you.` };
       if (npc.affinity <= -15) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
       const stage = bondOf(s, npc.id).stage;
