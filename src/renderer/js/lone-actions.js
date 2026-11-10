@@ -365,9 +365,22 @@
     if (usedDay(s, 'approach')) return null;
     return pickApproach(s, opts);
   }
+  function watchedCat(s) {
+    const row = s.records && s.records.presenceFirst;
+    if (!row || row.day !== s.day || !row.catId) return null;
+    const npc = s.npcs && s.npcs[row.catId];
+    if (!npc || npc.dead) return null;
+    if (!npc.lastRegion || npc.lastRegion !== s.region) return null;
+    return npc;
+  }
   function beginApproach(s, opts) {
     opts = opts || {};
     if (usedDay(s, 'approach')) return { error: 'duplicate' };
+    const watched = watchedCat(s);
+    if (watched) {
+      mark(s, 'approach', watched.id);
+      return { meeting: watched };
+    }
     const picked = pickApproach(s, opts);
     mark(s, 'approach', picked ? picked.id : 'none');
     if (picked && opts.followScene) {
@@ -469,7 +482,9 @@
     } else if (p.eventId === 'lone.approach') {
       const sum = Pass2.lines()['lone-actions.js:summary'];
       p.summary = (choiceId === 'listen' ? sum.listen : sum.leave).replace('{catName}', p.catName || '');
-    } else p.summary = 'You finished reading the scent.';
+    } else if (p.eventId === 'lone.scent') p.summary = 'You finished reading the scent.';
+    else if (p.eventId === 'lone.presence.reply' || p.eventId === 'lone.presence.hunt') p.summary = 'The moment passes, and {catName} goes on about the day.'.replace('{catName}', p.catName || '');
+    else p.summary = 'The day moves on.';
     s.phase = 'eventResult';
     return { state: s };
   }

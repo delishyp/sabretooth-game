@@ -159,6 +159,42 @@ test('a meeting card does not print the faction relationship number', () => {
   assert.ok(/Faction\s*·\s*.+→\s*you\s*[+\-]?\d+/.test('Faction · Highcrag → you -5'));
 });
 
+test('the day after Keep watching, Wait for a cat meets Galestride at affinity 5', () => {
+  const s = E.newRun({ mainCat: player, seed: 8, runId: 'galestride-wait' });
+  const cat = Object.values(s.npcs).find((n) => n.name === 'Galestride');
+  assert.ok(cat, 'Galestride');
+  cat.homeZones = [];
+  cat.met = true;
+  cat.affinity = 5;
+  cat.lastRegion = 'horse_meadows';
+  s.region = 'horse_meadows';
+  s.records.presenceFirst = { day: s.day, catId: cat.id };
+  const waited = act(s, { type: 'approach' });
+  assert.strictEqual(waited.pending.catId, cat.id);
+  assert.notStrictEqual(waited.pending.eventId, 'lone.approach');
+  const text = (waited.pending.beats || []).map((b) => b.text).join('\n');
+  assert.ok(!text.includes('only the wind'), text);
+  assert.ok(waited.records.receipts.some((key) => key.includes('/approach/')));
+  assert.strictEqual(cat.affinity, 5);
+});
+
+test('the scent completion line stays on the scent action', () => {
+  let scent = E.newRun({ mainCat: player, seed: 8, runId: 'scent-line' });
+  scent = act(scent, { type: 'scent' });
+  while (scent.phase === 'event') scent = act(scent, { type: 'advanceBeat' });
+  assert.strictEqual(scent.pending.summary, 'You finished reading the scent.');
+
+  let other = E.newRun({ mainCat: player, seed: 2, runId: 'other-line' });
+  other.phase = 'event';
+  other.pending = { lone: true, eventId: 'lone.share', catName: 'Galestride', beatIndex: 0, choices: [], beats: [{ kind: 'narration', text: 'You shared the kill.' }] };
+  other = act(other, { type: 'advanceBeat' });
+  assert.strictEqual(other.pending.summary, 'The day moves on.');
+  other.phase = 'event';
+  other.pending = { lone: true, eventId: 'lone.presence.hunt', catName: 'Galestride', beatIndex: 0, choices: [], beats: [{ kind: 'narration', text: 'The kill.' }] };
+  other = act(other, { type: 'advanceBeat' });
+  assert.strictEqual(other.pending.summary, 'The moment passes, and Galestride goes on about the day.');
+});
+
 test('spar below 20 is shown locked, and the gate still refuses the action', () => {
   const s = E.newRun({ mainCat: player, seed: 8, runId: 'spar-lock' });
   const cat = s.npcs.ln02;

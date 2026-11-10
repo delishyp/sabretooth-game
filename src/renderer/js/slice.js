@@ -482,7 +482,12 @@
         if (!beats) return { state: s0, error: 'beat.done' };
         if (i + 1 < beats.length) { s.pending.beatIndex = i + 1; return { state: s }; }
         if (!(s.pending.choices || []).length) {
-          s.pending.summary = s.pending.summary || 'You finished reading the scent.';
+          const id = s.pending.eventId;
+          const named = 'The moment passes, and {catName} goes on about the day.'.replace('{catName}', s.pending.catName || '');
+          const summary = id === 'lone.scent' ? 'You finished reading the scent.'
+            : (id === 'lone.presence.reply' || id === 'lone.presence.hunt') ? named
+            : 'The day moves on.';
+          s.pending.summary = s.pending.summary || summary;
           s.phase = 'eventResult';
           return { state: s };
         }
@@ -608,6 +613,7 @@
       if (s.phase === 'day' && action.type === 'approach') {
         const opened = Lone.beginApproach(s, loneOpts(s));
         if (opened.error) return { state: s0, error: opened.error };
+        if (opened.meeting) return openMeeting(s, opened.meeting);
         s.pending = opened.event;
         s.phase = 'event';
         return { state: s };
