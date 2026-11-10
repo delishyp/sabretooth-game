@@ -7,10 +7,17 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Directory = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
+  function loadConfig() {
+    if (typeof require === 'function') {
+      try { return require('../data/directory.json'); } catch (e) { /* browser */ }
+    }
+    return { lastSeen: { words: { today: 'Today', yesterday: 'Yesterday', fewDays: 'A few days ago', thisSeason: 'Earlier this season', lastSeason: 'Last season', longAgo: 'Long ago' }, yesterdayThrough: 1, fewDaysThrough: 4, seasonDays: 20 } };
+  }
+  const seenConfig = loadConfig().lastSeen;
   const HISTORY_CAP = 200;
-  const SEASON_DAYS = 20;
+  const WORDS = seenConfig.words;
   const WHEN_RANK = {
-    today: 6, yesterday: 5, 'a few days ago': 4, 'this season': 3, 'last season': 2, 'long ago': 1
+    [WORDS.today]: 6, [WORDS.yesterday]: 5, [WORDS.fewDays]: 4, [WORDS.thisSeason]: 3, [WORDS.lastSeason]: 2, [WORDS.longAgo]: 1
   };
   const TEMPLATE = {
     meet: 'directory.history.meet',
@@ -213,19 +220,19 @@
     return row.favorite;
   }
   function seasonOf(day) {
-    return Math.floor((Math.max(day, 1) - 1) / SEASON_DAYS);
+    return Math.floor((Math.max(day, 1) - 1) / seenConfig.seasonDays);
   }
-  /** Relative word for Saga. The query never returns the day number. */
+  /** Saga's last-seen word. Cutoffs live in directory.json until Tundra sets them. */
   function lastSeenWord(seenDay, today) {
     if (!Number.isInteger(seenDay) || !Number.isInteger(today)) return null;
     const age = today - seenDay;
-    if (age <= 0) return 'today';
-    if (age === 1) return 'yesterday';
-    if (age <= 4) return 'a few days ago';
+    if (age <= 0) return WORDS.today;
+    if (age <= seenConfig.yesterdayThrough) return WORDS.yesterday;
+    if (age <= seenConfig.fewDaysThrough) return WORDS.fewDays;
     const gap = seasonOf(today) - seasonOf(seenDay);
-    if (gap <= 0) return 'this season';
-    if (gap === 1) return 'last season';
-    return 'long ago';
+    if (gap <= 0) return WORDS.thisSeason;
+    if (gap === 1) return WORDS.lastSeason;
+    return WORDS.longAgo;
   }
   function seenQuery(seen, today) {
     if (!seen || !seen.zoneId) return null;

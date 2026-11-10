@@ -559,10 +559,11 @@
     if (!s.worldMemory.knowledge) s.worldMemory.knowledge = {};
     if (s.worldMemory.facts.some((f) => f.factId === factId)) return;
     s.worldMemory.facts.push(Object.assign({ factId }, extra || {}));
+    const rumorPride = extra && extra.rumorPride || null;
     s.worldMemory.knowledge[factId] = {
       scope: (extra && extra.scope) || 'witnessed', participantIds: extra && extra.participants || ['player'],
       witnessIds: extra && extra.witnesses || [], disclosedTo: [], prideIds: extra && extra.prideIds || [],
-      learnedAbsDay: s.day
+      learnedAbsDay: s.day, rumorPride, rumorDay: rumorPride ? s.day + 3 : null
     };
   }
   function fieldCost(s) {
@@ -722,10 +723,29 @@
     const ok = Rng.chance(Rng.stream(s.seed, 'steal', s.day), chance);
     const factId = `${s.runId || ''}/steal/${offer.region}/${offer.day}`;
     if (ok) s.needs.hunger = Math.min(100, (s.needs.hunger || 0) + 25);
+    const ownerNpc = s.npcs[offer.owner] || null;
+    const bystanders = Object.values(s.npcs || {}).filter((npc) => npc && !npc.dead && npc.id !== offer.owner && zoneBand(npc, s, opts) === 'home').map((npc) => npc.id);
+    const knowledge = { participants: ['player'], witnesses: [], prideIds: [], scope: 'private', rumorPride: null };
+    if (!ok && ownerNpc) {
+      knowledge.participants = ['player', ownerNpc.id];
+      knowledge.witnesses = [ownerNpc.id];
+      knowledge.scope = 'witnessed';
+      if (ownerNpc.faction && ownerNpc.faction !== 'loner') knowledge.rumorPride = ownerNpc.faction;
+    } else if (!ok) {
+      knowledge.prideIds = [offer.owner];
+      knowledge.scope = 'witnessed';
+      knowledge.rumorPride = offer.owner;
+    } else if (bystanders.length) {
+      knowledge.participants = ['player'].concat(bystanders);
+      knowledge.witnesses = bystanders;
+      knowledge.scope = 'witnessed';
+      const seen = s.npcs[bystanders[0]];
+      if (seen && seen.faction && seen.faction !== 'loner') knowledge.rumorPride = seen.faction;
+    }
     rememberFact(s, factId, {
       kind: 'steal', summary: ok ? 'You took a meal from a kill that was not yours.' : 'You were caught at a kill that was not yours.',
-      participants: ['player'].concat(s.npcs[offer.owner] ? [offer.owner] : []),
-      prideIds: s.npcs[offer.owner] ? [] : [offer.owner],
+      participants: knowledge.participants, witnesses: knowledge.witnesses, prideIds: knowledge.prideIds,
+      scope: knowledge.scope, rumorPride: knowledge.rumorPride,
       skill: 'stalk', xpOutcome: ok ? 10 : 4, xpGranted: false
     });
     const text = LINES[ok ? 'steal.success' : 'steal.caught'];
