@@ -55,7 +55,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       await page.waitForFunction(() => window.__menuDebug.state().state === 'root');
     });
 
-    await check('corrupt registry is refused and a missing file paints the runtime pose', async () => {
+    await check('corrupt registry is refused and a missing file does not paint placeholder layers', async () => {
       await page.waitForFunction(() => window.__menuDebug.portraitOf('cat-6e2d788dd48ff440').file, null, { timeout: 8000 });
       const before = await page.evaluate(() => window.__menuDebug.portraitOf('cat-6e2d788dd48ff440').file);
       const bad = await page.evaluate(() => window.__menuDebug.adoptRegistry({ portraits: [{ id: 'Not A Slug', file: 'cats/x.png' }] }));
@@ -76,8 +76,9 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       });
       assert.strictEqual(missing.painted.ok, true);
       assert.strictEqual(missing.painted.runtime, true);
+      assert.strictEqual(missing.painted.artGap, true);
       assert.strictEqual(missing.painted.id, null);
-      assert.ok(missing.width && missing.width !== 1448, 'runtime pose is not a registered plate');
+      assert.ok(!missing.width, 'a missing file does not paint the placeholder pose');
       assert.strictEqual(missing.other, before);
     });
 
@@ -249,13 +250,16 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       await page.waitForFunction((id) => document.getElementById('home-head').dataset.portraitId === id, chosen, { timeout: 8000 });
       assert.strictEqual(await page.evaluate(() => window.__menuDebug.game().state.cat.portraitId), chosen);
 
-      const legacy = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__menuDebug.game().state)); delete s.cat.portraitId; s.npcs.hc01.portraitId = 'Not A Cat'; return s; });
+      const legacy = await page.evaluate(() => { const s = JSON.parse(JSON.stringify(window.__menuDebug.game().state)); delete s.cat.portraitId; delete s.cat.portraitLegacy; s.npcs.hc01.portraitId = 'Not A Cat'; return s; });
       await page.evaluate((s) => window.__menuDebug.reloadGame(s), legacy);
-      await page.waitForFunction(() => document.getElementById('home-head').dataset.runtime === '1');
-      const after = await page.evaluate(() => { const s = window.__menuDebug.game().state; return { player: s.cat.portraitId, npc: s.npcs.hc01.portraitId, shown: document.getElementById('home-head').dataset.portraitId }; });
-      assert.strictEqual(after.player, null);
-      assert.strictEqual(after.npc, null);
-      assert.strictEqual(after.shown, '');
+      await page.waitForFunction(() => document.getElementById('home-head').dataset.portraitId === 'cat-6e2d788dd48ff440');
+      const after = await page.evaluate(() => { const s = window.__menuDebug.game().state; return { player: s.cat.portraitId, legacy: s.cat.portraitLegacy, npc: s.npcs.hc01.portraitId, shown: document.getElementById('home-head').dataset.portraitId, runtime: document.getElementById('home-head').dataset.runtime }; });
+      assert.strictEqual(after.player, 'cat-6e2d788dd48ff440');
+      assert.strictEqual(after.legacy.status, 'presentation-default');
+      assert.strictEqual(after.legacy.phenotypeMatch, false);
+      assert.strictEqual(after.npc, 'cat-3f9fb78fb1697a76');
+      assert.strictEqual(after.shown, 'cat-6e2d788dd48ff440');
+      assert.strictEqual(after.runtime, '0');
     });
 
     await check('special-3 keeps its baked background', async () => {

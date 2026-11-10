@@ -1,0 +1,19 @@
+{
+  "seed": 11,
+  "nodeId": "quiet_walk",
+  "choiceIds": [
+    "return_quiet",
+    "no_promise",
+    "pause"
+  ],
+  "variantIds": [
+    "/nodes/quiet_walk#middle"
+  ],
+  "portraitId": "cat-6e2d788dd48ff440",
+  "name": "Coppergale",
+  "affinity": 0,
+  "affinityText": "Affinity 0 · No Opinion/Neutral",
+  "note": "Post-faction presentation baseline. Reproduce with node test/e2e/ui-baseline.e2e.js. No layout edits in this commit.",
+  "logicHash": "520b5f768c70b1287c3ec02c43eb0ed791929b9dac4abb4eab765425fb03a530",
+  "afterLogicHash": "520b5f768c70b1287c3ec02c43eb0ed791929b9dac4abb4eab765425fb03a530"
+}

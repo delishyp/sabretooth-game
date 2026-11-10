@@ -56,6 +56,8 @@
     const extent = () => {
       let right = 0, bottom = 0;
       for (const el of sc.querySelectorAll('*')) {
+        // The cats list scrolls inside the dock. Its rows must not shrink the whole screen.
+        if (el.closest('.home-dock') && !el.classList.contains('home-dock')) continue;
         const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
         right = Math.max(right, r.right - R.left); bottom = Math.max(bottom, r.bottom - R.top);
       }
@@ -80,19 +82,64 @@
 
   // ---------- generic focus (all screens except difficulty) ----------
   function viewerOpen() { const v = $('#cat-viewer'); return !!(v && !v.hidden); }
+  function inspectOpen() { const v = $('#encounter-inspect'); return !!(v && !v.hidden); }
+  function modalOpen() { return viewerOpen() || inspectOpen(); }
+  function inspectButtons() {
+    return $$('#encounter-inspect button').filter((b) => !b.disabled && b.offsetParent !== null);
+  }
+  function syncInert() {
+    const stage = $('#stage');
+    if (stage) stage.inert = modalOpen();
+  }
+  function closeInspect() {
+    const box = $('#encounter-inspect');
+    if (!box || box.hidden) return false;
+    box.hidden = true;
+    const opener = box._opener;
+    box._opener = null;
+    syncInert();
+    if (opener && opener.isConnected && !opener.disabled) focus(opener);
+    else if (state === 'game' && game) game.refocus();
+    return true;
+  }
   function viewerButtons() {
     return $$('#cat-viewer button').filter((b) => !b.disabled && !b.classList.contains('cat-viewer-backdrop') && b.offsetParent !== null);
   }
   function focusables() {
+    if (inspectOpen()) return inspectButtons();
     if (viewerOpen()) return viewerButtons();
     const scope = dialog ? $('#dialog') : (state === 'game' && game && game.focusScope()) || $('.screen.active');
-    return scope ? $$('button', scope).filter((b) => !b.disabled && b.offsetParent !== null && !b.closest('.tabs')) : [];
+    if (!scope) return [];
+    return $$('button, [data-scroll="prose"]', scope).filter((b) => !b.disabled && b.offsetParent !== null && !b.closest('.tabs'));
   }
   function focus(el) {
-    $$('button.focused').forEach((b) => b.classList.remove('focused'));
-    if (el) { el.classList.add('focused'); el.focus({ preventScroll: true }); }
+    $$('.focused').forEach((b) => b.classList.remove('focused'));
+    if (!el) return;
+    el.classList.add('focused');
+    el.focus({ preventScroll: true });
+    const box = el.closest && el.closest('.bond-choices');
+    if (!box) return;
+    const er = el.getBoundingClientRect();
+    const br = box.getBoundingClientRect();
+    if (er.top < br.top) box.scrollTop -= br.top - er.top;
+    else if (er.bottom > br.bottom) box.scrollTop += er.bottom - br.bottom;
   }
-  const current = () => $('button.focused') || null;
+  const current = () => $('.focused') || null;
+  function scrollProse(a) {
+    const el = current();
+    if (!el || el.dataset.scroll !== 'prose') return false;
+    const max = Math.max(0, el.scrollHeight - el.clientHeight);
+    const before = el.scrollTop;
+    if (a === 'up') el.scrollTop = Math.max(0, before - 48);
+    else if (a === 'down') el.scrollTop = Math.min(max, before + 48);
+    else if (a === 'pageup') el.scrollTop = Math.max(0, before - el.clientHeight);
+    else if (a === 'pagedown') el.scrollTop = Math.min(max, before + el.clientHeight);
+    else if (a === 'home') el.scrollTop = 0;
+    else if (a === 'end') el.scrollTop = max;
+    else return false;
+    if ((a === 'up' || a === 'down') && el.scrollTop === before) return false;
+    return true;
+  }
   function move(delta) {
     const f = focusables(); if (!f.length) return;
     const j = Nav.step(f.length, f.indexOf(current()), delta);
@@ -432,7 +479,15 @@
         preview.log.push({ key, ms: preview.ms });
         return;
       }
-      // Drop any earlier registered paint before the runtime draw, so a registry reload cannot put that cat back.
+      // A static picker with no selected id does not draw the placeholder layers.
+      if (c.staticArt) {
+        paintJobs.delete(cv);
+        cv._full = null; cv._portraitId = null; cv.dataset.runtime = '1'; cv.dataset.portraitId = ''; cv.dataset.artGap = '1';
+        const g = cv.getContext('2d'); if (g && cv.width && cv.height) g.clearRect(0, 0, cv.width, cv.height);
+        Object.assign(preview, { ms: performance.now() - t0, drawn: [], skipped: ['art-gap'], pose: null, rendered: key });
+        return;
+      }
+      // Gene-look mode only, when the static registry is not in use.
       paintJobs.set(cv, { spec: { portraitId: null, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, opts: { frame: 'head' } });
       const a = await poseAssets(PortraitView.sharedPose(portraitReg));
       const off = document.createElement('canvas');
@@ -648,6 +703,7 @@
     const adopted = portraits.adopt(j);
     portraitReg = portraits.registry();
     const ids = portraitReg.portraits.map((p) => p.id);
+    if (typeof Slice !== 'undefined' && Slice.setRegisteredPortraits) Slice.setRegisteredPortraits(ids);
     if (adopted.ok && creator && ids.length && !creator.staticArt) {
       creator = Creator.coerceLook({ ...creator, staticArt: true, portraitIds: ids, portraitId: ids.includes(creator.portraitId) ? creator.portraitId : ids[0] });
       preview.key = '';
@@ -682,15 +738,24 @@
           off.getContext('2d').drawImage(img, 0, 0);
         } catch (e) {
           if (!still()) return { ok: true, id: null, runtime: true, stale: true };
-          console.warn('portrait file failed, using the runtime pose', entry.file, e);
-          const fallback = await paintRuntime(spec || {}, off);
-          head = fallback.head; shownId = null; runtime = true;
+          console.warn('portrait file missing; placeholder layers are not used', entry.file, e);
+          shownId = null; runtime = true;
         }
       } else {
-        const fallback = await paintRuntime(spec || {}, off);
-        head = fallback.head; shownId = null; runtime = true;
+        shownId = null; runtime = true;
       }
       if (!still()) return { ok: true, id: null, runtime, stale: true };
+      if (!shownId || !off.width) {
+        canvas._full = null;
+        canvas._portraitId = null;
+        canvas.dataset.portraitId = '';
+        canvas.dataset.runtime = '1';
+        canvas.dataset.artGap = '1';
+        const g = canvas.getContext('2d');
+        if (g && canvas.width && canvas.height) g.clearRect(0, 0, canvas.width, canvas.height);
+        return { ok: true, id: null, runtime: true, artGap: true, stale: false };
+      }
+      canvas.dataset.artGap = '0';
       canvas._full = off;
       canvas._portraitId = shownId;
       canvas.dataset.portraitId = shownId || '';
@@ -720,6 +785,7 @@
     $('#cat-viewer-name').textContent = name || '';
     $('#cat-viewer').hidden = false;
     viewerOpener = opener || null;
+    syncInert();
     focus($('#cat-viewer-close'));
     return true;
   }
@@ -729,6 +795,7 @@
     box.hidden = true;
     const opener = viewerOpener;
     viewerOpener = null;
+    syncInert();
     if (opener && opener.isConnected && !opener.disabled) focus(opener);
     else if (state === 'game' && game) game.refocus();
     return true;
@@ -807,22 +874,41 @@
   document.addEventListener('click', (ev) => {
     const g = ev.target.closest('[data-g]');
     if (g && g.dataset.g === 'closeViewer') { closeCatViewer(); return; }
+    if (g && g.dataset.g === 'closeInspect') { closeInspect(); return; }
     if (g && g.dataset.g === 'expandCat') {
       const src = document.getElementById(g.dataset.source);
       openCatViewer(src && src._full, g.dataset.name || '', g);
       return;
     }
-    if (g && game && !g.disabled) return game.onClick(g);
+    if (g && game && !g.disabled) {
+      if (modalOpen() && g.dataset.g !== 'closeInspect' && g.dataset.g !== 'closeViewer' && !g.closest('#cat-viewer') && !g.closest('#encounter-inspect')) return;
+      game.onClick(g);
+      syncInert();
+      return;
+    }
     const b = ev.target.closest('[data-action]'); if (b && ACTIONS[b.dataset.action]) ACTIONS[b.dataset.action]();
   });
 
   window.addEventListener('keydown', (ev) => {
-    if (!viewerOpen() || ev.key !== 'Tab') return;
+    if (ev.key !== 'Tab' || !modalOpen()) return;
     ev.preventDefault();
     ev.stopPropagation();
-    cycleViewer(ev.shiftKey ? -1 : 1);
+    const delta = ev.shiftKey ? -1 : 1;
+    if (inspectOpen()) {
+      const f = inspectButtons();
+      if (!f.length) return;
+      const i = f.indexOf(current());
+      focus(f[Nav.step(f.length, i, delta)]);
+      return;
+    }
+    cycleViewer(delta);
   }, true);
   Input.on((a) => {
+    if (inspectOpen()) {
+      if (a === 'back') { closeInspect(); return; }
+      if (a === 'confirm' || a === 'start') { const el = current(); if (el) el.click(); return; }
+      return;
+    }
     if (viewerOpen()) {
       if (a === 'back') { closeCatViewer(); return; }
       if (a === 'up' || a === 'left' || a === 'tabPrev') { cycleViewer(-1); return; }
@@ -837,6 +923,7 @@
       if ((a === 'confirm' || a === 'start') && live && live.dataset && live.dataset.g === 'expandCat') { live.click(); return; }
       return ['tabPrev', 'tabNext', 'delete'].includes(a) ? undefined : creatorDispatch(a);
     }
+    if (['up', 'down', 'pageup', 'pagedown', 'home', 'end'].includes(a) && scrollProse(a)) return;
     if (a === 'up') return move(-1);
     if (a === 'down') { if (state === 'credits') fastScroll = true; return move(1); }
     if (a === 'left' || a === 'right') {
@@ -891,6 +978,25 @@
     reloadGame: (saved) => { if (game && game.run()) game.resume(game.run(), saved); },
     creditsRunning: () => !!creditsTimer,
     game: () => (game ? { state: game.state(), run: game.run(), available: game.state() ? game.E.available(game.state()) : null, summary: game.state() ? game.E.summary(game.state()) : null, busy: game.busy() } : null),
+    /** Direct slice handler. A refusal leaves the live state untouched. */
+    gameAct: (action) => {
+      if (!game || !game.state()) return { error: 'no-game' };
+      const r = game.E.act(game.state(), action);
+      if (!r.error) { game.setState(r.state); game.render(); }
+      const s = game.state();
+      const pending = s.conversation && s.conversation.pending;
+      const cat = pending && s.conversation.cats && s.conversation.cats[pending.catId];
+      return {
+        error: r.error || null,
+        energy: s.needs.energy, hunger: s.needs.hunger, thirst: s.needs.thirst,
+        node: pending ? pending.nodeId : null,
+        ledger: s.conversation ? s.conversation.ledger.length : 0,
+        slot: s.conversation ? s.conversation.slotDay : null,
+        cooldown: cat ? cat.cooldownUntilDay : null,
+        phase: s.phase,
+        costRows: s.conversation ? s.conversation.ledger.filter((row) => row.costApplied).length : 0
+      };
+    },
     gamePatch: (patch) => { const g = JSON.parse(JSON.stringify(game.state())); for (const [k, v] of Object.entries(patch)) g[k] = v && typeof v === 'object' && !Array.isArray(v) && g[k] && typeof g[k] === 'object' ? { ...g[k], ...v } : v; game.setState(g); game.render(); },
     show: async (s) => {
       if (dialog) closeDialog();

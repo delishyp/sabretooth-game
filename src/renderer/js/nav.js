@@ -118,7 +118,8 @@
 
   const KEYMAP = { ArrowUp: 'up', w: 'up', W: 'up', ArrowDown: 'down', s: 'down', S: 'down',
     ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right',
-    Enter: 'confirm', ' ': 'confirm', Escape: 'back', Delete: 'delete', q: 'tabPrev', e: 'tabNext' };
+    Enter: 'confirm', ' ': 'confirm', Escape: 'back', Delete: 'delete', q: 'tabPrev', e: 'tabNext',
+    PageUp: 'pageup', PageDown: 'pagedown', Home: 'home', End: 'end' };
 
   return { step, setupInit, setupReduce, DEFAULT_STYLE, DEFAULT_DEATH, createGamepadReader, KEYMAP, PAD_BUTTONS };
 });

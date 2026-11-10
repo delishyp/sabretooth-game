@@ -645,7 +645,7 @@
         {
           "id": "introduce",
           "label": "Give your name and wait.",
-          "text": "“Then we need not be strangers,” {catName} says. The path between you remains clear.",
+          "text": "You give your name and wait. {catName} repeats it once, slowly, as if setting it somewhere safe. “Then we need not be strangers.” The path between you stays clear.",
           "summary": "You introduced yourself to {catName}.",
           "affinityIntent": "improve"
         },
@@ -738,13 +738,130 @@
       "cast": "adult_or_elder",
       "oncePerPair": true,
       "title": "Another solitary trail",
+      "beats": [
+        {
+          "kind": "narration",
+          "text": "A scent crosses yours on the trail: a lone cat, with no pride-smell on {him}, only dust and old kills. Then {catName} steps out where the two trails meet."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "aggression",
+            "band": "high",
+            "who": "npc"
+          },
+          "text": "{catName} stops square in the path, shoulders bunched, and lets you see the full length of {his} sabers."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "aggression",
+            "band": "baseline",
+            "who": "npc"
+          },
+          "text": "{catName} stops a few lengths off and goes very still, weighing you up."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "aggression",
+            "band": "low",
+            "who": "npc"
+          },
+          "text": "{catName} stops short and half-turns away, ready to give ground if this goes badly."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "curiosity",
+            "band": "high",
+            "who": "npc"
+          },
+          "text": "{His} nose works at the air between you, sorting through every place you've been."
+        },
+        {
+          "kind": "narration",
+          "when": {
+            "trait": "boldness",
+            "band": "low",
+            "who": "npc"
+          },
+          "text": "{His} eyes keep flicking to the brush on either side, as if {he} expects something else to come out of it."
+        },
+        {
+          "kind": "speech",
+          "when": {
+            "trait": "sociability",
+            "band": "high",
+            "who": "npc"
+          },
+          "text": "\"Another cat on {his} own!\" {catName}'s stubby tail flicks up. \"I was starting to think I was the only one out here. Is it just you?\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "high", "who": "npc" }
+          ],
+          "text": "\"Just you, then.\" {catName} looks you over, unhurried, from ears to bobtail. \"Good. I don't like being outnumbered on my own trail.\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "low", "who": "npc" }
+          ],
+          "text": "\"Are you…\" {catName} swallows and tries again, quieter. \"Are you on your own? I don't want any trouble.\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "baseline", "who": "npc" },
+            { "trait": "aggression", "band": "high", "who": "npc" }
+          ],
+          "text": "\"Just you?\" {catName}'s tail lashes once. \"Then you've got no one to blame if you put a paw wrong out here.\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "baseline", "who": "npc" },
+            { "trait": "aggression", "band": "baseline", "who": "npc" }
+          ],
+          "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\""
+        },
+        {
+          "kind": "speech",
+          "when": [
+            { "trait": "sociability", "band": "baseline", "who": "npc" },
+            { "trait": "boldness", "band": "baseline", "who": "npc" },
+            { "trait": "aggression", "band": "low", "who": "npc" }
+          ],
+          "text": "\"Just you? Me too.\" {catName}'s shoulders ease a little. \"There's room on this trail for two, if neither of us makes a fuss.\""
+        },
+        {
+          "kind": "speech",
+          "when": {
+            "trait": "sociability",
+            "band": "low",
+            "who": "npc"
+          },
+          "text": "\"Keep walking.\" {catName} won't quite look at you. \"I didn't come out here for company.\""
+        },
+        {
+          "kind": "speech",
+          "when": { "trait": "curiosity", "band": "high", "who": "npc" },
+          "text": "\"Where did you come from, anyway? Nobody just appears out here.\""
+        }
+      ],
       "text": "{catName} stops where your paths cross. For a moment, both of you look behind the other for companions.",
       "summary": "You met {catName}.",
       "choices": [
         {
           "id": "greet",
           "label": "“Just me. And you?”",
-          "text": "“Just me.” The answer comes with a little less tension.",
+          "text": "“Just me,” you say. {catName} looks past you one more time, then gives a short nod. “Then it's two of us on one trail. That'll do.”",
           "summary": "You exchanged a quiet greeting with {catName}.",
           "affinityIntent": "improve"
         },

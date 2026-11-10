@@ -1,0 +1,22 @@
+{
+  "_readme": "Pass 3 for pin 2bffd29. (A) beats for slice.meeting.loner (slice-1.json:735) so first meetings are shaped by each loner's saved traits. Each trait slot has exactly one line per band, so exactly one line plays per slot. Old `text` and choices stay as the fallback. (B) the wolf card line, which replaces leak-fix encounterCost.wolf. (C) recurring-conversation.json contextActions.boundary, [high, low] per trait, which replaces leak-fix's boundary block. These are pronoun-free because speech.js cues don't take pronoun tokens. No new facts or mechanics.",
+  "A_slice.meeting.loner.beats": [
+    { "kind": "narration", "text": "A scent crosses yours on the trail: a lone cat, with no pride-smell on {him}, only dust and old kills. Then {catName} steps out where the two trails meet." },
+    { "kind": "narration", "when": { "trait": "aggression", "band": "high", "who": "npc" }, "text": "{catName} stops square in the path, shoulders bunched, and lets you see the full length of {his} sabers." },
+    { "kind": "narration", "when": { "trait": "aggression", "band": "baseline", "who": "npc" }, "text": "{catName} stops a few lengths off and goes very still, weighing you up." },
+    { "kind": "narration", "when": { "trait": "aggression", "band": "low", "who": "npc" }, "text": "{catName} stops short and half-turns away, ready to give ground if this goes badly." },
+    { "kind": "narration", "when": { "trait": "curiosity", "band": "high", "who": "npc" }, "text": "{His} nose works at the air between you, sorting through every place you've been." },
+    { "kind": "narration", "when": { "trait": "boldness", "band": "low", "who": "npc" }, "text": "{His} eyes keep flicking to the brush on either side, as if {he} expects something else to come out of it." },
+    { "kind": "speech", "when": { "trait": "sociability", "band": "high", "who": "npc" }, "text": "\"Another cat on {his} own!\" {catName}'s stubby tail flicks up. \"I was starting to think I was the only one out here. Is it just you?\"" },
+    { "kind": "speech", "when": { "trait": "sociability", "band": "baseline", "who": "npc" }, "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\"" },
+    { "kind": "speech", "when": { "trait": "sociability", "band": "low", "who": "npc" }, "text": "\"Keep walking.\" {catName} won't quite look at you. \"I didn't come out here for company.\"" }
+  ],
+  "B_encounterCost.wolf": "The pack watches you with their heads low. Turning away won't stop them from coming after you if they choose to, and whatever happens here, the wolves won't carry word of it to Highcrag.",
+  "C_recurring-conversation.json.contextActions.boundary": {
+    "aggression": ["{catName}'s hackles rise, and claws slide out against the stone.", "{catName} drops that heavy head and steps back, claws sheathed."],
+    "sociability": ["{catName} stays close enough to touch, and still doesn't budge.", "{catName} turns side-on, putting cold air between you."],
+    "boldness": ["{catName} stares straight at you and doesn't blink.", "{catName}'s gaze drops to your paws, but the words still come."],
+    "loyalty": ["{catName}'s eyes stay fixed on yours, measuring you.", "{catName} flicks an ear, as if none of it matters past today."],
+    "curiosity": ["{catName} tilts that broad head, waiting to hear what you'll say.", "{catName} looks off toward the trees. That's the end of it."]
+  }
+}

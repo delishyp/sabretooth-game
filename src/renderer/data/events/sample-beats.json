@@ -1,0 +1,72 @@
+{
+  "note": "Runtime beats copied from docs/narrative/voice-pass-1.md. Grassland is the map biome steppe (map-v1: Grassland / steppe). Other hunt sizes and biomes keep the old report string.",
+  "voice.hunt.medium.steppe.ok": {
+    "report": "You caught {size} prey and ate.",
+    "beats": [
+      { "kind": "narration", "text": "The wind turns, and with it comes the warm, grassy musk of a horse foal that has strayed from its herd." },
+      { "kind": "narration", "text": "You drop until your belly brushes the frost-stiff stems. One paw, then the next. The foal tears at a tuft and swings its head away, and its ears flick at a fly and nothing else." },
+      { "kind": "narration", "text": "Three bounds. The grass whips your face, and the foal is only beginning to turn when your weight takes it down. Your sabers find the throat the way they were made to." },
+      { "kind": "narration", "text": "Afterwards you eat crouched low, ears turning to every sound. In the Vale, a kill out in the open draws company fast." }
+    ]
+  },
+  "voice.hunt.medium.steppe.fail": {
+    "report": "The prey escaped.",
+    "beats": [
+      { "kind": "narration", "text": "The wind turns, and with it comes the warm, grassy musk of a horse foal that has strayed from its herd." },
+      { "kind": "narration", "text": "You creep closer, closer, until you can hear it chewing. Then a stem snaps under your hind paw, louder than any stem has a right to be." },
+      { "kind": "narration", "text": "The foal's head snaps up. It squeals once and is gone, a brown streak racing back toward the herd, and the mares are already wheeling to meet it." },
+      { "kind": "narration", "text": "You stand in the flattened grass with your heart pounding and your belly still empty." }
+    ]
+  },
+  "m2.repeat_meeting": {
+    "beats": [
+      { "kind": "narration", "text": "You know the scent before you see its owner: {catName}, carried on the cold air with the dust of the trail." },
+      { "kind": "narration", "text": "{catName} is standing on a flat stone where the path bends, tail low and still." },
+      { "kind": "narration", "text": "{catName} carries the sharp, coppery smell of a wound still healing, and the smell of other cats is on the fur.", "when": { "injury": true, "who": "npc" } },
+      { "kind": "narration", "text": "For a heartbeat neither of you moves." },
+      { "kind": "speech", "text": "{catName}'s lip lifts just enough to show the tip of a saber. \"You. I'd hoped the wind had taken you somewhere else.\" The cat doesn't step aside.", "when": { "trait": "sociability", "band": "low", "who": "npc" } },
+      { "kind": "speech", "text": "\"You again.\" {catName} studies you, then glances back down the trail as if checking who else might be watching. \"Walk with me, if you're walking. I've somewhere to be.\"", "when": { "trait": "sociability", "band": "baseline", "who": "npc" } },
+      { "kind": "speech", "text": "{catName}'s ears come up, and the stiffness goes out of those shoulders all at once. \"You came back.\" A pause, a little embarrassed. \"Will you stay a while?\"", "when": { "trait": "sociability", "band": "high", "who": "npc" } },
+      { "kind": "speech", "text": "I've been saving something to tell you.", "when": [{ "trait": "sociability", "band": "high", "who": "npc" }, { "knowsFact": true, "who": "npc" }] }
+    ]
+  },
+  "slice.meeting.bonefield": {
+    "beats": [
+      { "kind": "narration", "text": "The Bonefield smells of old blood and trampled grass. You are crossing the open ground in the shadow of a mammoth's ribs when the wind brings you a scent that is rank and fresh: a cat, close, and not hiding." },
+      { "kind": "narration", "text": "{catName} rises out of the tall grass as if the ground belongs to {him}, and by Bonefield law it does. {catName} stands like a cat who has won every fight that mattered, and expects to win this one. {He} walks a slow half-circle around you, letting you take a good long look." },
+      { "kind": "speech", "text": "\"Alone?\" {catName} snorts and looks past you at the empty grass. \"Then those tracks behind you are all yours. No pride, no kin, no one to drag you home if you fall.\"" },
+      { "kind": "speech", "text": "{catName} stops close enough for you to feel the hot breath. \"Scarjaw doesn't care where strays come from. He cares whether they run. So, do you?\"" }
+    ]
+  },
+  "npc_initiative.mistwood.request_help.v1": {
+    "want": "feed_the_pride",
+    "text": "Fog lies on the marsh so thickly that the reeds seem to grow out of cloud. You've been still for a long time, and that's the only reason you hear it: the soft suck of a paw lifted out of mud, somewhere behind you. “Our elders haven't eaten in two days. Since the ice took our hunters, there are too few of us to feed everyone, and I won't let them be the ones who go without.” A pause. The cat's tail flicks once. “Hollowsong would say a Mistwood cat doesn't beg from strangers. Hollowsong doesn't have to watch them get thin.” “Bring me a hare from these marshes, or anything small. I'll carry it to them myself, and no one has to know where it came from.”",
+    "beats": [
+      { "kind": "narration", "text": "Fog lies on the marsh so thickly that the reeds seem to grow out of cloud. You've been still for a long time, and that's the only reason you hear it: the soft suck of a paw lifted out of mud, somewhere behind you." },
+      { "kind": "narration", "text": "{catName} steps out of the grey with the patience of a cat who has been watching for a while. Mud is caked to the shoulders, and there's no prey scent anywhere on that fur, only reed-water and hunger. {catName} stops a careful three tail-lengths away and glances once over a shoulder, toward the Mistwood dens." },
+      { "kind": "speech", "text": "“Don't call out. Walk with me.”", "when": { "trait": "sociability", "band": "low", "who": "npc" } },
+      { "kind": "speech", "text": "“Quietly, please. The fog carries voices, and I don't want mine carried home.”", "when": { "trait": "sociability", "band": "mid", "who": "npc" } },
+      { "kind": "speech", "text": "“Quietly, quietly. I know, I'm the one who came to you. Walk with me a little, will you? Away from the dens.”", "when": { "trait": "sociability", "band": "high", "who": "npc" } },
+      { "kind": "speech", "text": "“Our elders haven't eaten in two days. Since the ice took our hunters, there are too few of us to feed everyone, and I won't let them be the ones who go without.” A pause. The cat's tail flicks once. “Hollowsong would say a Mistwood cat doesn't beg from strangers. Hollowsong doesn't have to watch them get thin.”" },
+      { "kind": "speech", "text": "“You hunt alone, don't you? Does it get easier?”", "when": { "trait": "curiosity", "band": "high", "who": "npc" } },
+      { "kind": "speech", "text": "“Bring me a hare from these marshes, or anything small. I'll carry it to them myself, and no one has to know where it came from.”" }
+    ],
+    "gossip": {
+      "bonefieldBorder": "“Bonefield's been pushing at the marsh edge. I've seen their scent there twice. That's why I can't hunt the far reeds anymore.”"
+    },
+    "replies": {
+      "bring": "“Then I owe you, and Mistwood remembers who it owes.”",
+      "bringNarration": "{catName} melts back into the fog without another word.",
+      "ask": "“Because they'd say no, and then they'd watch me.” A long look. “We watch each other a lot, since the Breaking.”",
+      "declineLow": "“Then forget I asked.”",
+      "decline": "“I understand. Forget you saw me out here. Please.”",
+      "kept": "{catName} takes the hare gently, the way you'd carry a cub. ‘They'll eat tonight.’ Then, so quietly you almost miss it: ‘Thank you, loner.’",
+      "broken": "{catName} doesn't come closer. “I waited at the reeds,” is all the cat says, and then turns away."
+    },
+    "choices": [
+      { "id": "bring_prey", "label": "“I'll bring it.”" },
+      { "id": "ask_pride", "label": "“Why not ask your own pride?”" },
+      { "id": "decline", "label": "“I can't.”" }
+    ]
+  }
+}

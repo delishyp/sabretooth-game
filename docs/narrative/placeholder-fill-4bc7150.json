@@ -1,0 +1,15 @@
+{
+  "_readme": "Final text for the 12 devNote placeholders in src/renderer/js/lone-actions.js at pin 4bc7150. Uses only the tokens {name}, {pride} and {mother}, and has no pronouns for other cats. Each line keeps the meaning of the placeholder it replaces: no injury, food or relation change is stated beyond what the action itself resolves. The caught-steal line doesn't mention the separate scuffle roll.",
+  "devNote.shadow.success": "You stay downwind and keep to the brush, always one rise behind. {name} never looks back. By the time the light shifts, you know exactly where {name} is headed.",
+  "devNote.shadow.caught": "A twig gives under your paw. {name} whips around and stares straight at your hiding place. There's no pretending now. The quiet following is over.",
+  "devNote.spar.win": "{name} crouches, rump wiggling, and pounces. You meet the pounce, roll, and come up on top with your paws planted on {name}'s chest. You're both panting and dusty, and neither of you is hurt.",
+  "devNote.spar.lose": "{name} crouches, rump wiggling, and pounces. You twist, but {name} is quicker, and you end up flat in the dirt, pinned and wheezing for breath. Neither of you is hurt.",
+  "devNote.scout": "You climb to a ridge just outside {pride} ground and lie flat among the stones. Below you, the scent-marks run along the border like a line drawn in the air, and you watch to see who walks it.",
+  "devNote.steal.success": "The kill's owner has wandered off to drink. You slip in low, tear off a mouthful while it's still warm, and are gone before anyone comes back.",
+  "devNote.steal.caught": "You're still bent over the kill when the owner's scent hits you, strong and close. You look up straight into a furious stare.",
+  "devNote.cub.intro": "A thin, high mewling carries on the wind. A {pride} cub, all fuzz and oversized paws, is caught near the border, too small to find the way home alone.",
+  "devNote.cub.help": "You nose the cub to its feet and walk beside it, slowly, step by step, until {mother} comes bounding out to meet you. The cub tumbles to safety between those big forepaws.",
+  "devNote.cub.leave": "You turn away. The mewling follows you a long way before the wind finally carries it off.",
+  "devNote.watch": "You find a high, sheltered spot and let the land spread out below you. The wind brings every scent up to you. For once you don't chase anything. You just rest, and watch.",
+  "devNote.share": "You tear off a good portion of the kill and set it down where {name} can reach it, then step back so the offer is plain."
+}

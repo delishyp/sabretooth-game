@@ -42,6 +42,7 @@
   </section>
   <!-- Make Your Sabrecat (cat-creator-spec v0.2): step 1 Look, step 2 Personality. Panel rows are built by menu.js from js/creator.js. -->
   <section class="screen" data-screen="creator">
+    <img class="creator-scene" alt="" src="../../assets/menu/night/work/bg1920.png">
     <h2 data-t="creator.title"></h2>
     <p class="sub creator-sub" data-t="creator.subtitle"></p>
     <p class="creator-step" id="creator-step"></p>
@@ -146,6 +147,12 @@
     <button type="button" id="cat-viewer-close" data-g="closeViewer" data-t="portrait.close"></button>
   </div>
 </div>
+<div id="encounter-inspect" class="encounter-inspect" hidden>
+  <div class="encounter-inspect-frame" role="dialog" aria-modal="true" aria-label="Entire image">
+    <img alt="" />
+    <button type="button" id="encounter-inspect-close" data-g="closeInspect">Close</button>
+  </div>
+</div>
 <div id="toasts"></div>
 <div id="update-bar" hidden>
   <p id="update-text"></p>
@@ -171,6 +178,22 @@
 <script src="js/input.js"></script>
 <script src="js/rng.js"></script>
 <script src="js/worldmap.js"></script>
+<script src="js/speech.js"></script>
+<script src="js/personality.js"></script>
+<script src="js/pairs.js"></script>
+<script src="js/fight.js"></script>
+<script src="js/skills.js"></script>
+<script src="js/world-memory.js"></script>
+<script src="js/conversation.js"></script>
+<script src="js/encounter.js"></script>
+<script src="js/pairing.js"></script>
+<script src="js/beats.js"></script>
+<script src="js/pass2.js"></script>
+<script src="js/card-words.js"></script>
+<script src="js/lone-actions.js"></script>
+<script src="js/followups.js"></script>
+<script src="js/motives.js"></script>
+<script src="js/storyteller-prompt.js"></script>
 <script src="js/slice.js"></script>
 <script src="js/home-scene.js"></script>
 <script src="js/game-screen.js"></script>

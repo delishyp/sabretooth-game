@@ -29,6 +29,29 @@ const gameJson = (ud, run, save) => JSON.parse(fs.readFileSync(path.join(ud, 'sa
 /** One step of a simple survival policy, by clicking the real buttons. Returns what it did. */
 async function step(page, shots) {
   const { state: s, available: av } = await g(page);
+  if (s.phase === 'encounter') {
+    const leave = page.locator('#game-event [data-choice="leave"], #game-event [data-choice="give_ground"], #game-event [data-choice="retreat"], #game-event [data-choice="yield_kill"], #game-event [data-choice="finish"], #game-event [data-g="continue"]');
+    await leave.first().click(); await idle(page); return 'encounter';
+  }
+  if (s.phase === 'ford') {
+    const stay = page.locator('#game-event [data-choice="stay_out"]');
+    if (await stay.count()) { await stay.click(); await idle(page); return 'ford'; }
+    await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'ford-continue';
+  }
+  if (s.phase === 'border') {
+    const cont = page.locator('#game-event [data-g="continue"]');
+    if (await cont.count()) { await cont.click(); await idle(page); return 'border-continue'; }
+    const leave = page.locator('#game-event [data-choice="withdraw"], #game-event [data-choice="leave_request"]');
+    if (await leave.count()) { await leave.first().click(); await idle(page); return 'border-leave'; }
+    await page.locator('#game-event button').first().click(); await idle(page); return 'border';
+  }
+  if (s.phase === 'conversation') {
+    const cont = page.locator('#game-event [data-g="continue"]');
+    if (await cont.count()) { await cont.click(); await idle(page); return 'talk-continue'; }
+    const leave = page.locator('#game-event [data-choice="leave"], #game-event [data-choice="pause"]');
+    if (await leave.count()) { await leave.first().click(); await idle(page); return 'talk-leave'; }
+    await page.locator('#game-event [data-g="choose"]').first().click(); await idle(page); return 'talk-choice';
+  }
   if (s.phase === 'event') {
     if (!shots.event && s.pending.catId) { await page.waitForTimeout(400); await shot(page, '04-event'); shots.event = true; }
     const b = page.locator('#game-event [data-g="choose"]').first(); await b.click(); await idle(page); return 'choose';
@@ -92,7 +115,7 @@ async function step(page, shots) {
       while ((await g(page)).state.day < 6) await step(page, shots);
       while ((await g(page)).state.phase !== 'day') await step(page, shots);
       assert.ok(gameJson(ud, 0, 0).day >= 6, 'autosave each day');
-      await page.locator('[data-g="save"]').click(); await page.waitForTimeout(300);
+      await page.locator('.home-tools [data-g="save"]').click(); await page.waitForTimeout(300);
       before = (await g(page)).state;
       assert.deepStrictEqual(gameJson(ud, 0, 1), before);
       await press(page, 'Escape'); await waitState(page, 'root');
@@ -100,18 +123,26 @@ async function step(page, shots) {
       await press(page, 'Enter'); await waitState(page, 'game');
       assert.deepStrictEqual((await g(page)).state, before);
     });
-    await check('play on to the day-20 summary (regions, cats met, best affinity)', async () => {
-      for (let i = 0; i < 200 && (await st(page)).state === 'game'; i++) await step(page, shots);
-      await waitState(page, 'summary');
-      assert.strictEqual((await st(page)).state, 'summary');
-      const { summary } = await g(page);
-      assert.strictEqual(summary.survived, true, `seed ${SEED} died: ${JSON.stringify(summary)}`);
-      assert.strictEqual(summary.daysSurvived, 20);
-      const txt = await page.locator('#summary-body').textContent();
-      assert.match(txt, /20 of 20/); for (const r of summary.regionsVisited) assert.ok(txt.includes(W.region(r).name), r);
-      await shot(page, '05-summary');
-      assert.strictEqual(gameJson(ud, 0, 0).over, true);
-      assert.ok(shots.hunt, 'hunt shot'); console.log(`    seed ${SEED}: ${summary.regionsVisited.length} regions, ${summary.catsMet.length} cats met, best ${JSON.stringify(summary.bestAffinity)}, event shot ${!!shots.event}`);
+    await check('day 20 closes the mating window and day 21 continues', async () => {
+      for (let i = 0; i < 260 && (await st(page)).state === 'game'; i++) {
+        const s = (await g(page)).state;
+        if (s.day >= 21 && s.phase === 'day' && s.records && s.records.seasonEndShown) break;
+        await step(page, shots);
+      }
+      assert.strictEqual((await st(page)).state, 'game');
+      const { state: s, summary } = await g(page);
+      assert.strictEqual(s.over, false);
+      assert.strictEqual(s.dead, null);
+      assert.ok(s.day >= 21, `day ${s.day}`);
+      assert.strictEqual(s.records.seasonEndShown, true);
+      assert.strictEqual(s.year, 1);
+      assert.strictEqual(s.records.yearLengthDays, null);
+      assert.match(await page.locator('#game-day').textContent(), /after the mating season/);
+      assert.strictEqual(summary.survived, true);
+      await shot(page, '05-day-21');
+      assert.strictEqual(gameJson(ud, 0, 0).over, false);
+      assert.ok(shots.hunt, 'hunt shot');
+      console.log(`    seed ${SEED}: day ${s.day}, ${summary.regionsVisited.length} regions, ${summary.catsMet.length} cats met`);
     });
     await check('death path: starvation kills, death summary shows the cause; Continue reopens the summary', async () => {
       await press(page, 'Escape'); await waitState(page, 'root');

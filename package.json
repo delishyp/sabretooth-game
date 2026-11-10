@@ -12,7 +12,7 @@
     "test": "node --test \"test/*.test.js\"",
     "appearance-preview": "electron scripts/appearance-preview.js --no-sandbox",
     "dist:win": "electron-builder --win nsis",
-    "test:e2e": "node test/e2e/menu.e2e.js && node test/e2e/slice.e2e.js"
+    "test:e2e": "node test/e2e/menu.e2e.js && node test/e2e/slice.e2e.js && node test/e2e/conversation.e2e.js"
   },
   "author": "Anna Kremer",
   "license": "UNLICENSED",
@@ -32,6 +32,7 @@
       "assets/menu/background-1920.png",
       "assets/menu/logo.png",
       "assets/game/home-landscape.png",
+      "assets/encounters/*.png",
       "assets/portraits/registry.json",
       "assets/portraits/*/manifest.json",
       "assets/portraits/*/*.png",

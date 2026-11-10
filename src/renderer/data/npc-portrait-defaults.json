@@ -1,0 +1,315 @@
+{
+  "note": "Ochre presentation defaults. Not names, not genes, not a phenotype guarantee.",
+  "ln05": "cat-6e2d788dd48ff440",
+  "assignments": {
+    "hc01": {
+      "id": "cat-3f9fb78fb1697a76",
+      "flags": [
+        "distinct silver mane not present",
+        "brown eyes supplied; historical eyes unspecified"
+      ],
+      "adultArtOnly": false
+    },
+    "hc02": {
+      "id": "cat-46f04e1c79d4e443",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "hc03": {
+      "id": "cat-5b118d80461187e7",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "hc04": {
+      "id": "cat-f70f52f0f22da7fc",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "hc05": {
+      "id": "cat-4a74e453bae483ad",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "hc06": {
+      "id": "cat-eec858c7a583cdc6",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "hc07": {
+      "id": "cat-7c5ab14d9e51320a",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "hc08": {
+      "id": "cat-46f04e1c79d4e443",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for elder slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "hc09": {
+      "id": "cat-5b118d80461187e7",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for adolescent slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "hc10": {
+      "id": "cat-f70f52f0f22da7fc",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for cub slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "hc11": {
+      "id": "cat-7c5ab14d9e51320a",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for cub slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "bf01": {
+      "id": "cat-e67924de1f224fd0",
+      "flags": [
+        "torn lip absent",
+        "historical coat/eyes unspecified"
+      ],
+      "adultArtOnly": false
+    },
+    "bf02": {
+      "id": "cat-ff92bf3c32b9245e",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "bf03": {
+      "id": "cat-f865fbd2eafb9f38",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "bf04": {
+      "id": "cat-eec858c7a583cdc6",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "bf05": {
+      "id": "cat-5b118d80461187e7",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "bf06": {
+      "id": "cat-412f097a30e3558e",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "bf07": {
+      "id": "cat-6477d01534355420",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for elder slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "bf08": {
+      "id": "cat-ff92bf3c32b9245e",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for adolescent slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "bf09": {
+      "id": "cat-f70f52f0f22da7fc",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for cub slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "bf10": {
+      "id": "cat-5b118d80461187e7",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for cub slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "mw01": {
+      "id": "cat-7c5ab14d9e51320a",
+      "flags": [
+        "elder/aging detail not reproduced",
+        "historical coat/eyes unspecified"
+      ],
+      "adultArtOnly": false
+    },
+    "mw02": {
+      "id": "cat-46f04e1c79d4e443",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "mw03": {
+      "id": "cat-2fe9cb1d7fac044f",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "mw04": {
+      "id": "cat-f70f52f0f22da7fc",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "mw05": {
+      "id": "cat-eec858c7a583cdc6",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "mw06": {
+      "id": "cat-5b118d80461187e7",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match"
+      ],
+      "adultArtOnly": false
+    },
+    "mw07": {
+      "id": "cat-7c5ab14d9e51320a",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for elder slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "mw08": {
+      "id": "cat-46f04e1c79d4e443",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for adolescent slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "mw09": {
+      "id": "cat-f70f52f0f22da7fc",
+      "flags": [
+        "fixed appearance unavailable; this is an explicit art-director fallback, not a discovered match",
+        "adult image used for cub slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "ln01": {
+      "id": "cat-46f04e1c79d4e443",
+      "flags": [
+        "plain coat replaced by visible stripes",
+        "amber eye unverified",
+        "stained sabers absent",
+        "foreleg scars absent",
+        "adult image used for elder slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "ln02": {
+      "id": "cat-ff92bf3c32b9245e",
+      "flags": [
+        "plain coat replaced by stripes",
+        "isolated dorsal stripe not reproduced",
+        "amber eye unverified"
+      ],
+      "adultArtOnly": false
+    },
+    "ln03": {
+      "id": "cat-5b118d80461187e7",
+      "flags": [
+        "faint spots replaced by stripes",
+        "gold eye unverified",
+        "torn cheek and foreleg scars absent"
+      ],
+      "adultArtOnly": false
+    },
+    "ln04": {
+      "id": "cat-4a74e453bae483ad",
+      "flags": [
+        "bold brindle replaced by softer stripes",
+        "white forehead blaze absent",
+        "copper eye unverified",
+        "right-ear scar absent"
+      ],
+      "adultArtOnly": false
+    },
+    "ln05": {
+      "id": "cat-6e2d788dd48ff440",
+      "flags": [
+        "historical tawny/white-socks/green-eye description differs from dark brown-undertone/brown-eye image",
+        "faint spots not reproduced",
+        "tail scar absent"
+      ],
+      "adultArtOnly": false
+    },
+    "ln06": {
+      "id": "cat-7c5ab14d9e51320a",
+      "flags": [
+        "amber eye unverified",
+        "stained sabers absent",
+        "left-eye scar/blindness absent",
+        "adult image used for elder slot under adult-only presentation scope; do not change stored age/stage"
+      ],
+      "adultArtOnly": true
+    },
+    "ln07": {
+      "id": "cat-702c446a6136b904",
+      "flags": [
+        "ghost rosettes not verified; low-contrast striped texture remains",
+        "scarred muzzle absent",
+        "cream-yellow saber tint not exact"
+      ],
+      "adultArtOnly": false
+    },
+    "ln08": {
+      "id": "cat-96beb4613b169dfd",
+      "flags": [
+        "stripes heavier than faint thin description",
+        "split-lip scar absent"
+      ],
+      "adultArtOnly": false
+    },
+    "ln09": {
+      "id": "cat-46f04e1c79d4e443",
+      "flags": [
+        "coat darker than dilute blue-grey reference",
+        "plain coat replaced by stripes",
+        "amber eye unverified",
+        "flank and left-hind-leg scars absent"
+      ],
+      "adultArtOnly": false
+    }
+  }
+}
