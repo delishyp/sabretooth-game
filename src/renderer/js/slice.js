@@ -1370,8 +1370,9 @@
       const bits = [];
       for (const l of rep || []) {
         if (l.k === 'rest' && l.energy) bits.push(CardWords.energy(l.energy));
-        if (l.k === 'starving') bits.push(CardWords.health(-Math.abs(l.health || 0)));
-        if (l.k === 'parched') bits.push(CardWords.health(-Math.abs(l.health || 0)));
+        // Empty hunger and empty thirst use the large down line, not the 10 health damage.
+        if (l.k === 'starving') bits.push(CardWords.hunger(-36));
+        if (l.k === 'parched') bits.push(CardWords.thirst(-36));
         if (l.k === 'killShare') bits.push(CardWords.hunger(l.hunger));
       }
       return bits.join('. ');

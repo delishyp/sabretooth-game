@@ -1,0 +1,70 @@
+{
+ "_readme": "Fills Flint's card-words.js stand-ins at 4647955. Same bands as hunger: |delta| 1-15 small, 16-35 medium, 36+ large. Sign follows card-words.js (positive = better). No numbers.",
+ "energy": {
+  "up": {
+   "small": "You've caught your breath.",
+   "medium": "You feel rested.",
+   "large": "You feel fresh and strong again."
+  },
+  "down": {
+   "small": "That took a little out of you.",
+   "medium": "Your legs feel heavy.",
+   "large": "You're bone-tired."
+  }
+ },
+ "health": {
+  "up": {
+   "small": "The ache eases a little.",
+   "medium": "You feel stronger.",
+   "large": "You feel whole again."
+  },
+  "down": {
+   "small": "You're stinging, but it's nothing serious.",
+   "medium": "You're hurting.",
+   "large": "You're badly hurt."
+  }
+ },
+ "thirst": {
+  "up": {
+   "small": "You've wet your tongue.",
+   "medium": "Your thirst eases.",
+   "large": "You've drunk your fill."
+  },
+  "down": {
+   "small": "Your mouth is getting dry.",
+   "medium": "You're thirsty.",
+   "large": "Your throat is parched."
+  }
+ },
+ "hunger_down": {
+  "small": "Your belly is starting to growl.",
+  "medium": "Your hunger is sharper.",
+  "large": "You're starving."
+ },
+ "1.5_seeking_company_gossip_opener": [
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "high",
+    "who": "npc"
+   },
+   "text": "\"I heard you're looking for company out there. Is that true? Because I could do with some myself.\""
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "baseline",
+    "who": "npc"
+   },
+   "text": "\"I heard you're looking for company out there. Is that true?\""
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "low",
+    "who": "npc"
+   },
+   "text": "\"Word is you're looking for company.\" A long look. \"I'm only telling you what I heard.\""
+  }
+ ]
+}

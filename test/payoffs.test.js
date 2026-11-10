@@ -52,15 +52,17 @@ test('payoff keys match Saga\'s file, and every band fills without a leftover to
   const vars = { catName: 'Greyfall', playerName: 'Ravenmark', zoneName: 'The Ice Wall', sourceName: 'Ashmane' };
   for (const band of [20, 50, 80]) {
     npc.personality.sociability = band;
-    for (const rows of [copy['1.3_knows_name_opener'], copy['1.4_pridemate_heard_opener'], copy['1.5_still_alone'].opener, copy['2.2_you_came'], copy['2.3_i_waited'].opener, copy['3.3_ate_whole_thing'].opener, copy['2.1_rendezvous'].ask_meet.text]) {
+    for (const rows of [copy['1.3_knows_name_opener'], copy['1.4_pridemate_heard_opener'], copy['1.5_still_alone'].opener, copy['1.5_seeking_company_gossip_opener'], copy['2.2_you_came'], copy['2.3_i_waited'].opener, copy['3.3_ate_whole_thing'].opener, copy['2.1_rendezvous'].ask_meet.text]) {
       const text = lineOf(rows, npc, vars);
       assert.ok(!TOKEN.test(text), text);
       assert.ok(!/\d/.test(text), text);
     }
   }
   const gossip = copy['1.5_seeking_company_gossip_opener'];
-  assert.strictEqual(typeof gossip, 'string');
-  assert.ok(!TOKEN.test(gossip));
+  assert.strictEqual(lineOf(gossip, Object.assign({}, npc, { personality: { sociability: 80 } }), {}), gossip[0].text);
+  assert.strictEqual(lineOf(gossip, Object.assign({}, npc, { personality: { sociability: 50 } }), {}), gossip[1].text);
+  assert.strictEqual(lineOf(gossip, Object.assign({}, npc, { personality: { sociability: 20 } }), {}), gossip[2].text);
+  assert.ok(gossip.every((row) => !TOKEN.test(row.text) && !/\d/.test(row.text)));
 });
 
 test('giving your name is remembered, and the next meeting uses that name once', () => {

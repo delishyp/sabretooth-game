@@ -149,5 +149,5 @@ test('each lone action renders Saga\'s line for a real cat, with no placeholder 
 
   const watch = E.act(E.newRun({ mainCat: player, seed: 8, runId: 'watch' }), { type: 'watch' }).state;
   expectLine(prose(watch.pending), 'devNote.watch', {});
-  assert.strictEqual(watch.pending.resultLine, 'You feel more rested.');
+  assert.strictEqual(watch.pending.resultLine, 'You feel rested.');
 });

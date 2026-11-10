@@ -94,7 +94,20 @@
    }
   }
  },
- "1.5_seeking_company_gossip_opener": "\"I heard you're looking for company out there. Is that true?\"",
+ "1.5_seeking_company_gossip_opener": [
+  {
+   "when": { "trait": "sociability", "band": "high", "who": "npc" },
+   "text": "\"I heard you're looking for company out there. Is that true? Because I could do with some myself.\""
+  },
+  {
+   "when": { "trait": "sociability", "band": "baseline", "who": "npc" },
+   "text": "\"I heard you're looking for company out there. Is that true?\""
+  },
+  {
+   "when": { "trait": "sociability", "band": "low", "who": "npc" },
+   "text": "\"Word is you're looking for company.\" A long look. \"I'm only telling you what I heard.\""
+  }
+ ],
  "2.1_rendezvous": {
   "ask_meet": {
    "label": "\"Meet me at {zoneName} tomorrow.\"",

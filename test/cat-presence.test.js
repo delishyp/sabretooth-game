@@ -63,7 +63,7 @@ test('report prose does not carry relationship or health-cost numbers', () => {
   s = act(s, { type: 'rest' });
   const beats = ((s.pending && s.pending.beats) || []).map((b) => b.text).join('\n');
   assert.ok(!/Energy \+/.test(beats), beats);
-  assert.strictEqual(s.pending.resultLine, 'You feel more rested.');
+  assert.strictEqual(s.pending.resultLine, 'You feel fresh and strong again.');
 });
 
 test('scent lines use Saga\'s keys and leave no push without one', () => {

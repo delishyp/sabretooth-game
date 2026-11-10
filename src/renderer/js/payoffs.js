@@ -234,7 +234,7 @@
     return scene(s, npc, '1.4', line, []);
   }
   function openSeeking(s, npc) {
-    const line = fill(data['1.5_seeking_company_gossip_opener'], varsFor(s, npc));
+    const line = oneLine(data['1.5_seeking_company_gossip_opener'], npc, varsFor(s, npc));
     if (!line) return null;
     if (!s.records) s.records = {};
     s.records.payoffSeekingHeard = true;
