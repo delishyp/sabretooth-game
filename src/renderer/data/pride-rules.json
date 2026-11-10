@@ -1,9 +1,18 @@
 {
   "pride": {
-    "hunterKillFood": 50,
-    "hunterKillPerMember": false,
-    "guardStacks": false,
-    "foodMembers": "adults+cubs"
+    "guardStacks": true,
+    "foodMembers": "every-living"
+  },
+  "prey": {
+    "killFood": {
+      "use": "tundra",
+      "flatOnce": 50,
+      "tundra": {
+        "small": { "food": 25, "perMember": false },
+        "medium": { "food": 50, "perMember": false },
+        "large": { "food": 80, "perMember": true }
+      }
+    }
   },
   "claim": { "strongAt": 80, "heldAt": 50 },
   "feed": { "meal": 12 },

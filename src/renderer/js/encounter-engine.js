@@ -84,6 +84,56 @@
     return clamp(points, cfg.clamp[0], cfg.clamp[1]);
   }
 
+  function policyFight(rng, policy) {
+    const cfg = config.proposed;
+    const attacks = ['bite', 'claw'];
+    let playerHits = 0;
+    let foeHits = 0;
+    let streak = 0;
+    let last = null;
+    let rounds = 0;
+    const goal = cfg.hitsToWin;
+    while (playerHits < goal && foeHits < goal && rounds < config.fight.maxRounds) {
+      rounds += 1;
+      const tele = attacks[rng() < 0.5 ? 0 : 1];
+      const honest = !cfg.telegraph || rng() < cfg.honest;
+      let choice = attacks[rounds % 2];
+      if (policy === 'biteOnly') choice = 'bite';
+      else if (policy === 'sensible' && cfg.telegraph) choice = tele;
+      if (cfg.repeatPenalty) {
+        if (choice === last) streak += 1;
+        else { streak = 1; last = choice; }
+      }
+      let hit = cfg.baseHit;
+      if (cfg.repeatPenalty && streak === 2) hit += cfg.repeatSecond;
+      if (cfg.repeatPenalty && streak >= 3) hit += cfg.repeatFromThird;
+      if (policy === 'sensible' && cfg.telegraph) hit += honest ? cfg.honestBonus : cfg.feintPenalty;
+      if (rng() < clamp(hit, 0.05, 0.95)) playerHits += 1;
+      if (rng() < cfg.baseHit) foeHits += 1;
+    }
+    const timeout = playerHits < goal && foeHits < goal;
+    let winner = 'opponent';
+    if (!timeout && playerHits > foeHits) winner = 'player';
+    return { winner, rounds, timeout, playerHits, foeHits, policy };
+  }
+  function policySample(n, seed) {
+    const totals = { sensible: 0, biteOnly: 0, average: 0, timeouts: 0 };
+    const names = ['sensible', 'biteOnly', 'average'];
+    for (let i = 0; i < n; i++) {
+      for (const policy of names) {
+        const row = policyFight(Rng.stream((seed || 1) >>> 0, 'policy-fight', policy, i), policy);
+        if (row.winner === 'player') totals[policy] += 1;
+        if (row.timeout) totals.timeouts += 1;
+      }
+    }
+    return {
+      sensible: totals.sensible / n,
+      biteOnly: totals.biteOnly / n,
+      average: totals.average / n,
+      timeoutRate: totals.timeouts / (n * names.length),
+      n
+    };
+  }
   function quickFight(rng, playerStrength, opponentStrength, policy) {
     const cfg = config.fight;
     let ps = playerStrength;
@@ -324,5 +374,5 @@
     };
   }
 
-  return { config, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median };
+  return { config, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample };
 });

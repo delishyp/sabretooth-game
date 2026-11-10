@@ -11,19 +11,25 @@
     if (typeof require === 'function') {
       try { return require('../data/pride-rules.json'); } catch (e) { /* browser */ }
     }
-    return { pride: { foodMembers: 'adults+cubs' }, claim: { strongAt: 80, heldAt: 50 } };
+    return { pride: { foodMembers: 'every-living' }, claim: { strongAt: 80, heldAt: 50 } };
   }
   const rules = loadConfig();
   const UNITS_PER_DAY = 12;
 
   function countsAsMouth(member) {
-    if (rules.pride.foodMembers === 'adults') return !member || member.stage !== 'cub';
+    if (!member || typeof member !== 'object') return true;
+    if (member.dead || member.status === 'dead' || member.status === 'exiled') return false;
+    if (rules.pride.foodMembers === 'adults' && member.stage === 'cub') return false;
     return true;
   }
   function memberCount(pride) {
     if (!pride) return 0;
     if (Number.isInteger(pride.members) && pride.members > 0) return pride.members;
-    if (Array.isArray(pride.members)) return pride.members.filter(countsAsMouth).length;
+    if (Array.isArray(pride.members)) {
+      const living = pride.members.filter(countsAsMouth);
+      const hasPlayer = living.some((member) => member && typeof member === 'object' && (member.player || member.id === 'player' || (pride.player && member.id === pride.player.id)));
+      return living.length + (pride.player && !pride.player.dead && !hasPlayer ? 1 : 0);
+    }
     if (Number.isInteger(pride.memberCount) && pride.memberCount > 0) return pride.memberCount;
     return 0;
   }

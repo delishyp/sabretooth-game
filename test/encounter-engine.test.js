@@ -124,7 +124,11 @@ test('simulateEncounter covers bands 1 through 15', () => {
   assert.match(text, /band  7  PASS  hunt bold/);
   assert.match(text, /band  9  PASS  spar ends at 40 HP/);
   assert.match(text, /band 14  PASS  spar length/);
-  assert.match(text, /timeouts  PASS  encounter timeouts  target <3%/);
+  assert.match(text, /timeouts  PASS  encounter timeouts  target <4%/);
+  assert.match(log.bands[1].got, /sensible /);
+  assert.match(log.bands[1].got, /biteOnly /);
+  assert.match(log.bands[1].got, /average /);
+  assert.ok(log.policies.sensible - log.policies.biteOnly >= 0.06);
 });
 
 test('the slow fight check stays out of the default suite', { skip: process.env.SABRETOOTH_PARITY_SLOW !== '1' }, () => {

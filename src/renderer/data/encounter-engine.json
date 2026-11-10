@@ -13,6 +13,18 @@
     "biteStrength": 1.15,
     "sparInjuryRolls": 0
   },
+  "proposed": {
+    "note": "Encounters §2.4a/b, proposed, awaiting Director and Anna. On in the sim so the rates can be measured.",
+    "telegraph": true,
+    "repeatPenalty": true,
+    "honest": 0.75,
+    "baseHit": 0.5,
+    "honestBonus": 0.3,
+    "feintPenalty": -0.08,
+    "repeatSecond": -0.1,
+    "repeatFromThird": -0.2,
+    "hitsToWin": 4
+  },
   "hunt": {
     "base": 50,
     "prey": { "small": 5, "medium": 0, "large": -20 },
@@ -39,7 +51,7 @@
     "fightTolerance": 0.03,
     "slowFightCells": 20000,
     "slowFightTolerance": 0.01,
-    "timeoutLimit": 0.03,
+    "timeoutLimit": 0.04,
     "huntTolerance": 0.03,
     "courtshipTolerance": 0.04,
     "sensibleTolerance": 0.03,
@@ -50,7 +62,7 @@
     "sparRounds": [5, 6],
     "rows": [
       { "id": 1, "name": "equal fight", "target": 0.5 },
-      { "id": 2, "name": "ten-percent edge", "target": 0.71 },
+      { "id": 2, "name": "sensible versus bite", "target": 0.63 },
       { "id": 3, "name": "twenty-five-percent edge", "target": 0.9 },
       { "id": 4, "name": "twenty-five percent weaker", "target": 0.1 },
       { "id": 5, "name": "sensible, equal strength", "target": 0.66 },

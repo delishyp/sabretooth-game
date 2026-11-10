@@ -71,6 +71,14 @@ test('food words hit every band edge and never print a number', () => {
   assert.strictEqual(at(5.5), 'Enough for now');
   assert.strictEqual(at(5.99), 'Enough for now');
   assert.strictEqual(at(6), 'Plenty');
+  assert.strictEqual(Header.memberCount({
+    members: [
+      { id: 'a', stage: 'adult' },
+      { id: 'c', stage: 'cub' },
+      { id: 'd', stage: 'adult', dead: true }
+    ],
+    player: { id: 'player' }
+  }), 3);
   for (const word of WORDS) assert.ok(!/\d/.test(word), word);
 });
 

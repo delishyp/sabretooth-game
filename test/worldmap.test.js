@@ -24,15 +24,18 @@ test('every region has a biome, prey, danger band and travel days ≥ 1 to each 
   }
 });
 
-test('danger sums the season hazards and caps at 3', () => {
-  assert.strictEqual(W.danger('tar_seeps', 'spring'), 3);
+test('danger mode max uses the highest hazard and sum adds them, both cap at 3', () => {
+  assert.strictEqual(WorldMap.mapRules.dangerMode, 'max');
+  assert.strictEqual(W.danger('tar_seeps', 'spring'), 2);
   assert.strictEqual(W.danger('west_spur', 'spring'), 0);
-  const bumped = JSON.parse(JSON.stringify(map));
-  bumped.regions.find((row) => row.id === 'tar_seeps').hazards = [
-    { id: 'tar', pct: 80, seasons: null },
-    { id: 'wolves', pct: 80, seasons: null }
-  ];
-  assert.strictEqual(WorldMap.create(bumped).danger('tar_seeps', 'spring'), 3);
+  const bands = map.dangerBands;
+  const hazards = [{ pct: 10 }, { pct: 2 }];
+  assert.strictEqual(WorldMap.dangerValue(hazards, { mode: 'max', bands, featureBonus: 0 }), 2);
+  assert.strictEqual(WorldMap.dangerValue(hazards, { mode: 'sum', bands }), 3);
+  assert.strictEqual(WorldMap.dangerValue([{ pct: 80 }, { pct: 80 }], { mode: 'sum', bands }), 3);
+  assert.strictEqual(WorldMap.dangerValue([{ pct: 80 }], { mode: 'max', bands, featureBonus: 0 }), 3);
+  assert.strictEqual(WorldMap.dangerValue([{ pct: 4 }], { mode: 'max', bands, featureBonus: 8 }), 3);
+  assert.strictEqual(WorldMap.dangerValue([{ pct: 4 }], { mode: 'max', bands, featureBonus: 0 }), 1);
 });
 
 test('ownership + trespass: start claims give holders; wolves never trespass-patrol', () => {

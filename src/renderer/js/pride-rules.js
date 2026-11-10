@@ -80,15 +80,26 @@
     return roster(state).some((cat) => duty(state, cat) === 'cubSitter');
   }
 
-  function performHunt(state, cat) {
+  function livingMembers(state) {
+    const cats = roster(state).filter((cat) => !cat.dead && cat.status !== 'dead');
+    const player = state.player;
+    const listed = player && cats.some((cat) => cat.player || cat.id === player.id || cat.id === 'player');
+    return cats.length + (player && !player.dead && !listed ? 1 : 0);
+  }
+  function killFood(state, size) {
+    const table = config.prey.killFood;
+    if (table.use !== 'tundra') return table.flatOnce;
+    const row = table.tundra[size] || table.tundra.medium;
+    return row.perMember ? row.food * Math.max(1, livingMembers(state)) : row.food;
+  }
+  function performHunt(state, cat, size) {
+    const prey = size || 'medium';
     const chance = huntChance(state.pride.roles[cat.id] === 'hunter');
     const roll = rngFor(state, `hunt:${cat.id}`)();
     const ok = roll * 100 < chance;
-    const once = config.pride.hunterKillFood;
-    const mouths = config.pride.hunterKillPerMember ? Math.max(1, roster(state).length) : 1;
-    const gained = ok ? once * mouths : 0;
+    const gained = ok ? killFood(state, prey) : 0;
     state.pride.food += gained;
-    state.lastHunt = { catId: cat.id, chance, ok, gained, prey: 'medium' };
+    state.lastHunt = { catId: cat.id, chance, ok, gained, prey };
     return state.lastHunt;
   }
   function runScout(state) {
@@ -301,6 +312,6 @@
 
   return {
     config, actionIds, actions, migrate, emptyPride, sample, clone,
-    defendStrength, starvingCubExtra, heirRanking, eatOrder, huntChance, duty
+    defendStrength, starvingCubExtra, heirRanking, eatOrder, huntChance, duty, killFood, livingMembers
   };
 });

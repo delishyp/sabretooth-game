@@ -21,9 +21,15 @@ function near(got, target, tolerance) {
 function rowSpec(id) {
   return Engine.config.bands.rows.find((row) => row.id === id);
 }
-function line(id, ok, got) {
+function line(id, ok, got, extra) {
   const spec = rowSpec(id);
-  return { id, name: spec.name, result: ok ? 'PASS' : 'FAIL', target: spec.target, got };
+  return {
+    id,
+    name: (extra && extra.name) || spec.name,
+    result: ok ? 'PASS' : 'FAIL',
+    target: extra && extra.target != null ? extra.target : spec.target,
+    got
+  };
 }
 function huntStats(n, seed, policy) {
   let ok = 0;
@@ -62,10 +68,17 @@ function measure(opts) {
   const checked = Parity.fightReport(fightN, tol.fightTolerance, seed);
   const fightRows = checked.fights.concat([checked.sensible]);
   const bands = fightRows.map((row) => line(row.id, row.ok, `${pct(row.got)} ±${tol.fightTolerance * 100}pp n=${fightN}`));
+  const policies = Engine.policySample(fightN, seed);
+  const biteGap = policies.sensible - policies.biteOnly;
+  bands[bands.findIndex((row) => row.id === 2)] = line(
+    2,
+    near(policies.sensible, rowSpec(2).target, tol.fightTolerance) && biteGap >= 0.06 && policies.timeoutRate < tol.timeoutLimit,
+    `sensible ${pct(policies.sensible)} biteOnly ${pct(policies.biteOnly)} average ${pct(policies.average)}`
+  );
   let slow = [];
   if (opts.slow) {
     const slowChecked = Parity.fightReport(tol.slowFightCells, tol.slowFightTolerance, seed);
-    slow = slowChecked.fights.concat([slowChecked.sensible]).map((row) => line(row.id, row.ok, `${pct(row.got)} ±${tol.slowFightTolerance * 100}pp n=${tol.slowFightCells}`));
+    slow = slowChecked.fights.concat([slowChecked.sensible]).map((row) => line(row.id, row.ok, `${pct(row.got)} ±${tol.slowFightTolerance * 100}pp n=${tol.slowFightCells}`, { name: row.label, target: row.target }));
   }
 
   const steady = huntStats(n, seed + 600000, 'steady');
@@ -178,7 +191,7 @@ function measure(opts) {
 
   return {
     command: 'bands', seed, count: n, adapter: 'engine', enabled: true,
-    spec: tol.spec, revision: tol.revision, bands, slow, timeouts
+    spec: tol.spec, revision: tol.revision, bands, slow, timeouts, policies
   };
 }
 
