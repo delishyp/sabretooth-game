@@ -170,12 +170,60 @@
     const winner = as === bs ? 'opponent' : (as > bs ? 'player' : 'opponent');
     return { winner, playerScore: as, opponentScore: bs, rounds: 1, quick: true, timeout: false };
   }
-  function turnFight(rng, playerStrength, opponentStrength, policy, spar) {
+  function rules29() {
+    return config.section29 && config.section29.enabled;
+  }
+  function isHuman(foe) {
+    return !!(foe && (foe.kind === 'humans' || foe.human === true));
+  }
+  function mayFlee(foe, hp) {
+    if (!rules29() || !foe) return null;
+    const group = foe.group === true;
+    if (group && (foe.kind === 'wolves' || foe.kind === 'hyena')) return false;
+    if (foe.kind === 'hyena' && !group) return hp <= config.section29.loneHyenaFleeAt;
+    return null;
+  }
+  function defendCounter(blowHits, counterRoll, counterChance) {
+    if (!blowHits) return false;
+    return counterRoll < counterChance;
+  }
+  function evenCap(playerHp, foeHp, playerMax, foeMax, defender) {
+    const left = playerHp / playerMax;
+    const right = foeHp / foeMax;
+    if (left !== right) return null;
+    if (defender === 'player') return { winner: 'player', key: 'fight.win' };
+    if (defender === 'foe') return { winner: 'opponent', key: 'fight.lose' };
+    return { winner: null, key: 'timeout_even' };
+  }
+  function humanStandoff(opts, rng, who) {
+    const cfg = config.fight;
+    const action = opts.action === 'flee' ? 'flee' : 'intimidate';
+    const beats = [];
+    if (action === 'flee') {
+      const as = 10 * unit(rng, cfg);
+      const bs = 10 * unit(rng, cfg);
+      if (as > bs) {
+        beats.push(beat('standoff.flee.success', who));
+        return { adapter: 'engine', kind: 'standoff', action, ok: true, outcome: 'fled', injury: null, dropped: false, unhurt: true, beats, rounds: 1 };
+      }
+      beats.push(beat('standoff.flee.fail', who));
+      return { adapter: 'engine', kind: 'standoff', action, ok: false, outcome: 'flee-fail', injury: 'serious', dropped: true, unhurt: false, beats, rounds: 1 };
+    }
+    if (rng() < config.section29.intimidateChance) {
+      beats.push(beat('standoff.intimidate.success', who));
+      return { adapter: 'engine', kind: 'standoff', action, ok: true, outcome: 'back-off', injury: null, unhurt: true, continues: false, beats, rounds: 1 };
+    }
+    beats.push(beat('standoff.humans', who));
+    return { adapter: 'engine', kind: 'standoff', action, ok: false, outcome: 'continues', injury: 'minor', unhurt: false, continues: true, beats, rounds: 1 };
+  }
+  function turnFight(rng, playerStrength, opponentStrength, policy, spar, foe, defender) {
     const cfg = config.fight;
     let playerHp = cfg.hp;
     let opponentHp = cfg.hp;
     let rounds = 0;
     let fled = false;
+    let foeFled = false;
+    let counterLands = false;
     const stop = spar ? cfg.sparStop : 0;
     while (playerHp > stop && opponentHp > stop && rounds < cfg.maxRounds) {
       rounds += 1;
@@ -183,10 +231,20 @@
       let oDam = opponentStrength * cfg.damagePerStrength * unit(rng, cfg);
       if (policy === 'biteOnly') pDam *= cfg.biteDamage;
       if (policy === 'sensible') pDam *= cfg.sensibleStrength;
+      if (rules29() && policy === 'defend') {
+        const blowHits = rng() < 0.5;
+        counterLands = defendCounter(blowHits, rng(), 0.5);
+        if (!blowHits) oDam = 0;
+        if (!counterLands) pDam = 0;
+      }
       playerHp -= oDam;
       opponentHp -= pDam;
       if (!spar && policy === 'fleeAt30' && playerHp <= cfg.fleeAt && playerHp > 0) {
         fled = true;
+        break;
+      }
+      if (mayFlee(foe, opponentHp) === true && opponentHp > 0) {
+        foeFled = true;
         break;
       }
     }
@@ -196,13 +254,20 @@
       if (playerHp <= cfg.sparStop) playerHp = cfg.sparStop;
       if (opponentHp <= cfg.sparStop) opponentHp = cfg.sparStop;
     }
-    const timeout = !fled && rounds >= cfg.maxRounds && playerHp > stop && opponentHp > stop;
+    let timeout = !fled && !foeFled && rounds >= cfg.maxRounds && playerHp > stop && opponentHp > stop;
     let winner = 'opponent';
-    if (fled) winner = 'opponent';
-    else if (playerHp === opponentHp) winner = 'opponent';
+    let breakOff = false;
+    if (foeFled) winner = 'player';
+    else if (fled) winner = 'opponent';
+    else if (rules29() && timeout) {
+      const even = evenCap(Math.max(0, playerHp), Math.max(0, opponentHp), cfg.hp, cfg.hp, defender);
+      if (even && even.key === 'timeout_even') { winner = null; breakOff = true; }
+      else if (even) { winner = even.winner; timeout = false; }
+      else winner = playerHp === opponentHp ? 'opponent' : (playerHp > opponentHp ? 'player' : 'opponent');
+    } else if (playerHp === opponentHp) winner = 'opponent';
     else winner = playerHp > opponentHp ? 'player' : 'opponent';
     return {
-      winner, rounds, fled, timeout, injury, injuryRolls, quick: false, spar: !!spar,
+      winner, rounds, fled, foeFled, breakOff, counterLands, timeout, injury, injuryRolls, quick: false, spar: !!spar,
       hp: { player: Math.max(0, playerHp), opponent: Math.max(0, opponentHp) },
       stoppedAt: spar ? cfg.sparStop : 0,
       serious: injury === 'serious' || injury === 'crippling'
@@ -222,6 +287,7 @@
     const group = groupOf(kind === 'spar' ? 'fight' : kind);
     const known = POLICIES[group].includes(policy);
     const rng = Rng.stream((opts.seed >>> 0), 'encounter-engine', kind, policy, (opts.player && opts.player.id) || 'player', (opts.opponent && opts.opponent.id) || 'opponent');
+    if (rules29() && (kind === 'standoff' || isHuman(opts.opponent))) return humanStandoff(opts, rng, who);
     const quick = opts.quick !== false;
     if (kind === 'hunt') {
       const size = opts.size || 'medium';
@@ -286,14 +352,19 @@
     const spar = kind === 'spar' || opts.spar === true;
     const ps = opts.player && Number.isFinite(opts.player.strength) ? opts.player.strength : 10;
     const os = opts.opponent && Number.isFinite(opts.opponent.strength) ? opts.opponent.strength : 10;
-    const fight = quick ? quickFight(rng, ps, os, policy) : turnFight(rng, ps, os, policy, spar);
+    const defender = opts.defender === 'player' || opts.defender === 'foe' ? opts.defender : null;
+    const fight = quick ? quickFight(rng, ps, os, policy) : turnFight(rng, ps, os, policy, spar, opts.opponent, defender);
     const fightBeats = [];
     if (spar) fightBeats.push(beat('spar.open', who), beat('spar.stop', who));
     else {
       fightBeats.push(beat('fight.open', who));
-      fightBeats.push(beat(who.group ? 'fight.warning.group' : 'fight.warning', who));
-      fightBeats.push(beat(telegraphKey(), who));
-      if (fight.fled) fightBeats.push(beat('fight.flee', who));
+      if (!isHuman(opts.opponent)) {
+        fightBeats.push(beat(who.group ? 'fight.warning.group' : 'fight.warning', who));
+        fightBeats.push(beat(telegraphKey(), who));
+      }
+      if (policy === 'defend' && rules29()) fightBeats.push(beat(fight.counterLands ? 'fight.defend.counter' : 'fight.defend.held', who));
+      if (fight.breakOff) fightBeats.push(beat('timeout_even', who));
+      else if (fight.fled || fight.foeFled) fightBeats.push(beat('fight.flee', who));
       else if (fight.timeout) fightBeats.push(beat('fight.timeout', who));
       else fightBeats.push(beat(fight.winner === 'player' ? 'fight.hit' : 'fight.miss', who), beat(fight.winner === 'player' ? 'fight.win' : 'fight.lose', who));
     }
@@ -433,5 +504,5 @@
     };
   }
 
-  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine };
+  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, mayFlee, defendCounter, evenCap, isHuman };
 });

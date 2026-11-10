@@ -25,6 +25,12 @@
     "repeatFromThird": -0.2,
     "hitsToWin": 4
   },
+  "section29": {
+    "enabled": true,
+    "note": "Encounters §2.9, proposed default. Turn it off to keep the earlier fight ending.",
+    "intimidateChance": 0.5,
+    "loneHyenaFleeAt": 30
+  },
   "hunt": {
     "base": 50,
     "prey": { "small": 5, "medium": 0, "large": -20 },

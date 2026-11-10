@@ -16,6 +16,15 @@ test('every engine outcome has one narration line and only foeName or name', () 
     for (const token of tokens) assert.ok(token === '{foeName}' || token === '{name}', `${key} ${token}`);
   }
   assert.strictEqual(Engine.telegraphKey(true), Engine.telegraphKey(false));
+  for (const key of Object.keys(narration.lines)) {
+    assert.ok(!(/human/i.test(key) && /tell|telegraph/i.test(key)), key);
+  }
+  const humans = Engine.resolve({
+    kind: 'standoff', seed: 2, action: 'intimidate', engine: true,
+    player: { id: 'player', name: 'Ravenmark' },
+    opponent: { kind: 'humans', foeName: 'the humans' }
+  });
+  assert.ok(humans.beats.every((item) => !/tell|telegraph/i.test(item.key)));
   const wolves = Engine.resolve({
     kind: 'fight', seed: 3, engine: true,
     player: { id: 'player', name: 'Ravenmark', strength: 10 },
