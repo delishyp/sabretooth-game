@@ -7,6 +7,36 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.WorldMap = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
+  /** Closed map enums. `pool` is a seasonal pool (Tallgrass). */
+  const ENUMS = {
+    water: ['none', 'river', 'lake', 'marsh', 'meltwater', 'pool'],
+    tier: ['safe', 'balanced', 'rich', 'hardship', 'deadly'],
+    holder: ['neutral', 'highcrag', 'bonefield', 'mistwood', 'wolves'],
+    factionKind: ['pride', 'pack'],
+    season: ['spring', 'summer', 'autumn', 'winter']
+  };
+  function validate(data) {
+    const errors = [];
+    const known = (list, value) => list.includes(value);
+    const biomes = new Set((data.biomes || []).map((row) => row.id));
+    const hazards = new Set((data.hazards || []).map((row) => row.id));
+    for (const season of data.seasons || []) if (!known(ENUMS.season, season)) errors.push(`season ${season}`);
+    for (const faction of data.factions || []) if (!known(ENUMS.factionKind, faction.kind)) errors.push(`faction ${faction.id} kind ${faction.kind}`);
+    for (const region of data.regions || []) {
+      if (!known(ENUMS.water, region.water)) errors.push(`${region.id} water ${region.water}`);
+      if (!known(ENUMS.tier, region.tier)) errors.push(`${region.id} tier ${region.tier}`);
+      if (!known(ENUMS.holder, region.startHolder)) errors.push(`${region.id} startHolder ${region.startHolder}`);
+      if (region.disputedBy != null && !known(ENUMS.holder, region.disputedBy)) errors.push(`${region.id} disputedBy ${region.disputedBy}`);
+      if (region.pressureFaction != null && !known(ENUMS.holder, region.pressureFaction)) errors.push(`${region.id} pressureFaction ${region.pressureFaction}`);
+      if (!biomes.has(region.biome)) errors.push(`${region.id} biome ${region.biome}`);
+      for (const season of Object.keys(region.preyBySeason || {})) if (!known(ENUMS.season, season)) errors.push(`${region.id} prey season ${season}`);
+      for (const hazard of region.hazards || []) {
+        if (!hazards.has(hazard.id)) errors.push(`${region.id} hazard ${hazard.id}`);
+        for (const season of hazard.seasons || []) if (!known(ENUMS.season, season)) errors.push(`${region.id} hazard season ${season}`);
+      }
+    }
+    return errors;
+  }
   function create(data) {
     const regions = new Map(data.regions.map((r) => [r.id, r]));
     const biomes = new Map(data.biomes.map((b) => [b.id, b]));
@@ -70,5 +100,5 @@
     return out;
   }
   const edgeKey = (a, b) => [a, b].sort().join('|');
-  return { create, migrateMap, edgeKey };
+  return { create, migrateMap, edgeKey, ENUMS, validate };
 });

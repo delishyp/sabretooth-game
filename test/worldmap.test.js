@@ -31,6 +31,15 @@ test('ownership + trespass: start claims give holders; wolves never trespass-pat
   assert.deepStrictEqual(W.trespassFactions(claims, 'split_rock'), [], 'start region is unclaimed');
 });
 
+test('map.json uses only known enum values, including pool water', () => {
+  assert.ok(WorldMap.ENUMS.water.includes('pool'));
+  assert.deepStrictEqual(WorldMap.validate(map), []);
+  assert.strictEqual(map.regions.find((row) => row.id === 'tallgrass').water, 'pool');
+  const bad = JSON.parse(JSON.stringify(map));
+  bad.regions[0] = Object.assign({}, bad.regions[0], { water: 'puddle' });
+  assert.ok(WorldMap.validate(bad).some((error) => error.includes('puddle')));
+});
+
 test('discover marks the region and its neighbours; migrateMap keeps known state', () => {
   const d = W.discover([], 'split_rock');
   assert.ok(d.includes('split_rock')); for (const n of W.neighbours('split_rock')) assert.ok(d.includes(n));

@@ -65,7 +65,7 @@ Tunable warmth offsets stack with needs-spec §1.5 season warmth.
 
 **Prey** is 0–3 and feeds hunt points (formulas §1): 0 → −10, 1 → 0, 2 → +5, 3 → +10. `preyBySeason` overrides the base for that season.
 **Risk/reward tier:** `safe` | `balanced` | `rich` | `hardship` | `deadly` (see §7).
-**Water:** `none` | `river` | `lake` | `marsh` | `meltwater`. `freezes: true` → winter drink uses eat-snow (needs §1.3).
+**Water:** `none` | `river` | `lake` | `marsh` | `meltwater` | `pool`. `freezes: true` → winter drink uses eat-snow (needs §1.3).
 **Travel days** on an edge are in §5. Region column `travelHint` is the typical outbound cost to its main neighbours (1 or 2).
 
 ### 4.1 Full region table
