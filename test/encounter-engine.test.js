@@ -82,3 +82,22 @@ test('a seeded batch summarizes thousands of encounters and keeps failing seeds'
   assert.strictEqual(again.injuries.winner, null);
   assert.strictEqual(Fight.showdownChance(0, 0), 50);
 });
+
+test('the section 8.3 band table maps all fifteen bands', () => {
+  const log = Sim.bandTable({ seed: 8, count: 4000, engine: true });
+  assert.strictEqual(Engine.config.enabled, false);
+  assert.strictEqual(log.spec, 'encounters-v0.1.1');
+  assert.deepStrictEqual(log.bands.map((row) => row.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+  for (const row of log.bands) assert.strictEqual(row.result, 'PASS', JSON.stringify(row));
+  assert.match(log.bands[7].name, /showdown/);
+  assert.match(log.bands[7].got, /0 differences/);
+  assert.match(log.bands[8].got, /40 HP, 0 injury rolls/);
+  assert.match(log.bands[6].got, /64/);
+  assert.match(log.bands[9].got, /\+/);
+  const text = Sim.formatBandTable(log);
+  assert.match(text, /band  8  PASS  showdown, identical seeds/);
+  assert.match(text, /band 13  PASS  HP is the only number exposed  target HP  got HP only/);
+  const off = Sim.bandTable({ seed: 8, count: 10 });
+  assert.strictEqual(off.enabled, false);
+  assert.deepStrictEqual(off.bands, []);
+});

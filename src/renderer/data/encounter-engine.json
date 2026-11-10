@@ -11,14 +11,13 @@
     "sensibleStrength": 1.072,
     "biteDamage": 1.4,
     "biteStrength": 1.15,
-    "sparInjuryChance": 0.15,
-    "sparInjuryTier": "minor"
+    "sparInjuryRolls": 0
   },
   "hunt": {
     "base": 50,
     "prey": { "small": 5, "medium": 0, "large": -20 },
     "style": { "story": 15, "standard": 0, "sim": -10 },
-    "allBold": 8,
+    "allBold": 9,
     "clamp": [5, 95],
     "stamina": 100,
     "cost": { "small": 16, "medium": 20, "large": 28 },
@@ -39,7 +38,29 @@
     "fightTolerance": 0.03,
     "huntTolerance": 0.03,
     "courtshipTolerance": 0.04,
-    "sensibleTolerance": 0.03
+    "sensibleTolerance": 0.03,
+    "spec": "encounters-v0.1.1",
+    "revision": "39fabd7",
+    "courtshipReadMax": 15,
+    "showdownDiffs": 0,
+    "sparRounds": [5, 6],
+    "rows": [
+      { "id": 1, "name": "equal fight", "target": 0.5 },
+      { "id": 2, "name": "ten-percent edge", "target": 0.71 },
+      { "id": 3, "name": "twenty-five-percent edge", "target": 0.9 },
+      { "id": 4, "name": "twenty-five percent weaker", "target": 0.1 },
+      { "id": 5, "name": "sensible, equal strength", "target": 0.66 },
+      { "id": 6, "name": "hunt steady", "target": 0.55 },
+      { "id": 7, "name": "hunt bold", "target": 0.64 },
+      { "id": 8, "name": "showdown, identical seeds", "target": 0 },
+      { "id": 9, "name": "spar ends at 40 HP", "target": 40 },
+      { "id": 10, "name": "courtship traits-read", "target": 15 },
+      { "id": 11, "name": "courtship fresh", "target": 0.37 },
+      { "id": 12, "name": "reload", "target": 0 },
+      { "id": 13, "name": "HP is the only number exposed", "target": "HP" },
+      { "id": 14, "name": "spar length", "target": "5-6" },
+      { "id": 15, "name": "flee at 30 HP", "target": 1 }
+    ]
   },
   "batch": {
     "playerStrength": 10,

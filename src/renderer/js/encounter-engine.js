@@ -114,18 +114,18 @@
         break;
       }
     }
-    let injury = null;
+    const injury = null;
+    const injuryRolls = spar ? cfg.sparInjuryRolls : 0;
     if (spar) {
       if (playerHp <= cfg.sparStop) playerHp = cfg.sparStop;
       if (opponentHp <= cfg.sparStop) opponentHp = cfg.sparStop;
-      injury = rng() < cfg.sparInjuryChance ? cfg.sparInjuryTier : null;
     }
     let winner = 'opponent';
     if (fled) winner = 'opponent';
     else if (playerHp === opponentHp) winner = 'opponent';
     else winner = playerHp > opponentHp ? 'player' : 'opponent';
     return {
-      winner, rounds, fled, injury, quick: false, spar: !!spar,
+      winner, rounds, fled, injury, injuryRolls, quick: false, spar: !!spar,
       hp: { player: Math.max(0, playerHp), opponent: Math.max(0, opponentHp) },
       stoppedAt: spar ? cfg.sparStop : 0,
       serious: injury === 'serious' || injury === 'crippling'

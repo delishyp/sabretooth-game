@@ -15,6 +15,7 @@ const path = require('path');
 const Rng = require('../renderer/js/rng');
 const WorldMap = require('../renderer/js/worldmap');
 const Engine = require('../renderer/js/encounter-engine');
+const PassBands = require('./pass-bands');
 
 const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
 const STUB_PRIDES = ['highcrag', 'bonefield', 'mistwood'];
@@ -157,6 +158,10 @@ function simulateEncounterBatch({ kind, seed, count, player, opponent, policy, e
   }
   return { command: 'batch', seed: s, kind: name, count: n, adapter: 'todo', enabled: false, rows };
 }
+function bandTable({ seed, count, engine, env } = {}) {
+  if (!engineOn({ engine, env })) return { command: 'bands', seed: seed >>> 0, enabled: false, adapter: 'todo', bands: [] };
+  return PassBands.measure({ seed, count: num(count, 4000) });
+}
 function simulateWorld({ seed, seasons, map } = {}) {
   const s = seed >>> 0;
   const n = num(seasons, 1);
@@ -220,15 +225,25 @@ function csvBatch(log) {
   for (const fail of log.failures) push(['failure', fail.seed, fail.kind, fail.policy, fail.opponent, '', '', '', '', '', '', '', '', '', '', '', fail.reason]);
   return lines.join('\n');
 }
+function csvBands(log) {
+  const lines = ['band,result,name,target,got,seed'];
+  for (const row of log.bands) lines.push([row.id, row.result, row.name, row.target, row.got, log.seed].map(csvCell).join(','));
+  return lines.join('\n');
+}
 function toCsv(log) {
   if (log.command === 'world') return csvWorld(log);
   if (log.command === 'lifetime') return csvLifetime(log);
+  if (log.command === 'bands') return csvBands(log);
   if (log.summary) return csvBatch(log);
   return csvEncounter(log);
+}
+function formatBandTable(log) {
+  return PassBands.formatBandTable(log);
 }
 function runCommand(name, opts) {
   if (name === 'encounter') return simulateEncounter(opts);
   if (name === 'batch') return simulateEncounterBatch(opts);
+  if (name === 'bands') return bandTable(opts);
   if (name === 'world') return simulateWorld(opts);
   if (name === 'lifetime') return simulateLifetime(opts);
   return null;
@@ -265,12 +280,19 @@ if (require.main === module) {
     spar: args.spar === 'true'
   });
   if (!log) {
-    console.error('Use one of: encounter, batch, world, lifetime');
+    console.error('Use one of: encounter, batch, bands, world, lifetime');
     process.exit(1);
   }
-  console.log(args.csv ? toCsv(log) : JSON.stringify(log));
+  if (name === 'bands' && !args.csv && !args.json) {
+    if (!log.enabled) {
+      console.error('Encounter engine is off. Set SABRETOOTH_ENCOUNTER_ENGINE=1 to print the §8.3 band table.');
+      process.exit(1);
+    }
+    console.log(formatBandTable(log));
+    if (log.bands.some((row) => row.result === 'FAIL')) process.exit(1);
+  } else console.log(args.csv ? toCsv(log) : JSON.stringify(log));
 }
 
 module.exports = {
-  allowed, POLICIES, engines, simulateEncounter, simulateEncounterBatch, simulateWorld, simulateLifetime, toCsv, runCommand
+  allowed, POLICIES, engines, simulateEncounter, simulateEncounterBatch, bandTable, formatBandTable, simulateWorld, simulateLifetime, toCsv, runCommand
 };
