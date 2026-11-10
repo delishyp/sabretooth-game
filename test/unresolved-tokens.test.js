@@ -80,7 +80,7 @@ test('day-10 rendezvous beats resolve {catName} above the meeting line', () => {
   const opened = meet(s, s.npcs.ln02);
   const ask = (opened.pending.choices || []).find((row) => row.id === 'ask_meet');
   assert.ok(ask, 'day-10 fixture has no meeting line');
-  assert.strictEqual(ask.label, '"Meet me at Greywater Ford tomorrow."');
+  assert.strictEqual(ask.label, '“Meet me here at Greywater Ford tomorrow?”');
   assert.ok((opened.pending.beats || []).some((beat) => beat.text && beat.text.includes(s.npcs.ln02.name)));
   assertResolved(opened, 'day-10 fixture');
   let cursor = opened;

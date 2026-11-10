@@ -103,7 +103,7 @@ test('byCat beats a per-scene label, which beats the shared label', () => {
   try {
     assert.strictEqual(Pass2.choiceLabel('ford_cold', 'explain', ctx), 'Sleetbark, it was not about you.');
     assert.strictEqual(Pass2.choiceLabel('ford_cold', 'explain', { catId: 'hc02' }), 'The water chose.');
-    assert.strictEqual(Pass2.choiceLabel('hyena_drive', 'listen'), 'Listen.');
+    assert.strictEqual(Pass2.choiceLabel('hyena_drive', 'listen'), 'Stay and listen.');
     assert.throws(() => Pass2.validateChoices({
       explain: { default: 'Explain.', byCat: { ghost: 'No.' } },
       'ford_cold.explain': 'Scene.'

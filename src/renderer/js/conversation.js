@@ -484,7 +484,7 @@
         const reply = closing(node, choice, npc, v);
         const receipt = [];
         if (promiseFactId) receipt.push({ kind: 'narration', text: 'You kept your promise to return.' });
-        if (unresolvedBoundary(cat)) receipt.push({ kind: 'narration', text: `${npc.name} still wants space.` });
+        if (unresolvedBoundary(cat)) receipt.push({ kind: 'narration', text: `${npc.name} still wants some space from you.` });
         p.transcript = (p.transcript || []).concat(seen, reply, receipt);
         p.presentation = { nodeId: p.nodeId, lines: reply.concat(receipt), variantIds: reply.map((l) => l.variantId).filter(Boolean), characterization: npc.personality ? 'traits' : 'unresolved', traits: npc.personality ? { ...npc.personality } : null, choiceIds: [], choiceRows: [] };
         p.showingTerminal = true;

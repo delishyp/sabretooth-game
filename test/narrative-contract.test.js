@@ -80,7 +80,7 @@ test('FIXTURE meeting placement: quiet-return and boundary-disagreement reach di
   hard = pick(E, hard, 'company');
   hard = pick(E, hard, 'press');
   hard = pick(E, hard, 'dismiss');
-  assert.ok(E.talkView(hard).lines.some((l) => l.text.includes(`${name} still wants space.`)));
+  assert.ok(E.talkView(hard).lines.some((l) => l.text.includes(`${name} still wants some space`)));
   hard = finish(E, hard);
   assert.strictEqual(hard.conversation.cats.ln05.initialOutcome, 'dismissed_boundary');
   hard.day = hard.conversation.cats.ln05.cooldownUntilDay;
@@ -109,9 +109,9 @@ test('FIXTURE personalities: high, middle, and low change the line at one locati
   const low = voice({ aggression: 50, sociability: 20, boldness: 50, loyalty: 50, curiosity: 50 });
   assert.deepStrictEqual(high.ids, mid.ids);
   assert.deepStrictEqual(low.ids, mid.ids);
-  assert.ok(high.text.includes('Would you walk with me'));
-  assert.ok(low.text.includes('Did you want to stop'));
-  assert.ok(mid.text.includes('Are you passing through'));
+  assert.ok(high.text.includes('Walk with me for a bit'));
+  assert.ok(low.text.includes('Did you want something'));
+  assert.ok(mid.text.includes('just passing through'));
   assert.ok(mid.ids.includes('leave'));
 });
 

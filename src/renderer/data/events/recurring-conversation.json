@@ -12,146 +12,146 @@
   },
   "nodes": {
     "opening": {
-      "B": "“Are you passing through, or did you want company?”",
+      "B": "So, are you just passing through, or do you want some company for a while?",
       "choices": [
         {
           "id": "company",
-          "label": "“I wanted to spend some time with you.”",
+          "label": "“I'd like some company. Can I walk with you?”",
           "next": "company"
         },
         {
           "id": "curious",
-          "label": "“I would like to know you better.”",
+          "label": "“I'd like to get to know you. Can I ask you something?”",
           "next": "curious"
         },
         {
           "id": "leave",
-          "label": "“Just passing. I will leave you to it.”",
+          "label": "“Just passing through. I'll leave you to it.”",
           "outcome": "left_politely",
-          "B": "Safe trails. I will leave you to them."
+          "B": "All right. Safe trails, then."
         }
       ]
     },
     "company": {
-      "narration": "{catName} makes room beside the trail.",
-      "B": "“We can walk. Quietly, for a little while.”",
+      "B": "Sure, we can walk. Quietly, if that's all right with you.",
       "choices": [
         {
           "id": "quiet",
-          "label": "Match their pace without filling the silence.",
+          "label": "Fall in beside {catName} and keep quiet.",
           "next": "quiet_walk"
         },
         {
           "id": "ask_first",
-          "label": "“Would you rather be alone?”",
+          "label": "“Do you want me to leave you alone?”",
           "next": "space"
         },
         {
           "id": "press",
-          "label": "“I came to talk, not walk in silence.”",
+          "label": "“I didn't come for a silent walk. I want to talk.”",
           "next": "boundary"
         }
-      ]
+      ],
+      "removed": true
     },
     "curious": {
-      "B": "“What do you want to know?”",
+      "B": "Sure. What do you want to know?",
       "choices": [
         {
           "id": "trust",
-          "label": "“What makes you trust another cat?”",
+          "label": "“What would make you trust another cat?”",
           "next": "trust"
         },
         {
           "id": "hunt",
-          "label": "“Do you prefer hunting alone?”",
+          "label": "“Do you prefer to hunt alone?”",
           "next": "hunting"
         }
       ]
     },
     "quiet_walk": {
-      "narration": "For a stretch, there is only grass brushing your legs and the sound of paws. {catName} slows when you slow.",
-      "B": "“This is all right.”",
+      "narration": "You walk on together for a while, with only the grass brushing your legs and the soft sound of your paws and {catName}'s.",
+      "B": "This is all right, you know.",
       "choices": [
         {
           "id": "return_quiet",
-          "label": "“Another quiet walk, if we meet again?”",
+          "label": "“I liked this. I'll come back and find you.”",
           "outcome": "quiet_company",
-          "B": "Another quiet walk, if we meet. I will remember what we have agreed to."
+          "B": "Good. I'll hold you to that."
         },
         {
           "id": "no_promise",
-          "label": "Nod, then take your own path.",
+          "label": "Nod to {catName}, then head off on your own.",
           "outcome": "quiet_no_promise",
-          "B": "Go safely. We have made no promise about another day."
+          "B": "Go safely. That was a nice walk."
         }
       ]
     },
     "space": {
-      "B": "“Not alone. Just quiet. There is a difference.”",
+      "B": "Not alone, no. Just quiet. That's different.",
       "choices": [
         {
           "id": "respect",
-          "label": "“Then quiet it is.”",
+          "label": "“Quiet it is, then. Let's walk.”",
           "outcome": "quiet_company",
-          "B": "A quiet stretch together would suit me."
+          "B": "Good. Come on, then."
         },
         {
           "id": "leave_space",
-          "label": "“I will give you some space today.”",
+          "label": "“I'll give you some space today.”",
           "outcome": "gave_space",
-          "B": "Thank you. I will take a little space today."
+          "B": "Thank you. I could do with a bit of space today."
         }
       ]
     },
     "boundary": {
-      "narration": "{catName} stops instead of falling into step.",
-      "B": "“Then we want different things today.”",
+      "B": "Hold on. Then we want different things today.",
       "choices": [
         {
           "id": "repair",
-          "label": "“I pushed. That was not fair. We can leave it there.”",
+          "label": "“Sorry, I pushed. That wasn't fair. Let's leave it there.”",
           "outcome": "repaired_pressure",
-          "B": "Thank you for stopping. We can leave it there."
+          "B": "Thanks for stopping. We'll leave it there."
         },
         {
           "id": "dismiss",
-          "label": "“Forget I asked.”",
+          "label": "“Fine. Forget I asked.”",
           "outcome": "dismissed_boundary",
-          "B": "Then let us leave it here rather than quarrel."
+          "B": "Fine. Better that than a fight."
         }
-      ]
+      ],
+      "removed": true
     },
     "trust": {
-      "B": "“Small things. A cat who notices when I stop, instead of walking on without me.”",
+      "B": "Little things, mostly. A cat who notices when I stop, instead of walking on without me.",
       "choices": [
         {
           "id": "remember",
-          "label": "“I will watch for that.”",
+          "label": "Stop when {catName} stops. “Like that?”",
           "outcome": "asked_about_trust",
-          "B": "Then let me see you do it. Small things count when they keep happening."
+          "B": "Yes, like that. It's a little thing, but it counts if you keep doing it."
         },
         {
           "id": "disagree",
-          "label": "“I would rather you told me directly.”",
+          "label": "“I'd rather you just told me when you want to stop.”",
           "outcome": "prefers_direct_words",
-          "B": "All right. I can say when I want to stop."
+          "B": "Fair enough. I'll tell you when I want to stop."
         }
       ]
     },
     "hunting": {
-      "B": "“With another cat, you have to keep track of more than the prey. I would want to learn your pace first.”",
+      "B": "Hunting with another cat means watching them as well as the prey. I'd want to learn your pace before we tried it.",
       "choices": [
         {
           "id": "learn",
-          "label": "“We could start by walking together.”",
+          "label": "“Let's walk a bit now, so you can see how I move.”",
           "outcome": "asked_about_hunting",
-          "B": "A walk would let us learn without rushing into a hunt."
+          "B": "All right, go on. I'll keep up."
         },
         {
           "id": "alone",
-          "label": "“I think I would keep hunting alone.”",
+          "label": "“I think I'll keep hunting alone.”",
           "outcome": "prefers_solo_hunts",
-          "B": "That suits me. A shared walk need not mean a shared hunt."
+          "B": "That's fine by me. We can share a trail without sharing a hunt."
         }
       ]
     }
@@ -163,7 +163,7 @@
     "trigger": "next eligible repeat_meeting with SAME B, after completion of this arc",
     "recallByOutcome": {
       "left_politely": {
-        "B": "“Not just passing through this time?”",
+        "B": "It's you. You were only passing through last time.",
         "summary": "{catName} remembered your brief first conversation.",
         "fact": {
           "topicId": "company",
@@ -174,7 +174,7 @@
         }
       },
       "quiet_company": {
-        "B": "“Another quiet walk?”",
+        "B": "Oh, hey. I liked that quiet walk last time.",
         "summary": "{catName} remembered your quiet company.",
         "fact": {
           "topicId": "company",
@@ -185,7 +185,7 @@
         }
       },
       "quiet_no_promise": {
-        "B": "“A few more steps together?”",
+        "B": "It's you. We walked together last time.",
         "summary": "{catName} remembered walking beside you.",
         "fact": {
           "topicId": "company",
@@ -196,7 +196,7 @@
         }
       },
       "gave_space": {
-        "B": "“You left me some space last time. You can come closer today.”",
+        "B": "You left me some space last time.",
         "summary": "{catName} remembered that you gave them space.",
         "fact": {
           "topicId": "company",
@@ -207,7 +207,7 @@
         }
       },
       "repaired_pressure": {
-        "B": "“We could try that walk again. Without the argument.”",
+        "B": "It's you. You said sorry for pushing last time.",
         "summary": "{catName} remembered your attempt to make things right.",
         "fact": {
           "topicId": "boundary",
@@ -218,7 +218,7 @@
         }
       },
       "dismissed_boundary": {
-        "B": "“Are we going to argue about quiet again?”",
+        "B": "Last time you told me to forget you'd asked.",
         "summary": "{catName} remembered how your last talk ended.",
         "fact": {
           "topicId": "boundary",
@@ -229,7 +229,7 @@
         }
       },
       "asked_about_trust": {
-        "B": "“Still watching for when I stop?”",
+        "B": "It's you. Last time you stopped when I did.",
         "summary": "{catName} remembered your talk about trust.",
         "fact": {
           "topicId": "trust",
@@ -240,7 +240,7 @@
         }
       },
       "prefers_direct_words": {
-        "B": "“You said to tell you directly. I would like some company.”",
+        "B": "You told me to say things straight out.",
         "summary": "{catName} remembered that you prefer plain words.",
         "fact": {
           "topicId": "trust",
@@ -251,7 +251,7 @@
         }
       },
       "asked_about_hunting": {
-        "B": "“Learning my pace, then?”",
+        "B": "Last time we walked so I could learn your pace.",
         "summary": "{catName} remembered your interest in walking together.",
         "fact": {
           "topicId": "hunting",
@@ -262,7 +262,7 @@
         }
       },
       "prefers_solo_hunts": {
-        "B": "“Still keeping your hunts to yourself?”",
+        "B": "Last time you said you'd keep hunting alone.",
         "summary": "{catName} remembered that you prefer hunting alone.",
         "fact": {
           "topicId": "hunting",
@@ -273,239 +273,239 @@
         }
       }
     },
-    "fallback": "Did you want to stop here?",
+    "fallback": "Hey. Good to see you.",
     "choices": [
       {
         "id": "leave",
-        "label": "“Another time.”",
+        "label": "“Not now. I'm heading off.”",
         "outcome": "later_left"
       }
     ],
     "nodes": {
-      "later_opening": { "removed": true },
+      "later_opening": {
+        "removed": true
+      },
       "later_check_in": {
         "removed": true,
-        "B": "“And what would you like today?”",
         "choices": [
           {
             "id": "quiet",
-            "label": "“A little quiet company.”",
-            "outcome": "later_quiet"
+            "outcome": "later_quiet",
+            "removed": true
           },
           {
             "id": "talk",
-            "label": "“A few words, if you want.”",
-            "outcome": "later_talk"
+            "outcome": "later_talk",
+            "removed": true
           }
         ]
       },
       "later_new_tone": {
         "removed": true,
-        "B": "“Tell me what you have in mind.”",
         "choices": [
           {
             "id": "listen",
-            "label": "“You can speak. I will listen.”",
-            "outcome": "later_listen"
+            "outcome": "later_listen",
+            "removed": true
           },
           {
             "id": "space",
-            "label": "“No demands. We can just sit apart.”",
-            "outcome": "later_space"
+            "outcome": "later_space",
+            "removed": true
           }
         ]
       }
     },
     "outcomes": {
       "later_left": {
-        "B": "“Another time.”",
+        "B": "All right. Safe trails.",
         "summary": "You left your conversation with {catName} for another day."
       },
       "later_quiet": {
-        "B": "“All right. Here, beside me.”",
-        "summary": "You chose quiet company with {catName} again."
+        "summary": "You chose quiet company with {catName} again.",
+        "removed": true
       },
       "later_talk": {
-        "B": "“For a little while. Stay.”",
-        "summary": "You and {catName} made time for a few words."
+        "summary": "You and {catName} made time for a few words.",
+        "removed": true
       },
       "later_listen": {
-        "B": "“I was wondering whether you would come back.”",
-        "summary": "You gave {catName} room to speak."
+        "summary": "You gave {catName} room to speak.",
+        "removed": true
       },
       "later_space": {
-        "B": "“That would suit me.”",
-        "summary": "You and {catName} settled a little apart."
+        "summary": "You and {catName} settled a little apart.",
+        "removed": true
       }
     },
     "followupByOutcome": {
       "quiet_company": {
-        "B": "“Quiet again, or would you rather talk today?”",
+        "B": "Quiet again, or do you want to talk today?",
         "choices": [
           {
             "id": "quiet_again",
-            "label": "Walk quietly beside them.",
+            "label": "Walk beside {catName} without talking.",
             "outcome": "quiet_renewed",
-            "B": "“Then come along.”"
+            "B": "Come on, then."
           },
           {
             "id": "talk_today",
-            "label": "“I would like to hear what you have to say today.”",
+            "label": "“Let's talk today. What's on your mind?”",
             "outcome": "quiet_to_talk",
-            "B": "“You did not rush me last time. I can spare a few words.”"
+            "B": "You didn't rush me before, so all right. Mostly I'm glad you came back."
           }
         ]
       },
       "quiet_no_promise": {
-        "B": "“Quiet again, or would you rather talk today?”",
+        "B": "Want to walk quietly again, or talk this time?",
         "choices": [
           {
             "id": "quiet_again",
-            "label": "Walk quietly beside them.",
+            "label": "Fall in beside {catName} and keep quiet.",
             "outcome": "quiet_renewed",
-            "B": "“Then come along.”"
+            "B": "Come on, then."
           },
           {
             "id": "talk_today",
-            "label": "“I would like to hear what you have to say today.”",
+            "label": "“Let's talk this time. What's on your mind?”",
             "outcome": "quiet_to_talk",
-            "B": "“You did not rush me last time. I can spare a few words.”"
+            "B": "You didn't rush me last time, so here's something. I'm glad you came back."
           }
         ]
       },
       "gave_space": {
-        "B": "“You gave me room last time. Were you waiting for me to ask you back?”",
+        "B": "Were you waiting for me to ask you to come back?",
         "choices": [
           {
             "id": "waited",
-            "label": "“Yes. I did not want to crowd you.”",
+            "label": "“Yes. I didn't want to crowd you.”",
             "outcome": "space_understood",
-            "B": "“You need not stay so far away now.”"
+            "B": "You don't have to stay so far away now. Come here."
           },
           {
             "id": "own_path",
             "label": "“No. I had my own trail to follow.”",
             "outcome": "space_independent",
-            "B": "“Then we have both had our space. Walk a little?”"
+            "B": "Fair enough. We both wanted some room. Go on, then."
           }
         ]
       },
       "repaired_pressure": {
-        "B": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "B": "I wanted quiet and you wanted to talk. What happens if it's the same today?",
         "choices": [
           {
             "id": "respect_no",
-            "label": "“We part for the day. I will not press you.”",
+            "label": "“Then we do it your way today. I won't push.”",
             "outcome": "boundary_respected",
-            "B": "“Good. Today I would rather walk quietly.”"
+            "B": "Good. Then today I'd like it quiet."
           },
           {
             "id": "need_words",
-            "label": "“I can leave without arguing, but I still want someone to talk to.”",
+            "label": "“I won't argue, but I still want someone to talk to.”",
             "outcome": "boundary_difference",
-            "B": "“Then look for company that wants to talk today. We can try another time.”"
+            "B": "Then you'd better find someone who wants to talk today. That's not me."
           }
         ]
       },
       "dismissed_boundary": {
-        "B": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "B": "I wanted quiet and you wanted to talk. What happens if it's the same today?",
         "choices": [
           {
             "id": "respect_no",
-            "label": "“We part for the day. I will not press you.”",
+            "label": "“Then we do it your way today. I won't push.”",
             "outcome": "boundary_respected",
-            "B": "“Good. Today I would rather walk quietly.”"
+            "B": "Good. Then today I'd like it quiet."
           },
           {
             "id": "need_words",
-            "label": "“I can leave without arguing, but I still want someone to talk to.”",
+            "label": "“I won't argue, but I still want someone to talk to.”",
             "outcome": "boundary_difference",
-            "B": "“Then look for company that wants to talk today. We can try another time.”"
+            "B": "Then you'd better find someone who wants to talk. It isn't me, not today."
           }
         ]
       },
       "asked_about_trust": {
-        "B": "“You said you would watch for when I stopped. And if I asked to turn back?”",
+        "B": "So what if I wanted to turn back today? What would you do?",
         "choices": [
           {
             "id": "turn_back",
-            "label": "“I would turn with you, if you wanted company.”",
+            "label": "“Turn back with you, if you wanted the company.”",
             "outcome": "trust_response",
-            "B": "“Then we could go a little farther together.”"
+            "B": "Then let's go a bit further together."
           },
           {
             "id": "ask_why",
-            "label": "“I would ask why, not pretend I knew.”",
+            "label": "“Ask you why, instead of guessing.”",
             "outcome": "trust_direct",
-            "B": "“Fair. Asking would do.”"
+            "B": "Fair enough. Asking is all I'd want."
           }
         ]
       },
       "prefers_direct_words": {
-        "B": "“You asked me to speak plainly. I want company today, but not hunting company.”",
+        "B": "I'd like some company today. A walk, not a hunt.",
         "choices": [
           {
             "id": "accept_words",
-            "label": "“Then let us walk, and leave the hunt for ourselves.”",
+            "label": "“Then let's walk. We'll each do our own hunting.”",
             "outcome": "direct_understood",
-            "B": "“That is what I meant.”"
+            "B": "That's what I meant. Come on."
           },
           {
             "id": "decline_today",
-            "label": "“I need to hunt today. Another time.”",
+            "label": "“I need to hunt today, so I'll go.”",
             "outcome": "direct_declined",
-            "B": "“Then I will not keep you.”"
+            "B": "Then I won't keep you. Good hunting."
           }
         ]
       },
       "asked_about_hunting": {
-        "B": "“You wanted to learn my pace. Still interested, or was that only talk?”",
+        "B": "Are you still up for learning each other's pace? Or was that just talk?",
         "choices": [
           {
             "id": "walk_first",
-            "label": "“Walking first. No hunt promised.”",
+            "label": "“Let's walk again now. No hunting, just walking.”",
             "outcome": "pace_reaffirmed",
-            "B": "“Walking first. I can agree to that.”"
+            "B": "Walking it is. Come on."
           },
           {
             "id": "changed_mind",
-            "label": "“I have changed my mind about company on a hunt.”",
+            "label": "“I've changed my mind. I'd rather we didn't hunt together.”",
             "outcome": "pace_revised",
-            "B": "“Then it is better to say so now.”"
+            "B": "Then it's better you said so now."
           }
         ]
       },
       "prefers_solo_hunts": {
-        "B": "“You said you hunt alone. Does that mean you would rather I left now?”",
+        "B": "Does that mean you'd rather I left you alone now?",
         "choices": [
           {
             "id": "only_hunts",
-            "label": "“Only for hunting. I can enjoy your company otherwise.”",
+            "label": "“It's only hunting. I like your company otherwise.”",
             "outcome": "solo_clarified",
-            "B": "“Then I will stay a little.”"
+            "B": "Then I'll stay a bit."
           },
           {
             "id": "alone_today",
-            "label": "“Today, yes. I want some time alone.”",
+            "label": "“Today, yes. I'd like some time on my own.”",
             "outcome": "solo_today",
-            "B": "“All right. I will take the other path.”"
+            "B": "All right. I'll take the other path."
           }
         ]
       },
       "left_politely": {
-        "B": "“You were only passing through last time. Have you time to stop now?”",
+        "B": "Have you got time to stop today?",
         "choices": [
           {
             "id": "stop_now",
-            "label": "“Yes. I came back to talk with you.”",
+            "label": "“Yes. I came back to spend some time with you.”",
             "outcome": "passing_to_company",
-            "B": "“Then stay a while.”"
+            "B": "Good. Stay a while, then."
           },
           {
             "id": "still_passing",
-            "label": "“Not today. I wanted to greet you, though.”",
+            "label": "“Not today. I just wanted to say hello.”",
             "outcome": "passing_greeting",
-            "B": "“I heard you. Safe trails.”"
+            "B": "Well, hello to you too. Safe trails."
           }
         ]
       }
@@ -634,18 +634,18 @@
         "lastFollowupOutcome == quiet_renewed",
         "no newer unresolved boundary offense"
       ],
-      "B": "“You came back, and you let the quiet stay quiet. I have not quite known how to ask you to stay longer.”",
+      "B": "You came back, and you didn't mind the quiet. I've wanted to ask you to stay longer, but I didn't know how.",
       "choices": [
         {
           "id": "listen",
-          "label": "“You can ask me now.”",
-          "B": "“Stay a little longer, then.”",
+          "label": "“I'd like that. I'll stay a while longer.”",
+          "B": "Good. I'm really glad you're staying.",
           "outcome": "third_confide_listen"
         },
         {
           "id": "honest_limit",
-          "label": "“I like this, but I cannot always stay.”",
-          "B": "“Tell me when you have to go. I would rather know.”",
+          "label": "“I like this, but I can't always stay.”",
+          "B": "Then tell me when you have to go. I'd rather know.",
           "outcome": "third_confide_limit"
         }
       ]
@@ -654,18 +654,18 @@
       "requires": [
         "newest active boundary fact unresolved, from dismissed_boundary or repeated need_words"
       ],
-      "B": "“Last time you wanted words when I wanted quiet. Are you going to listen if I ask for space?”",
+      "B": "Last time you still wanted words when I wanted quiet. If I ask for space, will you give it to me?",
       "choices": [
         {
           "id": "repair",
-          "label": "“Yes. You do not have to give me company.”",
-          "B": "“Then we can start with a little space between us.”",
+          "label": "“Yes. You don't owe me company.”",
+          "B": "Thank you. A bit of space between us, then, but I'd like you to stay.",
           "outcome": "third_repair_offer"
         },
         {
           "id": "distance",
-          "label": "“We want different things. I will go.”",
-          "B": "“That may be better today.”",
+          "label": "“We want different things. I'll go.”",
+          "B": "That might be better today.",
           "outcome": "third_distance"
         }
       ]
@@ -674,12 +674,12 @@
       "requires": [
         "neither confiding nor repair gates pass"
       ],
-      "B": "“A little company today?”",
+      "B": "Hey. Want a bit of company today?",
       "choices": [
         {
           "id": "stay",
-          "label": "Stay for a while.",
-          "B": "“Come sit here.”",
+          "label": "Stay with {catName} for a while.",
+          "B": "Come and sit here.",
           "outcome": "third_neutral_stay"
         }
       ]
@@ -828,16 +828,16 @@
     ],
     "policyContext": "Read Highcrag->Bonefield plus player->Highcrag separately. Tundra must map bands into permits_introduction/defers_introduction. No invented threshold. Reverse edge or personal fondness is not a substitute.",
     "opening": {
-      "B": "“What brings you to our border?”",
+      "B": "You're at our border. What do you want?",
       "choices": [
         {
           "id": "request_introduction",
-          "label": "“Will you carry a request to speak with your leader?”",
+          "label": "“Will you ask your leader to speak with me?”",
           "next": "policy_gate"
         },
         {
           "id": "leave",
-          "label": "“I will leave your border in peace.”",
+          "label": "“Nothing. I'll leave your border alone.”",
           "outcome": "border_left"
         }
       ]
@@ -845,17 +845,17 @@
     "policyGate": {
       "permitted": {
         "requires": "policy explicitly permits introduction and standing permits; no private-help predicate needed",
-        "B": "“I can carry your request. What should I tell them?”",
+        "B": "I'm allowed to carry your request. What should I tell our leader?",
         "choices": [
           {
             "id": "send_request",
-            "label": "“That I want to speak at the border, not enter your den.”",
+            "label": "“Tell your leader I'd like to talk at the border. I won't come into your den.”",
             "outcome": "audience_offered",
-            "B": "“At the border. I will pass that on.”"
+            "B": "At the border, then. I'll pass it on."
           },
           {
             "id": "withdraw",
-            "label": "“Not today. I will ask another time.”",
+            "label": "“Never mind. Forget the request.”",
             "outcome": "border_withdrawn"
           }
         ],
@@ -863,83 +863,83 @@
       },
       "deferred_known_cause": {
         "requires": "policy defers introduction AND B knows a verified player aid/share event involving Bonefield AND B knows current Highcrag policy cause",
-        "B": "“I know you helped a Bonefield cat. With things as they are between our prides, I will not carry this request without hearing why.”",
+        "B": "I know you helped a Bonefield cat, and I've been told to hold requests like this. You can tell me why you did it.",
         "choices": [
           {
             "id": "explain_known_aid",
-            "label": "“Ask me about what I did. Do not decide from their pride alone.”",
+            "label": "“Ask me why I helped. Don't judge it just by which pride that cat was from.”",
             "next": "explain"
           },
           {
             "id": "accept_defer",
-            "label": "“Then I will leave the request for now.”",
+            "label": "“All right. I'll leave the request with you.”",
             "outcome": "audience_deferred"
           }
         ]
       },
       "deferred_no_knowledge": {
         "requires": "policy defers introduction; any knowledge predicate for named aid/cause missing",
-        "B": "“Not today. I am not taking requests across this border.”",
+        "B": "I've been told to hold requests like this. I'm not carrying yours today.",
         "choices": [
           {
             "id": "ask_reason",
-            "label": "“Can you tell me why?”",
+            "label": "“Why not?”",
             "next": "reason_without_invented_knowledge"
           },
           {
             "id": "accept_defer",
-            "label": "“Then I will leave the request for now.”",
+            "label": "“All right. I'll leave it there.”",
             "outcome": "audience_deferred"
           }
         ]
       },
       "unknown_policy": {
         "requires": "directional policy mapping missing or unknown",
-        "B": "“I cannot promise an introduction.”",
+        "B": "I don't know what I'm allowed to do with that request.",
         "choices": [
           {
             "id": "leave_request",
-            "label": "“Then leave the request unanswered for now.”",
+            "label": "“Then I'll leave it unanswered.”",
             "outcome": "audience_pending_unknown"
           },
           {
             "id": "withdraw",
-            "label": "“I will ask another time.”",
+            "label": "“Forget I asked.”",
             "outcome": "border_withdrawn"
           }
         ]
       }
     },
     "explain": {
-      "B": "“Then tell me what happened.”",
+      "B": "Go on, then. What happened?",
       "choices": [
         {
           "id": "disclose_verified_share",
           "requires": "bound source event is actually a completed share (not arbitrary help)",
-          "label": "“We shared a kill. That is what happened.”",
+          "label": "“We shared a kill. That's all that happened.”",
           "outcome": "account_recorded_audience_deferred",
-          "B": "“I have heard your account. The request still waits.”",
+          "B": "I've heard your side. The request still waits.",
           "effects": "Record exact disclosure and B knowledge, no faction change or audience approval inferred."
         },
         {
           "id": "keep_private",
-          "label": "“I am not telling you more about that meeting.”",
+          "label": "“I'd rather not say any more about it.”",
           "outcome": "private_audience_deferred",
-          "B": "“Then I will leave the request unanswered.”"
+          "B": "Then the request stays unanswered."
         }
       ]
     },
     "reason_without_invented_knowledge": {
-      "B": "“I am not offering to carry it. That is all I can tell you.”",
+      "B": "I'm not carrying it. That's all I can tell you.",
       "choices": [
         {
           "id": "accept_defer",
-          "label": "“Then I will ask another time.”",
+          "label": "“All right. I'll leave it.”",
           "outcome": "audience_deferred"
         },
         {
           "id": "withdraw",
-          "label": "Withdraw the request.",
+          "label": "“Then forget the request.”",
           "outcome": "border_withdrawn"
         }
       ]
@@ -1152,840 +1152,826 @@
     "contextActions": {
       "opening": {
         "aggression": [
-          "{catName} plants {his} paws square in the trail and waits, sabers resting against {his} chin.",
-          "{catName} steps half off the trail, leaving you a clear way past."
+          "{catName} stands square in the middle of the trail, sabers resting on {his} chin, and doesn't offer to move.",
+          "{catName} steps to the edge of the trail to leave you room to pass."
         ],
         "sociability": [
-          "{catName} turns toward you with a soft chuff, as if you were expected.",
-          "{catName} hangs back a tail-length, letting you decide whether to come closer."
+          "{catName} trots up with a friendly chuff, like you were expected.",
+          "{catName} stays where {he} is, a few lengths off, and leaves it to you to come closer."
         ],
         "boldness": [
-          "{catName} strides straight to a flat stone and settles there, waiting for you to follow.",
-          "{catName} doesn't move until you've stopped, then edges a pace nearer."
+          "{catName} hops up onto a flat stone and settles there, waiting for you to follow.",
+          "{catName} waits until you've stopped before edging a little nearer."
         ],
         "loyalty": [
-          "{catName}'s gaze goes to you and stays there, steady as stone.",
-          "{catName} keeps glancing at the far trail, half ready to be gone."
+          "{catName} sits down beside the trail like {he} means to stay until you've answered.",
+          "{catName} keeps glancing at the far trail, ready to wander off."
         ],
         "curiosity": [
-          "{catName}'s ears swivel forward, reading every twitch of your whiskers.",
-          "{catName} gives you one look and then studies the horizon instead."
+          "{catName}'s ears swing forward and {his} nose works at your scent.",
+          "{catName} gives you a quick look, then goes back to watching the skyline."
         ]
       },
       "walking": {
         "aggression": [
-          "{catName} walks shoulder to shoulder with you, a little too close, testing.",
-          "{catName} drifts a pace to the side so your flanks never brush."
+          "{catName} walks so close that your shoulders bump, and doesn't move over.",
+          "{catName} keeps a pace to the side so your flanks never brush."
         ],
         "sociability": [
-          "{catName} keeps right beside you, tail swaying, chattering about nothing much.",
-          "{catName} pads along in silence, a comfortable gap between you."
+          "{catName} falls in right beside you, bobtail up, plainly glad of the company.",
+          "{catName} walks a little apart from you, quiet and easy about it."
         ],
         "boldness": [
-          "{catName} takes the lead without asking and glances back once to see you're still there.",
-          "{catName} matches your pace exactly and lets you choose the way."
+          "{catName} takes the lead without asking and checks over {his} shoulder that you're still there.",
+          "{catName} matches your pace and lets you pick the way."
         ],
         "loyalty": [
-          "{catName} keeps to your side even where the path narrows and one of you should drop back.",
-          "{catName} lingers at every scent-mark you pass, as if weighing whether to turn off."
+          "{catName} keeps to your side even where the path narrows and it would be easier to drop back.",
+          "{catName} keeps stopping to sniff at scent marks, like {he} might turn off after any of them."
         ],
         "curiosity": [
-          "{catName} keeps sniffing the air you've just walked through, learning you.",
-          "{catName} watches the trail ahead, ignoring everything but the next step."
+          "{catName} keeps sniffing the ground where you've just stepped, learning your scent.",
+          "{catName} keeps {his} eyes on the trail ahead and nothing else."
         ]
       },
       "question": {
         "aggression": [
-          "{catName}'s tail lashes once before the answer comes out, blunt as a paw-strike.",
-          "{catName} lets you finish, ears soft, before saying anything at all."
+          "{catName} comes straight out with it, ears pricked.",
+          "{catName} lets you finish, ears soft, before saying anything."
         ],
         "sociability": [
-          "{catName} answers, then tilts {his} head: your turn.",
-          "{catName} gives the shortest answer possible and looks away."
+          "{catName} tips {his} head, clearly hoping you'll keep talking.",
+          "{catName} keeps it short and looks off down the trail."
         ],
         "boldness": [
-          "{catName} answers at once, without a flicker of doubt.",
-          "{catName} is quiet for a long breath, choosing each word."
+          "{catName} speaks up without any hesitation.",
+          "{catName} takes a while to find the words."
         ],
         "loyalty": [
-          "{catName} answers carefully, like someone who keeps every word they give.",
-          "{catName} answers lightly, as though nothing said today needs to count tomorrow."
+          "{catName} picks each word carefully, like {he} means to stand by it.",
+          "{catName} says it lightly, like none of it has to count tomorrow."
         ],
         "curiosity": [
-          "{catName} leans in, plainly wanting to know why you asked.",
-          "{catName} answers and leaves it at that, uninterested in where the question came from."
+          "{catName} leans in, curious where this is going.",
+          "{catName} leaves it there and doesn't dig any deeper."
         ]
       },
       "boundary": {
         "aggression": [
-          "{catName}'s hackles rise, and claws slide out against the stone.",
-          "{catName} drops that heavy head and steps back, claws sheathed."
+          "{catName}'s hackles lift, though {he} stays where {he} is.",
+          "{catName} lowers {his} head and backs off a step."
         ],
         "sociability": [
-          "{catName} stays close enough to touch, and still doesn't budge.",
-          "{catName} turns side-on, putting cold air between you."
+          "{catName} stays close beside you but won't budge on this.",
+          "{catName} turns side-on, putting more room between you."
         ],
         "boldness": [
-          "{catName} stares straight at you and doesn't blink.",
-          "{catName}'s gaze drops to your paws, but the words still come."
+          "{catName} squares up and says it plainly.",
+          "{catName} looks down at your paws, but still gets the words out."
         ],
         "loyalty": [
-          "{catName}'s eyes stay fixed on yours, measuring you.",
-          "{catName} flicks an ear, as if none of it matters past today."
+          "{catName} sits up straight, like this matters and {he} wants it settled.",
+          "{catName} flicks an ear, like it won't matter much past today."
         ],
         "curiosity": [
-          "{catName} tilts that broad head, waiting to hear what you'll say.",
-          "{catName} looks off toward the trees. That's the end of it."
+          "{catName} tilts {his} head, waiting to hear your side.",
+          "{catName} looks off down the trail, done with the subject."
         ]
       },
       "return": {
         "aggression": [
-          "{catName} stands squarely in the open, waiting for your answer.",
-          "{catName} steps aside, leaving it entirely up to you."
+          "{catName} stands squarely in the open and says what {he} thinks.",
+          "{catName} steps aside a little, giving you room."
         ],
         "sociability": [
-          "{catName} shuffles over, making room on the warm ground beside {him}.",
-          "{catName} makes a little room, though not all of it."
+          "{catName} shuffles over to make room beside {him}.",
+          "{catName} makes a little room, though not much."
         ],
         "boldness": [
-          "{catName} says it plainly and waits, chin up.",
-          "{catName} waits until you've settled before daring to ask."
+          "{catName} comes right up to you, chin up.",
+          "{catName} waits until you've settled before speaking up."
         ],
         "loyalty": [
-          "{catName} remembers what you said last time. You can see it in the way they look at you.",
-          "{catName} doesn't mention last time at all, as if each meeting starts fresh."
+          "{catName} settles down nearby like {he}'s in no hurry to be anywhere else.",
+          "{catName} keeps it light, like only today counts."
         ],
         "curiosity": [
-          "{catName} watches you closely, trying to guess what you'll choose this time.",
-          "{catName} asks once and doesn't press."
+          "{catName} perks up, ears forward.",
+          "{catName} doesn't push it."
         ]
       },
       "departure": {
         "aggression": [
-          "{catName} steps off the trail and lets you pass without a growl.",
-          "{catName} doesn't follow you, not even with {his} eyes."
+          "{catName} steps off the trail to let you by, with a short grunt.",
+          "{catName} doesn't follow you, and {his} ears stay soft."
         ],
         "sociability": [
-          "{catName} watches you go until the grass closes behind you.",
+          "{catName} trails after you a few steps before stopping.",
           "{catName} is already turning away before you've said goodbye."
         ],
         "boldness": [
-          "{catName} turns down {his} own path without a backward glance.",
-          "{catName} waits until you're a few lengths off before slipping away."
+          "{catName} turns down {his} own path without looking back.",
+          "{catName} waits until you're a little way off before slipping away."
         ],
         "loyalty": [
-          "{catName} stands where you left {him}, as if marking the place.",
-          "{catName} melts into the landscape like the meeting never happened."
+          "{catName} stays where you left {him}, like {he}'s marking the spot.",
+          "{catName} wanders off like the meeting never happened."
         ],
         "curiosity": [
-          "{catName} looks after you a long moment, as if a question is still waiting to be asked.",
-          "{catName} has already lost interest by the time you turn to look."
+          "{catName} starts to ask something, then lets you go.",
+          "{catName} has lost interest before you've even turned away."
         ]
       },
       "confiding": {
         "aggression": [
-          "{catName} asks it straight out, almost a challenge.",
-          "{catName} asks softly, giving you every chance to refuse."
+          "{catName} says it straight out, almost like a challenge.",
+          "{catName} says it softly, leaving you plenty of room to say no."
         ],
         "sociability": [
-          "{catName} settles close beside you, fur nearly touching, while asking.",
-          "{catName} asks from a little way off, still keeping {his} own space."
+          "{catName} settles close beside you, fur nearly touching.",
+          "{catName} stays a little way off, keeping {his} own space."
         ],
         "boldness": [
-          "{catName} holds your gaze the whole time, unashamed of wanting this.",
+          "{catName} says it without a trace of embarrassment.",
           "{catName} glances away as soon as the words are out."
         ],
         "loyalty": [
-          "{catName} asks the way a cat asks for something they'd never forget.",
-          "{catName} keeps it light, as if it's only about today."
+          "{catName} speaks slowly, like this will still matter tomorrow.",
+          "{catName} keeps it light, like it's only about today."
         ],
         "curiosity": [
-          "{catName} watches your face for the answer before you give it.",
-          "{catName} doesn't wonder aloud what your answer might mean."
+          "{catName}'s ears go forward, interested.",
+          "{catName} doesn't ask what you think of it."
         ]
       }
     },
     "speechLocations": {
       "/nodes/opening": {
         "focusTrait": "sociability",
-        "high": "Would you walk with me? You can pass through if you need to.",
-        "low": "Did you want to stop? I can spare a little time.",
-        "base": "“Are you passing through, or did you want company?”",
+        "high": "Walk with me for a bit? It's fine if you're only passing, but I'd like the company.",
+        "low": "Oh. Did you want something? I can stop for a bit, if it's quick.",
+        "base": "So, are you just passing through, or do you want some company for a while?",
         "context": "opening",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/company": {
         "focusTrait": "sociability",
-        "high": "Walk beside me. I would like company, even if we leave the talking for later.",
-        "low": "We can walk a little. I would rather keep it quiet today.",
-        "base": "“We can walk. Quietly, for a little while.”",
+        "high": "I'd like that. We don't even have to talk. I just like having someone beside me.",
+        "low": "We can walk. I'd rather not talk much, though.",
+        "base": "Sure, we can walk. Quietly, if that's all right with you.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/curious": {
         "focusTrait": "curiosity",
-        "high": "What made you curious about me? Ask, and I may have a question for you too.",
-        "low": "Ask one thing first. I would rather not turn this into a long questioning.",
-        "base": "“What do you want to know?”",
+        "high": "Ask away. I'm curious what you want to know about me.",
+        "low": "Go on, then. Keep it short, though.",
+        "base": "Sure. What do you want to know?",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/quiet_walk": {
         "focusTrait": "boldness",
-        "high": "This is all right. I will keep beside you for this stretch.",
-        "low": "This is all right. No need to hurry farther yet.",
-        "base": "“This is all right.”",
+        "high": "This is good. I'll stay with you to the end of this stretch.",
+        "low": "This is nice. No need to go much further, I think.",
+        "base": "This is all right, you know.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/space": {
         "focusTrait": "sociability",
-        "high": "I want you here. I just do not want to talk all the way.",
-        "low": "I did not ask you to leave. Walking quietly is enough for me today.",
-        "base": "“Not alone. Just quiet. There is a difference.”",
+        "high": "No! I want you here. I just don't feel like talking much.",
+        "low": "I didn't say go. I just like it quiet. You can stay if you don't talk the whole way.",
+        "base": "Not alone, no. Just quiet. That's different.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/boundary": {
         "focusTrait": "aggression",
-        "high": "I said quiet. You can want something else, but do not press me.",
-        "low": "We seem to want different things today. Let us stop rather than argue.",
-        "base": "“Then we want different things today.”",
+        "high": "I said quiet. You can want something else, but don't push me.",
+        "low": "Oh. Then I think we want different things today. Let's not fight about it.",
+        "base": "Hold on. Then we want different things today.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/trust": {
         "focusTrait": "loyalty",
-        "high": "Small things done again. If I stop, notice it; do not promise to notice and then walk on.",
-        "low": "Notice when I stop, today. I would rather see what we do than make a large promise.",
-        "base": "“Small things. A cat who notices when I stop, instead of walking on without me.”",
+        "high": "Little things, done every time. If I stop, notice. Don't just promise you'll notice and then walk on.",
+        "low": "I don't know. Noticing when I stop, I suppose. Let's see how today goes before we make it a big thing.",
+        "base": "Little things, mostly. A cat who notices when I stop, instead of walking on without me.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/hunting": {
         "focusTrait": "boldness",
-        "high": "I will take the lead when I know a hunt. First I would learn your pace, without prey in front of us.",
-        "low": "I would learn your pace on a walk first. I do not want to find out we work badly together in the middle of a hunt.",
-        "base": "“With another cat, you have to keep track of more than the prey. I would want to learn your pace first.”",
+        "high": "I like to lead when I hunt. But before I'd hunt with you, I'd want to learn your pace with no prey around.",
+        "low": "Mostly. I'd want to know a cat's pace before I hunted with it. I'd hate to find out in the middle of a chase.",
+        "base": "Hunting with another cat means watching them as well as the prey. I'd want to learn your pace before we tried it.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/left_politely": {
         "focusTrait": "sociability",
-        "high": "You only stopped briefly before. Have you time to stay with me now?",
-        "low": "Passing through again, or stopping this time?",
-        "base": "“Not just passing through this time?”",
+        "high": "You came back! You only passed through last time.",
+        "low": "Oh, it's you again.",
+        "base": "It's you. You were only passing through last time.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/quiet_company": {
         "focusTrait": "sociability",
-        "high": "Another quiet walk together? There is room beside me.",
-        "low": "Quiet again? I could do that.",
-        "base": "“Another quiet walk?”",
+        "high": "There you are! I liked walking with you last time.",
+        "low": "It's you. That was a good quiet walk last time.",
+        "base": "Oh, hey. I liked that quiet walk last time.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/quiet_no_promise": {
         "focusTrait": "boldness",
-        "high": "We walked together before. Shall we take another stretch?",
-        "low": "A few more steps together, without going far?",
-        "base": "“A few more steps together?”",
+        "high": "Hey, it's you! We had a good walk last time.",
+        "low": "Oh, hello. We walked a bit together last time.",
+        "base": "It's you. We walked together last time.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/gave_space": {
         "focusTrait": "sociability",
-        "high": "You gave me space before. I would like you closer today.",
-        "low": "You left me room last time. You need not stand quite so far off now.",
-        "base": "“You left me some space last time. You can come closer today.”",
+        "high": "You're back. You gave me some space last time, and I appreciated it.",
+        "low": "You gave me some room last time.",
+        "base": "You left me some space last time.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/repaired_pressure": {
         "focusTrait": "aggression",
-        "high": "You stopped pushing last time. Keep it that way and we can walk.",
-        "low": "We stopped that argument last time. We could try walking again.",
-        "base": "“We could try that walk again. Without the argument.”",
+        "high": "You said sorry for pushing last time. Good. Keep it that way.",
+        "low": "Oh, hello. You said sorry for pushing last time. That was nice of you.",
+        "base": "It's you. You said sorry for pushing last time.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/dismissed_boundary": {
         "focusTrait": "aggression",
-        "high": "Last time you dismissed what I asked for. Are you going to do that again?",
-        "low": "Last time did not end well. Can we avoid another argument about quiet?",
-        "base": "“Are we going to argue about quiet again?”",
+        "high": "You brushed off what I asked for last time.",
+        "low": "Oh. Hello. Last time didn't end very well.",
+        "base": "Last time you told me to forget you'd asked.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/asked_about_trust": {
         "focusTrait": "loyalty",
-        "high": "You said you would notice when I stopped. Do you still mean it?",
-        "low": "You asked what I trusted. Still watching for when I stop?",
-        "base": "“Still watching for when I stop?”",
+        "high": "You stopped when I stopped last time. I noticed.",
+        "low": "Oh, hello. You stopped when I stopped, last time.",
+        "base": "It's you. Last time you stopped when I did.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/prefers_direct_words": {
         "focusTrait": "sociability",
-        "high": "You asked for plain words: I want your company today.",
-        "low": "You wanted me to say it directly. I could walk with you a little.",
-        "base": "“You said to tell you directly. I would like some company.”",
+        "high": "You asked me to say things plainly, so here it is.",
+        "low": "You said to tell you straight. So I will.",
+        "base": "You told me to say things straight out.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/asked_about_hunting": {
         "focusTrait": "curiosity",
-        "high": "You wanted to learn my pace. What have you made of it so far?",
-        "low": "You asked about hunting together. A walk is still where I would start.",
-        "base": "“Learning my pace, then?”",
+        "high": "You let me learn your pace last time. I want to see more.",
+        "low": "Oh, hey. You let me see your pace last time.",
+        "base": "Last time we walked so I could learn your pace.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/recallByOutcome/prefers_solo_hunts": {
         "focusTrait": "curiosity",
-        "high": "You said you hunt alone. Is it only hunting you want to keep to yourself?",
-        "low": "Still keeping your hunts to yourself? We need not change that to stop here.",
-        "base": "“Still keeping your hunts to yourself?”",
+        "high": "You said you'd keep your hunts to yourself. I've been wondering about that.",
+        "low": "Oh, hey. You said you hunt alone.",
+        "base": "Last time you said you'd keep hunting alone.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/nodes/later_check_in": {
         "focusTrait": "sociability",
-        "high": "Tell me what you would like today. I want to spend a little time together.",
-        "low": "What would suit you today? Keep it simple.",
-        "base": "“And what would you like today?”",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
-        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty.",
+        "removed": true
       },
       "/laterMeeting/nodes/later_new_tone": {
         "focusTrait": "curiosity",
-        "high": "Something different? Tell me what you have in mind.",
-        "low": "Say what you want plainly. I would rather know before we begin.",
-        "base": "“Tell me what you have in mind.”",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
-        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty.",
+        "removed": true
       },
       "/laterMeeting/outcomes/later_left": {
         "focusTrait": "sociability",
-        "high": "Another time, then. I would have liked you to stay.",
-        "low": "All right. I will leave you to it.",
-        "base": "“Another time.”",
+        "high": "Oh. All right. I'd have liked you to stay, but go safely.",
+        "low": "All right. See you.",
+        "base": "All right. Safe trails.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/outcomes/later_quiet": {
         "focusTrait": "boldness",
-        "high": "Beside me, then. I will take this stretch with you.",
-        "low": "Here beside me is enough. We need not go far.",
-        "base": "“All right. Here, beside me.”",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
-        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty.",
+        "removed": true
       },
       "/laterMeeting/outcomes/later_talk": {
         "focusTrait": "sociability",
-        "high": "Stay and talk, then. I would like that.",
-        "low": "A few words, then. I can stay a little.",
-        "base": "“For a little while. Stay.”",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
-        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty.",
+        "removed": true
       },
       "/laterMeeting/outcomes/later_listen": {
         "focusTrait": "loyalty",
-        "high": "I wondered whether you would come back. I notice when a cat does.",
-        "low": "I wondered whether you would come back. You are here now; that is enough for today.",
-        "base": "“I was wondering whether you would come back.”",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
-        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty.",
+        "removed": true
       },
       "/laterMeeting/outcomes/later_space": {
         "focusTrait": "sociability",
-        "high": "A little space, then. We can still be company.",
-        "low": "That suits me. I do not need to stay close.",
-        "base": "“That would suit me.”",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
-        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty.",
+        "removed": true
       },
       "/laterMeeting/followupByOutcome/quiet_company": {
         "focusTrait": "sociability",
-        "high": "I would like another walk. Quiet again, or shall we talk a little?",
-        "low": "Quiet again? I can manage a few words instead, if that is what you want.",
-        "base": "“Quiet again, or would you rather talk today?”",
+        "high": "Let's walk again. Quiet, or shall we talk a bit?",
+        "low": "Quiet again? Or I could manage a few words, if you'd rather.",
+        "base": "Quiet again, or do you want to talk today?",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/quiet_company/choices/0": {
         "focusTrait": "boldness",
-        "high": "Come along. I will walk beside you.",
-        "low": "Then let us keep to a comfortable pace.",
-        "base": "“Then come along.”",
+        "high": "Come on. I'll lead.",
+        "low": "All right. Nice and slow.",
+        "base": "Come on, then.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/quiet_company/choices/1": {
         "focusTrait": "sociability",
-        "high": "You gave me quiet before. I would like to hear you today.",
-        "low": "You did not hurry me before. A few words today would be all right.",
-        "base": "“You did not rush me last time. I can spare a few words.”",
+        "high": "Honestly? That I'm glad you came back. You were good company last time.",
+        "low": "Not much, honestly. You didn't rush me before, so I don't mind a few words.",
+        "base": "You didn't rush me before, so all right. Mostly I'm glad you came back.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/quiet_no_promise": {
         "focusTrait": "sociability",
-        "high": "I would like another walk. Quiet again, or shall we talk a little?",
-        "low": "Quiet again? I can manage a few words instead, if that is what you want.",
-        "base": "“Quiet again, or would you rather talk today?”",
+        "high": "Walk with me again? We can keep quiet, or we can talk a bit.",
+        "low": "Fancy another quiet walk? Or a few words, if you'd rather.",
+        "base": "Want to walk quietly again, or talk this time?",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/quiet_no_promise/choices/0": {
         "focusTrait": "boldness",
-        "high": "Come along. I will walk beside you.",
-        "low": "Then let us keep to a comfortable pace.",
-        "base": "“Then come along.”",
+        "high": "Come on. I'll lead the way.",
+        "low": "All right. Nice and easy.",
+        "base": "Come on, then.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/quiet_no_promise/choices/1": {
         "focusTrait": "sociability",
-        "high": "You gave me quiet before. I would like to hear you today.",
-        "low": "You did not hurry me before. A few words today would be all right.",
-        "base": "“You did not rush me last time. I can spare a few words.”",
+        "high": "That I'm glad you came back. I wasn't sure you would.",
+        "low": "Not much. You didn't push me to talk last time, so I don't mind now.",
+        "base": "You didn't rush me last time, so here's something. I'm glad you came back.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/gave_space": {
         "focusTrait": "curiosity",
-        "high": "You left me room last time. Were you waiting for me to ask you back, or did you want space too?",
-        "low": "You gave me space before. Were you waiting for an invitation back?",
-        "base": "“You gave me room last time. Were you waiting for me to ask you back?”",
+        "high": "I've been wondering. Were you waiting for me to ask you back, or did you want some space too?",
+        "low": "Were you waiting for me to ask you back?",
+        "base": "Were you waiting for me to ask you to come back?",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/gave_space/choices/0": {
         "focusTrait": "sociability",
-        "high": "Here is the invitation, then. Come closer.",
-        "low": "You can come a little closer. No need to wait so far away.",
-        "base": "“You need not stay so far away now.”",
+        "high": "Then I'm asking. Come over here.",
+        "low": "You can come a bit closer now. No need to wait so far off.",
+        "base": "You don't have to stay so far away now. Come here.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/gave_space/choices/1": {
         "focusTrait": "sociability",
-        "high": "We have both had our space. I would like to walk together now.",
-        "low": "Then we both had what we needed. A short walk?",
-        "base": "“Then we have both had our space. Walk a little?”",
-        "context": "return",
+        "high": "Oh. All right, go on. I'm glad you stopped to tell me, though.",
+        "low": "Fair enough. Go and follow it, then.",
+        "base": "Fair enough. We both wanted some room. Go on, then.",
+        "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/repaired_pressure": {
         "focusTrait": "aggression",
-        "high": "We wanted different things last time. If I ask for quiet again, will you accept it?",
-        "low": "Last time I wanted quiet and you wanted words. How do we keep that from becoming another argument?",
-        "base": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "high": "We wanted different things last time. If I want quiet again today, will you take that?",
+        "low": "I wanted quiet and you wanted to talk. What do we do if that happens again?",
+        "base": "I wanted quiet and you wanted to talk. What happens if it's the same today?",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/repaired_pressure/choices/0": {
         "focusTrait": "aggression",
-        "high": "Good. Quiet today, then. That is what I am offering.",
-        "low": "Thank you. A quiet walk would suit me today.",
-        "base": "“Good. Today I would rather walk quietly.”",
+        "high": "Good. Quiet today, then. That's what I'm offering.",
+        "low": "Thank you. Quiet is all I want today.",
+        "base": "Good. Then today I'd like it quiet.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/repaired_pressure/choices/1": {
         "focusTrait": "aggression",
-        "high": "Then find talking company today. I am not offering that.",
-        "low": "Then it may be better to find someone who wants to talk today. We can try another time.",
-        "base": "“Then look for company that wants to talk today. We can try another time.”",
+        "high": "Then go find talking company. I'm not offering it.",
+        "low": "Then maybe find someone who feels like talking today. I'm sorry.",
+        "base": "Then you'd better find someone who wants to talk today. That's not me.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/dismissed_boundary": {
         "focusTrait": "aggression",
-        "high": "We wanted different things last time. If I ask for quiet again, will you accept it?",
-        "low": "Last time I wanted quiet and you wanted words. How do we keep that from becoming another argument?",
-        "base": "“Last time, I wanted quiet and you wanted words. What happens if that is true again?”",
+        "high": "If I ask for quiet again today, are you going to brush me off again?",
+        "low": "I wanted quiet and you wanted to talk. I don't want that to go badly again. What do we do?",
+        "base": "I wanted quiet and you wanted to talk. What happens if it's the same today?",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/dismissed_boundary/choices/0": {
         "focusTrait": "aggression",
-        "high": "Good. Quiet today, then. That is what I am offering.",
-        "low": "Thank you. A quiet walk would suit me today.",
-        "base": "“Good. Today I would rather walk quietly.”",
+        "high": "Good. Quiet, then. And this time you mean it.",
+        "low": "Thank you. That means a lot, after last time.",
+        "base": "Good. Then today I'd like it quiet.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/dismissed_boundary/choices/1": {
         "focusTrait": "aggression",
-        "high": "Then find talking company today. I am not offering that.",
-        "low": "Then it may be better to find someone who wants to talk today. We can try another time.",
-        "base": "“Then look for company that wants to talk today. We can try another time.”",
+        "high": "Then go and find them. I asked for quiet last time too.",
+        "low": "Then maybe find someone who feels like talking. I can't be that today.",
+        "base": "Then you'd better find someone who wants to talk. It isn't me, not today.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/asked_about_trust": {
         "focusTrait": "curiosity",
-        "high": "You said you would watch for me stopping. What would you do if I asked to turn back?",
-        "low": "You said you would notice when I stopped. Would you turn back if I asked?",
-        "base": "“You said you would watch for when I stopped. And if I asked to turn back?”",
+        "high": "Tell me something. If I asked to turn back today, what would you do?",
+        "low": "What would you do if I wanted to turn back?",
+        "base": "So what if I wanted to turn back today? What would you do?",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/asked_about_trust/choices/0": {
         "focusTrait": "boldness",
-        "high": "Then I am willing to go a little farther with you.",
-        "low": "Then we can go a little farther, knowing we can turn back.",
-        "base": "“Then we could go a little farther together.”",
-        "context": "question",
+        "high": "Good. Then I'm happy to go a bit further with you.",
+        "low": "Then we can go a bit further. Knowing we can turn back helps.",
+        "base": "Then let's go a bit further together.",
+        "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/asked_about_trust/choices/1": {
         "focusTrait": "curiosity",
-        "high": "Ask, then. I would rather we understood each other than guessed.",
-        "low": "A plain question would do. You need not guess.",
-        "base": "“Fair. Asking would do.”",
+        "high": "Good. I'd much rather you asked than guessed.",
+        "low": "Fair. Just ask, then.",
+        "base": "Fair enough. Asking is all I'd want.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/prefers_direct_words": {
         "focusTrait": "sociability",
-        "high": "You wanted plain words: I want to spend time with you, but I do not want a shared hunt today.",
-        "low": "Company would be all right today. Not a hunt together; just a walk.",
-        "base": "“You asked me to speak plainly. I want company today, but not hunting company.”",
+        "high": "I want to spend some time with you today. Just walking, though. I don't want to hunt together.",
+        "low": "I could do with some company today. Just a walk, though, not a hunt.",
+        "base": "I'd like some company today. A walk, not a hunt.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/prefers_direct_words/choices/0": {
         "focusTrait": "sociability",
-        "high": "Good. A walk together is what I wanted.",
-        "low": "Yes. That is enough for me today.",
-        "base": "“That is what I meant.”",
-        "context": "question",
+        "high": "Good. A walk together is just what I wanted.",
+        "low": "Yes. That's all I meant.",
+        "base": "That's what I meant. Come on.",
+        "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/prefers_direct_words/choices/1": {
         "focusTrait": "loyalty",
-        "high": "Go, then. I would rather you told me than stayed unwillingly.",
-        "low": "Then go and hunt. This was only an invitation, not an obligation.",
-        "base": "“Then I will not keep you.”",
+        "high": "Go, then. I'd rather you said so than stayed and didn't want to.",
+        "low": "Go on, then. It was only an offer.",
+        "base": "Then I won't keep you. Good hunting.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/asked_about_hunting": {
         "focusTrait": "loyalty",
-        "high": "You said you wanted to learn my pace. Do you still mean to try?",
-        "low": "You mentioned learning my pace. Still interested, or have you changed your mind?",
-        "base": "“You wanted to learn my pace. Still interested, or was that only talk?”",
+        "high": "You walked so I could learn your pace. Do you still mean to keep at it?",
+        "low": "Do you still want us to learn each other's pace, or have you gone off the idea?",
+        "base": "Are you still up for learning each other's pace? Or was that just talk?",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/asked_about_hunting/choices/0": {
         "focusTrait": "boldness",
-        "high": "Walking first, then. I am willing to begin there.",
-        "low": "Walking first is a start I can be comfortable with.",
-        "base": "“Walking first. I can agree to that.”",
-        "context": "question",
+        "high": "Good. Walking it is, and I'll set the pace this time.",
+        "low": "All right. Walking's fine with me.",
+        "base": "Walking it is. Come on.",
+        "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/asked_about_hunting/choices/1": {
         "focusTrait": "aggression",
-        "high": "Then say so now. Do not pretend to want a hunt together.",
-        "low": "All right. Better to say so than walk toward something neither of us wants.",
-        "base": "“Then it is better to say so now.”",
+        "high": "Then say so and mean it. Don't pretend later.",
+        "low": "All right. Better to say so now than in the middle of a chase.",
+        "base": "Then it's better you said so now.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/prefers_solo_hunts": {
         "focusTrait": "curiosity",
-        "high": "You said you hunt alone. Is that only about hunts, or would you rather I left now?",
-        "low": "You keep hunting to yourself. Would you prefer I left now too?",
-        "base": "“You said you hunt alone. Does that mean you would rather I left now?”",
+        "high": "Is that only about hunting, or would you rather I left you alone now too?",
+        "low": "Does that mean you'd rather I left you alone now too?",
+        "base": "Does that mean you'd rather I left you alone now?",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/prefers_solo_hunts/choices/0": {
         "focusTrait": "sociability",
-        "high": "Then I will stay. I wanted company, not a claim on your hunts.",
-        "low": "A little company without sharing hunts would suit me too.",
-        "base": "“Then I will stay a little.”",
+        "high": "Then I'll stay. I wanted your company, not your hunts.",
+        "low": "Good. A bit of company without sharing hunts suits me too.",
+        "base": "Then I'll stay a bit.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/prefers_solo_hunts/choices/1": {
         "focusTrait": "aggression",
-        "high": "All right. I will take my own path.",
-        "low": "All right. I will leave you some room.",
-        "base": "“All right. I will take the other path.”",
+        "high": "Fine. I'll go my own way.",
+        "low": "All right. I'll leave you be.",
+        "base": "All right. I'll take the other path.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/left_politely": {
         "focusTrait": "sociability",
-        "high": "You only passed through last time. Will you stop with me today?",
-        "low": "You were passing through before. Do you have time to stop now?",
-        "base": "“You were only passing through last time. Have you time to stop now?”",
+        "high": "Will you stop with me today? I'd like that.",
+        "low": "Do you have time to stop today?",
+        "base": "Have you got time to stop today?",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/left_politely/choices/0": {
         "focusTrait": "sociability",
-        "high": "Then stay. I would like the company.",
-        "low": "Then we can stop here a little.",
-        "base": "“Then stay a while.”",
+        "high": "Good! Stay as long as you like.",
+        "low": "Then stop here a while.",
+        "base": "Good. Stay a while, then.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/followupByOutcome/left_politely/choices/1": {
         "focusTrait": "sociability",
-        "high": "I am glad you stopped to say it. Go safely.",
-        "low": "I heard you. Safe trails.",
-        "base": "“I heard you. Safe trails.”",
+        "high": "I'm glad you stopped to say it. Go safely.",
+        "low": "Hello, then. Safe trails.",
+        "base": "Well, hello to you too. Safe trails.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/confiding": {
         "focusTrait": "boldness",
-        "high": "You came back and kept our walk quiet. I want you to stay longer; I am asking you now.",
-        "low": "You came back and left the quiet alone. I have been trying to find a way to ask you to stay a little longer.",
-        "base": "“You came back, and you let the quiet stay quiet. I have not quite known how to ask you to stay longer.”",
+        "high": "You came back like you said, and you kept our walks quiet. I want you to stay longer. There, I've asked.",
+        "low": "You came back like you said, and you let us walk quietly. I've been trying to work out how to ask you to stay longer.",
+        "base": "You came back, and you didn't mind the quiet. I've wanted to ask you to stay longer, but I didn't know how.",
         "context": "confiding",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/confiding/choices/0": {
         "focusTrait": "sociability",
-        "high": "Stay, then. I would like more time beside you.",
-        "low": "Stay a little longer. Just here is enough.",
-        "base": "“Stay a little longer, then.”",
+        "high": "Good. I like having you here, I really do.",
+        "low": "Good. I'm glad. Just here is enough.",
+        "base": "Good. I'm really glad you're staying.",
         "context": "confiding",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/confiding/choices/1": {
         "focusTrait": "loyalty",
-        "high": "Tell me when you need to go. A limit honestly given is better than a promise you cannot keep.",
-        "low": "Then do not promise every time. Tell me what you want today.",
-        "base": "“Tell me when you have to go. I would rather know.”",
+        "high": "Then tell me when you need to go. I'd rather have the truth than a promise you can't keep.",
+        "low": "That's all right. Just tell me what you can do today.",
+        "base": "Then tell me when you have to go. I'd rather know.",
         "context": "confiding",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/repair": {
         "focusTrait": "aggression",
-        "high": "You wanted words when I asked for quiet. Will you leave me space if I ask for it now?",
-        "low": "We argued when I wanted quiet. I need to know I can ask for space without another argument.",
-        "base": "“Last time you wanted words when I wanted quiet. Are you going to listen if I ask for space?”",
+        "high": "You keep wanting words when I ask for quiet. If I ask for space now, will you give it?",
+        "low": "Last time you still wanted to talk when I wanted quiet. I need to know I can ask for space without it getting difficult.",
+        "base": "Last time you still wanted words when I wanted quiet. If I ask for space, will you give it to me?",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/repair/choices/0": {
         "focusTrait": "sociability",
-        "high": "Then stay a little way off for now. I am not ready to be close, but you need not go.",
-        "low": "Then let us begin with some space. That is enough for today.",
-        "base": "“Then we can start with a little space between us.”",
+        "high": "Thank you. Stay a little way off for now. I'm not ready to be close, but I'm glad you didn't go.",
+        "low": "Thank you. Some space is all I need, and I'm glad you're still here.",
+        "base": "Thank you. A bit of space between us, then, but I'd like you to stay.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/repair/choices/1": {
         "focusTrait": "aggression",
-        "high": "Then go. Better that than pushing for what I am not offering.",
-        "low": "That may be better today. We need not make it another quarrel.",
-        "base": "“That may be better today.”",
+        "high": "Then go. Better that than pushing for something I'm not offering.",
+        "low": "Maybe that's better today. Let's not make it a quarrel.",
+        "base": "That might be better today.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/neutral": {
         "focusTrait": "sociability",
-        "high": "Will you stay with me a little today?",
-        "low": "Did you want a little company today?",
-        "base": "“A little company today?”",
+        "high": "Hey, you! Will you stay with me a while today?",
+        "low": "Oh, hello. Did you want a bit of company today?",
+        "base": "Hey. Want a bit of company today?",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/neutral/choices/0": {
         "focusTrait": "boldness",
-        "high": "Come sit here beside me.",
-        "low": "We could sit here a little.",
-        "base": "“Come sit here.”",
+        "high": "Come on, sit here beside me.",
+        "low": "We could sit here a bit.",
+        "base": "Come and sit here.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/thirdMeeting/neutral/choices/1": {
         "focusTrait": "sociability",
-        "high": "Another time, then. I would have liked a little longer.",
-        "low": "All right. Another time.",
-        "base": "“Another time.”",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
-        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
+        "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty.",
+        "removed": true
       },
       "/nodes/opening/choices/2": {
         "focusTrait": "sociability",
-        "high": "All right. I would have liked the company, but I will not keep you.",
-        "low": "Safe trails. I will leave you to them.",
-        "base": "Safe trails. I will leave you to them.",
+        "high": "Oh. All right, I won't keep you. I'd have liked the company, though.",
+        "low": "Fine. Safe trails.",
+        "base": "All right. Safe trails, then.",
         "context": "departure",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/quiet_walk/choices/0": {
         "focusTrait": "loyalty",
-        "high": "Another quiet walk, if we meet. I will remember what we have agreed to.",
-        "low": "If we meet again, yes. Let us leave it at a quiet walk.",
-        "base": "Another quiet walk, if we meet. I will remember what we have agreed to.",
+        "high": "Then I'm holding you to it. Don't keep me waiting.",
+        "low": "If you like. I'm usually somewhere round here.",
+        "base": "Good. I'll hold you to that.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/quiet_walk/choices/1": {
         "focusTrait": "loyalty",
-        "high": "Go safely. We have made no promise about another day.",
-        "low": "Go safely. This walk was enough for today.",
-        "base": "Go safely. We have made no promise about another day.",
+        "high": "Go safely. No promises, and that's fine by me.",
+        "low": "See you around, maybe. That was a good walk.",
+        "base": "Go safely. That was a nice walk.",
         "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/space/choices/0": {
         "focusTrait": "sociability",
-        "high": "Then stay beside me for this stretch.",
-        "low": "A quiet stretch together would suit me.",
-        "base": "A quiet stretch together would suit me.",
-        "context": "return",
+        "high": "Good. Stay right beside me.",
+        "low": "Good. Walk beside me, then, not on my heels.",
+        "base": "Good. Come on, then.",
+        "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/space/choices/1": {
         "focusTrait": "sociability",
-        "high": "All right. I did want company, but I can leave it for today.",
-        "low": "Thank you. I will take a little space today.",
-        "base": "Thank you. I will take a little space today.",
+        "high": "Oh. All right, if you think so. I did want the company, but thanks.",
+        "low": "Thanks. I'd like that today.",
+        "base": "Thank you. I could do with a bit of space today.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/boundary/choices/0": {
         "focusTrait": "aggression",
-        "high": "Good. Do not push it further today.",
-        "low": "Thank you for stopping. We can leave it there.",
-        "base": "Thank you for stopping. We can leave it there.",
+        "high": "Good. Leave it there, then.",
+        "low": "Thanks for stopping. Really, it's fine.",
+        "base": "Thanks for stopping. We'll leave it there.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/boundary/choices/1": {
         "focusTrait": "aggression",
-        "high": "Then leave it. I am not going to argue for the quiet I asked for.",
-        "low": "Then let us leave it here rather than quarrel.",
-        "base": "Then let us leave it here rather than quarrel.",
+        "high": "Forget it, then. I'm not arguing with you over a bit of quiet.",
+        "low": "Let's just leave it, then. I don't want to argue.",
+        "base": "Fine. Better that than a fight.",
         "context": "boundary",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/trust/choices/0": {
         "focusTrait": "loyalty",
-        "high": "Then let me see you do it. Small things count when they keep happening.",
-        "low": "Then we can see how this walk goes, without promising more.",
-        "base": "Then let me see you do it. Small things count when they keep happening.",
+        "high": "Yes. That's it. Keep doing that and I'll know where I stand with you.",
+        "low": "Ha. Yes, like that. We'll see if it lasts past today.",
+        "base": "Yes, like that. It's a little thing, but it counts if you keep doing it.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/trust/choices/1": {
         "focusTrait": "curiosity",
-        "high": "Then I will say it, and you can ask if it is unclear.",
-        "low": "All right. I can say when I want to stop.",
-        "base": "All right. I can say when I want to stop.",
+        "high": "All right, I'll say it out loud. And if I'm not clear, ask me.",
+        "low": "All right. I'll say when I want to stop.",
+        "base": "Fair enough. I'll tell you when I want to stop.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/hunting/choices/0": {
         "focusTrait": "boldness",
-        "high": "A walk first. I am willing to start there.",
-        "low": "A walk would let us learn without rushing into a hunt.",
-        "base": "A walk would let us learn without rushing into a hunt.",
-        "context": "question",
+        "high": "Come on, then. I'll go ahead, and we'll see if you can keep up.",
+        "low": "All right. Not too fast, though.",
+        "base": "All right, go on. I'll keep up.",
+        "context": "walking",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/nodes/hunting/choices/1": {
         "focusTrait": "sociability",
-        "high": "You can keep your hunts. I can still enjoy company away from them.",
-        "low": "That suits me. A shared walk need not mean a shared hunt.",
-        "base": "That suits me. A shared walk need not mean a shared hunt.",
+        "high": "Keep your hunts, then. I still like your company away from them.",
+        "low": "Suits me. Walking together doesn't mean hunting together.",
+        "base": "That's fine by me. We can share a trail without sharing a hunt.",
         "context": "question",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
       },
       "/laterMeeting/fallback": {
         "focusTrait": "sociability",
-        "high": "Would you like to stop with me?",
-        "low": "Did you want to stop here?",
-        "base": "Did you want to stop here?",
+        "high": "Hey! It's always good to see you.",
+        "low": "Oh. Hello.",
+        "base": "Hey. Good to see you.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."

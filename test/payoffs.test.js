@@ -62,7 +62,10 @@ test('payoff keys match Saga\'s file, and every band fills without a leftover to
   assert.strictEqual(lineOf(gossip, Object.assign({}, npc, { personality: { sociability: 80 } }), {}), gossip[0].text);
   assert.strictEqual(lineOf(gossip, Object.assign({}, npc, { personality: { sociability: 50 } }), {}), gossip[1].text);
   assert.strictEqual(lineOf(gossip, Object.assign({}, npc, { personality: { sociability: 20 } }), {}), gossip[2].text);
-  assert.ok(gossip.every((row) => !TOKEN.test(row.text) && !/\d/.test(row.text)));
+  assert.ok(gossip.every((row) => {
+    const filled = String(row.text).replaceAll('{catName}', 'Greyfall').replaceAll('{playerName}', 'Ravenmark');
+    return !TOKEN.test(filled) && !/\d/.test(filled);
+  }));
 });
 
 test('giving your name is remembered, and the next meeting uses that name once', () => {
@@ -187,7 +190,7 @@ test('Let them watch is answered next time, and the promise does not move affini
   const next = meet(watched, npc);
   assert.strictEqual(next.pending.payoffId, '3.3');
   const text = next.pending.beats.map((beat) => beat.text).join('\n');
-  assert.ok(text.includes('ate the whole thing'), text);
+  assert.ok(text.includes('ate that whole kill'), text);
   assert.ok(!TOKEN.test(text), text);
   const promised = E.act(next, { type: 'sceneChoose', choiceId: 'promise_share' }).state;
   assert.ok(E.lone.bringPrey(promised, npc.id));

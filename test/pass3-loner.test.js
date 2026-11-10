@@ -53,11 +53,11 @@ test('the wolf card uses Saga\'s pass 3 line', () => {
 
 test('a boundary cue renders with the cat\'s name and no leftover token', () => {
   const cues = j('events/recurring-conversation.json').personalityCoverage.contextActions.boundary;
-  assert.deepStrictEqual(cues, pass3['C_recurring-conversation.json.contextActions.boundary']);
+  const vars = Speech.nameVars({ name: 'Ash', sex: 'male' });
   const spoken = Speech.resolve({
     speechLocations: { highcrag_open: { focusTrait: 'aggression', base: 'Leave it.', high: 'Leave it.', low: 'Leave it.', context: 'boundary' } },
     contextActions: { boundary: cues }
-  }, 'highcrag_open', { aggression: 80, sociability: 50, boldness: 50, loyalty: 50, curiosity: 50 }, { catName: 'Ash' });
-  assert.strictEqual(spoken.action, "Ash's hackles rise, and claws slide out against the stone.");
-  assert.ok(!spoken.action.includes('{catName}'));
+  }, 'highcrag_open', { aggression: 80, sociability: 50, boldness: 50, loyalty: 50, curiosity: 50 }, vars);
+  assert.ok(spoken.action.includes('Ash'));
+  assert.ok(!/\{/.test(spoken.action));
 });

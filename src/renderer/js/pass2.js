@@ -6,7 +6,7 @@
   else root.Pass2 = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   const LEADERS = { highcrag: 'hc01', bonefield: 'bf01', mistwood: 'mw01' };
-  const REPAIR = 'Thank you for stopping. We can leave it there.';
+  const REPAIR = 'All right. Thank you for saying it. We can leave it there.';
   const ARRIVE = {
     glacier: 'The ice groans under its own weight as you reach {region}. Every breath comes back to you as smoke.',
     tundra: '{region} opens flat and endless, and the wind has nothing to stop it but you.',
@@ -81,30 +81,54 @@
 
   const LINES = {
     "followups.js:opener": {
-      "ford_friend": "{catName} spots you from a distance and comes straight over, without the usual wary circling. “You stood with me at the ford. I haven't forgotten.”",
-      "ford_cold": "{catName}'s ears flatten the moment your scent arrives. “The ford. You chose your side.”",
-      "ford_stay": "{catName} looks you over, unimpressed. “You stood there and watched us at the ford. Why didn't you pick a side?”",
-      "foal_hit": "“I saw you take that foal at the meadows.” {catName}'s eyes are bright. “You came out of the grass like a rockfall.”",
-      "foal_miss": "{catName}'s whiskers twitch with laughter. “I saw the foal get away from you. Those long legs fool everyone once.”",
-      "hillside": "“You were on the hillside yesterday.” {catName} tilts {his} head. “I felt eyes on me all the way across the meadow.”",
-      "hyena_drive": "{catName} greets you with a low chuff, the kind kept for pride-mates. “The hyena. I keep thinking about how you went at it. Most loners would have waited for scraps.”",
-      "hyena_share": "{catName} greets you with a low chuff, the kind kept for pride-mates. “You drove off that hyena, and then you shared. Highcrag remembers manners as well as courage.”",
-      "hyena_leave": "{catName} doesn't come any closer. “You watched, and you did nothing.”",
-      "default": "{catName} stops when {he} sees you. The look says {he} remembers exactly what you chose."
+      "ford_friend": "{catName} spots you and comes straight over. You stood with me at the ford. I haven't forgotten that.",
+      "ford_cold": "{catName}'s ears go flat as soon as {he} catches your scent. The ford. You picked your side.",
+      "ford_stay": "{catName} looks you over, not impressed. You just stood there at the ford and watched. Why didn't you pick a side?",
+      "foal_hit": "I saw you take that foal at the meadows. {catName}'s ears are pricked. You came out of the grass like a rockfall.",
+      "foal_miss": "{catName}'s whiskers twitch like {he}'s trying not to laugh. I saw that foal get away from you. Those long legs fool everybody.",
+      "hillside": "You were up on the hillside yesterday, watching the herd. {catName} tips {his} head. I could tell someone was up there the whole way across the meadow.",
+      "hyena_drive": "{catName} greets you with a low chuff. That hyena. I keep thinking about the way you went at it.",
+      "hyena_share": "{catName} greets you with a low chuff. You drove off that hyena and then helped keep a share for us. That was well done.",
+      "hyena_leave": "{catName} doesn't come any closer. You were there with the hyena, and you just left.",
+      "default": "{catName} stops when {he} sees you. I know what you chose."
     },
-    "followups.js:gossipBeat": "{catName} lowers {his} voice and glances over {his} shoulder. “{fact}”",
-    "followups.js:relayBeat": "“I'll tell our leader what I saw. Whether that's enough to get you heard is the leader's choice, not mine.”",
+    "followups.js:gossipBeat": "{catName} lowers {his} voice. {fact}",
+    "followups.js:relayBeat": "I'll tell our leader what you did. What happens after that isn't up to me.",
     "followups.js:choices": {
-      "listen": "Listen.",
-      "honest_limit": "“I can't promise I'll always be near.”",
-      "leave": "Walk away.",
-      "explain": "“It wasn't about your pride.”",
-      "repair": "“I'd like to make it right.”",
+      "listen": "Stay and listen.",
+      "honest_limit": "“I can't always be around.”",
+      "leave": "Head off.",
+      "explain": "“I wasn't against your pride. I had to decide fast.”",
+      "repair": "“I'm sorry. I'd like to put it right.”",
       "neutral": "“It wasn't my fight.”",
-      "ask_what_happened": "“What's really between your prides?”",
-      "share": "Push today's kill toward {catName}.",
-      "talk": "Stay and talk.",
-      "take_share": "Take your share of the pride's kill."
+      "ask_what_happened": "“What's really going on between your prides?”",
+      "share": "Push some of today's kill over to {catName}.",
+      "talk": "Stay and talk a while.",
+      "take_share": "Take your share of the pride's kill.",
+      "hyena_leave.leave": "Walk away.",
+      "hyena_leave.repair": "“I'm sorry I didn't help.”",
+      "hyena_leave.explain": "“I didn't think I could win.”",
+      "hyena_share.leave": "Head off.",
+      "hyena_share.listen": "Stay and listen.",
+      "hyena_share.take_share": "Take your share of the pride's kill.",
+      "hyena_drive.leave": "Head off.",
+      "hyena_drive.honest_limit": "“I won't always be around to help.”",
+      "hyena_drive.listen": "Stay and listen.",
+      "hillside.leave": "Head off.",
+      "hillside.talk": "Stay and talk a while.",
+      "foal_miss.leave": "Head off.",
+      "foal_miss.talk": "Stay and talk a while.",
+      "foal_hit.talk": "Stay and talk a while.",
+      "foal_hit.share": "Push some of today's kill over to {catName}.",
+      "ford_stay.leave": "Head off.",
+      "ford_stay.ask_what_happened": "“What's really going on between your prides?”",
+      "ford_stay.neutral": "“It wasn't my fight.”",
+      "ford_cold.leave": "Walk away.",
+      "ford_cold.repair": "“I'm sorry. I'd like to put it right.”",
+      "ford_cold.explain": "“I wasn't against your pride. I had to decide fast.”",
+      "ford_friend.leave": "Nod and head off.",
+      "ford_friend.honest_limit": "“I was glad to help, but I can't always be there.”",
+      "ford_friend.listen": "Stay and listen.",
     },
     "lone-actions.js:approachOpeners": {
       "sociable": "{catName} trots over with {his} tail high, already talking before {he}'s close enough to hear properly.",
@@ -189,27 +213,27 @@
   }
   function foalOpener(npc) {
     const b = band(npc && npc.personality && npc.personality.sociability);
-    if (b === 'low') return '“I saw you take the foal.”';
-    if (b === 'high') return '“That foal at the meadows! I watched the whole thing. You came out of the grass like a rockfall.”';
-    return '“I saw you take that foal at the meadows. Clean work.”';
+    if (b === 'low') return 'I saw you take that foal.';
+    if (b === 'high') return 'I saw you take that foal at the meadows. You came out of the grass like a rockfall.';
+    return 'I saw you take that foal at the meadows. Nice work.';
   }
   function foalMiss(npc) {
     const b = band(npc && npc.personality && npc.personality.sociability);
     const name = npc && npc.name || 'The cat';
-    if (b === 'low') return '“The foal got away.”';
-    if (b === 'high') return `“I saw that! You were so close. The stem cracking, the squeal, the mares wheeling…” ${name} purrs with laughter.`;
-    return '“I saw the foal run off. Those long legs fool everyone once.”';
+    if (b === 'low') return 'That foal got away.';
+    if (b === 'high') return `I saw that! You were so close. {catName} purrs with laughter.`;
+    return 'I saw that foal get away from you. Those long legs fool everybody.';
   }
   function opener(kind, npc) {
     const name = npc && npc.name || 'A cat';
     if (kind === 'foal_hit') return { kind: 'speech', speaker: name, text: foalOpener(npc) };
     if (kind === 'foal_miss') return { kind: 'speech', speaker: name, text: foalMiss(npc) };
-    if (kind === 'hillside') return say('“You were on the hillside yesterday. I felt eyes on me all the way across the meadow.”');
-    if (kind === 'ford_friend') return narrate(`${name} recognises you from a distance and comes straight over, without the usual wary circling.`);
-    if (kind === 'ford_cold') return narrate(`{catName}'s ears flatten the moment your scent reaches {him}.`);
-    if (kind === 'ford_stay') return say('“You stood there and watched us. Why didn\'t you pick a side?”');
-    if (kind === 'hyena_drive' || kind === 'hyena_share') return narrate(`${name} greets you with a low chuff, the kind kept for pride-mates.`);
-    if (kind === 'hyena_leave') return narrate(`${name} doesn't come closer.`);
+    if (kind === 'hillside') return say('You were up on the hillside yesterday, watching the herd.');
+    if (kind === 'ford_friend') return narrate(`{catName} spots you and comes straight over.`);
+    if (kind === 'ford_cold') return narrate(`{catName}'s ears go flat as soon as {he} catches your scent.`);
+    if (kind === 'ford_stay') return say('You just stood there and watched. Why didn\'t you pick a side?');
+    if (kind === 'hyena_drive' || kind === 'hyena_share') return narrate(`{catName} greets you with a low chuff.`);
+    if (kind === 'hyena_leave') return narrate(`{catName} doesn't come any closer.`);
     return say('The cat remembers what you chose.');
   }
   function openingBeats(kind) {
@@ -221,16 +245,16 @@
   }
   function reply(kind, choiceId, npc) {
     const name = npc && npc.name || 'A cat';
-    if (kind === 'foal_hit' && choiceId === 'share') return [narrate('You nudge the meat toward {catName}. Something in {his} face softens.')];
+    if (kind === 'foal_hit' && choiceId === 'share') return [narrate('You push the meat over to {catName}, and {his} face softens.')];
     if (kind === 'ford_cold' || kind === 'hyena_leave') {
-      if (choiceId === 'explain' && kind === 'ford_cold') return [say('“It wasn\'t about your pride.”'), { kind: 'speech', speaker: name, text: '“It looked that way from where I stood.”' }];
-      if (choiceId === 'explain' && kind === 'hyena_leave') return [say('“I didn\'t know if I could win.”'), say('“Neither did I. I went anyway.”')];
+      if (choiceId === 'explain' && kind === 'ford_cold') return [say('I wasn\'t against your pride. I had to decide fast.'), { kind: 'speech', speaker: name, text: 'Maybe not. It looked that way from where I stood.' }];
+      if (choiceId === 'explain' && kind === 'hyena_leave') return [say('I didn\'t think I could win.'), say('Maybe you couldn\'t have. I\'d still have liked some help.')];
       if (choiceId === 'repair') return [say(`“${REPAIR}”`)];
-      if (choiceId === 'leave' && kind === 'ford_cold') return [narrate('You walk away. You can feel {catName}\'s stare between your shoulders until the reeds hide you.')];
+      if (choiceId === 'leave' && kind === 'ford_cold') return [narrate('You walk away, and {catName} doesn\'t call after you.')];
     }
     if (kind === 'ford_stay') {
-      if (choiceId === 'neutral') return [say('“It wasn\'t my fight.”'), { kind: 'speech', speaker: name, text: '“Then don\'t expect to hear much about our business.”' }];
-      if (choiceId === 'ask_what_happened') return [say('“What\'s really between your prides?”'), say('“Now you know. Whether that\'s a gift or a weight is up to you.”')];
+      if (choiceId === 'neutral') return [say('It wasn\'t my fight.'), { kind: 'speech', speaker: name, text: 'Then don\'t expect to hear much about our business.' }];
+      if (choiceId === 'ask_what_happened') return [say('What\'s really going on between your prides?'), say('The ford is Highcrag\'s, and Bonefield won\'t accept that. Now you know.')];
     }
     return null;
   }
@@ -439,7 +463,7 @@
     const drink = drank ? (DRINK[biome] || 'You drank your fill.') : null;
     return { arrive, drink, beats: [narrate(arrive)].concat(drink ? [narrate(drink)] : []) };
   }
-  const SCOUT = 'They remember the ford. A guard\'s eyes follow you longer than they need to.';
+  const SCOUT = 'Word of what you did at the ford has reached this border.';
   function loadPass4() {
     if (typeof require === 'function') {
       try { return require('../data/events/pass-4-tracker.json'); } catch (e) { /* browser loads it below */ }

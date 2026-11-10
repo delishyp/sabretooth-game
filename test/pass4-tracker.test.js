@@ -111,7 +111,7 @@ test('scout standing is a spoken band, with no affinity on the result line', () 
     s.records.receipts = (s.records.receipts || []).filter((row) => !row.includes('/scout/'));
     const opened = E.lone.beginScout(s, 'bonefield', Object.assign({}, opts, { standing: () => standing }));
     const text = opened.event.beats.map((b) => b.text).join('\n');
-    const line = pass4.bug3_scoutStanding[key].replaceAll('{pride}', 'Bonefield');
+    const line = j('events/pass-4-tracker.json').bug3_scoutStanding[key].replaceAll('{pride}', 'Bonefield');
     assert.ok(text.includes(line), text);
     assert.ok(!/\d/.test(text), text);
     assert.strictEqual(opened.event.resultLine, '');

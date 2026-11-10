@@ -275,7 +275,7 @@
     function borderChoices(s, node) {
       const list = (node && node.choices || []).map((c) => ({ id: c.id, label: c.label, next: c.next, outcome: c.outcome, B: c.B }));
       if (s.border && s.border.node === 'policy_gate') {
-        if (!list.some((c) => c.id === 'ask_unrelated')) list.push({ id: 'ask_unrelated', label: 'Ask to speak with your leader about another matter.' });
+        if (!list.some((c) => c.id === 'ask_unrelated')) list.push({ id: 'ask_unrelated', label: 'Ask to see your leader about something else.' });
         const blocked = reviewBlocked(s);
         if (!blocked) {
           const route = (policyDoc && policyDoc.normalRoute) || (producer && producer.normalRoute) || [];
@@ -288,7 +288,7 @@
           }
         }
       }
-      if (s.border && s.border.node === 'review') list.push({ id: 'accept_ruling', label: 'That is the instruction.' });
+      if (s.border && s.border.node === 'review') list.push({ id: 'accept_ruling', label: '“All right. I understand.”' });
       return list;
     }
     function gateSpeech(s) {

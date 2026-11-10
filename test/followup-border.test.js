@@ -58,7 +58,7 @@ test('a follow-up result keeps the REPLIES line after the card drops speech', ()
 
 test('follow-up labels and replies fill placeholders, and {catId} is the npc speaker', () => {
   const ctx = { npc: { id: 'ln02', name: 'Sleet', sex: 'male' }, catId: 'ln02', player: { name: 'Ravenmark', sex: 'female' } };
-  assert.strictEqual(Pass2.choiceLabel('foal_hit', 'share', ctx), 'Push today\'s kill toward Sleet.');
+  assert.strictEqual(Pass2.choiceLabel('foal_hit', 'share', ctx), 'Push some of today\'s kill over to Sleet.');
   const shown = Pass2.presentChoice('foal_hit', 'share', [], ctx);
   assert.strictEqual(shown[0].log[0].speaker, 'ln02');
   assert.ok(shown[0].log[0].text.includes('Thank you'));

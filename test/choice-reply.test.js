@@ -58,15 +58,15 @@ function playExplain() {
 }
 
 test('a per-scene label wins, and listen in hyena_drive keeps the shared label', () => {
-  assert.strictEqual(Pass2.choiceLabel('hyena_drive', 'listen'), 'Listen.');
-  assert.strictEqual(Pass2.choices('hyena_drive').find((row) => row.id === 'listen').label, 'Listen.');
+  assert.strictEqual(Pass2.choiceLabel('hyena_drive', 'listen'), 'Stay and listen.');
+  assert.strictEqual(Pass2.choices('hyena_drive').find((row) => row.id === 'listen').label, 'Stay and listen.');
   labels['ford_cold.explain'] = 'The ford was not about your pride.';
   labels['ford_friend.listen'] = 'Hear the ford story out.';
   try {
     assert.strictEqual(Pass2.choiceLabel('ford_cold', 'explain'), 'The ford was not about your pride.');
     assert.strictEqual(Pass2.choices('ford_cold').find((row) => row.id === 'explain').label, 'The ford was not about your pride.');
-    assert.strictEqual(Pass2.choiceLabel('hyena_leave', 'explain'), labels.explain);
-    assert.strictEqual(Pass2.choices('hyena_drive').find((row) => row.id === 'listen').label, 'Listen.');
+    assert.strictEqual(Pass2.choiceLabel('hyena_leave', 'explain'), '“I didn\'t think I could win.”');
+    assert.strictEqual(Pass2.choices('hyena_drive').find((row) => row.id === 'listen').label, 'Stay and listen.');
     assert.strictEqual(Pass2.choices('ford_friend').find((row) => row.id === 'listen').label, 'Hear the ford story out.');
     assert.throws(() => Pass2.validateChoices(Object.assign({}, labels, { 'nope.explain': 'No.' }), replies, known), /unknown scene nope/);
     assert.throws(() => Pass2.validateChoices(Object.assign({}, labels, { 'ford_cold.dance': 'No.' }), replies, known), /unknown choice dance/);

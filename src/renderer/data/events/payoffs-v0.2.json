@@ -59,7 +59,7 @@
         "band": "low",
         "who": "npc"
       },
-      "text": "{playerName}. {catName} gives you a long look. So you came back.",
+      "text": "{playerName}. {catName} doesn't come any closer. So you came back.",
       "parts": [
         {
           "say": "{playerName}."
@@ -228,7 +228,7 @@
         "band": "high",
         "who": "npc"
       },
-      "text": "Someone told me you're looking for company out there. I hope you find some.",
+      "text": "Someone told me you're looking for company out there. Honestly? So am I.",
       "parts": [
         {
           "say": "Someone told me you're looking for company out there. I hope you find some."
@@ -256,7 +256,7 @@
         "band": "low",
         "who": "npc"
       },
-      "text": "Someone told me you're looking for company out there. I hope you find some.",
+      "text": "{catName} keeps a little way off. I heard you're after company. I'm only passing on what I was told.",
       "parts": [
         {
           "say": "Someone told me you're looking for company out there. I hope you find some."
@@ -267,7 +267,7 @@
   ],
   "2.1_rendezvous": {
     "ask_meet": {
-      "label": "\"Meet me at {zoneName} tomorrow.\"",
+      "label": "“Meet me here at {zoneName} tomorrow?”",
       "text": [
         {
           "when": {
@@ -275,7 +275,7 @@
             "band": "high",
             "who": "npc"
           },
-          "text": "\"Tomorrow? Yes!\" {catName} doesn't even pretend to think about it. \"I'll be there.\""
+          "text": "Tomorrow? Yes! {catName} doesn't even stop to think. I'll be there."
         },
         {
           "when": {
@@ -283,7 +283,7 @@
             "band": "baseline",
             "who": "npc"
           },
-          "text": "{catName} thinks it over, then nods once. \"{zoneName}, tomorrow. All right.\""
+          "text": "{catName} thinks about it, then nods. {zoneName}, tomorrow. All right."
         },
         {
           "when": {
@@ -291,13 +291,13 @@
             "band": "low",
             "who": "npc"
           },
-          "text": "\"Maybe.\" {catName} looks away. \"If I'm passing.\" It sounds more like yes than no."
+          "text": "Maybe, if I'm passing this way. {catName} looks off to the side, but it sounds more like a yes."
         }
       ]
     },
     "say_goodbye": {
-      "label": "Say goodbye.",
-      "text": "You part ways. {catName} looks back once before the land swallows the trail."
+      "label": "Say goodbye and go.",
+      "text": "Bye, then. You go your separate ways. {catName} glances back before the trail bends out of sight."
     }
   },
   "2.2_you_came": [
@@ -307,7 +307,7 @@
         "band": "high",
         "who": "npc"
       },
-      "text": "{catName} is already there, and comes to meet you halfway. \"You came!\""
+      "text": "{catName} is already waiting and comes to meet you. You came!"
     },
     {
       "when": {
@@ -315,7 +315,7 @@
         "band": "baseline",
         "who": "npc"
       },
-      "text": "{catName} is waiting at {zoneName}, and sits up when you appear. \"You came.\""
+      "text": "{catName} is waiting at {zoneName} and gets up when you arrive. You came."
     },
     {
       "when": {
@@ -323,7 +323,7 @@
         "band": "low",
         "who": "npc"
       },
-      "text": "{catName} is there, pretending not to be waiting. \"You came.\" A pause. \"Good.\""
+      "text": "{catName} is there, trying not to look like a cat who's been waiting. Oh. You came. Good."
     }
   ],
   "2.3_i_waited": {
@@ -334,7 +334,7 @@
           "band": "high",
           "who": "npc"
         },
-        "text": "\"I waited at {zoneName}. All day.\" {catName} sounds more hurt than angry. \"Did something happen?\""
+        "text": "I waited for you at {zoneName}. {catName} sounds more hurt than angry. Did something happen?"
       },
       {
         "when": {
@@ -342,7 +342,7 @@
           "band": "baseline",
           "who": "npc"
         },
-        "text": "\"I waited at {zoneName}.\" {catName} says it plainly, and waits to hear why."
+        "text": "I waited for you at {zoneName}. {catName} waits to hear why."
       },
       {
         "when": {
@@ -350,21 +350,21 @@
           "band": "low",
           "who": "npc"
         },
-        "text": "\"I waited at {zoneName}.\" {catName}'s tail flicks once. \"I won't make a habit of it.\""
+        "text": "{catName}'s bobtail twitches. I waited at {zoneName}. I won't make a habit of that."
       }
     ],
     "choices": {
       "explain": {
         "label": "Tell {catName} what kept you.",
-        "text": "You tell {catName} what kept you. {catName} listens to all of it, and some of the stiffness goes out of the moment."
+        "text": "You tell {catName} what kept you. All right. I can understand that."
       },
       "repair": {
-        "label": "\"I'm sorry. I should have come.\"",
-        "text": "\"I'm sorry. I should have come.\" {catName} looks at you a long moment, then lets it go."
+        "label": "“I'm sorry. I should have come.”",
+        "text": "{catName} lets it go. Thanks for saying it."
       },
       "leave": {
         "label": "Say nothing about it.",
-        "text": "You don't answer. {catName} doesn't ask again, and the silence sits between you."
+        "text": "You don't answer, and {catName} doesn't ask again."
       }
     }
   },
@@ -376,7 +376,7 @@
           "band": "high",
           "who": "npc"
         },
-        "text": "\"You ate the whole thing and never looked up!\" {catName} sounds more amazed than angry. \"I was right there.\""
+        "text": "You ate that whole kill and didn't even look at me! {catName} sounds more amazed than cross."
       },
       {
         "when": {
@@ -384,7 +384,7 @@
           "band": "baseline",
           "who": "npc"
         },
-        "text": "\"You ate the whole thing and never looked up.\" {catName} says it lightly, but watches for your answer."
+        "text": "You ate that whole kill right in front of me. {catName} says it lightly, but waits for your answer."
       },
       {
         "when": {
@@ -392,21 +392,21 @@
           "band": "low",
           "who": "npc"
         },
-        "text": "\"You ate the whole thing and never looked up.\" {catName} hasn't forgotten a single bite."
+        "text": "You ate the whole kill in front of me. {catName} clearly saw every bite."
       }
     ],
     "choices": {
       "promise_share": {
-        "label": "\"Next time, I'll share.\"",
-        "text": "\"Next time, I'll share.\" {catName}'s ears come forward. \"I'll hold you to that.\""
+        "label": "“Next time I make a kill, I'll share it with you.”",
+        "text": "{catName}'s ears come up. I'll hold you to that."
       },
       "my_kill": {
-        "label": "\"It was my kill.\"",
-        "text": "\"It was my kill.\" {catName} takes that in without a word, and something between you goes a little colder."
+        "label": "“It was my kill.”",
+        "text": "Fine. It was yours. {catName} turns a little away from you."
       },
       "leave": {
-        "label": "Let it go.",
-        "text": "You let the remark pass. {catName} doesn't press it."
+        "label": "Let the remark pass.",
+        "text": "You don't answer that, and {catName} lets it drop."
       }
     }
   }

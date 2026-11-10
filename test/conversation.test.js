@@ -175,8 +175,8 @@ test('quiet company without a promise and a boundary dismissal are different lat
   assert.ok(p2.conversation.pending.nodeId.endsWith('dismissed_boundary'));
   const qText = E.talkView(q2).lines.map((l) => l.text).join('\n');
   const pText = E.talkView(p2).lines.map((l) => l.text).join('\n');
-  assert.ok(qText.includes('A few more steps together?'));
-  assert.ok(pText.includes('Are we going to argue about quiet again?'));
+  assert.ok(qText.includes('Want to walk quietly again'));
+  assert.ok(pText.includes('What happens if it\'s the same today?'));
   assert.notStrictEqual(qText, pText);
   assert.ok(E.talkView(q2).choices.some((c) => c.id === 'quiet_again'));
   assert.ok(E.talkView(p2).choices.some((c) => c.id === 'need_words'));
@@ -199,8 +199,8 @@ test('quiet company without a promise and a boundary dismissal are different lat
   const q3 = talk(q2); const p3 = talk(p2);
   assert.strictEqual(q3.conversation.pending.nodeId, 'third:neutral');
   assert.strictEqual(p3.conversation.pending.nodeId, 'third:repair');
-  assert.ok(E.talkView(p3).lines.some((l) => l.text.includes('Are you going to listen if I ask for space?')));
-  assert.ok(!E.talkView(q3).lines.some((l) => l.text.includes('Are you going to listen if I ask for space?')));
+  assert.ok(E.talkView(p3).lines.some((l) => l.text.includes('If I ask for space, will you give it to me?')));
+  assert.ok(!E.talkView(q3).lines.some((l) => l.text.includes('If I ask for space, will you give it to me?')));
   const qDone = finish(pick(q3, 'stay'));
   const pDone = finish(pick(p3, 'repair'));
   assert.strictEqual(qDone.conversation.cats.ln05.thirdOutcome, 'third_neutral_stay');
@@ -247,7 +247,7 @@ test('return_quiet is the only quiet promise; a free Leave keeps it pending; a l
   const slot = s.conversation.slotDay;
   s.day = cooldown;
   s = talk(s);
-  assert.ok(E.talkView(s).lines.some((l) => l.text.includes('Another quiet walk?')));
+  assert.ok(E.talkView(s).lines.some((l) => l.text.includes('Quiet again')));
   s = finish(pick(s, 'leave'));
   assert.strictEqual(s.conversation.cats.ln05.facts.find((f) => f.promiseId === 'return_quiet').promise, 'pending');
   assert.strictEqual(s.npcs.ln05.affinity, 5);
@@ -280,7 +280,7 @@ test('return_quiet is the only quiet promise; a free Leave keeps it pending; a l
   s.day += 2;
   const third = talk(s);
   assert.strictEqual(third.conversation.pending.nodeId, 'third:confiding');
-  assert.ok(E.talkView(third).lines.some((l) => l.text.includes('You came back, and you let the quiet stay quiet')));
+  assert.ok(E.talkView(third).lines.some((l) => l.text.includes('You came back, and you didn\'t mind the quiet')));
   const done = finish(pick(third, 'listen'));
   assert.strictEqual(done.conversation.cats.ln05.thirdOutcome, 'third_confide_listen');
   assert.strictEqual(done.npcs.ln05.affinity, 20);
@@ -405,7 +405,7 @@ test('side-slot talk does not spend the day, and cooldown blocks a new talk unti
   s.day = day + 2;
   assert.strictEqual(E.available(s).talk.find((t) => t.catId === 'ln05').allowed, true);
   const later = talk(s);
-  assert.ok(E.talkView(later).lines.some((l) => l.text.includes('Still keeping your hunts to yourself?')));
+  assert.ok(E.talkView(later).lines.some((l) => /hunting alone|left you alone/.test(l.text)));
   assert.ok(!E.talkView(later).lines.some((l) => /share a kill|mate|pride/i.test(l.text)));
 });
 
@@ -441,17 +441,17 @@ test('a high-aggression saved personality changes only the voice line and surviv
   const mid = fresh();
   mid.npcs.ln05.personality = { aggression: 40, sociability: 55, boldness: 50, loyalty: 50, curiosity: 48 };
   const s = E.act(meet(mid), { type: 'choose', choiceId: 'greet' }).state;
-  assert.ok(E.talkView(s).lines.some((l) => l.text.includes('Are you passing through')));
+  assert.ok(E.talkView(s).lines.some((l) => l.text.includes('just passing through')));
   const warm = fresh();
   warm.npcs.ln05.personality = { aggression: 80, sociability: 90, boldness: 10, loyalty: 10, curiosity: 10 };
   const spoken = E.act(meet(warm), { type: 'choose', choiceId: 'greet' }).state;
   const sharp = E.talkView(spoken).lines.map((l) => l.text).join('\n');
-  assert.ok(sharp.includes('Would you walk with me'));
+  assert.ok(sharp.includes('Walk with me for a bit'));
   assert.deepStrictEqual(E.talkView(spoken).choices.map((c) => c.id), E.talkView(s).choices.map((c) => c.id));
   spoken.npcs.ln05.affinity = 80;
   const kept = roundTrip(spoken);
   assert.strictEqual(kept.npcs.ln05.personality.sociability, 90);
-  assert.ok(E.talkView(kept).lines.some((l) => l.text.includes('Would you walk with me')));
+  assert.ok(E.talkView(kept).lines.some((l) => l.text.includes('Walk with me for a bit')));
   assert.strictEqual(kept.conversation.pending.presentation.variantIds[0], spoken.conversation.pending.presentation.variantIds[0]);
 });
 

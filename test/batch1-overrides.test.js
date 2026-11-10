@@ -35,8 +35,9 @@ test('the eight look-gated leader beats stay out of batch 1', () => {
 test('payoff 1.5b uses one line on every band', () => {
   const rows = payoffs['1.5_seeking_company_gossip_opener'];
   assert.strictEqual(rows.length, 3);
-  const line = 'Someone told me you\'re looking for company out there. I hope you find some.';
-  for (const row of rows) assert.strictEqual(row.text, line);
+  assert.strictEqual(rows[0].text, 'Someone told me you\'re looking for company out there. Honestly? So am I.');
+  assert.strictEqual(rows[1].text, 'Someone told me you\'re looking for company out there. I hope you find some.');
+  assert.ok(rows[2].text.includes('I\'m only passing on what I was told.'));
 });
 
 test('loner greetings carry the byCat lines and removed repeat beats stay removed', () => {

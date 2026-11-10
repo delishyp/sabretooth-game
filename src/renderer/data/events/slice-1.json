@@ -1922,32 +1922,32 @@
       "kind": "patrol",
       "faction": "highcrag",
       "title": "A boundary warning",
-      "text": "{catName} steps onto the path. “These are Highcrag trails. Keep clear of the caves.”",
+      "text": "{catName} steps onto the path in front of you. This is Highcrag ground. Keep away from our caves.",
       "summary": "A Highcrag patrol warned you away.",
       "choices": [
         {
           "id": "yield",
-          "label": "Acknowledge the warning.",
-          "text": "{catName} watches as you give the patrol room.",
+          "label": "Step aside and let it pass.",
+          "text": "You step aside to give {catName} room. Good. Then we've no quarrel.",
           "summary": "You acknowledged {catName}’s warning.",
           "affinityIntent": "improve"
         },
         {
           "id": "leave",
-          "label": "Leave without answering.",
-          "text": "You put distance between yourself and the patrol.",
+          "label": "Turn and go without a word.",
+          "text": "You turn and go, and {catName} doesn't follow.",
           "summary": "You left {catName} without an answer.",
           "affinityIntent": "unchanged"
         },
         {
           "id": "defy",
-          "label": "“I heard you. I go where I choose.”",
-          "text": "{catName}’s gaze hardens as you turn away.",
+          "label": "“I heard you. I'll go where I like.”",
+          "text": "{catName}'s ears go flat. Then don't let me catch you near the caves.",
           "summary": "You defied {catName}’s warning.",
           "affinityIntent": "worsen"
         }
       ],
-      "hostileText": "{catName} rushes towards you before you can speak. You turn and run, the patrol close behind.",
+      "hostileText": "{catName} charges before you can say a word. You turn and run, and {catName} chases you off.",
       "hostileSummary": "You fled a hostile Highcrag patrol."
     },
     {
@@ -1955,32 +1955,32 @@
       "kind": "patrol",
       "faction": "bonefield",
       "title": "A boundary warning",
-      "text": "{catName} faces you across the grass. “Bonefield hunts here. Do not mistake an empty trail for unclaimed ground.”",
+      "text": "{catName} comes through the grass to meet you. Bonefield hunts here. An empty trail doesn't mean nobody owns it.",
       "summary": "A Bonefield patrol warned you away.",
       "choices": [
         {
           "id": "yield",
-          "label": "Acknowledge the warning.",
-          "text": "{catName} watches as you give the patrol room.",
+          "label": "Step aside and let it pass.",
+          "text": "You step aside to give {catName} room. Smart. Go on, then.",
           "summary": "You acknowledged {catName}’s warning.",
           "affinityIntent": "improve"
         },
         {
           "id": "leave",
-          "label": "Leave without answering.",
-          "text": "You put distance between yourself and the patrol.",
+          "label": "Turn and go without a word.",
+          "text": "You turn and go, and {catName} doesn't follow.",
           "summary": "You left {catName} without an answer.",
           "affinityIntent": "unchanged"
         },
         {
           "id": "defy",
-          "label": "“I heard you. I go where I choose.”",
-          "text": "{catName}’s gaze hardens as you turn away.",
+          "label": "“I heard you. I'll go where I like.”",
+          "text": "{catName}'s ears go flat. Big talk, for someone standing on our ground.",
           "summary": "You defied {catName}’s warning.",
           "affinityIntent": "worsen"
         }
       ],
-      "hostileText": "{catName} rushes towards you before you can speak. You turn and run, the patrol close behind.",
+      "hostileText": "{catName} charges before you can say a word. You turn and run, and {catName} chases you off.",
       "hostileSummary": "You fled a hostile Bonefield patrol."
     },
     {
@@ -1988,32 +1988,32 @@
       "kind": "patrol",
       "faction": "mistwood",
       "title": "A boundary warning",
-      "text": "{catName} emerges beside the path. “You have crossed into Mistwood ground. Turn back from our dens.”",
+      "text": "{catName} comes out of the mist beside the path. You're on Mistwood ground. Turn back, away from our dens.",
       "summary": "A Mistwood patrol warned you away.",
       "choices": [
         {
           "id": "yield",
-          "label": "Acknowledge the warning.",
-          "text": "{catName} watches as you give the patrol room.",
+          "label": "Step aside and let it pass.",
+          "text": "You step aside to give {catName} room. Thank you. Go carefully.",
           "summary": "You acknowledged {catName}’s warning.",
           "affinityIntent": "improve"
         },
         {
           "id": "leave",
-          "label": "Leave without answering.",
-          "text": "You put distance between yourself and the patrol.",
+          "label": "Turn and go without a word.",
+          "text": "You turn and go, and {catName} doesn't follow.",
           "summary": "You left {catName} without an answer.",
           "affinityIntent": "unchanged"
         },
         {
           "id": "defy",
-          "label": "“I heard you. I go where I choose.”",
-          "text": "{catName}’s gaze hardens as you turn away.",
+          "label": "“I heard you. I'll go where I like.”",
+          "text": "{catName}'s ears go flat. Then go where you like, as long as it isn't near our dens.",
           "summary": "You defied {catName}’s warning.",
           "affinityIntent": "worsen"
         }
       ],
-      "hostileText": "{catName} rushes towards you before you can speak. You turn and run, the patrol close behind.",
+      "hostileText": "{catName} charges before you can say a word. You turn and run, and {catName} chases you off.",
       "hostileSummary": "You fled a hostile Mistwood patrol."
     }
   ]

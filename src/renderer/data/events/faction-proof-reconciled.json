@@ -26,12 +26,12 @@
         "choices": [
           {
             "id": "request_policy_review",
-            "label": "“Ask your leader whether you may carry requests involving Bonefield.”",
+            "label": "“Will you ask your leader if you're allowed to carry requests about Bonefield?”",
             "effect": "Commit one review request, naming player, guard and current Highcrag leader. No policy value yet."
           },
           {
             "id": "withdraw",
-            "label": "“Leave it for now.”",
+            "label": "“Never mind.”",
             "effect": "No review request or policy write."
           }
         ]
@@ -123,9 +123,9 @@
           "speaker": "guard",
           "focusTrait": "sociability",
           "context": "opening",
-          "base": "I do not have an instruction about carrying requests involving Bonefield. I can ask.",
-          "high": "I can ask our leader about carrying that request. Stay outside our boundary while it waits.",
-          "low": "I do not have that instruction. I can ask, but wait outside our boundary.",
+          "base": "Nobody's told me what to do with Bonefield requests. I can ask.",
+          "high": "I can ask our leader about it for you. Just wait outside our ground while I do.",
+          "low": "I've had no word on Bonefield requests. I can ask, but you wait outside our ground.",
           "requires": "current scene and selected branch"
         },
         "review_requested": {
@@ -141,72 +141,72 @@
           "speaker": "leader",
           "focusTrait": "boldness",
           "context": "question",
-          "base": "You asked whether requests involving Bonefield may be carried. I have heard that question.",
-          "high": "I have heard your request. I will give the instruction here, so there is no guessing.",
-          "low": "I have heard the question. Let us be clear about what is being asked before anyone carries a request.",
+          "base": "You want to know if requests about Bonefield can be carried. I've heard the question.",
+          "high": "I've heard your question, and I'll answer it here so nobody has to guess.",
+          "low": "I've heard your question. Before anyone carries anything, I want to be sure what's being asked.",
           "requires": "actual request and relay event; leader present"
         },
         "leader_permit": {
           "speaker": "leader",
           "focusTrait": "curiosity",
           "context": "question",
-          "base": "Requests involving Bonefield may be brought to me. Hearing one is not agreeing to it.",
-          "high": "Bring me those requests. I want to hear what is being asked before deciding.",
-          "low": "You may carry the request to me. Keep it to the matter being asked; hearing it grants nothing.",
+          "base": "Requests about Bonefield can come to me. Hearing a request isn't the same as agreeing to it.",
+          "high": "Bring them to me. I want to hear what's being asked before I decide anything.",
+          "low": "You can bring those requests to me. Keep to what's asked. Hearing a request doesn't mean I'll agree.",
           "requires": "committed permit_relay decision; no claim of peace"
         },
         "leader_defer_caution": {
           "speaker": "leader",
           "focusTrait": "loyalty",
           "context": "boundary",
-          "base": "Hold requests involving Bonefield for now. That is a delay, not a declaration of a feud.",
-          "high": "Hold them for now. I will not let an unclear invitation become a promise on my pride’s behalf.",
-          "low": "Hold them for now. I am not binding our pride to an arrangement simply by receiving a petition.",
+          "base": "Hold any requests about Bonefield for now. That's a delay, not a feud.",
+          "high": "Hold them for now. I won't let a vague request turn into a promise made for my pride.",
+          "low": "Hold them for now. Taking a request doesn't tie my pride to anything.",
           "requires": "committed defer_relay decision without verified conflict cause"
         },
         "leader_defer_cause": {
           "speaker": "leader",
           "focusTrait": "aggression",
           "context": "boundary",
-          "base": "That unresolved matter must be dealt with first. Hold those requests for now.",
-          "high": "That matter is not settled. Hold the requests; I will not pretend we have passed it.",
-          "low": "That matter remains unsettled. Let us hold the requests rather than imply it is resolved.",
+          "base": "The trouble with Bonefield has to be settled before anything else. Hold those requests.",
+          "high": "That trouble isn't settled, and I won't pretend it is. Hold the requests.",
+          "low": "What happened with Bonefield isn't settled yet. Let's hold the requests for now.",
           "requires": "committed defer_relay; leader knows actual applicable source event. Attach source-event summary only from verified fact, never authored invented incident."
         },
         "guard_permitted": {
           "speaker": "guard",
           "focusTrait": "sociability",
           "context": "return",
-          "base": "The instruction permits me to carry your request. What should I tell our leader?",
-          "high": "I can carry it under that instruction. Tell me what you want our leader to hear.",
-          "low": "I can carry this request. Say plainly what you want me to pass on.",
+          "base": "I'm allowed to carry your request. What should I tell our leader?",
+          "high": "I can take it to our leader. Tell me what you want said.",
+          "low": "I'm allowed to carry your request. Say plainly what I should pass on.",
           "requires": "guard knows current permit version; player standing gate separately passes"
         },
         "guard_deferred_known_aid": {
           "speaker": "guard",
           "focusTrait": "aggression",
           "context": "boundary",
-          "base": "I know about your help to a Bonefield cat, and I have the instruction to wait. You can give your account; I cannot promise an introduction.",
-          "high": "I know about that help. Tell me your account if you want it heard, but do not mistake that for an introduction.",
-          "low": "I know about that help. You may explain it, but the instruction still leaves the request waiting.",
+          "base": "I know you helped a Bonefield cat, and I've been told to hold requests like this. You can tell me why you did it.",
+          "high": "I know you helped a Bonefield cat. Tell me your side if you want, but it won't change my orders.",
+          "low": "I know you helped a Bonefield cat. You can explain, but I've been told to hold the request.",
           "requires": "guard knows current defer version AND actual verified aid event involving Bonefield; aid knowledge is not evidence that the aid caused policy"
         },
         "guard_deferred_no_aid": {
           "speaker": "guard",
           "focusTrait": "boldness",
           "context": "boundary",
-          "base": "The instruction is to hold these requests. I am not carrying this one today.",
-          "high": "The instruction is to wait. I will not carry it today.",
-          "low": "I have the instruction to wait. I cannot offer to carry it today.",
+          "base": "I've been told to hold requests like this. I'm not carrying yours today.",
+          "high": "My orders are to wait. I won't carry it today.",
+          "low": "I've been told to hold these requests. I can't carry yours today.",
           "requires": "guard knows current defer version; private aid knowledge absent"
         },
         "guard_unknown": {
           "speaker": "guard",
           "focusTrait": "curiosity",
           "context": "question",
-          "base": "I do not have an answer about that request.",
-          "high": "I do not have an instruction yet. We can ask what is allowed; I will not guess.",
-          "low": "I have no answer to give. I will not promise one.",
+          "base": "I don't know what I'm allowed to do with that request.",
+          "high": "Nobody's told me what's allowed, and I won't guess.",
+          "low": "I don't have an answer for you, and I won't make anything up.",
           "requires": "no known applicable policy; never asserts a secret ruling"
         },
         "account_request": {
@@ -214,35 +214,35 @@
           "focusTrait": "curiosity",
           "context": "question",
           "base": "Then tell me what happened.",
-          "high": "Tell me what happened, and what you actually saw.",
-          "low": "Give me the account plainly. I will not fill in what you leave out.",
+          "high": "Tell me what happened, and only what you saw yourself.",
+          "low": "Tell me plainly. I won't fill in anything you leave out.",
           "requires": "actual explanation choice; no forced private disclosure"
         },
         "verified_disclosure": {
           "speaker": "guard",
           "focusTrait": "loyalty",
           "context": "question",
-          "base": "I have heard your account. The request still waits.",
-          "high": "I have heard it. I will keep your account separate from what the instruction allows.",
-          "low": "I have heard what you chose to tell me. It does not settle the request.",
+          "base": "I've heard your side. The request still waits.",
+          "high": "I've heard it. Your side and my orders aren't the same thing.",
+          "low": "I've heard what you wanted to tell me. It doesn't settle the request.",
           "requires": "actual verified disclosure; learns exact source only, not all private history"
         },
         "keep_private": {
           "speaker": "guard",
           "focusTrait": "aggression",
           "context": "boundary",
-          "base": "Then the request remains unanswered.",
-          "high": "Keep it private, then. I will not treat silence as an explanation or as guilt.",
-          "low": "You need not tell me more. The request still has no answer.",
+          "base": "Then the request stays unanswered.",
+          "high": "Keep it to yourself, then. I won't take silence as an answer, or as guilt.",
+          "low": "You don't have to tell me more. The request just stays unanswered.",
           "requires": "explicit player keep_private choice"
         },
         "relay_accepted": {
           "speaker": "guard",
           "focusTrait": "loyalty",
           "context": "return",
-          "base": "At the border, not inside the den. I will pass that request on.",
-          "high": "At the border. I will carry that request, not promise what the answer will be.",
-          "low": "I can pass on a request to meet at the border. No answer is promised.",
+          "base": "At the border, not in our den. I'll pass that on.",
+          "high": "At the border. I'll carry it, but I won't promise you what comes back.",
+          "low": "I can pass on that you want to meet at the border. I'm not promising an answer.",
           "requires": "send_request committed under known permitted policy; audience_offered means relay accepted only"
         },
         "withdraw": {
@@ -258,18 +258,18 @@
           "speaker": "leader",
           "focusTrait": "aggression",
           "context": "boundary",
-          "base": "I am not receiving this petition from you today.",
-          "high": "I will not receive this petition from you today. Do not mistake hearing the question for accepting it.",
-          "low": "I am not ready to receive this petition from you. We will leave it unanswered today.",
+          "base": "I won't take this request from you today.",
+          "high": "I won't take this request from you today. Don't think I'm agreeing just because I listened.",
+          "low": "I'm not ready to take this request from you. It stays unanswered today.",
           "requires": "committed standing-caused deferral; no invented offense or feud"
         },
         "leader_permit_warm": {
           "speaker": "leader",
           "focusTrait": "sociability",
           "context": "return",
-          "base": "You may bring the request. I will hear what is being asked.",
-          "high": "Bring the request to me. I would rather hear it plainly than leave you waiting.",
-          "low": "You may carry the request. I will hear that matter; no more is promised.",
+          "base": "You can bring the request, and I'll hear it.",
+          "high": "Bring it to me. I'd rather hear it straight than keep you waiting.",
+          "low": "You can bring the request. I'll hear that much, nothing more.",
           "requires": "committed warm-standing permit; no higher-priority known feud/negative standing"
         }
       },
@@ -294,23 +294,23 @@
     "id": "m2.ford_prey_dispute",
     "status": "DRAFT story text aligned to v0.5.5 §12.6.6.2; no new costs, injuries, combat, food award or art.",
     "trigger": "First actual Greywater Ford visit on absDay>=2, once per run. Both living adult pride representatives and all five saved traits required; no substituted default characters.",
-    "openingNarration": "Greywater Ford is loud with snowmelt. Blood-scent hangs over it, sharp and fresh. A carcass has caught against the stones midstream, rolling as the current tugs at it. {highcragCatName} stands on the bank above it, still as rock. {bonefieldCatName} stands chest-deep in the water beside it, braced against the pull. Neither of them looks away from the other. Neither of them gives way.",
+    "openingNarration": "Greywater Ford is loud with snowmelt, and the air smells of fresh blood. A carcass has caught on the stones midstream. {highcragCatName} stands on the bank above it, and {bonefieldCatName} stands chest-deep in the water beside it, braced against the current. Neither cat gives way.",
     "factBoundary": "The ford is Highcrag-held and disputed by Bonefield per map-v1. Do not state who killed the prey or that a leader ordered this encounter. It is a new witnessed dispute, not a recollection of a starting war.",
     "fixedEvent": "Commit the observed incident once with runId/ford_dispute/highcrag/bonefield. Highcrag->Bonefield -20, Bonefield->Highcrag -10; sourceType hunt_steal, pride_known to both, not world_known. Pin two actual participant IDs. Choice receipt is separate; Save/Continue cannot replay incident delta.",
     "choices": [
       {
         "id": "help_bonefield_cat",
-        "label": "Help the Bonefield cat pull the carcass clear of the current.",
+        "label": "Wade in and help the Bonefield cat drag the carcass out.",
         "effect": "Bonefield cat->player +5. Record player_aided_bonefield, with Highcrag participant as actual witness. No faction delta from choice; no automatic ownership or player food award."
       },
       {
         "id": "side_with_highcrag",
-        "label": "Stand beside the Highcrag cat and ask the Bonefield cat to leave the prey.",
+        "label": "Stand with the Highcrag cat and tell the Bonefield cat to leave the carcass.",
         "effect": "Highcrag cat->player +5. Record mirror sided-with-Highcrag fact with Bonefield participant as witness. No faction delta from choice; no auto fight or claim that the demand was obeyed."
       },
       {
         "id": "stay_out",
-        "label": "Keep clear and let the two cats settle their own dispute.",
+        "label": "Stay out of it and let them sort it out themselves.",
         "effect": "No personal delta. Record actual observation/choice only; do not imply support for either pride."
       }
     ],
@@ -322,17 +322,17 @@
         "speaker": "highcragCat",
         "focusTrait": "aggression",
         "context": "boundary",
-        "base": "Leave it. This bank is Highcrag's, and so is what washes onto it.",
-        "high": "Step back from that kill. You're standing on Highcrag ground, and I won't say it twice.",
-        "low": "Please. This is Highcrag ground. Leave it, before this turns into something worse."
+        "base": "Leave it. This bank is Highcrag's, and so is anything that washes up on it.",
+        "high": "Get back from that kill. You're on Highcrag ground, and I won't tell you again.",
+        "low": "Please, leave it. This is Highcrag ground, and I don't want this getting any worse."
       },
       "bonefield_answer": {
         "speaker": "bonefieldCat",
         "focusTrait": "boldness",
         "context": "boundary",
-        "base": "And let the river have it while we stand here growling? No.",
-        "high": "Growl all you like. I'm getting it out of the water, and I'm not backing off because you told me to.",
-        "low": "It's slipping. Let me get it onto the stones, and then we can argue. Just not with claws."
+        "base": "And let the river take it while we stand here growling? No.",
+        "high": "Growl all you like. I'm getting it out of the water, and you can't make me back off.",
+        "low": "It's slipping. Let me get it onto the stones. We can argue after that, just not with claws."
       },
       "aid_bonefield_response": {
         "speaker": "bonefieldCat",
