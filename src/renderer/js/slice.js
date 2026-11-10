@@ -241,7 +241,7 @@
         zoneHolder: own.state === 'held' ? own.holder : null,
         huntReady: !!(s.records && s.records._huntOk),
         scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
-        priorityIds: Follow.priorityIds(s),
+        priorityIds: priorityIdsFor(s),
         presentIds: followPresentIds(s),
         followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc)),
         ownership: (id) => W.ownership(s.map.claims, id),
@@ -287,6 +287,12 @@
       else if (npc.stage === 'elder') stat *= 0.85;
       return stat;
     }
+    function priorityIdsFor(s) {
+      const ids = Follow.priorityIds(s);
+      const next = s.records && s.records.presenceFirst;
+      if (!next || next.day !== s.day || !next.catId) return ids;
+      return [next.catId].concat(ids.filter((id) => id !== next.catId));
+    }
     function followPresentIds(s) {
       return (s.followups || []).filter((row) => {
         if (!row || row.fired) return false;
@@ -312,8 +318,9 @@
         const seen = passers(s);
         const spoken = Lone.watchText();
         rep.push({ k: 'watch', energy: 20, cats: seen.map((n) => ({ id: n.id, name: n.name, doing: (n.homeZones || []).includes(s.region) ? 'on their own ground' : 'crossing the hillside' })) });
+        const cat = !Lone.usedDay(s, 'approach') && Lone.presentCat(s, opts, ['home', 'near']);
         opened = {
-          event: {
+          event: cat ? Lone.watchPresence(s, cat, opts) : {
             lone: true, eventId: 'action.watch', title: 'The vantage',
             beats: [{ kind: 'narration', text: spoken }], beatIndex: 0, choices: [],
             summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
@@ -521,6 +528,9 @@
         if (picked.memberShare) shareKill(s, rep);
         return { state: s };
       }
+      if (s.phase === 'event' && s.pending && s.pending.presence && (action.type === 'choose' || action.type === 'sceneChoose')) {
+        return presenceChoose(s, action.choiceId);
+      }
       if (s.phase === 'event' && s.pending && s.pending.cub && (action.type === 'choose' || action.type === 'sceneChoose')) {
         const resolved = Lone.resolveCub(s, action.choiceId);
         if (resolved.error) return { state: s0, error: resolved.error };
@@ -570,6 +580,10 @@
           return { state: s };
         }
         const settle = s.pending && s.pending.settleDay;
+        if (s.pending && Array.isArray(s.pending.beats) && s.pending.beats.length && s.pending.eventId !== 'day.quiet') {
+          if (!s.records) s.records = {};
+          s.records.beatsPlayedDay = s.day;
+        }
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
         else if (settle) endDay(s, [], { action: 'helpCub', rested: false, slotTaken: true });
@@ -954,6 +968,66 @@
     function meetingFollow(s, npc) {
       return Follow.scene(s, npc.id, followCtx(s, npc));
     }
+    function openMeeting(s, npc) {
+      const followed = meetingFollow(s, npc);
+      if (followed) { meet(s, npc); s.pending = followed; s.phase = 'event'; return { state: s }; }
+      if (Pair.enabled) {
+        const ev = attachVoice(Pair.meetingEvent(s, npc, bondDeps(s, [])));
+        if (ev) { s.pending = ev; s.phase = 'event'; return { state: s }; }
+      }
+      const faction = npc.faction === 'highcrag' || npc.faction === 'bonefield' || npc.faction === 'mistwood' ? npc.faction : 'loner';
+      const e = eventFor('first_meeting', faction);
+      if (!e) return { state: s, error: 'meeting' };
+      s.pending = bind(e, npc, { day: s.day });
+      s.phase = 'event';
+      return { state: s };
+    }
+    function presenceChoose(s, choiceId) {
+      const p = s.pending;
+      const npc = s.npcs[p.catId];
+      if (!npc) return { state: s, error: 'gone' };
+      if (choiceId === 'go_down' || choiceId === 'call_out') return openMeeting(s, npc);
+      if (choiceId === 'keep_watching' || choiceId === 'hold_still') {
+        Lone.revealRoute(s, npc);
+        s.pending = null;
+        s.phase = 'day';
+        return { state: s };
+      }
+      if (choiceId === 'move_on' || choiceId === 'continue') {
+        if (p.next) { s.pending = p.next; s.phase = p.next.result ? 'eventResult' : 'event'; return { state: s }; }
+        s.pending = null;
+        s.phase = 'day';
+        return { state: s };
+      }
+      if (choiceId === 'share') {
+        const shared = Lone.shareKill(s, npc.id);
+        if (shared.error) return { state: s, error: shared.error };
+        Lone.keepBringPrey(s, npc.id);
+        s.pending = shared.event;
+        s.phase = 'event';
+        return { state: s };
+      }
+      if (choiceId === 'warn_off') {
+        const factId = `${s.runId || ''}/refused_share/${npc.id}/${s.day}`;
+        if (s.worldMemory) {
+          if (!Array.isArray(s.worldMemory.facts)) s.worldMemory.facts = [];
+          if (!s.worldMemory.knowledge) s.worldMemory.knowledge = {};
+          if (!s.worldMemory.facts.some((row) => row.factId === factId)) {
+            s.worldMemory.facts.push({ factId, kind: 'refused_share', participants: ['player', npc.id] });
+            s.worldMemory.knowledge[factId] = { scope: 'private', participantIds: ['player', npc.id], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: s.day };
+          }
+        }
+        s.pending = Lone.presenceReply(s, npc, 'presence.hunt.warn');
+        s.phase = 'eventResult';
+        return { state: s };
+      }
+      if (choiceId === 'let_watch') {
+        s.pending = Lone.presenceReply(s, npc, 'presence.hunt.let_watch');
+        s.phase = 'eventResult';
+        return { state: s };
+      }
+      return { state: s, error: 'choice' };
+    }
     /** Saga: one spring moment per region, once per run; shown the first day the cat ends there with no meeting or hazard that day. */
     function regionMoment(s) {
       const e = EV.find((x) => x.kind === 'region' && x.id !== 'slice.region.horse_meadows' && x.regions.includes(s.region) && (!x.season || x.season === season(s)) && !s.usedEvents.includes(x.id));
@@ -1001,8 +1075,8 @@
       if (n.hunger >= N.health.regenNeedsMin && n.thirst >= N.health.regenNeedsMin && !s.injuries.length) n.health = clamp(n.health + (rested ? N.health.restRegen : N.health.regen), 0, 100);
       s.counters.starving = n.hunger <= 0 ? s.counters.starving + 1 : 0;
       s.counters.parched = n.thirst <= 0 ? s.counters.parched + 1 : 0;
-      if (s.counters.starving >= N.starvationGraceDays) { n.health = clamp(n.health - N.damageAtEmpty, 0, 100); rep.push({ k: 'starving' }); if (n.health <= 0) die(s, 'starvation'); }
-      if (s.counters.parched >= N.parchedGraceDays) { n.health = clamp(n.health - N.damageAtEmpty, 0, 100); rep.push({ k: 'parched' }); if (n.health <= 0) die(s, 'thirst'); }
+      if (s.counters.starving >= N.starvationGraceDays) { n.health = clamp(n.health - N.damageAtEmpty, 0, 100); rep.push({ k: 'starving', health: N.damageAtEmpty }); if (n.health <= 0) die(s, 'starvation'); }
+      if (s.counters.parched >= N.parchedGraceDays) { n.health = clamp(n.health - N.damageAtEmpty, 0, 100); rep.push({ k: 'parched', health: N.damageAtEmpty }); if (n.health <= 0) die(s, 'thirst'); }
       s.injuries = s.injuries.map((i) => ({ ...i, daysLeft: i.daysLeft - (rested ? 2 : 1) })).filter((i) => { if (i.daysLeft <= 0) { rep.push({ k: 'healed', tier: i.tier }); return false; } return true; });
       for (const n of Object.values(s.npcs || {})) {
         if (!n.injuries || !n.injuries.length) continue;
@@ -1214,7 +1288,7 @@
         zoneHolder: own.state === 'held' ? own.holder : null,
         huntReady: !!(s.records && s.records._huntOk),
         scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
-        priorityIds: Follow.priorityIds(s),
+        priorityIds: priorityIdsFor(s),
         presentIds: followPresentIds(s),
         followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc)),
         ownership: (id) => W.ownership(s.map.claims, id)
@@ -1223,13 +1297,30 @@
     function quietLines(s, rep) {
       const bits = [];
       for (const l of rep || []) {
-        if (l.k === 'rest') bits.push(`You rested. Energy +${l.energy}.`);
+        if (l.k === 'rest') bits.push('You rested.');
         else if (l.k === 'travelling') bits.push(`You are travelling to ${W.region(l.to).name}. ${l.daysLeft} days remain.`);
         else if (l.k === 'drink') bits.push('You drank your fill.');
         else if (l.k === 'arrive') bits.push(`You reached ${W.region(l.region).name}.`);
       }
-      if (!bits.length) bits.push('Nothing else disturbed your day.');
+      if (!bits.length && !(s.records && s.records.beatsPlayedDay === s.day)) bits.push('Nothing else disturbed your day.');
       return bits.join(' ');
+    }
+    function statBits(rep) {
+      const bits = [];
+      for (const l of rep || []) {
+        if (l.k === 'rest' && l.energy) bits.push(`Energy +${l.energy}`);
+        if (l.k === 'starving') bits.push(`Health −${l.health}`);
+        if (l.k === 'parched') bits.push(`Health −${l.health}`);
+        if (l.k === 'killShare') bits.push(`Hunger +${l.hunger}`);
+      }
+      return bits.join('. ');
+    }
+    function applyStatLine(ev, rep) {
+      if (!ev) return ev;
+      const extra = statBits(rep);
+      if (!extra) return ev;
+      ev.resultLine = [ev.resultLine, extra].filter(Boolean).join(' ');
+      return ev;
     }
     function dayFiller(s, rep) {
       const opts = approachOpts(s);
@@ -1256,14 +1347,40 @@
         }
       }
       const text = quietLines(s, rep);
+      if (!text) return null;
+      const stats = statBits(rep);
       return {
         eventId: 'day.quiet', title: 'The day', filler: true, voice: true, lone: true,
         beats: [{ kind: 'narration', text }], beatIndex: 0, choices: [],
-        summary: text, resultLine: text, day: s.day
+        summary: stats, resultLine: stats, day: s.day
       };
     }
+    function applyStone(s, ev) {
+      if (!ev) return ev;
+      if (ev.next) ev.next = applyStone(s, ev.next);
+      if (ev.eventId !== 'slice.region.wind_scree' && ev.eventId !== 'slice.region.east_saddle') return ev;
+      if (Lone.usedDay(s, 'approach')) return ev;
+      const cat = Lone.presentCat(s, loneOpts(s), ['home']);
+      if (!cat) return ev;
+      const stone = Lone.stonePresence(s, cat, ev);
+      stone.next = ev.next;
+      return stone;
+    }
+    function withKillPresence(s, rep, ev) {
+      const hunt = (rep || []).find((l) => l.k === 'hunt' && l.ok && l.size === 'small' && !l.foal);
+      if (!hunt || Lone.usedDay(s, 'approach')) return ev;
+      const cat = Lone.presentCat(s, loneOpts(s), ['home']);
+      if (!cat) return ev;
+      const presence = Lone.killPresence(s, cat, loneOpts(s));
+      if (ev) {
+        presence.next = ev.next || null;
+        ev.next = presence;
+        return ev;
+      }
+      return presence;
+    }
     function presentDay(s, rep, ev) {
-      return withArrival(s, rep, attachVoiceHunt(s, rep, ev));
+      return applyStatLine(applyStone(s, withKillPresence(s, rep, withArrival(s, rep, attachVoiceHunt(s, rep, ev)))), rep);
     }
     function watchScene(s, line) {
       const pack = Pass2.lines()['slice.js:watchSighting'];
@@ -1288,6 +1405,11 @@
       if (watch) return watchScene(s, watch);
       return arrivalFallbackScene(s, rep) || dayFiller(s, rep);
     }
+    function shouldHoldResult(s) {
+      if (!s || s.phase !== 'eventResult' || !s.pending) return false;
+      const beats = sceneBeats(s);
+      return !!(beats && beats.length);
+    }
     function beatContext(s) {
       const npc = s.pending && s.pending.catId ? s.npcs[s.pending.catId] : null;
       return {
@@ -1310,7 +1432,7 @@
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;
       if (!e) {
-        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || id === 'lone.shadow' || id === 'lone.spar' || id === 'lone.scout' || id === 'lone.steal' || id === 'lone.cub' || id === 'lone.share' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.')))) {
+        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || id === 'lone.shadow' || id === 'lone.spar' || id === 'lone.scout' || id === 'lone.steal' || id === 'lone.cub' || id === 'lone.share' || id === 'lone.presence.hunt' || id === 'lone.presence.reply' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.')))) {
           return { id, title: 'Scene', text: '', choices: [{ id: 'continue', label: 'Continue', summary: 'Continue', affinityIntent: 'unchanged' }] };
         }
         return null;
@@ -1325,7 +1447,7 @@
       const spoken = Pass2.arrival(region.biome, region.name, true);
       return kind === 'drink' ? spoken.drink : spoken.arrive;
     };
-    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
+    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, shouldHoldResult, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

@@ -220,7 +220,8 @@ test('≤ 1 offline event per day; region moments fire once per run', () => {
     const perDay = {};
     for (const st of seen) {
       if (!st.pending || st.phase !== 'event') continue;
-      if (String(st.pending.eventId || '').startsWith('voice.hunt.')) continue;
+      const id = String(st.pending.eventId || '');
+      if (id.startsWith('voice.hunt.') || id.startsWith('lone.presence.')) continue;
       perDay[st.pending.day] = new Set([...(perDay[st.pending.day] || []), st.pending.eventId]);
     }
     for (const [d, ids] of Object.entries(perDay)) assert.strictEqual(ids.size, 1, `day ${d}`);

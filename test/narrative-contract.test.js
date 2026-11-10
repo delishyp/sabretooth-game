@@ -126,8 +126,9 @@ test('FIXTURE reload keeps the frozen reply and the post-cap receipt', () => {
   const chosen = pick(tight, before, 'quiet_again');
   const text = tight.talkView(chosen).lines.map((l) => l.text).join('\n');
   assert.ok(text.includes('You kept your promise to return.'));
-  assert.ok(text.includes('improved by 6.'));
-  assert.ok(!text.includes('improved by 10.'));
+  assert.ok(!/improved by \d+/.test(text));
+  assert.ok(!/worsened by \d+/.test(text));
+  assert.ok(chosen.npcs.ln05.affinity > 0);
   const again = tight.migrate(JSON.parse(JSON.stringify(chosen)));
   assert.strictEqual(tight.talkView(again).lines.map((l) => l.text).join('\n'), text);
   assert.strictEqual(again.npcs.ln05.affinity, chosen.npcs.ln05.affinity);

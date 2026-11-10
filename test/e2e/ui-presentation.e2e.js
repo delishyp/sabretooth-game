@@ -133,7 +133,8 @@ async function reach(page) {
     assert.ok(at720.relations.includes('Faction · Unknown'));
     assert.ok(!at720.relations.includes('No Opinion/Neutral'));
     assert.strictEqual(at720.costData.charged, '1');
-    assert.ok(at720.cost.includes('Energy 0') && at720.cost.includes(`Energy −${at720.costData.energy}`));
+    assert.ok(at720.cost.includes('asks nothing more'));
+    assert.ok(!/Energy −\d+/.test(at720.cost));
     assert.ok(at720.needs.some((n) => n.startsWith('Health ')) && at720.needs.some((n) => n.startsWith('Hunger ')));
     assert.strictEqual(at720.focusChoice, BEFORE.choiceIds[0]);
     assert.notStrictEqual(at720.focusOutline, '0px');

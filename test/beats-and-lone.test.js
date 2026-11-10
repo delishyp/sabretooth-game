@@ -110,8 +110,9 @@ test('scent names only met cats, is deterministic, and does not repeat after rel
   assert.strictEqual(resumed.worldMemory.facts.filter((f) => f.kind === 'scent_sign').length, 1);
   const text = first.pending.beats.map((b) => b.text).join('\n');
   assert.ok(text.includes(s.npcs.ln05.name));
-  assert.ok(text.includes('Prey sign is '));
-  assert.ok(/a strange (male|female)/.test(text));
+  assert.ok(text.includes('You lower your nose to the ground'));
+  assert.ok(/prey-scent/i.test(text));
+  assert.ok(/you don't know/i.test(text));
   assert.strictEqual(first.pending.skill, 'threatScent');
   assert.strictEqual(first.pending.xpOutcome, 10);
   const fact = first.worldMemory.facts.find((f) => f.kind === 'scent_sign');

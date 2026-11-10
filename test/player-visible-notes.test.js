@@ -20,6 +20,8 @@ const PHRASES = [
   /lets you leave if/i,
   /the limit is/i,
   /% chance/i,
+  /relationship:\s*-?\d+/i,
+  /cost you\s+\d+/i,
   /[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+){2,}|[A-Za-z0-9_.]+\/[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+)+/
 ];
 

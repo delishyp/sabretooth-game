@@ -478,12 +478,8 @@
         pushLog(cat, { day: s.day, instanceId: p.instanceId, nodeId: p.nodeId, choiceId: choice.id, outcome, factId: fact ? fact.factId : null, summary: fill(summary, v) });
         if (s.log) s.log.push({ day: s.day, text: fill(summary, v) });
         const reply = closing(node, choice, npc, v);
-        const actual = affinityApplied + promiseApplied;
         const receipt = [];
         if (promiseFactId) receipt.push({ kind: 'narration', text: 'You kept your promise to return.' });
-        if (actual > 0) receipt.push({ kind: 'narration', text: `Your relationship with ${npc.name} improved by ${actual}.` });
-        else if (actual < 0) receipt.push({ kind: 'narration', text: `Your relationship with ${npc.name} worsened by ${Math.abs(actual)}.` });
-        else receipt.push({ kind: 'narration', text: `Your relationship with ${npc.name} did not change.` });
         if (unresolvedBoundary(cat)) receipt.push({ kind: 'narration', text: `${npc.name} still wants space.` });
         p.transcript = (p.transcript || []).concat(seen, reply, receipt);
         p.presentation = { nodeId: p.nodeId, lines: reply.concat(receipt), variantIds: reply.map((l) => l.variantId).filter(Boolean), characterization: npc.personality ? 'traits' : 'unresolved', traits: npc.personality ? { ...npc.personality } : null, choiceIds: [], choiceRows: [] };

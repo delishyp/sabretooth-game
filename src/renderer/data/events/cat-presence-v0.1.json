@@ -1,0 +1,13 @@
+{
+  "_readme": "Stand-in beats for docs/design/cat-presence-v0.1.md. Saga replaces each text. The id is the only wiring.",
+  "presence.watch.sighting": { "text": "From the vantage you can see {name}." },
+  "presence.watch.doing.home": { "text": "{name} is on their own ground." },
+  "presence.watch.doing.near": { "text": "{name} is crossing the hillside." },
+  "presence.stone.wind_scree": { "text": "The loose stone was {name}, not a small animal." },
+  "presence.stone.east_saddle": { "text": "The stone on the saddle was {name}." },
+  "presence.hunt.open": { "text": "{name} comes in toward the kill." },
+  "presence.hunt.trespass": { "text": "{name} comes in toward the kill on their own pride's ground." },
+  "presence.hunt.warn": { "text": "{name} stops where they are." },
+  "presence.hunt.let_watch": { "text": "{name} stays back and watches." },
+  "presence.spar.locked": { "text": "{name} doesn't know you well enough to wrestle with you yet." }
+}

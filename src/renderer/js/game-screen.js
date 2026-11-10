@@ -27,9 +27,8 @@
     if (!has) return `Faction · ${name} → you · Unknown`;
     return `Faction · ${name} → you ${signedNumber(s.prideRelation[factionId])}`;
   }
-  function killShareText(prideName, hunger) {
-    const n = Math.trunc(Number(hunger) || 0);
-    return `${prideName} shares a kill with you. Hunger ${n >= 0 ? `+${n}` : String(n)}.`;
+  function killShareText(prideName) {
+    return `${prideName} shares a kill with you.`;
   }
   function create(ctx, gameData, nameData) {
     const { t, $ } = ctx;
@@ -67,7 +66,7 @@
         if (r.error) { console.warn('slice action refused', r.error); return; }
         s = r.state;
         // Region moments / hostile patrols have no follow-up text: skip the empty result step.
-        if (s.phase === 'eventResult' && !resultText()) s = E.act(s, { type: 'continue' }).state;
+        if (s.phase === 'eventResult' && !resultText() && !E.shouldHoldResult(s)) s = E.act(s, { type: 'continue' }).state;
         await autosave();
         if (s.over && s.phase === 'over') return ctx.show('summary');
         render();
@@ -143,8 +142,8 @@
       const pending = s.conversation && s.conversation.pending;
       const energy = c.energyCost, hunger = c.hungerCost, thirst = c.thirstCost;
       const text = pending && pending.slotCharged
-        ? `This reply costs Energy 0, Hunger 0, Thirst 0. The opening already cost Energy −${energy}, Hunger −${hunger}, Thirst −${thirst}.`
-        : `A reply other than Leave costs Energy −${energy}, Hunger −${hunger}, Thirst −${thirst}. Leave costs nothing.`;
+        ? 'This reply asks nothing more. The opening already took its cost.'
+        : 'A reply other than Leave takes energy, hunger, and thirst. Leave takes nothing.';
       const p = el('p', 'choice-cost', text);
       p.dataset.energy = String(energy); p.dataset.hunger = String(hunger); p.dataset.thirst = String(thirst);
       p.dataset.charged = pending && pending.slotCharged ? '1' : '0';
@@ -347,7 +346,12 @@
         if (lone.watch) a.append(btn('Watch from a vantage', { g: 'watch' }));
         for (const row of lone.scout || []) a.append(btn(`Scout the ${row.name} border`, { g: 'scout', pride: row.pride }));
         for (const row of lone.shadow || []) a.append(btn(`Shadow ${row.name}`, { g: 'shadow', cat: row.id }));
-        for (const row of lone.spar || []) a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }));
+        for (const row of lone.spar || []) {
+          if (row.locked) {
+            a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }, { disabled: true, title: row.line || '' }));
+            if (row.line) a.append(el('p', 'blocked-note', row.line));
+          } else a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }));
+        }
         if (lone.steal) a.append(btn('Steal from the kill', { g: 'steal' }));
         if (lone.cub) a.append(btn('Help the cub', { g: 'helpCub' }));
         for (const row of lone.share || []) a.append(btn(`Share the kill with ${row.name}`, { g: 'shareKill', cat: row.id }));
@@ -440,7 +444,8 @@
       if (!s.report || midBeat) return;
       r.append(el('h3', '', t('game.report.title', { day: s.report.day })));
       const ul = el('ul'); for (const l of s.report.lines) { const x = lineText(l); if (x) ul.append(el('li', `rep-${l.k}`, x)); }
-      if (!ul.children.length) ul.append(el('li', '', t('game.report.quiet')));
+      const played = s.records && s.report && s.records.beatsPlayedDay === s.report.day;
+      if (!ul.children.length && !played) ul.append(el('li', '', t('game.report.quiet')));
       r.append(ul);
     }
     function renderTalk() {

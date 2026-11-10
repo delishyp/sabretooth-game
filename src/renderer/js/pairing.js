@@ -1018,11 +1018,7 @@
           ? `${leader.name} approves the request. You are a member of ${prideName}.`
           : `${leader.name} refuses the request.` }
       ];
-      if (!approved) {
-        lines.push({ kind: 'narration', text: relationDelta
-          ? `Your standing with ${prideName} falls by ${Math.abs(relationDelta)}.`
-          : `Your standing with ${prideName} does not change.` });
-      }
+      if (!approved) lines.push({ kind: 'narration', text: `${leader.name} leaves the matter there.` });
       const event = {
         bond: true, eventId: 'join.ask', kind: 'join', group: 'join', heading: 'Ask to join',
         catId: leader.id, catName: leader.name, day: s.day, lines, choices: [],

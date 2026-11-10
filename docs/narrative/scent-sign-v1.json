@@ -1,0 +1,36 @@
+{
+ "_readme": "Replaces the report-style lines in lone-actions.js scentLines() (pin 3a9f923): 'The scent of X is on this ground.', 'Prey sign is thin.', 'Hazard sign: tar.' and the rest. Each key matches one push() in scentLines. {name} is a met cat, {pride} is a pride name. Every line states only what the code already knows: homeZones means the cat lives on this ground, the rival flag, the holder, the player's own hunt within 2 days, the preyWord band and the hazard ids. The opener is an optional first beat. Every other line keeps its current position.",
+ "opener": "You lower your nose to the ground and breathe in slowly, sorting this place out scent by scent.",
+ "catKnown": "{name}'s scent is everywhere here, rubbed on the stones and soaked into the earth. This is ground {name} walks often.",
+ "catStrange": {
+  "male": "A tom you don't know walks this ground often. His scent is on every stone, rank and confident.",
+  "female": "A she-cat you don't know walks this ground often. Her scent clings to every place she's passed, light and wary."
+ },
+ "rivalKnown": "Deep claw-scores gouge the ground, and they reek of {name}. It's a warning, and it's meant for anyone who comes this way.",
+ "rivalStrange": "Deep claw-scores gouge the ground, the earth still raw in them. Whoever left them wants every passing cat to know.",
+ "prideMarked": {
+  "highcrag": "Highcrag has marked this ground, carefully and at regular intervals, the way an old pride does everything.",
+  "bonefield": "Bonefield has marked this ground, heavily, sprayed high and often, as if daring anyone to argue.",
+  "mistwood": "Mistwood has marked this ground, but only faintly, and the marks are few and far between. There are fewer of them to mark it than there once were.",
+  "unmet": "A pride has marked this ground, one you haven't met yet. The marks are strong and many-voiced, and they tell you this land belongs to somebody."
+ },
+ "ownKill": "Your own kill-scent still hangs over this ground, faint now beneath everything else.",
+ "prey": {
+  "rich": "Under it all, the ground is thick with prey-scent: hoofprints, droppings, warm musk on the wind. Good hunting here.",
+  "fair": "There's prey-scent here, enough of it to hunt, if you're patient.",
+  "thin": "Prey-scent is thin and old here. Whatever lived on this ground has moved on or been eaten."
+ },
+ "hazard": {
+  "avalanche": "The snow above has a heavy, waiting smell to it, and the slope creaks. One wrong sound and it could all come down.",
+  "bear": "Bear. The scent is musky and unmistakable, and it's fresh. Your fur rises all along your spine.",
+  "cold_snap": "The air has a hard, metallic bite that stings your nose. A bitter cold is coming.",
+  "flood": "The earth smells of churned mud and snowmelt. The water is rising somewhere close.",
+  "lost_trail": "The trails here cross and recross until the scents blur together. It would be easy to lose your way.",
+  "rockfall": "Fresh stone dust hangs in the air, and loose scree lies scattered below the cliff. The rock here is not to be trusted.",
+  "starvation": "There's no food-smell here at all, only bones picked clean and old, cold droppings. This is starving ground.",
+  "tar": "The sharp black stink of tar catches in your throat. Somewhere close, the ground is waiting to swallow a careless paw.",
+  "thin_ice": "The ice smells wet and rotten underneath. It won't hold much weight for long.",
+  "wolves": "Wolf. Many wolves, their scents layered thick over one another. A pack hunts this ground."
+ },
+ "nothing": "The wind has scoured this place clean. Whatever has passed here, it's left nothing you can read."
+}

@@ -12,6 +12,22 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, Speech) {
   const PRIDE_NAMES = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
   const Pass2 = (typeof require === 'function' ? require('./pass2') : (typeof self !== 'undefined' ? self.Pass2 : null));
+  function loadJson(file) {
+    if (typeof require === 'function') {
+      try { return require(file); } catch (e) { /* browser loads it below */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', file.replace('../data/', 'data/'), false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) return JSON.parse(xhr.responseText);
+      } catch (e) { /* missing copy: that line is omitted */ }
+    }
+    return {};
+  }
+  const SCENT = loadJson('../data/events/scent-sign-v1.json') || {};
+  const PRESENCE = loadJson('../data/events/cat-presence-v0.1.json') || {};
   const OPENERS = Pass2.lines()['lone-actions.js:approachOpeners'];
 
   function receipts(s) { return (s.records && s.records.receipts) || []; }
@@ -45,7 +61,6 @@
   }
 
   function scentLines(s, spec) {
-    const neighbours = (spec && spec.neighbours) || [];
     const here = [];
     const ids = Object.keys(s.npcs || {}).sort();
     for (const id of ids) {
@@ -56,30 +71,37 @@
     const cats = [];
     for (const npc of here) {
       cats.push({ id: npc.id, met: !!npc.met, sex: npc.sex });
-      lines.push(npc.met && npc.name
-        ? `The scent of ${npc.name} is on this ground.`
-        : `The scent of ${strange(npc)} is on this ground.`);
+      if (npc.met && npc.name) lines.push(fillTokens(SCENT.catKnown, { name: npc.name }));
+      else if (npc.sex === 'female' && SCENT.catStrange) lines.push(SCENT.catStrange.female);
+      else if (SCENT.catStrange) lines.push(SCENT.catStrange.male);
       if (isRival(npc)) {
-        lines.push(npc.met && npc.name
-          ? `${npc.name} left a rival mark here.`
-          : `${strange(npc).charAt(0).toUpperCase()}${strange(npc).slice(1)} left a rival mark here.`);
+        if (npc.met && npc.name) lines.push(fillTokens(SCENT.rivalKnown, { name: npc.name }));
+        else if (SCENT.rivalStrange) lines.push(SCENT.rivalStrange);
       }
     }
     const holder = spec && spec.holder;
-    if (holder && holder !== 'neutral' && holder !== 'wolves') {
+    if (holder && holder !== 'neutral' && holder !== 'wolves' && SCENT.prideMarked) {
       const metPride = !!(spec && spec.metPride);
-      const name = PRIDE_NAMES[holder] || holder;
-      lines.push(metPride ? `${name} has marked this ground.` : 'A pride you have not met has marked this ground.');
+      const marked = metPride ? SCENT.prideMarked[holder] : SCENT.prideMarked.unmet;
+      if (marked) lines.push(marked);
     }
     const report = spec && spec.report;
     const hunt = report && (report.lines || []).find((l) => l.k === 'hunt' && l.ok);
-    if (hunt && report.region === s.region && typeof report.day === 'number' && report.day >= s.day - 2) {
-      lines.push('A fresh kill lies on this ground.');
+    if (hunt && report.region === s.region && typeof report.day === 'number' && report.day >= s.day - 2 && SCENT.ownKill) {
+      lines.push(SCENT.ownKill);
     }
-    if (spec && spec.preyValue != null) lines.push(`Prey sign is ${preyWord(spec.preyValue)}.`);
-    for (const hazard of (spec && spec.hazards) || []) lines.push(`Hazard sign: ${hazard}.`);
-    if (!lines.length) lines.push('The ground keeps no scent you can place.');
-    return { lines, cats, found: lines.some((line) => line !== 'The ground keeps no scent you can place.') };
+    if (spec && spec.preyValue != null && SCENT.prey) {
+      const word = preyWord(spec.preyValue);
+      if (SCENT.prey[word]) lines.push(SCENT.prey[word]);
+    }
+    for (const hazard of (spec && spec.hazards) || []) {
+      const line = SCENT.hazard && SCENT.hazard[hazard];
+      if (line) lines.push(line);
+    }
+    const found = lines.length > 0;
+    if (!lines.length && SCENT.nothing) lines.push(SCENT.nothing);
+    if (SCENT.opener) lines.unshift(SCENT.opener);
+    return { lines, cats, found };
   }
 
   function remember(s, factId, catIds, found) {
@@ -487,7 +509,7 @@
     if (s.worldMemory.facts.some((f) => f.factId === factId)) return;
     s.worldMemory.facts.push(Object.assign({ factId }, extra || {}));
     s.worldMemory.knowledge[factId] = {
-      scope: 'witnessed', participantIds: extra && extra.participants || ['player'],
+      scope: (extra && extra.scope) || 'witnessed', participantIds: extra && extra.participants || ['player'],
       witnessIds: extra && extra.witnesses || [], disclosedTo: [], prideIds: extra && extra.prideIds || [],
       learnedAbsDay: s.day
     };
@@ -524,22 +546,30 @@
     const text = fillTokens(LINES[spotted ? 'shadow.caught' : 'shadow.success'], { name: npc.name });
     return { event: sceneEvent('lone.shadow', 'Following', text, { catId, resultLine: '' }) };
   }
+  function sparBase(npc, s, opts) {
+    if (!npc || npc.dead || !npc.met) return false;
+    if (npc.stage !== 'adult') return false;
+    if (isRival(npc)) return false;
+    if (!zoneBand(npc, s, opts || {})) return false;
+    if ((s.injuries || []).length || (npc.injuries || []).length) return false;
+    if ((s.needs.energy || 0) < 25) return false;
+    return true;
+  }
+  function presenceText(key) {
+    const row = PRESENCE[key];
+    return row && row.text || '';
+  }
   function sparTargets(s, opts) {
-    return Object.values(s.npcs || {}).filter((npc) => {
-      if (!npc || npc.dead || !npc.met) return false;
-      if (npc.stage !== 'adult') return false;
-      if ((npc.affinity || 0) < 20) return false;
-      if (isRival(npc)) return false;
-      if (!zoneBand(npc, s, opts || {})) return false;
-      if ((s.injuries || []).length || (npc.injuries || []).length) return false;
-      if ((s.needs.energy || 0) < 25) return false;
-      return true;
-    }).map((npc) => ({ id: npc.id, name: npc.name }));
+    const lockedLine = presenceText('presence.spar.locked');
+    return Object.values(s.npcs || {}).filter((npc) => sparBase(npc, s, opts)).map((npc) => {
+      const locked = (npc.affinity || 0) < 20;
+      return { id: npc.id, name: npc.name, locked, line: locked ? fillTokens(lockedLine, { name: npc.name }) : '' };
+    });
   }
   function beginSpar(s, catId, opts) {
     if (usedDay(s, 'spar')) return { error: 'duplicate' };
     const npc = s.npcs[catId];
-    if (!npc || !sparTargets(s, opts).some((row) => row.id === catId)) return { error: 'target' };
+    if (!npc || !sparTargets(s, opts).some((row) => row.id === catId && !row.locked)) return { error: 'target' };
     const paid = fieldCost(s);
     if (paid.error) return paid;
     mark(s, 'spar', catId);
@@ -737,6 +767,83 @@
   function watchText() {
     return LINES.watch;
   }
+  function presentCat(s, opts, bands) {
+    const allow = new Set(bands || ['home']);
+    for (const id of approachOrder(s, opts)) {
+      const npc = s.npcs[id];
+      if (!npc || npc.dead || !npc.met) continue;
+      if (npc.stage !== 'adult' && npc.stage !== 'elder') continue;
+      const where = zoneBand(npc, s, opts || {});
+      if (allow.has(where)) return npc;
+    }
+    return null;
+  }
+  function noteSeen(s, npc) {
+    if (!npc) return;
+    mark(s, 'approach', npc.id);
+    const factId = `${s.runId || ''}/seen_by_player/${npc.id}/${s.day}`;
+    rememberFact(s, factId, {
+      kind: 'seen_by_player', scope: 'private', summary: `You saw ${npc.name}.`,
+      participants: ['player', npc.id]
+    });
+    if (!s.records) s.records = {};
+    s.records.presenceFirst = { day: s.day + 1, catId: npc.id };
+  }
+  function revealRoute(s, npc) {
+    if (!npc) return;
+    const homes = npc.homeZones || [];
+    npc.lastRegion = homes.find((zone) => zone !== s.region) || homes[0] || s.region;
+  }
+  function presenceEvent(kind, eventId, title, npc, beats, choices, extra) {
+    return Object.assign({
+      lone: true, presence: kind, eventId, title, catId: npc.id, catName: npc.name,
+      beats, beatIndex: 0, choices, day: sDay(extra)
+    }, extra || {});
+  }
+  function sDay(extra) { return extra && extra.day; }
+  function watchPresence(s, npc, opts) {
+    noteSeen(s, npc);
+    const where = zoneBand(npc, s, opts || {}) === 'near' ? 'near' : 'home';
+    const beats = [
+      { kind: 'narration', text: fillTokens(presenceText('presence.watch.sighting'), { name: npc.name }) },
+      { kind: 'narration', text: fillTokens(presenceText('presence.watch.doing.' + where), { name: npc.name }) }
+    ];
+    return presenceEvent('watch', 'action.watch', 'The vantage', npc, beats, [
+      { id: 'go_down', label: 'Go down to them.' },
+      { id: 'keep_watching', label: 'Keep watching.' }
+    ], { summary: 'Energy +20', resultLine: 'Energy +20', day: s.day });
+  }
+  function stonePresence(s, npc, source) {
+    noteSeen(s, npc);
+    const key = source && source.eventId === 'slice.region.east_saddle' ? 'presence.stone.east_saddle' : 'presence.stone.wind_scree';
+    return presenceEvent('stone', source.eventId, source.title || 'A loose stone', npc, [
+      { kind: 'narration', text: fillTokens(presenceText(key), { name: npc.name }) }
+    ], [
+      { id: 'call_out', label: 'Call out.' },
+      { id: 'hold_still', label: 'Hold still.' },
+      { id: 'move_on', label: 'Move on.' }
+    ], { day: s.day });
+  }
+  function killPresence(s, npc, opts) {
+    noteSeen(s, npc);
+    const own = opts && typeof opts.ownership === 'function' ? opts.ownership(s.region) : null;
+    const trespass = !!(own && own.state === 'held' && own.holder && npc.faction === own.holder);
+    const key = trespass ? 'presence.hunt.trespass' : 'presence.hunt.open';
+    return presenceEvent('hunt', 'lone.presence.hunt', 'The kill', npc, [
+      { kind: 'narration', text: fillTokens(presenceText(key), { name: npc.name }) }
+    ], [
+      { id: 'share', label: 'Share the kill.' },
+      { id: 'warn_off', label: 'Warn them off.' },
+      { id: 'let_watch', label: 'Let them watch.' }
+    ], { day: s.day });
+  }
+  function presenceReply(s, npc, key) {
+    return {
+      lone: true, presence: 'reply', eventId: 'lone.presence.reply', title: npc.name, catId: npc.id,
+      beats: [{ kind: 'narration', text: fillTokens(presenceText(key), { name: npc.name }) }],
+      beatIndex: 0, choices: [], resultLine: '', day: s.day
+    };
+  }
   function menu(s, opts) {
     opts = opts || {};
     const approachIds = candidates(s, opts);
@@ -761,6 +868,7 @@
   return {
     offer, usedDay, scentLines, beginScent, beginApproach, peekApproach, choose, openerKind, OPENERS, preyWord,
     outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey,
-    candidates, menu, beginShadow, beginSpar, beginScout, beginSteal, beginCub, resolveCub, shareKill, noteKill, watchText, adjacentPrides
+    candidates, menu, beginShadow, beginSpar, beginScout, beginSteal, beginCub, resolveCub, shareKill, noteKill, watchText, adjacentPrides,
+    presentCat, revealRoute, watchPresence, stonePresence, killPresence, presenceReply
   };
 });
