@@ -1,13 +1,13 @@
 {
-  "_readme": "Stand-in beats for docs/design/cat-presence-v0.1.md. Saga replaces each text. The id is the only wiring.",
-  "presence.watch.sighting": { "text": "From the vantage you can see {name}." },
-  "presence.watch.doing.home": { "text": "{name} is on their own ground." },
-  "presence.watch.doing.near": { "text": "{name} is crossing the hillside." },
-  "presence.stone.wind_scree": { "text": "The loose stone was {name}, not a small animal." },
-  "presence.stone.east_saddle": { "text": "The stone on the saddle was {name}." },
-  "presence.hunt.open": { "text": "{name} comes in toward the kill." },
-  "presence.hunt.trespass": { "text": "{name} comes in toward the kill on their own pride's ground." },
-  "presence.hunt.warn": { "text": "{name} stops where they are." },
-  "presence.hunt.let_watch": { "text": "{name} stays back and watches." },
+  "_readme": "Drop-in for src/renderer/data/events/cat-presence-v0.1.json at 3e51292. Same 10 keys, {name} only (fillTokens), no pronouns, no numbers. Condensed from presence-beats-v1.json to one string per key, since there's no trait or activity gate.",
+  "presence.watch.sighting": { "text": "From up here the land lies open below you, and after a while something moves in it. A cat. You know that shape: {name}." },
+  "presence.watch.doing.home": { "text": "{name} is at ease on familiar ground, nosing along the edge of the land and stopping now and then to leave a mark on a stone. {name} hasn't seen you. Not yet." },
+  "presence.watch.doing.near": { "text": "{name} is crossing the hillside below at a steady pace, head low, going somewhere with purpose. {name} hasn't seen you. Not yet." },
+  "presence.stone.wind_scree": { "text": "A stone clatters down the scree, then another. Not the wind. Something heavy shifted its weight up there, and a head appears over the rocks, ears pricked. It's {name}, as caught off guard as you are." },
+  "presence.stone.east_saddle": { "text": "Grit trickles down from the saddle above you, and a loose rock tumbles past. A head lifts over the ridgeline, ears pricked. It's {name}, as caught off guard as you are." },
+  "presence.hunt.open": { "text": "You've barely started eating when the back of your neck prickles. Someone has smelled the blood. {name} stands a few lengths off, nose working, eyes on your kill." },
+  "presence.hunt.trespass": { "text": "You've barely started eating when {name} steps out of the cover, eyes on your kill. \"That was taken on our ground,\" {name} says, low and flat. \"You know that, don't you?\"" },
+  "presence.hunt.warn": { "text": "You hunch over your kill and let a growl roll out of your chest. {name} backs off, slowly, and doesn't look away once." },
+  "presence.hunt.let_watch": { "text": "You go on eating. {name} stays put and watches every bite, until there's nothing left but bones." },
   "presence.spar.locked": { "text": "{name} doesn't know you well enough to wrestle with you yet." }
 }
