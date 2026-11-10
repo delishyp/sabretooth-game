@@ -158,9 +158,10 @@ function simulateEncounterBatch({ kind, seed, count, player, opponent, policy, e
   }
   return { command: 'batch', seed: s, kind: name, count: n, adapter: 'todo', enabled: false, rows };
 }
-function bandTable({ seed, count, engine, env } = {}) {
+function bandTable({ seed, count, engine, env, slow } = {}) {
   if (!engineOn({ engine, env })) return { command: 'bands', seed: seed >>> 0, enabled: false, adapter: 'todo', bands: [] };
-  return PassBands.measure({ seed, count: num(count, 4000) });
+  const slowOn = slow === true || (env && env.SABRETOOTH_PARITY_SLOW === '1');
+  return PassBands.measure({ seed, count: num(count, 4000), slow: slowOn });
 }
 function simulateWorld({ seed, seasons, map } = {}) {
   const s = seed >>> 0;
@@ -226,8 +227,9 @@ function csvBatch(log) {
   return lines.join('\n');
 }
 function csvBands(log) {
-  const lines = ['band,result,name,target,got,seed'];
-  for (const row of log.bands) lines.push([row.id, row.result, row.name, row.target, row.got, log.seed].map(csvCell).join(','));
+  const lines = ['pace,band,result,name,target,got,seed'];
+  for (const row of log.bands) lines.push(['band', row.id, row.result, row.name, row.target, row.got, log.seed].map(csvCell).join(','));
+  for (const row of log.slow || []) lines.push(['slow', row.id, row.result, row.name, row.target, row.got, log.seed].map(csvCell).join(','));
   return lines.join('\n');
 }
 function toCsv(log) {
@@ -289,7 +291,8 @@ if (require.main === module) {
       process.exit(1);
     }
     console.log(formatBandTable(log));
-    if (log.bands.some((row) => row.result === 'FAIL')) process.exit(1);
+    const failed = log.bands.some((row) => row.result === 'FAIL') || (log.slow || []).some((row) => row.result === 'FAIL');
+    if (failed) process.exit(1);
   } else console.log(args.csv ? toCsv(log) : JSON.stringify(log));
 }
 

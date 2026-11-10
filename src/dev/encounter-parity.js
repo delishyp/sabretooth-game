@@ -34,22 +34,40 @@ function median(values) {
   const copy = values.slice().sort((a, b) => a - b);
   return copy[Math.floor(copy.length / 2)];
 }
-function measure(n) {
-  const tol = Engine.config.bands;
-  const fights = BANDS.fight.map((row) => {
+function fightReport(n, tolerance, seedBase) {
+  const base = (seedBase || 0) >>> 0;
+  const tol = tolerance == null ? Engine.config.bands.fightTolerance : tolerance;
+  const fights = BANDS.fight.map((row, index) => {
     const got = rate(n, (i) => Engine.resolve({
-      kind: 'fight', seed: i, quick: true, policy: 'average', engine: true,
+      kind: 'fight', seed: base + i, quick: true, policy: 'average', engine: true,
       player: { id: 'player', strength: row.player },
       opponent: { id: 'foe', strength: row.opponent }
     }).winner === 'player');
-    return { label: row.label, target: row.target, got, ok: Math.abs(got - row.target) <= tol.fightTolerance };
+    return { id: index + 1, label: row.label, target: row.target, got, n, tolerance: tol, ok: Math.abs(got - row.target) <= tol };
   });
+  const sensibleGot = rate(n, (i) => Engine.resolve({
+    kind: 'fight', seed: base + 100000 + i, quick: true, policy: 'sensible', engine: true,
+    player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
+  }).winner === 'player');
+  const sensible = {
+    id: 5, label: 'sensible', target: BANDS.sensibleEqual.target, got: sensibleGot, n, tolerance: tol,
+    ok: Math.abs(sensibleGot - BANDS.sensibleEqual.target) <= tol
+  };
+  return { fights, sensible };
+}
+function measure(n, opts) {
+  const spec = Engine.config.bands;
+  const fightN = (opts && opts.fightCells) || n;
+  const fightTol = opts && opts.fightTolerance != null ? opts.fightTolerance : spec.fightTolerance;
+  const checked = fightReport(fightN, fightTol, opts && opts.seed);
+  const fights = checked.fights;
+  const sensible = checked.sensible;
   const hunts = BANDS.hunt.map((row) => {
     const got = rate(n, (i) => Engine.resolve({
       kind: 'hunt', seed: i, quick: true, policy: 'steady', size: row.size, engine: true,
       player: { id: 'player' }, opponent: { id: 'prey' }
     }).ok);
-    return { size: row.size, target: row.target, got, ok: Math.abs(got - row.target) <= tol.huntTolerance };
+    return { size: row.size, target: row.target, got, ok: Math.abs(got - row.target) <= spec.huntTolerance };
   });
   const fresh = BANDS.courtshipFresh;
   const chance = Engine.courtshipChance(fresh, 'average');
@@ -59,12 +77,8 @@ function measure(n) {
   }).accepted);
   const courtship = {
     target: fresh.target, chance: chance / 100, got: gotCourt,
-    ok: Math.abs(chance - fresh.target * 100) < 0.01 && Math.abs(gotCourt - fresh.target) <= tol.courtshipTolerance
+    ok: Math.abs(chance - fresh.target * 100) < 0.01 && Math.abs(gotCourt - fresh.target) <= spec.courtshipTolerance
   };
-  const sensible = rate(n, (i) => Engine.resolve({
-    kind: 'fight', seed: i + 100000, quick: true, policy: 'sensible', engine: true,
-    player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
-  }).winner === 'player');
   const rounds = [];
   for (let i = 0; i < Math.min(n, 800); i++) {
     rounds.push(Engine.resolve({
@@ -75,7 +89,7 @@ function measure(n) {
   const mid = median(rounds);
   return {
     fights, hunts, courtship,
-    sensible: { target: BANDS.sensibleEqual.target, got: sensible, ok: Math.abs(sensible - BANDS.sensibleEqual.target) <= tol.sensibleTolerance },
+    sensible,
     medianRounds: { got: mid, ok: mid >= BANDS.medianRounds.min && mid <= BANDS.medianRounds.max }
   };
 }
@@ -85,9 +99,17 @@ function passed(report) {
 }
 
 if (require.main === module) {
-  const report = measure(4000);
-  console.log(JSON.stringify(report, null, 2));
-  if (!passed(report)) process.exit(1);
+  const spec = Engine.config.bands;
+  const report = measure(spec.fightCells);
+  const out = { regular: report };
+  let failed = !passed(report);
+  if (process.env.SABRETOOTH_PARITY_SLOW === '1') {
+    const slow = fightReport(spec.slowFightCells, spec.slowFightTolerance, 0);
+    out.slow = slow;
+    failed = failed || slow.fights.some((row) => !row.ok) || !slow.sensible.ok;
+  }
+  console.log(JSON.stringify(out, null, 2));
+  if (failed) process.exit(1);
 }
 
-module.exports = { BANDS, measure, passed, median };
+module.exports = { BANDS, measure, fightReport, passed, median };

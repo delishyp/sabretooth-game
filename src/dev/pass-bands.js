@@ -3,6 +3,7 @@
  * Targets live in data/encounter-engine.json. The engine flag stays off.
  */
 const Engine = require('../renderer/js/encounter-engine');
+const Parity = require('./encounter-parity');
 const Fight = require('../renderer/js/fight');
 const Rng = require('../renderer/js/rng');
 
@@ -23,13 +24,6 @@ function rowSpec(id) {
 function line(id, ok, got) {
   const spec = rowSpec(id);
   return { id, name: spec.name, result: ok ? 'PASS' : 'FAIL', target: spec.target, got };
-}
-function fightRate(n, seed, player, opponent, policy) {
-  return rate(n, (i) => Engine.resolve({
-    kind: 'fight', seed: seed + i, quick: true, policy,
-    player: { id: 'player', strength: player },
-    opponent: { id: 'foe', strength: opponent }
-  }).winner === 'player');
 }
 function huntStats(n, seed, policy) {
   let ok = 0;
@@ -64,17 +58,15 @@ function measure(opts) {
   const n = opts.count || 4000;
   const seed = (opts.seed || 1) >>> 0;
   const tol = Engine.config.bands;
-  const fights = [
-    { id: 1, player: 10, opponent: 10, policy: 'average', tolerance: tol.fightTolerance },
-    { id: 2, player: 11, opponent: 10, policy: 'average', tolerance: tol.fightTolerance },
-    { id: 3, player: 12.5, opponent: 10, policy: 'average', tolerance: tol.fightTolerance },
-    { id: 4, player: 10, opponent: 12.5, policy: 'average', tolerance: tol.fightTolerance },
-    { id: 5, player: 10, opponent: 10, policy: 'sensible', tolerance: tol.sensibleTolerance }
-  ];
-  const bands = fights.map((row) => {
-    const got = fightRate(n, seed + row.id * 100000, row.player, row.opponent, row.policy);
-    return line(row.id, near(got, rowSpec(row.id).target, row.tolerance), pct(got));
-  });
+  const fightN = tol.fightCells;
+  const checked = Parity.fightReport(fightN, tol.fightTolerance, seed);
+  const fightRows = checked.fights.concat([checked.sensible]);
+  const bands = fightRows.map((row) => line(row.id, row.ok, `${pct(row.got)} ±${tol.fightTolerance * 100}pp n=${fightN}`));
+  let slow = [];
+  if (opts.slow) {
+    const slowChecked = Parity.fightReport(tol.slowFightCells, tol.slowFightTolerance, seed);
+    slow = slowChecked.fights.concat([slowChecked.sensible]).map((row) => line(row.id, row.ok, `${pct(row.got)} ±${tol.slowFightTolerance * 100}pp n=${tol.slowFightCells}`));
+  }
 
   const steady = huntStats(n, seed + 600000, 'steady');
   const bold = huntStats(n, seed + 700000, 'allBold');
@@ -169,12 +161,14 @@ function measure(opts) {
 
   return {
     command: 'bands', seed, count: n, adapter: 'engine', enabled: true,
-    spec: tol.spec, revision: tol.revision, bands
+    spec: tol.spec, revision: tol.revision, bands, slow
   };
 }
 
 function formatBandTable(log) {
-  return log.bands.map((row) => `band ${String(row.id).padStart(2, ' ')}  ${row.result}  ${row.name}  target ${row.target}  got ${row.got}`).join('\n');
+  const lines = log.bands.map((row) => `band ${String(row.id).padStart(2, ' ')}  ${row.result}  ${row.name}  target ${row.target}  got ${row.got}`);
+  for (const row of log.slow || []) lines.push(`slow ${String(row.id).padStart(2, ' ')}  ${row.result}  ${row.name}  target ${row.target}  got ${row.got}`);
+  return lines.join('\n');
 }
 
 module.exports = { measure, formatBandTable, expose };

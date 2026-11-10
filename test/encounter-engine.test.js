@@ -21,7 +21,12 @@ test('the engine flag defaults off and showdown is left alone', () => {
 });
 
 test('quick resolve matches the section 8.2 bands', () => {
-  const report = Parity.measure(4000);
+  const report = Parity.measure(Engine.config.bands.fightCells);
+  assert.strictEqual(Engine.config.bands.fightCells, 2000);
+  assert.strictEqual(Engine.config.bands.fightTolerance, 0.03);
+  for (const row of report.fights) assert.strictEqual(row.n, 2000);
+  assert.strictEqual(report.sensible.n, 2000);
+  assert.strictEqual(report.sensible.tolerance, 0.03);
   for (const row of report.fights) assert.ok(row.ok, `${row.label} ${row.got} vs ${row.target}`);
   for (const row of report.hunts) assert.ok(row.ok, `${row.size} ${row.got} vs ${row.target}`);
   assert.ok(report.courtship.ok, JSON.stringify(report.courtship));
@@ -100,4 +105,17 @@ test('the section 8.3 band table maps all fifteen bands', () => {
   const off = Sim.bandTable({ seed: 8, count: 10 });
   assert.strictEqual(off.enabled, false);
   assert.deepStrictEqual(off.bands, []);
+  assert.match(log.bands[0].got, /±3pp n=2000/);
+  assert.deepStrictEqual(log.slow, []);
+});
+
+test('the slow fight check stays out of the default suite', { skip: process.env.SABRETOOTH_PARITY_SLOW !== '1' }, () => {
+  const spec = Engine.config.bands;
+  const slow = Parity.fightReport(spec.slowFightCells, spec.slowFightTolerance, 8);
+  const rows = slow.fights.concat([slow.sensible]);
+  for (const row of rows) assert.ok(row.ok, `${row.label} ${row.got} vs ${row.target} at ±${row.tolerance}`);
+  const log = Sim.bandTable({ seed: 8, count: 200, engine: true, slow: true });
+  assert.strictEqual(log.slow.length, 5);
+  for (const row of log.slow) assert.strictEqual(row.result, 'PASS', JSON.stringify(row));
+  assert.match(Sim.formatBandTable(log), /slow  1  PASS/);
 });
