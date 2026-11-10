@@ -147,8 +147,9 @@ function play(E, seed, faction, sex) {
 test('presentation pin still separates Mates from unknown attraction and hides an empty romance line', () => {
   const current = fs.readFileSync(path.join(__dirname, '../src/renderer/js/game-screen.js'), 'utf8');
   const pinned = execSync('git show b054b87:src/renderer/js/game-screen.js', { encoding: 'utf8' });
-  const lines = (src) => src.split('\n').filter((line) => /relation-mates|relation-romance|relation-attraction|Bond · /.test(line)).join('\n');
+  const lines = (src) => src.split('\n').filter((line) => /relation-mates|relation-romance|relation-attraction/.test(line)).join('\n');
   assert.strictEqual(lines(current), lines(pinned));
+  assert.match(current, /E\.bondLabel\(stage\)/);
   assert.match(current, /relation-mates', 'Mates'/);
   assert.match(current, /relation-attraction', 'Attraction · Unknown'/);
   assert.match(current, /else if \(!mates\)[\s\S]*Romance · Unknown/);

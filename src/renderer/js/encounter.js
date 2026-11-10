@@ -99,7 +99,24 @@
       const hy = byId[HYENA];
       const block = hy && hy.personality;
       if (!block) return { speechLocations: {}, contextActions: {} };
-      const cues = block.allTraitActionCues || {};
+      const outsiderCues = {
+        aggression: {
+          low: '{catName} keeps the words quiet and the teeth hidden.',
+          middle: '{catName} answers without coming any closer.',
+          high: '{catName} answers with ears flat, and stays where {he} is.'
+        },
+        sociability: {
+          low: '{catName} keeps a clear gap between you.',
+          middle: '{catName} turns just enough to answer.',
+          high: '{catName} steps aside so there is room to talk.'
+        },
+        boldness: {
+          low: '{catName} stays well back from the cache.',
+          middle: '{catName} holds still.',
+          high: '{catName} stands square, but does not come closer.'
+        }
+      };
+      const cues = (kind === 'outsider' ? outsiderCues : block.allTraitActionCues) || {};
       const traits = kind === 'outsider' ? ['aggression', 'sociability', 'boldness'] : TRAITS;
       const contextActions = {};
       const speechLocations = {};
@@ -118,7 +135,19 @@
 
     function speak(npc, location, outsider) {
       if (!npc) return [];
-      const resolved = Speech.resolve(outsider ? outsiderCoverage : hunterCoverage, location, npc.personality, Speech.nameVars(npc, { hunterName: npc.name }));
+      const coverage = outsider ? outsiderCoverage : hunterCoverage;
+      const vars = Speech.nameVars(npc, { hunterName: npc.name });
+      const resolved = Speech.resolve(coverage, location, npc.personality, vars);
+      const row = coverage.speechLocations && coverage.speechLocations[location];
+      const focus = row && npc.personality && npc.personality[row.focusTrait];
+      if (row && typeof focus === 'number' && focus > 30 && focus < 70) {
+        const pair = coverage.contextActions[row.context] && coverage.contextActions[row.context][row.focusTrait];
+        const mid = pair && pair.middle;
+        if (mid) {
+          resolved.action = String(mid).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
+          resolved.actionId = `${row.context}:${row.focusTrait}:middle`;
+        }
+      }
       const lines = [];
       if (resolved.gap) lines.push({ kind: 'gap', speaker: npc.name, text: resolved.gap, variantId: resolved.variantId });
       if (resolved.action) lines.push({ kind: 'action', speaker: npc.name, text: resolved.action, variantId: resolved.actionId });
@@ -413,7 +442,8 @@
           return { ok: true, deed: null };
         }
         const deed = payDeed(s, hooks, 'drive_hyena', 'pride_aid', hunter ? [hunter.id] : []);
-        p.lines = p.lines.concat([narrate(spec.outcomeRendering.resolve_hyena_contest[forecast.tier].text)], speak(hunter, 'driven', false));
+        const asked = p.cast && p.cast.outsiderId ? speak(hunter, 'cache_request', false) : [];
+        p.lines = p.lines.concat([narrate(spec.outcomeRendering.resolve_hyena_contest[forecast.tier].text)], speak(hunter, 'driven', false), asked);
         p.nodeId = 'after_drive';
         p.deedResults = (p.deedResults || []).concat([{ deedId: 'drive_hyena', ...deed }]);
         return { ok: true, deed };
@@ -442,7 +472,7 @@
         return { ok: true, deed };
       }
       if (choiceId === 'warn_off_trespasser') {
-        const lines = speak(hunter, 'cache_request', false).concat(speak(outsider, 'outsider_request', true), speak(hunter, 'cache_ack', false));
+        const lines = speak(outsider, 'outsider_request', true).concat(speak(hunter, 'cache_ack', false));
         const deed = payDeed(s, hooks, 'return_trespasser', 'pride_aid', hunter ? [hunter.id] : []);
         p.lines = p.lines.concat(lines);
         p.deedResults = (p.deedResults || []).concat([{ deedId: 'return_trespasser', ...deed }]);

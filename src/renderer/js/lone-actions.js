@@ -79,8 +79,10 @@
     for (const npc of here) {
       cats.push({ id: npc.id, met: !!npc.met, sex: npc.sex });
       if (npc.met && npc.name) add(fillTokens(SCENT.catKnown, { name: npc.name }), npc);
-      else if (npc.sex === 'female' && SCENT.catStrange) add(SCENT.catStrange.female, null);
-      else if (SCENT.catStrange) add(SCENT.catStrange.male, null);
+      else if (SCENT.catStrange) {
+        const line = npc.sex === 'female' ? SCENT.catStrange.female : npc.sex === 'male' ? SCENT.catStrange.male : SCENT.catStrange.neutral;
+        if (line && !/\{/.test(line)) add(line, null);
+      }
       if (isRival(npc)) {
         if (npc.met && npc.name) add(fillTokens(SCENT.rivalKnown, { name: npc.name }), npc);
         else if (SCENT.rivalStrange) add(SCENT.rivalStrange, null);

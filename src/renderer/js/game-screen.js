@@ -445,7 +445,7 @@
           li.append(framed(mini, 'sm'), el('span', 'met-name', n.name));
           li.append(relationMeters(n.id));
           const stage = s.records && s.records.bonds && s.records.bonds[n.id] && s.records.bonds[n.id].stage;
-          if (stage && stage !== 'none') li.append(el('p', 'bond-stage', `Bond · ${stage === 'close' ? 'Bonded' : stage.charAt(0).toUpperCase() + stage.slice(1)}`));
+          if (stage && stage !== 'none') li.append(el('p', 'bond-stage', `Bond · ${E.bondLabel ? E.bondLabel(stage) : stage}`));
           li.append(btn(t('portrait.expand'), { g: 'expandCat', source: mini.id, name: n.name }, { cls: 'portrait-expand' }));
           const known = (E.available(s).talk || []).find((row) => row.catId === n.id);
           if (known) li.append(el('p', 'met-note', talkNote(known)));

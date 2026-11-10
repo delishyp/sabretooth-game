@@ -160,7 +160,7 @@ test('every premade keeps sex, unknown skills, and no fabricated history', () =>
     if (npc.stage === 'cub' || npc.stage === 'adolescent') {
       const Pair = require('../src/renderer/js/pairing').create(firstSeason, rules);
       s.records.bonds[npc.id] = { stage: 'close', originPrideId: null };
-      assert.strictEqual(Pair.courtGate(s, npc).code, 'court.ineligible');
+      assert.strictEqual(Pair.courtGate(s, npc).code, 'court.ineligible.young');
     }
   }
   assert.strictEqual(s.records.yearLengthDays, null);
@@ -182,10 +182,10 @@ test('same-sex attraction is not a season-1 ban', () => {
   assert.strictEqual(Pair.courtGate(s, female), null);
   assert.strictEqual(Pair.courtGate(s, maleNpc), null);
   s.records.attraction[female.id] = 'opposite';
-  assert.strictEqual(Pair.courtGate(s, female).code, 'court.declined_attraction');
+  assert.strictEqual(Pair.courtGate(s, female).code, 'court.ineligible');
   const before = JSON.stringify(s);
   const refused = E.act(JSON.parse(before), { type: 'court', catId: female.id });
-  assert.strictEqual(refused.error, 'court.declined_attraction');
+  assert.strictEqual(refused.error, 'court.ineligible');
   assert.strictEqual(JSON.stringify(refused.state), before);
 });
 
@@ -199,7 +199,7 @@ test('FIXTURE: ineligible court and held-land founding change nothing', () => {
   loner.affinity = -20;
   const before = JSON.stringify(s);
   const low = E.act(JSON.parse(before), { type: 'court', catId: loner.id });
-  assert.strictEqual(low.error, 'court.ineligible');
+  assert.strictEqual(low.error, 'court.ineligible.dislike');
   assert.strictEqual(JSON.stringify(low.state), before);
   const day21 = JSON.parse(before);
   day21.day = 21;
@@ -207,7 +207,7 @@ test('FIXTURE: ineligible court and held-land founding change nothing', () => {
   day21.records.bonds[loner.id].stage = 'close';
   day21.npcs[loner.id].affinity = 40;
   const late = E.act(day21, { type: 'court', catId: loner.id });
-  assert.strictEqual(late.error, 'court.notInSeason');
+  assert.strictEqual(late.error, 'court.ineligible');
   assert.strictEqual(late.state.day, 21);
   assert.strictEqual(late.state.records.matePair, null);
   const held = E.newRun({ mainCat: cat, seed: 8, runId: 'held' });

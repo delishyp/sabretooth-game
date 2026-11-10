@@ -1542,8 +1542,12 @@
       const cats = (line && line.cats) || [];
       if (!cats.length) beats.push({ kind: 'narration', text: pack.none });
       else cats.forEach((cat) => {
-        const npc = s.npcs[cat.id] || { name: cat.name, sex: 'male' };
-        const words = npc.sex === 'female' ? { he: 'she', his: 'her', He: 'She' } : { he: 'he', his: 'his', He: 'He' };
+        const npc = s.npcs[cat.id] || { name: cat.name, sex: cat.sex || null };
+        const words = npc.sex === 'female'
+          ? { he: 'she', his: 'her', He: 'She' }
+          : npc.sex === 'male'
+            ? { he: 'he', his: 'his', He: 'He' }
+            : { he: 'they', his: 'their', He: 'They' };
         const text = String(pack[cat.doing] || pack['crossing the hillside']).replace(/\{(\w+)\}/g, (m, k) => (k === 'catName' ? npc.name : words[k] || m));
         beats.push({ kind: 'narration', text });
       });
@@ -1642,7 +1646,7 @@
       const fallback = variants.find((row) => row && !row.when);
       return fill((fallback && fallback.text) || '', { catName: (npc && npc.name) || '' });
     }
-    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, shouldHoldResult, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone, lonerGreetText };
+    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, shouldHoldResult, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone, lonerGreetText, bondLabel: (stage) => Pair.enabled ? Pair.bondLabel(stage) : stage };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

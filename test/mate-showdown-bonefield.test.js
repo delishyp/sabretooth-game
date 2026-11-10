@@ -35,7 +35,7 @@ test('premade mates are mutual and every one of them refuses court', () => {
     s.region = npc.faction;
     const before = JSON.stringify({ mate: npc.mateId, faction: npc.faction, pair: s.records.matePair });
     const tried = E.act(JSON.parse(JSON.stringify(s)), { type: 'court', catId: id });
-    assert.strictEqual(tried.error, 'court.ineligible', id);
+    assert.strictEqual(tried.error, 'court.ineligible.mated', id);
     assert.strictEqual(JSON.stringify({ mate: tried.state.npcs[id].mateId, faction: tried.state.npcs[id].faction, pair: tried.state.records.matePair }), before);
   }
 });

@@ -435,15 +435,32 @@
       return false;
     }
 
+    function courtHint(key, npc) {
+      const text = hints[key] || hints['court.ineligible'] || '{catName} cannot be courted.';
+      return fill(text, { catName: npc && npc.name || '' });
+    }
+    function grown(npc) {
+      return adult(npc && (npc.stage || npc.lifeStage));
+    }
+    function pairRow(s, npc) {
+      return Pairs.stored(s.records.catToCat, s.cat.catId, npc.id) || Pairs.stored(s.records.catToCat, npc.id, s.cat.catId);
+    }
     function courtGate(s, npc) {
-      if (!npc) return { code: 'court.ineligible', hint: 'Nobody is there to court.' };
-      if (!inWindow(s)) return { code: 'court.notInSeason', hint: hints['court.notInSeason'] };
-      if (!adult(s.cat.lifeStage) || !adult(npc.stage)) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
-      if (playerMated(s) || targetMated(s, npc)) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
-      const devNote = { attractionUnrolled: 'Attraction was not rolled for this cat. It is not filled in after the fact.' };
-      if (!s.records.attractionRolled || !s.records.attraction[npc.id]) return { code: 'court.noAttraction', hint: devNote && 'You have not learned how this cat feels.' };
-      if (!compatible(s, npc)) return { code: 'court.declined_attraction', hint: `${npc.name} does not feel that way about you.` };
-      if (npc.affinity <= -15) return { code: 'court.ineligible', hint: fill(hints['court.ineligible'], { catName: npc.name }) };
+      if (!npc) return { code: 'court.ineligible', hint: hints['court.ineligible'] || 'Nobody is there to court.' };
+      if (!grown(npc)) return { code: 'court.ineligible.young', hint: courtHint('court.ineligible.young', npc) };
+      if (targetMated(s, npc)) return { code: 'court.ineligible.mated', hint: courtHint('court.ineligible.mated', npc) };
+      if (!grown(s.cat) || playerMated(s)) return { code: 'court.ineligible', hint: courtHint('court.ineligible', npc) };
+      const kin = pairRow(s, npc);
+      if (kin && (kin.kinds || []).includes('family')) return { code: 'court.ineligible.kin', hint: courtHint('court.ineligible.kin', npc) };
+      const regard = kin && typeof kin.value === 'number' ? kin.value : npc.affinity;
+      if (typeof regard === 'number' && regard <= -15) return { code: 'court.ineligible.dislike', hint: courtHint('court.ineligible.dislike', npc) };
+      if (!inWindow(s)) {
+        if (s.records.yearLengthDays == null) return { code: 'court.ineligible', hint: courtHint('court.ineligible', npc) };
+        return { code: 'court.ineligible.season', hint: courtHint('court.ineligible.season', npc) };
+      }
+      if (!s.records.attractionRolled || !s.records.attraction[npc.id] || !compatible(s, npc)) {
+        return { code: 'court.ineligible', hint: courtHint('court.ineligible', npc) };
+      }
       const stage = bondOf(s, npc.id).stage;
       if (stage !== 'close' && stage !== 'courting') return { code: 'court.locked', hint: fill(hints['court.locked'], { catName: npc.name }) };
       const last = s.records.court[npc.id] && s.records.court[npc.id].lastDay;
@@ -964,6 +981,9 @@
     function membershipLine(label) {
       return `You are a member of ${label}.`;
     }
+    function bondLabel(stage) {
+      return hints['bondStage.' + stage] || stage;
+    }
     function joinBlockers(s, deps) {
       const pride = heldPride(s, deps);
       const mine = memberName(s);
@@ -983,7 +1003,7 @@
       if (prior && (prior.season == null || prior.season === season)) {
         blockers.push(memberHere
           ? membershipLine(name)
-          : `You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
+          : fill(hints['join.cooldown'] || `You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`, { catName: leader ? leader.name : name }));
       }
       if (mine && !blockers.some((line) => line === membershipLine(mine))) blockers.push(membershipLine(mine));
       return { pride, leader, blockers };
@@ -1262,7 +1282,11 @@
       } else {
         const recap = bestUnmated(s);
         const row = block.recapByBestStage[recap.stage] || block.recapByBestStage.none;
-        beats = (family.beats || []).concat(block.beats || []).concat(row.beats || []);
+        const spring = 'Courting opens again next spring.';
+        const routes = (block.beats || []).filter((beat) => s.records.yearLengthDays != null || !/Courting opens again next spring/.test(String(beat.text || '')));
+        beats = (family.beats || []).concat(routes);
+        if (s.records.yearLengthDays != null) beats = beats.concat([{ kind: 'narration', text: spring }]);
+        beats = beats.concat(row.beats || []);
         npc = recap.stage === 'none' ? null : recap.npc;
         const intentSummary = {
           route_pride: 'You decide to seek a place in an existing pride.',
@@ -1329,9 +1353,10 @@
         const gate = joinBlockers(s, deps);
         reason = gate.blockers.length ? gate.blockers.join(' ') : `You can ask ${gate.leader.name} to join ${PRIDE_NAMES[gate.pride]}.`;
       } else if (intent === 'group') {
-        const here = (s.records.lonerGroups || []).some((group) => (group.homeZones || []).includes(s.region));
+        const here = (s.records.lonerGroups || []).find((group) => (group.homeZones || []).includes(s.region));
         const authored = families['m2.loner_group'] && families['m2.loner_group'].noGroup;
-        reason = here ? 'Loners are travelling together near here.' : (authored || 'No loners travel together near here yet.');
+        if (here && (here.memberIds || []).length >= 3) reason = hints['group.full'] || 'This group has no room for another cat.';
+        else reason = here ? 'Loners are travelling together near here.' : (authored || 'No loners travel together near here yet.');
       }
       else if (intent === 'alone') reason = 'Hunt, rest, and travel stay available.';
       return { intent, reason, choices: ['pride', 'group', 'alone'] };
@@ -1369,6 +1394,7 @@
         const authored = families['m2.loner_group'] && families['m2.loner_group'].noGroup;
         return { line: authored || 'No loners travel together near here yet.' };
       }
+      if ((here.memberIds || []).length >= 3) return { line: hints['group.full'] || 'This group has no room for another cat.', full: true };
       const member = s.npcs[here.memberIds[0]];
       const family = families['m2.loner_group'];
       return {
@@ -1388,7 +1414,7 @@
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
       courtOffers, beginCourt, audienceOffers, beginAudience, challengeOffers, beginChallenge, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, joinBlockers, beginJoinAsk, formLonerGroups, groupVisit, seasonPending, resultScene, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
+      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, joinBlockers, beginJoinAsk, formLonerGroups, groupVisit, seasonPending, resultScene, bondLabel, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 
