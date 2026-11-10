@@ -386,6 +386,75 @@
     "authoringValidation": {
       "speechLocations": 8,
       "runtime": "NOT RUN; actual casts, fixed source event and post-dispute reviewed-policy proof require integration."
-    }
+    },
+    "contextActions": {
+      "boundary": {
+        "aggression": [
+          "{catName}'s hackles go up, and {he} bares {his} teeth over the roar of the water.",
+          "{catName} lowers {his} head and gives a little ground on the wet stones."
+        ],
+        "sociability": [
+          "{catName} edges closer to you, spray dripping from {his} whiskers.",
+          "{catName} shifts away from you along the stones."
+        ],
+        "boldness": [
+          "{catName} plants {his} forepaws on the nearest stone and doesn't budge.",
+          "{catName} glances at the fast water before answering."
+        ],
+        "loyalty": [
+          "{catName} glances back toward {his} own side of the river.",
+          "{catName} shakes off the spray, like none of this is worth a soaking."
+        ],
+        "curiosity": [
+          "{catName}'s ears turn toward you, even with the river this loud.",
+          "{catName} keeps {his} attention on the carcass and nothing else."
+        ]
+      },
+      "walking": {
+        "aggression": [
+          "{catName} hauls hard on the carcass, growling at the current.",
+          "{catName} takes care not to bump you as you both pull."
+        ],
+        "sociability": [
+          "{catName} shoulders in right beside you on the carcass.",
+          "{catName} grips the far end, leaving you plenty of room."
+        ],
+        "boldness": [
+          "{catName} wades in deeper to get a better grip.",
+          "{catName} keeps to the shallows and lets you take the deep side."
+        ],
+        "loyalty": [
+          "{catName} keeps hold even when the current drags at you both.",
+          "{catName} loosens {his} grip whenever the water pulls hard."
+        ],
+        "curiosity": [
+          "{catName} keeps glancing at you, sizing up how you pull.",
+          "{catName} pays attention to the carcass and the water, not to you."
+        ]
+      },
+      "question": {
+        "aggression": [
+          "{catName} shakes the water off {his} face and answers bluntly.",
+          "{catName} answers quietly, ears soft despite the cold water."
+        ],
+        "sociability": [
+          "{catName} turns toward you, keen to explain.",
+          "{catName} answers over {his} shoulder, still braced against the current."
+        ],
+        "boldness": [
+          "{catName} answers straight away, over the noise of the river.",
+          "{catName} hesitates, glancing at the water."
+        ],
+        "loyalty": [
+          "{catName} answers carefully, like {his} pride will hear about it.",
+          "{catName} answers lightly and goes back to the carcass."
+        ],
+        "curiosity": [
+          "{catName} cocks {his} head at you, interested.",
+          "{catName} answers without asking anything back."
+        ]
+      }
+    },
+    "neutral": "{catName} waits for your answer over the noise of the river."
   }
 }

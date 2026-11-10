@@ -72,14 +72,15 @@
     const text = spokenBand === 'high' ? row.high : spokenBand === 'low' ? row.low : row.base;
     const picked = actionPick(personality, row.focusTrait);
     let action; let actionId;
+    const neutral = (coverage && coverage.neutral) || NEUTRAL;
     if (!picked) {
       const mid = cueLine(coverage.contextActions && coverage.contextActions[row.context] && coverage.contextActions[row.context][row.focusTrait], 'middle');
-      action = fill(mid || NEUTRAL, vars);
+      action = fill(mid || neutral, vars);
       actionId = mid ? `${row.context}:${row.focusTrait}:middle` : `${row.context}:neutral`;
     } else {
       const pair = coverage.contextActions && coverage.contextActions[row.context] && coverage.contextActions[row.context][picked.trait];
       const cue = cueLine(pair, picked.band);
-      action = cue ? fill(cue, vars) : fill(NEUTRAL, vars);
+      action = cue ? fill(cue, vars) : fill(neutral, vars);
       actionId = `${row.context}:${picked.trait}:${picked.band}`;
     }
     return {

@@ -961,7 +961,120 @@
       "New/cancelled share and a false claim never create verified-share callback.",
       "Double-click request or disclosure: one event, one knowledge edge, one story outcome; no instant leader spawn.",
       "Old save without knowledge records uses unknown/generic response; no fabricated memory."
-    ]
+    ],
+    "contextActions": {
+      "opening": {
+        "aggression": [
+          "{catName} steps onto the scent line and blocks your way.",
+          "{catName} stays on {his} side of the scent marks and lets you speak."
+        ],
+        "sociability": [
+          "{catName} comes up to the border with a short chuff.",
+          "{catName} stays a few lengths back from the border."
+        ],
+        "boldness": [
+          "{catName} comes right up to the line, chin high.",
+          "{catName} hangs back by the rocks before coming forward."
+        ],
+        "loyalty": [
+          "{catName} glances back toward the crag before speaking.",
+          "{catName} seems in no hurry to report anything to anybody."
+        ],
+        "curiosity": [
+          "{catName} sniffs the air on your side of the line.",
+          "{catName} barely glances at you."
+        ]
+      },
+      "return": {
+        "aggression": [
+          "{catName} plants {his} paws on the scent line and says it straight.",
+          "{catName} steps back from the line a little to give you room."
+        ],
+        "sociability": [
+          "{catName} comes right up to the line, glad to have news for you.",
+          "{catName} stays on {his} side of the border and keeps it short."
+        ],
+        "boldness": [
+          "{catName} says it without waiting to be asked.",
+          "{catName} waits until you've stopped at the line before speaking."
+        ],
+        "loyalty": [
+          "{catName} sits up straight, like this is proper Highcrag business.",
+          "{catName} says it like it's just another message to pass along."
+        ],
+        "curiosity": [
+          "{catName}'s ears come forward, wanting to hear more.",
+          "{catName} doesn't ask why you want it."
+        ]
+      },
+      "question": {
+        "aggression": [
+          "{catName} answers bluntly from across the scent line.",
+          "{catName} hears you out, ears soft, before answering."
+        ],
+        "sociability": [
+          "{catName} leans over the line, keen to talk it through.",
+          "{catName} keeps the answer short."
+        ],
+        "boldness": [
+          "{catName} answers straight away.",
+          "{catName} glances back toward the crag before answering."
+        ],
+        "loyalty": [
+          "{catName} chooses each word like the whole crag will hear it.",
+          "{catName} answers lightly, like it's only border talk."
+        ],
+        "curiosity": [
+          "{catName} tips {his} head, curious about you.",
+          "{catName} doesn't ask anything back."
+        ]
+      },
+      "boundary": {
+        "aggression": [
+          "{catName}'s hackles lift, but {he} stays behind the scent line.",
+          "{catName} lowers {his} head and steps back from the line."
+        ],
+        "sociability": [
+          "{catName} stays close to the line but won't give way on this.",
+          "{catName} turns side-on to you, guarding the path."
+        ],
+        "boldness": [
+          "{catName} squares up on the border and says it plainly.",
+          "{catName} looks down at the scent marks, but still says it."
+        ],
+        "loyalty": [
+          "{catName} stands firm in front of the path up to the crag.",
+          "{catName} flicks an ear, like it's only orders."
+        ],
+        "curiosity": [
+          "{catName} tilts {his} head, waiting for your side of it.",
+          "{catName} looks off along the border, done with the subject."
+        ]
+      },
+      "departure": {
+        "aggression": [
+          "{catName} grunts and steps back from the line.",
+          "{catName} lets you go without a growl."
+        ],
+        "sociability": [
+          "{catName} follows you a little way along the border before stopping.",
+          "{catName} is already turning back toward the crag."
+        ],
+        "boldness": [
+          "{catName} pads back up toward the crag without looking round.",
+          "{catName} waits until you're a little way off before leaving the line."
+        ],
+        "loyalty": [
+          "{catName} goes straight back to {his} post on the border.",
+          "{catName} wanders off along the border."
+        ],
+        "curiosity": [
+          "{catName} starts to ask something, then lets you go.",
+          "{catName} has lost interest before you've turned away."
+        ]
+      }
+    },
+    "neutral": "{catName} waits on the far side of the scent line for your answer."
   },
   "proofSequence": {
     "status": "AUTHORITATIVE sequence references existing graph/profile only; supersedes former share-next-kill adapter.",

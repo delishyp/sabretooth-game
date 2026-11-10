@@ -231,11 +231,21 @@
         || (producer && producer.personalityCoverage && producer.personalityCoverage.speechLocations)
         || {};
     }
-    function speak(npc, location, locations, extra) {
+    function cuePack(which) {
+      const source = which === 'ford' ? fordDoc : which === 'border' ? story : null;
+      const own = source && source.contextActions;
+      return {
+        contextActions: own || (graph.personalityCoverage && graph.personalityCoverage.contextActions),
+        neutral: source && source.neutral || null
+      };
+    }
+    function speak(npc, location, locations, extra, which) {
       if (!Speech || !graph || !npc) return null;
+      const pack = cuePack(which);
       const coverage = {
         speechLocations: locations || speechLocations(),
-        contextActions: graph.personalityCoverage && graph.personalityCoverage.contextActions
+        contextActions: pack.contextActions,
+        neutral: pack.neutral
       };
       return Speech.resolve(coverage, location, npc.personality, Speech.nameVars(npc, extra));
     }
@@ -250,7 +260,7 @@
     }
     function freezeSpeech(s, location) {
       const npc = s.npcs[s.border.guardId];
-      const resolved = speak(npc, location);
+      const resolved = speak(npc, location, null, null, 'border');
       if (!resolved) return;
       s.border.presentation = {
         node: s.border.node, location, variantId: resolved.variantId, actionId: resolved.actionId,
@@ -355,8 +365,8 @@
       if (waiting) {
         const leader = s.npcs[waiting.leaderId];
         const decision = rulingSelector(s, waiting.leaderId);
-        const openLine = speak(leader, 'leader_open');
-        const decisionLine = decision.speech ? speak(leader, decision.speech) : null;
+        const openLine = speak(leader, 'leader_open', null, null, 'border');
+        const decisionLine = decision.speech ? speak(leader, decision.speech, null, null, 'border') : null;
         const lines = [];
         if (openLine) lines.push(...linesFrom(leader, openLine));
         if (decisionLine) lines.push(...linesFrom(leader, decisionLine));
@@ -502,7 +512,7 @@
         const lines = [];
         let last = null;
         locations.forEach((location) => {
-          const resolved = speak(guard, location);
+          const resolved = speak(guard, location, null, null, 'border');
           if (!resolved) return;
           last = resolved;
           lines.push.apply(lines, linesFrom(guard, resolved));
@@ -586,9 +596,9 @@
       const lines = [];
       for (const id of ids) {
         if (id === 'bonefield_answer' || id === 'aid_bonefield_response' || id === 'side_bonefield_response' || id === 'stay_bonefield_response') {
-          const spoken = speak(bf, id, locs, names); if (spoken) lines.push(...linesFrom(bf, spoken));
+          const spoken = speak(bf, id, locs, names, 'ford'); if (spoken) lines.push(...linesFrom(bf, spoken));
         } else {
-          const spoken = speak(hc, id, locs, names); if (spoken) lines.push(...linesFrom(hc, spoken));
+          const spoken = speak(hc, id, locs, names, 'ford'); if (spoken) lines.push(...linesFrom(hc, spoken));
         }
       }
       return lines;
