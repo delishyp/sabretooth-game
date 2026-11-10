@@ -84,6 +84,7 @@
         source: doc.revision || 'first-season-v0.6.2',
         seasonEndShown: false,
         routeIntent: null,
+        lonerGroups: [],
         matePair: null,
         pride: null,
         members: [],
@@ -207,7 +208,12 @@
           const who = beat.speaker === 'C' ? ((cast && (cast.C || cast.rival)) || npc) : ((cast && cast.B) || npc);
           const said = speak(familyId, beat, who, vars);
           lines.push({ kind: 'say', speaker: who ? who.name : '', text: said.text, variantId: said.variantId, gap: said.gap });
-          if (said.action) lines.push({ kind: 'action', text: said.action });
+          const speakerVars = who ? Speech.nameVars(who, {
+            regionName: vars.regionName, newPrideName: vars.newPrideName, originPrideName: vars.originPrideName,
+            leaderName: vars.leaderName, rivalName: vars.rivalName
+          }) : vars;
+          const cue = speak(familyId, beat, who, speakerVars);
+          if (cue.action) lines.push({ kind: 'action', text: cue.action });
           if (said.gap) lines.push({ kind: 'gap', text: said.gap });
         }
       }
@@ -362,6 +368,7 @@
       if (r.pride && !Object.prototype.hasOwnProperty.call(r.pride, 'territory')) r.pride.territory = null;
       if (r.seasonEndShown == null) r.seasonEndShown = false;
       if (r.routeIntent === undefined) r.routeIntent = null;
+      if (!Array.isArray(r.lonerGroups)) r.lonerGroups = [];
       if (!r.bonds || typeof r.bonds !== 'object') r.bonds = {};
       if (!r.attraction || typeof r.attraction !== 'object') r.attraction = {};
       if (r.attractionRolled == null) r.attractionRolled = false;
@@ -473,14 +480,24 @@
       };
     }
 
+    function resultBeats(beats, npc) {
+      const catId = npc && npc.id;
+      return (beats || []).map((beat) => {
+        if (!beat || beat.kind === 'narration' || !beat.byCat || !catId || !Object.prototype.hasOwnProperty.call(beat.byCat, catId)) return beat;
+        const block = beat.byCat[catId];
+        const text = typeof block === 'string' ? block : block && block.text;
+        return Object.assign({}, beat, { text: text || beat.text, speechId: null });
+      });
+    }
     function resultScene(which, s, npc, deps, court) {
-      const block = families['m2.courtship'].results[which];
+      const family = families['m2.courtship'];
+      const block = family.results[which];
       const accepted = which === 'accepted';
       const loner = !npc.faction || npc.faction === 'loner';
       const next = accepted && loner ? matesScene(s, npc, deps) : null;
       if (next && court) next.day = court.attemptDay;
       return scene('m2.courtship', s, npc, deps, {
-        beats: block.beats,
+        beats: (family.beats || []).concat(resultBeats(block.beats, npc)),
         summary: block.summary,
         heading: 'Courtship',
         group: 'courtship',
@@ -697,11 +714,7 @@
         next: won ? matesScene(s, npc, deps) : null
       });
       event.rivalId = rival.id;
-      const injuryLines = [];
-      if (applied.player) injuryLines.push({ kind: 'narration', text: `You have a ${applied.player} injury from the challenge.` });
-      if (applied.rival) injuryLines.push({ kind: 'narration', text: `${rival.name} has a ${applied.rival} injury from the challenge.` });
-      event.lines = (event.lines || []).concat(injuryLines);
-      event.committedInjuries = injuryLines.map((line) => line.text);
+      event.committedInjuries = [];
       remember(s, [s.cat.catId, npc.id, rival.id], won ? 'rival_won' : 'rival_lost', event.summary, key, day);
       return event;
     }
@@ -948,12 +961,15 @@
       if (!s.cat || s.cat.status !== 'member' || !s.cat.prideId) return null;
       return PRIDE_NAMES[s.cat.prideId] || s.cat.prideId;
     }
+    function membershipLine(label) {
+      return `You are a member of ${label}.`;
+    }
     function joinBlockers(s, deps) {
       const pride = heldPride(s, deps);
       const mine = memberName(s);
       if (!pride) {
         const blockers = [];
-        if (mine) blockers.push(`You are a member of ${mine}.`);
+        if (mine) blockers.push(membershipLine(mine));
         blockers.push('You are not on land a pride holds.');
         return { pride: null, leader: null, blockers };
       }
@@ -966,10 +982,10 @@
       const memberHere = !!(s.cat && s.cat.status === 'member' && s.cat.prideId === pride && prior && prior.approved);
       if (prior && (prior.season == null || prior.season === season)) {
         blockers.push(memberHere
-          ? `You are a member of ${name}.`
+          ? membershipLine(name)
           : `You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`);
       }
-      if (mine && !blockers.some((line) => line === `You are a member of ${mine}.`)) blockers.push(`You are a member of ${mine}.`);
+      if (mine && !blockers.some((line) => line === membershipLine(mine))) blockers.push(membershipLine(mine));
       return { pride, leader, blockers };
     }
     function grantMembership(s, pride, receipt) {
@@ -1012,19 +1028,18 @@
       };
       s.records.joinAsk[pride] = result;
       const prideName = PRIDE_NAMES[pride] || pride;
-      const lines = [
-        { kind: 'narration', text: `You ask ${leader.name} to let you join ${prideName}.` },
-        { kind: 'narration', text: joined
-          ? `${leader.name} approves the request. You are a member of ${prideName}.`
-          : `${leader.name} refuses the request.` }
-      ];
-      if (!approved) lines.push({ kind: 'narration', text: `${leader.name} leaves the matter there.` });
-      const event = {
-        bond: true, eventId: 'join.ask', kind: 'join', group: 'join', heading: 'Ask to join',
-        catId: leader.id, catName: leader.name, day: s.day, lines, choices: [],
-        summary: joined ? `You asked to join ${prideName}. You are a member of ${prideName}.` : `You asked to join ${prideName}. The request was refused.`,
-        choiceId: 'ask', result: true, seasonEnd: false, pride, leaderId: leader.id, join: result, showPortrait: true
-      };
+      const admission = families['m2.pride_admission'];
+      const which = joined ? 'accepted' : 'refused';
+      const beats = (admission.results.attempt.beats || []).concat(admission.results[which].beats || []);
+      const event = scene('m2.pride_admission', s, leader, deps, {
+        beats, cast: { C: leader, pride }, heading: 'Ask to join', group: 'join',
+        result: true, choices: [], showPortrait: true,
+        summary: joined ? `You were accepted into ${prideName}.` : `${prideName} refused your request to join.`
+      });
+      event.pride = pride;
+      event.leaderId = leader.id;
+      event.join = result;
+      event.choiceId = 'ask';
       remember(s, [s.cat.catId, leader.id], approved ? 'join_approved' : 'join_refused', event.summary, key, s.day);
       return { event };
     }
@@ -1182,7 +1197,11 @@
       if (p.seasonEnd) {
         if (c.id === 'route_pride') s.records.routeIntent = 'pride';
         else if (c.id === 'route_group') s.records.routeIntent = 'group';
-        else if (c.id === 'route_alone') s.records.routeIntent = 'alone';
+        else if (c.id === 'route_alone') {
+          s.records.routeIntent = 'alone';
+          const solo = families['m2.solo_continue'];
+          if (solo) p.lines = (p.lines || []).concat(linesFrom(solo.beats, s, npc, deps, solo.id));
+        }
         p.choiceId = c.id;
         p.summary = c.summary;
         s.phase = 'eventResult';
@@ -1224,13 +1243,13 @@
       if (mate && pride) {
         variant = 'mated_founded';
         block = family.results.mated_founded;
-        beats = block.beats;
+        beats = (family.beats || []).concat(block.beats || []);
         choices = block.choices;
         summary = block.summary;
       } else if (mate) {
         variant = 'mated_unfounded';
         block = family.results.mated_unfounded;
-        beats = block.beats;
+        beats = (family.beats || []).concat(block.beats || []);
         choices = block.choices;
         summary = block.summary;
       } else if (pride && s.records.matePair && !mate) {
@@ -1243,14 +1262,7 @@
       } else {
         const recap = bestUnmated(s);
         const row = block.recapByBestStage[recap.stage] || block.recapByBestStage.none;
-        const met = Object.values(s.npcs || {}).some((n) => n.met);
-        const opening = met
-          ? 'The mating season has ended. The cats you met have not vanished from your life, and tomorrow still needs water, food and shelter.'
-          : 'The mating season has ended. Tomorrow still needs water, food and shelter.';
-        beats = [
-          { kind: 'narration', text: opening },
-          { kind: 'narration', text: 'You can seek a place in a pride, look for other loners, or continue alone. You can change your mind.' }
-        ].concat(row.beats || []);
+        beats = (family.beats || []).concat(block.beats || []).concat(row.beats || []);
         npc = recap.stage === 'none' ? null : recap.npc;
         const intentSummary = {
           route_pride: 'You decide to seek a place in an existing pride.',
@@ -1300,6 +1312,7 @@
           if (bond && bond.stage === 'courting') bond.stage = 'close';
         }
       }
+      formLonerGroups(s);
       s.records.seasonEndShown = true;
       if (s.day <= seasonDays) s.day = seasonDays + 1;
       else s.day += 1;
@@ -1315,9 +1328,55 @@
       if (intent === 'pride') {
         const gate = joinBlockers(s, deps);
         reason = gate.blockers.length ? gate.blockers.join(' ') : `You can ask ${gate.leader.name} to join ${PRIDE_NAMES[gate.pride]}.`;
-      } else if (intent === 'group') reason = 'No eligible group is available.';
+      } else if (intent === 'group') {
+        const here = (s.records.lonerGroups || []).some((group) => (group.homeZones || []).includes(s.region));
+        const authored = families['m2.loner_group'] && families['m2.loner_group'].noGroup;
+        reason = here ? 'Loners are travelling together near here.' : (authored || 'No loners travel together near here yet.');
+      }
       else if (intent === 'alone') reason = 'Hunt, rest, and travel stay available.';
       return { intent, reason, choices: ['pride', 'group', 'alone'] };
+    }
+    function formLonerGroups(s) {
+      if (!s.records) return [];
+      if (!Array.isArray(s.records.lonerGroups)) s.records.lonerGroups = [];
+      if (s.records.lonerGroups.length >= 2) return s.records.lonerGroups;
+      const taken = new Set(s.records.lonerGroups.flatMap((group) => group.memberIds || []));
+      const loners = Object.values(s.npcs || {}).filter((npc) => npc && !npc.dead && (!npc.faction || npc.faction === 'loner') && (npc.stage === 'adult' || npc.stage === 'elder' || npc.lifeStage === 'adult' || npc.lifeStage === 'elder'));
+      const season = seasonIndex(s);
+      for (let i = 0; i < loners.length && s.records.lonerGroups.length < 2; i++) {
+        for (let j = i + 1; j < loners.length && s.records.lonerGroups.length < 2; j++) {
+          const a = loners[i];
+          const b = loners[j];
+          if (taken.has(a.id) || taken.has(b.id)) continue;
+          const homes = (a.homeZones || []).filter((zone) => (b.homeZones || []).includes(zone));
+          if (!homes.length) continue;
+          const ab = Pairs.stored(s.records.catToCat, a.id, b.id);
+          const ba = Pairs.stored(s.records.catToCat, b.id, a.id);
+          const left = ab && typeof ab.value === 'number' ? ab.value : 0;
+          const right = ba && typeof ba.value === 'number' ? ba.value : 0;
+          if (Math.min(left, right) < 30) continue;
+          if (Rng.stream(s.seed, 'loner-group', a.id, b.id, season)() >= 0.2) continue;
+          s.records.lonerGroups.push({ id: `group-${a.id}-${b.id}`, memberIds: [a.id, b.id], homeZones: homes.slice() });
+          taken.add(a.id);
+          taken.add(b.id);
+        }
+      }
+      return s.records.lonerGroups;
+    }
+    function groupVisit(s, deps) {
+      const here = (s.records.lonerGroups || []).find((group) => (group.homeZones || []).includes(s.region));
+      if (!here) {
+        const authored = families['m2.loner_group'] && families['m2.loner_group'].noGroup;
+        return { line: authored || 'No loners travel together near here yet.' };
+      }
+      const member = s.npcs[here.memberIds[0]];
+      const family = families['m2.loner_group'];
+      return {
+        event: scene('m2.loner_group', s, member, deps, {
+          beats: family.results.meet.beats, cast: { C: member }, heading: 'Loners', choices: [], showPortrait: true,
+          summary: family.results.meet.summary
+        })
+      };
     }
     function setRoute(s, intent) {
       if (!s.records || !s.records.seasonEndShown || s.records.matePair) return { error: 'route.closed' };
@@ -1329,7 +1388,7 @@
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
       courtOffers, beginCourt, audienceOffers, beginAudience, challengeOffers, beginChallenge, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, joinBlockers, beginJoinAsk, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
+      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, joinBlockers, beginJoinAsk, formLonerGroups, groupVisit, seasonPending, resultScene, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 

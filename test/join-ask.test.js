@@ -246,7 +246,7 @@ test('FIXTURE seed 36: an accepted ask makes the player a member of that pride, 
   assert.strictEqual(members.length, 1);
   assert.strictEqual(members[0].role, 'member');
   assert.ok(members[0].receipt.includes('/join/highcrag/season1'));
-  assert.ok(asked.state.pending.summary.includes('member of Highcrag'));
+  assert.ok(asked.state.pending.summary.includes('accepted into Highcrag') || asked.state.pending.lines.some((line) => line.text.includes('Walk beside us')));
   assert.ok(!asked.state.pending.lines.some((line) => line.text.includes('does not make you a member')));
   assert.deepStrictEqual(asked.state.records.playerSkills.receipts, skills);
   const loaded = E.migrate(JSON.parse(JSON.stringify(asked.state)));

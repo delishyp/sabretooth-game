@@ -102,12 +102,9 @@ test('an ordinary challenge applies the live roll once and the scene names only 
     const fight = acted.state.records.fights[0];
     assert.strictEqual(fight.deathRoll, false);
     assert.strictEqual(fight.lethal, false);
-    const text = (acted.state.pending.committedInjuries || []).join(' ');
-    if (fight.applied.player) assert.ok(text.includes(`You have a ${fight.applied.player} injury`));
-    else assert.ok(!text.includes('You have a'));
-    if (fight.applied.rival) assert.ok(text.includes(`${acted.state.npcs[fight.rivalId].name} has a ${fight.applied.rival} injury`));
-    else assert.ok(!text.includes(`${acted.state.npcs[fight.rivalId].name} has a`));
-    if (!fight.applied.player && !fight.applied.rival) assert.deepStrictEqual(acted.state.pending.committedInjuries, []);
+    const spoken = (acted.state.pending.lines || []).map((line) => line.text).join('\n');
+    assert.deepStrictEqual(acted.state.pending.committedInjuries, []);
+    assert.ok(!spoken.includes('injury'), spoken);
     if (fight.applied.player) {
       assert.ok(acted.state.injuries.some((row) => row.tier === fight.applied.player && row.source === 'mate-challenge'));
       assert.ok(acted.state.needs.health < health);

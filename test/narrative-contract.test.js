@@ -152,9 +152,8 @@ test('FIXTURE: an unmated season choice is an intent, and day 21 can change it w
   }
   assert.strictEqual(s.pending.variant, 'unmated');
   const prose = (s.pending.lines || []).map((l) => l.text).join('\n');
-  assert.ok(prose.includes('tomorrow still needs water, food and shelter.'));
-  assert.ok(prose.includes('The cats you met have not vanished'));
-  assert.ok(prose.includes('You can change your mind.'));
+  assert.ok(prose.includes('The mating season draws to a close'));
+  assert.ok(prose.includes('You can try to earn a place in a pride'));
   s = E.act(s, { type: 'choose', choiceId: 'route_pride' }).state;
   assert.strictEqual(s.pending.summary, 'You decide to seek a place in an existing pride.');
   assert.strictEqual(s.records.routeIntent, 'pride');
@@ -174,7 +173,8 @@ test('FIXTURE: an unmated season choice is an intent, and day 21 can change it w
   assert.ok(E.available(changed).route.reason.includes('Hunt, rest, and travel'));
   assert.ok(E.available(changed).hunt.allowed || E.available(changed).hunt.reason);
   const group = E.act(changed, { type: 'setRoute', intent: 'group' }).state;
-  assert.ok(E.available(group).route.reason.includes('No eligible group'));
+  const reason = E.available(group).route.reason;
+  assert.ok(reason.includes('No loners travel together near here yet.') || reason.includes('Loners are travelling together near here.'), reason);
   assert.deepStrictEqual(group.needs, changed.needs);
   assert.deepStrictEqual(group.records.playerSkills, xp);
 });
