@@ -273,6 +273,7 @@
       "ask": "“Because they'd say no, and then they'd watch me.” A long look. “We watch each other a lot, since the Breaking.”",
       "declineLow": "“Then forget I asked.”",
       "decline": "“I understand. Forget you saw me out here. Please.”",
+      "reminder": "You said you'd bring something back. I haven't forgotten.",
       "kept": "{catName} takes the hare gently, the way you'd carry a cub. ‘They'll eat tonight.’ Then, so quietly you almost miss it: ‘Thank you, loner.’",
       "broken": "{catName} doesn't come closer. “I waited at the reeds,” is all the cat says, and then turns away."
     },

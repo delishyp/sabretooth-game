@@ -220,6 +220,31 @@
     if (!s.conversation.cats[catId]) s.conversation.cats[catId] = { facts: [], activeByTopic: {}, log: [] };
     return s.conversation.cats[catId];
   }
+  function secretPromise(s, catId) {
+    const cat = s.conversation && s.conversation.cats && s.conversation.cats[catId];
+    return (cat && cat.facts || []).find((f) => f.promiseId === 'keep_secret' && f.promise === 'pending' && f.catId === catId) || null;
+  }
+  function keepSecret(s, catId) {
+    const fact = secretPromise(s, catId);
+    if (!fact || fact.told || fact.absDay === s.day) return { kept: false };
+    fact.promise = 'kept';
+    fact.resolvedDay = s.day;
+    const npc = s.npcs && s.npcs[catId];
+    if (npc) npc.affinity = Math.max(-100, Math.min(100, (npc.affinity || 0) + 5));
+    return { kept: true, delta: 5 };
+  }
+  function breakSecret(s, factId) {
+    const match = String(factId || '').match(/saw_out_here\/([^/]+)/);
+    if (!match) return { broken: false };
+    const fact = secretPromise(s, match[1]);
+    if (!fact) return { broken: false };
+    fact.promise = 'broken';
+    fact.told = true;
+    fact.resolvedDay = s.day;
+    const npc = s.npcs && s.npcs[match[1]];
+    if (npc) npc.affinity = Math.max(-100, Math.min(100, (npc.affinity || 0) - 5));
+    return { broken: true, delta: -5 };
+  }
   function bringPrey(s, catId) {
     const cat = s.conversation && s.conversation.cats && s.conversation.cats[catId];
     return (cat && cat.facts || []).find((f) => f.promiseId === 'bring_prey' && f.promise === 'pending' && f.catId === catId) || null;
@@ -288,12 +313,17 @@
     const border = fact.kind === 'border' || fact.topicId === 'border' || id.indexOf('border') !== -1;
     return bonefield && border;
   }
-  function gossipLine(fact, scene) {
+  function gossipLine(fact, scene, s, npc) {
     if (!fact) return null;
+    const row = s && s.worldMemory && s.worldMemory.knowledge && s.worldMemory.knowledge[fact.factId];
+    if (row && npc && (row.participantIds || []).includes(npc.id)) return null;
+    const phrase = Pass2.gossipPhrase(fact.factId, s && s.runId, {
+      listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
+    });
+    if (typeof phrase === 'string' && phrase) return phrase;
+    if (phrase && phrase.say) return phrase.say;
     const line = scene && scene.gossip && scene.gossip.bonefieldBorder;
-    if (bonefieldBorder(fact) && line) return line;
-    if (typeof fact.gossip === 'string' && fact.gossip) return fact.gossip;
-    if (typeof fact.summary === 'string' && fact.summary) return fact.summary;
+    if (bonefieldBorder(fact) && line && !/\byou\b/i.test(line)) return line;
     return null;
   }
   function createBringPrey(s, catId, scene) {
@@ -322,12 +352,12 @@
       if (opts.huntReady) choices.push({ id: 'share', label: 'Drag your kill closer and share it.', result: 'share' });
       choices.push({ id: 'refuse_prey', label: '“I can\'t.”', result: 'refuse_prey' });
       choices.push({ id: 'leave', label: 'Leave it there.', result: 'leave' });
-      const ask = (scene.beats || []).find((b) => /hare from these marshes/.test(b.text));
+      const reminder = replies.reminder || 'You said you\'d bring something back. I haven\'t forgotten.';
       return {
         bond: !!opts.huntReady, lone: !opts.huntReady, followUp: 'bring_prey',
         eventId: 'npc_initiative.mistwood.request_help.v1', title: 'A cat comes to you',
         catId: npc.id, catName: npc.name, want: 'feed_the_pride',
-        beats: ask ? [ask] : [{ kind: 'speech', text: '“Bring me a hare from these marshes, or anything small. I\'ll carry it to them myself, and no one has to know where it came from.”' }],
+        beats: [{ kind: 'speech', text: reminder }],
         beatIndex: 0, day: s.day, choices, replies
       };
     }
@@ -344,7 +374,7 @@
     const knows = opts.knowsFact || (() => false);
     const facts = knownFacts(s, npc.id, knows);
     const beats = (scene.beats || []).map((b) => Object.assign({}, b));
-    const gossipRow = (s.worldMemory && s.worldMemory.facts || []).filter((f) => facts.includes(f.factId)).map((f) => ({ id: f.factId, line: gossipLine(f, scene) })).find((row) => row.line);
+    const gossipRow = (s.worldMemory && s.worldMemory.facts || []).filter((f) => facts.includes(f.factId)).map((f) => ({ id: f.factId, line: gossipLine(f, scene, s, npc) })).find((row) => row.line);
     if (gossipRow) {
       const at = beats.findIndex((b) => /hare from these marshes/.test(b.text));
       const line = { kind: 'speech', text: gossipRow.line };
@@ -433,6 +463,7 @@
       return { meeting: watched };
     }
     const picked = pickApproach(s, opts);
+    if (picked) keepSecret(s, picked.id);
     mark(s, 'approach', picked ? picked.id : 'none');
     if (picked && opts.followScene) {
       const follow = opts.followScene(picked);
@@ -455,10 +486,16 @@
       const knowledge = s.worldMemory && s.worldMemory.knowledge || {};
       for (const id of facts) {
         const row = knowledge[id];
+        if (row && (row.participantIds || []).includes(picked.id)) continue;
         const line = speakableFact(s, id, Object.assign({}, opts, {
           listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
         }));
-        if (line) { told = line; gossipSourceId = id; break; }
+        if (line) {
+          told = line;
+          gossipSourceId = id;
+          breakSecret(s, id);
+          break;
+        }
       }
       if (told) beats.push(gossipBeat(picked.name, told, Pass2.lines()['lone-actions.js:gossipBeat']));
     }
@@ -514,17 +551,27 @@
     } else if (scene && choiceId === 'leave') {
       p.summary = 'You left it there.';
     } else if (choiceId === 'accept_request' && p.catId) {
-      const factId = `${s.runId || ''}/${p.catId}/approach_request/${s.day}`;
+      const factId = `${s.runId || ''}/saw_out_here/${p.catId}`;
       if (!s.conversation) s.conversation = { schema: 1, slotDay: null, sequence: 0, ledger: [], pending: null, cats: {} };
       if (!s.conversation.cats[p.catId]) s.conversation.cats[p.catId] = { facts: [], activeByTopic: {}, log: [] };
       const cat = s.conversation.cats[p.catId];
       if (!cat.facts.some((f) => f.factId === factId)) {
         cat.facts.push({
-          factId, catId: p.catId, topicId: 'approach', stanceId: 'request',
+          factId, catId: p.catId, topicId: 'approach', stanceId: 'saw_out_here',
           sourceChoiceKey: 'approach/accept_request', absDay: s.day, sequence: s.conversation.sequence || 0,
-          promise: 'pending', promiseId: 'approach_request', insult: false, help: false,
-          supersedesFactId: null, status: 'active'
+          promise: 'pending', promiseId: 'keep_secret', insult: false, help: false,
+          supersedesFactId: null, status: 'active', told: false
         });
+      }
+      if (s.worldMemory) {
+        if (!Array.isArray(s.worldMemory.facts)) s.worldMemory.facts = [];
+        if (!s.worldMemory.knowledge) s.worldMemory.knowledge = {};
+        if (!s.worldMemory.facts.some((row) => row.factId === factId)) {
+          s.worldMemory.facts.push({ factId, kind: 'sighting', summary: 'You saw them out here.' });
+          s.worldMemory.knowledge[factId] = {
+            scope: 'private', participantIds: ['player'], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: s.day
+          };
+        }
       }
       if (s.worldMemory) {
         if (!Array.isArray(s.worldMemory.ledger)) s.worldMemory.ledger = [];
@@ -537,6 +584,7 @@
       }
       p.summary = Pass2.lines()['lone-actions.js:summary'].accepted.replace('{catName}', p.catName || '');
     } else if (choiceId === 'rumor_spread') {
+      breakSecret(s, p.rumorFactId);
       p.summary = Pass2.lines()['lone-actions.js:summary'].passed_on.replace('{catName}', p.catName || '');
     } else if (p.eventId === 'lone.approach') {
       const sum = Pass2.lines()['lone-actions.js:summary'];
@@ -804,12 +852,11 @@
     if ((s.needs.energy || 0) < 15) return { error: 'tired' };
     s.needs.energy -= 15;
     s.records.cubPrideDay[offer.pride] = s.day;
-    const motherNpc = s.npcs[offer.motherId];
     return {
       event: {
         lone: true, cub: true, eventId: 'lone.cub', title: 'A cub',
         pride: offer.pride, cubId: offer.cubId, motherId: offer.motherId,
-        beats: [{ kind: 'narration', text: fillTokens(LINES['cub.intro'], { pride: offer.name }), speaker: motherNpc && motherNpc.name, speakerId: motherNpc && motherNpc.id }],
+        beats: [{ kind: 'narration', text: fillTokens(LINES['cub.intro'], { pride: offer.name }) }],
         beatIndex: 0, day: s.day, choices: [
           { id: 'guide', label: 'Walk the cub back to its mother.' },
           { id: 'ignore', label: 'Leave the cub where it is.' }
@@ -856,6 +903,7 @@
     kill.shared = true;
     npc.affinity = Math.min(100, (npc.affinity || 0) + 10);
     npc.met = true;
+    keepBringPrey(s, catId);
     return {
       ok: true, delta: 10,
       event: sceneEvent('lone.share', 'The kill', fillTokens(LINES.share, { name: npc.name }), { catId, resultLine: '' })
@@ -964,7 +1012,7 @@
 
   return {
     offer, usedDay, scentLines, beginScent, beginApproach, peekApproach, choose, openerKind, OPENERS, preyWord,
-    outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey,
+    outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey, keepSecret, breakSecret,
     candidates, menu, beginShadow, beginSpar, beginScout, beginSteal, beginCub, resolveCub, shareKill, noteKill, watchText, adjacentPrides,
     presentCat, revealRoute, watchPresence, stonePresence, killPresence, presenceReply,
     promiseShare: (st, catId) => createBringPrey(st, catId, null),

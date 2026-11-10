@@ -1077,6 +1077,7 @@
       Payoffs.attachRendezvous(s, zoneName);
     }
     function openMeeting(s, npc) {
+      if (npc) Lone.keepSecret(s, npc.id);
       const already = !!npc.met;
       const followed = meetingFollow(s, npc);
       if (followed) { meet(s, npc); s.pending = followed; s.phase = 'event'; return { state: s }; }
@@ -1579,7 +1580,7 @@
       if (!p || !p.catId) return null;
       const id = p.eventId || '';
       const meeting = id.startsWith('slice.meeting.') || id.startsWith('m2.') || !!p.presence;
-      if (!meeting) return null;
+      if (!meeting || p.presence === 'watch' || p.presence === 'stone') return null;
       const npc = s.npcs[p.catId];
       if (!npc) return null;
       if (p.asideText) return { kind: 'speech', speaker: npc.name, text: p.asideText };

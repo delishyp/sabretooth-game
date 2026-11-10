@@ -179,8 +179,8 @@ test('each gossip alias renders only for a cat who knows the stored fact', () =>
     s.worldMemory.facts.push({ factId, kind: 'note' });
     s.worldMemory.knowledge[factId] = {
       scope: 'private',
-      participantIds: knows ? [cat.id] : ['player'],
-      witnessIds: [],
+      participantIds: knows ? [] : ['player'],
+      witnessIds: knows ? [cat.id] : [],
       disclosedTo: [],
       prideIds: [],
       learnedAbsDay: 1

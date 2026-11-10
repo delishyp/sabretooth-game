@@ -70,7 +70,7 @@ test('with no knows variant the lived fact is skipped and the next eligible item
     disclosedTo: [], prideIds: ['bonefield'], learnedAbsDay: 1
   };
   s.worldMemory.knowledge[wolfId] = {
-    scope: 'witnessed', participantIds: [cat.id], witnessIds: [cat.id],
+    scope: 'witnessed', participantIds: [], witnessIds: [cat.id],
     disclosedTo: [], prideIds: [], learnedAbsDay: 2
   };
   const opened = E.lone.beginApproach(s, {

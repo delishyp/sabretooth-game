@@ -175,7 +175,7 @@ test('at most one approach a day, gossip uses a real fact, and a promise is reco
   const affinity = opened.npcs[found.id].affinity;
   const promised = E.act(opened, { type: 'sceneChoose', choiceId: 'accept_request' }).state;
   assert.strictEqual(promised.npcs[found.id].affinity, affinity);
-  const fact = promised.conversation.cats[found.id].facts.find((f) => f.promiseId === 'approach_request');
+  const fact = promised.conversation.cats[found.id].facts.find((f) => f.promiseId === 'keep_secret');
   assert.strictEqual(fact.promise, 'pending');
   assert.strictEqual(E.act(promised, { type: 'sceneChoose', choiceId: 'accept_request' }).error, 'duplicate');
   const loaded = E.migrate(JSON.parse(JSON.stringify(opened)));

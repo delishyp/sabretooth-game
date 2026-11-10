@@ -135,6 +135,17 @@
       return false;
     }
     function disclose(s, { factId, toId, sourceEventId }) {
+      const secret = String(factId || '').match(/saw_out_here\/([^/]+)/);
+      if (secret && s.conversation && s.conversation.cats && s.conversation.cats[secret[1]]) {
+        const held = (s.conversation.cats[secret[1]].facts || []).find((f) => f.promiseId === 'keep_secret' && f.promise === 'pending');
+        if (held) {
+          held.promise = 'broken';
+          held.told = true;
+          held.resolvedDay = s.day;
+          const npc = s.npcs && s.npcs[secret[1]];
+          if (npc) npc.affinity = Math.max(-100, Math.min(100, (npc.affinity || 0) - 5));
+        }
+      }
       const key = `${s.runId || ''}/disclose/${factId}/${toId}`;
       if (has(s, key)) return { applied: false, reason: 'duplicate' };
       const k = box(s).knowledge[factId];

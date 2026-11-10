@@ -102,10 +102,23 @@
       });
       for (let i = 0; i < ids.length; i++) {
         const row = known[ids[i]];
+        if (row && (row.participantIds || []).includes(npc.id)) continue;
         const line = Pass2.gossipPhrase(ids[i], s.runId, Object.assign({}, phraseCtx, {
           listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
         }));
-        if (line) return { id: ids[i], line };
+        if (line) {
+          if (/saw_out_here\//.test(ids[i])) {
+            const catId = String(ids[i]).split('saw_out_here/')[1];
+            const held = s.conversation && s.conversation.cats && s.conversation.cats[catId] && (s.conversation.cats[catId].facts || []).find((f) => f.promiseId === 'keep_secret' && f.promise === 'pending');
+            if (held && s.npcs && s.npcs[catId]) {
+              held.promise = 'broken';
+              held.told = true;
+              held.resolvedDay = s.day;
+              s.npcs[catId].affinity = Math.max(-100, Math.min(100, (s.npcs[catId].affinity || 0) - 5));
+            }
+          }
+          return { id: ids[i], line };
+        }
       }
       return null;
     }

@@ -49,7 +49,7 @@ test('the mistwood request uses the authored beats and only the matching conditi
   s.region = 'mistwood';
   const factId = 'border/bonefield/witness';
   s.worldMemory.facts.push({ factId, kind: 'border', faction: 'bonefield' });
-  s.worldMemory.knowledge[factId] = { scope: 'private', participantIds: ['mw04'], witnessIds: ['mw04'], disclosedTo: [], prideIds: [], learnedAbsDay: 1 };
+  s.worldMemory.knowledge[factId] = { scope: 'private', participantIds: ['player'], witnessIds: ['mw04'], disclosedTo: [], prideIds: [], learnedAbsDay: 1 };
   const opened = approach(s).state;
   assert.strictEqual(opened.pending.catId, 'mw04');
   assert.strictEqual(opened.pending.want, 'feed_the_pride');
