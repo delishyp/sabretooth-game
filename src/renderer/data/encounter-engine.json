@@ -39,6 +39,7 @@
     "fightTolerance": 0.03,
     "slowFightCells": 20000,
     "slowFightTolerance": 0.01,
+    "timeoutLimit": 0.03,
     "huntTolerance": 0.03,
     "courtshipTolerance": 0.04,
     "sensibleTolerance": 0.03,

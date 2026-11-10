@@ -109,6 +109,24 @@ test('the section 8.3 band table maps all fifteen bands', () => {
   assert.deepStrictEqual(log.slow, []);
 });
 
+test('simulateEncounter covers bands 1 through 15', () => {
+  const log = Sim.simulateEncounter({ bands: true, seed: 8, count: 4000, engine: true });
+  assert.strictEqual(log.command, 'encounter');
+  assert.deepStrictEqual(log.bands.map((row) => row.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+  for (const id of [6, 7, 9, 10, 11, 12, 13, 14]) {
+    const row = log.bands.find((item) => item.id === id);
+    assert.strictEqual(row.result, 'PASS', JSON.stringify(row));
+  }
+  assert.ok(log.timeouts.ok, JSON.stringify(log.timeouts));
+  assert.ok(log.timeouts.rate < 0.03);
+  const text = Sim.formatBandTable(log);
+  assert.match(text, /band  6  PASS  hunt steady/);
+  assert.match(text, /band  7  PASS  hunt bold/);
+  assert.match(text, /band  9  PASS  spar ends at 40 HP/);
+  assert.match(text, /band 14  PASS  spar length/);
+  assert.match(text, /timeouts  PASS  encounter timeouts  target <3%/);
+});
+
 test('the slow fight check stays out of the default suite', { skip: process.env.SABRETOOTH_PARITY_SLOW !== '1' }, () => {
   const spec = Engine.config.bands;
   const slow = Parity.fightReport(spec.slowFightCells, spec.slowFightTolerance, 8);

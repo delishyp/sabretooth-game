@@ -159,15 +159,33 @@ function measure(opts) {
   }
   bands.push(line(15, fled === fleeN && alive === fleeN, pct(fled / fleeN)));
 
+  let timedOut = 0;
+  const timeoutN = Math.min(n, 400);
+  for (let i = 0; i < timeoutN; i++) {
+    const fight = Engine.resolve({
+      kind: 'fight', seed: seed + 1600000 + i, quick: false, policy: 'average',
+      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
+    });
+    const spar = Engine.resolve({
+      kind: 'spar', seed: seed + 1700000 + i, quick: false, policy: 'average',
+      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
+    });
+    if (fight.timeout) timedOut += 1;
+    if (spar.timeout) timedOut += 1;
+  }
+  const timeoutRate = timedOut / (timeoutN * 2);
+  const timeouts = { rate: timeoutRate, limit: tol.timeoutLimit, ok: timeoutRate < tol.timeoutLimit };
+
   return {
     command: 'bands', seed, count: n, adapter: 'engine', enabled: true,
-    spec: tol.spec, revision: tol.revision, bands, slow
+    spec: tol.spec, revision: tol.revision, bands, slow, timeouts
   };
 }
 
 function formatBandTable(log) {
   const lines = log.bands.map((row) => `band ${String(row.id).padStart(2, ' ')}  ${row.result}  ${row.name}  target ${row.target}  got ${row.got}`);
   for (const row of log.slow || []) lines.push(`slow ${String(row.id).padStart(2, ' ')}  ${row.result}  ${row.name}  target ${row.target}  got ${row.got}`);
+  if (log.timeouts) lines.push(`timeouts  ${log.timeouts.ok ? 'PASS' : 'FAIL'}  encounter timeouts  target <${log.timeouts.limit * 100}%  got ${pct(log.timeouts.rate)}`);
   return lines.join('\n');
 }
 

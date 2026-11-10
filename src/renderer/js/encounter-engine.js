@@ -92,7 +92,7 @@
     const as = ps * unit(rng, cfg);
     const bs = opponentStrength * unit(rng, cfg);
     const winner = as === bs ? 'opponent' : (as > bs ? 'player' : 'opponent');
-    return { winner, playerScore: as, opponentScore: bs, rounds: 1, quick: true };
+    return { winner, playerScore: as, opponentScore: bs, rounds: 1, quick: true, timeout: false };
   }
   function turnFight(rng, playerStrength, opponentStrength, policy, spar) {
     const cfg = config.fight;
@@ -120,12 +120,13 @@
       if (playerHp <= cfg.sparStop) playerHp = cfg.sparStop;
       if (opponentHp <= cfg.sparStop) opponentHp = cfg.sparStop;
     }
+    const timeout = !fled && rounds >= cfg.maxRounds && playerHp > stop && opponentHp > stop;
     let winner = 'opponent';
     if (fled) winner = 'opponent';
     else if (playerHp === opponentHp) winner = 'opponent';
     else winner = playerHp > opponentHp ? 'player' : 'opponent';
     return {
-      winner, rounds, fled, injury, injuryRolls, quick: false, spar: !!spar,
+      winner, rounds, fled, timeout, injury, injuryRolls, quick: false, spar: !!spar,
       hp: { player: Math.max(0, playerHp), opponent: Math.max(0, opponentHp) },
       stoppedAt: spar ? cfg.sparStop : 0,
       serious: injury === 'serious' || injury === 'crippling'

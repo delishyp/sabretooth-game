@@ -20,7 +20,7 @@ Add `--csv` to any command for CSV. `--player` and `--opponent` set the encounte
 Fight bands 1–5 in that table, and `node src/dev/encounter-parity.js`, use 2,000 fights per cell at ±3 percentage points. That is the regular check. A tighter pass is opt-in and is not part of `npm test`: 20,000 fights per cell at ±1 percentage point. When that flag is set, the band table prints the ±3pp lines and a `slow` line for each fight cell.
 
 ```
-SABRETOOTH_SIM=1 SABRETOOTH_ENCOUNTER_ENGINE=1 node src/dev/sim-hooks.js bands --seed 8 --count 4000
+SABRETOOTH_SIM=1 SABRETOOTH_ENCOUNTER_ENGINE=1 node src/dev/sim-hooks.js encounter --bands --seed 8 --count 4000
 SABRETOOTH_PARITY_SLOW=1 SABRETOOTH_SIM=1 SABRETOOTH_ENCOUNTER_ENGINE=1 node src/dev/sim-hooks.js bands --seed 8
 ```
 - `world` starts from the map's real claims and logs holder, state, and claim strength for each season. The stub then records one placeholder change of hands (`todo: yes` in CSV). That change is not a territory rule.
