@@ -143,8 +143,9 @@ function simulateEncounter({ kind, seed, player, opponent, policy, engine, env, 
   row.index = 0;
   return { command: 'encounter', seed: s, kind: name, adapter: 'todo', enabled: false, rows: [row] };
 }
-function simulateEncounterBatch({ kind, seed, count, player, opponent, policy } = {}) {
+function simulateEncounterBatch({ kind, seed, count, player, opponent, policy, engine, env } = {}) {
   const s = seed >>> 0;
+  if (engineOn({ engine, env })) return Engine.batch({ seed: s, count: num(count, 1000) });
   const name = kind || 'spar';
   const n = num(count, 1);
   const rows = [];
@@ -154,7 +155,7 @@ function simulateEncounterBatch({ kind, seed, count, player, opponent, policy } 
     row.index = i;
     rows.push(row);
   }
-  return { command: 'batch', seed: s, kind: name, count: n, adapter: 'todo', rows };
+  return { command: 'batch', seed: s, kind: name, count: n, adapter: 'todo', enabled: false, rows };
 }
 function simulateWorld({ seed, seasons, map } = {}) {
   const s = seed >>> 0;
@@ -208,9 +209,21 @@ function csvLifetime(log) {
   }
   return lines.join('\n');
 }
+function csvBatch(log) {
+  const lines = ['section,seed,kind,policy,opponent,size,n,winRate,medianRounds,fleeRate,success,meanEnergy,injuryRate,traitsReadDelta,endedAt40,serious,reason'];
+  const push = (cells) => lines.push(cells.map(csvCell).join(','));
+  for (const row of log.summary.fight) push(['fight', log.seed, 'fight', row.policy, row.opponent, '', row.n, row.winRate, row.medianRounds, row.fleeRate, '', '', '', '', '', '', '']);
+  for (const row of log.summary.hunt) push(['hunt', log.seed, 'hunt', row.policy, '', row.size, row.n, '', '', '', row.success, row.meanEnergy, row.injuryRate, '', '', '', '']);
+  for (const row of log.summary.courtship) push(['courtship', log.seed, 'courtship', row.policy, '', '', row.n, '', '', '', row.success, '', '', log.summary.traitsReadDelta, '', '', '']);
+  push(['spar', log.seed, 'spar', 'average', 'matched', '', log.summary.spar.n, '', '', '', '', '', '', '', log.summary.spar.endedAt40, log.summary.spar.seriousInjuries, '']);
+  push(['showdown', log.seed, 'showdown', '', '', '', '', '', '', '', '', '', '', '', '', '', log.summary.showdown.skipped ? 'skipped' : 'touched']);
+  for (const fail of log.failures) push(['failure', fail.seed, fail.kind, fail.policy, fail.opponent, '', '', '', '', '', '', '', '', '', '', '', fail.reason]);
+  return lines.join('\n');
+}
 function toCsv(log) {
   if (log.command === 'world') return csvWorld(log);
   if (log.command === 'lifetime') return csvLifetime(log);
+  if (log.summary) return csvBatch(log);
   return csvEncounter(log);
 }
 function runCommand(name, opts) {

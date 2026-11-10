@@ -114,14 +114,21 @@
         break;
       }
     }
+    let injury = null;
+    if (spar) {
+      if (playerHp <= cfg.sparStop) playerHp = cfg.sparStop;
+      if (opponentHp <= cfg.sparStop) opponentHp = cfg.sparStop;
+      injury = rng() < cfg.sparInjuryChance ? cfg.sparInjuryTier : null;
+    }
     let winner = 'opponent';
     if (fled) winner = 'opponent';
     else if (playerHp === opponentHp) winner = 'opponent';
     else winner = playerHp > opponentHp ? 'player' : 'opponent';
     return {
-      winner, rounds, fled, quick: false, spar: !!spar,
+      winner, rounds, fled, injury, quick: false, spar: !!spar,
       hp: { player: Math.max(0, playerHp), opponent: Math.max(0, opponentHp) },
-      stoppedAt: spar ? cfg.sparStop : 0
+      stoppedAt: spar ? cfg.sparStop : 0,
+      serious: injury === 'serious' || injury === 'crippling'
     };
   }
 
@@ -139,6 +146,12 @@
       const size = opts.size || 'medium';
       const chance = huntChance(size, opts.style, policy);
       const roll = rng();
+      const ok = roll * 100 < chance;
+      const energyBase = policy === 'allBold' ? config.hunt.energy.allBold : config.hunt.energy.steady;
+      const energy = energyBase * (config.hunt.energy.size[size] || 1);
+      let injuryP = (config.hunt.injury[size] || 0) * (ok ? 1 : config.hunt.injury.failMult);
+      if (policy === 'allBold') injuryP *= config.hunt.injury.boldMult;
+      const injured = rng() < injuryP;
       let stamina = config.hunt.stamina;
       let rounds = 0;
       if (!quick) {
@@ -150,7 +163,8 @@
       }
       return {
         adapter: 'engine', kind, policy, policyKnown: known, quick, size,
-        chance, roll, ok: roll * 100 < chance, rounds: quick ? 1 : rounds, stamina: quick ? null : stamina
+        chance, roll, ok, energy, injury: injured ? 'minor' : null, injuryRate: injuryP,
+        rounds: quick ? 1 : rounds, stamina: quick ? null : stamina
       };
     }
     if (kind === 'courtship') {
@@ -179,5 +193,135 @@
     }, fight);
   }
 
-  return { config, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus };
+  function trialSeed(base, kind, policy, opponent, index) {
+    return Rng.hash(`${base >>> 0}|${kind}|${policy}|${opponent}|${index}`) >>> 0;
+  }
+  function median(values) {
+    if (!values.length) return null;
+    const copy = values.slice().sort((a, b) => a - b);
+    return copy[Math.floor(copy.length / 2)];
+  }
+  function round3(n) {
+    return Math.round(n * 1000) / 1000;
+  }
+  /**
+   * Thousands of seeded trials. Rows are aggregated. Only failing seeds are kept.
+   * The game flag stays off; pass engine:true from the dev runner.
+   */
+  function batch(opts) {
+    const spec = config.batch;
+    const count = opts.count || 1000;
+    const base = (opts.seed || 1) >>> 0;
+    const playerStrength = spec.playerStrength;
+    const failures = [];
+    const fight = [];
+    for (const policy of spec.fightPolicies) {
+      for (const opponent of spec.opponents) {
+        let wins = 0;
+        let flees = 0;
+        const rounds = [];
+        for (let i = 0; i < count; i++) {
+          const seed = trialSeed(base, 'fight', policy, opponent.id, i);
+          const row = resolve({
+            kind: 'fight', seed, quick: false, policy,
+            player: { id: 'player', strength: playerStrength },
+            opponent: { id: opponent.id, strength: opponent.strength }
+          });
+          if (row.winner === 'player') wins += 1;
+          if (row.fled) flees += 1;
+          rounds.push(row.rounds);
+        }
+        fight.push({
+          policy, opponent: opponent.id, n: count,
+          winRate: round3(wins / count),
+          medianRounds: median(rounds),
+          fleeRate: round3(flees / count)
+        });
+      }
+    }
+    const hunt = [];
+    for (const policy of spec.huntPolicies) {
+      let ok = 0;
+      let energy = 0;
+      let injured = 0;
+      let n = 0;
+      for (const size of spec.huntSizes) {
+        let sizeOk = 0;
+        let sizeEnergy = 0;
+        let sizeHurt = 0;
+        for (let i = 0; i < count; i++) {
+          const seed = trialSeed(base, 'hunt', policy, size, i);
+          const row = resolve({ kind: 'hunt', seed, quick: true, policy, size, player: { id: 'player' }, opponent: { id: 'prey' } });
+          if (row.ok) sizeOk += 1;
+          sizeEnergy += row.energy;
+          if (row.injury) sizeHurt += 1;
+        }
+        n += count;
+        ok += sizeOk;
+        energy += sizeEnergy;
+        injured += sizeHurt;
+        hunt.push({
+          policy, size, n: count,
+          success: round3(sizeOk / count),
+          meanEnergy: round3(sizeEnergy / count),
+          injuryRate: round3(sizeHurt / count)
+        });
+      }
+      hunt.push({
+        policy, size: 'all', n,
+        success: round3(ok / n),
+        meanEnergy: round3(energy / n),
+        injuryRate: round3(injured / n)
+      });
+    }
+    const courtship = [];
+    let averageSuccess = null;
+    let readSuccess = null;
+    for (const policy of spec.courtshipPolicies) {
+      let accepted = 0;
+      for (let i = 0; i < count; i++) {
+        const seed = trialSeed(base, 'courtship', policy, 'sample', i);
+        const row = resolve({
+          kind: 'courtship', seed, quick: true, policy,
+          player: { id: 'player' }, opponent: { id: 'cat' },
+          courtship: spec.courtship
+        });
+        if (row.accepted) accepted += 1;
+      }
+      const success = round3(accepted / count);
+      if (policy === 'average') averageSuccess = success;
+      if (policy === 'readTraits') readSuccess = success;
+      courtship.push({ policy, n: count, success });
+    }
+    let sparBad = 0;
+    for (let i = 0; i < count; i++) {
+      const seed = trialSeed(base, 'spar', 'average', 'matched', i);
+      const row = resolve({
+        kind: 'spar', seed, quick: false, policy: 'average',
+        player: { id: 'player', strength: playerStrength },
+        opponent: { id: 'matched', strength: playerStrength }
+      });
+      const low = Math.min(row.hp.player, row.hp.opponent);
+      if (low !== config.fight.sparStop || row.serious || row.injury === 'serious' || row.injury === 'crippling') {
+        sparBad += 1;
+        failures.push({ seed, kind: 'spar', policy: 'average', opponent: 'matched', reason: 'spar-floor-or-injury' });
+      }
+    }
+    const show = resolve({ kind: 'showdown', seed: base, player: { id: 'player' }, opponent: { id: 'rival' } });
+    if (!show.skipped) failures.push({ seed: base, kind: 'showdown', policy: null, opponent: 'rival', reason: 'showdown-touched' });
+    return {
+      command: 'batch', seed: base, count, adapter: 'engine', enabled: true,
+      summary: {
+        fight,
+        hunt,
+        courtship,
+        traitsReadDelta: round3((readSuccess || 0) - (averageSuccess || 0)),
+        spar: { n: count, endedAt40: count - sparBad, seriousInjuries: sparBad, failSeeds: failures.filter((row) => row.kind === 'spar').map((row) => row.seed) },
+        showdown: { skipped: !!show.skipped, reason: show.reason || null }
+      },
+      failures
+    };
+  }
+
+  return { config, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median };
 });

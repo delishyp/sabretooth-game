@@ -10,7 +10,9 @@
     "maxRounds": 30,
     "sensibleStrength": 1.072,
     "biteDamage": 1.4,
-    "biteStrength": 1.15
+    "biteStrength": 1.15,
+    "sparInjuryChance": 0.15,
+    "sparInjuryTier": "minor"
   },
   "hunt": {
     "base": 50,
@@ -19,7 +21,9 @@
     "allBold": 8,
     "clamp": [5, 95],
     "stamina": 100,
-    "cost": { "small": 16, "medium": 20, "large": 28 }
+    "cost": { "small": 16, "medium": 20, "large": 28 },
+    "energy": { "steady": 30, "allBold": 42, "size": { "small": 0.8, "medium": 1, "large": 1.3 } },
+    "injury": { "small": 0.02, "medium": 0.06, "large": 0.15, "failMult": 1.5, "boldMult": 1.5 }
   },
   "courtship": {
     "base": 20,
@@ -36,5 +40,18 @@
     "huntTolerance": 0.03,
     "courtshipTolerance": 0.04,
     "sensibleTolerance": 0.03
+  },
+  "batch": {
+    "playerStrength": 10,
+    "fightPolicies": ["average", "sensible", "biteOnly", "fleeAt30"],
+    "huntPolicies": ["steady", "allBold"],
+    "huntSizes": ["small", "medium", "large"],
+    "courtshipPolicies": ["average", "readTraits"],
+    "opponents": [
+      { "id": "matched", "strength": 10 },
+      { "id": "edge10", "strength": 9.09 },
+      { "id": "stronger", "strength": 12.5 }
+    ],
+    "courtship": { "pairValue": 30, "sociability": 50, "curiosity": 80, "style": "standard" }
   }
 }
