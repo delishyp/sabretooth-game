@@ -29,6 +29,7 @@ function collect(value, out) {
   if (typeof value.summary === 'string') out.push(value.summary);
   if (typeof value.beat === 'string') out.push(value.beat);
   if (typeof value.say === 'string') out.push(value.say);
+  if (value.reply) collect(value.reply, out);
   if (value.parts) collect(value.parts, out);
 }
 function stringsOf(s) {
@@ -89,6 +90,21 @@ test('seed 8 rendered beats and cub text have no unresolved tokens', () => {
   cub = E.act(cub, { type: 'sceneChoose', choiceId: 'guide' }).state;
   assert.ok((cub.pending.beats || []).some((beat) => beat.text && beat.text.includes(cub.npcs[cub.pending.motherId].name)));
   assertResolved(cub, 'cub help');
+});
+
+test('a choice reply is covered by the unresolved-token scan', () => {
+  const choice = {
+    id: 'explain',
+    label: 'Explain.',
+    reply: { speaker: 'ln02', parts: [{ beat: 'At the ford.' }, { say: '{catName} waits for {playerName}.' }] }
+  };
+  const pieces = [];
+  collect(choice, pieces);
+  assert.ok(pieces.some((text) => text.includes('{catName}')));
+  assert.ok(pieces.some((text) => text.includes('{playerName}')));
+  assert.throws(() => {
+    for (const text of pieces) assert.ok(!TOKEN.test(text), text);
+  });
 });
 
 test('a mixed parts block with {name}, {catName}, or {playerName} fails the scan', () => {

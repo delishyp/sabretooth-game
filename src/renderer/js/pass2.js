@@ -143,7 +143,9 @@
       "none": "No cat crosses the slope today. Only the herd moves, slow as cloud-shadow."
     }
   };
+  const REPLIES = {};
   function lines() { return LINES; }
+  function replies() { return REPLIES; }
   function meadow() {
     const horses = LINES['slice.js:horses'];
     return {
@@ -204,41 +206,123 @@
     }
     return null;
   }
-  function choiceLabel(id) { return LINES['followups.js:choices'][id] || id; }
+  const SCENE_KINDS = new Set([
+    'ford_friend', 'hyena_drive', 'ford_cold', 'hyena_leave', 'ford_stay',
+    'foal_hit', 'foal_miss', 'hillside', 'hyena_share'
+  ]);
+  function choiceTable() { return LINES['followups.js:choices']; }
+  function replyTable() { return REPLIES; }
+  function choiceIds(table) {
+    return new Set(Object.keys(table || {}).filter((key) => key.indexOf('.') === -1));
+  }
+  function splitSceneKey(key) {
+    const dot = String(key).indexOf('.');
+    if (dot <= 0 || dot !== String(key).lastIndexOf('.')) return null;
+    return { scene: key.slice(0, dot), id: key.slice(dot + 1) };
+  }
+  function choiceLabel(kind, id) {
+    const table = choiceTable();
+    const scoped = kind && table[kind + '.' + id];
+    return scoped || table[id] || id;
+  }
+  function choiceReply(kind, id) {
+    const table = replyTable();
+    const scoped = kind + '.' + id;
+    if (Object.prototype.hasOwnProperty.call(table, scoped)) return table[scoped];
+    if (Object.prototype.hasOwnProperty.call(table, id)) return table[id];
+    return null;
+  }
+  function curly(text) {
+    const value = String(text == null ? '' : text).trim();
+    if (!value) return '';
+    if (/^[“"]/.test(value) && /[”"]$/.test(value)) return value;
+    return '\u201C' + value.replace(/^[“"«]+/, '').replace(/[”"»]+$/, '') + '\u201D';
+  }
+  function replyLog(reply) {
+    if (typeof reply === 'string') return [{ role: 'narration', text: reply }];
+    if (!reply || !Array.isArray(reply.parts)) return [];
+    return reply.parts.map((part) => {
+      if (part && part.say != null) return { role: 'say', speaker: reply.speaker || '', text: curly(part.say) };
+      return { role: 'beat', text: part && part.beat != null ? String(part.beat) : '' };
+    });
+  }
+  function presentChoice(kind, choiceId, resultBeats) {
+    const reply = choiceReply(kind, choiceId);
+    const result = resultBeats || [];
+    if (reply == null) return result.slice();
+    return [{ reply: true, log: replyLog(reply) }].concat(result);
+  }
+  function knownSpeaker(known, speaker) {
+    if (speaker === 'player') return true;
+    if (!known) return false;
+    if (typeof known.has === 'function') return known.has(speaker);
+    return Object.prototype.hasOwnProperty.call(known, speaker);
+  }
+  function validateReply(reply, known, where) {
+    if (typeof reply === 'string') return;
+    if (!reply || typeof reply !== 'object' || !Array.isArray(reply.parts) || !reply.parts.length) throw new Error('bad reply at ' + where);
+    if (!knownSpeaker(known, reply.speaker)) throw new Error('unknown speaker ' + reply.speaker);
+    reply.parts.forEach((part) => {
+      const beat = part && part.beat != null;
+      const say = part && part.say != null;
+      if (!part || beat === say) throw new Error('bad reply part at ' + where);
+    });
+  }
+  function validateChoices(table, replies, known) {
+    const ids = choiceIds(table);
+    Object.keys(table || {}).forEach((key) => {
+      if (key.indexOf('.') === -1) return;
+      const parts = splitSceneKey(key);
+      if (!parts || !SCENE_KINDS.has(parts.scene)) throw new Error('unknown scene ' + (parts && parts.scene || key));
+      if (!ids.has(parts.id)) throw new Error('unknown choice ' + parts.id);
+    });
+    Object.keys(replies || {}).forEach((key) => {
+      const parts = splitSceneKey(key);
+      if (!parts || !SCENE_KINDS.has(parts.scene)) throw new Error('unknown scene ' + (parts && parts.scene || key));
+      if (!ids.has(parts.id)) throw new Error('unknown choice ' + parts.id);
+      validateReply(replies[key], known, key);
+    });
+    return true;
+  }
+  function withReply(kind, row) {
+    const reply = choiceReply(kind, row.id);
+    return reply == null ? row : Object.assign({}, row, { reply });
+  }
   function choices(kind, ctx) {
-    const label = choiceLabel;
+    const label = (id) => choiceLabel(kind, id);
+    const pack = (rows) => rows.map((row) => withReply(kind, row));
     if (kind === 'ford_friend' || kind === 'hyena_drive') {
-      return [
+      return pack([
         { id: 'listen', label: label('listen') },
         { id: 'honest_limit', label: label('honest_limit') },
         { id: 'leave', label: label('leave') }
-      ];
+      ]);
     }
     if (kind === 'ford_cold' || kind === 'hyena_leave') {
-      return [
+      return pack([
         { id: 'explain', label: label('explain') },
         { id: 'repair', label: label('repair') },
         { id: 'leave', label: label('leave') }
-      ];
+      ]);
     }
     if (kind === 'ford_stay') {
-      return [
+      return pack([
         { id: 'neutral', label: label('neutral') },
         { id: 'ask_what_happened', label: label('ask_what_happened') },
         { id: 'leave', label: label('leave') }
-      ];
+      ]);
     }
-    if (kind === 'foal_hit') return [{ id: 'share', label: label('share'), needsKill: true }, { id: 'talk', label: label('talk') }];
-    if (kind === 'foal_miss' || kind === 'hillside') return [{ id: 'talk', label: label('talk') }, { id: 'leave', label: label('leave') }];
+    if (kind === 'foal_hit') return pack([{ id: 'share', label: label('share'), needsKill: true }, { id: 'talk', label: label('talk') }]);
+    if (kind === 'foal_miss' || kind === 'hillside') return pack([{ id: 'talk', label: label('talk') }, { id: 'leave', label: label('leave') }]);
     if (kind === 'hyena_share') {
       const rows = [
         { id: 'listen', label: label('listen') },
         { id: 'leave', label: label('leave') }
       ];
       if (ctx && ctx.memberShare) rows.unshift({ id: 'take_share', label: label('take_share') });
-      return rows;
+      return pack(rows);
     }
-    return [{ id: 'leave', label: label('leave') }];
+    return pack([{ id: 'leave', label: label('leave') }]);
   }
   function leaderMeeting(npc) {
     if (!npc || LEADERS[npc.faction] !== npc.id) return null;
@@ -389,5 +473,5 @@
     if (typeof line !== 'string' || !line) return null;
     return line.split('{pride}').join(pride || '');
   }
-  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, leaderMeeting, appearance, arrival, fill, lines, gossipPhrase, gossipLineFor, scoutStanding };
+  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, choiceLabel, choiceReply, replyLog, presentChoice, validateChoices, leaderMeeting, appearance, arrival, fill, lines, replies, gossipPhrase, gossipLineFor, scoutStanding };
 });

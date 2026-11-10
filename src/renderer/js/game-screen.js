@@ -13,6 +13,7 @@
   const Slice = (typeof require === 'function' ? require('./slice') : (typeof self !== 'undefined' ? self.Slice : null));
   const HomeScene = (typeof require === 'function' ? require('./home-scene') : (typeof self !== 'undefined' ? self.HomeScene : null));
   const FightHp = (typeof require === 'function' ? require('./fight-hp') : (typeof self !== 'undefined' ? self.FightHp : null));
+  const Pass2 = (typeof require === 'function' ? require('./pass2') : (typeof self !== 'undefined' ? self.Pass2 : null));
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -814,6 +815,21 @@
       const spec = fightBarSpec();
       if (spec && FightHp) FightHp.mount(card, spec);
     }
+    function appendChoiceReply(card, pending) {
+      if (!Pass2 || !pending) return;
+      const chosen = (pending.choices || []).find((row) => row.id === pending.choiceId);
+      const reply = chosen && chosen.reply;
+      if (reply == null) return;
+      const line = el('p', 'event-text choice-reply');
+      line.dataset.reply = '1';
+      const pieces = Pass2.replyLog(reply);
+      pieces.forEach((piece, i) => {
+        if (i) line.append(document.createTextNode(' '));
+        if (piece.role === 'narration') line.append(document.createTextNode(piece.text));
+        else line.append(el('span', piece.role === 'say' ? 'said' : 'beat', piece.text));
+      });
+      card.append(line);
+    }
     function renderEvent() {
       if (s.phase === 'encounter') return renderEncounter();
       if (s.phase === 'ford') return renderFord();
@@ -837,6 +853,7 @@
         const speaker = focus && focus.kind === 'speech' ? focus.speaker : '';
         if (!(speaker && title === speaker)) card.append(el('h2', 'event-title', title));
         if (s.phase === 'eventResult') {
+          appendChoiceReply(card, p);
           const reply = resultText();
           if (reply) card.append(el('p', 'event-text', reply));
           if (p.summary) card.append(el('p', 'event-result-line', p.summary));
