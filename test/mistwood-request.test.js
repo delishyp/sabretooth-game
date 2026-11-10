@@ -121,7 +121,7 @@ test('accepting records the promise, asking returns to the other choices, and de
   assert.ok(promised.pending.summary.includes('melts back into the fog'));
 });
 
-test('a kept share is +10 not +15, a refusal or another cat is -5 once, and waiting does not break it', () => {
+test('a kept share is +10 not +15, a refusal is -5 once, and waiting does not break it', () => {
   const s = fresh(4);
   loyal(s.npcs.mw04, 25);
   s.npcs.ln01.met = true;
@@ -188,10 +188,58 @@ test('a kept share is +10 not +15, a refusal or another cat is -5 once, and wait
   };
   const other = E.act(given, { type: 'choose', choiceId: 'share' }).state;
   assert.strictEqual(other.npcs.ln01.affinity, 20);
-  assert.strictEqual(other.npcs.mw04.affinity, 20);
-  assert.strictEqual(other.conversation.cats.mw04.facts.find((f) => f.promiseId === 'bring_prey').promise, 'broken');
-  assert.strictEqual(other.conversation.cats.mw04.facts.find((f) => f.promiseId === 'bring_prey').brokenAt, 'given_away');
+  assert.strictEqual(other.npcs.mw04.affinity, 25);
+  assert.strictEqual(other.conversation.cats.mw04.facts.find((f) => f.promiseId === 'bring_prey').promise, 'pending');
+  assert.ok(!other.conversation.cats.mw04.facts.find((f) => f.promiseId === 'bring_prey').brokenAt);
   const reloaded = E.migrate(JSON.parse(JSON.stringify(other)));
-  assert.strictEqual(reloaded.npcs.mw04.affinity, 20);
-  assert.strictEqual(reloaded.records.receipts.filter((k) => k === `${given.runId}/mw04/${factId}`).length, 1);
+  assert.strictEqual(reloaded.npcs.mw04.affinity, 25);
+  assert.strictEqual(reloaded.conversation.cats.mw04.facts.find((f) => f.promiseId === 'bring_prey').promise, 'pending');
+});
+
+test('a bring_prey promise has no deadline: skipping or sharing elsewhere leaves it open, and only a refusal breaks it', () => {
+  const kept = fresh(8);
+  loyal(kept.npcs.mw04, 25);
+  E.lone.promiseShare(kept, 'mw04');
+  kept.report = { day: kept.day, region: 'mistwood', lines: [{ k: 'hunt', size: 'medium', ok: true, ate: 50, chance: 40 }] };
+  kept.records._huntOk = true;
+  kept.phase = 'event';
+  kept.pending = {
+    bond: true, eventId: 'm2.repeat_meeting', catId: 'mw04', catName: kept.npcs.mw04.name, day: kept.day,
+    choices: [{ id: 'share', result: 'share', label: 'Drag your kill closer and share it.', summary: 'You shared your kill.' }]
+  };
+  const shared = E.act(kept, { type: 'choose', choiceId: 'share' }).state;
+  assert.strictEqual(shared.conversation.cats.mw04.facts.find((f) => f.promiseId === 'bring_prey').promise, 'kept');
+  assert.strictEqual(E.lone.bringPrey(shared, 'mw04'), null);
+
+  const s = fresh(9);
+  loyal(s.npcs.mw04, 25);
+  s.npcs.ln01.met = true;
+  s.npcs.ln01.affinity = 10;
+  const factId = E.lone.promiseShare(s, 'mw04');
+  const open = E.lone.bringPrey(s, 'mw04');
+  assert.strictEqual(open.promise, 'pending');
+  assert.ok(!Object.prototype.hasOwnProperty.call(open, 'deadline'));
+  assert.ok(!Object.prototype.hasOwnProperty.call(open, 'expiresDay'));
+  assert.ok(!String(factId).includes(String(s.day)));
+  s.day = 40;
+  s.records._huntOk = true;
+  s.report = { day: s.day, region: 'mistwood', lines: [{ k: 'hunt', size: 'small', ok: true, ate: 25, chance: 50 }] };
+  assert.strictEqual(E.lone.bringPrey(s, 'mw04').promise, 'pending');
+  s.phase = 'event';
+  s.pending = {
+    bond: true, eventId: 'm2.repeat_meeting', catId: 'ln01', catName: s.npcs.ln01.name, day: s.day,
+    choices: [{ id: 'share', result: 'share', label: 'Drag your kill closer and share it.', summary: 'Shared.' }]
+  };
+  const elsewhere = E.act(s, { type: 'choose', choiceId: 'share' }).state;
+  assert.strictEqual(E.lone.bringPrey(elsewhere, 'mw04').promise, 'pending');
+  assert.strictEqual(elsewhere.npcs.mw04.affinity, 25);
+  elsewhere.phase = 'event';
+  elsewhere.pending = {
+    bond: true, eventId: 'm2.repeat_meeting', catId: 'mw04', catName: elsewhere.npcs.mw04.name, day: elsewhere.day,
+    choices: [{ id: 'refuse_prey', label: '“I can\'t.”', result: 'refuse_prey' }]
+  };
+  const refused = E.act(elsewhere, { type: 'choose', choiceId: 'refuse_prey' }).state;
+  const broken = refused.conversation.cats.mw04.facts.find((f) => f.factId === factId);
+  assert.strictEqual(broken.promise, 'broken');
+  assert.strictEqual(broken.brokenAt, 'refused');
 });

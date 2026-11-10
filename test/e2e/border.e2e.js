@@ -69,7 +69,7 @@ const press = async (page, ...keys) => { for (const k of keys) await page.keyboa
       };
     });
     assert.strictEqual(before.node, 'policy_gate');
-    assert.deepStrictEqual(before.choices, ['leave_request', 'withdraw', 'ask_unrelated', 'request_policy_review']);
+    assert.deepStrictEqual(before.choices, ['leave_request', 'withdraw', 'ask_unrelated', 'request_policy_review', 'route_withdraw']);
     assert.strictEqual(before.stance, 0);
     assert.strictEqual(before.reverse, 0);
     assert.ok(before.text.includes('I do not have an answer') || before.text.includes('I do not have an instruction') || before.text.includes('I have no answer'));

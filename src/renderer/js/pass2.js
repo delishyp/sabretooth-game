@@ -143,7 +143,35 @@
       "none": "No cat crosses the slope today. Only the herd moves, slow as cloud-shadow."
     }
   };
-  const REPLIES = {};
+  function catReply(say) {
+    return { speaker: '{catId}', parts: [{ say: say }] };
+  }
+  const REPLIES = {
+    'ford_friend.listen': catReply('That\'s all I wanted to say. Thanks for hearing me out.'),
+    'ford_friend.honest_limit': catReply('That\'s fair. You were there when it counted.'),
+    'ford_friend.leave': catReply('Go on, then. Safe trails.'),
+    'ford_cold.explain': catReply('Maybe not. It looked that way from where I stood.'),
+    'ford_cold.repair': catReply('All right. Thank you for saying it. We can leave it there.'),
+    'ford_cold.leave': catReply('Go on, then.'),
+    'ford_stay.neutral': catReply('Then don\'t expect to hear much about our business.'),
+    'ford_stay.ask_what_happened': catReply('The ford is Highcrag\'s, and Bonefield won\'t accept that. Now you know.'),
+    'ford_stay.leave': catReply('Fine. Go, then.'),
+    'foal_hit.share': catReply('For me? Thank you.'),
+    'foal_hit.talk': catReply('That was good hunting. I\'d be proud of a catch like that.'),
+    'foal_miss.talk': catReply('Don\'t let it bother you. Everybody misses a foal sometimes.'),
+    'foal_miss.leave': catReply('Better luck with the next foal.'),
+    'hillside.talk': catReply('It\'s a good spot for watching the herd, I\'ll give you that.'),
+    'hillside.leave': catReply('Go on, then.'),
+    'hyena_drive.listen': catReply('That\'s all. You did well against it.'),
+    'hyena_drive.honest_limit': catReply('I know. I\'m still glad you were there.'),
+    'hyena_drive.leave': catReply('Off you go, then.'),
+    'hyena_share.take_share': catReply('Go ahead. You\'ve earned it.'),
+    'hyena_share.listen': catReply('That\'s all I wanted to say. Thank you for helping.'),
+    'hyena_share.leave': catReply('Safe trails.'),
+    'hyena_leave.explain': catReply('Maybe you couldn\'t have. I\'d still have liked some help.'),
+    'hyena_leave.repair': catReply('All right. Thank you for saying so.'),
+    'hyena_leave.leave': catReply('Suit yourself.')
+  };
   function lines() { return LINES; }
   function replies() { return REPLIES; }
   function meadow() {
@@ -259,6 +287,12 @@
     if (Object.prototype.hasOwnProperty.call(table, id)) return table[id];
     return null;
   }
+  function bindReply(reply, ctx) {
+    if (!reply || typeof reply !== 'object' || reply.speaker !== '{catId}') return reply;
+    const id = ctx && ((ctx.npc && ctx.npc.id) || ctx.catId);
+    if (!id) return reply;
+    return Object.assign({}, reply, { speaker: id });
+  }
   function curly(text) {
     const value = String(text == null ? '' : text).trim();
     if (!value) return '';
@@ -274,7 +308,7 @@
     });
   }
   function presentChoice(kind, choiceId, resultBeats, ctx) {
-    let reply = choiceReply(kind, choiceId);
+    let reply = bindReply(choiceReply(kind, choiceId), ctx);
     const api = beatsApi();
     if (reply != null && api && ctx) reply = api.materialize(reply, ctx);
     const result = resultBeats || [];
@@ -282,7 +316,7 @@
     return [{ reply: true, log: replyLog(reply) }].concat(result);
   }
   function knownSpeaker(known, speaker) {
-    if (speaker === 'player') return true;
+    if (speaker === 'player' || speaker === '{catId}') return true;
     if (!known) return false;
     if (typeof known.has === 'function') return known.has(speaker);
     return Object.prototype.hasOwnProperty.call(known, speaker);
@@ -319,13 +353,16 @@
     });
     return true;
   }
-  function withReply(kind, row) {
-    const reply = choiceReply(kind, row.id);
-    return reply == null ? row : Object.assign({}, row, { reply });
+  function withReply(kind, row, ctx) {
+    let reply = bindReply(choiceReply(kind, row.id), ctx);
+    if (reply == null) return row;
+    const api = beatsApi();
+    if (api && ctx) reply = api.materialize(reply, ctx);
+    return Object.assign({}, row, { reply });
   }
   function choices(kind, ctx) {
-    const label = (id) => choiceLabel(kind, id);
-    const pack = (rows) => rows.map((row) => withReply(kind, row));
+    const label = (id) => choiceLabel(kind, id, ctx);
+    const pack = (rows) => rows.map((row) => withReply(kind, row, ctx));
     if (kind === 'ford_friend' || kind === 'hyena_drive') {
       return pack([
         { id: 'listen', label: label('listen') },

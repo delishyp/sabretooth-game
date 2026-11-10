@@ -568,7 +568,6 @@
         if (action.type === 'choose' && action.choiceId === 'share' && s.pending && s.pending.choiceId === 'share') {
           const kept = Lone.keepBringPrey(s, catId);
           if (kept.kept && kept.summary) s.pending.summary = kept.summary;
-          Lone.breakOtherBringPrey(s, catId);
         }
         return { state: s };
       }

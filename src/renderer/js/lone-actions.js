@@ -297,9 +297,11 @@
     return null;
   }
   function createBringPrey(s, catId, scene) {
-    const factId = `bring_prey/${s.day}`;
+    const open = bringPrey(s, catId);
+    if (open) return open.factId;
     const box = catBox(s, catId);
-    if (box.facts.some((f) => f.factId === factId && f.catId === catId)) return factId;
+    const prior = box.facts.filter((f) => f.promiseId === 'bring_prey').length;
+    const factId = prior ? `bring_prey/${catId}/${prior + 1}` : `bring_prey/${catId}`;
     box.facts.push({
       factId, catId, topicId: 'approach', stanceId: 'request',
       sourceChoiceKey: 'npc_initiative.mistwood.request_help.v1/bring_prey',

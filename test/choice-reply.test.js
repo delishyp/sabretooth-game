@@ -77,7 +77,11 @@ test('a per-scene label wins, and listen in hyena_drive keeps the shared label',
 });
 
 test('the Sleetbark ford reply renders before the result and does not change the outcome', () => {
+  const shipped = JSON.parse(JSON.stringify(replies['ford_cold.explain']));
   const plain = playExplain();
+  const plainReply = plain.pending.choices.find((row) => row.id === 'explain').reply;
+  assert.strictEqual(plainReply.speaker, 'ln02');
+  assert.ok(plainReply.parts.some((part) => part.say && part.say.includes('looked that way')));
   replies['ford_cold.explain'] = sleetbarkFord;
   try {
     assert.strictEqual(Pass2.validateChoices(labels, replies, known), true);
@@ -102,8 +106,8 @@ test('the Sleetbark ford reply renders before the result and does not change the
     assert.strictEqual(voiced.npcs.ln02.affinity, plain.npcs.ln02.affinity);
     assert.deepStrictEqual(voiced.pending.beats.map((beat) => beat.text), plain.pending.beats.map((beat) => beat.text));
     assert.deepStrictEqual(voiced.pending.choices.find((row) => row.id === 'explain').reply, sleetbarkFord);
-    assert.ok(!Object.prototype.hasOwnProperty.call(plain.pending.choices.find((row) => row.id === 'explain'), 'reply'));
+    assert.notDeepStrictEqual(plainReply, sleetbarkFord);
   } finally {
-    delete replies['ford_cold.explain'];
+    replies['ford_cold.explain'] = shipped;
   }
 });

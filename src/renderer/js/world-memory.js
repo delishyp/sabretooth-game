@@ -273,10 +273,7 @@
       return story.policyGate.unknown_policy;
     }
     function borderChoices(s, node) {
-      const list = (node && node.choices || []).filter((c) => {
-        if (c.requires && String(c.requires).includes('completed share')) return false;
-        return true;
-      }).map((c) => ({ id: c.id, label: c.label, next: c.next, outcome: c.outcome, B: c.B }));
+      const list = (node && node.choices || []).map((c) => ({ id: c.id, label: c.label, next: c.next, outcome: c.outcome, B: c.B }));
       if (s.border && s.border.node === 'policy_gate') {
         if (!list.some((c) => c.id === 'ask_unrelated')) list.push({ id: 'ask_unrelated', label: 'Ask to speak with your leader about another matter.' });
         const blocked = reviewBlocked(s);
@@ -285,6 +282,10 @@
           const offer = route.find((step) => step.step === 'request_review');
           const extra = offer && (offer.choices || []).find((c) => c.id === 'request_policy_review');
           if (extra && !list.some((c) => c.id === extra.id)) list.push({ id: extra.id, label: extra.label });
+          const second = offer && (offer.choices || [])[1];
+          if (second && policyStatus(s) === 'unmapped' && !list.some((c) => c.id === 'route_withdraw')) {
+            list.push({ id: 'route_withdraw', label: second.label, outcome: 'border_withdrawn' });
+          }
         }
       }
       if (s.border && s.border.node === 'review') list.push({ id: 'accept_ruling', label: 'That is the instruction.' });
@@ -495,21 +496,48 @@
       }
       if (choice.next === 'policy_gate') {
         s.border.node = 'policy_gate';
-        freezeSpeech(s, gateSpeech(s));
+        const gate = gateSpeech(s);
+        const guard = s.npcs[s.border.guardId];
+        const locations = gate === 'guard_unknown' ? ['unknown_offer', gate] : [gate];
+        const lines = [];
+        let last = null;
+        locations.forEach((location) => {
+          const resolved = speak(guard, location);
+          if (!resolved) return;
+          last = resolved;
+          lines.push.apply(lines, linesFrom(guard, resolved));
+        });
+        s.border.presentation = {
+          node: 'policy_gate', location: gate, lines: lines,
+          variantId: last && last.variantId, actionId: last && last.actionId,
+          characterization: last ? last.characterization : 'unauthored',
+          text: last && last.text || '', action: last && last.action, gap: last && last.gap
+        };
         return { ok: true };
       }
-      else if (choice.next === 'explain') s.border.node = 'explain';
+      else if (choice.next === 'explain') {
+        s.border.node = 'explain';
+        freezeSpeech(s, 'account_request');
+      }
       else if (choice.next === 'reason_without_invented_knowledge') s.border.node = 'reason';
-      else if (choice.id === 'withdraw' || choice.id === 'leave_request') {
+      else       if (choice.id === 'withdraw' || choice.id === 'leave_request' || choice.id === 'route_withdraw') {
         s.border.outcome = choice.outcome || choice.id;
         s.border.node = 'done';
         freezeSpeech(s, 'withdraw');
-        s.border.reply = (s.border.presentation && s.border.presentation.text) || choice.B || (node && node.B) || '';
+        s.border.reply = (s.border.presentation && s.border.presentation.text) || choice.B || '';
       }
       else if (choice.outcome) {
         s.border.outcome = choice.outcome;
         s.border.node = 'done';
-        s.border.reply = choice.B || (node && node.B) || '';
+        const ending = { disclose_verified_share: 'verified_disclosure', keep_private: 'keep_private', send_request: 'relay_accepted' };
+        const guard = s.npcs[s.border.guardId];
+        if (ending[choice.id]) freezeSpeech(s, ending[choice.id]);
+        else if (choice.B) {
+          s.border.presentation = { node: 'done', text: choice.B, lines: [{ kind: 'say', speaker: guard ? guard.name : '', text: choice.B }] };
+        } else {
+          s.border.presentation = { node: 'done', text: '', lines: [] };
+        }
+        s.border.reply = (s.border.presentation && s.border.presentation.text) || choice.B || '';
       }
       return { ok: true };
     }

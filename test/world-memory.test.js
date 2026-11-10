@@ -198,9 +198,12 @@ test('border introduction is reachable at Split Rock, stays unknown without a fe
   assert.ok(E.world.borderView(s).choices.some((c) => c.id === 'request_introduction'));
   s = E.act(s, { type: 'borderChoose', choiceId: 'request_introduction' }).state;
   const ids = E.world.borderView(s).choices.map((c) => c.id);
-  assert.deepStrictEqual(ids, ['leave_request', 'withdraw', 'ask_unrelated', 'request_policy_review']);
-  const spoken = E.world.borderView(s).lines.find((l) => l.kind === 'say');
-  assert.strictEqual(spoken.text, Speech.resolve({ speechLocations: producer.policy.personalityCoverage.speechLocations, contextActions: graph.personalityCoverage.contextActions }, 'guard_unknown', s.npcs.hc07.personality, { catName: s.npcs.hc07.name }).text);
+  assert.deepStrictEqual(ids, ['leave_request', 'withdraw', 'ask_unrelated', 'request_policy_review', 'route_withdraw']);
+  const says = E.world.borderView(s).lines.filter((l) => l.kind === 'say');
+  const voice = { speechLocations: producer.policy.personalityCoverage.speechLocations, contextActions: graph.personalityCoverage.contextActions };
+  const named = { catName: s.npcs.hc07.name };
+  assert.strictEqual(says[0].text, Speech.resolve(voice, 'unknown_offer', s.npcs.hc07.personality, named).text);
+  assert.strictEqual(says[says.length - 1].text, Speech.resolve(voice, 'guard_unknown', s.npcs.hc07.personality, named).text);
   s.npcs.hc07.affinity = 90;
   s.worldMemory.prideToPride['bonefield->highcrag'].value = -80;
   assert.deepStrictEqual(E.world.borderView(s).choices.map((c) => c.id), ids);
@@ -247,7 +250,7 @@ test('a review request does not write policy or teach the leader; only an actual
   assert.strictEqual(rested.worldMemory.prideToPride['highcrag->bonefield'].value, 0);
   const reloaded = E.migrate(gate);
   assert.strictEqual(reloaded.border.presentation.variantId, variant);
-  assert.deepStrictEqual(E.world.borderView(reloaded).choices.map((c) => c.id), ['leave_request', 'withdraw', 'ask_unrelated', 'request_policy_review']);
+  assert.deepStrictEqual(E.world.borderView(reloaded).choices.map((c) => c.id), ['leave_request', 'withdraw', 'ask_unrelated', 'request_policy_review', 'route_withdraw']);
 });
 
 function toDay(s) {
