@@ -33,7 +33,89 @@
     return { foes: {}, lines: {} };
   }
   const narration = loadNarration();
-  const OUTCOMES = Object.keys(narration.lines);
+  const OUTCOMES = [
+    'fight.telegraph', 'fight.warning', 'fight.warning.group',
+    'fight.hit', 'fight.miss', 'fight.flee', 'fight.win', 'fight.lose', 'fight.timeout',
+    'timeout_even', 'fight.defend.counter',
+    'standoff.humans', 'standoff.intimidate.success', 'standoff.flee.success', 'standoff.flee.fail',
+    'spar.open', 'spar.stop',
+    'hunt.success', 'hunt.fail', 'hunt.injury.minor', 'hunt.injury.serious', 'hunt.injury.crippling',
+    'courtship.open', 'courtship.reaction.high', 'courtship.reaction.baseline', 'courtship.reaction.low',
+    'courtship.repeat', 'courtship.accepted', 'courtship.declined',
+    'showdown.untouched'
+  ];
+  function whenOk(when, ctx) {
+    if (!when) return true;
+    const row = ctx || {};
+    return Object.keys(when).every((key) => {
+      const want = when[key];
+      const got = row[key];
+      return Array.isArray(want) ? want.indexOf(got) !== -1 : want === got;
+    });
+  }
+  function pickEntry(list, ctx) {
+    if (!Array.isArray(list) || !list.length) return null;
+    let fallback = null;
+    for (const row of list) {
+      if (!row || typeof row !== 'object') continue;
+      if (!row.when) fallback = row;
+      else if (whenOk(row.when, ctx)) return row;
+    }
+    return fallback || list[list.length - 1];
+  }
+  function textOf(node) {
+    if (!node) return '';
+    if (typeof node === 'string') return node;
+    if (Array.isArray(node)) return textOf(node.find((item) => item && (item.text || item.lines)) || node[0]);
+    if (typeof node.text === 'string') return node.text;
+    if (node.lines) return textOf(node.lines);
+    return '';
+  }
+  function bankText(list, ctx, field) {
+    const row = pickEntry(list, ctx);
+    if (!row) return '';
+    if (field && row[field]) return textOf(row[field]);
+    return textOf(row.lines || row);
+  }
+  function lineFor(key, ctx) {
+    const row = ctx || {};
+    const added = narration.lines && narration.lines[key];
+    if (typeof added === 'string') return added;
+    const tells = narration.tells || {};
+    const fights = narration.fights || {};
+    const ends = narration.ends || {};
+    if (key === 'fight.telegraph' || key === 'fight.warning') return bankText(tells.swipe, row.group ? { group: true } : {}, 'honest');
+    if (key === 'fight.warning.group') return bankText(tells.swipe, { group: true }, 'honest');
+    if (key === 'fight.hit') return bankText(fights.swipe, { actor: 'you' }, 'hit');
+    if (key === 'fight.miss') return bankText(fights.swipe, { actor: 'you' }, 'miss');
+    if (key === 'fight.defend.counter') return bankText(fights.swipe, { actor: 'you' }, 'countered');
+    if (key === 'fight.flee') return bankText(fights.flee, { actor: row.actor || 'you', foeKind: row.foeKind }, 'success');
+    if (key === 'fight.win') return bankText(ends.fight_end, { lethal: row.lethal !== false }, 'win');
+    if (key === 'fight.lose') return bankText(ends.fight_end, { lethal: row.lethal !== false }, 'lose');
+    if (key === 'fight.timeout') return bankText(ends.timeout, {}, row.winner === 'player' ? 'win' : 'lose');
+    if (key === 'timeout_even') return bankText(ends.timeout_even, {}, 'break_off');
+    if (key === 'standoff.humans') return bankText(narration.standoff && narration.standoff.humans, {}, 'lines');
+    if (key === 'standoff.intimidate.success') return bankText(fights.intimidate, { actor: 'you', foeKind: 'humans' }, 'success');
+    if (key === 'standoff.flee.success') return bankText(fights.flee, { actor: 'you', foeKind: 'humans' }, 'success');
+    if (key === 'standoff.flee.fail') return bankText(fights.flee, { actor: 'you', foeKind: 'humans' }, 'fail');
+    if (key === 'spar.stop') return bankText(ends.yield, { kind: 'spar' }, 'you');
+    if (key === 'hunt.success') return bankText(narration.hunt && narration.hunt.kill && narration.hunt.kill.throat_bite, {}, 'success');
+    if (key === 'hunt.fail') return bankText(narration.hunt && narration.hunt.kill && narration.hunt.kill.throat_bite, {}, 'fail');
+    if (key.indexOf('hunt.injury.') === 0) {
+      const injury = key.slice('hunt.injury.'.length);
+      const species = narration.prey_reactions && narration.prey_reactions.mammoth_calf;
+      return bankText(species, { injury: injury }, 'lines');
+    }
+    const groom = narration.courtship && narration.courtship.groom;
+    if (key === 'courtship.open') return bankText(narration.courtship && narration.courtship.quick_resolve, {}, 'lines');
+    if (key === 'courtship.reaction.high') return bankText(groom, { trait: 'sociability', band: 'high', who: 'target' }, 'lines');
+    if (key === 'courtship.reaction.low') return bankText(groom, { trait: 'sociability', band: 'low', who: 'target' }, 'lines');
+    if (key === 'courtship.reaction.baseline') return bankText(groom, {}, 'lines');
+    if (key === 'courtship.repeat') return bankText(narration.courtship && narration.courtship.repeat, {}, 'lines');
+    if (key === 'courtship.accepted') return bankText(narration.courtship && narration.courtship.accept, {}, 'lines');
+    if (key === 'courtship.declined') return bankText(narration.courtship && narration.courtship.reject, {}, 'lines');
+    return '';
+  }
   const POLICIES = {
     fight: ['average', 'sensible', 'biteOnly', 'fleeAt30'],
     hunt: ['steady', 'allBold'],
@@ -105,7 +187,9 @@
     return { foeName, name, group };
   }
   function beat(key, vars) {
-    return { key, line: fillLine(narration.lines[key], vars) };
+    const who = vars || {};
+    const spoken = key.indexOf('courtship.') === 0 ? { foeName: who.foeName, name: who.foeName, group: who.group } : who;
+    return { key, line: fillLine(lineFor(key, who), spoken) };
   }
   function telegraphKey() {
     return 'fight.telegraph';
@@ -357,16 +441,15 @@
     const fightBeats = [];
     if (spar) fightBeats.push(beat('spar.open', who), beat('spar.stop', who));
     else {
-      fightBeats.push(beat('fight.open', who));
       if (!isHuman(opts.opponent)) {
         fightBeats.push(beat(who.group ? 'fight.warning.group' : 'fight.warning', who));
         fightBeats.push(beat(telegraphKey(), who));
       }
-      if (policy === 'defend' && rules29()) fightBeats.push(beat(fight.counterLands ? 'fight.defend.counter' : 'fight.defend.held', who));
+      if (policy === 'defend' && rules29() && fight.counterLands) fightBeats.push(beat('fight.defend.counter', who));
       if (fight.breakOff) fightBeats.push(beat('timeout_even', who));
-      else if (fight.fled || fight.foeFled) fightBeats.push(beat('fight.flee', who));
-      else if (fight.timeout) fightBeats.push(beat('fight.timeout', who));
-      else fightBeats.push(beat(fight.winner === 'player' ? 'fight.hit' : 'fight.miss', who), beat(fight.winner === 'player' ? 'fight.win' : 'fight.lose', who));
+      else if (fight.fled || fight.foeFled) fightBeats.push(beat('fight.flee', Object.assign({ actor: fight.foeFled ? 'foe' : 'you' }, who)));
+      else if (fight.timeout) fightBeats.push(beat('fight.timeout', Object.assign({ winner: fight.winner }, who)));
+      else fightBeats.push(beat(fight.winner === 'player' ? 'fight.hit' : 'fight.miss', who), beat(fight.winner === 'player' ? 'fight.win' : 'fight.lose', Object.assign({ lethal: true }, who)));
     }
     return Object.assign({
       adapter: 'engine', kind: spar ? 'spar' : 'fight', policy, policyKnown: known,
@@ -513,5 +596,5 @@
     return { pairValue: pairValue || 0, delta: 0, rolled: false };
   }
 
-  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, mayFlee, defendCounter, evenCap, isHuman, huntSpecial, backOff };
+  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, lineFor, mayFlee, defendCounter, evenCap, isHuman, huntSpecial, backOff };
 });

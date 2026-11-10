@@ -5,10 +5,21 @@ const Engine = require('../src/renderer/js/encounter-engine');
 const Sim = require('../src/dev/sim-hooks');
 const narration = require('../src/renderer/data/encounter-narration-v1.json');
 
+function narrationTexts(node, out) {
+  if (!node || typeof node !== 'object') return out;
+  if (typeof node.text === 'string') out.push(node.text);
+  const list = Array.isArray(node) ? node : Object.keys(node).filter((key) => !key.startsWith('_')).map((key) => node[key]);
+  for (const child of list) narrationTexts(child, out);
+  return out;
+}
+
 test('every engine outcome has one narration line and only foeName or name', () => {
   assert.ok(Engine.OUTCOMES.length > 0);
+  const everyLine = narrationTexts(narration, []);
+  assert.ok(everyLine.length >= 678, everyLine.length);
+  for (const line of everyLine) assert.ok(!/\d/.test(line), line);
   for (const key of Engine.OUTCOMES) {
-    const line = narration.lines[key];
+    const line = Engine.lineFor(key, { group: true, lethal: true, winner: 'player', actor: 'you' });
     assert.strictEqual(typeof line, 'string', key);
     assert.ok(line.trim().length > 0, key);
     assert.ok(!/\d/.test(line), `${key} ${line}`);

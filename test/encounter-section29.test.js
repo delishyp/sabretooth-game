@@ -23,7 +23,8 @@ test('section 2.9 defend, even cap, and who may flee', () => {
     player: { id: 'player', name: 'Ravenmark', strength: 1 },
     opponent: { id: 'foe', name: 'Sleet', strength: 1 }
   });
-  assert.ok(held.beats.some((item) => item.key === 'fight.defend.counter' || item.key === 'fight.defend.held'));
+  if (held.counterLands) assert.ok(held.beats.some((item) => item.key === 'fight.defend.counter'));
+  else assert.ok(held.beats.every((item) => item.key !== 'fight.defend.counter'));
 });
 
 test('a human standoff has no tell, and intimidate ignores strength', () => {

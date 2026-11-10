@@ -1,40 +1,3846 @@
 {
+  "_readme": "Encounter move narration (Saga), v1. Ordinary turn-log lines for encounters-v0.1 (file docs/design/encounters-v0.1.md, repo commit 4c9be75, which is v0.1.1 plus the v0.1.2 bite-spam tells, the 13-round cap, and the v0.1.3 §2.9 edge rulings). Follows narrator-voice-v1: second person, present tense, no digits or number words, no game words, no saber colour, no pronouns for other cats. Asides are a separate bank and are not used during fight rounds. These lines are upright narrator colour; asides, if any, would be italic after the close. Selection: each list is tried in order, first matching when wins, the last entry has no when and is the default. Tells (§2.4a): before the player's turn, pick the shown foe move, then honest or feint. Honest and feint lines are written in the same register so they cannot be told apart by wording. Quick resolve reuses these lines (fights play the average table, hunts play Steady moves, courtship plays quick_resolve then the accept or reject roll). There is no crit in the spec, so there are no crit lines.",
+  "_tokens": [
+    "{name}",
+    "{foeName}",
+    "{zoneName}"
+  ],
+  "_schema": {
+    "when": "First match wins; last entry is the default and has no when. Matches if every key present is true. foeKind, kind and prey may be a string or a list. group is true for a pack or clan; Flint's group flag selects those tells. actor is you or foe. trait/band/who uses genetics bands (low at or below the low cut, high at or above the high cut, else baseline); who is target for courtship, player only if a later hook needs it. partner is true when a hunting partner is present. perk is feint (a Swipe that cannot be countered) or gift (courtship gift prey). repeat is half then spent. lethal is true for rival attacks, leadership challenges and wild enemies. injury is minor, serious or crippling, for guardian prey-reaction hooks. phase and result are hunt tags. size is small, medium or large.",
+    "tokens": "{foeName} is a display name for the fight, spar or showdown opponent (a cat's name, or a phrase such as the hyena or the wolves). {name} is the courtship target or a hunting partner. {zoneName} is reserved and unused in this bank.",
+    "tells": "Per foe move, honest and feint arrays. Flint picks the shown move, then the array. Group tells use when.group true. Do not offer flee tells for a wolf pack or a hyena clan (they never flee). Only a lone hyena flees; those tells are under when.foeKind hyena. Humans get no next-move tells: they do not pick moves (§2.9).",
+    "standoff": "Ordinary narration for a human standoff, not a tell. Play while the standoff holds. No honest or feint keys: these lines never promise a coming move.",
+    "fights": "Per move, outcome keys: swipe/bite/pounce have hit, miss, blocked, countered, hit_open. Pounce miss already shows the attacker left Open. blocked is a hit that meets Defend. countered is the return blow; play it only with a blocked hit (encounters §2.9: a miss gets no counter). Against humans, Intimidate success ends the encounter as they back off and you walk away unhurt; Intimidate fail is a spear jab (minor injury) and the standoff continues; Flee fail is a heavy spear wound (serious) and you drop what you carry. hit_open is a hit that lands while the target is Open. Defend has ready. Intimidate has success (Shaken) and fail. Flee has success and fail. The feint perk is a swipe entry with when.perk feint; it has no countered key.",
+    "hunt": "Per phase and move: creep, rush_in, run_it_down, sprint, throat_bite, drag_down have success and fail. freeze has held (prey stays; next Stalk is closer) and drift (hunt ends, no injury roll). cut_it_off has a partner entry using {name}, then a solo default (Trail Reading). hamstring is large only; the default is written for large prey because the move is only offered then. Fail lines never claim an injury. second_lunge is a retry beat after a failed phase.",
+    "prey_reactions": "Optional second beat, keyed by species. when.injury hooks are for the existing large-prey injury roll (guardian flavour). Do not play them unless an injury was actually rolled.",
+    "courtship": "Reactions per move. Liked and disliked bands follow encounters §4.3; the default is the mid band (no swing). gift_prey is always welcome; the perk entry is warmer. back_off ends the attempt with no sting. accept and reject are the final roll. repeat.half and repeat.spent are a shared pool for a repeated move. repeat.half and repeat.spent replace the trait reaction and stand alone as the only line for that beat. quick_resolve is the bridge when courtship ends at the current Interest.",
+    "ends": "yield.you / yield.foe (spar, scuffle or confront, then a default). fight_end.win / lose with lethal true or false; lethal lines do not assume death, which is a later roll. timeout.win / lose when the round cap is hit and one side still has the better of it; no equal-bar line is written. timeout.win / lose when the round cap is hit and one side still has the better of it. timeout_even.win is you winning as the defender of ground or a kill; timeout_even.lose is the foe winning as the defender; timeout_even.break_off is a wild fight or a scuffle, where there is no defender and both sides break off with no winner. showdown.win / lose is the display duel that can replace a mate rival challenge, not the turn-based fight."
+  },
+  "_gaps": [
+    "Hits against a Shaken foe have no separate wording. Shaken is the Intimidate success beat.",
+    "Band and group fights stay on the current build (encounters §2.7). This bank has no per-move lines for them.",
+    "Showdown is a display roll, not the turn engine. Only end win and lose are written; there is no start beat.",
+    "second_lunge flavour is not specified. A short retry beat is included. The spec does not say which failed phases it may retry, except that it retries one failed phase.",
+    "Loyalty is in the trait set but has no courtship move, so there are no loyalty-banded courtship lines.",
+    "No {preyName} token is used; species flavour is selected by when.prey. {zoneName} is reserved and unused.",
+    "There is no crit outcome in the spec."
+  ],
+  "_questions": [
+    "Flint: should a hit on a Shaken foe use the ordinary hit lines, or do you want a later pass of wording?",
+    "Flint: is the gift perk's warmer set the right hook, or should it use the default gift lines?",
+    "Flint: Quick resolve fights and hunts can replay the move lines; is the courtship quick_resolve bridge wanted before the accept roll?",
+    "Tundra: confirm that sociability-high early yields in non-lethal fights reuse the ordinary yield lines.",
+    "Ochre: these are ordinary narration (upright, narrator colour), not asides."
+  ],
+  "tells": {
+    "swipe": [
+      {
+        "when": {
+          "group": true
+        },
+        "honest": [
+          {
+            "text": "They press in together, a forepaw already lifting to rake.",
+            "id": "tells.swipe.0.honest.a"
+          },
+          {
+            "text": "Shoulders drop along their line, claws easing out for a sideways blow.",
+            "id": "tells.swipe.0.honest.b"
+          },
+          {
+            "text": "They tighten the space around you, a paw rising for a sideways cut.",
+            "id": "tells.swipe.0.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "They crowd close, claws out, a forepaw cocked to come across you.",
+            "id": "tells.swipe.0.feint.a"
+          },
+          {
+            "text": "A ripple runs down their shoulders, and a paw lifts to swipe.",
+            "id": "tells.swipe.0.feint.b"
+          },
+          {
+            "text": "They lean together, a clawed paw hanging in the air, ready to rake.",
+            "id": "tells.swipe.0.feint.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "foeKind": "cat"
+        },
+        "honest": [
+          {
+            "text": "{foeName} drops a shoulder, a forepaw lifting to rake.",
+            "id": "tells.swipe.1.honest.a"
+          },
+          {
+            "text": "{foeName} leans in, claws easing out, ready to swipe across you.",
+            "id": "tells.swipe.1.honest.b"
+          },
+          {
+            "text": "A forepaw hangs in the air before {foeName}, claws bare, set to come sideways.",
+            "id": "tells.swipe.1.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} shifts weight onto a foreleg and a paw cocks back to strike.",
+            "id": "tells.swipe.1.feint.a"
+          },
+          {
+            "text": "{foeName} draws a shoulder tight, claws out, ready to cut across your face.",
+            "id": "tells.swipe.1.feint.b"
+          },
+          {
+            "text": "The air beside {foeName} tenses; a paw is already rising for a sideways blow.",
+            "id": "tells.swipe.1.feint.c"
+          }
+        ]
+      },
+      {
+        "honest": [
+          {
+            "text": "{foeName} drops a shoulder, a forepaw lifting to rake.",
+            "id": "tells.swipe.2.honest.a"
+          },
+          {
+            "text": "{foeName} leans in, claws easing out, ready to swipe across you.",
+            "id": "tells.swipe.2.honest.b"
+          },
+          {
+            "text": "A forepaw hangs in the air before {foeName}, claws bare, set to come sideways.",
+            "id": "tells.swipe.2.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} shifts weight onto a foreleg and a paw cocks back to strike.",
+            "id": "tells.swipe.2.feint.a"
+          },
+          {
+            "text": "{foeName} draws a shoulder tight, claws out, ready to cut across your face.",
+            "id": "tells.swipe.2.feint.b"
+          },
+          {
+            "text": "The air beside {foeName} tenses; a paw is already rising for a sideways blow.",
+            "id": "tells.swipe.2.feint.c"
+          }
+        ]
+      }
+    ],
+    "bite": [
+      {
+        "when": {
+          "group": true
+        },
+        "honest": [
+          {
+            "text": "They close the gap, jaws parting, ready to seize whatever they can reach.",
+            "id": "tells.bite.0.honest.a"
+          },
+          {
+            "text": "Heads drop along their line and come in low, mouths opening for a bite.",
+            "id": "tells.bite.0.honest.b"
+          },
+          {
+            "text": "They crowd your throat and shoulder, teeth bared to take hold.",
+            "id": "tells.bite.0.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "They press in with open mouths, aiming to get a grip and not let go.",
+            "id": "tells.bite.0.feint.a"
+          },
+          {
+            "text": "A snarl runs through them, jaws wide, closing the last of the space.",
+            "id": "tells.bite.0.feint.b"
+          },
+          {
+            "text": "They come in close and low, teeth ready to lock on.",
+            "id": "tells.bite.0.feint.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "foeKind": "cat"
+        },
+        "honest": [
+          {
+            "text": "{foeName} drops the head and comes in close, jaws parting.",
+            "id": "tells.bite.1.honest.a"
+          },
+          {
+            "text": "{foeName} closes the gap, mouth opening for a bite.",
+            "id": "tells.bite.1.honest.b"
+          },
+          {
+            "text": "The neck of {foeName} stretches forward, jaws ready to seize.",
+            "id": "tells.bite.1.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} comes in tight, lips pulled back, ready to get a hold.",
+            "id": "tells.bite.1.feint.a"
+          },
+          {
+            "text": "{foeName} lowers the skull and drives toward your shoulder, mouth open.",
+            "id": "tells.bite.1.feint.b"
+          },
+          {
+            "text": "The jaws of {foeName} part as the distance between you vanishes.",
+            "id": "tells.bite.1.feint.c"
+          }
+        ]
+      },
+      {
+        "honest": [
+          {
+            "text": "{foeName} drops its head and comes in close, jaws parting.",
+            "id": "tells.bite.2.honest.a"
+          },
+          {
+            "text": "{foeName} closes the gap, mouth opening for a bite.",
+            "id": "tells.bite.2.honest.b"
+          },
+          {
+            "text": "Its neck stretches forward, jaws ready to seize.",
+            "id": "tells.bite.2.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} comes in tight, lips pulled back, ready to get a hold.",
+            "id": "tells.bite.2.feint.a"
+          },
+          {
+            "text": "{foeName} lowers its skull and drives toward your shoulder, mouth open.",
+            "id": "tells.bite.2.feint.b"
+          },
+          {
+            "text": "Its jaws part as the distance between you vanishes.",
+            "id": "tells.bite.2.feint.c"
+          }
+        ]
+      }
+    ],
+    "pounce": [
+      {
+        "when": {
+          "group": true
+        },
+        "honest": [
+          {
+            "text": "They sink onto their haunches, weight gathering to spring.",
+            "id": "tells.pounce.0.honest.a"
+          },
+          {
+            "text": "They bunch low together, hindquarters tight, ready to leave the ground.",
+            "id": "tells.pounce.0.honest.b"
+          },
+          {
+            "text": "Haunches drop along their line, a spring coiled in every set of legs.",
+            "id": "tells.pounce.0.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "They drop and gather, bodies low, set to come down on you.",
+            "id": "tells.pounce.0.feint.a"
+          },
+          {
+            "text": "Their weight slides back and down, legs bunched for a leap.",
+            "id": "tells.pounce.0.feint.b"
+          },
+          {
+            "text": "They crouch low together, haunches loaded, ready to spring.",
+            "id": "tells.pounce.0.feint.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "foeKind": "cat"
+        },
+        "honest": [
+          {
+            "text": "{foeName} sinks onto haunches, weight gathering to spring.",
+            "id": "tells.pounce.1.honest.a"
+          },
+          {
+            "text": "{foeName} bunches low, shoulders tight, ready to leave the ground.",
+            "id": "tells.pounce.1.honest.b"
+          },
+          {
+            "text": "The hindquarters of {foeName} drop and gather, a spring coiled in the legs.",
+            "id": "tells.pounce.1.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} drops low and loads the hind legs, ready to come down on you.",
+            "id": "tells.pounce.1.feint.a"
+          },
+          {
+            "text": "Weight slides back through {foeName}, the body bunched for a leap.",
+            "id": "tells.pounce.1.feint.b"
+          },
+          {
+            "text": "{foeName} crouches, haunches packed tight, set to spring.",
+            "id": "tells.pounce.1.feint.c"
+          }
+        ]
+      },
+      {
+        "honest": [
+          {
+            "text": "{foeName} sinks onto its haunches, weight gathering to spring.",
+            "id": "tells.pounce.2.honest.a"
+          },
+          {
+            "text": "{foeName} bunches low, shoulders tight, ready to leave the ground.",
+            "id": "tells.pounce.2.honest.b"
+          },
+          {
+            "text": "Its hindquarters drop and gather, a spring coiled in the legs.",
+            "id": "tells.pounce.2.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} drops low and loads its hind legs, ready to come down on you.",
+            "id": "tells.pounce.2.feint.a"
+          },
+          {
+            "text": "Weight slides back through {foeName}, the body bunched for a leap.",
+            "id": "tells.pounce.2.feint.b"
+          },
+          {
+            "text": "{foeName} crouches, haunches packed tight, set to spring.",
+            "id": "tells.pounce.2.feint.c"
+          }
+        ]
+      }
+    ],
+    "defend": [
+      {
+        "when": {
+          "group": true
+        },
+        "honest": [
+          {
+            "text": "They settle and tuck in, waiting for the blow.",
+            "id": "tells.defend.0.honest.a"
+          },
+          {
+            "text": "They plant their paws and draw tight, a guard coming up along the line.",
+            "id": "tells.defend.0.honest.b"
+          },
+          {
+            "text": "Weight sinks through them and they shrink inward, ready to take what comes.",
+            "id": "tells.defend.0.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "They brace and pull close, bodies tight, waiting.",
+            "id": "tells.defend.0.feint.a"
+          },
+          {
+            "text": "They stop the advance and tuck, set to meet whatever you send.",
+            "id": "tells.defend.0.feint.b"
+          },
+          {
+            "text": "Their line goes still and compact, a wall of shoulders waiting for you.",
+            "id": "tells.defend.0.feint.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "foeKind": "cat"
+        },
+        "honest": [
+          {
+            "text": "{foeName} settles and tucks in, waiting for the blow.",
+            "id": "tells.defend.1.honest.a"
+          },
+          {
+            "text": "{foeName} plants the paws and draws tight, a guard coming up.",
+            "id": "tells.defend.1.honest.b"
+          },
+          {
+            "text": "Weight sinks through {foeName} and the chin tucks, ready to take what comes.",
+            "id": "tells.defend.1.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} braces and pulls inward, set to meet the next blow.",
+            "id": "tells.defend.1.feint.a"
+          },
+          {
+            "text": "{foeName} stops advancing and tucks the chest, waiting.",
+            "id": "tells.defend.1.feint.b"
+          },
+          {
+            "text": "The stance of {foeName} goes compact and still, a wall of shoulder.",
+            "id": "tells.defend.1.feint.c"
+          }
+        ]
+      },
+      {
+        "honest": [
+          {
+            "text": "{foeName} settles and tucks in, waiting for the blow.",
+            "id": "tells.defend.2.honest.a"
+          },
+          {
+            "text": "{foeName} plants its paws and draws tight, a guard coming up.",
+            "id": "tells.defend.2.honest.b"
+          },
+          {
+            "text": "Weight sinks through it and the chin tucks, ready to take what comes.",
+            "id": "tells.defend.2.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} braces and pulls inward, set to meet the next blow.",
+            "id": "tells.defend.2.feint.a"
+          },
+          {
+            "text": "{foeName} stops advancing and tucks its chest, waiting.",
+            "id": "tells.defend.2.feint.b"
+          },
+          {
+            "text": "Its stance goes compact and still, a wall of shoulder.",
+            "id": "tells.defend.2.feint.c"
+          }
+        ]
+      }
+    ],
+    "intimidate": [
+      {
+        "when": {
+          "group": true
+        },
+        "honest": [
+          {
+            "text": "They go still, eyes locked on you, and a low sound rolls through the group.",
+            "id": "tells.intimidate.0.honest.a"
+          },
+          {
+            "text": "They draw up together and hold your gaze, the air gone tight around their teeth.",
+            "id": "tells.intimidate.0.honest.b"
+          },
+          {
+            "text": "The stare does not break. They make themselves large and do not come yet.",
+            "id": "tells.intimidate.0.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "They freeze and watch you, a warning sound running from throat to throat.",
+            "id": "tells.intimidate.0.feint.a"
+          },
+          {
+            "text": "They lift their heads and hold the look, trying to pin you with it.",
+            "id": "tells.intimidate.0.feint.b"
+          },
+          {
+            "text": "The group goes silent and large, eyes on you, waiting to see if you will yield the ground.",
+            "id": "tells.intimidate.0.feint.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "foeKind": "cat"
+        },
+        "honest": [
+          {
+            "text": "{foeName} goes still, eyes locked on you, sabers bared.",
+            "id": "tells.intimidate.1.honest.a"
+          },
+          {
+            "text": "{foeName} draws up and holds your gaze, a low sound rolling in the throat.",
+            "id": "tells.intimidate.1.honest.b"
+          },
+          {
+            "text": "The air goes tight around {foeName}. The stare does not break, and the sabers show.",
+            "id": "tells.intimidate.1.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} holds a long, hard look, sabers showing, and does not yet come in.",
+            "id": "tells.intimidate.1.feint.a"
+          },
+          {
+            "text": "{foeName} goes quiet and large, eyes on you, a warning living in the throat.",
+            "id": "tells.intimidate.1.feint.b"
+          },
+          {
+            "text": "The stare of {foeName} pins the space between you. The body stays still.",
+            "id": "tells.intimidate.1.feint.c"
+          }
+        ]
+      },
+      {
+        "honest": [
+          {
+            "text": "{foeName} goes still, eyes locked on you, teeth bared.",
+            "id": "tells.intimidate.2.honest.a"
+          },
+          {
+            "text": "{foeName} draws up and holds your gaze, a low sound rolling in the throat.",
+            "id": "tells.intimidate.2.honest.b"
+          },
+          {
+            "text": "The air goes tight around {foeName}. The stare does not break.",
+            "id": "tells.intimidate.2.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} holds a long, hard look, teeth showing, and does not yet come in.",
+            "id": "tells.intimidate.2.feint.a"
+          },
+          {
+            "text": "{foeName} goes quiet and large, eyes on you, a warning living in the throat.",
+            "id": "tells.intimidate.2.feint.b"
+          },
+          {
+            "text": "The stare of {foeName} pins the space between you. The body stays still.",
+            "id": "tells.intimidate.2.feint.c"
+          }
+        ]
+      }
+    ],
+    "flee": [
+      {
+        "when": {
+          "foeKind": "hyena"
+        },
+        "honest": [
+          {
+            "text": "The weight of {foeName} slides back, a gap opening toward the grass.",
+            "id": "tells.flee.0.honest.a"
+          },
+          {
+            "text": "{foeName} glances aside, hindquarters already angling from the fight.",
+            "id": "tells.flee.0.honest.b"
+          },
+          {
+            "text": "Its paws gather to run, eyes flicking to the open ground.",
+            "id": "tells.flee.0.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} looks off toward the trees, body already leaning away.",
+            "id": "tells.flee.0.feint.a"
+          },
+          {
+            "text": "A path opens behind {foeName}, and its weight is already taking it.",
+            "id": "tells.flee.0.feint.b"
+          },
+          {
+            "text": "{foeName} shrinks from the space between you, ready to break for cover.",
+            "id": "tells.flee.0.feint.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "foeKind": "cat"
+        },
+        "honest": [
+          {
+            "text": "The weight of {foeName} slides back, a gap opening toward the grass.",
+            "id": "tells.flee.1.honest.a"
+          },
+          {
+            "text": "{foeName} glances aside, hindquarters already angling from the fight.",
+            "id": "tells.flee.1.honest.b"
+          },
+          {
+            "text": "The paws of {foeName} gather to run, eyes flicking to the open ground.",
+            "id": "tells.flee.1.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} looks off toward the trees, body already leaning away.",
+            "id": "tells.flee.1.feint.a"
+          },
+          {
+            "text": "A path opens behind {foeName}, and the weight is already taking it.",
+            "id": "tells.flee.1.feint.b"
+          },
+          {
+            "text": "{foeName} shrinks from the space between you, ready to break for cover.",
+            "id": "tells.flee.1.feint.c"
+          }
+        ]
+      },
+      {
+        "honest": [
+          {
+            "text": "The weight of {foeName} slides back, a gap opening toward the grass.",
+            "id": "tells.flee.2.honest.a"
+          },
+          {
+            "text": "{foeName} glances aside, hindquarters already angling from the fight.",
+            "id": "tells.flee.2.honest.b"
+          },
+          {
+            "text": "Its paws gather to run, eyes flicking to the open ground.",
+            "id": "tells.flee.2.honest.c"
+          }
+        ],
+        "feint": [
+          {
+            "text": "{foeName} looks off toward the trees, body already leaning away.",
+            "id": "tells.flee.2.feint.a"
+          },
+          {
+            "text": "A path opens behind {foeName}, and its weight is already taking it.",
+            "id": "tells.flee.2.feint.b"
+          },
+          {
+            "text": "{foeName} shrinks from the space between you, ready to break for cover.",
+            "id": "tells.flee.2.feint.c"
+          }
+        ]
+      }
+    ]
+  },
+  "standoff": {
+    "humans": [
+      {
+        "lines": [
+          {
+            "text": "They go still and hold your gaze, making themselves tall in the grass.",
+            "id": "standoff.humans.0.lines.a"
+          },
+          {
+            "text": "They raise their heads and stare, a hard sound in their throats, and do not come closer.",
+            "id": "standoff.humans.0.lines.b"
+          },
+          {
+            "text": "The air around them tightens. They watch you and do not look away.",
+            "id": "standoff.humans.0.lines.c"
+          },
+          {
+            "text": "They draw up and stare, trying to fill the space between you with their eyes.",
+            "id": "standoff.humans.0.lines.d"
+          },
+          {
+            "text": "They stand their ground and hold a long, hard look, unblinking.",
+            "id": "standoff.humans.0.lines.e"
+          },
+          {
+            "text": "They go quiet and upright, watching you hard, the watching itself a kind of weapon.",
+            "id": "standoff.humans.0.lines.f"
+          }
+        ]
+      }
+    ]
+  },
+  "fights": {
+    "swipe": [
+      {
+        "when": {
+          "actor": "you",
+          "perk": "feint"
+        },
+        "hit": [
+          {
+            "text": "You flick a paw past the guard and catch {foeName} clean. No return comes.",
+            "id": "fights.swipe.0.hit.a"
+          },
+          {
+            "text": "Your swipe slips inside the tucked shoulder and lands, and {foeName} has no answer for it.",
+            "id": "fights.swipe.0.hit.b"
+          },
+          {
+            "text": "You cut across {foeName} with a light, sideways blow that leaves no room for a return.",
+            "id": "fights.swipe.0.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "You flick a paw past the guard and still find only air. {foeName} is not where you struck.",
+            "id": "fights.swipe.0.miss.a"
+          },
+          {
+            "text": "The sly swipe goes wide. {foeName} has already shifted, and nothing lands.",
+            "id": "fights.swipe.0.miss.b"
+          },
+          {
+            "text": "You try to slip the blow inside, and the air is all that you cut.",
+            "id": "fights.swipe.0.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "Your sly swipe still meets a tucked shoulder. The force goes into the ground, but no return comes.",
+            "id": "fights.swipe.0.blocked.a"
+          },
+          {
+            "text": "You slip the blow in, and {foeName} is tight and ready; the strike lands soft, and there is no answer.",
+            "id": "fights.swipe.0.blocked.b"
+          },
+          {
+            "text": "The guard takes most of your swipe. You at least give {foeName} nothing back to use.",
+            "id": "fights.swipe.0.blocked.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "You slip a swipe into the opening and catch {foeName} hard, with no guard left to meet it.",
+            "id": "fights.swipe.0.hit_open.a"
+          },
+          {
+            "text": "{foeName} is caught off the ground, and your sideways blow lands heavier than it should.",
+            "id": "fights.swipe.0.hit_open.b"
+          },
+          {
+            "text": "The opening is there. Your paw takes it, and {foeName} has no weight to answer with.",
+            "id": "fights.swipe.0.hit_open.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "you"
+        },
+        "hit": [
+          {
+            "text": "You rake a paw across the shoulder of {foeName}. Fur and a little blood come away.",
+            "id": "fights.swipe.1.hit.a"
+          },
+          {
+            "text": "Your claws catch {foeName} along the ribs. The blow is honest, and it lands.",
+            "id": "fights.swipe.1.hit.b"
+          },
+          {
+            "text": "You strike true. {foeName} staggers a step and comes back on.",
+            "id": "fights.swipe.1.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "You swipe and cut only the air. {foeName} is already gone from that place.",
+            "id": "fights.swipe.1.miss.a"
+          },
+          {
+            "text": "Your paw goes wide. The ground is all you find.",
+            "id": "fights.swipe.1.miss.b"
+          },
+          {
+            "text": "You strike too soon. {foeName} slips aside, and your claws close on nothing.",
+            "id": "fights.swipe.1.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "You land the blow, but {foeName} is tucked tight, and much of the force goes into the ground.",
+            "id": "fights.swipe.1.blocked.a"
+          },
+          {
+            "text": "Your swipe meets a braced shoulder. It lands, though softer than you meant.",
+            "id": "fights.swipe.1.blocked.b"
+          },
+          {
+            "text": "The paw connects, and the guard of {foeName} takes the worst of it.",
+            "id": "fights.swipe.1.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "As your blow lands, {foeName} catches you in return. Pain flares along your shoulder.",
+            "id": "fights.swipe.1.countered.a"
+          },
+          {
+            "text": "You come in, and {foeName} is waiting. The return blow finds your chest.",
+            "id": "fights.swipe.1.countered.b"
+          },
+          {
+            "text": "Your swipe hits, and a tucked paw comes back at you just as hard.",
+            "id": "fights.swipe.1.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "You rake a paw into the opening. {foeName} is off-balance, and the blow lands heavy.",
+            "id": "fights.swipe.1.hit_open.a"
+          },
+          {
+            "text": "{foeName} has no guard left. Your swipe finds the ribs and drives the breath out.",
+            "id": "fights.swipe.1.hit_open.b"
+          },
+          {
+            "text": "The belly and shoulder of {foeName} are uncovered. You take the opening and strike true.",
+            "id": "fights.swipe.1.hit_open.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "foe"
+        },
+        "hit": [
+          {
+            "text": "{foeName} rakes a paw across your shoulder. Fur and a little blood come away.",
+            "id": "fights.swipe.2.hit.a"
+          },
+          {
+            "text": "Claws catch you along the ribs. The blow is honest, and it lands.",
+            "id": "fights.swipe.2.hit.b"
+          },
+          {
+            "text": "{foeName} strikes true. You stagger a step and come back on.",
+            "id": "fights.swipe.2.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "{foeName} swipes and cuts only the air. You are already gone from that place.",
+            "id": "fights.swipe.2.miss.a"
+          },
+          {
+            "text": "A paw goes wide of you. The ground is all {foeName} finds.",
+            "id": "fights.swipe.2.miss.b"
+          },
+          {
+            "text": "{foeName} strikes too soon. You slip aside, and the claws close on nothing.",
+            "id": "fights.swipe.2.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "The blow lands, but you are tucked tight, and much of the force goes into the ground.",
+            "id": "fights.swipe.2.blocked.a"
+          },
+          {
+            "text": "{foeName}'s swipe meets your braced shoulder. It lands, though softer than it was meant.",
+            "id": "fights.swipe.2.blocked.b"
+          },
+          {
+            "text": "The paw connects, and your guard takes the worst of it.",
+            "id": "fights.swipe.2.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "As the blow lands, you catch {foeName} in return. The answer finds a shoulder.",
+            "id": "fights.swipe.2.countered.a"
+          },
+          {
+            "text": "{foeName} comes in, and you are waiting. Your return blow finds the chest.",
+            "id": "fights.swipe.2.countered.b"
+          },
+          {
+            "text": "The swipe hits you, and your tucked paw goes back just as hard.",
+            "id": "fights.swipe.2.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "{foeName} rakes a paw into the opening. You are off-balance, and the blow lands heavy.",
+            "id": "fights.swipe.2.hit_open.a"
+          },
+          {
+            "text": "You have no guard left. The swipe finds your ribs and drives the breath out.",
+            "id": "fights.swipe.2.hit_open.b"
+          },
+          {
+            "text": "Your belly and shoulder are uncovered. {foeName} takes the opening and strikes true.",
+            "id": "fights.swipe.2.hit_open.c"
+          }
+        ]
+      },
+      {
+        "hit": [
+          {
+            "text": "{foeName} rakes a paw across your shoulder. Fur and a little blood come away.",
+            "id": "fights.swipe.3.hit.a"
+          },
+          {
+            "text": "Claws catch you along the ribs. The blow is honest, and it lands.",
+            "id": "fights.swipe.3.hit.b"
+          },
+          {
+            "text": "{foeName} strikes true. You stagger a step and come back on.",
+            "id": "fights.swipe.3.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "{foeName} swipes and cuts only the air. You are already gone from that place.",
+            "id": "fights.swipe.3.miss.a"
+          },
+          {
+            "text": "A paw goes wide of you. The ground is all {foeName} finds.",
+            "id": "fights.swipe.3.miss.b"
+          },
+          {
+            "text": "{foeName} strikes too soon. You slip aside, and the claws close on nothing.",
+            "id": "fights.swipe.3.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "The blow lands, but you are tucked tight, and much of the force goes into the ground.",
+            "id": "fights.swipe.3.blocked.a"
+          },
+          {
+            "text": "The swipe meets your braced shoulder. It lands, though softer than it was meant.",
+            "id": "fights.swipe.3.blocked.b"
+          },
+          {
+            "text": "The paw connects, and your guard takes the worst of it.",
+            "id": "fights.swipe.3.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "As the blow lands, you catch {foeName} in return. The answer finds a shoulder.",
+            "id": "fights.swipe.3.countered.a"
+          },
+          {
+            "text": "{foeName} comes in, and you are waiting. Your return blow finds the chest.",
+            "id": "fights.swipe.3.countered.b"
+          },
+          {
+            "text": "The swipe hits you, and your tucked paw goes back just as hard.",
+            "id": "fights.swipe.3.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "{foeName} rakes a paw into the opening. You are off-balance, and the blow lands heavy.",
+            "id": "fights.swipe.3.hit_open.a"
+          },
+          {
+            "text": "You have no guard left. The swipe finds your ribs and drives the breath out.",
+            "id": "fights.swipe.3.hit_open.b"
+          },
+          {
+            "text": "Your belly and shoulder are uncovered. {foeName} takes the opening and strikes true.",
+            "id": "fights.swipe.3.hit_open.c"
+          }
+        ]
+      }
+    ],
+    "bite": [
+      {
+        "when": {
+          "actor": "you"
+        },
+        "hit": [
+          {
+            "text": "You close and get your jaws on {foeName}. You bite down, and you feel it land deep.",
+            "id": "fights.bite.0.hit.a"
+          },
+          {
+            "text": "Your mouth finds a hold at the shoulder of {foeName}. You clamp and shake, and it tells.",
+            "id": "fights.bite.0.hit.b"
+          },
+          {
+            "text": "You get in close and bite true. {foeName} wrenches against your teeth and does not break free.",
+            "id": "fights.bite.0.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "You lunge for a hold and close your jaws on air. {foeName} has slipped the bite.",
+            "id": "fights.bite.0.miss.a"
+          },
+          {
+            "text": "Your teeth snap shut on nothing. The shoulder you wanted is no longer there.",
+            "id": "fights.bite.0.miss.b"
+          },
+          {
+            "text": "You come in close, and {foeName} twists away before your mouth can land.",
+            "id": "fights.bite.0.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "You get a hold, but {foeName} is tucked tight, and the bite does not go as deep as you meant.",
+            "id": "fights.bite.0.blocked.a"
+          },
+          {
+            "text": "Your jaws find {foeName}, and the braced body takes it without giving much back.",
+            "id": "fights.bite.0.blocked.b"
+          },
+          {
+            "text": "The bite lands on a guarded shoulder. It counts, though less than it should.",
+            "id": "fights.bite.0.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "You get your bite, and {foeName} answers it in the same breath. A blow catches you while your mouth is busy.",
+            "id": "fights.bite.0.countered.a"
+          },
+          {
+            "text": "As your jaws clamp, a tucked paw or shoulder slams back into you.",
+            "id": "fights.bite.0.countered.b"
+          },
+          {
+            "text": "The hold is yours, and the return is {foeName}'s. You feel the landing and the answer together.",
+            "id": "fights.bite.0.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "{foeName} is uncovered, and your jaws find a deep, clean hold.",
+            "id": "fights.bite.0.hit_open.a"
+          },
+          {
+            "text": "You bite into the opening. There is no guard to keep you off, and the hold is ugly and sure.",
+            "id": "fights.bite.0.hit_open.b"
+          },
+          {
+            "text": "The exposed shoulder of {foeName} fills your mouth. You bite down hard.",
+            "id": "fights.bite.0.hit_open.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "foe"
+        },
+        "hit": [
+          {
+            "text": "{foeName} closes and gets jaws on you. The bite lands deep.",
+            "id": "fights.bite.1.hit.a"
+          },
+          {
+            "text": "A mouth finds a hold at your shoulder. {foeName} clamps and shakes, and you feel it tell.",
+            "id": "fights.bite.1.hit.b"
+          },
+          {
+            "text": "{foeName} gets in close and bites true. You wrench against the teeth and do not break free.",
+            "id": "fights.bite.1.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "{foeName} lunges for a hold and closes on air. You have slipped the bite.",
+            "id": "fights.bite.1.miss.a"
+          },
+          {
+            "text": "Teeth snap shut on nothing. The shoulder {foeName} wanted is no longer there.",
+            "id": "fights.bite.1.miss.b"
+          },
+          {
+            "text": "{foeName} comes in close, and you twist away before the mouth can land.",
+            "id": "fights.bite.1.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "The bite finds you, but you are tucked tight, and it does not go as deep as it was meant.",
+            "id": "fights.bite.1.blocked.a"
+          },
+          {
+            "text": "Jaws find you, and your braced body takes it without giving much back.",
+            "id": "fights.bite.1.blocked.b"
+          },
+          {
+            "text": "The bite lands on your guarded shoulder. It counts, though less than it might have.",
+            "id": "fights.bite.1.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "The bite lands, and you answer it in the same breath. Your blow catches {foeName} while the mouth is busy.",
+            "id": "fights.bite.1.countered.a"
+          },
+          {
+            "text": "As the jaws clamp, your tucked paw slams back into {foeName}.",
+            "id": "fights.bite.1.countered.b"
+          },
+          {
+            "text": "The hold is {foeName}'s, and the return is yours. Each of you feels it.",
+            "id": "fights.bite.1.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "You are uncovered, and the jaws of {foeName} find a deep, clean hold.",
+            "id": "fights.bite.1.hit_open.a"
+          },
+          {
+            "text": "{foeName} bites into the opening. There is no guard to keep it off, and the hold is ugly and sure.",
+            "id": "fights.bite.1.hit_open.b"
+          },
+          {
+            "text": "Your exposed shoulder fills the mouth of {foeName}. The bite comes down hard.",
+            "id": "fights.bite.1.hit_open.c"
+          }
+        ]
+      },
+      {
+        "hit": [
+          {
+            "text": "{foeName} closes and gets jaws on you. The bite lands deep.",
+            "id": "fights.bite.2.hit.a"
+          },
+          {
+            "text": "A mouth finds a hold at your shoulder. {foeName} clamps and shakes, and you feel it tell.",
+            "id": "fights.bite.2.hit.b"
+          },
+          {
+            "text": "{foeName} gets in close and bites true. You wrench against the teeth and do not break free.",
+            "id": "fights.bite.2.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "{foeName} lunges for a hold and closes on air. You have slipped the bite.",
+            "id": "fights.bite.2.miss.a"
+          },
+          {
+            "text": "Teeth snap shut on nothing. The shoulder {foeName} wanted is no longer there.",
+            "id": "fights.bite.2.miss.b"
+          },
+          {
+            "text": "{foeName} comes in close, and you twist away before the mouth can land.",
+            "id": "fights.bite.2.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "The bite finds you, but you are tucked tight, and it does not go as deep as it was meant.",
+            "id": "fights.bite.2.blocked.a"
+          },
+          {
+            "text": "Jaws find you, and your braced body takes it without giving much back.",
+            "id": "fights.bite.2.blocked.b"
+          },
+          {
+            "text": "The bite lands on your guarded shoulder. It counts, though less than it might have.",
+            "id": "fights.bite.2.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "The bite lands, and you answer it in the same breath. Your blow catches {foeName} while the mouth is busy.",
+            "id": "fights.bite.2.countered.a"
+          },
+          {
+            "text": "As the jaws clamp, your tucked paw slams back into {foeName}.",
+            "id": "fights.bite.2.countered.b"
+          },
+          {
+            "text": "The hold is {foeName}'s, and the return is yours. Each of you feels it.",
+            "id": "fights.bite.2.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "You are uncovered, and the jaws of {foeName} find a deep, clean hold.",
+            "id": "fights.bite.2.hit_open.a"
+          },
+          {
+            "text": "{foeName} bites into the opening. There is no guard to keep it off, and the hold is ugly and sure.",
+            "id": "fights.bite.2.hit_open.b"
+          },
+          {
+            "text": "Your exposed shoulder fills the mouth of {foeName}. The bite comes down hard.",
+            "id": "fights.bite.2.hit_open.c"
+          }
+        ]
+      }
+    ],
+    "pounce": [
+      {
+        "when": {
+          "actor": "you"
+        },
+        "hit": [
+          {
+            "text": "You leave the ground and come down hard. Your weight drives {foeName} into the dirt.",
+            "id": "fights.pounce.0.hit.a"
+          },
+          {
+            "text": "You spring and land true, forelegs locking on {foeName}, and the ground takes the tangle of you.",
+            "id": "fights.pounce.0.hit.b"
+          },
+          {
+            "text": "The leap is clean. You hit {foeName} full on and drive the air out of the chest beneath you.",
+            "id": "fights.pounce.0.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "You spring and meet only air. You land heavy and wrong, your belly open to whatever comes next.",
+            "id": "fights.pounce.0.miss.a"
+          },
+          {
+            "text": "The leap is early. You hit the ground off-balance, and for a breath you cannot cover yourself.",
+            "id": "fights.pounce.0.miss.b"
+          },
+          {
+            "text": "You come down where {foeName} was, not where {foeName} is. Your weight is wrong, and you are open.",
+            "id": "fights.pounce.0.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "You come down on {foeName}, but the body under you is tucked and ready, and much of the force is wasted.",
+            "id": "fights.pounce.0.blocked.a"
+          },
+          {
+            "text": "The leap lands, and a braced guard takes you. You hit, though not as hard as the spring promised.",
+            "id": "fights.pounce.0.blocked.b"
+          },
+          {
+            "text": "You land on a compact, waiting shape. The blow counts, and the ground gets more of it than {foeName} does.",
+            "id": "fights.pounce.0.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "You come down, and {foeName} is waiting. The return meets you in the air and on the way in.",
+            "id": "fights.pounce.0.countered.a"
+          },
+          {
+            "text": "Your weight hits a tucked guard, and a blow comes up into your chest as you land.",
+            "id": "fights.pounce.0.countered.b"
+          },
+          {
+            "text": "The leap finds {foeName}, and the answer finds you. You feel the catch as your paws touch.",
+            "id": "fights.pounce.0.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "{foeName} is already uncovered. You come down with all your weight, and there is nothing to take it but flesh.",
+            "id": "fights.pounce.0.hit_open.a"
+          },
+          {
+            "text": "You spring into the opening and land heavier than a pounce has any right to. {foeName} folds under you.",
+            "id": "fights.pounce.0.hit_open.b"
+          },
+          {
+            "text": "The belly of {foeName} is still toward the sky. You take the invitation and come down hard.",
+            "id": "fights.pounce.0.hit_open.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "foe"
+        },
+        "hit": [
+          {
+            "text": "{foeName} leaves the ground and comes down hard. The weight drives you into the dirt.",
+            "id": "fights.pounce.1.hit.a"
+          },
+          {
+            "text": "{foeName} springs and lands true, forelegs locking on you, and the ground takes the tangle of you.",
+            "id": "fights.pounce.1.hit.b"
+          },
+          {
+            "text": "The leap is clean. {foeName} hits you full on and drives the air out of your chest.",
+            "id": "fights.pounce.1.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "{foeName} springs and meets only air. The landing is heavy and wrong, belly open to whatever you do next.",
+            "id": "fights.pounce.1.miss.a"
+          },
+          {
+            "text": "The leap is early. {foeName} hits the ground off-balance, uncovered for a breath.",
+            "id": "fights.pounce.1.miss.b"
+          },
+          {
+            "text": "{foeName} comes down where you were, not where you are. The weight is wrong, and {foeName} is open.",
+            "id": "fights.pounce.1.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "{foeName} comes down on you, but you are tucked and ready, and much of the force is wasted.",
+            "id": "fights.pounce.1.blocked.a"
+          },
+          {
+            "text": "The leap lands, and your braced guard takes it. It hits, though not as hard as the spring promised.",
+            "id": "fights.pounce.1.blocked.b"
+          },
+          {
+            "text": "{foeName} lands on your compact, waiting shape. The blow counts, and the ground gets more of it than you do.",
+            "id": "fights.pounce.1.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "{foeName} comes down, and you are waiting. Your return meets the leap on the way in.",
+            "id": "fights.pounce.1.countered.a"
+          },
+          {
+            "text": "The weight hits your tucked guard, and your blow goes up into the chest as {foeName} lands.",
+            "id": "fights.pounce.1.countered.b"
+          },
+          {
+            "text": "The leap finds you, and your answer finds {foeName}. The catch comes as the paws touch.",
+            "id": "fights.pounce.1.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "You are already uncovered. {foeName} comes down with all that weight, and there is nothing to take it but you.",
+            "id": "fights.pounce.1.hit_open.a"
+          },
+          {
+            "text": "{foeName} springs into the opening and lands heavier than a pounce has any right to. You fold under it.",
+            "id": "fights.pounce.1.hit_open.b"
+          },
+          {
+            "text": "Your belly is still toward the sky. {foeName} takes the invitation and comes down hard.",
+            "id": "fights.pounce.1.hit_open.c"
+          }
+        ]
+      },
+      {
+        "hit": [
+          {
+            "text": "{foeName} leaves the ground and comes down hard. The weight drives you into the dirt.",
+            "id": "fights.pounce.2.hit.a"
+          },
+          {
+            "text": "{foeName} springs and lands true, forelegs locking on you, and the ground takes the tangle of you.",
+            "id": "fights.pounce.2.hit.b"
+          },
+          {
+            "text": "The leap is clean. {foeName} hits you full on and drives the air out of your chest.",
+            "id": "fights.pounce.2.hit.c"
+          }
+        ],
+        "miss": [
+          {
+            "text": "{foeName} springs and meets only air. The landing is heavy and wrong, belly open to whatever you do next.",
+            "id": "fights.pounce.2.miss.a"
+          },
+          {
+            "text": "The leap is early. {foeName} hits the ground off-balance, uncovered for a breath.",
+            "id": "fights.pounce.2.miss.b"
+          },
+          {
+            "text": "{foeName} comes down where you were, not where you are. The weight is wrong, and {foeName} is open.",
+            "id": "fights.pounce.2.miss.c"
+          }
+        ],
+        "blocked": [
+          {
+            "text": "{foeName} comes down on you, but you are tucked and ready, and much of the force is wasted.",
+            "id": "fights.pounce.2.blocked.a"
+          },
+          {
+            "text": "The leap lands, and your braced guard takes it. It hits, though not as hard as the spring promised.",
+            "id": "fights.pounce.2.blocked.b"
+          },
+          {
+            "text": "{foeName} lands on your compact, waiting shape. The blow counts, and the ground gets more of it than you do.",
+            "id": "fights.pounce.2.blocked.c"
+          }
+        ],
+        "countered": [
+          {
+            "text": "{foeName} comes down, and you are waiting. Your return meets the leap on the way in.",
+            "id": "fights.pounce.2.countered.a"
+          },
+          {
+            "text": "The weight hits your tucked guard, and your blow goes up into the chest as {foeName} lands.",
+            "id": "fights.pounce.2.countered.b"
+          },
+          {
+            "text": "The leap finds you, and your answer finds {foeName}. The catch comes as the paws touch.",
+            "id": "fights.pounce.2.countered.c"
+          }
+        ],
+        "hit_open": [
+          {
+            "text": "You are already uncovered. {foeName} comes down with all that weight, and there is nothing to take it but you.",
+            "id": "fights.pounce.2.hit_open.a"
+          },
+          {
+            "text": "{foeName} springs into the opening and lands heavier than a pounce has any right to. You fold under it.",
+            "id": "fights.pounce.2.hit_open.b"
+          },
+          {
+            "text": "Your belly is still toward the sky. {foeName} takes the invitation and comes down hard.",
+            "id": "fights.pounce.2.hit_open.c"
+          }
+        ]
+      }
+    ],
+    "defend": [
+      {
+        "when": {
+          "actor": "you"
+        },
+        "ready": [
+          {
+            "text": "You settle and tuck in, waiting for the blow.",
+            "id": "fights.defend.0.ready.a"
+          },
+          {
+            "text": "You plant your paws and draw tight, a guard coming up.",
+            "id": "fights.defend.0.ready.b"
+          },
+          {
+            "text": "Weight sinks through you and your chin tucks. Let {foeName} come.",
+            "id": "fights.defend.0.ready.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "foe"
+        },
+        "ready": [
+          {
+            "text": "{foeName} settles and tucks in, waiting for the blow.",
+            "id": "fights.defend.1.ready.a"
+          },
+          {
+            "text": "{foeName} plants the paws and draws tight, a guard coming up.",
+            "id": "fights.defend.1.ready.b"
+          },
+          {
+            "text": "Weight sinks through {foeName} and the chin tucks. The next blow will find a wall.",
+            "id": "fights.defend.1.ready.c"
+          }
+        ]
+      },
+      {
+        "ready": [
+          {
+            "text": "{foeName} settles and tucks in, waiting for the blow.",
+            "id": "fights.defend.2.ready.a"
+          },
+          {
+            "text": "{foeName} plants the paws and draws tight, a guard coming up.",
+            "id": "fights.defend.2.ready.b"
+          },
+          {
+            "text": "Weight sinks through {foeName} and the chin tucks. The next blow will find a wall.",
+            "id": "fights.defend.2.ready.c"
+          }
+        ]
+      }
+    ],
+    "intimidate": [
+      {
+        "when": {
+          "actor": "you",
+          "foeKind": "humans"
+        },
+        "success": [
+          {
+            "text": "You hold their gaze until they give the ground. They back away, and you walk off unhurt.",
+            "id": "fights.intimidate.0.success.a"
+          },
+          {
+            "text": "They give way before your sabers. You leave the place on your own paws, and no spear has touched you.",
+            "id": "fights.intimidate.0.success.b"
+          },
+          {
+            "text": "The tall shapes break and drift back. You walk away, and your hide is whole.",
+            "id": "fights.intimidate.0.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "You press in, and a spear darts out — a short, sharp jab. The sting is bright, and the standoff holds.",
+            "id": "fights.intimidate.0.fail.a"
+          },
+          {
+            "text": "A spear finds your shoulder, a quick bite of wood and stone. You stay, and so do they.",
+            "id": "fights.intimidate.0.fail.b"
+          },
+          {
+            "text": "Your snarl is answered by a spear jab. The wound is shallow, and neither of you leaves.",
+            "id": "fights.intimidate.0.fail.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "you"
+        },
+        "success": [
+          {
+            "text": "You hold the gaze of {foeName} and do not blink. Something in {foeName} unsteadies. The next steps will come less sure.",
+            "id": "fights.intimidate.1.success.a"
+          },
+          {
+            "text": "You bare your sabers and take a slow step in. {foeName} flinches back, weight suddenly uncertain.",
+            "id": "fights.intimidate.1.success.b"
+          },
+          {
+            "text": "You make yourself large and still. The air around {foeName} loses its nerve.",
+            "id": "fights.intimidate.1.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "You snarl, and the wind takes it. {foeName} does not move.",
+            "id": "fights.intimidate.1.fail.a"
+          },
+          {
+            "text": "You try to press the air between you into fear. {foeName} only watches, unmoved.",
+            "id": "fights.intimidate.1.fail.b"
+          },
+          {
+            "text": "Your stare meets {foeName} and breaks on it. The ground is not given.",
+            "id": "fights.intimidate.1.fail.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "foe"
+        },
+        "success": [
+          {
+            "text": "{foeName} holds your gaze and does not blink. Something in you unsteadies. Your next steps will come less sure.",
+            "id": "fights.intimidate.2.success.a"
+          },
+          {
+            "text": "{foeName} bares teeth and takes a slow step in. You flinch back, weight suddenly uncertain.",
+            "id": "fights.intimidate.2.success.b"
+          },
+          {
+            "text": "{foeName} goes large and still. The air around you loses its nerve.",
+            "id": "fights.intimidate.2.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "{foeName} snarls, and the wind takes it. You do not move.",
+            "id": "fights.intimidate.2.fail.a"
+          },
+          {
+            "text": "{foeName} tries to press the air between you into fear. You only watch, unmoved.",
+            "id": "fights.intimidate.2.fail.b"
+          },
+          {
+            "text": "The stare of {foeName} meets you and breaks. You do not give the ground.",
+            "id": "fights.intimidate.2.fail.c"
+          }
+        ]
+      },
+      {
+        "success": [
+          {
+            "text": "{foeName} holds your gaze and does not blink. Something in you unsteadies. Your next steps will come less sure.",
+            "id": "fights.intimidate.3.success.a"
+          },
+          {
+            "text": "{foeName} bares teeth and takes a slow step in. You flinch back, weight suddenly uncertain.",
+            "id": "fights.intimidate.3.success.b"
+          },
+          {
+            "text": "{foeName} goes large and still. The air around you loses its nerve.",
+            "id": "fights.intimidate.3.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "{foeName} snarls, and the wind takes it. You do not move.",
+            "id": "fights.intimidate.3.fail.a"
+          },
+          {
+            "text": "{foeName} tries to press the air between you into fear. You only watch, unmoved.",
+            "id": "fights.intimidate.3.fail.b"
+          },
+          {
+            "text": "The stare of {foeName} meets you and breaks. You do not give the ground.",
+            "id": "fights.intimidate.3.fail.c"
+          }
+        ]
+      }
+    ],
+    "flee": [
+      {
+        "when": {
+          "actor": "you",
+          "foeKind": "humans"
+        },
+        "success": [
+          {
+            "text": "You break from them and the grass takes you. Behind you, the strange sounds fall away.",
+            "id": "fights.flee.0.success.a"
+          },
+          {
+            "text": "You find a gap and take it. They do not catch you.",
+            "id": "fights.flee.0.success.b"
+          },
+          {
+            "text": "You leave the place at a run. The tall shapes do not follow far.",
+            "id": "fights.flee.0.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "You break to run, and a spear goes in deep. What you were carrying falls from your mouth into the grass.",
+            "id": "fights.flee.0.fail.a"
+          },
+          {
+            "text": "The way out closes on a spear. The wound is heavy, and whatever you held is left behind.",
+            "id": "fights.flee.0.fail.b"
+          },
+          {
+            "text": "You make for the trees, and a spear takes you hard in the side. Your jaws open, and your burden drops.",
+            "id": "fights.flee.0.fail.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "you"
+        },
+        "success": [
+          {
+            "text": "You break from the fight and the grass takes you. Behind you, the sounds fall away.",
+            "id": "fights.flee.1.success.a"
+          },
+          {
+            "text": "You find a gap and take it. {foeName} does not catch you.",
+            "id": "fights.flee.1.success.b"
+          },
+          {
+            "text": "You leave the place at a run. The land closes behind you, and {foeName} is no longer in it.",
+            "id": "fights.flee.1.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "You turn to go, and {foeName} is already there, cutting the way off. You have to face this.",
+            "id": "fights.flee.1.fail.a"
+          },
+          {
+            "text": "The way out closes. Your legs were ready to run, and now they must stay.",
+            "id": "fights.flee.1.fail.b"
+          },
+          {
+            "text": "You break for the trees, and {foeName} is already there. The path is gone.",
+            "id": "fights.flee.1.fail.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "actor": "foe"
+        },
+        "success": [
+          {
+            "text": "{foeName} breaks from the fight and the grass takes the fleeing shape. The sounds fall away.",
+            "id": "fights.flee.2.success.a"
+          },
+          {
+            "text": "{foeName} finds a gap and takes it. You do not catch up.",
+            "id": "fights.flee.2.success.b"
+          },
+          {
+            "text": "{foeName} leaves the place at a run. The land closes, and you are left with empty ground.",
+            "id": "fights.flee.2.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "{foeName} turns to go, and you are already there, cutting the way off.",
+            "id": "fights.flee.2.fail.a"
+          },
+          {
+            "text": "The way out closes on {foeName}. The run is over before it starts.",
+            "id": "fights.flee.2.fail.b"
+          },
+          {
+            "text": "{foeName} breaks for the trees, and you are already there. The path is gone.",
+            "id": "fights.flee.2.fail.c"
+          }
+        ]
+      },
+      {
+        "success": [
+          {
+            "text": "{foeName} breaks from the fight and the grass takes the fleeing shape. The sounds fall away.",
+            "id": "fights.flee.3.success.a"
+          },
+          {
+            "text": "{foeName} finds a gap and takes it. You do not catch up.",
+            "id": "fights.flee.3.success.b"
+          },
+          {
+            "text": "{foeName} leaves the place at a run. The land closes, and you are left with empty ground.",
+            "id": "fights.flee.3.success.c"
+          }
+        ],
+        "fail": [
+          {
+            "text": "{foeName} turns to go, and you are already there, cutting the way off.",
+            "id": "fights.flee.3.fail.a"
+          },
+          {
+            "text": "The way out closes on {foeName}. The run is over before it starts.",
+            "id": "fights.flee.3.fail.b"
+          },
+          {
+            "text": "{foeName} breaks for the trees, and you are already there. The path is gone.",
+            "id": "fights.flee.3.fail.c"
+          }
+        ]
+      }
+    ]
+  },
+  "hunt": {
+    "stalk": {
+      "creep": [
+        {
+          "when": {
+            "prey": "deer"
+          },
+          "success": [
+            {
+              "text": "You keep low and close the distance, a paw at a time. The deer feeds on, ears soft, and has not yet known you.",
+              "id": "hunt.stalk.creep.0.success.a"
+            },
+            {
+              "text": "Each step is a held breath. The deer browses, and the gap between you grows smaller.",
+              "id": "hunt.stalk.creep.0.success.b"
+            },
+            {
+              "text": "You slide through the grass like a shadow. The deer does not lift its head.",
+              "id": "hunt.stalk.creep.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "A hoof stamps. The deer's head snaps up, and it is already leaving.",
+              "id": "hunt.stalk.creep.0.fail.a"
+            },
+            {
+              "text": "An ear flicks your way. The deer starts, and the stalk is over before it was close.",
+              "id": "hunt.stalk.creep.0.fail.b"
+            },
+            {
+              "text": "The wind shifts behind you. The deer is gone in a rattle of brush, and you are left with flattened grass.",
+              "id": "hunt.stalk.creep.0.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": "fawn"
+          },
+          "success": [
+            {
+              "text": "You keep low and close the distance, a paw at a time. The fawn stays where it was hidden, and has not yet known you.",
+              "id": "hunt.stalk.creep.1.success.a"
+            },
+            {
+              "text": "Each step is a held breath. The fawn's ears stay soft, and the gap grows smaller.",
+              "id": "hunt.stalk.creep.1.success.b"
+            },
+            {
+              "text": "You slide through the grass like a shadow. The fawn does not stir.",
+              "id": "hunt.stalk.creep.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "The fawn startles and is gone, quicker than anything that small has a right to be.",
+              "id": "hunt.stalk.creep.1.fail.a"
+            },
+            {
+              "text": "A twig gives under your paw. The hiding place is empty.",
+              "id": "hunt.stalk.creep.1.fail.b"
+            },
+            {
+              "text": "The fawn slips into the brush, and you are left sniffing a warm, fading bed.",
+              "id": "hunt.stalk.creep.1.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": "horse"
+          },
+          "success": [
+            {
+              "text": "You keep low along the edge of the herd. A horse browses, unsuspecting, and the distance dies quietly.",
+              "id": "hunt.stalk.creep.2.success.a"
+            },
+            {
+              "text": "Each step is a held breath. The herd grazes on, and you close on the horse you have chosen.",
+              "id": "hunt.stalk.creep.2.success.b"
+            },
+            {
+              "text": "You slide through the grass like a shadow. The horses do not break.",
+              "id": "hunt.stalk.creep.2.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "A head goes up, then another. The herd is already shifting, and the stalk is done.",
+              "id": "hunt.stalk.creep.2.fail.a"
+            },
+            {
+              "text": "The wind turns. The horses start and begin to move, and there is no quiet way in now.",
+              "id": "hunt.stalk.creep.2.fail.b"
+            },
+            {
+              "text": "A snort runs through the herd. What was still is suddenly all motion, and you have been seen.",
+              "id": "hunt.stalk.creep.2.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": [
+              "mammoth_calf",
+              "rhino_calf"
+            ]
+          },
+          "success": [
+            {
+              "text": "You keep low and close the distance, a paw at a time. The calf has not yet known you.",
+              "id": "hunt.stalk.creep.3.success.a"
+            },
+            {
+              "text": "Each step is a held breath. The young body browses, and the gap grows smaller.",
+              "id": "hunt.stalk.creep.3.success.b"
+            },
+            {
+              "text": "You slide through the grass like a shadow. The calf does not turn.",
+              "id": "hunt.stalk.creep.3.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "The calf startles, and a much larger shape answers it. The stalk is over.",
+              "id": "hunt.stalk.creep.3.fail.a"
+            },
+            {
+              "text": "A trunk or horn swings toward your scent. You have been found, and the approach is finished.",
+              "id": "hunt.stalk.creep.3.fail.b"
+            },
+            {
+              "text": "The ground trembles with a warning sound. The calf is no longer alone in your path, and you go no closer.",
+              "id": "hunt.stalk.creep.3.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You keep low and close the distance, a paw at a time, and the prey has not yet known you.",
+              "id": "hunt.stalk.creep.4.success.a"
+            },
+            {
+              "text": "Each step is a held breath. The prey browses on, and the gap between you grows smaller.",
+              "id": "hunt.stalk.creep.4.success.b"
+            },
+            {
+              "text": "You slide through the grass like a shadow. Nothing lifts its head.",
+              "id": "hunt.stalk.creep.4.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "A head snaps up. The prey is already leaving, and the stalk is over.",
+              "id": "hunt.stalk.creep.4.fail.a"
+            },
+            {
+              "text": "The wind shifts behind you. Whatever you were creeping toward is gone.",
+              "id": "hunt.stalk.creep.4.fail.b"
+            },
+            {
+              "text": "Something gives under your paw. The prey starts, and the quiet approach is finished.",
+              "id": "hunt.stalk.creep.4.fail.c"
+            }
+          ]
+        }
+      ],
+      "rush_in": [
+        {
+          "when": {
+            "prey": "deer"
+          },
+          "success": [
+            {
+              "text": "You break from cover and close fast. The deer has no time to make the leap it wanted.",
+              "id": "hunt.stalk.rush_in.0.success.a"
+            },
+            {
+              "text": "You throw yourself at the deer before doubt can speak. You arrive while it is still gathering to run.",
+              "id": "hunt.stalk.rush_in.0.success.b"
+            },
+            {
+              "text": "The rush carries you in. The deer shies too late, and you are already there.",
+              "id": "hunt.stalk.rush_in.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You break from cover too soon. The deer is already running, and the gap only grows.",
+              "id": "hunt.stalk.rush_in.0.fail.a"
+            },
+            {
+              "text": "You throw yourself forward, and the deer is faster than your hunger. It leaves you in the grass.",
+              "id": "hunt.stalk.rush_in.0.fail.b"
+            },
+            {
+              "text": "The rush is loud. The deer has all the warning it needs, and it uses it.",
+              "id": "hunt.stalk.rush_in.0.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": "horse"
+          },
+          "success": [
+            {
+              "text": "You break from cover and close fast. The horse you marked has no time to reach the heart of the herd.",
+              "id": "hunt.stalk.rush_in.1.success.a"
+            },
+            {
+              "text": "You throw yourself in before the herd can gather. A horse is still within reach.",
+              "id": "hunt.stalk.rush_in.1.success.b"
+            },
+            {
+              "text": "The rush carries you onto the chosen horse. The rest of the herd peels away too late to help it.",
+              "id": "hunt.stalk.rush_in.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You break from cover, and the whole herd goes with the wind. There is no catching any of them.",
+              "id": "hunt.stalk.rush_in.1.fail.a"
+            },
+            {
+              "text": "The rush is loud. The horses are already a rolling wall of backs, and you cannot find a way in.",
+              "id": "hunt.stalk.rush_in.1.fail.b"
+            },
+            {
+              "text": "You throw yourself forward, and the herd swallows the horse you wanted. The gap only grows.",
+              "id": "hunt.stalk.rush_in.1.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": [
+              "mammoth_calf",
+              "rhino_calf"
+            ]
+          },
+          "success": [
+            {
+              "text": "You break from cover and close fast. The calf has no time to reach the large body that guards it.",
+              "id": "hunt.stalk.rush_in.2.success.a"
+            },
+            {
+              "text": "You throw yourself in before the guardian can stand between you. The calf is suddenly close.",
+              "id": "hunt.stalk.rush_in.2.success.b"
+            },
+            {
+              "text": "The rush carries you onto the calf. For a breath, the larger shadow is still too far to help.",
+              "id": "hunt.stalk.rush_in.2.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You break from cover, and the guardian is already there. The rush dies against a wall of hide and fury.",
+              "id": "hunt.stalk.rush_in.2.fail.a"
+            },
+            {
+              "text": "The calf calls, and something huge answers. Your rush has nowhere left to go.",
+              "id": "hunt.stalk.rush_in.2.fail.b"
+            },
+            {
+              "text": "You throw yourself forward, and the large body is faster to the calf than you are. The approach is finished.",
+              "id": "hunt.stalk.rush_in.2.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You break from cover and close fast. The prey has no time to make the leap it wanted.",
+              "id": "hunt.stalk.rush_in.3.success.a"
+            },
+            {
+              "text": "You throw yourself at it before doubt can speak. You arrive while it is still gathering to run.",
+              "id": "hunt.stalk.rush_in.3.success.b"
+            },
+            {
+              "text": "The rush carries you in. The prey shies too late, and you are already there.",
+              "id": "hunt.stalk.rush_in.3.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You break from cover too soon. The prey is already running, and the gap only grows.",
+              "id": "hunt.stalk.rush_in.3.fail.a"
+            },
+            {
+              "text": "You throw yourself forward, and the prey is faster than your hunger. It leaves you in the grass.",
+              "id": "hunt.stalk.rush_in.3.fail.b"
+            },
+            {
+              "text": "The rush is loud. The prey has all the warning it needs, and it uses it.",
+              "id": "hunt.stalk.rush_in.3.fail.c"
+            }
+          ]
+        }
+      ],
+      "freeze": [
+        {
+          "when": {
+            "prey": "deer"
+          },
+          "held": [
+            {
+              "text": "You go still as stone. The skittish deer feeds on, unworried, and the next approach will be closer.",
+              "id": "hunt.stalk.freeze.0.held.a"
+            },
+            {
+              "text": "You stop even your breath. The deer's ears soften again, and it does not drift.",
+              "id": "hunt.stalk.freeze.0.held.b"
+            },
+            {
+              "text": "The world holds. The deer lowers its head, and you are still inside the quiet.",
+              "id": "hunt.stalk.freeze.0.held.c"
+            }
+          ],
+          "drift": [
+            {
+              "text": "You wait, and the deer grows uneasy in the stillness. It drifts, step by careful step, out of reach, and is gone.",
+              "id": "hunt.stalk.freeze.0.drift.a"
+            },
+            {
+              "text": "The deer's head comes up and does not go down again. It eases away, and the hunt ends without a chase.",
+              "id": "hunt.stalk.freeze.0.drift.b"
+            },
+            {
+              "text": "A twitch, a step, another. The deer talks itself out of this place, and you are left watching empty grass.",
+              "id": "hunt.stalk.freeze.0.drift.c"
+            }
+          ]
+        },
+        {
+          "held": [
+            {
+              "text": "You go still as stone. The prey feeds on, unworried, and the next approach will be closer.",
+              "id": "hunt.stalk.freeze.1.held.a"
+            },
+            {
+              "text": "You stop even your breath. Ears soften again, and the prey does not drift.",
+              "id": "hunt.stalk.freeze.1.held.b"
+            },
+            {
+              "text": "The world holds. The prey lowers its head, and you are still inside the moment.",
+              "id": "hunt.stalk.freeze.1.held.c"
+            }
+          ],
+          "drift": [
+            {
+              "text": "You wait, and the prey grows uneasy in the stillness. It drifts, step by careful step, out of reach, and is gone.",
+              "id": "hunt.stalk.freeze.1.drift.a"
+            },
+            {
+              "text": "The head comes up and does not go down again. The prey eases away, and the hunt ends without a chase.",
+              "id": "hunt.stalk.freeze.1.drift.b"
+            },
+            {
+              "text": "A twitch, a step, another. The prey talks itself out of this place, and you are left watching empty grass.",
+              "id": "hunt.stalk.freeze.1.drift.c"
+            }
+          ]
+        }
+      ]
+    },
+    "chase": {
+      "run_it_down": [
+        {
+          "when": {
+            "prey": "horse"
+          },
+          "success": [
+            {
+              "text": "You settle into the run and keep the chosen horse in your eye. The herd streams away, and the marked horse does not get clear.",
+              "id": "hunt.chase.run_it_down.0.success.a"
+            },
+            {
+              "text": "Pace for pace you stay with it. The horse begins to labour, and the rest of the herd is no help now.",
+              "id": "hunt.chase.run_it_down.0.success.b"
+            },
+            {
+              "text": "You run it down as a hunter should: not in a burst, but in the long, ugly work of not letting go.",
+              "id": "hunt.chase.run_it_down.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You run, and the herd runs better. The horse you wanted is taken back into the mass of bodies and is gone.",
+              "id": "hunt.chase.run_it_down.0.fail.a"
+            },
+            {
+              "text": "The pace is theirs. Your heavy body is not built for this long work, and the horses pull away.",
+              "id": "hunt.chase.run_it_down.0.fail.b"
+            },
+            {
+              "text": "You settle into the run, and it is not enough. The herd goes on without you.",
+              "id": "hunt.chase.run_it_down.0.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": "deer"
+          },
+          "success": [
+            {
+              "text": "You settle into the run and keep the deer in your eye. It begins to labour, and you do not let the gap grow.",
+              "id": "hunt.chase.run_it_down.1.success.a"
+            },
+            {
+              "text": "Pace for pace you stay with it. The deer's leaps grow shorter, and you are still there.",
+              "id": "hunt.chase.run_it_down.1.success.b"
+            },
+            {
+              "text": "You run it down as a hunter should: not in a burst, but in the long, ugly work of not letting go.",
+              "id": "hunt.chase.run_it_down.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You run, and the deer runs better. The leaps get longer, and the gap only grows.",
+              "id": "hunt.chase.run_it_down.1.fail.a"
+            },
+            {
+              "text": "The pace is the deer's. Your heavy body is not built for this long work, and it pulls away.",
+              "id": "hunt.chase.run_it_down.1.fail.b"
+            },
+            {
+              "text": "You settle into the run, and it is not enough. The white underside of a tail is the last you see.",
+              "id": "hunt.chase.run_it_down.1.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You settle into the run and keep the prey in your eye. It begins to labour, and you do not let the gap grow.",
+              "id": "hunt.chase.run_it_down.2.success.a"
+            },
+            {
+              "text": "Pace for pace you stay with it. The flight grows shorter, and you are still there.",
+              "id": "hunt.chase.run_it_down.2.success.b"
+            },
+            {
+              "text": "You run it down as a hunter should: not in a burst, but in the long, ugly work of not letting go.",
+              "id": "hunt.chase.run_it_down.2.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You run, and the prey runs better. The gap only grows.",
+              "id": "hunt.chase.run_it_down.2.fail.a"
+            },
+            {
+              "text": "The pace is theirs. Your heavy body is not built for this long work, and it pulls away.",
+              "id": "hunt.chase.run_it_down.2.fail.b"
+            },
+            {
+              "text": "You settle into the run, and it is not enough. The prey goes on without you.",
+              "id": "hunt.chase.run_it_down.2.fail.c"
+            }
+          ]
+        }
+      ],
+      "sprint": [
+        {
+          "when": {
+            "prey": "horse"
+          },
+          "success": [
+            {
+              "text": "You spend yourself in a hard burst and close before the herd can take the horse back.",
+              "id": "hunt.chase.sprint.0.success.a"
+            },
+            {
+              "text": "The land tears by. You catch the chosen horse in a few great bounds and do not let it reach the others.",
+              "id": "hunt.chase.sprint.0.success.b"
+            },
+            {
+              "text": "You throw your speed at it and arrive. The herd is still gathering itself as you hit.",
+              "id": "hunt.chase.sprint.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You spend yourself in a hard burst, and the herd is already gone. There is nothing at the end of the run but empty wind.",
+              "id": "hunt.chase.sprint.0.fail.a"
+            },
+            {
+              "text": "The land tears by, and the horses tear by faster. Your burst dies, and they do not.",
+              "id": "hunt.chase.sprint.0.fail.b"
+            },
+            {
+              "text": "You throw your speed at it and miss the moment. The herd rolls on, and you are spent.",
+              "id": "hunt.chase.sprint.0.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You spend yourself in a hard burst and close before the prey can lengthen its stride.",
+              "id": "hunt.chase.sprint.1.success.a"
+            },
+            {
+              "text": "The land tears by. You catch it in a few great bounds and do not let the gap open again.",
+              "id": "hunt.chase.sprint.1.success.b"
+            },
+            {
+              "text": "You throw your speed at it and arrive. The prey is still gathering itself as you hit.",
+              "id": "hunt.chase.sprint.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You spend yourself in a hard burst, and the prey is already gone. There is nothing at the end of the run but empty wind.",
+              "id": "hunt.chase.sprint.1.fail.a"
+            },
+            {
+              "text": "The land tears by, and the prey tears by faster. Your burst dies, and it does not.",
+              "id": "hunt.chase.sprint.1.fail.b"
+            },
+            {
+              "text": "You throw your speed at it and miss the moment. The prey goes on, and you are spent.",
+              "id": "hunt.chase.sprint.1.fail.c"
+            }
+          ]
+        }
+      ],
+      "cut_it_off": [
+        {
+          "when": {
+            "partner": true,
+            "prey": "horse"
+          },
+          "success": [
+            {
+              "text": "You and {name} come from opposite sides of the herd. A horse breaks the wrong way and finds no gap left.",
+              "id": "hunt.chase.cut_it_off.0.success.a"
+            },
+            {
+              "text": "The herd splits around you and {name}. The horse you wanted has nowhere left to run.",
+              "id": "hunt.chase.cut_it_off.0.success.b"
+            },
+            {
+              "text": "You take a line, {name} takes the other. The horse meets a wall of cats instead of open grass.",
+              "id": "hunt.chase.cut_it_off.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You and {name} come from opposite sides, and the herd pours through the space you meant to close.",
+              "id": "hunt.chase.cut_it_off.0.fail.a"
+            },
+            {
+              "text": "The cut is late. The horses find a gap between you and {name} and are gone through it.",
+              "id": "hunt.chase.cut_it_off.0.fail.b"
+            },
+            {
+              "text": "You and {name} try to close the way. The herd is wider than your planning, and it breaks past.",
+              "id": "hunt.chase.cut_it_off.0.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "partner": true
+          },
+          "success": [
+            {
+              "text": "You and {name} come from opposite sides. The prey breaks the wrong way and finds no gap left.",
+              "id": "hunt.chase.cut_it_off.1.success.a"
+            },
+            {
+              "text": "The flight splits around you and {name}. The prey you wanted has nowhere left to run.",
+              "id": "hunt.chase.cut_it_off.1.success.b"
+            },
+            {
+              "text": "You take a line, {name} takes the other. The prey meets a wall of cats instead of open grass.",
+              "id": "hunt.chase.cut_it_off.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You and {name} come from opposite sides, and the prey pours through the space you meant to close.",
+              "id": "hunt.chase.cut_it_off.1.fail.a"
+            },
+            {
+              "text": "The cut is late. The prey finds a gap between you and {name} and is gone through it.",
+              "id": "hunt.chase.cut_it_off.1.fail.b"
+            },
+            {
+              "text": "You and {name} try to close the way. The flight is wider than your planning, and it breaks past.",
+              "id": "hunt.chase.cut_it_off.1.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": "horse"
+          },
+          "success": [
+            {
+              "text": "You swing wide and come out ahead of the herd. A horse finds you already standing in the way it wanted.",
+              "id": "hunt.chase.cut_it_off.2.success.a"
+            },
+            {
+              "text": "You cut the line of the run and make the horse meet you instead of the open grass.",
+              "id": "hunt.chase.cut_it_off.2.success.b"
+            },
+            {
+              "text": "The herd streams aside. You are already in the path, and the horse you marked has no way left.",
+              "id": "hunt.chase.cut_it_off.2.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You swing wide, and the herd swings wider. The way you meant to close is already empty.",
+              "id": "hunt.chase.cut_it_off.2.fail.a"
+            },
+            {
+              "text": "You try to cut the line of the run, and the horses are not there when you arrive.",
+              "id": "hunt.chase.cut_it_off.2.fail.b"
+            },
+            {
+              "text": "You come out ahead of nothing. The herd has chosen another path, and it is already gone.",
+              "id": "hunt.chase.cut_it_off.2.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You swing wide and come out ahead. The prey finds you already standing in the way it wanted.",
+              "id": "hunt.chase.cut_it_off.3.success.a"
+            },
+            {
+              "text": "You cut the line of the run and make the prey meet you instead of the open grass.",
+              "id": "hunt.chase.cut_it_off.3.success.b"
+            },
+            {
+              "text": "The flight streams aside. You are already in the path, and there is no way left.",
+              "id": "hunt.chase.cut_it_off.3.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You swing wide, and the prey swings wider. The way you meant to close is already empty.",
+              "id": "hunt.chase.cut_it_off.3.fail.a"
+            },
+            {
+              "text": "You try to cut the line of the run, and the prey is not there when you arrive.",
+              "id": "hunt.chase.cut_it_off.3.fail.b"
+            },
+            {
+              "text": "You come out ahead of nothing. The prey has chosen another path, and it is already gone.",
+              "id": "hunt.chase.cut_it_off.3.fail.c"
+            }
+          ]
+        }
+      ]
+    },
+    "kill": {
+      "throat_bite": [
+        {
+          "when": {
+            "prey": [
+              "mammoth_calf",
+              "rhino_calf"
+            ]
+          },
+          "success": [
+            {
+              "text": "You get your jaws on the throat and hang on. The calf goes down, and the struggle ends in the grass.",
+              "id": "hunt.kill.throat_bite.0.success.a"
+            },
+            {
+              "text": "The throat is there. You take it and do not let go, even as the large body nearby starts to understand.",
+              "id": "hunt.kill.throat_bite.0.success.b"
+            },
+            {
+              "text": "Your sabers find the place they were made for. The calf's weight sags, and the hunt is over.",
+              "id": "hunt.kill.throat_bite.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You lunge for the throat and miss it. The calf wrenches free, and the guardian is no longer a far-off thing.",
+              "id": "hunt.kill.throat_bite.0.fail.a"
+            },
+            {
+              "text": "The throat slips your teeth. Hide and panic are all you get, and then the calf is out from under you.",
+              "id": "hunt.kill.throat_bite.0.fail.b"
+            },
+            {
+              "text": "You go for the kill and do not get it. The calf heaves up, and you are thrown into the path of whatever watches it.",
+              "id": "hunt.kill.throat_bite.0.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You get your jaws on the throat and hang on. The prey goes down, and the struggle ends in the grass.",
+              "id": "hunt.kill.throat_bite.1.success.a"
+            },
+            {
+              "text": "The throat is there. You take it and do not let go until the body stills.",
+              "id": "hunt.kill.throat_bite.1.success.b"
+            },
+            {
+              "text": "Your sabers find the place they were made for. The weight sags, and the hunt is over.",
+              "id": "hunt.kill.throat_bite.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You lunge for the throat and miss it. The prey wrenches free and is already running.",
+              "id": "hunt.kill.throat_bite.1.fail.a"
+            },
+            {
+              "text": "The throat slips your teeth. Hide and panic are all you get, and then the prey is out from under you.",
+              "id": "hunt.kill.throat_bite.1.fail.b"
+            },
+            {
+              "text": "You go for the kill and do not get it. The body heaves up, and you are left with a mouthful of fur.",
+              "id": "hunt.kill.throat_bite.1.fail.c"
+            }
+          ]
+        }
+      ],
+      "drag_down": [
+        {
+          "when": {
+            "prey": [
+              "mammoth_calf",
+              "rhino_calf"
+            ]
+          },
+          "success": [
+            {
+              "text": "You hook on and drag, using all your weight. The calf's legs go, and it comes down hard.",
+              "id": "hunt.kill.drag_down.0.success.a"
+            },
+            {
+              "text": "You hang on through every heave and twist until the calf's knees buckle and the ground takes it.",
+              "id": "hunt.kill.drag_down.0.success.b"
+            },
+            {
+              "text": "The drag is ugly and sure. The calf loses its feet, and you keep it there until it stills.",
+              "id": "hunt.kill.drag_down.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You hook on, and the calf is simply too much. It throws you off and makes for the guardian.",
+              "id": "hunt.kill.drag_down.0.fail.a"
+            },
+            {
+              "text": "You drag and are dragged. The calf keeps its feet, and you cannot make the ground take it.",
+              "id": "hunt.kill.drag_down.0.fail.b"
+            },
+            {
+              "text": "The hold breaks. The calf staggers up and away, and the large body beside it has noticed you.",
+              "id": "hunt.kill.drag_down.0.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You hook on and drag, using all your weight. The legs go, and the prey comes down hard.",
+              "id": "hunt.kill.drag_down.1.success.a"
+            },
+            {
+              "text": "You hang on through every heave and twist until the knees buckle and the ground takes it.",
+              "id": "hunt.kill.drag_down.1.success.b"
+            },
+            {
+              "text": "The drag is ugly and sure. The prey loses its feet, and you keep it there until it stills.",
+              "id": "hunt.kill.drag_down.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You hook on, and the prey is simply too much. It throws you off and keeps running.",
+              "id": "hunt.kill.drag_down.1.fail.a"
+            },
+            {
+              "text": "You drag and are dragged. The prey keeps its feet, and you cannot make the ground take it.",
+              "id": "hunt.kill.drag_down.1.fail.b"
+            },
+            {
+              "text": "The hold breaks. The prey staggers up and away, and you are left sprawled in its wake.",
+              "id": "hunt.kill.drag_down.1.fail.c"
+            }
+          ]
+        }
+      ],
+      "hamstring": [
+        {
+          "when": {
+            "prey": "mammoth_calf"
+          },
+          "success": [
+            {
+              "text": "You catch a hind leg and drag. The calf stumbles, and the throat is suddenly a nearer thing.",
+              "id": "hunt.kill.hamstring.0.success.a"
+            },
+            {
+              "text": "Your jaws find the great tendon behind a knee. The calf's hind end drops, and it cannot run.",
+              "id": "hunt.kill.hamstring.0.success.b"
+            },
+            {
+              "text": "You cut the leg out from under it. The calf founders, and the rest of the kill becomes possible.",
+              "id": "hunt.kill.hamstring.0.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You snap at a hind leg and miss. The calf kicks back and keeps its feet, and the cow's shadow is closer than before.",
+              "id": "hunt.kill.hamstring.0.fail.a"
+            },
+            {
+              "text": "The leg is not where your mouth expected. You get a raking kick instead, and the calf stays up.",
+              "id": "hunt.kill.hamstring.0.fail.b"
+            },
+            {
+              "text": "You go for the hamstring and come away with nothing. The calf is still standing, and it is not alone.",
+              "id": "hunt.kill.hamstring.0.fail.c"
+            }
+          ]
+        },
+        {
+          "when": {
+            "prey": "rhino_calf"
+          },
+          "success": [
+            {
+              "text": "You catch a hind leg and drag. The calf stumbles, and the throat is suddenly a nearer thing.",
+              "id": "hunt.kill.hamstring.1.success.a"
+            },
+            {
+              "text": "Your jaws find the tendon behind a knee. The calf's hind end drops, and it cannot run.",
+              "id": "hunt.kill.hamstring.1.success.b"
+            },
+            {
+              "text": "You cut the leg out from under it. The calf founders, and the rest of the kill becomes possible.",
+              "id": "hunt.kill.hamstring.1.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You snap at a hind leg and miss. The calf kicks back and keeps its feet, and the cow's shadow is closer than before.",
+              "id": "hunt.kill.hamstring.1.fail.a"
+            },
+            {
+              "text": "The leg is not where your mouth expected. You get a raking kick instead, and the calf stays up.",
+              "id": "hunt.kill.hamstring.1.fail.b"
+            },
+            {
+              "text": "You go for the hamstring and come away with nothing. The calf is still standing, and it is not alone.",
+              "id": "hunt.kill.hamstring.1.fail.c"
+            }
+          ]
+        },
+        {
+          "success": [
+            {
+              "text": "You catch a hind leg and drag. The large body stumbles, and the throat is suddenly a nearer thing.",
+              "id": "hunt.kill.hamstring.2.success.a"
+            },
+            {
+              "text": "Your jaws find the tendon behind a knee. The hind end drops, and it cannot run.",
+              "id": "hunt.kill.hamstring.2.success.b"
+            },
+            {
+              "text": "You cut the leg out from under it. The prey founders, and the rest of the kill becomes possible.",
+              "id": "hunt.kill.hamstring.2.success.c"
+            }
+          ],
+          "fail": [
+            {
+              "text": "You snap at a hind leg and miss. The kick comes back, and the large body keeps its feet.",
+              "id": "hunt.kill.hamstring.2.fail.a"
+            },
+            {
+              "text": "The leg is not where your mouth expected. You get a raking kick instead, and the prey stays up.",
+              "id": "hunt.kill.hamstring.2.fail.b"
+            },
+            {
+              "text": "You go for the hamstring and come away with nothing. The prey is still standing.",
+              "id": "hunt.kill.hamstring.2.fail.c"
+            }
+          ]
+        }
+      ]
+    },
+    "second_lunge": [
+      {
+        "lines": [
+          {
+            "text": "The try is gone, and you are not done. You gather yourself and go again.",
+            "id": "hunt.second_lunge.0.lines.a"
+          },
+          {
+            "text": "You had it, and then you did not. You set your paws and take the hunt up again.",
+            "id": "hunt.second_lunge.0.lines.b"
+          },
+          {
+            "text": "Failure sits in the grass beside you. You ignore it and go in again.",
+            "id": "hunt.second_lunge.0.lines.c"
+          }
+        ]
+      }
+    ]
+  },
+  "prey_reactions": {
+    "fawn": [
+      {
+        "when": {
+          "phase": "stalk",
+          "result": "success"
+        },
+        "lines": [
+          {
+            "text": "The fawn stays folded in its bed, ears soft, trusting the grass to hide it.",
+            "id": "prey_reactions.fawn.0.lines.a"
+          },
+          {
+            "text": "A small hoof twitches and stills. The fawn has not yet decided to be afraid.",
+            "id": "prey_reactions.fawn.0.lines.b"
+          },
+          {
+            "text": "The fawn's breath is a tiny cloud. It does not know the cloud has been counted.",
+            "id": "prey_reactions.fawn.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "phase": "stalk",
+          "result": "fail"
+        },
+        "lines": [
+          {
+            "text": "The fawn bursts from the bed as if the ground itself had bitten it, and is gone.",
+            "id": "prey_reactions.fawn.1.lines.a"
+          },
+          {
+            "text": "A flash of pale spots, and the hiding place is empty.",
+            "id": "prey_reactions.fawn.1.lines.b"
+          },
+          {
+            "text": "The fawn chooses the brush over courage, and the brush takes it.",
+            "id": "prey_reactions.fawn.1.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "result": "drift"
+        },
+        "lines": [
+          {
+            "text": "The fawn grows uneasy in the quiet and eases away, step by small step, until the bed is empty.",
+            "id": "prey_reactions.fawn.2.lines.a"
+          },
+          {
+            "text": "Stillness itself spooks it. The fawn drifts, and there is no hunt left to have.",
+            "id": "prey_reactions.fawn.2.lines.b"
+          },
+          {
+            "text": "The fawn loses its nerve without ever seeing you, and the grass closes over the place it was.",
+            "id": "prey_reactions.fawn.2.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "The fawn is all eyes and thin legs, a small life trying to be less visible than the grass.",
+            "id": "prey_reactions.fawn.3.lines.a"
+          },
+          {
+            "text": "It holds very still, as the young of hunted things have always held still.",
+            "id": "prey_reactions.fawn.3.lines.b"
+          },
+          {
+            "text": "The fawn's scent is milk and crushed stems, and it is already almost not there.",
+            "id": "prey_reactions.fawn.3.lines.c"
+          }
+        ]
+      }
+    ],
+    "deer": [
+      {
+        "when": {
+          "result": "drift"
+        },
+        "lines": [
+          {
+            "text": "The deer is too easily worried. The stillness unnerves it, and it talks itself out of the clearing.",
+            "id": "prey_reactions.deer.0.lines.a"
+          },
+          {
+            "text": "An ear, then a step, then the whole body deciding this place is wrong. The deer drifts and is gone.",
+            "id": "prey_reactions.deer.0.lines.b"
+          },
+          {
+            "text": "Skittish to the last. The deer leaves without a chase, and the hunt ends in quiet.",
+            "id": "prey_reactions.deer.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "phase": "stalk",
+          "result": "fail"
+        },
+        "lines": [
+          {
+            "text": "The deer's head comes up like a snapped twig. In the next breath it is only a sound in the brush.",
+            "id": "prey_reactions.deer.1.lines.a"
+          },
+          {
+            "text": "Every ear in the clearing is suddenly yours to regret. The deer is already leaving.",
+            "id": "prey_reactions.deer.1.lines.b"
+          },
+          {
+            "text": "The deer does not wait to be sure of you. Sure is for slower deaths.",
+            "id": "prey_reactions.deer.1.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "phase": "chase"
+        },
+        "lines": [
+          {
+            "text": "The deer runs in great bounding arcs, white underside flashing, trying to make the land itself get in your way.",
+            "id": "prey_reactions.deer.2.lines.a"
+          },
+          {
+            "text": "It jinks and leaps, looking for a thicket, a bank, anything that is not your mouth.",
+            "id": "prey_reactions.deer.2.lines.b"
+          },
+          {
+            "text": "The deer spends itself on flight the way you spend yourself on hunger. In the end, only the hunter or the flight remains.",
+            "id": "prey_reactions.deer.2.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "The deer is all nerves and long legs, built to leave and not to stay.",
+            "id": "prey_reactions.deer.3.lines.a"
+          },
+          {
+            "text": "Its ears never quite rest. In the Vale, that is not a foolish habit.",
+            "id": "prey_reactions.deer.3.lines.b"
+          },
+          {
+            "text": "The deer's scent is warm grass and fear, even when it has not yet seen you.",
+            "id": "prey_reactions.deer.3.lines.c"
+          }
+        ]
+      }
+    ],
+    "horse": [
+      {
+        "when": {
+          "phase": "chase",
+          "result": "fail"
+        },
+        "lines": [
+          {
+            "text": "The herd gathers its run and goes, a rolling wall of backs, and the land shakes under it.",
+            "id": "prey_reactions.horse.0.lines.a"
+          },
+          {
+            "text": "They leave together. A horse alone is prey; a herd is a river, and the river has gone.",
+            "id": "prey_reactions.horse.0.lines.b"
+          },
+          {
+            "text": "Dust and muscled shoulders, and then only the smell of them on the wind.",
+            "id": "prey_reactions.horse.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "phase": "chase",
+          "result": "success"
+        },
+        "lines": [
+          {
+            "text": "The herd peels away and leaves the marked horse behind, still labouring in your path.",
+            "id": "prey_reactions.horse.1.lines.a"
+          },
+          {
+            "text": "Bodies stream left and right. The horse you wanted finds itself suddenly without company.",
+            "id": "prey_reactions.horse.1.lines.b"
+          },
+          {
+            "text": "The run of the herd becomes a gift: it takes everyone else, and leaves you this work.",
+            "id": "prey_reactions.horse.1.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "phase": "chase"
+        },
+        "lines": [
+          {
+            "text": "The herd wants only to stay together. Any horse that loses the mass is already in trouble.",
+            "id": "prey_reactions.horse.2.lines.a"
+          },
+          {
+            "text": "They run as if the ground were tilting, each body trying to be the middle of the group.",
+            "id": "prey_reactions.horse.2.lines.b"
+          },
+          {
+            "text": "Hooves, dust, the hard sound of a herd that has decided to be elsewhere.",
+            "id": "prey_reactions.horse.2.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "The horses are a moving weather of their own, safer in a mass than any of them is alone.",
+            "id": "prey_reactions.horse.3.lines.a"
+          },
+          {
+            "text": "A horse's eye is set on the side of its head for a reason. It has been watching for you since before you were born.",
+            "id": "prey_reactions.horse.3.lines.b"
+          },
+          {
+            "text": "Warm grass-musk and the stomp of hooves: a herd, not a lone life, and that is the whole problem.",
+            "id": "prey_reactions.horse.3.lines.c"
+          }
+        ]
+      }
+    ],
+    "mammoth_calf": [
+      {
+        "when": {
+          "phase": "kill"
+        },
+        "lines": [
+          {
+            "text": "A shadow falls across the calf. The cow is closer than the wind had told you.",
+            "id": "prey_reactions.mammoth_calf.0.lines.a"
+          },
+          {
+            "text": "The calf's cry brings an answer that shakes the grass. The guardian has arrived in the moment of the kill.",
+            "id": "prey_reactions.mammoth_calf.0.lines.b"
+          },
+          {
+            "text": "Hide, hair, a trunk swinging through the space you wanted. The calf is not the only animal in this fight.",
+            "id": "prey_reactions.mammoth_calf.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "injury": "minor"
+        },
+        "lines": [
+          {
+            "text": "The cow's trunk or a heavy foot finds you a glancing blow. Pain, bright and short. The calf is still the work.",
+            "id": "prey_reactions.mammoth_calf.1.lines.a"
+          },
+          {
+            "text": "You are knocked aside, not down. The guardian has noticed you, and you have been lucky in the noticing.",
+            "id": "prey_reactions.mammoth_calf.1.lines.b"
+          },
+          {
+            "text": "A brush of that huge body is still a blow. You keep your feet, and you keep your eye on the calf.",
+            "id": "prey_reactions.mammoth_calf.1.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "injury": "serious"
+        },
+        "lines": [
+          {
+            "text": "The cow comes in with all of its weight. The world goes white at the edges, and the calf is suddenly very far away.",
+            "id": "prey_reactions.mammoth_calf.2.lines.a"
+          },
+          {
+            "text": "A trunk or a foot lands true. You cannot breathe for a moment, and the hunt has become something else.",
+            "id": "prey_reactions.mammoth_calf.2.lines.b"
+          },
+          {
+            "text": "The guardian does not miss by much, and much is still enough. You go down, and getting up is the next problem.",
+            "id": "prey_reactions.mammoth_calf.2.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "injury": "crippling"
+        },
+        "lines": [
+          {
+            "text": "The cow puts you on the ground and means to keep you there. Something in you gives, and the calf is no longer the question.",
+            "id": "prey_reactions.mammoth_calf.3.lines.a"
+          },
+          {
+            "text": "The guardian's blow lands where a hunter cannot afford a blow to land. The world narrows to pain and the need to leave, if leaving is still possible.",
+            "id": "prey_reactions.mammoth_calf.3.lines.b"
+          },
+          {
+            "text": "Hide and fury. You are under it, and the land does not promise you a later.",
+            "id": "prey_reactions.mammoth_calf.3.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "The calf is large for its age and still not the danger. The danger is whatever loves it.",
+            "id": "prey_reactions.mammoth_calf.4.lines.a"
+          },
+          {
+            "text": "A young mammoth is a walking meal, and also a walking invitation to be killed.",
+            "id": "prey_reactions.mammoth_calf.4.lines.b"
+          },
+          {
+            "text": "The air smells of milk, dust, and a much older temper standing not far off.",
+            "id": "prey_reactions.mammoth_calf.4.lines.c"
+          }
+        ]
+      }
+    ],
+    "rhino_calf": [
+      {
+        "when": {
+          "phase": "kill"
+        },
+        "lines": [
+          {
+            "text": "A shadow falls across the calf. The cow is closer than the wind had told you.",
+            "id": "prey_reactions.rhino_calf.0.lines.a"
+          },
+          {
+            "text": "The calf's cry brings an answer that shakes the grass. The guardian has arrived in the moment of the kill.",
+            "id": "prey_reactions.rhino_calf.0.lines.b"
+          },
+          {
+            "text": "A horn cuts the air you meant to occupy. The calf is not the only animal in this fight.",
+            "id": "prey_reactions.rhino_calf.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "injury": "minor"
+        },
+        "lines": [
+          {
+            "text": "The cow's shoulder or a hooking horn finds you a glancing blow. Pain, bright and short. The calf is still the work.",
+            "id": "prey_reactions.rhino_calf.1.lines.a"
+          },
+          {
+            "text": "You are knocked aside, not down. The guardian has noticed you, and you have been lucky in the noticing.",
+            "id": "prey_reactions.rhino_calf.1.lines.b"
+          },
+          {
+            "text": "A brush of that huge body is still a blow. You keep your feet, and you keep your eye on the calf.",
+            "id": "prey_reactions.rhino_calf.1.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "injury": "serious"
+        },
+        "lines": [
+          {
+            "text": "The cow comes in with all of its weight. The world goes white at the edges, and the calf is suddenly very far away.",
+            "id": "prey_reactions.rhino_calf.2.lines.a"
+          },
+          {
+            "text": "A horn or a shoulder lands true. You cannot breathe for a moment, and the hunt has become something else.",
+            "id": "prey_reactions.rhino_calf.2.lines.b"
+          },
+          {
+            "text": "The guardian does not miss by much, and much is still enough. You go down, and getting up is the next problem.",
+            "id": "prey_reactions.rhino_calf.2.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "injury": "crippling"
+        },
+        "lines": [
+          {
+            "text": "The cow puts you on the ground and means to keep you there. Something in you gives, and the calf is no longer the question.",
+            "id": "prey_reactions.rhino_calf.3.lines.a"
+          },
+          {
+            "text": "The guardian's blow lands where a hunter cannot afford a blow to land. The world narrows to pain and the need to leave, if leaving is still possible.",
+            "id": "prey_reactions.rhino_calf.3.lines.b"
+          },
+          {
+            "text": "Horn and fury. You are under it, and the land does not promise you a later.",
+            "id": "prey_reactions.rhino_calf.3.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "The calf is already a serious weight, and still not the danger. The danger is whatever loves it.",
+            "id": "prey_reactions.rhino_calf.4.lines.a"
+          },
+          {
+            "text": "A young rhino is a walking meal, and also a walking invitation to be killed.",
+            "id": "prey_reactions.rhino_calf.4.lines.b"
+          },
+          {
+            "text": "The air smells of dust, milk, and a much older temper standing not far off.",
+            "id": "prey_reactions.rhino_calf.4.lines.c"
+          }
+        ]
+      }
+    ]
+  },
+  "courtship": {
+    "groom": [
+      {
+        "when": {
+          "trait": "sociability",
+          "band": "high",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} leans into your grooming, a low sound in the throat. This is welcome.",
+            "id": "courtship.groom.0.lines.a"
+          },
+          {
+            "text": "{name} softens under the grooming, eyes nearly shut, and does not pull away.",
+            "id": "courtship.groom.0.lines.b"
+          },
+          {
+            "text": "Your tongue finds the places behind the ears, and {name} melts into the work as if it were owed.",
+            "id": "courtship.groom.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "trait": "sociability",
+          "band": "low",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} stiffens and steps out from under your mouth. Company was not wanted.",
+            "id": "courtship.groom.1.lines.a"
+          },
+          {
+            "text": "The grooming is received like weather {name} did not ask for. A shoulder turns away.",
+            "id": "courtship.groom.1.lines.b"
+          },
+          {
+            "text": "{name} endures a few strokes and then puts space between you, eyes already elsewhere.",
+            "id": "courtship.groom.1.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "You groom along the shoulder, and {name} allows it, neither leaning in nor stepping off.",
+            "id": "courtship.groom.2.lines.a"
+          },
+          {
+            "text": "{name} stands for the work, polite and unmoved, and the air between you does not change.",
+            "id": "courtship.groom.2.lines.b"
+          },
+          {
+            "text": "Your tongue travels a familiar path. {name} accepts it as a cat accepts a still day.",
+            "id": "courtship.groom.2.lines.c"
+          }
+        ]
+      }
+    ],
+    "show_off": [
+      {
+        "when": {
+          "trait": "boldness",
+          "band": "high",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} watches your display with bright, pleased eyes. This is a language {name} speaks.",
+            "id": "courtship.show_off.0.lines.a"
+          },
+          {
+            "text": "You make yourself large, and {name} is not ashamed to be impressed.",
+            "id": "courtship.show_off.0.lines.b"
+          },
+          {
+            "text": "The show lands. {name} answers it with a little display in return, delighted.",
+            "id": "courtship.show_off.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "trait": "boldness",
+          "band": "low",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} watches your display and looks, if anything, tired. The noise was not needed.",
+            "id": "courtship.show_off.1.lines.a"
+          },
+          {
+            "text": "You make yourself large, and {name} steps back as if the air had grown cramped.",
+            "id": "courtship.show_off.1.lines.b"
+          },
+          {
+            "text": "The show lands badly. {name} glances away, unimpressed, and waits for you to be smaller again.",
+            "id": "courtship.show_off.1.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "You make yourself large, and {name} watches with a steady, unreadable face.",
+            "id": "courtship.show_off.2.lines.a"
+          },
+          {
+            "text": "The display is seen. It is not refused, and it is not welcomed, and that is the whole of it.",
+            "id": "courtship.show_off.2.lines.b"
+          },
+          {
+            "text": "{name} lets you finish the show and then goes back to being {name}, unchanged.",
+            "id": "courtship.show_off.2.lines.c"
+          }
+        ]
+      }
+    ],
+    "playful": [
+      {
+        "when": {
+          "trait": "curiosity",
+          "band": "high",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} sparkles at the invitation and bats back, delighted to see what you will do next.",
+            "id": "courtship.playful.0.lines.a"
+          },
+          {
+            "text": "A cuff, a dodge, a bright look. {name} is in this with you, eager and pleased.",
+            "id": "courtship.playful.0.lines.b"
+          },
+          {
+            "text": "The play is an open door, and {name} comes through it at a run, wanting more.",
+            "id": "courtship.playful.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "trait": "curiosity",
+          "band": "low",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} stares at your invitation as if you had offered a stick. The play dies in the grass.",
+            "id": "courtship.playful.1.lines.a"
+          },
+          {
+            "text": "You cuff and dodge, and {name} only looks at you, unmoved, waiting for this to be over.",
+            "id": "courtship.playful.1.lines.b"
+          },
+          {
+            "text": "The play is not shared. {name} steps out of reach and stays there, uninterested.",
+            "id": "courtship.playful.1.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "You offer a cuff and a dodge. {name} answers mildly, and then the play settles.",
+            "id": "courtship.playful.2.lines.a"
+          },
+          {
+            "text": "{name} meets the invitation with a polite swipe and no more heat than that.",
+            "id": "courtship.playful.2.lines.b"
+          },
+          {
+            "text": "The play is allowed. It does not catch fire, and it does not go out in offence.",
+            "id": "courtship.playful.2.lines.c"
+          }
+        ]
+      }
+    ],
+    "gentle": [
+      {
+        "when": {
+          "trait": "aggression",
+          "band": "low",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} eases at your careful approach. The quiet was the right choice.",
+            "id": "courtship.gentle.0.lines.a"
+          },
+          {
+            "text": "You come in soft, and {name} softens with you, a small sound of thanks in the throat.",
+            "id": "courtship.gentle.0.lines.b"
+          },
+          {
+            "text": "The gentleness is met and matched. {name} stays close, unworried, and lets the moment be kind.",
+            "id": "courtship.gentle.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "trait": "aggression",
+          "band": "high",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} looks at your careful steps with something like scorn, and turns a shoulder.",
+            "id": "courtship.gentle.1.lines.a"
+          },
+          {
+            "text": "The softness does not impress. {name} wanted a sharper kind of attention, and this is not it.",
+            "id": "courtship.gentle.1.lines.b"
+          },
+          {
+            "text": "You come in gently, and {name} seems almost offended by the lack of teeth in it.",
+            "id": "courtship.gentle.1.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "You come in carefully. {name} accepts the softness without being changed by it.",
+            "id": "courtship.gentle.2.lines.a"
+          },
+          {
+            "text": "The gentle approach is noted, not refused, and not particularly prized.",
+            "id": "courtship.gentle.2.lines.b"
+          },
+          {
+            "text": "{name} lets you be careful, and is carefully unmoved.",
+            "id": "courtship.gentle.2.lines.c"
+          }
+        ]
+      }
+    ],
+    "bold": [
+      {
+        "when": {
+          "trait": "aggression",
+          "band": "high",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} meets your push with a bright, sharp interest. This is a language {name} speaks.",
+            "id": "courtship.bold.0.lines.a"
+          },
+          {
+            "text": "You come in hard, and {name} comes in harder, pleased, a spark jumping between you.",
+            "id": "courtship.bold.0.lines.b"
+          },
+          {
+            "text": "The boldness is welcome. {name} bares a little tooth in answer, delighted to be met that way.",
+            "id": "courtship.bold.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "trait": "aggression",
+          "band": "low",
+          "who": "target"
+        },
+        "lines": [
+          {
+            "text": "{name} flinches from the push and puts the air back between you. It was too much.",
+            "id": "courtship.bold.1.lines.a"
+          },
+          {
+            "text": "You come in hard, and {name} looks as if you had brought a fight to a quiet place.",
+            "id": "courtship.bold.1.lines.b"
+          },
+          {
+            "text": "The boldness is not welcome. {name} goes still and small, and the moment cools.",
+            "id": "courtship.bold.1.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "You come in hard. {name} holds the ground and does not give it, and does not give you more than that.",
+            "id": "courtship.bold.2.lines.a"
+          },
+          {
+            "text": "The push is met, not returned, not refused. {name} remains {name}.",
+            "id": "courtship.bold.2.lines.b"
+          },
+          {
+            "text": "Your boldness is seen. The air neither warms nor sours.",
+            "id": "courtship.bold.2.lines.c"
+          }
+        ]
+      }
+    ],
+    "gift_prey": [
+      {
+        "when": {
+          "perk": "gift"
+        },
+        "lines": [
+          {
+            "text": "You set down a generous share of what you caught. {name} comes to it with open pleasure, and the air between you warms.",
+            "id": "courtship.gift_prey.0.lines.a"
+          },
+          {
+            "text": "The gift is a real meal, not a scrap. {name} looks from the meat to you, and the look stays kind.",
+            "id": "courtship.gift_prey.0.lines.b"
+          },
+          {
+            "text": "You have brought enough and more. {name} eats, and something unguarded shows in the eating.",
+            "id": "courtship.gift_prey.0.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "You set down what you caught. {name} comes to it, pleased, and the air between you warms.",
+            "id": "courtship.gift_prey.1.lines.a"
+          },
+          {
+            "text": "The gift is taken. {name} eats, and the eating is a kind of answer.",
+            "id": "courtship.gift_prey.1.lines.b"
+          },
+          {
+            "text": "You have brought food, and {name} has not refused it. In the Vale, that is not a small thing.",
+            "id": "courtship.gift_prey.1.lines.c"
+          }
+        ]
+      }
+    ],
+    "back_off": [
+      {
+        "lines": [
+          {
+            "text": "You step back and let the moment go. {name} does not press you for it.",
+            "id": "courtship.back_off.0.lines.a"
+          },
+          {
+            "text": "The ask ends here, without a sting. You walk away while it is still easy.",
+            "id": "courtship.back_off.0.lines.b"
+          },
+          {
+            "text": "You leave the courtship on the ground where it is. {name} watches you go, and nothing is taken from either of you.",
+            "id": "courtship.back_off.0.lines.c"
+          }
+        ]
+      }
+    ],
+    "accept": [
+      {
+        "lines": [
+          {
+            "text": "{name} stays. The choice is made, and it is you.",
+            "id": "courtship.accept.0.lines.a"
+          },
+          {
+            "text": "{name} comes to your side and does not leave. That is an answer.",
+            "id": "courtship.accept.0.lines.b"
+          },
+          {
+            "text": "The air between you settles into something that will last the night, and perhaps the season. {name} has chosen.",
+            "id": "courtship.accept.0.lines.c"
+          }
+        ]
+      }
+    ],
+    "reject": [
+      {
+        "lines": [
+          {
+            "text": "{name} turns away. The answer is no, and it is clear.",
+            "id": "courtship.reject.0.lines.a"
+          },
+          {
+            "text": "{name} steps back and will not be courted, not now.",
+            "id": "courtship.reject.0.lines.b"
+          },
+          {
+            "text": "The moment closes. {name} is already looking elsewhere, and you are not what is being looked for.",
+            "id": "courtship.reject.0.lines.c"
+          }
+        ]
+      }
+    ],
+    "repeat": [
+      {
+        "when": {
+          "repeat": "half"
+        },
+        "lines": [
+          {
+            "text": "You try the same approach again. {name} notices, and the answer is thinner than it was.",
+            "id": "courtship.repeat.0.lines.a"
+          },
+          {
+            "text": "The move is familiar now. {name} gives it less than before, and the air only shifts a little.",
+            "id": "courtship.repeat.0.lines.b"
+          },
+          {
+            "text": "Again, and {name} has already seen this. What warmth there was comes back smaller.",
+            "id": "courtship.repeat.0.lines.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "repeat": "spent"
+        },
+        "lines": [
+          {
+            "text": "You try it again, and {name} has nothing left to give that approach. The air does not move.",
+            "id": "courtship.repeat.1.lines.a"
+          },
+          {
+            "text": "The same move, worn thin. {name} looks at you as if to ask whether you have anything else.",
+            "id": "courtship.repeat.1.lines.b"
+          },
+          {
+            "text": "Whatever that approach could do, it has already done. {name} waits, unmoved.",
+            "id": "courtship.repeat.1.lines.c"
+          }
+        ]
+      },
+      {
+        "lines": [
+          {
+            "text": "You do it again, and the moment does not grow. {name} has already met this version of you.",
+            "id": "courtship.repeat.2.lines.a"
+          },
+          {
+            "text": "The approach is a known path. {name} walks it without surprise, and without much feeling.",
+            "id": "courtship.repeat.2.lines.b"
+          },
+          {
+            "text": "Repetition settles over you and {name} like dust. Nothing new is offered, and nothing new is given.",
+            "id": "courtship.repeat.2.lines.c"
+          }
+        ]
+      }
+    ],
+    "quick_resolve": [
+      {
+        "lines": [
+          {
+            "text": "You let the moment stand as it is, and wait to see what {name} will do.",
+            "id": "courtship.quick_resolve.0.lines.a"
+          },
+          {
+            "text": "There is no more to add. You hold still and let {name} make the choice from what is already between you.",
+            "id": "courtship.quick_resolve.0.lines.b"
+          },
+          {
+            "text": "You do not press further. The air is what it is, and {name} will answer it now.",
+            "id": "courtship.quick_resolve.0.lines.c"
+          }
+        ]
+      }
+    ]
+  },
+  "ends": {
+    "yield": [
+      {
+        "when": {
+          "kind": "spar"
+        },
+        "you": [
+          {
+            "text": "The play has gone far enough. You step back, sides heaving, and let the fight go.",
+            "id": "ends.yield.0.you.a"
+          },
+          {
+            "text": "You drop your guard and give the ground. {foeName} lets the spar end there, as play should.",
+            "id": "ends.yield.0.you.b"
+          },
+          {
+            "text": "You sit down in the grass and let it be over. The lesson ends here, and you have yielded.",
+            "id": "ends.yield.0.you.c"
+          }
+        ],
+        "foe": [
+          {
+            "text": "The play has gone far enough. {foeName} steps back, sides heaving, and lets the fight go.",
+            "id": "ends.yield.0.foe.a"
+          },
+          {
+            "text": "{foeName} drops the guard and gives the ground. You let the spar end there, as play should.",
+            "id": "ends.yield.0.foe.b"
+          },
+          {
+            "text": "{foeName} sits down in the grass and lets it be over. The lesson ends here.",
+            "id": "ends.yield.0.foe.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "kind": [
+            "scuffle",
+            "confront"
+          ]
+        },
+        "you": [
+          {
+            "text": "You have had enough. You give the ground, and the scuffle ends before it can become something worse.",
+            "id": "ends.yield.1.you.a"
+          },
+          {
+            "text": "You yield. {foeName} lets you go, and the anger cools on the dirt between you.",
+            "id": "ends.yield.1.you.b"
+          },
+          {
+            "text": "Your body decides for you. You step off, breathing hard, and the quarrel is over.",
+            "id": "ends.yield.1.you.c"
+          }
+        ],
+        "foe": [
+          {
+            "text": "{foeName} has had enough. The ground is given, and the scuffle ends before it can become something worse.",
+            "id": "ends.yield.1.foe.a"
+          },
+          {
+            "text": "{foeName} yields. You let it go, and the anger cools on the dirt between you.",
+            "id": "ends.yield.1.foe.b"
+          },
+          {
+            "text": "{foeName}'s body decides. A step back, a hard breath, and the quarrel is over.",
+            "id": "ends.yield.1.foe.c"
+          }
+        ]
+      },
+      {
+        "you": [
+          {
+            "text": "You give the ground. The fight ends there, and you are still standing, which is not nothing.",
+            "id": "ends.yield.2.you.a"
+          },
+          {
+            "text": "You step back and let it go. {foeName} does not follow the yielding any further.",
+            "id": "ends.yield.2.you.b"
+          },
+          {
+            "text": "Enough. You drop your head and leave the space between you to the wind.",
+            "id": "ends.yield.2.you.c"
+          }
+        ],
+        "foe": [
+          {
+            "text": "{foeName} gives the ground. The fight ends there, and you are still standing, which is not nothing.",
+            "id": "ends.yield.2.foe.a"
+          },
+          {
+            "text": "{foeName} steps back and lets it go. You do not follow the yielding any further.",
+            "id": "ends.yield.2.foe.b"
+          },
+          {
+            "text": "Enough. {foeName} drops the head and leaves the space between you to the wind.",
+            "id": "ends.yield.2.foe.c"
+          }
+        ]
+      }
+    ],
+    "fight_end": [
+      {
+        "when": {
+          "lethal": true
+        },
+        "win": [
+          {
+            "text": "{foeName} goes down and does not get up. The fight is over. What the land does with this moment is not yet decided.",
+            "id": "ends.fight_end.0.win.a"
+          },
+          {
+            "text": "You stand over {foeName}, sides heaving, and the quiet that follows is heavy.",
+            "id": "ends.fight_end.0.win.b"
+          },
+          {
+            "text": "The last blow lands, and {foeName} stays down. Your own breath is the loudest thing left.",
+            "id": "ends.fight_end.0.win.c"
+          }
+        ],
+        "lose": [
+          {
+            "text": "You go down and cannot find your feet. The fight is over. What the land does with this moment is not yet decided.",
+            "id": "ends.fight_end.0.lose.a"
+          },
+          {
+            "text": "{foeName} stands over you, and the quiet that follows is heavy.",
+            "id": "ends.fight_end.0.lose.b"
+          },
+          {
+            "text": "The last blow lands, and you stay down. Your own breath is a ragged, difficult thing.",
+            "id": "ends.fight_end.0.lose.c"
+          }
+        ]
+      },
+      {
+        "when": {
+          "lethal": false
+        },
+        "win": [
+          {
+            "text": "{foeName} goes down, and that is the end of it. There is no more fight left in the body under you.",
+            "id": "ends.fight_end.1.win.a"
+          },
+          {
+            "text": "You have won, and {foeName} knows it. The quarrel stops short of the worst.",
+            "id": "ends.fight_end.1.win.b"
+          },
+          {
+            "text": "The last blow lands, and {foeName} stays down. It is finished, and it is not a death.",
+            "id": "ends.fight_end.1.win.c"
+          }
+        ],
+        "lose": [
+          {
+            "text": "You go down, and that is the end of it. There is no more fight left in you.",
+            "id": "ends.fight_end.1.lose.a"
+          },
+          {
+            "text": "{foeName} has won, and you know it. The quarrel stops short of the worst.",
+            "id": "ends.fight_end.1.lose.b"
+          },
+          {
+            "text": "The last blow lands, and you stay down. It is finished, and it is not a death.",
+            "id": "ends.fight_end.1.lose.c"
+          }
+        ]
+      },
+      {
+        "win": [
+          {
+            "text": "{foeName} goes down, and the fight is over.",
+            "id": "ends.fight_end.2.win.a"
+          },
+          {
+            "text": "You have the ground. {foeName} has none of it left.",
+            "id": "ends.fight_end.2.win.b"
+          },
+          {
+            "text": "The last blow lands, and it is enough. {foeName} does not come back on.",
+            "id": "ends.fight_end.2.win.c"
+          }
+        ],
+        "lose": [
+          {
+            "text": "You go down, and the fight is over.",
+            "id": "ends.fight_end.2.lose.a"
+          },
+          {
+            "text": "{foeName} has the ground. You have none of it left.",
+            "id": "ends.fight_end.2.lose.b"
+          },
+          {
+            "text": "The last blow lands, and it is enough. You do not come back on.",
+            "id": "ends.fight_end.2.lose.c"
+          }
+        ]
+      }
+    ],
+    "timeout": [
+      {
+        "win": [
+          {
+            "text": "The fight has gone on long enough. You are still the stronger, and that is how it ends.",
+            "id": "ends.timeout.0.win.a"
+          },
+          {
+            "text": "Neither of you can quite finish it, and still the land must. You are left standing the better, and so the ground is yours.",
+            "id": "ends.timeout.0.win.b"
+          },
+          {
+            "text": "Breath, blood, and no clean ending. When the moment finally gives way, it gives way to you.",
+            "id": "ends.timeout.0.win.c"
+          }
+        ],
+        "lose": [
+          {
+            "text": "The fight has gone on long enough. {foeName} is still the stronger, and that is how it ends.",
+            "id": "ends.timeout.0.lose.a"
+          },
+          {
+            "text": "Neither of you can quite finish it, and still the land must. {foeName} is left standing the better, and so the ground is not yours.",
+            "id": "ends.timeout.0.lose.b"
+          },
+          {
+            "text": "Breath, blood, and no clean ending. When the moment finally gives way, it gives way to {foeName}.",
+            "id": "ends.timeout.0.lose.c"
+          }
+        ]
+      }
+    ],
+    "timeout_even": [
+      {
+        "win": [
+          {
+            "text": "The fight has gone on long enough, and neither side has the better of it. This is your ground, and you keep it.",
+            "id": "ends.timeout_even.0.win.a"
+          },
+          {
+            "text": "You have been evenly matched. The kill was yours to begin with, and it stays yours.",
+            "id": "ends.timeout_even.0.win.b"
+          },
+          {
+            "text": "Breath and blood, and no lead either way. You were holding this ground, and so the ground remains yours.",
+            "id": "ends.timeout_even.0.win.c"
+          }
+        ],
+        "lose": [
+          {
+            "text": "The fight has gone on long enough, and neither side has the better of it. This is {foeName}'s ground, and you give it.",
+            "id": "ends.timeout_even.0.lose.a"
+          },
+          {
+            "text": "You have been evenly matched. The kill was {foeName}'s to begin with, and it stays that way.",
+            "id": "ends.timeout_even.0.lose.b"
+          },
+          {
+            "text": "Breath and blood, and no lead either way. {foeName} was holding this ground, and so the ground remains {foeName}'s.",
+            "id": "ends.timeout_even.0.lose.c"
+          }
+        ],
+        "break_off": [
+          {
+            "text": "The fight has gone on long enough, and neither of you has the better of it. You break apart, and the ground keeps no winner.",
+            "id": "ends.timeout_even.0.break_off.a"
+          },
+          {
+            "text": "Evenly matched, and with no ground or kill to settle, you step off, and so does {foeName}. Nobody yields, and nobody takes the place.",
+            "id": "ends.timeout_even.0.break_off.b"
+          },
+          {
+            "text": "The wind goes out of it. You and {foeName} break away, still even, and the quarrel is left on the dirt.",
+            "id": "ends.timeout_even.0.break_off.c"
+          }
+        ]
+      }
+    ],
+    "showdown": [
+      {
+        "win": [
+          {
+            "text": "You stand your ground and make yourself large. {foeName} looks for a long moment, then gives the place to you.",
+            "id": "ends.showdown.0.win.a"
+          },
+          {
+            "text": "The air between you is all threat and no blood. It is you who holds it.",
+            "id": "ends.showdown.0.win.b"
+          },
+          {
+            "text": "You stare, and you do not look away, and at last {foeName} does. The right to stay is yours, and not a claw was used to take it.",
+            "id": "ends.showdown.0.win.c"
+          }
+        ],
+        "lose": [
+          {
+            "text": "You put on a fine show. {foeName} puts on a finer show, and you look away.",
+            "id": "ends.showdown.0.lose.a"
+          },
+          {
+            "text": "The air between you is all threat and no blood. It is {foeName} who holds it.",
+            "id": "ends.showdown.0.lose.b"
+          },
+          {
+            "text": "You stare, and you cannot hold the look. {foeName} keeps the place, and not a claw was used to take it from you.",
+            "id": "ends.showdown.0.lose.c"
+          }
+        ]
+      }
+    ]
+  },
   "foes": {
-    "hyena": { "foeName": "the hyena", "group": false },
-    "wolves": { "foeName": "the wolves", "group": true }
+    "hyena": {
+      "foeName": "the hyena",
+      "group": false
+    },
+    "wolves": {
+      "foeName": "the wolves",
+      "group": true
+    }
   },
   "lines": {
-    "fight.open": "{foeName} steps into the open and holds still.",
-    "fight.telegraph": "{foeName} shows where the next blow will fall.",
-    "fight.warning": "{name} warns {foeName} to keep back.",
-    "fight.warning.group": "{foeName} spread out and warn {name} off.",
-    "fight.hit": "{name} lands the blow on {foeName}.",
-    "fight.miss": "{name} misses {foeName}.",
-    "fight.flee": "{name} breaks away from {foeName}.",
-    "fight.win": "{name} stands over {foeName}.",
-    "fight.lose": "{foeName} stands over {name}.",
-    "fight.timeout": "The fight with {foeName} goes on until both are spent.",
-    "timeout_even": "{name} and {foeName} break off together. Neither one takes the ground.",
-    "fight.defend.counter": "{name} turns the blow and answers {foeName}.",
-    "fight.defend.held": "{name} catches the miss and does not answer {foeName}.",
-    "standoff.humans": "{foeName} keep their spears up and watch {name}.",
-    "standoff.intimidate.success": "{foeName} back away. {name} is unhurt.",
-    "standoff.flee.success": "{name} gets clear of {foeName}.",
-    "standoff.flee.fail": "A spear cuts {name} deeply, and what {name} carried falls.",
     "spar.open": "{name} and {foeName} crouch to play.",
-    "spar.stop": "{name} and {foeName} stop while both can still stand.",
-    "hunt.success": "{name} brings the prey down.",
-    "hunt.fail": "The prey slips away from {name}.",
-    "hunt.injury.minor": "{name} takes a small hurt from the large prey.",
-    "hunt.injury.serious": "{name} takes a deep hurt from the large prey.",
-    "hunt.injury.crippling": "{name} takes a lasting hurt from the large prey.",
-    "courtship.open": "{name} approaches {foeName}.",
-    "courtship.reaction.high": "{foeName} leans in, warm and quick.",
-    "courtship.reaction.baseline": "{foeName} listens and does not rush.",
-    "courtship.reaction.low": "{foeName} stays back and answers shortly.",
-    "courtship.repeat": "{foeName} has heard this from {name} before.",
-    "courtship.accepted": "{foeName} accepts {name}.",
-    "courtship.declined": "{foeName} turns {name} away.",
     "showdown.untouched": "The showdown with {foeName} is left as it was."
   }
 }
