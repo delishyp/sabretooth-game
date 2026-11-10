@@ -49,12 +49,12 @@ test('beats keep order, honour conditions, and fall back when missing or invalid
   assert.strictEqual(E.eventById('slice.meeting.mistwood').beats, undefined);
   const repeat = voice['m2.repeat_meeting'].beats;
   const calm = { npc: { id: 'n1', personality: { sociability: 50 }, injuries: [] }, knowsFact: () => false, knowsAny: () => false };
-  assert.deepStrictEqual(Beats.visible(repeat, calm).map((b) => b.text).filter((t) => t.includes('You again.') || t.includes('flat stone') || t.includes('heartbeat')).length, 3);
+  assert.deepStrictEqual(Beats.visible(repeat, calm).map((b) => b.text).filter((t) => t.includes('You again.') || t.includes('flat stone') || t.includes('heartbeat')).length, 2);
   const hurt = { npc: { id: 'n1', personality: { sociability: 80 }, injuries: [{ tier: 'minor' }] }, knowsAny: () => true, knowsFact: () => false };
   const hurtText = Beats.visible(repeat, hurt).map((b) => b.text).join('\n');
-  assert.ok(hurtText.includes('coppery smell of a wound still healing'));
+  assert.ok(hurtText.includes("smells of a wound that's still healing"));
   assert.ok(!hurtText.includes('fresh scratch'));
-  assert.ok(hurtText.includes("I've been saving something to tell you."));
+  assert.ok(hurtText.includes("I've heard a few things lately"));
   assert.ok(!hurtText.includes('You again.'));
   const run = fresh(3);
   const before = run.npcs.bf01.affinity;
@@ -62,7 +62,7 @@ test('beats keep order, honour conditions, and fall back when missing or invalid
   run.pending = { eventId: 'slice.meeting.bonefield', kind: 'first_meeting', catId: 'bf01', catName: run.npcs.bf01.name, day: run.day, hostile: false, choiceId: null, beatIndex: 0 };
   const leaderBeats = E.sceneBeats(run);
   assert.ok(leaderBeats.length >= 3);
-  assert.match(leaderBeats.map((b) => b.text).join(' '), /Say what you want, stray/);
+  assert.match(leaderBeats.map((b) => b.text).join(' '), /I lead Bonefield/);
   let last = run;
   while ((last.pending.beatIndex || 0) < leaderBeats.length - 1) last = E.act(last, { type: 'advanceBeat' }).state;
   assert.strictEqual(last.pending.beatIndex, leaderBeats.length - 1);

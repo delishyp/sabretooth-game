@@ -118,14 +118,14 @@ test('neutral appearance lines render under the current portrait map', () => {
   assert.ok(!/old and thin/.test(mist));
   const other = Object.values(s.npcs).find((n) => n.faction === 'bonefield' && n.id !== 'bf01');
   const meet = text(other.id, 'slice.meeting.bonefield');
-  assert.match(meet, /won every fight that mattered/);
-  assert.match(meet, /take a good long look/);
+  assert.match(meet, /doesn't care where strays come from/);
+  assert.match(meet, /are you going to run/i);
   assert.ok(!/every scar/.test(meet));
   assert.ok(!/scarred along the forelegs/.test(meet));
   const hurt = E.beats.visible(j('events/sample-beats.json')['m2.repeat_meeting'].beats, {
     npc: { id: 'n1', name: 'Copper', sex: 'male', personality: { sociability: 50 }, injuries: [{ tier: 'minor' }] },
     knowsFact: () => false, knowsAny: () => false
   }).map((b) => b.text).join('\n');
-  assert.match(hurt, /coppery smell of a wound still healing/);
+  assert.match(hurt, /smells of a wound that's still healing/);
   assert.ok(!/fresh scratch/.test(hurt));
 });

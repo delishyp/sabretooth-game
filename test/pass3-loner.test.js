@@ -35,15 +35,15 @@ test('seed 8 renders different loner meetings for Sleet and Cragward', () => {
   const crag = Object.values(s.npcs).find((n) => n.name === 'Cragward');
   assert.ok(sleet && crag);
   const event = E.eventById('slice.meeting.loner');
-  assert.strictEqual(event.text, '{catName} stops where your paths cross. For a moment, both of you look behind the other for companions.');
+  assert.strictEqual(event.text, '{catName} stops where your trails cross, and for a moment you both check behind each other for company. Just you?');
   assert.deepStrictEqual(event.choices.map((c) => c.id), ['greet', 'pass', 'drive']);
   const a = rendered(s, sleet.id);
   const b = rendered(s, crag.id);
   assert.notStrictEqual(a, b);
   assert.ok(a.includes('Sleet'));
   assert.ok(b.includes('Cragward'));
-  assert.ok(a.includes('A scent crosses yours on the trail'));
-  assert.ok(b.includes('A scent crosses yours on the trail'));
+  assert.ok(a.includes('You pick up a scent on the trail'));
+  assert.ok(b.includes('You pick up a scent on the trail'));
 });
 
 test('the wolf card uses Saga\'s pass 3 line', () => {

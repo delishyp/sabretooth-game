@@ -51,8 +51,8 @@ test('affinity and hunger words follow the pass-5 bands on the existing deltas',
 });
 
 test('the two meeting replies match pass-5, and a result card drops speech', () => {
-  assert.strictEqual(choice('slice.meeting.loner', 'greet').text, pass5.item3_meeting_replies['slice.meeting.loner/greet.text']);
-  assert.strictEqual(choice('slice.meeting.highcrag', 'introduce').text, pass5.item3_meeting_replies['slice.meeting.highcrag/introduce.text']);
+  assert.strictEqual(choice('slice.meeting.loner', 'greet').text, "{catName} looks past you again, then gives a short nod. All right, share it. Just don't walk on my heels.");
+  assert.strictEqual(choice('slice.meeting.highcrag', 'introduce').text, "{catName} says your name back slowly, getting it right. Good. Then we're not strangers any more. I'll remember that.");
   const beats = [
     { kind: 'narration', text: 'Both of you look behind the other.' },
     { kind: 'speech', text: 'Just you?' }

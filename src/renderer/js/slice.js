@@ -1326,6 +1326,7 @@
         if (!beat || typeof beat.text !== 'string' || !/\{[A-Za-z0-9_]+\}/.test(beat.text)) continue;
         const shown = Beats.line(beat, ctx);
         if (shown && typeof shown.text === 'string') beat.text = shown.text;
+        if (shown && Array.isArray(shown.parts)) beat.parts = shown.parts;
       }
     }
     function attachVoice(ev, state) {

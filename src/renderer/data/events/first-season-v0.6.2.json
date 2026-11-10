@@ -36,47 +36,101 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "A familiar scent crosses the trail. {catName} stops a little way off and waits."
+          "text": "You catch a scent you know on the trail. {catName} stops a little way off and waits for you.",
+          "parts": [
+            {
+              "beat": "You catch a scent you know on the trail. {catName} stops a little way off and waits for you."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "line",
-          "text": "“You again.”",
-          "speaker": "B",
-          "speechId": "m2.repeat_meeting|beats.1"
+          "text": "You again.",
+          "speaker": "{catId}",
+          "speechId": "m2.repeat_meeting|beats.1",
+          "parts": [
+            {
+              "say": "You again."
+            }
+          ]
         }
       ],
       "choices": [
         {
           "id": "talk_warm",
-          "label": "“Walk with me a while?”",
+          "label": "“I'd like some company. Walk with me a while?”",
           "summary": "You walked a while with {catName}.",
-          "result": "talk_improve"
+          "result": "talk_improve",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "All right, for a little way."
+              },
+              {
+                "beat": "You walk together for a while before {catName} turns back."
+              }
+            ]
+          }
         },
         {
           "id": "talk_plain",
-          "label": "Trade a few words, then go.",
+          "label": "Stop for a few words, then head off.",
           "summary": "You traded a few words with {catName}.",
-          "result": "talk_unchanged"
+          "result": "talk_unchanged",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Mm. Safe trails, then."
+              }
+            ]
+          }
         },
         {
           "id": "talk_curt",
-          "label": "“I have my own trail.”",
+          "label": "“Just passing. I've got my own trail.”",
           "summary": "You cut short your meeting with {catName}.",
-          "result": "talk_worsen"
+          "result": "talk_worsen",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Fine by me."
+              }
+            ]
+          }
         },
         {
           "id": "groom",
-          "label": "Groom {catName}’s shoulder.",
+          "label": "Groom {catName}'s shoulder.",
           "summary": "You groomed {catName}.",
           "result": "groom",
-          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED)."
+          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED).",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{catName} goes stiff for a moment, then leans into it."
+              }
+            ]
+          }
         },
         {
           "id": "share",
-          "label": "Drag your kill closer and share it.",
+          "label": "Drag your kill over and share it.",
           "summary": "You shared your kill with {catName}.",
           "result": "share",
-          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED)."
+          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED).",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "For me? I won't say no to that."
+              }
+            ]
+          }
         }
       ],
       "summary": "You met {catName} again.",
@@ -131,47 +185,104 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "{catName} pauses nearby. Your paths have crossed before; this meeting gives you another chance to speak."
+          "text": "{catName} spots you and comes over without waiting to be asked.",
+          "parts": [
+            {
+              "beat": "{catName} spots you and comes over without waiting to be asked."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "line",
-          "text": "“I know your scent now.”",
-          "speaker": "B",
-          "speechId": "m2.acquainted|beats.1"
+          "text": "I knew it was you before I saw you.",
+          "speaker": "{catId}",
+          "speechId": "m2.acquainted|beats.1",
+          "parts": [
+            {
+              "say": "I knew it was you before I saw you."
+            }
+          ]
         }
       ],
       "choices": [
         {
           "id": "talk_warm",
-          "label": "“Walk with me a while?”",
+          "label": "“Come and walk with me a while.”",
           "summary": "You walked a while with {catName}.",
-          "result": "talk_improve"
+          "result": "talk_improve",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I'd like that. You set the pace."
+              },
+              {
+                "beat": "You walk together for a while, and {catName} keeps up the whole way."
+              }
+            ]
+          }
         },
         {
           "id": "talk_plain",
-          "label": "Trade a few words, then go.",
+          "label": "Chat for a bit, then head off.",
           "summary": "You traded a few words with {catName}.",
-          "result": "talk_unchanged"
+          "result": "talk_unchanged",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Short and sweet. All right."
+              }
+            ]
+          }
         },
         {
           "id": "talk_curt",
-          "label": "“I have my own trail.”",
+          "label": "“Not today. I've got my own trail to follow.”",
           "summary": "You cut short your meeting with {catName}.",
-          "result": "talk_worsen"
+          "result": "talk_worsen",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{catName}'s ears dip."
+              },
+              {
+                "say": "Oh. Another time, then."
+              }
+            ]
+          }
         },
         {
           "id": "groom",
-          "label": "Groom {catName}’s shoulder.",
+          "label": "Groom {catName}'s shoulder.",
           "summary": "You groomed {catName}.",
           "result": "groom",
-          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED)."
+          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED).",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{catName} leans into it and lets {his} eyes drift shut."
+              }
+            ]
+          }
         },
         {
           "id": "share",
-          "label": "Drag your kill closer and share it.",
+          "label": "Drag your kill over and share it.",
           "summary": "You shared your kill with {catName}.",
           "result": "share",
-          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED)."
+          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED).",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You're sharing with me? Thank you."
+              }
+            ]
+          }
         }
       ],
       "summary": "You and {catName} grew used to each other.",
@@ -206,47 +317,98 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "{catName} stops beside the trail, leaving room for you to stay or move on."
+          "text": "{catName} stops at the side of the trail and makes room for you.",
+          "parts": [
+            {
+              "beat": "{catName} stops at the side of the trail and makes room for you."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "line",
-          "text": "“Will you stay a while?”",
-          "speaker": "B",
-          "speechId": "m2.close|beats.1"
+          "text": "There you are. Will you stay a while?",
+          "speaker": "{catId}",
+          "speechId": "m2.close|beats.1",
+          "parts": [
+            {
+              "say": "There you are. Will you stay a while?"
+            }
+          ]
         }
       ],
       "choices": [
         {
           "id": "stay",
-          "label": "Stay a while with {catName}.",
+          "label": "Settle down beside {catName} and stay a while.",
           "summary": "You spent time with {catName}.",
-          "result": "talk_improve"
+          "result": "talk_improve",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{catName} shifts over to make room for you."
+              }
+            ]
+          }
         },
         {
           "id": "speak",
-          "label": "“I am glad our trails keep meeting.”",
+          "label": "“I'm glad we keep running into each other.”",
           "summary": "You told {catName} you were glad to meet again.",
-          "result": "talk_improve"
+          "result": "talk_improve",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "So am I. More than I expected to be, honestly."
+              }
+            ]
+          }
         },
         {
           "id": "go",
-          "label": "“I need to go.”",
+          "label": "“I can't stay today. I need to go.”",
           "summary": "You left the meeting with {catName}.",
-          "result": "talk_unchanged"
+          "result": "talk_unchanged",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Oh. All right. Next time, then."
+              }
+            ]
+          }
         },
         {
           "id": "groom",
-          "label": "Groom {catName}’s shoulder.",
+          "label": "Groom {catName}'s shoulder.",
           "summary": "You groomed {catName}.",
           "result": "groom",
-          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED)."
+          "mappingNote": "Engine offers only at value ≥ 20 (§3.2.3); Energy −5 (§3.2.4 PROPOSED).",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{catName} purrs and pushes back against you."
+              }
+            ]
+          }
         },
         {
           "id": "share",
-          "label": "Drag your kill closer and share it.",
+          "label": "Drag your kill over and share it.",
           "summary": "You shared your kill with {catName}.",
           "result": "share",
-          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED)."
+          "mappingNote": "Engine offers only after a successful hunt today (§3.2.4 PROPOSED).",
+          "reply": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "For me? You didn't have to do that."
+              }
+            ]
+          }
         }
       ],
       "summary": "You spent time with {catName}.",
@@ -900,9 +1062,9 @@
         "location": "beats.1",
         "speakerSlot": "B",
         "focusTrait": "sociability",
-        "low": "“You.”",
-        "baseline": "“You again.”",
-        "high": "“You came back. Will you stay a while?”"
+        "low": "Oh. You.",
+        "baseline": "You again. Are you stopping, or just passing?",
+        "high": "You came back! Will you stay a while?"
       },
       {
         "speechId": "m2.acquainted|beats.1",
@@ -910,9 +1072,9 @@
         "location": "beats.1",
         "speakerSlot": "B",
         "focusTrait": "sociability",
-        "low": "“I know your scent.”",
-        "baseline": "“I know your scent now.”",
-        "high": "“I know your scent now. I was wondering when we would meet again.”"
+        "low": "Oh, it's you. I know your scent by now.",
+        "baseline": "I knew it was you before I saw you. Your scent's getting familiar.",
+        "high": "I knew that was you! I've started looking out for your tracks, you know."
       },
       {
         "speechId": "m2.close|beats.1",
@@ -920,9 +1082,9 @@
         "location": "beats.1",
         "speakerSlot": "B",
         "focusTrait": "boldness",
-        "low": "“You could stay a while, if you want.”",
-        "baseline": "“Will you stay a while?”",
-        "high": "“Stay a while with me?”"
+        "low": "You could stay a while. If you want to, I mean.",
+        "baseline": "There you are. Will you stay a while?",
+        "high": "Stay with me a while. I've been hoping you'd come by."
       },
       {
         "speechId": "m2.courtship|results.accepted.beats.1",
@@ -1077,36 +1239,36 @@
     ],
     "fiveTraitActionCues": {
       "aggression": {
-        "low": "{catName}'s voice stays soft and the sabers stay hidden.",
+        "low": "{catName} keeps the words soft and gentle.",
         "middle": "{catName} answers evenly.",
-        "high": "{catName}'s jaw tightens around the words, and the tips of the sabers gleam.",
+        "high": "{catName} says it through a tight jaw.",
         "devNote": {
           "high": "Jaw tightens briefly; does not invent a strike or threat outcome."
         }
       },
       "sociability": {
-        "low": "{catName} keeps it short and keeps a cool distance.",
-        "middle": "{catName} faces you while answering.",
-        "high": "{catName} turns fully toward you, warm and close."
+        "low": "{catName} keeps a little distance between you.",
+        "middle": "{catName} turns to face you.",
+        "high": "{catName} comes right up close to talk."
       },
       "boldness": {
-        "low": "{catName} keeps well back, watchful of a stranger.",
-        "middle": "{catName} stays where they are.",
-        "high": "{catName} answers without giving an inch of ground."
+        "low": "{catName} hangs back a step.",
+        "middle": "{catName} stays put.",
+        "high": "{catName} stands square in front of you."
       },
       "loyalty": {
-        "low": "{catName}'s eyes flick toward the open land, as if half ready to leave.",
-        "middle": "{catName} stays until the answer is given.",
-        "high": "{catName} won't leave the side of whoever they've chosen.",
+        "low": "{catName} keeps glancing off toward the open land.",
+        "middle": "{catName} stays to hear what you say.",
+        "high": "{catName} keeps an ear turned toward home.",
         "devNote": {
           "low": "Does not close the listener’s route away.",
           "high": "Remains beside the person or place of the actual chosen commitment; no sworn promise or loyalty fact invented."
         }
       },
       "curiosity": {
-        "low": "{catName} answers, then looks back at what matters here.",
-        "middle": "{catName} watches your expression.",
-        "high": "{catName} studies you for a long moment before answering.",
+        "low": "{catName} doesn't ask you anything back.",
+        "middle": "{catName} watches your face.",
+        "high": "{catName}'s head tilts, ears pricked, full of questions.",
         "devNote": {
           "high": "Pauses to study the listener before answering; no mind reading or hidden-history inference."
         }

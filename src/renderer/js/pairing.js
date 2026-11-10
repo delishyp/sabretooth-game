@@ -242,7 +242,7 @@
       if (stage === 'met' && value >= 15) {
         rows.push(choiceRow({
           id: 'open_acquainted',
-          label: 'Spend this meeting as acquaintances.',
+          label: '“We keep running into each other. Let\'s get to know each other properly.”',
           summary: 'You chose to treat {catName} as an acquaintance.',
           result: 'open_acquainted'
         }, vars, { group: 'bond' }));
@@ -250,7 +250,7 @@
       if (stage === 'acquainted' && value >= 25) {
         rows.push(choiceRow({
           id: 'open_close',
-          label: 'Stay close with {catName}.',
+          label: '“I like spending time with you, {catName}. Can we be closer?”',
           summary: 'You chose a closer bond with {catName}.',
           result: 'open_close'
         }, vars, { group: 'bond' }));

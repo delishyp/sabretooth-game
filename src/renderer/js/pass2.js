@@ -367,9 +367,9 @@
         ? '{catName} sits at the top of the path in the slanting light, silver at the muzzle, and doesn\'t rise. The leader of Highcrag doesn\'t need to.'
         : '{catName} sits at the top of the path in the slanting light, utterly still, and doesn\'t rise. The leader of Highcrag doesn\'t need to.';
       return [
-        narrate('The cave-mouth scent is old and layered, generations deep, and over it lies one scent fresher and stronger than the rest.'),
+        narrate('The path up to the caves is thick with the scent of cats who\'ve lived here a long time. On top of it all lies a fresh, strong scent.'),
         narrate(beat),
-        say('“Every cat on these cliffs can name their mother\'s mother\'s mother.” Calm, unhurried. “You come with no line at all. Tell me why I should remember your name.”')
+        say('I lead Highcrag. Every cat up here comes from a family we can name, mother to mother. You\'ve come with nobody behind you, so start with your own name. Why should I remember it?')
       ];
     }
     if (npc.faction === 'bonefield') {
@@ -379,9 +379,9 @@
         ? `{catName} walks out of the stems, heavy-shouldered${scar}, with two guards flanking at a respectful distance.${lip}`
         : '{catName} walks out of the stems with heavy shoulders and a heavier stare, two guards flanking at a respectful distance. Neither guard looks anywhere but at you.';
       return [
-        narrate('The grass goes quiet. Insects, birds, all of it, as if the whole field has drawn a breath.'),
+        narrate('The grass goes quiet around you. Even the insects stop.'),
         narrate(beat),
-        say('“I\'ve held this field through three challenges.” The voice is a low rumble you feel in your paws. “Every cat who stood where you stand wanted something. Say what you want, stray, and say it without shaking.”')
+        say('I lead Bonefield, and I\'ve beaten every cat who tried to take it from me. Strays come through here all the time, and most of them run. Are you going to run?')
       ];
     }
     if (npc.faction === 'mistwood') {
@@ -389,10 +389,10 @@
         ? '{catName} steps out of the grey. The cat is old and thin, with eyes that have watched too many cats go under the water.'
         : '{catName} steps out of the grey. {catName}\'s eyes look like they\'ve watched too many cats go under the water.';
       return [
-        narrate('The fog thickens until you can\'t see your own tail. Then a voice, soft, close, from no direction at all.'),
-        say('“Don\'t run. The ice is thin where you\'re standing.”'),
+        narrate('The fog gets so thick you can\'t see your own bobtail. Then someone speaks, close by.'),
+        say('Don\'t run. The ice is thin right where you\'re standing.'),
         narrate(beat),
-        say('“We lost half our pride to the Breaking. I don\'t lose more to strangers. Why are you in my wood?”')
+        say('I lead Mistwood. We lost a lot of cats when the ice broke, and I won\'t lose any more to strangers. Keep your voice down and tell me why you\'re in my wood.')
       ];
     }
     return null;

@@ -33,11 +33,9 @@ test('{his} stays the speaker pronoun and {playerHis} is the player', () => {
   const ctx = { npc: { id: 'ln02', name: 'Sleet', sex: 'male' }, player: { name: 'Ravenmark', sex: 'female' } };
   const npcLine = Beats.line({ kind: 'narration', text: '{catName} shows {his} sabers.' }, ctx);
   assert.strictEqual(npcLine.text, 'Sleet shows his sabers.');
-  const event = E.eventById('slice.meeting.loner');
-  const greeting = event.beats.find((beat) => beat.text && beat.text.includes('playerHis'));
-  assert.ok(greeting);
-  const spoken = Beats.line(greeting, ctx);
+  const spoken = Beats.line({ kind: 'speech', text: 'Another cat on {playerHis} own. {catName} shows {his} sabers.' }, ctx);
   assert.ok(spoken.text.includes('on her own'));
+  assert.ok(spoken.text.includes('his sabers'));
   assert.ok(!spoken.text.includes('{playerHis}'));
   assert.ok(!spoken.text.includes('on his own'));
 });
@@ -55,15 +53,16 @@ test('{regionName} is the display name, not the region id', () => {
 
 test('cat speech is stored without quotes and the renderer adds them', () => {
   const event = E.eventById('slice.meeting.loner');
-  const greeting = event.beats.find((beat) => beat.text && beat.text.includes('playerHis'));
+  const greeting = event.beats.find((beat) => beat.parts && beat.parts.some((part) => part.say && part.say.includes('another loner')));
   assert.ok(greeting);
-  assert.ok(!/[“”"]/.test(greeting.text));
+  const say = greeting.parts.find((part) => part.say).say;
+  assert.ok(!/[“”"]/.test(say));
   const spoken = Beats.line(greeting, {
-    npc: { id: 'ln02', name: 'Sleet', sex: 'male' },
+    npc: { id: 'ln99', name: 'Pebble', sex: 'female' },
     player: { name: 'Ravenmark', sex: 'female' }
   });
-  assert.ok(spoken.text.startsWith('\u201C'));
-  assert.ok(spoken.text.endsWith('\u201D'));
+  assert.ok(spoken.text.includes('\u201COh, another loner!'));
+  assert.ok(spoken.text.includes('loner!\u201D') || spoken.text.includes('you?\u201D'));
   assert.strictEqual(Beats.line({ kind: 'speech', text: '"Hello."' }, {}).text, '\u201CHello.\u201D');
 });
 

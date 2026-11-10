@@ -97,5 +97,5 @@ test('payoff fixtures stay out of a release build', () => {
   assert.ok(Fixtures.iWaited().text.includes('I waited'));
   assert.ok(Fixtures.letWatch().text.includes('ate the whole thing'));
   assert.ok(Fixtures.gossip().text.includes('Greyfall'));
-  assert.ok(Fixtures.gossip().text.includes('spoke of'));
+  assert.ok(Fixtures.gossip().text.includes('told me about'));
 });

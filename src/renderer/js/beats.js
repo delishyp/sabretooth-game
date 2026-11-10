@@ -128,6 +128,16 @@
     return { speaker: raw, speakerId: (beat && beat.speakerId) || '' };
   }
   function line(beat, ctx) {
+    const catId = ctx && ((ctx.npc && ctx.npc.id) || ctx.catId);
+    if (beat && beat.byCat && catId && Object.prototype.hasOwnProperty.call(beat.byCat, catId)) {
+      const block = beat.byCat[catId];
+      const parts = block && block.parts;
+      beat = Object.assign({}, beat, {
+        speaker: (block && block.speaker) || beat.speaker,
+        parts: parts,
+        text: (parts || []).map((part) => (part && (part.say || part.beat)) || '').filter(Boolean).join(' ')
+      });
+    }
     const vars = varsFor(ctx, beat);
     const who = boundSpeaker(beat, ctx);
     if (beat && Array.isArray(beat.parts) && beat.parts.length) {

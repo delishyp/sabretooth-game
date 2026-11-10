@@ -639,31 +639,64 @@
       "cast": "adult_or_elder",
       "oncePerPair": true,
       "title": "A measured greeting",
-      "text": "{catName} stands on the path ahead, leaving enough space for you to stop. “A stranger should give a name before coming closer.”",
+      "text": "{catName} is standing in the middle of the path, far enough off that you can stop without crowding. That's close enough. On the crag we give our names before we come any nearer. What's yours?",
       "summary": "You met {catName}.",
       "choices": [
         {
           "id": "introduce",
           "label": "Give your name and wait.",
-          "text": "You give your name and wait. {catName} repeats it once, slowly, as if setting it somewhere safe. “Then we need not be strangers.” The path between you stays clear.",
+          "text": "{catName} says your name back slowly, getting it right. Good. Then we're not strangers any more. I'll remember that.",
           "summary": "You introduced yourself to {catName}.",
-          "affinityIntent": "improve"
+          "affinityIntent": "improve",
+          "parts": [
+            {
+              "beat": "{catName} says your name back slowly, getting it right."
+            },
+            {
+              "say": "Good. Then we're not strangers any more. I'll remember that."
+            }
+          ]
         },
         {
           "id": "withdraw",
-          "label": "Step back without speaking.",
-          "text": "{catName} watches you go, making no move to follow.",
+          "label": "Back off a few steps and say nothing.",
+          "text": "{catName} watches you back away and doesn't follow. Suit yourself. Next time, start with your name.",
           "summary": "You kept your distance from {catName}.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "parts": [
+            {
+              "beat": "{catName} watches you back away and doesn't follow."
+            },
+            {
+              "say": "Suit yourself. Next time, start with your name."
+            }
+          ]
         },
         {
           "id": "dismiss",
-          "label": "“I did not come to ask permission.”",
-          "text": "“That much is plain.” {catName} turns away, ears angled back.",
+          "label": "“I don't owe you my name. I'll go where I like.”",
+          "text": "No, you don't owe me anything. And nobody on the crag owes you a welcome. {catName} turns away with both ears pinned back.",
           "summary": "You dismissed {catName}’s greeting.",
-          "affinityIntent": "worsen"
+          "affinityIntent": "worsen",
+          "parts": [
+            {
+              "say": "No, you don't owe me anything. And nobody on the crag owes you a welcome."
+            },
+            {
+              "beat": "{catName} turns away with both ears pinned back."
+            }
+          ]
         }
-      ]
+      ],
+      "parts": [
+        {
+          "beat": "{catName} is standing in the middle of the path, far enough off that you can stop without crowding."
+        },
+        {
+          "say": "That's close enough. On the crag we give our names before we come any nearer. What's yours?"
+        }
+      ],
+      "speaker": "{catId}"
     },
     {
       "id": "slice.meeting.bonefield",
@@ -672,31 +705,64 @@
       "cast": "adult_or_elder",
       "oncePerPair": true,
       "title": "Stand where you are",
-      "text": "{catName} stops a few paces away and looks you over. “Alone? Then those tracks behind you are all yours.”",
+      "text": "{catName} stops a few paces off and looks you up and down. On your own? Then nobody's coming to help you if this goes wrong. Are you going to run?",
       "summary": "You met {catName}.",
       "choices": [
         {
           "id": "steady",
-          "label": "“Alone. I can look after myself.”",
-          "text": "“We will see.” {catName} gives you another look, slower this time.",
+          "label": "“I'm not running. I'm on my own, and I can look after myself.”",
+          "text": "We'll see about that. {catName} looks you over again, slower this time.",
           "summary": "You answered {catName} steadily.",
-          "affinityIntent": "improve"
+          "affinityIntent": "improve",
+          "parts": [
+            {
+              "say": "We'll see about that."
+            },
+            {
+              "beat": "{catName} looks you over again, slower this time."
+            }
+          ]
         },
         {
           "id": "withdraw",
-          "label": "Leave room and pass in silence.",
-          "text": "{catName} lets the distance widen. Neither of you looks back.",
+          "label": "Walk wide around and say nothing.",
+          "text": "{catName} doesn't budge to let you by. Thought so.",
           "summary": "You passed {catName} without speaking.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "parts": [
+            {
+              "beat": "{catName} doesn't budge to let you by."
+            },
+            {
+              "say": "Thought so."
+            }
+          ]
         },
         {
           "id": "insult",
-          "label": "“You needed help to get this far?”",
-          "text": "{catName}’s ears flatten. “Keep walking, stranger.”",
+          "label": "“Big talk from a cat who needs a whole pride behind it.”",
+          "text": "{catName}'s ears go flat. Say that again and you'll find out how much help I need. Now keep walking.",
           "summary": "You mocked {catName} at your first meeting.",
-          "affinityIntent": "worsen"
+          "affinityIntent": "worsen",
+          "parts": [
+            {
+              "beat": "{catName}'s ears go flat."
+            },
+            {
+              "say": "Say that again and you'll find out how much help I need. Now keep walking."
+            }
+          ]
         }
-      ]
+      ],
+      "parts": [
+        {
+          "beat": "{catName} stops a few paces off and looks you up and down."
+        },
+        {
+          "say": "On your own? Then nobody's coming to help you if this goes wrong. Are you going to run?"
+        }
+      ],
+      "speaker": "{catId}"
     },
     {
       "id": "slice.meeting.mistwood",
@@ -705,31 +771,67 @@
       "cast": "adult_or_elder",
       "oncePerPair": true,
       "title": "A voice nearby",
-      "text": "“You tread loudly.” {catName} is closer than you expected, watching from beside a tree.",
+      "text": "You're very loud, you know. {catName} is standing by a tree, much closer than you'd thought. Sound carries in the fog, and we've had enough trouble. Can you keep it down?",
       "summary": "You met {catName}.",
       "choices": [
         {
           "id": "listen",
-          "label": "Stop and lower your voice. “I am listening.”",
-          "text": "For a while neither of you speaks. Then {catName} gives a small nod.",
+          "label": "Drop your voice. “Sorry. I'm only passing through.”",
+          "text": "{catName} listens to the quiet for a moment, then nods. Thank you. We lost a lot of cats in the Breaking, so we keep quiet now.",
           "summary": "You gave {catName} time and quiet.",
-          "affinityIntent": "improve"
+          "affinityIntent": "improve",
+          "parts": [
+            {
+              "beat": "{catName} listens to the quiet for a moment, then nods."
+            },
+            {
+              "say": "Thank you. We lost a lot of cats in the Breaking, so we keep quiet now."
+            }
+          ]
         },
         {
           "id": "withdraw",
-          "label": "Back away and leave the path clear.",
-          "text": "{catName} stays still until the trees hide you from each other.",
+          "label": "Back away quietly and leave the path.",
+          "text": "{catName} doesn't move until the trees hide you. Go carefully.",
           "summary": "You left {catName} space.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "parts": [
+            {
+              "beat": "{catName} doesn't move until the trees hide you."
+            },
+            {
+              "say": "Go carefully."
+            }
+          ]
         },
         {
           "id": "sneer",
-          "label": "“Is hiding all you do?”",
-          "text": "“You have seen very little.” {catName} disappears between the trunks.",
+          "label": "“I'll walk how I like. Do you lot always hide in the fog?”",
+          "text": "We hide because we've lost enough cats already. You wouldn't understand that. {catName} slips away between the trunks.",
           "summary": "You sneered at {catName}’s caution.",
-          "affinityIntent": "worsen"
+          "affinityIntent": "worsen",
+          "parts": [
+            {
+              "say": "We hide because we've lost enough cats already. You wouldn't understand that."
+            },
+            {
+              "beat": "{catName} slips away between the trunks."
+            }
+          ]
         }
-      ]
+      ],
+      "parts": [
+        {
+          "say": "You're very loud, you know."
+        },
+        {
+          "beat": "{catName} is standing by a tree, much closer than you'd thought."
+        },
+        {
+          "say": "Sound carries in the fog, and we've had enough trouble. Can you keep it down?"
+        }
+      ],
+      "speaker": "{catId}"
     },
     {
       "id": "slice.meeting.loner",
@@ -741,7 +843,13 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "A scent crosses yours on the trail: a lone cat, with no pride-smell on {him}, only dust and old kills. Then {catName} steps out where the two trails meet."
+          "text": "You pick up a scent on the trail: a lone cat, no pride smell on {him}, only dust and old kills. Then {catName} comes out of the brush ahead of you.",
+          "parts": [
+            {
+              "beat": "You pick up a scent on the trail: a lone cat, no pride smell on {him}, only dust and old kills. Then {catName} comes out of the brush ahead of you."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "narration",
@@ -750,7 +858,13 @@
             "band": "high",
             "who": "npc"
           },
-          "text": "{catName} stops square in the path, shoulders bunched, and lets you see the full length of {his} sabers."
+          "text": "{catName} plants {his} feet in the middle of the path and lets you get a good look at {his} sabers.",
+          "parts": [
+            {
+              "beat": "{catName} plants {his} feet in the middle of the path and lets you get a good look at {his} sabers."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "narration",
@@ -759,7 +873,13 @@
             "band": "baseline",
             "who": "npc"
           },
-          "text": "{catName} stops a few lengths off and goes very still, weighing you up."
+          "text": "{catName} stops a few lengths away and stays very still, sizing you up.",
+          "parts": [
+            {
+              "beat": "{catName} stops a few lengths away and stays very still, sizing you up."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "narration",
@@ -768,7 +888,13 @@
             "band": "low",
             "who": "npc"
           },
-          "text": "{catName} stops short and half-turns away, ready to give ground if this goes badly."
+          "text": "{catName} stops short and turns partly away, ready to back off if this goes badly.",
+          "parts": [
+            {
+              "beat": "{catName} stops short and turns partly away, ready to back off if this goes badly."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "narration",
@@ -777,7 +903,13 @@
             "band": "high",
             "who": "npc"
           },
-          "text": "{His} nose works at the air between you, sorting through every place you've been."
+          "text": "{His} nose is going the whole time, working out where you've been.",
+          "parts": [
+            {
+              "beat": "{His} nose is going the whole time, working out where you've been."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "narration",
@@ -786,7 +918,13 @@
             "band": "low",
             "who": "npc"
           },
-          "text": "{His} eyes keep flicking to the brush on either side, as if {he} expects something else to come out of it."
+          "text": "{His} eyes keep going to the bushes, as if {he} thinks something else might jump out.",
+          "parts": [
+            {
+              "beat": "{His} eyes keep going to the bushes, as if {he} thinks something else might jump out."
+            }
+          ],
+          "speaker": "{catId}"
         },
         {
           "kind": "speech",
@@ -795,50 +933,792 @@
             "band": "high",
             "who": "npc"
           },
-          "text": "Another cat on {playerHis} own! {catName}'s stubby tail flicks up. I was starting to think I was the only one out here. Is it just you?"
+          "text": "{catName}'s bobtail flicks up, and {his} whole face brightens. Oh, another loner! I was starting to think nobody else lived out here. Is it just you?",
+          "parts": [
+            {
+              "beat": "{catName}'s bobtail flicks up, and {his} whole face brightens."
+            },
+            {
+              "say": "Oh, another loner! I was starting to think nobody else lived out here. Is it just you?"
+            }
+          ],
+          "speaker": "{catId}",
+          "byCat": {
+            "ln01": {
+              "speaker": "ln01",
+              "parts": [
+                {
+                  "beat": "{catName} eases down onto the path, stiff in the legs."
+                },
+                {
+                  "say": "It's only me, and I'm too old to be any trouble. I used to live on the crag. Are you on your own?"
+                }
+              ]
+            },
+            "ln02": {
+              "speaker": "ln02",
+              "parts": [
+                {
+                  "beat": "{catName} jumps, then pretends not to have."
+                },
+                {
+                  "say": "Oh! Sorry, I thought you were someone else. Not that I'm waiting for anyone. Are you on your own too?"
+                }
+              ]
+            },
+            "ln03": {
+              "speaker": "ln03",
+              "parts": [
+                {
+                  "beat": "{catName} gives you a long, hard sniff."
+                },
+                {
+                  "say": "You don't smell of Bonefield. Lucky for you. On your own, are you?"
+                }
+              ]
+            },
+            "ln04": {
+              "speaker": "ln04",
+              "parts": [
+                {
+                  "beat": "{catName} looks past you, checking for others."
+                },
+                {
+                  "say": "Just you? Good. I'm from Bonefield, and I'm not going back while its leader's in charge. I've still got friends there, so I'd rather you didn't ask why."
+                }
+              ]
+            },
+            "ln05": {
+              "speaker": "ln05",
+              "parts": [
+                {
+                  "beat": "{catName} bounces over before you've even stopped."
+                },
+                {
+                  "say": "Hey, you're new! I know every scent round here, and not yours. Are you on your own? Me too, mostly."
+                }
+              ]
+            },
+            "ln06": {
+              "speaker": "ln06",
+              "parts": [
+                {
+                  "beat": "{catName} peers at you, squinting."
+                },
+                {
+                  "say": "Hello, dear. Sorry, my eyes aren't what they were. You're on your own, aren't you? So am I."
+                }
+              ]
+            },
+            "ln07": {
+              "speaker": "ln07",
+              "parts": [
+                {
+                  "beat": "{catName} won't meet your eyes."
+                },
+                {
+                  "say": "If the Mistwood cats told you about me, it's all true. I don't want trouble. Are you on your own? Then go on past."
+                }
+              ]
+            },
+            "ln08": {
+              "speaker": "ln08",
+              "parts": [
+                {
+                  "say": "Have you seen a cub out here, or smelled a cub anywhere?"
+                },
+                {
+                  "beat": "{catName} watches your face, then looks away."
+                },
+                {
+                  "say": "Never mind. Are you on your own?"
+                }
+              ]
+            },
+            "ln09": {
+              "speaker": "ln09",
+              "parts": [
+                {
+                  "beat": "{catName} hurries up to you, sniffing."
+                },
+                {
+                  "say": "Have you come from the Mistwood? I've been trying to find them since the ice broke. No? Are you on your own, then?"
+                }
+              ]
+            }
+          }
         },
         {
           "kind": "speech",
           "when": [
-            { "trait": "sociability", "band": "baseline", "who": "npc" },
-            { "trait": "boldness", "band": "high", "who": "npc" }
+            {
+              "trait": "sociability",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "boldness",
+              "band": "high",
+              "who": "npc"
+            }
           ],
-          "text": "\"Just you, then.\" {catName} looks you over, unhurried, from ears to bobtail. \"Good. I don't like being outnumbered on my own trail.\""
+          "text": "{catName} looks you over from ears to bobtail, in no hurry. Just you? Good. I don't like being outnumbered on my own trail.",
+          "parts": [
+            {
+              "beat": "{catName} looks you over from ears to bobtail, in no hurry."
+            },
+            {
+              "say": "Just you? Good. I don't like being outnumbered on my own trail."
+            }
+          ],
+          "speaker": "{catId}",
+          "byCat": {
+            "ln01": {
+              "speaker": "ln01",
+              "parts": [
+                {
+                  "beat": "{catName} eases down onto the path, stiff in the legs."
+                },
+                {
+                  "say": "It's only me, and I'm too old to be any trouble. I used to live on the crag. Are you on your own?"
+                }
+              ]
+            },
+            "ln02": {
+              "speaker": "ln02",
+              "parts": [
+                {
+                  "beat": "{catName} jumps, then pretends not to have."
+                },
+                {
+                  "say": "Oh! Sorry, I thought you were someone else. Not that I'm waiting for anyone. Are you on your own too?"
+                }
+              ]
+            },
+            "ln03": {
+              "speaker": "ln03",
+              "parts": [
+                {
+                  "beat": "{catName} gives you a long, hard sniff."
+                },
+                {
+                  "say": "You don't smell of Bonefield. Lucky for you. On your own, are you?"
+                }
+              ]
+            },
+            "ln04": {
+              "speaker": "ln04",
+              "parts": [
+                {
+                  "beat": "{catName} looks past you, checking for others."
+                },
+                {
+                  "say": "Just you? Good. I'm from Bonefield, and I'm not going back while its leader's in charge. I've still got friends there, so I'd rather you didn't ask why."
+                }
+              ]
+            },
+            "ln05": {
+              "speaker": "ln05",
+              "parts": [
+                {
+                  "beat": "{catName} bounces over before you've even stopped."
+                },
+                {
+                  "say": "Hey, you're new! I know every scent round here, and not yours. Are you on your own? Me too, mostly."
+                }
+              ]
+            },
+            "ln06": {
+              "speaker": "ln06",
+              "parts": [
+                {
+                  "beat": "{catName} peers at you, squinting."
+                },
+                {
+                  "say": "Hello, dear. Sorry, my eyes aren't what they were. You're on your own, aren't you? So am I."
+                }
+              ]
+            },
+            "ln07": {
+              "speaker": "ln07",
+              "parts": [
+                {
+                  "beat": "{catName} won't meet your eyes."
+                },
+                {
+                  "say": "If the Mistwood cats told you about me, it's all true. I don't want trouble. Are you on your own? Then go on past."
+                }
+              ]
+            },
+            "ln08": {
+              "speaker": "ln08",
+              "parts": [
+                {
+                  "say": "Have you seen a cub out here, or smelled a cub anywhere?"
+                },
+                {
+                  "beat": "{catName} watches your face, then looks away."
+                },
+                {
+                  "say": "Never mind. Are you on your own?"
+                }
+              ]
+            },
+            "ln09": {
+              "speaker": "ln09",
+              "parts": [
+                {
+                  "beat": "{catName} hurries up to you, sniffing."
+                },
+                {
+                  "say": "Have you come from the Mistwood? I've been trying to find them since the ice broke. No? Are you on your own, then?"
+                }
+              ]
+            }
+          }
         },
         {
           "kind": "speech",
           "when": [
-            { "trait": "sociability", "band": "baseline", "who": "npc" },
-            { "trait": "boldness", "band": "low", "who": "npc" }
+            {
+              "trait": "sociability",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "boldness",
+              "band": "low",
+              "who": "npc"
+            }
           ],
-          "text": "\"Are you…\" {catName} swallows and tries again, quieter. \"Are you on your own? I don't want any trouble.\""
+          "text": "Are you… {catName} swallows and tries again, quieter. Are you on your own? I don't want any trouble.",
+          "parts": [
+            {
+              "say": "Are you…"
+            },
+            {
+              "beat": "{catName} swallows and tries again, quieter."
+            },
+            {
+              "say": "Are you on your own? I don't want any trouble."
+            }
+          ],
+          "speaker": "{catId}",
+          "byCat": {
+            "ln01": {
+              "speaker": "ln01",
+              "parts": [
+                {
+                  "beat": "{catName} eases down onto the path, stiff in the legs."
+                },
+                {
+                  "say": "It's only me, and I'm too old to be any trouble. I used to live on the crag. Are you on your own?"
+                }
+              ]
+            },
+            "ln02": {
+              "speaker": "ln02",
+              "parts": [
+                {
+                  "beat": "{catName} jumps, then pretends not to have."
+                },
+                {
+                  "say": "Oh! Sorry, I thought you were someone else. Not that I'm waiting for anyone. Are you on your own too?"
+                }
+              ]
+            },
+            "ln03": {
+              "speaker": "ln03",
+              "parts": [
+                {
+                  "beat": "{catName} gives you a long, hard sniff."
+                },
+                {
+                  "say": "You don't smell of Bonefield. Lucky for you. On your own, are you?"
+                }
+              ]
+            },
+            "ln04": {
+              "speaker": "ln04",
+              "parts": [
+                {
+                  "beat": "{catName} looks past you, checking for others."
+                },
+                {
+                  "say": "Just you? Good. I'm from Bonefield, and I'm not going back while its leader's in charge. I've still got friends there, so I'd rather you didn't ask why."
+                }
+              ]
+            },
+            "ln05": {
+              "speaker": "ln05",
+              "parts": [
+                {
+                  "beat": "{catName} bounces over before you've even stopped."
+                },
+                {
+                  "say": "Hey, you're new! I know every scent round here, and not yours. Are you on your own? Me too, mostly."
+                }
+              ]
+            },
+            "ln06": {
+              "speaker": "ln06",
+              "parts": [
+                {
+                  "beat": "{catName} peers at you, squinting."
+                },
+                {
+                  "say": "Hello, dear. Sorry, my eyes aren't what they were. You're on your own, aren't you? So am I."
+                }
+              ]
+            },
+            "ln07": {
+              "speaker": "ln07",
+              "parts": [
+                {
+                  "beat": "{catName} won't meet your eyes."
+                },
+                {
+                  "say": "If the Mistwood cats told you about me, it's all true. I don't want trouble. Are you on your own? Then go on past."
+                }
+              ]
+            },
+            "ln08": {
+              "speaker": "ln08",
+              "parts": [
+                {
+                  "say": "Have you seen a cub out here, or smelled a cub anywhere?"
+                },
+                {
+                  "beat": "{catName} watches your face, then looks away."
+                },
+                {
+                  "say": "Never mind. Are you on your own?"
+                }
+              ]
+            },
+            "ln09": {
+              "speaker": "ln09",
+              "parts": [
+                {
+                  "beat": "{catName} hurries up to you, sniffing."
+                },
+                {
+                  "say": "Have you come from the Mistwood? I've been trying to find them since the ice broke. No? Are you on your own, then?"
+                }
+              ]
+            }
+          }
         },
         {
           "kind": "speech",
           "when": [
-            { "trait": "sociability", "band": "baseline", "who": "npc" },
-            { "trait": "boldness", "band": "baseline", "who": "npc" },
-            { "trait": "aggression", "band": "high", "who": "npc" }
+            {
+              "trait": "sociability",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "boldness",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "aggression",
+              "band": "high",
+              "who": "npc"
+            }
           ],
-          "text": "\"Just you?\" {catName}'s tail lashes once. \"Then you've got no one to blame if you put a paw wrong out here.\""
+          "text": "Just you? {catName}'s bobtail twitches. Then don't start anything. There's nobody out here to back you up.",
+          "parts": [
+            {
+              "say": "Just you?"
+            },
+            {
+              "beat": "{catName}'s bobtail twitches."
+            },
+            {
+              "say": "Then don't start anything. There's nobody out here to back you up."
+            }
+          ],
+          "speaker": "{catId}",
+          "byCat": {
+            "ln01": {
+              "speaker": "ln01",
+              "parts": [
+                {
+                  "beat": "{catName} eases down onto the path, stiff in the legs."
+                },
+                {
+                  "say": "It's only me, and I'm too old to be any trouble. I used to live on the crag. Are you on your own?"
+                }
+              ]
+            },
+            "ln02": {
+              "speaker": "ln02",
+              "parts": [
+                {
+                  "beat": "{catName} jumps, then pretends not to have."
+                },
+                {
+                  "say": "Oh! Sorry, I thought you were someone else. Not that I'm waiting for anyone. Are you on your own too?"
+                }
+              ]
+            },
+            "ln03": {
+              "speaker": "ln03",
+              "parts": [
+                {
+                  "beat": "{catName} gives you a long, hard sniff."
+                },
+                {
+                  "say": "You don't smell of Bonefield. Lucky for you. On your own, are you?"
+                }
+              ]
+            },
+            "ln04": {
+              "speaker": "ln04",
+              "parts": [
+                {
+                  "beat": "{catName} looks past you, checking for others."
+                },
+                {
+                  "say": "Just you? Good. I'm from Bonefield, and I'm not going back while its leader's in charge. I've still got friends there, so I'd rather you didn't ask why."
+                }
+              ]
+            },
+            "ln05": {
+              "speaker": "ln05",
+              "parts": [
+                {
+                  "beat": "{catName} bounces over before you've even stopped."
+                },
+                {
+                  "say": "Hey, you're new! I know every scent round here, and not yours. Are you on your own? Me too, mostly."
+                }
+              ]
+            },
+            "ln06": {
+              "speaker": "ln06",
+              "parts": [
+                {
+                  "beat": "{catName} peers at you, squinting."
+                },
+                {
+                  "say": "Hello, dear. Sorry, my eyes aren't what they were. You're on your own, aren't you? So am I."
+                }
+              ]
+            },
+            "ln07": {
+              "speaker": "ln07",
+              "parts": [
+                {
+                  "beat": "{catName} won't meet your eyes."
+                },
+                {
+                  "say": "If the Mistwood cats told you about me, it's all true. I don't want trouble. Are you on your own? Then go on past."
+                }
+              ]
+            },
+            "ln08": {
+              "speaker": "ln08",
+              "parts": [
+                {
+                  "say": "Have you seen a cub out here, or smelled a cub anywhere?"
+                },
+                {
+                  "beat": "{catName} watches your face, then looks away."
+                },
+                {
+                  "say": "Never mind. Are you on your own?"
+                }
+              ]
+            },
+            "ln09": {
+              "speaker": "ln09",
+              "parts": [
+                {
+                  "beat": "{catName} hurries up to you, sniffing."
+                },
+                {
+                  "say": "Have you come from the Mistwood? I've been trying to find them since the ice broke. No? Are you on your own, then?"
+                }
+              ]
+            }
+          }
         },
         {
           "kind": "speech",
           "when": [
-            { "trait": "sociability", "band": "baseline", "who": "npc" },
-            { "trait": "boldness", "band": "baseline", "who": "npc" },
-            { "trait": "aggression", "band": "baseline", "who": "npc" }
+            {
+              "trait": "sociability",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "boldness",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "aggression",
+              "band": "baseline",
+              "who": "npc"
+            }
           ],
-          "text": "\"Just you?\" {catName} glances past you at the empty trail. \"Or is someone following you?\""
+          "text": "Just you? {catName} glances past you down the empty trail. Or is someone following you?",
+          "parts": [
+            {
+              "say": "Just you?"
+            },
+            {
+              "beat": "{catName} glances past you down the empty trail."
+            },
+            {
+              "say": "Or is someone following you?"
+            }
+          ],
+          "speaker": "{catId}",
+          "byCat": {
+            "ln01": {
+              "speaker": "ln01",
+              "parts": [
+                {
+                  "beat": "{catName} eases down onto the path, stiff in the legs."
+                },
+                {
+                  "say": "It's only me, and I'm too old to be any trouble. I used to live on the crag. Are you on your own?"
+                }
+              ]
+            },
+            "ln02": {
+              "speaker": "ln02",
+              "parts": [
+                {
+                  "beat": "{catName} jumps, then pretends not to have."
+                },
+                {
+                  "say": "Oh! Sorry, I thought you were someone else. Not that I'm waiting for anyone. Are you on your own too?"
+                }
+              ]
+            },
+            "ln03": {
+              "speaker": "ln03",
+              "parts": [
+                {
+                  "beat": "{catName} gives you a long, hard sniff."
+                },
+                {
+                  "say": "You don't smell of Bonefield. Lucky for you. On your own, are you?"
+                }
+              ]
+            },
+            "ln04": {
+              "speaker": "ln04",
+              "parts": [
+                {
+                  "beat": "{catName} looks past you, checking for others."
+                },
+                {
+                  "say": "Just you? Good. I'm from Bonefield, and I'm not going back while its leader's in charge. I've still got friends there, so I'd rather you didn't ask why."
+                }
+              ]
+            },
+            "ln05": {
+              "speaker": "ln05",
+              "parts": [
+                {
+                  "beat": "{catName} bounces over before you've even stopped."
+                },
+                {
+                  "say": "Hey, you're new! I know every scent round here, and not yours. Are you on your own? Me too, mostly."
+                }
+              ]
+            },
+            "ln06": {
+              "speaker": "ln06",
+              "parts": [
+                {
+                  "beat": "{catName} peers at you, squinting."
+                },
+                {
+                  "say": "Hello, dear. Sorry, my eyes aren't what they were. You're on your own, aren't you? So am I."
+                }
+              ]
+            },
+            "ln07": {
+              "speaker": "ln07",
+              "parts": [
+                {
+                  "beat": "{catName} won't meet your eyes."
+                },
+                {
+                  "say": "If the Mistwood cats told you about me, it's all true. I don't want trouble. Are you on your own? Then go on past."
+                }
+              ]
+            },
+            "ln08": {
+              "speaker": "ln08",
+              "parts": [
+                {
+                  "say": "Have you seen a cub out here, or smelled a cub anywhere?"
+                },
+                {
+                  "beat": "{catName} watches your face, then looks away."
+                },
+                {
+                  "say": "Never mind. Are you on your own?"
+                }
+              ]
+            },
+            "ln09": {
+              "speaker": "ln09",
+              "parts": [
+                {
+                  "beat": "{catName} hurries up to you, sniffing."
+                },
+                {
+                  "say": "Have you come from the Mistwood? I've been trying to find them since the ice broke. No? Are you on your own, then?"
+                }
+              ]
+            }
+          }
         },
         {
           "kind": "speech",
           "when": [
-            { "trait": "sociability", "band": "baseline", "who": "npc" },
-            { "trait": "boldness", "band": "baseline", "who": "npc" },
-            { "trait": "aggression", "band": "low", "who": "npc" }
+            {
+              "trait": "sociability",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "boldness",
+              "band": "baseline",
+              "who": "npc"
+            },
+            {
+              "trait": "aggression",
+              "band": "low",
+              "who": "npc"
+            }
           ],
-          "text": "\"Just you? Me too.\" {catName}'s shoulders ease a little. \"There's room on this trail for two, if neither of us makes a fuss.\""
+          "text": "Just you? Me too. {catName}'s shoulders drop a little. Well, there's room on this trail for both of us, as long as nobody makes a fuss.",
+          "parts": [
+            {
+              "say": "Just you? Me too."
+            },
+            {
+              "beat": "{catName}'s shoulders drop a little."
+            },
+            {
+              "say": "Well, there's room on this trail for both of us, as long as nobody makes a fuss."
+            }
+          ],
+          "speaker": "{catId}",
+          "byCat": {
+            "ln01": {
+              "speaker": "ln01",
+              "parts": [
+                {
+                  "beat": "{catName} eases down onto the path, stiff in the legs."
+                },
+                {
+                  "say": "It's only me, and I'm too old to be any trouble. I used to live on the crag. Are you on your own?"
+                }
+              ]
+            },
+            "ln02": {
+              "speaker": "ln02",
+              "parts": [
+                {
+                  "beat": "{catName} jumps, then pretends not to have."
+                },
+                {
+                  "say": "Oh! Sorry, I thought you were someone else. Not that I'm waiting for anyone. Are you on your own too?"
+                }
+              ]
+            },
+            "ln03": {
+              "speaker": "ln03",
+              "parts": [
+                {
+                  "beat": "{catName} gives you a long, hard sniff."
+                },
+                {
+                  "say": "You don't smell of Bonefield. Lucky for you. On your own, are you?"
+                }
+              ]
+            },
+            "ln04": {
+              "speaker": "ln04",
+              "parts": [
+                {
+                  "beat": "{catName} looks past you, checking for others."
+                },
+                {
+                  "say": "Just you? Good. I'm from Bonefield, and I'm not going back while its leader's in charge. I've still got friends there, so I'd rather you didn't ask why."
+                }
+              ]
+            },
+            "ln05": {
+              "speaker": "ln05",
+              "parts": [
+                {
+                  "beat": "{catName} bounces over before you've even stopped."
+                },
+                {
+                  "say": "Hey, you're new! I know every scent round here, and not yours. Are you on your own? Me too, mostly."
+                }
+              ]
+            },
+            "ln06": {
+              "speaker": "ln06",
+              "parts": [
+                {
+                  "beat": "{catName} peers at you, squinting."
+                },
+                {
+                  "say": "Hello, dear. Sorry, my eyes aren't what they were. You're on your own, aren't you? So am I."
+                }
+              ]
+            },
+            "ln07": {
+              "speaker": "ln07",
+              "parts": [
+                {
+                  "beat": "{catName} won't meet your eyes."
+                },
+                {
+                  "say": "If the Mistwood cats told you about me, it's all true. I don't want trouble. Are you on your own? Then go on past."
+                }
+              ]
+            },
+            "ln08": {
+              "speaker": "ln08",
+              "parts": [
+                {
+                  "say": "Have you seen a cub out here, or smelled a cub anywhere?"
+                },
+                {
+                  "beat": "{catName} watches your face, then looks away."
+                },
+                {
+                  "say": "Never mind. Are you on your own?"
+                }
+              ]
+            },
+            "ln09": {
+              "speaker": "ln09",
+              "parts": [
+                {
+                  "beat": "{catName} hurries up to you, sniffing."
+                },
+                {
+                  "say": "Have you come from the Mistwood? I've been trying to find them since the ice broke. No? Are you on your own, then?"
+                }
+              ]
+            }
+          }
         },
         {
           "kind": "speech",
@@ -847,39 +1727,195 @@
             "band": "low",
             "who": "npc"
           },
-          "text": "\"Keep walking.\" {catName} won't quite look at you. \"I didn't come out here for company.\""
+          "text": "Keep walking. {catName} won't quite look at you. I didn't come out here for company.",
+          "parts": [
+            {
+              "say": "Keep walking."
+            },
+            {
+              "beat": "{catName} won't quite look at you."
+            },
+            {
+              "say": "I didn't come out here for company."
+            }
+          ],
+          "speaker": "{catId}",
+          "byCat": {
+            "ln01": {
+              "speaker": "ln01",
+              "parts": [
+                {
+                  "beat": "{catName} eases down onto the path, stiff in the legs."
+                },
+                {
+                  "say": "It's only me, and I'm too old to be any trouble. I used to live on the crag. Are you on your own?"
+                }
+              ]
+            },
+            "ln02": {
+              "speaker": "ln02",
+              "parts": [
+                {
+                  "beat": "{catName} jumps, then pretends not to have."
+                },
+                {
+                  "say": "Oh! Sorry, I thought you were someone else. Not that I'm waiting for anyone. Are you on your own too?"
+                }
+              ]
+            },
+            "ln03": {
+              "speaker": "ln03",
+              "parts": [
+                {
+                  "beat": "{catName} gives you a long, hard sniff."
+                },
+                {
+                  "say": "You don't smell of Bonefield. Lucky for you. On your own, are you?"
+                }
+              ]
+            },
+            "ln04": {
+              "speaker": "ln04",
+              "parts": [
+                {
+                  "beat": "{catName} looks past you, checking for others."
+                },
+                {
+                  "say": "Just you? Good. I'm from Bonefield, and I'm not going back while its leader's in charge. I've still got friends there, so I'd rather you didn't ask why."
+                }
+              ]
+            },
+            "ln05": {
+              "speaker": "ln05",
+              "parts": [
+                {
+                  "beat": "{catName} bounces over before you've even stopped."
+                },
+                {
+                  "say": "Hey, you're new! I know every scent round here, and not yours. Are you on your own? Me too, mostly."
+                }
+              ]
+            },
+            "ln06": {
+              "speaker": "ln06",
+              "parts": [
+                {
+                  "beat": "{catName} peers at you, squinting."
+                },
+                {
+                  "say": "Hello, dear. Sorry, my eyes aren't what they were. You're on your own, aren't you? So am I."
+                }
+              ]
+            },
+            "ln07": {
+              "speaker": "ln07",
+              "parts": [
+                {
+                  "beat": "{catName} won't meet your eyes."
+                },
+                {
+                  "say": "If the Mistwood cats told you about me, it's all true. I don't want trouble. Are you on your own? Then go on past."
+                }
+              ]
+            },
+            "ln08": {
+              "speaker": "ln08",
+              "parts": [
+                {
+                  "say": "Have you seen a cub out here, or smelled a cub anywhere?"
+                },
+                {
+                  "beat": "{catName} watches your face, then looks away."
+                },
+                {
+                  "say": "Never mind. Are you on your own?"
+                }
+              ]
+            },
+            "ln09": {
+              "speaker": "ln09",
+              "parts": [
+                {
+                  "beat": "{catName} hurries up to you, sniffing."
+                },
+                {
+                  "say": "Have you come from the Mistwood? I've been trying to find them since the ice broke. No? Are you on your own, then?"
+                }
+              ]
+            }
+          }
         },
         {
           "kind": "speech",
-          "when": { "trait": "curiosity", "band": "high", "who": "npc" },
-          "text": "\"Where did you come from, anyway? Nobody just appears out here.\""
+          "when": {
+            "trait": "curiosity",
+            "band": "high",
+            "who": "npc"
+          },
+          "text": "Where did you even come from? Cats don't just turn up out here.",
+          "parts": [
+            {
+              "say": "Where did you even come from? Cats don't just turn up out here."
+            }
+          ],
+          "speaker": "{catId}"
         }
       ],
-      "text": "{catName} stops where your paths cross. For a moment, both of you look behind the other for companions.",
+      "text": "{catName} stops where your trails cross, and for a moment you both check behind each other for company. Just you?",
       "summary": "You met {catName}.",
       "choices": [
         {
           "id": "greet",
-          "label": "“Just me. And you?”",
-          "text": "“Just me,” you say. {catName} looks past you one more time, then gives a short nod. “Then it's two of us on one trail. That'll do.”",
+          "label": "“Just me, and I'm not after a pride. Mind if I share the trail?”",
+          "text": "{catName} looks past you again, then gives a short nod. All right, share it. Just don't walk on my heels.",
           "summary": "You exchanged a quiet greeting with {catName}.",
-          "affinityIntent": "improve"
+          "affinityIntent": "improve",
+          "parts": [
+            {
+              "beat": "{catName} looks past you again, then gives a short nod."
+            },
+            {
+              "say": "All right, share it. Just don't walk on my heels."
+            }
+          ]
         },
         {
           "id": "pass",
-          "label": "Keep a respectful distance and move on.",
-          "text": "{catName} makes room. Your trails separate without a word.",
+          "label": "Nod, step off the trail and let the loner be.",
+          "text": "{catName} gives you a small nod back and goes on up the trail.",
           "summary": "You passed {catName} at a distance.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "parts": [
+            {
+              "beat": "{catName} gives you a small nod back and goes on up the trail."
+            }
+          ]
         },
         {
           "id": "drive",
-          "label": "Tell the stranger to move aside.",
-          "text": "{catName} yields the path, but keeps watching until you are gone.",
+          "label": "“Get off the path and let me by.”",
+          "text": "Fine. It's not worth a fight. {catName} steps aside, but watches you all the way down the trail.",
           "summary": "You ordered {catName} off the path.",
-          "affinityIntent": "worsen"
+          "affinityIntent": "worsen",
+          "parts": [
+            {
+              "say": "Fine. It's not worth a fight."
+            },
+            {
+              "beat": "{catName} steps aside, but watches you all the way down the trail."
+            }
+          ]
         }
-      ]
+      ],
+      "parts": [
+        {
+          "beat": "{catName} stops where your trails cross, and for a moment you both check behind each other for company."
+        },
+        {
+          "say": "Just you?"
+        }
+      ],
+      "speaker": "{catId}"
     },
     {
       "id": "slice.patrol.highcrag",

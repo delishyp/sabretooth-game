@@ -8,7 +8,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   const TRAITS = ['aggression', 'sociability', 'boldness', 'loyalty', 'curiosity'];
   const GAP = 'Personality is not on this save. This line is an incomplete stand-in, not this cat\'s voice.';
-  const NEUTRAL = '{catName} waits for your answer without hurrying you.';
+  const NEUTRAL = '{catName} waits for you to answer.';
 
   function pronouns(sex) {
     const female = sex === 'female';
