@@ -31,16 +31,36 @@ function num(value, fallback) {
 }
 
 /**
- * TODO(encounter-engine): replace this adapter with the real fight resolver.
- * The winner is a seeded coin flip shifted by policy.playerBias. It is not a combat result.
+ * Policy names from encounters §8.1. The draft is unsigned, so these names are
+ * registered only. They do not change the coin flip.
+ * TODO(encounter-engine): replace this adapter. Do not copy fight rules in here.
+ * Parity targets for encounter_fight_sim_v0.1.py are outlined in encounter-parity.js.
  */
+const POLICIES = {
+  fight: ['average', 'sensible', 'biteOnly', 'fleeAt30'],
+  hunt: ['steady', 'allBold'],
+  courtship: ['average', 'readTraits']
+};
+function policyGroup(kind) {
+  if (kind === 'hunt' || kind === 'courtship' || kind === 'fight') return kind;
+  return 'fight';
+}
+function resolvePolicy(kind, policy) {
+  const group = policyGroup(kind);
+  const name = typeof policy === 'string' ? policy : (policy && policy.name) || null;
+  return { group, name, known: !!(name && POLICIES[group].includes(name)) };
+}
 function resolveEncounter({ kind, seed, player, opponent, policy, rng }) {
   const bias = policy && typeof policy.playerBias === 'number' ? policy.playerBias : 0.5;
   const roll = quant(rng());
+  const named = resolvePolicy(kind, policy);
   return {
     adapter: 'todo',
     engine: 'encounter',
     kind: kind || 'spar',
+    policyGroup: named.group,
+    policyName: named.name,
+    policyKnown: named.known,
     playerId: (player && player.id) || 'player',
     opponentId: (opponent && opponent.id) || 'opponent',
     roll,
@@ -156,8 +176,8 @@ function csvCell(value) {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 function csvEncounter(log) {
-  const lines = ['seed,kind,index,playerId,opponentId,roll,winner'];
-  for (const row of log.rows) lines.push([log.seed, row.kind, row.index, row.playerId, row.opponentId, row.roll, row.winner].map(csvCell).join(','));
+  const lines = ['seed,kind,index,policyName,policyKnown,playerId,opponentId,roll,winner'];
+  for (const row of log.rows) lines.push([log.seed, row.kind, row.index, row.policyName || '', row.policyKnown ? 'yes' : '', row.playerId, row.opponentId, row.roll, row.winner].map(csvCell).join(','));
   return lines.join('\n');
 }
 function csvWorld(log) {
@@ -215,7 +235,8 @@ if (require.main === module) {
   const log = runCommand(name, {
     seed: args.seed, kind: args.kind, count: args.count, seasons: args.seasons, days: args.days,
     player: args.player ? { id: args.player } : undefined,
-    opponent: args.opponent ? { id: args.opponent } : undefined
+    opponent: args.opponent ? { id: args.opponent } : undefined,
+    policy: args.policy ? { name: args.policy } : undefined
   });
   if (!log) {
     console.error('Use one of: encounter, batch, world, lifetime');
@@ -225,5 +246,5 @@ if (require.main === module) {
 }
 
 module.exports = {
-  allowed, engines, simulateEncounter, simulateEncounterBatch, simulateWorld, simulateLifetime, toCsv, runCommand
+  allowed, POLICIES, engines, simulateEncounter, simulateEncounterBatch, simulateWorld, simulateLifetime, toCsv, runCommand
 };

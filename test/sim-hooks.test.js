@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('node:child_process');
 const Sim = require('../src/dev/sim-hooks');
+const Parity = require('../src/dev/encounter-parity');
 
 const root = path.join(__dirname, '..');
 const player = { id: 'player' };
@@ -36,6 +37,39 @@ test('the same seed prints the same encounter, world, and lifetime logs', () => 
   const csv = Sim.toCsv(world);
   assert.strictEqual(csv, Sim.toCsv(Sim.simulateWorld({ seed: 8, seasons: 4 })));
   assert.match(csv.split('\n')[0], /zoneId,holder,state,strength,changeFrom,changeTo,todo/);
+});
+
+test('encounter policy names are registered and the parity check does not run fights', () => {
+  assert.deepStrictEqual(Sim.POLICIES, {
+    fight: ['average', 'sensible', 'biteOnly', 'fleeAt30'],
+    hunt: ['steady', 'allBold'],
+    courtship: ['average', 'readTraits']
+  });
+  const fight = Sim.simulateEncounter({ kind: 'fight', seed: 8, player, opponent, policy: { name: 'biteOnly' } });
+  assert.strictEqual(fight.rows[0].policyName, 'biteOnly');
+  assert.strictEqual(fight.rows[0].policyKnown, true);
+  assert.strictEqual(fight.rows[0].adapter, 'todo');
+  const hunt = Sim.simulateEncounter({ kind: 'hunt', seed: 8, player, opponent, policy: 'steady' });
+  assert.strictEqual(hunt.rows[0].policyKnown, true);
+  assert.strictEqual(hunt.rows[0].policyGroup, 'hunt');
+  const court = Sim.simulateEncounter({ kind: 'courtship', seed: 8, player, opponent, policy: 'readTraits' });
+  assert.strictEqual(court.rows[0].policyKnown, true);
+  const wrong = Sim.simulateEncounter({ kind: 'hunt', seed: 8, player, opponent, policy: 'biteOnly' });
+  assert.strictEqual(wrong.rows[0].policyKnown, false);
+  assert.deepStrictEqual(fight, Sim.simulateEncounter({ kind: 'fight', seed: 8, player, opponent, policy: { name: 'biteOnly' } }));
+
+  const check = Parity.compare();
+  assert.strictEqual(check.compared, false);
+  assert.strictEqual(check.reason, 'engine-unsigned');
+  assert.deepStrictEqual(check.targets.fight.map((row) => row.target), [0.5, 0.71, 0.9, 0.1]);
+  assert.deepStrictEqual(check.targets.hunt.map((row) => row.target), [0.55, 0.5, 0.3]);
+  const source = fs.readFileSync(path.join(root, 'src/dev/encounter-parity.js'), 'utf8');
+  assert.match(source, /TODO\(encounter-engine\)/);
+  assert.match(source, /implement fight or hunt rules/);
+  const ran = spawnSync(process.execPath, ['src/dev/encounter-parity.js'], { cwd: root, encoding: 'utf8' });
+  assert.strictEqual(ran.status, 0, ran.stderr);
+  assert.match(ran.stdout, /not run/);
+  assert.match(ran.stdout, /engine-unsigned/);
 });
 
 test('stub adapters are still marked TODO and the CLI stays dev-only', () => {

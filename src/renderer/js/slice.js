@@ -8,9 +8,9 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'), require('./pass2'), require('./motives'), require('./directory'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2, root.Motives, root.Directory);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives, Directory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'), require('./pass2'), require('./motives'), require('./directory'), require('./pride-header'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2, root.Motives, root.Directory, root.PrideHeader);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives, Directory, PrideHeader) {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
   function loadPass6() {
@@ -152,7 +152,8 @@
         npcs: rollNpcs(seed, mainCat.name), usedEvents: [], pending: null, report: null, log: [], dead: null, over: false,
         conversation: C.empty(),
         encounters: Enc.empty(),
-        followups: []
+        followups: [],
+        pride: { food: 0 }
       };
       migratePlayerPortrait(s.cat);
       Personality.applyNew(s, R);
@@ -160,6 +161,7 @@
       WM.initNew(s);
       Pair.initNew(s);
       if (Directory) Directory.seed(s);
+      if (PrideHeader) PrideHeader.migrateFood(s);
       return s;
     }
     function bondDeps(s, rep) {
@@ -1303,6 +1305,7 @@
       if (Pair.enabled) Pair.normalize(s);
       if (!Array.isArray(s.followups)) s.followups = [];
       if (Directory) Directory.migrate(s, slots);
+      if (PrideHeader) PrideHeader.migrateFood(s);
       s.saveVersion = R.saveVersion;
       return s;
     }
