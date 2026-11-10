@@ -1,40 +1,93 @@
 /**
- * Parity outline only. encounters-v0.1 is an unsigned draft, so this file does not
- * implement fight or hunt rules and does not call encounter_fight_sim_v0.1.py.
+ * Parity check for the headless engine against §8.2.
+ * Quick resolve + average: fights 50/71/90/10, hunt 55/50/30, courtship §2 (37% fresh).
+ * Sensible fight at equal strength is about 66%. Median spar is 5 or 6 rounds.
+ * Showdown is not measured here.
  *
- * TODO(encounter-engine): when that engine exists, run a fixed trial count for each
- * row below and compare the rate to the python sim. Until then compare() does not run.
- *
- * Fight policy targets: average 50%, sensible 71%, biteOnly 90%, fleeAt30 10%.
- * Hunt size targets (Standard solo): small 55%, medium 50%, large 30%.
+ *   node src/dev/encounter-parity.js
  */
-const TARGETS = {
+const Engine = require('../renderer/js/encounter-engine');
+
+const BANDS = {
   fight: [
-    { policy: 'average', target: 0.5 },
-    { policy: 'sensible', target: 0.71 },
-    { policy: 'biteOnly', target: 0.9 },
-    { policy: 'fleeAt30', target: 0.1 }
+    { label: 'equal', player: 10, opponent: 10, target: 0.5 },
+    { label: 'edge10', player: 11, opponent: 10, target: 0.71 },
+    { label: 'edge25', player: 12.5, opponent: 10, target: 0.9 },
+    { label: 'weaker25', player: 10, opponent: 12.5, target: 0.1 }
   ],
   hunt: [
     { size: 'small', target: 0.55 },
     { size: 'medium', target: 0.5 },
     { size: 'large', target: 0.3 }
-  ]
+  ],
+  courtshipFresh: { pairValue: 30, sociability: 50, compat: 0, standing: 0, style: 'standard', target: 0.37 },
+  sensibleEqual: { player: 10, opponent: 10, target: 0.66 },
+  medianRounds: { min: 5, max: 6 }
 };
 
-function compare() {
-  return {
-    compared: false,
-    reason: 'engine-unsigned',
-    todo: 'encounter_fight_sim_v0.1.py',
-    targets: TARGETS
+function rate(n, fn) {
+  let wins = 0;
+  for (let i = 0; i < n; i++) if (fn(i)) wins += 1;
+  return wins / n;
+}
+function median(values) {
+  const copy = values.slice().sort((a, b) => a - b);
+  return copy[Math.floor(copy.length / 2)];
+}
+function measure(n) {
+  const tol = Engine.config.bands;
+  const fights = BANDS.fight.map((row) => {
+    const got = rate(n, (i) => Engine.resolve({
+      kind: 'fight', seed: i, quick: true, policy: 'average', engine: true,
+      player: { id: 'player', strength: row.player },
+      opponent: { id: 'foe', strength: row.opponent }
+    }).winner === 'player');
+    return { label: row.label, target: row.target, got, ok: Math.abs(got - row.target) <= tol.fightTolerance };
+  });
+  const hunts = BANDS.hunt.map((row) => {
+    const got = rate(n, (i) => Engine.resolve({
+      kind: 'hunt', seed: i, quick: true, policy: 'steady', size: row.size, engine: true,
+      player: { id: 'player' }, opponent: { id: 'prey' }
+    }).ok);
+    return { size: row.size, target: row.target, got, ok: Math.abs(got - row.target) <= tol.huntTolerance };
+  });
+  const fresh = BANDS.courtshipFresh;
+  const chance = Engine.courtshipChance(fresh, 'average');
+  const gotCourt = rate(n, (i) => Engine.resolve({
+    kind: 'courtship', seed: i, quick: true, policy: 'average', engine: true,
+    player: { id: 'player' }, opponent: { id: 'hc05' }, courtship: fresh
+  }).accepted);
+  const courtship = {
+    target: fresh.target, chance: chance / 100, got: gotCourt,
+    ok: Math.abs(chance - fresh.target * 100) < 0.01 && Math.abs(gotCourt - fresh.target) <= tol.courtshipTolerance
   };
+  const sensible = rate(n, (i) => Engine.resolve({
+    kind: 'fight', seed: i + 100000, quick: true, policy: 'sensible', engine: true,
+    player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
+  }).winner === 'player');
+  const rounds = [];
+  for (let i = 0; i < Math.min(n, 800); i++) {
+    rounds.push(Engine.resolve({
+      kind: 'spar', seed: i, quick: false, policy: 'average', engine: true,
+      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
+    }).rounds);
+  }
+  const mid = median(rounds);
+  return {
+    fights, hunts, courtship,
+    sensible: { target: BANDS.sensibleEqual.target, got: sensible, ok: Math.abs(sensible - BANDS.sensibleEqual.target) <= tol.sensibleTolerance },
+    medianRounds: { got: mid, ok: mid >= BANDS.medianRounds.min && mid <= BANDS.medianRounds.max }
+  };
+}
+function passed(report) {
+  return report.fights.every((row) => row.ok) && report.hunts.every((row) => row.ok)
+    && report.courtship.ok && report.sensible.ok && report.medianRounds.ok;
 }
 
 if (require.main === module) {
-  const result = compare();
-  console.log('Encounter parity is not run. The engine spec is unsigned and the fight rules are not implemented.');
-  console.log(JSON.stringify(result));
+  const report = measure(4000);
+  console.log(JSON.stringify(report, null, 2));
+  if (!passed(report)) process.exit(1);
 }
 
-module.exports = { TARGETS, compare };
+module.exports = { BANDS, measure, passed, median };

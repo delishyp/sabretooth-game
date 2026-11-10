@@ -1,0 +1,40 @@
+{
+  "enabled": false,
+  "fight": {
+    "hp": 100,
+    "sparStop": 40,
+    "fleeAt": 30,
+    "randomMin": 0.8,
+    "randomMax": 1.2,
+    "damagePerStrength": 1,
+    "maxRounds": 30,
+    "sensibleStrength": 1.072,
+    "biteDamage": 1.4,
+    "biteStrength": 1.15
+  },
+  "hunt": {
+    "base": 50,
+    "prey": { "small": 5, "medium": 0, "large": -20 },
+    "style": { "story": 15, "standard": 0, "sim": -10 },
+    "allBold": 8,
+    "clamp": [5, 95],
+    "stamina": 100,
+    "cost": { "small": 16, "medium": 20, "large": 28 }
+  },
+  "courtship": {
+    "base": 20,
+    "pair": 0.4,
+    "displayPerM": 3,
+    "clamp": [5, 90],
+    "style": { "story": 10, "standard": 0, "sim": -5 },
+    "readTraits": 0.1,
+    "interestGoal": 100,
+    "interestPerPoint": 8
+  },
+  "bands": {
+    "fightTolerance": 0.03,
+    "huntTolerance": 0.03,
+    "courtshipTolerance": 0.04,
+    "sensibleTolerance": 0.03
+  }
+}

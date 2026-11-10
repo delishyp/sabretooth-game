@@ -22,7 +22,8 @@ function fresh() {
 
 test('a new run and a v1 save both carry a pooled pride food store', () => {
   const s = fresh();
-  assert.deepStrictEqual(s.pride, { food: 0 });
+  assert.strictEqual(s.pride.food, 0);
+  assert.deepStrictEqual(s.pride.roles, {});
   assert.strictEqual(s.saveVersion, 1);
   const legacy = fresh();
   delete legacy.pride;

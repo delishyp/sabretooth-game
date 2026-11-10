@@ -13,7 +13,7 @@ SABRETOOTH_SIM=1 node src/dev/sim-hooks.js lifetime --seed 8 --days 20
 
 Add `--csv` to any command for CSV. `--player` and `--opponent` set the encounter ids.
 
-- `encounter` logs one seeded row: kind, roll, winner. `--policy` records a name from encounters §8.1 and does not change the coin flip. Fight names: `average`, `sensible`, `biteOnly`, `fleeAt30`. Hunt names: `steady`, `allBold`. Courtship names: `average`, `readTraits`. The draft is unsigned, so the fight rules are not implemented. `src/dev/encounter-parity.js` only lists the later check against `encounter_fight_sim_v0.1.py`: fights 50/71/90/10, hunts 55/50/30.
+- `encounter` logs one seeded stub row unless `SABRETOOTH_ENCOUNTER_ENGINE=1`. The flag defaults off. With the flag, quick resolve uses the §8.2 bands: fight edges 50/71/90/10, hunt 55/50/30, and the courtship point roll. Sensible fight at equal strength is about 66%. A spar stops at 40 HP. Showdown is not simulated. Policy names stay `average`, `sensible`, `biteOnly`, `fleeAt30`, `steady`, `allBold`, and `readTraits`. `node src/dev/encounter-parity.js` prints the measured rates. Numbers live in `src/renderer/data/encounter-engine.json`.
 - `batch` repeats that row. The same seed and count always print the same rows.
 - `world` starts from the map's real claims and logs holder, state, and claim strength for each season. The stub then records one placeholder change of hands (`todo: yes` in CSV). That change is not a territory rule.
 - `lifetime` logs one row per day: deeds, witnesses, level, and title. Deed and witness text are template ids. The lifetime engine is not attached.

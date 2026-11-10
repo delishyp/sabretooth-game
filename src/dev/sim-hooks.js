@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const Rng = require('../renderer/js/rng');
 const WorldMap = require('../renderer/js/worldmap');
+const Engine = require('../renderer/js/encounter-engine');
 
 const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
 const STUB_PRIDES = ['highcrag', 'bonefield', 'mistwood'];
@@ -126,13 +127,21 @@ function loadMap(map) {
   return JSON.parse(fs.readFileSync(path.join(__dirname, '../renderer/data/map.json'), 'utf8'));
 }
 
-function simulateEncounter({ kind, seed, player, opponent, policy } = {}) {
+function engineOn(opts) {
+  return Engine.enabled(opts);
+}
+function simulateEncounter({ kind, seed, player, opponent, policy, engine, env, quick, size, style, courtship, spar } = {}) {
   const s = seed >>> 0;
   const name = kind || 'spar';
+  if (engineOn({ engine, env })) {
+    const row = Engine.resolve({ kind: name, seed: s, player, opponent, policy, quick, size, style, courtship, spar });
+    row.index = 0;
+    return { command: 'encounter', seed: s, kind: name, adapter: 'engine', enabled: true, rows: [row] };
+  }
   const rng = Rng.stream(s, 'sim', 'encounter', name, (player && player.id) || 'player', (opponent && opponent.id) || 'opponent');
   const row = engines.encounter.resolve({ kind: name, seed: s, player, opponent, policy, rng });
   row.index = 0;
-  return { command: 'encounter', seed: s, kind: name, adapter: 'todo', rows: [row] };
+  return { command: 'encounter', seed: s, kind: name, adapter: 'todo', enabled: false, rows: [row] };
 }
 function simulateEncounterBatch({ kind, seed, count, player, opponent, policy } = {}) {
   const s = seed >>> 0;
@@ -236,7 +245,11 @@ if (require.main === module) {
     seed: args.seed, kind: args.kind, count: args.count, seasons: args.seasons, days: args.days,
     player: args.player ? { id: args.player } : undefined,
     opponent: args.opponent ? { id: args.opponent } : undefined,
-    policy: args.policy ? { name: args.policy } : undefined
+    policy: args.policy ? { name: args.policy } : undefined,
+    env: process.env,
+    quick: args.quick === 'false' ? false : undefined,
+    size: args.size,
+    spar: args.spar === 'true'
   });
   if (!log) {
     console.error('Use one of: encounter, batch, world, lifetime');

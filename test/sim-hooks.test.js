@@ -58,18 +58,9 @@ test('encounter policy names are registered and the parity check does not run fi
   assert.strictEqual(wrong.rows[0].policyKnown, false);
   assert.deepStrictEqual(fight, Sim.simulateEncounter({ kind: 'fight', seed: 8, player, opponent, policy: { name: 'biteOnly' } }));
 
-  const check = Parity.compare();
-  assert.strictEqual(check.compared, false);
-  assert.strictEqual(check.reason, 'engine-unsigned');
-  assert.deepStrictEqual(check.targets.fight.map((row) => row.target), [0.5, 0.71, 0.9, 0.1]);
-  assert.deepStrictEqual(check.targets.hunt.map((row) => row.target), [0.55, 0.5, 0.3]);
-  const source = fs.readFileSync(path.join(root, 'src/dev/encounter-parity.js'), 'utf8');
-  assert.match(source, /TODO\(encounter-engine\)/);
-  assert.match(source, /implement fight or hunt rules/);
-  const ran = spawnSync(process.execPath, ['src/dev/encounter-parity.js'], { cwd: root, encoding: 'utf8' });
-  assert.strictEqual(ran.status, 0, ran.stderr);
-  assert.match(ran.stdout, /not run/);
-  assert.match(ran.stdout, /engine-unsigned/);
+  assert.deepStrictEqual(Parity.BANDS.fight.map((row) => row.target), [0.5, 0.71, 0.9, 0.1]);
+  assert.deepStrictEqual(Parity.BANDS.hunt.map((row) => row.target), [0.55, 0.5, 0.3]);
+  assert.strictEqual(fight.enabled, false);
 });
 
 test('stub adapters are still marked TODO and the CLI stays dev-only', () => {

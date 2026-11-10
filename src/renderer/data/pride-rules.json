@@ -1,0 +1,14 @@
+{
+  "feed": { "meal": 12 },
+  "hunt": {
+    "base": 50,
+    "prey": { "small": 5, "medium": 0, "large": -20 },
+    "role": 5,
+    "clamp": [5, 95],
+    "store": { "medium": 50 }
+  },
+  "guard": { "multiplier": 1.1 },
+  "cub": { "starvingExtra": 0.1 },
+  "scout": { "warningAt": -15 },
+  "band": { "minStrengthRatio": 0.8 }
+}
