@@ -12,6 +12,7 @@
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   const Slice = (typeof require === 'function' ? require('./slice') : (typeof self !== 'undefined' ? self.Slice : null));
   const HomeScene = (typeof require === 'function' ? require('./home-scene') : (typeof self !== 'undefined' ? self.HomeScene : null));
+  const FightHp = (typeof require === 'function' ? require('./fight-hp') : (typeof self !== 'undefined' ? self.FightHp : null));
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -759,6 +760,23 @@
       }
       card.append(ch);
     }
+    function fightBarSpec() {
+      const p = s.pending;
+      if (!p) return null;
+      if (p.fightBars) return p.fightBars;
+      if (p.eventId === 'lone.spar' && p.catId && s.npcs[p.catId]) {
+        return {
+          kind: 'spar',
+          player: { name: s.cat.name, hp: p.playerHp != null ? p.playerHp : 100 },
+          foe: { name: s.npcs[p.catId].name, hp: p.foeHp != null ? p.foeHp : 100 }
+        };
+      }
+      return null;
+    }
+    function maybeFightBars(card) {
+      const spec = fightBarSpec();
+      if (spec && FightHp) FightHp.mount(card, spec);
+    }
     function renderEvent() {
       if (s.phase === 'encounter') return renderEncounter();
       if (s.phase === 'ford') return renderFord();
@@ -774,6 +792,7 @@
         const card = el('div', 'event-card has-beats');
         card.dataset.event = p.eventId || '';
         box.append(card);
+        maybeFightBars(card);
         const libraryTitle = E.eventById(p.eventId);
         const title = p.title || (libraryTitle && libraryTitle.title) || 'Scene';
         const focusBeat = beatList[Math.min(p.beatIndex || 0, beatList.length - 1)];
@@ -803,6 +822,7 @@
       if (!show) return;
       box.textContent = ''; const e = E.eventById(p.eventId);
       const card = el('div', 'event-card'); box.append(card);
+      maybeFightBars(card);
       if (p.catId && s.npcs[p.catId]) {
         const npc = s.npcs[p.catId];
         const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
