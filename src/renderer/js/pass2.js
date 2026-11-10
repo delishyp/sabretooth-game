@@ -131,14 +131,14 @@
       "ford_friend.listen": "Stay and listen.",
     },
     "lone-actions.js:approachOpeners": {
-      "sociable": "{catName} trots over with {his} tail high, already talking before {he}'s close enough to hear properly.",
-      "rival": "{catName} walks straight at you and stops a whisker too close, sabers level with your eyes. {He} doesn't blink.",
-      "loyal": "{catName} comes to you quickly and quietly, with a glance back the way {he} came. Whatever this is, it matters to {him}.",
-      "curious": "{catName} circles once, sniffing the air around you, ears pricked. Clearly {he} has a question.",
-      "baseline": "{catName} comes as far as the edge of your scent and stops there, waiting to see what you'll do."
+      "sociable": "{catName} trots over with {his} bobtail up. “There you are! Have you got a moment? I could use someone to talk to.”",
+      "rival": "{catName} walks right up to you and stops much too close, {his} ears flat. “I want a word with you. Stay off my trails.”",
+      "loyal": "{catName} hurries over, with a glance back the way {he} came. “Can you do something for me? Don't tell anyone you saw me out here today.”",
+      "curious": "{catName} circles you, sniffing, with {his} ears up. “You smell of places I don't know. I've got questions, if you've got a moment.”",
+      "baseline": "{catName} comes as far as the edge of your scent and stops. “Mind if I talk to you for a bit?”"
     },
     "lone-actions.js:noApproach": "You wait while the light shifts across the ground. No cat comes to you today, only the wind.",
-    "lone-actions.js:gossipBeat": "{catName} leans closer, and {npcHe} drops {his} voice. “{fact}”",
+    "lone-actions.js:gossipBeat": "{catName} leans in and lowers {his} voice. “{fact}”",
     "lone-actions.js:summary": {
       "accepted": "You gave your word. {catName} will be waiting to see if you keep it.",
       "passed_on": "You passed on what you knew, and {catName} tucked it away.",

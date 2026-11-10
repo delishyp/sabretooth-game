@@ -67,7 +67,7 @@ test('Let them watch, Share and Warn off use the presence summary', () => {
   const letWatch = E.act(watched.s, { type: 'sceneChoose', choiceId: 'let_watch' }).state;
   assert.strictEqual(letWatch.phase, 'eventResult');
   assert.strictEqual(letWatch.pending.summary, moment(watched.cat.name));
-  assert.ok(letWatch.pending.beats[0].text.endsWith('pads away without a word.'));
+  assert.ok(letWatch.pending.beats[0].text.includes(watched.cat.name));
   assert.strictEqual(letWatch.pending.beats[0].text, j('events/cat-presence-v0.1.json')['presence.hunt.let_watch'].text.replaceAll('{name}', watched.cat.name));
 
   const warned = arm();

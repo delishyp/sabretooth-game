@@ -50,7 +50,7 @@ test('a knows variant is used when the listener lived the fact, including a part
 test('the shipped cub line is kept for a stranger and dropped for the cat who did it', () => {
   const stranger = { cubPride: () => 'bonefield' };
   const lived = { cubPride: () => 'bonefield', listenerParticipated: true };
-  assert.strictEqual(Pass2.gossipPhrase('ravenmark/cub/bf09', 'ravenmark', lived), null);
+  assert.ok(String(Pass2.gossipPhrase('ravenmark/cub/bf09', 'ravenmark', lived)).includes('you who walked'));
   assert.ok(String(Pass2.gossipPhrase('ravenmark/cub/bf09', 'ravenmark', stranger)).includes('Bonefield cub'));
 });
 
@@ -83,7 +83,7 @@ test('with no knows variant the lived fact is skipped and the next eligible item
   });
   const text = opened.event.beats.map((beat) => beat.text).join('\n');
   assert.ok(!text.includes('walked a lost'), text);
-  assert.ok(text.includes('The wolves are on the move again'), text);
+  assert.ok(text.includes('The wolves are on the move'), text);
   assert.strictEqual(opened.event.gossipSourceId, wolfId);
 });
 

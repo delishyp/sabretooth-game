@@ -136,7 +136,7 @@ test('an open Mistwood promise plays the reminder, not the first ask', () => {
     scene: j('events/sample-beats.json')['npc_initiative.mistwood.request_help.v1']
   });
   const text = opened.event.beats.map((beat) => beat.text).join('\n');
-  assert.ok(text.includes('haven\'t forgotten'), text);
+  assert.ok(text.includes('Did you find me a hare'), text);
   assert.ok(!text.includes('hare from these marshes'), text);
 });
 

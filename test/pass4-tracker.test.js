@@ -38,7 +38,7 @@ function rendered(s, catId) {
 test('gossip uses Saga\'s line and drops an unmatched fact', () => {
   assert.strictEqual(
     E.pass2.gossipPhrase('ravenmark/ford_dispute/highcrag/bonefield', 'ravenmark'),
-    pass4.bug1_gossipPhrases['ford_dispute/*']
+    j('events/pass-4-tracker.json').bug1_gossipPhrases['ford_dispute/*']
   );
   assert.strictEqual(E.pass2.gossipPhrase('ravenmark/known-only', 'ravenmark'), null);
   assert.strictEqual(E.pass2.gossipPhrase('ravenmark/cub/bf-cub', 'ravenmark'), null);
@@ -158,13 +158,13 @@ test('seed 8 Sleet and Cragward get different baseline greetings, and the fallba
 });
 
 test('each gossip alias renders only for a cat who knows the stored fact', () => {
-  const phrases = pass4.bug1_gossipPhrases;
+  const live = j('events/pass-4-tracker.json').bug1_gossipPhrases;
   const cases = [
-    { id: 'player_aided_bonefield', line: phrases['ford_choice/help_bonefield_cat'] },
-    { id: 'player_sided_highcrag', line: phrases['ford_choice/side_with_highcrag'] },
-    { id: 'player_stayed_out_ford', line: phrases['ford_choice/stay_out'] },
-    { id: 'steal/horse_meadows/3', line: phrases['hunt_steal/{pride}'].replaceAll('{pride}', 'Highcrag') },
-    { id: 'cub/hc10', line: phrases['pride_aid/{pride}'].replaceAll('{pride}', 'Highcrag') }
+    { id: 'player_aided_bonefield', line: live['ford_choice/help_bonefield_cat'] },
+    { id: 'player_sided_highcrag', line: live['ford_choice/side_with_highcrag'] },
+    { id: 'player_stayed_out_ford', line: live['ford_choice/stay_out'] },
+    { id: 'steal/horse_meadows/3', line: live['hunt_steal/{pride}'].replaceAll('{pride}', 'Highcrag') },
+    { id: 'cub/hc10', line: live['pride_aid/{pride}'].replaceAll('{pride}', 'Highcrag') }
   ];
   function approach(runId, factPath, knows) {
     const s = E.newRun({ mainCat: player, seed: 8, runId });

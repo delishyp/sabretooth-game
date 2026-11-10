@@ -1,198 +1,198 @@
 {
- "_readme": "Motives for the 39 premade slots (world-slots.json at d69115c). Keyed by slot because non-story slots get random names. 'motive' is for authors and the online/local model prompt only, never shown. 'aside' is one speech line the cat may say unprompted in a meeting or presence scene, with no tokens and no numbers. 'gossip' is how other cats talk about them, with {name} = this cat. Wants stay flavour only (Director ruling): nothing here creates a mechanic, reward or promise. Secrets in loners.md are never stated; lines only hint. Unnamed slots are never named in another cat's line, only by role. Sources: world-gen-spec.md slot table, world-and-prides.md, loners.md.",
- "hc01": {
-  "motive": "Keep Highcrag's order and lineage unbroken, and keep the truth about the fallen cub buried.",
-  "aside": "\"The crag remembers every cat who ever stood on it. Be careful what it remembers about you.\"",
-  "gossip": "They say {name} has never once been seen to hurry, not even when the river rose."
- },
- "hc02": {
-  "motive": "Earn his mother's place and outrun the day the fallen cub is spoken of.",
-  "aside": "\"Everyone on the crag is waiting for me to fail at something. I don't plan to give them the pleasure.\"",
-  "gossip": "{name} trains harder than anyone on the crag, as if something's chasing him."
- },
- "hc03": {
-  "motive": "Stand behind the leader and keep the crag fed with big game; wants the young ones taught to wait.",
-  "aside": "\"A good hunter waits. Most young cats never learn that, and most of them stay hungry.\"",
-  "gossip": "{name} doesn't say much, but the crag eats well because of him."
- },
- "hc04": {
-  "motive": "Belong on the crag completely, though he has always felt like the cat who doesn't quite fit.",
-  "aside": "\"Sometimes the old cats look at me as if they're trying to remember something.\"",
-  "gossip": "{name} was brought up on the crag, but no one ever tells the same story about where he came from."
- },
- "hc05": {
-  "motive": "Be the best stalker on the crag and be trusted with the hunts that matter.",
-  "aside": "\"Snow tells you everything if you're patient enough to read it.\"",
-  "gossip": "If there's a hare on the high meadow, {name} has already found it."
- },
- "hc06": {
-  "motive": "Keep her cubs safe and the dens peaceful; wants the arguments kept away from the nursery.",
-  "aside": "\"Lower your voice near the dens, please. The little ones have only just gone to sleep.\"",
-  "gossip": "{name} could calm a storm if it came near the cubs."
- },
- "hc07": {
-  "motive": "Guard the crag and its law. Still carries her daughter's leaving, and won't show it.",
-  "aside": "\"I've guarded this crag a long time. I know the look of a cat who's thinking about leaving it.\"",
-  "gossip": "{name} hasn't been the same since her daughter left, though she'd bite anyone who said so."
- },
- "hc08": {
-  "motive": "Keep every name in the recitation; dreads a name being lost.",
-  "aside": "\"Every name I recite was a cat once. When I'm gone, I hope someone keeps them.\"",
-  "gossip": "{name} knows every name back to the first cats on the crag, and a few the crag would rather forget."
- },
- "hc09": {
-  "motive": "Prove he's grown, and get out from under being the leader's youngest.",
-  "aside": "\"I'll be hunting big game soon. Everyone keeps saying 'soon'.\"",
-  "gossip": "{name} follows the hunters everywhere and thinks nobody notices."
- },
- "hc10": {
-  "motive": "Play, explore and find out what's past the dens.",
-  "aside": "\"Are you from far away? How far? Further than the ledge?\"",
-  "gossip": "{name} is always one paw further from the den than she's allowed."
- },
- "hc11": {
-  "motive": "Stay warm and near his mother; everything is new.",
-  "aside": "The cub squeaks and hides behind the nearest grown cat.",
-  "gossip": "{name} is the newest life on the crag."
- },
- "bf01": {
-  "motive": "Hold Bonefield by strength and keep every challenger afraid; watches for weakness, including his own.",
-  "aside": "\"Three cats have tried to take this field from me. Look around. You don't see any of them.\"",
-  "gossip": "{name} won the field by challenge and has held it through three. Nobody talks about how he'll lose it."
- },
- "bf02": {
-  "motive": "Rise in rank. Torn between what he owes the field and what he once wanted at the ford.",
-  "aside": "\"In Bonefield you take what you want or you go without. I'm still deciding what I want.\"",
-  "gossip": "{name} used to go down to the ford a lot. He doesn't any more."
- },
- "bf03": {
-  "motive": "Bring down the biggest prey in the Vale and be respected for it.",
-  "aside": "\"Anyone can kill a hare. Come and find me when you've faced a bison.\"",
-  "gossip": "{name} has more kills than scars, and in Bonefield that's rare."
- },
- "bf04": {
-  "motive": "Keep her cubs strong enough to survive Bonefield, and keep her mate's rule steady.",
-  "aside": "\"My cubs will be fighters. They'll have to be.\"",
-  "gossip": "{name} hunts at her mate's side and watches his back when he's not looking."
- },
- "bf05": {
-  "motive": "Feed her cub and earn rank through clean kills, not noise.",
-  "aside": "\"Quick and clean. The prey doesn't suffer, and neither do I.\"",
-  "gossip": "{name} kills faster than anyone in the field and makes less fuss about it."
- },
- "bf06": {
-  "motive": "Find a place in a pride that only listens to the loud; she notices what others miss.",
-  "aside": "\"Everyone in the field shouts. I'd rather listen to what the grass says.\"",
-  "gossip": "{name} reads the trails better than cats twice her age, not that the field cares."
- },
- "bf07": {
-  "motive": "Survive and stay useful. Carries the shame of bowing without a fight and the memory of the leader he once guarded.",
-  "aside": "\"I've guarded two leaders. You learn which fights are worth having. I hope.\"",
-  "gossip": "{name} bowed to the new leader without a fight. Half the field respects him for it and half never will."
- },
- "bf08": {
-  "motive": "Win her father's approval and her first challenge.",
-  "aside": "\"I could beat you. Probably. Want to find out?\"",
-  "gossip": "{name} is her father's daughter, and she wants everyone to know it."
- },
- "bf09": {
-  "motive": "Pounce on everything.",
-  "aside": "The cub growls a tiny growl and pounces on your tail.",
-  "gossip": "{name} has already started picking fights with the grass."
- },
- "bf10": {
-  "motive": "Stay close to her mother.",
-  "aside": "The cub watches you with round eyes from between her mother's paws.",
-  "gossip": "{name} is the youngest in the field."
- },
- "mw01": {
-  "motive": "Hold the broken pride together; carries the leadership no one else would take, and the grief of the Breaking.",
-  "aside": "\"We were more, once. The fog keeps what it is given. It gave nothing back.\"",
-  "gossip": "{name} took the lead after the Breaking because nobody else would. She hasn't rested since."
- },
- "mw02": {
-  "motive": "Protect his mate and cub; one of the few toms left after the ice.",
-  "aside": "\"I came out of the ice. Plenty of others didn't. So I keep watch.\"",
-  "gossip": "{name} still won't go near the Mere."
- },
- "mw03": {
-  "motive": "Prove a young, scarred tom is still worth something to a pride that lost its strongest.",
-  "aside": "\"The leg's fine. Slower than it was, that's all. I can still walk all night.\"",
-  "gossip": "{name} was barely grown when the ice broke. He hasn't stopped walking since."
- },
- "mw04": {
-  "motive": "Keep her family fed and hidden; trusts very few.",
-  "aside": "\"You don't know where our dens are. Let's keep it that way.\"",
-  "gossip": "{name} could track a goose through fog by its heartbeat, they say."
- },
- "mw05": {
-  "motive": "Keep the old trails alive and teach them before more are lost.",
-  "aside": "\"The safe paths through the marsh used to be common knowledge. Now only a few of us remember.\"",
-  "gossip": "{name} walks the old trails every season so the pride won't forget them."
- },
- "mw06": {
-  "motive": "Want a pride that laughs again; gentle, hopeful, a little lonely.",
-  "aside": "\"It's been quiet in the Mistwood a long time. It's nice to hear a new voice.\"",
-  "gossip": "{name} still talks to everyone who passes, even after everything."
- },
- "mw07": {
-  "motive": "Guard what Mistwood knows and nurse it through; old, half-blind, unhurried.",
-  "aside": "\"I've seen more winters than you have teeth. Sit. Tell me what you're looking for.\"",
-  "gossip": "{name} is older than anyone in the Mistwood, and she knows things the fog doesn't."
- },
- "mw08": {
-  "motive": "Live up to a father who drowned leading the pride; afraid of the ice and of being him.",
-  "aside": "\"Everyone says I'll lead one day. My father led, and look where it took him.\"",
-  "gossip": "{name} is the drowned leader's son, and the whole pride watches him for signs of it."
- },
- "mw09": {
-  "motive": "Be a cub in a pride that needs her to be hope.",
-  "aside": "The cub peeks out of the reeds at you, then vanishes again.",
-  "gossip": "{name} is the first cub born in the Mistwood since the Breaking."
- },
- "ln01": {
-  "motive": "Endure exile with dignity; wants the truth kept from shaming the crag, and to be judged fairly by someone.",
-  "aside": "\"I knew every name on the crag once. Now no one says mine. That's the way of it.\"",
-  "gossip": "{name} was the crag's counselor until the leader drove him out. He went without a word."
- },
- "ln02": {
-  "motive": "Find out why the cat she left for never came, and find somewhere she belongs.",
-  "aside": "\"I left for someone. He hasn't come. I'm starting to wonder what I'm waiting for.\"",
-  "gossip": "{name} left the crag on the first warm night of summer and still sits by the Split Rock some evenings."
- },
- "ln03": {
-  "motive": "Get back what Scarjaw took from him; uses anyone to get close enough for a second chance.",
-  "aside": "\"Everyone looks at the cheek. Nobody asks what I almost did before I got it.\"",
-  "gossip": "{name} challenged the Bonefield leader and nearly won. Nearly."
- },
- "ln04": {
-  "motive": "Be done with Bonefield's noise; protects cubs fiercely and quietly.",
-  "aside": "\"I got tired of the noise. That's all you need to know about why I left.\"",
-  "gossip": "{name} walked out of Bonefield one season and never said why."
- },
- "ln05": {
-  "motive": "See what lies beyond the edge of the Vale and never be stuck anywhere.",
-  "aside": "\"Have you ever gone north past the Ice Wall? No? You should. Everyone should.\"",
-  "gossip": "{name} comes and goes like weather. You'll see him when the hunting's thin."
- },
- "ln06": {
-  "motive": "Live out her days with some warmth; too proud to ask to be carried home.",
-  "aside": "\"Sit with an old cat a while. I don't get much company out here.\"",
-  "gossip": "Mistwood thinks {name} is dead. She'd rather they kept thinking it than saw her like this."
- },
- "ln07": {
-  "motive": "Carry what he did without excuses; wants nothing from anyone except to be left alone.",
-  "aside": "\"I did what they say I did. Don't ask me why.\"",
-  "gossip": "{name} was driven out of the Mistwood for stealing from the starving. He's never denied it."
- },
- "ln08": {
-  "motive": "Find the family she lost; can't stop searching the river.",
-  "aside": "\"Have you seen any cubs along the river? Any at all? I keep looking.\"",
-  "gossip": "{name} walks the river every day, looking for something the river won't give back."
- },
- "ln09": {
-  "motive": "Find his way back to Mistwood, and dreads facing those who were on the ice.",
-  "aside": "\"Do you know where the Mistwood dens are now? They moved. I can't find the scent.\"",
-  "gossip": "{name} has been looking for the Mistwood ever since the ice. They moved, and he can't find them."
- }
+  "_readme": "Motives for the 39 premade slots (world-slots.json at d69115c). Keyed by slot because non-story slots get random names. 'motive' is for authors and the online/local model prompt only, never shown. 'aside' is one speech line the cat may say unprompted in a meeting or presence scene, with no tokens and no numbers. 'gossip' is how other cats talk about them, with {name} = this cat. Wants stay flavour only (Director ruling): nothing here creates a mechanic, reward or promise. Secrets in loners.md are never stated; lines only hint. Unnamed slots are never named in another cat's line, only by role. Sources: world-gen-spec.md slot table, world-and-prides.md, loners.md.",
+  "hc01": {
+    "motive": "Keep Highcrag's order and lineage unbroken, and keep the truth about the fallen cub buried.",
+    "aside": "“Mind our law while you're near the crag. I'd rather not have to say it.”",
+    "gossip": "“{name} never hurries. Not even when the river came up over the banks.”"
+  },
+  "hc02": {
+    "motive": "Earn his mother's place and outrun the day the fallen cub is spoken of.",
+    "aside": "“Everyone on the crag is waiting for me to slip up. Well, they'll be waiting a while.”",
+    "gossip": "“{name} trains harder than anybody on the crag. It's like something's chasing that cat.”"
+  },
+  "hc03": {
+    "motive": "Stand behind the leader and keep the crag fed with big game; wants the young ones taught to wait.",
+    "aside": "“You look hungry. Most hunters miss because they can't wait, so wait.”",
+    "gossip": "“{name} doesn't say much, but the crag eats well thanks to {name}.”"
+  },
+  "hc04": {
+    "motive": "Belong on the crag completely, though he has always felt like the cat who doesn't quite fit.",
+    "aside": "“The old cats on the crag look at me like they're trying to place me. I wish somebody would just tell me why.”",
+    "gossip": "“{name} grew up on the crag, but nobody tells the same story about where {name} came from.”"
+  },
+  "hc05": {
+    "motive": "Be the best stalker on the crag and be trusted with the hunts that matter.",
+    "aside": "“Snow shows every track if you know how to read it. That's how I find my hares.”",
+    "gossip": "“If there's a hare on the high meadow, {name} has found it already.”"
+  },
+  "hc06": {
+    "motive": "Keep her cubs safe and the dens peaceful; wants the arguments kept away from the nursery.",
+    "aside": "“If you go near our dens, keep your voice down, please. Cubs need their sleep, and so do I.”",
+    "gossip": "“{name} is the calmest cat on the crag, especially around the cubs.”"
+  },
+  "hc07": {
+    "motive": "Guard the crag and its law. Still carries her daughter's leaving, and won't show it.",
+    "aside": "“I've guarded this crag a long time. If you've come to lure anybody away from it, don't.”",
+    "gossip": "“{name} hasn't been the same since that daughter left. Just don't say so where {name} can hear.”"
+  },
+  "hc08": {
+    "motive": "Keep every name in the recitation; dreads a name being lost.",
+    "aside": "“I keep the names of every Highcrag cat who ever lived. Somebody has to, and I'm not getting any younger.”",
+    "gossip": "“{name} knows the name of every cat back to the start of the crag, even a few the crag would rather forget.”"
+  },
+  "hc09": {
+    "motive": "Prove he's grown, and get out from under being the leader's youngest.",
+    "aside": "“They keep telling me I'll hunt big game soon. Soon, soon. I'm sick of soon.”",
+    "gossip": "“{name} follows the hunters everywhere and thinks nobody notices. Everybody notices.”"
+  },
+  "hc10": {
+    "motive": "Play, explore and find out what's past the dens.",
+    "aside": "“Are you from far away? Further than the ledge? I've never been past the ledge.”",
+    "gossip": "“{name} always ends up a paw further from the den than allowed.”"
+  },
+  "hc11": {
+    "motive": "Stay warm and near his mother; everything is new.",
+    "aside": "The cub squeaks and ducks out of sight.",
+    "gossip": "“{name} is the newest cub on the crag.”"
+  },
+  "bf01": {
+    "motive": "Hold Bonefield by strength and keep every challenger afraid; watches for weakness, including his own.",
+    "aside": "“Plenty of cats have tried to take this field from me. None of them are still around.”",
+    "gossip": "“{name} won the field in a challenge and has held it ever since. Nobody dares guess what happens when {name} finally loses.”"
+  },
+  "bf02": {
+    "motive": "Rise in rank. Torn between what he owes the field and what he once wanted at the ford.",
+    "aside": "“In Bonefield you take what you want or you go without. I'm still working out what I want.”",
+    "gossip": "“{name} used to spend a lot of time down at the ford. Not any more.”"
+  },
+  "bf03": {
+    "motive": "Bring down the biggest prey in the Vale and be respected for it.",
+    "aside": "“Anybody can catch a hare. Talk to me when you've stood up to a bison.”",
+    "gossip": "“{name} has more kills than scars, and in Bonefield that's rare.”"
+  },
+  "bf04": {
+    "motive": "Keep her cubs strong enough to survive Bonefield, and keep her mate's rule steady.",
+    "aside": "“My cubs are going to be fighters. In Bonefield they'll have to be.”",
+    "gossip": "“{name} hunts at the leader's side and keeps an eye out when the leader won't.”"
+  },
+  "bf05": {
+    "motive": "Feed her cub and earn rank through clean kills, not noise.",
+    "aside": "“I like a quick, clean kill. The prey doesn't suffer, and I don't waste my strength.”",
+    "gossip": "“{name} kills faster than anybody in the field and makes less fuss about it.”"
+  },
+  "bf06": {
+    "motive": "Find a place in a pride that only listens to the loud; she notices what others miss.",
+    "aside": "“Everybody in Bonefield shouts. I'd rather keep quiet and listen. You hear more that way.”",
+    "gossip": "“{name} reads trails better than cats far older, not that anybody in the field cares.”"
+  },
+  "bf07": {
+    "motive": "Survive and stay useful. Carries the shame of bowing without a fight and the memory of the leader he once guarded.",
+    "aside": "“I've guarded Bonefield's leaders for a long time. You learn which fights are worth it. At least, I hope I did.”",
+    "gossip": "“{name} bowed to the new leader without a fight, and the field still argues about whether that was wise.”"
+  },
+  "bf08": {
+    "motive": "Win her father's approval and her first challenge.",
+    "aside": "“I bet I could beat you in a fight. Probably. Maybe.”",
+    "gossip": "“{name} takes after that father and wants everybody to know it.”"
+  },
+  "bf09": {
+    "motive": "Pounce on everything.",
+    "aside": "The cub growls a tiny growl and pounces on your bobtail.",
+    "gossip": "“{name} has already started picking fights with the grass.”"
+  },
+  "bf10": {
+    "motive": "Stay close to her mother.",
+    "aside": "The cub peers at you with round eyes and doesn't come any closer.",
+    "gossip": "“{name} is the youngest in the field.”"
+  },
+  "mw01": {
+    "motive": "Hold the broken pride together; carries the leadership no one else would take, and the grief of the Breaking.",
+    "aside": "“We were a much bigger pride before the Breaking. Now I'm holding together what's left.”",
+    "gossip": "“{name} took the lead after the Breaking because nobody else would, and hasn't rested since.”"
+  },
+  "mw02": {
+    "motive": "Protect his mate and cub; one of the few toms left after the ice.",
+    "aside": "“I made it out of the ice. Plenty of cats didn't, so now I keep watch.”",
+    "gossip": "“{name} still won't go anywhere near the Mere.”"
+  },
+  "mw03": {
+    "motive": "Prove a young, scarred tom is still worth something to a pride that lost its strongest.",
+    "aside": "“My leg's fine, before you ask. It's slower than it was, that's all. I can still walk all night.”",
+    "gossip": "“{name} was barely grown when the ice broke. These days {name} hardly ever stops to rest.”"
+  },
+  "mw04": {
+    "motive": "Keep her family fed and hidden; trusts very few.",
+    "aside": "“You don't know where our dens are, and I'd like to keep it that way. No offence.”",
+    "gossip": "“They say {name} could track a goose through the thickest fog.”"
+  },
+  "mw05": {
+    "motive": "Keep the old trails alive and teach them before more are lost.",
+    "aside": "“Every Mistwood cat used to know the safe paths through the marsh. Now hardly any of us remember them.”",
+    "gossip": "“{name} walks the old marsh trails every season so the pride won't forget them.”"
+  },
+  "mw06": {
+    "motive": "Want a pride that laughs again; gentle, hopeful, a little lonely.",
+    "aside": "“It's been so quiet in the Mistwood. It's nice to hear a new voice.”",
+    "gossip": "“{name} still talks to everybody who passes, even after the Breaking.”"
+  },
+  "mw07": {
+    "motive": "Guard what Mistwood knows and nurse it through; old, half-blind, unhurried.",
+    "aside": "“I've seen more winters than you have teeth, young cat. Sit down and tell me what you're looking for.”",
+    "gossip": "“{name} is the oldest cat in the Mistwood and remembers things nobody else does.”"
+  },
+  "mw08": {
+    "motive": "Live up to a father who drowned leading the pride; afraid of the ice and of being him.",
+    "aside": "“Everybody says I'll lead the Mistwood someday. My father led it too, and the Mere drowned my father.”",
+    "gossip": "“{name} is the drowned leader's son, and the pride keeps waiting to see if {name} will turn out the same.”"
+  },
+  "mw09": {
+    "motive": "Be a cub in a pride that needs her to be hope.",
+    "aside": "The cub peeks out at you from the reeds, then ducks back in.",
+    "gossip": "“No cub was born in the Mistwood after the Breaking until {name}.”"
+  },
+  "ln01": {
+    "motive": "Endure exile with dignity; wants the truth kept from shaming the crag, and to be judged fairly by someone.",
+    "aside": "“I used to know every name on the crag. Now nobody there says mine. That's how it goes.”",
+    "gossip": "“{name} used to advise the Highcrag leader, until the leader drove {name} out. No argument, no fuss.”"
+  },
+  "ln02": {
+    "motive": "Find out why the cat she left for never came, and find somewhere she belongs.",
+    "aside": "“I left the crag to meet somebody at the Split Rock, and nobody came. I'm starting to wonder why I'm still waiting.”",
+    "gossip": "“{name} left the crag on a warm summer night and still sits by the Split Rock some evenings.”"
+  },
+  "ln03": {
+    "motive": "Get back what Scarjaw took from him; uses anyone to get close enough for a second chance.",
+    "aside": "“Go on, look at the cheek. Everybody does. Nobody asks how close I came to winning before I got it.”",
+    "gossip": "“{name} challenged the Bonefield leader and very nearly won.”"
+  },
+  "ln04": {
+    "motive": "Be done with Bonefield's noise; protects cubs fiercely and quietly.",
+    "aside": "“I got tired of Bonefield's noise. That's all you need to know about why I left.”",
+    "gossip": "“{name} walked out of Bonefield and never said why.”"
+  },
+  "ln05": {
+    "motive": "See what lies beyond the edge of the Vale and never be stuck anywhere.",
+    "aside": "“Have you ever been north past the Ice Wall? No? You should go. Everybody should.”",
+    "gossip": "“{name} comes and goes like the weather. You'll see that cat when the hunting's thin.”"
+  },
+  "ln06": {
+    "motive": "Live out her days with some warmth; too proud to ask to be carried home.",
+    "aside": "“Sit with me a while, if you like. I don't get much company out here.”",
+    "gossip": "“Mistwood thinks {name} is dead, and {name} would rather keep it that way than be seen this frail.”"
+  },
+  "ln07": {
+    "motive": "Carry what he did without excuses; wants nothing from anyone except to be left alone.",
+    "aside": "“Yes, I did what they say I did. Don't ask me why.”",
+    "gossip": "“{name} was driven out of the Mistwood for stealing food from the starving, and has never denied it.”"
+  },
+  "ln08": {
+    "motive": "Find the family she lost; can't stop searching the river.",
+    "aside": "“Have you seen any cubs along the river? Anywhere at all? I keep looking.”",
+    "gossip": "“{name} walks the river every day, looking for the cubs it took.”"
+  },
+  "ln09": {
+    "motive": "Find his way back to Mistwood, and dreads facing those who were on the ice.",
+    "aside": "“Do you know where the Mistwood dens are now? They moved, and I can't find their scent anywhere.”",
+    "gossip": "“{name} has been looking for the Mistwood ever since the ice. The pride moved, and {name} can't find them.”"
+  }
 }

@@ -351,8 +351,8 @@
       const choices = [];
       if (opts.huntReady) choices.push({ id: 'share', label: 'Drag your kill closer and share it.', result: 'share' });
       choices.push({ id: 'refuse_prey', label: '“I can\'t.”', result: 'refuse_prey' });
-      choices.push({ id: 'leave', label: 'Leave it there.', result: 'leave' });
-      const reminder = replies.reminder || 'You said you\'d bring something back. I haven\'t forgotten.';
+      choices.push({ id: 'leave', label: 'Say nothing and go.', result: 'leave' });
+      const reminder = replies.reminder || 'Did you find me a hare? Anything small from these marshes would do.';
       return {
         bond: !!opts.huntReady, lone: !opts.huntReady, followUp: 'bring_prey',
         eventId: 'npc_initiative.mistwood.request_help.v1', title: 'A cat comes to you',
@@ -503,10 +503,10 @@
     const playerFacts = picked ? knownFacts(s, 'player', knows).filter((id) => !facts.includes(id)) : [];
     const choices = [];
     if (picked) {
-      choices.push({ id: 'listen', label: 'Listen, and promise nothing.' });
-      if (kind === 'loyal') choices.push({ id: 'accept_request', label: 'Accept the request.' });
-      if (playerFacts.length) choices.push({ id: 'rumor_spread', label: 'Pass on something you know.' });
-      choices.push({ id: 'leave', label: 'Leave it there.' });
+      choices.push({ id: 'listen', label: 'Hear the cat out, but don\'t promise anything.' });
+      if (kind === 'loyal') choices.push({ id: 'accept_request', label: '“All right. I won\'t tell anyone.”' });
+      if (playerFacts.length) choices.push({ id: 'rumor_spread', label: 'Pass on some news you\'ve heard.' });
+      choices.push({ id: 'leave', label: 'Nod and go on your way.' });
     }
     return {
       event: {
@@ -550,6 +550,9 @@
       p.summary = broken.summary || p.summary;
     } else if (scene && choiceId === 'leave') {
       p.summary = 'You left it there.';
+    } else if (choiceId === 'listen' && p.eventId === 'lone.approach') {
+      p.reply = '“That\'s all I came to say.”';
+      p.summary = Pass2.lines()['lone-actions.js:summary'].listen.replace('{catName}', p.catName || '');
     } else if (choiceId === 'accept_request' && p.catId) {
       const factId = `${s.runId || ''}/saw_out_here/${p.catId}`;
       if (!s.conversation) s.conversation = { schema: 1, slotDay: null, sequence: 0, ledger: [], pending: null, cats: {} };
@@ -583,32 +586,35 @@
         }
       }
       p.summary = Pass2.lines()['lone-actions.js:summary'].accepted.replace('{catName}', p.catName || '');
+      p.reply = '“Thank you. I mean it.”';
     } else if (choiceId === 'rumor_spread') {
       breakSecret(s, p.rumorFactId);
       p.summary = Pass2.lines()['lone-actions.js:summary'].passed_on.replace('{catName}', p.catName || '');
+      p.reply = '“Huh. I hadn\'t heard that. Thanks for telling me.”';
     } else if (p.eventId === 'lone.approach') {
       const sum = Pass2.lines()['lone-actions.js:summary'];
       p.summary = (choiceId === 'listen' ? sum.listen : sum.leave).replace('{catName}', p.catName || '');
+      if (choiceId === 'leave') p.reply = '“All right. Off you go, then.”';
     } else if (p.eventId === 'lone.scent') p.summary = 'You finished reading the scent.';
-    else if (p.eventId === 'lone.presence.reply' || p.eventId === 'lone.presence.hunt') p.summary = 'The moment passes, and {catName} goes on about the day.'.replace('{catName}', p.catName || '');
+    else if (p.eventId === 'lone.presence.reply' || p.eventId === 'lone.presence.hunt') p.summary = '{catName} heads off, and your day goes on.'.replace('{catName}', p.catName || '');
     else p.summary = 'The day moves on.';
     s.phase = 'eventResult';
     return { state: s };
   }
 
   const LINES = {
-    'shadow.success': "You stay downwind and keep to the brush, always one rise behind. {name} never looks back. By the time the light shifts, you know exactly where {name} is headed.",
-    'shadow.caught': "A twig gives under your paw. {name} whips around and stares straight at your hiding place. There's no pretending now. The quiet following is over.",
-    'spar.win': "{name} crouches, rump wiggling, and pounces. You meet the pounce, roll, and come up on top with your paws planted on {name}'s chest. You're both panting and dusty, and neither of you is hurt.",
-    'spar.lose': "{name} crouches, rump wiggling, and pounces. You twist, but {name} is quicker, and you end up flat in the dirt, pinned and wheezing for breath. Neither of you is hurt.",
-    'scout': "You climb to a ridge just outside {pride} ground and lie flat among the stones. Below you, the scent-marks run along the border like a line drawn in the air, and you watch to see who walks it.",
-    'steal.success': "The kill's owner has wandered off to drink. You slip in low, tear off a mouthful while it's still warm, and are gone before anyone comes back.",
-    'steal.caught': "You're still bent over the kill when the owner's scent hits you, strong and close. You look up straight into a furious stare.",
-    'cub.intro': "A thin, high mewling carries on the wind. A {pride} cub, all fuzz and oversized paws, is caught near the border, too small to find the way home alone.",
-    'cub.help': "You nose the cub to its feet and walk beside it, slowly, step by step, until {mother} comes bounding out to meet you. The cub tumbles to safety between those big forepaws.",
-    'cub.leave': "You turn away. The mewling follows you a long way before the wind finally carries it off.",
-    'watch': "You find a high, sheltered spot and let the land spread out below you. The wind brings every scent up to you. For once you don't chase anything. You just rest, and watch.",
-    'share': "You tear off a good portion of the kill and set it down where {name} can reach it, then step back so the offer is plain."
+    'shadow.success': "You stay downwind and keep to the brush, a rise behind {name} the whole way. {name} never looks back, and soon you know where {name} is headed.",
+    'shadow.caught': "A twig snaps under your paw. {name} spins round and spots you in the brush. So much for following quietly.",
+    'spar.win': "{name} crouches, rump wiggling, and pounces. You roll with it and come up on top with your paws on {name}'s chest, both of you dusty and panting. “All right, you win!”",
+    'spar.lose': "{name} crouches, rump wiggling, and pounces. You twist away, but {name} is quicker and pins you flat in the dirt. “Got you! Nobody's hurt, I promise.”",
+    'scout': "You climb to a ridge just outside {pride} ground and lie flat among the stones. Below you the scent-marks run along the border, and you wait to see who walks it.",
+    'steal.success': "The kill's owner has gone off to drink. You slip in low, tear off a mouthful while it's still warm, and get away before anybody comes back.",
+    'steal.caught': "You're still bent over the kill when the owner's scent hits you, strong and close. You look up, and the owner is right there, furious.",
+    'cub.intro': "A thin, high mewling carries on the wind. A {pride} cub, all fuzz and big paws, has strayed near the border and can't find the way home.",
+    'cub.help': "You nudge the cub to its feet and walk beside it until {mother} comes running to meet you. “You found our cub! Thank you.”",
+    'cub.leave': "You turn away. You can hear the mewling for a long way before the wind carries it off.",
+    'watch': "You find a high, sheltered spot and settle in. The wind brings every scent up to you. You don't chase anything today. You just rest and watch.",
+    'share': "You tear off a good piece of the kill and push it over to {name}. “Thanks. I mean it.”"
   };
   function fillTokens(text, vars) {
     return String(text).replace(/\{(name|pride|mother)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
@@ -666,7 +672,7 @@
     const next = (npc.homeZones || []).find((z) => z !== s.region) || (npc.homeZones || [])[0] || s.region;
     npc.lastRegion = next;
     const factId = `${s.runId || ''}/shadow/${catId}/${s.day}`;
-    const summary = `${npc.name} was headed toward ${opts && opts.regionName ? opts.regionName(next) : next}.`;
+    const summary = `${npc.name} was heading for ${opts && opts.regionName ? opts.regionName(next) : next}.`;
     rememberFact(s, factId, { kind: 'route', summary, participants: ['player', catId], skill: 'trailReading', xpOutcome: spotted ? 4 : 10, xpGranted: false });
     const text = fillTokens(LINES[spotted ? 'shadow.caught' : 'shadow.success'], { name: npc.name });
     return { event: sceneEvent('lone.shadow', 'Following', text, { catId, resultLine: '' }) };
@@ -709,7 +715,7 @@
     }
     const factId = `${s.runId || ''}/spar/${catId}/${s.day}`;
     rememberFact(s, factId, {
-      kind: 'spar', summary: fought.won ? `You came out ahead in a play-fight with ${npc.name}.` : `You and ${npc.name} played at fighting.`,
+      kind: 'spar', summary: fought.won ? `You won a play-fight with ${npc.name}.` : `You and ${npc.name} had a play-fight.`,
       participants: ['player', catId], skill: 'saberStrike', xpOutcome: fought.won ? 10 : 4, xpGranted: false
     });
     const text = fillTokens(LINES[fought.won ? 'spar.win' : 'spar.lose'], { name: npc.name });
@@ -738,8 +744,8 @@
     const den = (opts.den && opts.den(pride)) || null;
     const lines = [fillTokens(LINES.scout, { pride: name })];
     if (members.length) lines.push(`${members.map((n) => n.name).slice(0, 3).join(', ')} ${members.length > 1 ? 'are' : 'is'} on the border.`);
-    else lines.push(`You see no ${name} cats on the border.`);
-    if (leader) lines.push(`${leader.name} is at ${opts.regionName(leader.lastRegion || den || s.region)}.`);
+    else lines.push(`You can't see any ${name} cats on the border.`);
+    if (leader) lines.push(`${leader.name} is over at ${opts.regionName(leader.lastRegion || den || s.region)}.`);
     if (den) lines.push(`Prey on their land looks ${preyWord(opts.preyValue(den))}.`);
     const standing = (opts.standing && opts.standing(pride)) || 0;
     const standingLine = Pass2.scoutStanding(standing, name);
@@ -749,7 +755,7 @@
     let warning = false;
     if (standing <= -15) {
       warning = true;
-      lines.push(`A ${name} patrol sees you and warns you away. They do not come across.`);
+      lines.push(`Fresh ${name} warning marks run all along the border. You aren't welcome any closer.`);
     }
     const factId = `${s.runId || ''}/scout/${pride}/${s.day}`;
     rememberFact(s, factId, {
@@ -954,8 +960,8 @@
       { kind: 'narration', text: fillTokens(presenceText('presence.watch.doing.' + where), { name: npc.name }) }
     ];
     return presenceEvent('watch', 'action.watch', 'The vantage', npc, beats, [
-      { id: 'go_down', label: 'Go down to them.' },
-      { id: 'keep_watching', label: 'Keep watching.' }
+      { id: 'go_down', label: 'Go down and say hello.' },
+      { id: 'keep_watching', label: 'Stay up here and keep watching.' }
     ], { summary: CardWords.energy(20), resultLine: CardWords.energy(20), day: s.day });
   }
   function stonePresence(s, npc, source) {
@@ -964,9 +970,9 @@
     return presenceEvent('stone', source.eventId, source.title || 'A loose stone', npc, [
       { kind: 'narration', text: fillTokens(presenceText(key), { name: npc.name }) }
     ], [
-      { id: 'call_out', label: 'Call out.' },
-      { id: 'hold_still', label: 'Hold still.' },
-      { id: 'move_on', label: 'Move on.' }
+      { id: 'call_out', label: 'Call out a greeting.' },
+      { id: 'hold_still', label: 'Keep still and stay out of sight.' },
+      { id: 'move_on', label: 'Go on your way.' }
     ], { day: s.day });
   }
   function killPresence(s, npc, opts) {
