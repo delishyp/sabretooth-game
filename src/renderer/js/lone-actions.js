@@ -330,10 +330,10 @@
     const knows = opts.knowsFact || (() => false);
     const facts = knownFacts(s, npc.id, knows);
     const beats = (scene.beats || []).map((b) => Object.assign({}, b));
-    const gossipFact = (s.worldMemory && s.worldMemory.facts || []).filter((f) => facts.includes(f.factId)).map((f) => gossipLine(f, scene)).find(Boolean);
-    if (gossipFact) {
+    const gossipRow = (s.worldMemory && s.worldMemory.facts || []).filter((f) => facts.includes(f.factId)).map((f) => ({ id: f.factId, line: gossipLine(f, scene) })).find((row) => row.line);
+    if (gossipRow) {
       const at = beats.findIndex((b) => /hare from these marshes/.test(b.text));
-      const line = { kind: 'speech', text: gossipFact };
+      const line = { kind: 'speech', text: gossipRow.line };
       if (at === -1) beats.push(line); else beats.splice(at, 0, line);
     }
     return {
@@ -341,7 +341,8 @@
       catId: npc.id, catName: npc.name, want: scene.want || 'feed_the_pride',
       text: scene.text || '', beats, beatIndex: 0, day: s.day,
       choices: (scene.choices || []).map((c) => Object.assign({}, c)),
-      replies
+      replies,
+      ...(gossipRow ? { gossipSourceId: gossipRow.id } : {})
     };
   }
 
@@ -420,13 +421,18 @@
     const beats = [];
     let facts = [];
     let kind = null;
+    let gossipSourceId = null;
     if (!picked) {
       beats.push({ kind: 'narration', text: Pass2.lines()['lone-actions.js:noApproach'] });
     } else {
       kind = openerKind(picked);
       beats.push({ kind: 'narration', speaker: 'npc', text: OPENERS[kind] || OPENERS.baseline });
       facts = knownFacts(s, picked.id, opts.knowsFact || (() => false));
-      const told = facts.map((id) => speakableFact(s, id, opts)).find(Boolean);
+      let told = null;
+      for (const id of facts) {
+        const line = speakableFact(s, id, opts);
+        if (line) { told = line; gossipSourceId = id; break; }
+      }
       if (told) {
         beats.push({ kind: 'speech', speaker: picked.name, text: Pass2.lines()['lone-actions.js:gossipBeat'].replace('{fact}', told) });
       }
@@ -445,7 +451,8 @@
         lone: true, eventId: 'lone.approach', title: 'A cat comes to you', heading: 'A cat comes to you',
         catId: picked ? picked.id : null, catName: picked ? picked.name : null,
         beats, beatIndex: 0, day: s.day, facts, opener: kind, choices,
-        rumorFactId: playerFacts[0] || null
+        rumorFactId: playerFacts[0] || null,
+        ...(gossipSourceId ? { gossipSourceId } : {})
       }
     };
   }

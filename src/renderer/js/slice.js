@@ -8,9 +8,9 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'), require('./pass2'), require('./motives'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2, root.Motives);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'), require('./pass2'), require('./motives'), require('./directory'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2, root.Motives, root.Directory);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives, Directory) {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
   function loadPass6() {
@@ -29,6 +29,10 @@
   }
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
+  function noteDir(s, kind, catId, sourceId, day) {
+    if (!Directory || !s || !catId) return;
+    Directory.note(s, { day: Number.isInteger(day) ? day : s.day, kind, catId, zoneId: s.region, sourceId: sourceId || kind });
+  }
   /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
   const SLUG = /^[a-z0-9][a-z0-9-]*$/;
   let registeredPortraits = null;
@@ -130,7 +134,7 @@
         for (let i = 0; i < 200 && p.length; i++) { const n = Rng.pick(rng, p); if (!used.has(n.toLowerCase())) { name = n; break; } }
         name = name || `Cat-${sl.slot}`; used.add(name.toLowerCase());
         const look = looks ? { sex: sl.sex, coat: Rng.pick(rng, looks.coats), markings: Rng.pick(rng, looks.markings), eyes: Rng.pick(rng, looks.eyes) } : { sex: sl.sex };
-        out[sl.slot] = { id: sl.slot, name, sex: sl.sex, stage: sl.stage, faction: sl.faction, homeZones: sl.homeZones || [], look, affinity: M.affinityStart, met: false, improvedDay: null, portraitId: null };
+        out[sl.slot] = { id: sl.slot, name, sex: sl.sex, stage: sl.stage, faction: sl.faction, ageSeasons: Number.isInteger(sl.ageSeasons) ? sl.ageSeasons : null, homeZones: sl.homeZones || [], look, affinity: M.affinityStart, met: false, improvedDay: null, portraitId: null };
       }
       return out;
     }
@@ -155,6 +159,7 @@
       applyNpcPortraits(s);
       WM.initNew(s);
       Pair.initNew(s);
+      if (Directory) Directory.seed(s);
       return s;
     }
     function bondDeps(s, rep) {
@@ -335,6 +340,7 @@
     }
     function openLone(s, action, rep) {
       const opts = loneOpts(s);
+      const unmet = action.type === 'scout' ? new Set(Object.values(s.npcs || {}).filter((npc) => npc && !npc.met).map((npc) => npc.id)) : null;
       let opened = null;
       if (action.type === 'shadow') opened = Lone.beginShadow(s, action.catId, opts);
       else if (action.type === 'spar') opened = Lone.beginSpar(s, action.catId, opts);
@@ -357,6 +363,12 @@
         };
       }
       if (!opened || opened.error) return opened || { error: 'action' };
+      if (unmet) {
+        for (const id of unmet) if (s.npcs[id] && s.npcs[id].met) noteDir(s, 'meet', id, 'lone.scout');
+      }
+      noteUnloggedMeets(s);
+      if (action.type === 'spar') noteDir(s, 'spar', action.catId, 'lone.spar');
+      if (action.type === 'shareKill') noteDir(s, 'share', action.catId, 'lone.share');
       if (action.type === 'steal' && opened.ok === false) {
         if (s.npcs[opened.owner]) s.npcs[opened.owner].affinity = clamp((s.npcs[opened.owner].affinity || 0) - 5, -100, 100);
         else if (opened.owner) {
@@ -415,8 +427,10 @@
       const s = clone(s0); const rep = [];
       if (s.over) return { state: s, error: 'over' };
       if (s.phase === 'conversation') {
+        const catId = s.conversation && s.conversation.pending && s.conversation.pending.catId;
         const r = C.commit(s, action);
         if (r.error) return { state: s0, error: r.error };
+        if (action.type === 'choose' && catId) noteDir(s, 'talk', catId, action.choiceId);
         const led = s.conversation && s.conversation.ledger;
         const row = led && led[led.length - 1];
         if (row && s.worldMemory) WM.noteConversation(s, row, s.conversation.cats[row.catId]);
@@ -452,6 +466,7 @@
         if (!atHighcragBorder(s)) return { state: s0, error: 'border' };
         const r = WM.openBorder(s, action.guardId || 'hc07');
         if (r.error) return { state: s0, error: r.error };
+        noteUnloggedMeets(s);
         return { state: s };
       }
       if (s.phase === 'encounter') {
@@ -496,13 +511,20 @@
         if (opened.error) return { state: s0, error: opened.error };
         const border = WM.openBorder(s, opened.catId);
         if (border.error) return { state: s0, error: border.error };
+        noteUnloggedMeets(s);
         return { state: s };
       }
       if (action.type === 'talk') {
         const follow = Follow.scene(s, action.catId, followCtx(s, s.npcs[action.catId]));
-        if (follow) { s.pending = follow; s.phase = 'event'; return { state: s }; }
+        if (follow) {
+          noteDir(s, 'talk', action.catId, follow.eventId);
+          s.pending = follow;
+          s.phase = 'event';
+          return { state: s };
+        }
         const r = C.begin(s, action.catId);
         if (r.error) return { state: s0, error: r.error };
+        noteDir(s, 'talk', action.catId, 'talk');
         return { state: s };
       }
       if (s.phase === 'event' && action.type === 'advanceBeat') {
@@ -535,8 +557,11 @@
       }
       if (s.phase === 'event' && Pair.enabled && s.pending && s.pending.bond) {
         const catId = s.pending.catId;
+        const bondChoice = (s.pending.choices || []).find((row) => row.id === action.choiceId);
         const picked = Pair.choose(s, action, bondDeps(s, rep));
         if (picked.error) return { state: s0, error: picked.error };
+        if (bondChoice && bondChoice.result === 'share' && catId) noteDir(s, 'huntTogether', catId, bondChoice.id);
+        if (Directory) Directory.sync(s);
         if (action.type === 'choose' && action.choiceId === 'share' && s.pending && s.pending.choiceId === 'share') {
           const kept = Lone.keepBringPrey(s, catId);
           if (kept.kept && kept.summary) s.pending.summary = kept.summary;
@@ -548,13 +573,16 @@
         const ev = EV.find((x) => x.id === s.pending.eventId);
         const greet = ev && (ev.choices || []).find((x) => x.id === action.choiceId);
         if (greet && C.entersArc(s.pending.eventId, s.pending.catId, greet.id)) {
-          const npc = s.npcs[s.pending.catId];
+          const catId = s.pending.catId;
+          const day = s.pending.day;
+          const npc = s.npcs[catId];
           const text = greet.text ? fill(greet.text, { catName: s.pending.catName }) : '';
-          const r = C.begin(s, s.pending.catId, {
+          const r = C.begin(s, catId, {
             fromGreet: true, dayResolved: true,
             transcript: text ? [{ kind: 'say', speaker: npc ? npc.name : s.pending.catName, text }] : []
           });
           if (r.error) return { state: s0, error: r.error };
+          noteDir(s, 'talk', catId, greet.id, day);
           return { state: s };
         }
       }
@@ -568,6 +596,7 @@
         if (s.pending.meadow) return meadowChoose(s, action.choiceId === 'continue' ? 'move_on' : action.choiceId, rep);
         const picked = Follow.apply(s, action.choiceId);
         if (picked.error) return { state: s0, error: picked.error };
+        if (picked.choiceId === 'share' && s.pending && s.pending.catId) noteDir(s, 'huntTogether', s.pending.catId, 'follow.share');
         if (picked.memberShare) shareKill(s, rep);
         return { state: s };
       }
@@ -721,6 +750,7 @@
       if (s.phase === 'day' && action.type === 'found') {
         const opened = Pair.beginFound(s, action.name, bondDeps(s, rep));
         if (opened.error) return { state: s0, error: opened.error };
+        if (Directory) Directory.sync(s);
         endDay(s, rep, { forcedEvent: opened.event, slotTaken: true, action: 'found', rested: false });
         return { state: s, report: s.report };
       }
@@ -845,7 +875,7 @@
       if (!ctx.resumed) {
         if (!s.dead && W.hasWater(s.region, season(s)) && !s.travel) { if (s.needs.thirst < N.drink) rep.push({ k: 'drink' }); s.needs.thirst = clamp(s.needs.thirst + N.drink, 0, 100); }
         if (!s.dead && !s.travel) hazardHit = rollHazards(s, rep, ctx);
-        if (!s.dead && !s.travel && !ctx.slotTaken && Enc.intercept(s, ctx, W.hazardsFor, rep)) return;
+        if (!s.dead && !s.travel && !ctx.slotTaken && Enc.intercept(s, ctx, W.hazardsFor, rep)) { noteUnloggedMeets(s); return; }
       }
       let ev = ctx.forcedEvent || null;
       if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
@@ -858,6 +888,7 @@
       }
       ev = presentDay(s, rep, ev);
       s.report = { day: s.day, region: s.region, lines: rep };
+      noteUnloggedMeets(s);
       if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;
       const finished = !Pair.enabled && s.day >= R.seasonDays;
@@ -881,6 +912,7 @@
           if (filler) { filler.day = now - 1; s.pending = filler; s.phase = 'event'; }
         }
       }
+      noteUnloggedMeets(s);
     }
     function finishBond(s) {
       const p = s.pending;
@@ -1012,7 +1044,23 @@
       if (anchors.some((zone) => W.neighbours(zone).includes(s.region))) return true;
       return (s.followups || []).some((row) => row.catId === cat.id && !row.fired && (row.region === s.region || (row.region && W.neighbours(row.region).includes(s.region))));
     }
-    function meet(s, npc) { npc.met = true; if (Pair.enabled) Pair.onMet(s, npc); }
+    function meet(s, npc) {
+      if (!npc) return;
+      npc.met = true;
+      if (Pair.enabled) Pair.onMet(s, npc);
+      noteDir(s, 'meet', npc.id, (s.pending && s.pending.eventId) || 'meet', s.day);
+    }
+    /** Cats marked met outside meet() still get one meet line. A logged meet is left alone. */
+    function noteUnloggedMeets(s) {
+      if (!Directory) return;
+      Directory.sync(s);
+      for (const npc of Object.values(s.npcs || {})) {
+        if (!npc || !npc.met) continue;
+        const row = s.directory && s.directory.cats && s.directory.cats[npc.id];
+        if (row && (row.meetCount > 0 || row.history.some((item) => item.kind === 'meet'))) continue;
+        noteDir(s, 'meet', npc.id, 'met');
+      }
+    }
     function meetingFollow(s, npc) {
       const due = Payoffs.due(s, npc);
       if (due) return due;
@@ -1067,6 +1115,7 @@
       if (choiceId === 'share') {
         const shared = Lone.shareKill(s, npc.id);
         if (shared.error) return { state: s, error: shared.error };
+        noteDir(s, 'share', npc.id, 'presence.share');
         Lone.keepBringPrey(s, npc.id);
         s.pending = shared.event;
         s.pending.summary = momentSummary(npc.name);
@@ -1086,12 +1135,14 @@
         }
         s.pending = Lone.presenceReply(s, npc, 'presence.hunt.warn');
         s.pending.summary = momentSummary(npc.name);
+        noteDir(s, 'warn', npc.id, 'presence.hunt.warn');
         s.phase = 'eventResult';
         return { state: s };
       }
       if (choiceId === 'let_watch') {
         s.pending = Lone.presenceReply(s, npc, 'presence.hunt.let_watch');
         s.pending.summary = momentSummary(npc.name);
+        noteDir(s, 'letWatch', npc.id, 'presence.hunt.let_watch');
         Payoffs.noteLetWatch(s, npc);
         s.phase = 'eventResult';
         return { state: s };
@@ -1126,7 +1177,10 @@
         if (s.worldMemory) WM.notePersonal(s, { catId: p.catId, delta: d, receiptKey: `${s.runId || ''}/intent/${p.catId}/${p.eventId}/${c.id}/${p.day}`, sourceType: 'conversation_outcome', scope: 'private' });
       }
       log(s, spoken);
-      if (p.catId && (c.id === 'introduce' || c.id === 'greet')) Payoffs.noteReply(s, s.npcs[p.catId], c.id);
+      if (p.catId && (c.id === 'introduce' || c.id === 'greet')) {
+        Payoffs.noteReply(s, s.npcs[p.catId], c.id);
+        noteDir(s, 'talk', p.catId, c.id, p.day);
+      }
       s.phase = 'eventResult';
       return { state: s };
     }
@@ -1248,6 +1302,7 @@
       Enc.normalize(s);
       if (Pair.enabled) Pair.normalize(s);
       if (!Array.isArray(s.followups)) s.followups = [];
+      if (Directory) Directory.migrate(s, slots);
       s.saveVersion = R.saveVersion;
       return s;
     }
@@ -1522,7 +1577,13 @@
       }
       if (!beats) return null;
       const aside = asideBeat(s, p);
-      return Beats.visible(aside ? [aside].concat(beats) : beats, beatContext(s));
+      const visible = Beats.visible(aside ? [aside].concat(beats) : beats, beatContext(s));
+      if (Directory) {
+        noteUnloggedMeets(s);
+        Directory.noteVisible(s, visible);
+        Directory.noteGossip(s);
+      }
+      return visible;
     }
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;

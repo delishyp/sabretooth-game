@@ -231,14 +231,18 @@
     if (!line) return null;
     if (!s.records) s.records = {};
     s.records.payoffHeard = true;
-    return scene(s, npc, '1.4', line, []);
+    const built = scene(s, npc, '1.4', line, []);
+    if (built) built.gossipSourceId = factId;
+    return built;
   }
   function openSeeking(s, npc) {
     const line = oneLine(data['1.5_seeking_company_gossip_opener'], npc, varsFor(s, npc));
     if (!line) return null;
     if (!s.records) s.records = {};
     s.records.payoffSeekingHeard = true;
-    return scene(s, npc, '1.5b', line, []);
+    const built = scene(s, npc, '1.5b', line, []);
+    if (built) built.gossipSourceId = seekingFact(s) || 'player_seeking_company';
+    return built;
   }
   function priorityIds(s) {
     const ids = queue(s).filter((row) => !row.fired && row.catId).map((row) => row.catId);

@@ -130,7 +130,8 @@
         title: npc.name, catId: npc.id, catName: npc.name, kind: row.kind,
         sourceEventId: row.sourceEventId, choiceId: row.choiceId, factId: row.factId,
         receipt: receipt(s, row), huntReady: !!ctx.huntReady, memberShare: !!ctx.memberShare,
-        beats, beatIndex: 0, day: s.day, choices: choicesFor(row, ctx), absDelta: 0
+        beats, beatIndex: 0, day: s.day, choices: choicesFor(row, ctx), absDelta: 0,
+        ...(told && told.id ? { gossipSourceId: told.id } : {})
       };
     }
     function mark(s, row, delta) {
