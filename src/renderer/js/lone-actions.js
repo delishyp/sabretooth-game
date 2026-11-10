@@ -69,41 +69,47 @@
       if ((npc.homeZones || []).includes(s.region)) here.push(npc);
     }
     const lines = [];
+    const speakerIds = [];
     const cats = [];
+    const add = (text, npc) => {
+      if (!text) return;
+      lines.push(text);
+      speakerIds.push(npc && npc.met ? npc.id : null);
+    };
     for (const npc of here) {
       cats.push({ id: npc.id, met: !!npc.met, sex: npc.sex });
-      if (npc.met && npc.name) lines.push(fillTokens(SCENT.catKnown, { name: npc.name }));
-      else if (npc.sex === 'female' && SCENT.catStrange) lines.push(SCENT.catStrange.female);
-      else if (SCENT.catStrange) lines.push(SCENT.catStrange.male);
+      if (npc.met && npc.name) add(fillTokens(SCENT.catKnown, { name: npc.name }), npc);
+      else if (npc.sex === 'female' && SCENT.catStrange) add(SCENT.catStrange.female, null);
+      else if (SCENT.catStrange) add(SCENT.catStrange.male, null);
       if (isRival(npc)) {
-        if (npc.met && npc.name) lines.push(fillTokens(SCENT.rivalKnown, { name: npc.name }));
-        else if (SCENT.rivalStrange) lines.push(SCENT.rivalStrange);
+        if (npc.met && npc.name) add(fillTokens(SCENT.rivalKnown, { name: npc.name }), npc);
+        else if (SCENT.rivalStrange) add(SCENT.rivalStrange, null);
       }
     }
     const holder = spec && spec.holder;
     if (holder && holder !== 'neutral' && holder !== 'wolves' && SCENT.prideMarked) {
       const metPride = !!(spec && spec.metPride);
       const marked = metPride ? SCENT.prideMarked[holder] : SCENT.prideMarked.unmet;
-      if (marked) lines.push(marked);
+      if (marked) add(marked, null);
     }
     const report = spec && spec.report;
     const hunt = report && (report.lines || []).find((l) => l.k === 'hunt' && l.ok);
     if (hunt && report.region === s.region && typeof report.day === 'number' && report.day >= s.day - 2 && SCENT.ownKill) {
-      lines.push(SCENT.ownKill);
+      add(SCENT.ownKill, null);
     }
     if (spec && spec.preyValue != null && SCENT.prey) {
       const word = preyWord(spec.preyValue);
-      if (SCENT.prey[word]) lines.push(SCENT.prey[word]);
+      if (SCENT.prey[word]) add(SCENT.prey[word], null);
     }
     for (const hazard of (spec && spec.hazards) || []) {
       const line = SCENT.hazard && SCENT.hazard[hazard];
-      if (line) lines.push(line);
+      if (line) add(line, null);
     }
     const found = lines.length > 0;
-    if (!lines.length && SCENT.nothing) lines.push(SCENT.nothing);
+    if (!lines.length && SCENT.nothing) add(SCENT.nothing, null);
     const opener = scentOpener(s, spec);
-    if (opener) lines.unshift(opener);
-    return { lines, cats, found };
+    if (opener) { lines.unshift(opener); speakerIds.unshift(null); }
+    return { lines, cats, found, speakerIds };
   }
   function scentOpener(s, spec) {
     const list = Array.isArray(SCENT.openers) && SCENT.openers.length ? SCENT.openers : (SCENT.opener ? [SCENT.opener] : []);
@@ -148,7 +154,13 @@
     return {
       event: {
         lone: true, eventId: 'lone.scent', title: 'Read scent sign', heading: 'Read scent sign',
-        beats: read.lines.map((text) => ({ kind: 'narration', text })),
+        beats: read.lines.map((text, i) => {
+          const id = read.speakerIds && read.speakerIds[i];
+          const npc = id && s.npcs[id];
+          const beat = { kind: 'narration', text };
+          if (npc) { beat.speaker = npc.name; beat.speakerId = npc.id; }
+          return beat;
+        }),
         beatIndex: 0, choices: [], result: false, day: s.day, factId: key, cats: read.cats,
         skill: 'threatScent', xpOutcome: read.found ? 10 : 4
       }
@@ -779,11 +791,12 @@
     if ((s.needs.energy || 0) < 15) return { error: 'tired' };
     s.needs.energy -= 15;
     s.records.cubPrideDay[offer.pride] = s.day;
+    const cub = s.npcs[offer.cubId];
     return {
       event: {
         lone: true, cub: true, eventId: 'lone.cub', title: 'A cub',
         pride: offer.pride, cubId: offer.cubId, motherId: offer.motherId,
-        beats: [{ kind: 'narration', text: fillTokens(LINES['cub.intro'], { pride: offer.name }) }],
+        beats: [{ kind: 'narration', text: fillTokens(LINES['cub.intro'], { pride: offer.name }), speaker: cub && cub.name, speakerId: cub && cub.id }],
         beatIndex: 0, day: s.day, choices: [
           { id: 'guide', label: 'Walk the cub back to its mother.' },
           { id: 'ignore', label: 'Leave the cub where it is.' }
@@ -805,7 +818,7 @@
       else if (s.records) s.records.cubs = { [p.cubId]: s.day };
       const factId = `${s.runId || ''}/cub/${p.cubId}`;
       rememberFact(s, factId, { kind: 'pride_aid', summary: `You walked a cub back to ${mother.name}.`, participants: ['player', mother.id, p.cubId], prideIds: [p.pride], skill: 'grooming', xpOutcome: 10, xpGranted: false });
-      p.beats = (p.beats || []).concat([{ kind: 'narration', text: fillTokens(LINES['cub.help'], { mother: mother.name }) }]);
+      p.beats = (p.beats || []).concat([{ kind: 'narration', text: fillTokens(LINES['cub.help'], { mother: mother.name }), speaker: mother.name, speakerId: mother.id }]);
       p.resultLine = '';
       p.prideDelta = 5;
     } else {

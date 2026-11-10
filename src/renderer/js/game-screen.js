@@ -10,6 +10,8 @@
   else root.GameScreen = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
+  const Slice = (typeof require === 'function' ? require('./slice') : (typeof self !== 'undefined' ? self.Slice : null));
+  const HomeScene = (typeof require === 'function' ? require('./home-scene') : (typeof self !== 'undefined' ? self.HomeScene : null));
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -61,6 +63,67 @@
     const list = beats || [];
     if (phase !== 'eventResult') return list;
     return list.filter((beat) => beat && beat.kind !== 'speech');
+  }
+  /** The cat a card is showing, when that card has a speaker. */
+  function resolveSpeaker(s, beat) {
+    if (!s || !beat) return null;
+    const npcs = s.npcs || {};
+    if (beat.speakerId && npcs[beat.speakerId]) return npcs[beat.speakerId];
+    if (beat.speaker === 'npc' && s.pending && s.pending.catId && npcs[s.pending.catId]) return npcs[s.pending.catId];
+    if (beat.speaker && beat.speaker !== 'player' && beat.speaker !== 'npc') {
+      const named = Object.values(npcs).find((cat) => cat && cat.name === beat.speaker);
+      if (named) return named;
+    }
+    if ((beat.kind === 'speech' || beat.kind === 'say') && s.pending && s.pending.catId && npcs[s.pending.catId]) return npcs[s.pending.catId];
+    return null;
+  }
+  function sceneHead(s, api) {
+    const hooks = api || {};
+    if (!s) return null;
+    if (s.phase === 'conversation' && hooks.talkView) {
+      const view = hooks.talkView(s);
+      return view && s.npcs[view.catId] || null;
+    }
+    if (s.phase === 'ford' && hooks.fordView) {
+      const view = hooks.fordView(s);
+      return view && s.npcs[view.speakerId] || null;
+    }
+    if (s.phase === 'border' && hooks.borderView) {
+      const view = hooks.borderView(s);
+      return view && s.npcs[view.speakerId || view.guardId] || null;
+    }
+    if (s.phase === 'encounter' && hooks.encounterView) {
+      const view = hooks.encounterView(s);
+      const line = (view && view.lines || []).find((row) => row && (row.kind === 'say' || row.kind === 'speech') && (row.speakerId || row.speaker));
+      return line ? resolveSpeaker(s, line) : null;
+    }
+    if (s.pending && s.pending.showPortrait && s.pending.catId && s.npcs[s.pending.catId]) return s.npcs[s.pending.catId];
+    const beats = resultCardBeats((hooks.sceneBeats && hooks.sceneBeats(s)) || (s.pending && s.pending.beats) || [], s.phase);
+    if (!beats.length) return null;
+    const idx = Math.min((s.pending && s.pending.beatIndex) || 0, beats.length - 1);
+    return resolveSpeaker(s, beats[idx]);
+  }
+  /** Same portrait frame the speech cards already use. */
+  function appendSpeakerHead(card, npc, paint) {
+    if (!card || !npc || typeof document === 'undefined') return null;
+    const cast = document.createElement('div');
+    cast.className = 'event-cast';
+    const cv = document.createElement('canvas');
+    cv.className = 'event-portrait';
+    cv.id = 'event-head';
+    cv.dataset.portraitId = npc.portraitId || '';
+    cv.dataset.speaker = npc.name || '';
+    const frame = document.createElement('div');
+    frame.className = 'portrait-frame frame-md';
+    frame.append(cv);
+    const name = document.createElement('div');
+    name.className = 'event-cast-name';
+    name.textContent = npc.name || '';
+    cast.append(frame, name);
+    card.append(cast);
+    const painted = paint && paint({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' });
+    if (painted && typeof painted.catch === 'function') painted.catch(() => {});
+    return cv;
   }
   function killShareText(prideName) {
     return `${prideName} shares a kill with you.`;
@@ -499,11 +562,9 @@
       box.textContent = '';
       const card = el('div', 'event-card conversation-card'); card.dataset.node = view.nodeId; card.dataset.cat = view.catId; box.append(card);
       const npc = s.npcs[view.catId];
-      const who = el('div', 'event-cast');
-      const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
-      ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
-      who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.catName), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
-      card.append(who);
+      const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
+      const who = cv && cv.parentNode && cv.parentNode.parentNode;
+      if (who) who.append(btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
       card.append(relationMeters(view.catId));
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
@@ -529,12 +590,7 @@
       if (!show) return;
       box.textContent = '';
       const card = el('div', 'event-card conversation-card'); card.dataset.node = view.node; box.append(card);
-      const who = el('div', 'event-cast');
-      const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
-      const speaker = s.npcs[view.speakerId];
-      ctx.portrait({ look: speaker.look, sex: speaker.sex, name: speaker.name, portraitId: speaker.portraitId }, cv, { frame: 'head' }).catch(() => {});
-      who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.speakerName));
-      card.append(who);
+      appendSpeakerHead(card, s.npcs[view.speakerId], (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const scroll = el('div', 'event-scroll');
       for (const line of view.lines || []) {
         const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
@@ -557,11 +613,7 @@
       box.textContent = '';
       const card = el('div', 'event-card conversation-card'); card.dataset.node = view.node; card.dataset.cat = view.guardId; box.append(card);
       const guard = s.npcs[view.speakerId || view.guardId];
-      const who = el('div', 'event-cast');
-      const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
-      ctx.portrait({ look: guard.look, sex: guard.sex, name: guard.name, portraitId: guard.portraitId }, cv, { frame: 'head' }).catch(() => {});
-      who.append(framed(cv, 'md'), el('div', 'event-cast-name', view.guardName));
-      card.append(who);
+      appendSpeakerHead(card, guard, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const scroll = el('div', 'event-scroll');
       const lines = view.lines || [];
       if (!lines.length) scroll.append(el('p', 'event-text say', view.guardName + ': ' + view.title));
@@ -588,6 +640,9 @@
       card.dataset.node = view.nodeId; card.dataset.encounter = view.encounterId; card.dataset.asset = view.assetId;
       box.append(card);
       card.append(el('h2', 'event-title', view.displayName));
+      const spoken = (view.lines || []).find((row) => row && (row.kind === 'say' || row.kind === 'speech') && (row.speakerId || row.speaker));
+      const speaker = spoken && resolveSpeaker(s, spoken);
+      if (speaker) appendSpeakerHead(card, speaker, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const art = el('div', 'encounter-art');
       const img = el('img', 'encounter-img');
       img.src = `../../assets/encounters/${view.assetId}`;
@@ -636,11 +691,10 @@
       box.append(card);
       if (p.showPortrait && p.catId && s.npcs[p.catId]) {
         const npc = s.npcs[p.catId];
-        const who = el('div', 'event-cast');
-        const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
-        ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
-        who.append(framed(cv, 'md'), el('div', 'event-cast-name', npc.name), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
-        card.append(who, relationMeters(npc.id));
+        const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
+        const who = cv && cv.parentNode && cv.parentNode.parentNode;
+        if (who) who.append(btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
+        card.append(relationMeters(npc.id));
       }
       card.append(el('h2', 'event-title', p.heading || 'Bond'));
       const beatList = E.sceneBeats(s);
@@ -688,17 +742,8 @@
       const idx = Math.min(s.pending.beatIndex || 0, beats.length - 1);
       const beat = beats[idx];
       const shown = (typeof Beats !== 'undefined' ? Beats : E.beats).line(beat, E.beatContext(s));
-      if (shown.kind === 'speech' && shown.speaker) {
-        const npc = Object.values(s.npcs || {}).find((cat) => cat && cat.name === shown.speaker);
-        if (npc) {
-          const cast = el('div', 'event-cast');
-          const cv = el('canvas', 'event-portrait');
-          cv.id = 'beat-head';
-          ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
-          cast.append(framed(cv, 'md'), el('div', 'event-cast-name', npc.name));
-          card.append(cast);
-        }
-      }
+      const npc = resolveSpeaker(s, Object.assign({}, beat, shown));
+      if (npc) appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const prose = el('div', 'event-beat');
       prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
       card.append(prose);
@@ -758,13 +803,12 @@
       if (!show) return;
       box.textContent = ''; const e = E.eventById(p.eventId);
       const card = el('div', 'event-card'); box.append(card);
-      if (p.catId) {
+      if (p.catId && s.npcs[p.catId]) {
         const npc = s.npcs[p.catId];
-        const who = el('div', 'event-who');
-        const cv = el('canvas', 'event-portrait'); cv.id = 'event-head';
-        ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
-        who.append(framed(cv, 'md'), btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
-        card.append(who, el('div', 'event-cat', npc.name), relationMeters(npc.id));
+        const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
+        const who = cv && cv.parentNode && cv.parentNode.parentNode;
+        if (who) who.append(btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
+        card.append(el('div', 'event-cat', npc.name), relationMeters(npc.id));
       }
       card.append(el('h2', 'event-title', e.title));
       if (s.phase === 'event') {
@@ -890,5 +934,5 @@
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }
-  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence };
+  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence, resolveSpeaker, sceneHead, appendSpeakerHead };
 });
