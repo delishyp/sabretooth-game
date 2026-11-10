@@ -22,6 +22,17 @@
     if (bare.startsWith(name)) return text;
     return `${name}: ${text}`;
   }
+  const PLAYER_STILL = 'cat-6e2d788dd48ff440';
+  /** Equal full-body frames. The player already faces right. Animal foes flip to face left. Humans stay unflipped. */
+  function encounterPanels(view, player) {
+    const id = (player && player.portraitId) || PLAYER_STILL;
+    const asset = (view && view.assetId) || '';
+    const human = /human/i.test(asset) || /human/i.test((view && view.encounterId) || '');
+    return {
+      player: { src: '../../assets/portraits/cats/' + id + '.png', flip: false, alt: (player && player.name) || '' },
+      foe: { src: '../../assets/encounters/' + asset, flip: !human && !!asset, asset, alt: (view && view.displayName) || '' }
+    };
+  }
   function sparLockDisplay(rows) {
     const list = rows || [];
     const open = list.filter((row) => row && !row.locked);
@@ -661,13 +672,22 @@
       const spoken = (view.lines || []).find((row) => row && (row.kind === 'say' || row.kind === 'speech') && (row.speakerId || row.speaker));
       const speaker = spoken && resolveSpeaker(s, spoken);
       if (speaker) appendSpeakerHead(card, speaker, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
-      const art = el('div', 'encounter-art');
-      const img = el('img', 'encounter-img');
-      img.src = `../../assets/encounters/${view.assetId}`;
-      img.alt = view.displayName;
-      img.dataset.asset = view.assetId;
+      const panels = encounterPanels(view, s.cat);
+      const row = el('div', 'encounter-panels');
+      const you = el('figure', 'encounter-panel is-player');
+      const youImg = el('img', 'encounter-body');
+      youImg.src = panels.player.src;
+      youImg.alt = panels.player.alt || s.cat.name;
+      you.append(youImg);
+      const art = el('figure', 'encounter-panel is-foe encounter-art');
+      const img = el('img', 'encounter-img encounter-body' + (panels.foe.flip ? ' is-flipped' : ''));
+      img.src = panels.foe.src;
+      img.alt = panels.foe.alt;
+      img.dataset.asset = panels.foe.asset;
+      if (panels.foe.flip) img.dataset.flip = 'left';
       art.append(img);
-      card.append(art, btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
+      row.append(you, art);
+      card.append(row, btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
@@ -971,5 +991,5 @@
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }
-  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence, resolveSpeaker, sceneHead, headForBeats, appendSpeakerHead };
+  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence, resolveSpeaker, sceneHead, headForBeats, appendSpeakerHead, encounterPanels };
 });

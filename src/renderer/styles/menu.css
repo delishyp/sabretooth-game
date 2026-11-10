@@ -270,18 +270,18 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .conversation-card .event-scroll.focused, .conversation-card .event-scroll:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .encounter-card .event-scroll { flex: 1 1 auto; align-self: stretch; min-height: 0; max-height: none; height: auto; overflow-x: hidden; overflow-y: auto; }
 .encounter-card .event-title { margin: 0; }
-.encounter-art { box-sizing: border-box; flex: 0 0 auto; width: fit-content; max-width: 100%; align-self: center; margin: 0 auto; padding: 12px; background: #31241D; border-radius: 8px; }
-.encounter-art img { display: block; width: auto; height: 420px; max-width: 100%; object-fit: contain; object-position: center; background: #31241D; }
+.encounter-panels { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 18px; }
+.encounter-panel { box-sizing: border-box; flex: 1 1 0; min-width: 0; max-width: calc(50% - 9px); height: 100%; max-height: 100%; aspect-ratio: 1448 / 1086; padding: 8px; background: #1c140e; border: 2px solid #c6a15a; box-shadow: inset 0 0 0 1px #f3ddb0; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0; }
+.encounter-panel img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; background: transparent; }
+.encounter-panel.is-foe img.is-flipped { transform: scaleX(-1); }
 .encounter-open-full { align-self: center; width: auto; min-height: 34px; padding: 4px 16px; }
 @media (max-height: 800px) {
   .encounter-card.conversation-card { padding: 8px 14px; gap: 6px; }
   .encounter-card .event-title { font-size: 28px; }
   .encounter-card .event-scroll { min-height: 0; max-height: none; }
-  .encounter-art { padding: 12px; }
-  .encounter-art img { height: 360px; }
+  .encounter-panels { gap: 12px; }
 }
 @media (min-height: 1000px) {
-  .encounter-art img { height: 460px; }
   .encounter-card .event-scroll { min-height: 0; max-height: none; }
 }
 .encounter-inspect { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(8, 5, 3, .78); }
