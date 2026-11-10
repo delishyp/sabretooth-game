@@ -275,10 +275,10 @@
         "reason": "Swept downriver in the Breaking; too frail to cross the marsh home. Mistwood believes she is dead."
       },
       "attitudeToOrigin": "Loves them still. Wants them to know she lived, and to know the truth.",
-      "range": "The Tar Seeps and the south shore of the Drowned Mere.",
+      "range": "The Tar Seeps and Mere Shore.",
       "homeZones": [
         "tar_seeps",
-        "drowned_mere"
+        "mere_shore"
       ],
       "secret": "She warned Longshadow the ice was rotten. She found Sedge's last cub dead on the shore and buried it.",
       "sampleLine": "The ice told me. It always tells you. Most cats don't listen.",
@@ -323,7 +323,7 @@
         "reason": "Crime: in the hungry season after the Breaking he was caught stealing a goose from the cubs' share. He never denied it."
       },
       "attitudeToOrigin": "Shame. Avoids their land and won't speak their names.",
-      "range": "The edge of the Ash Hills and the Bear's Throat.",
+      "range": "The edge of the Ash Hills and the Bear's Throat. The Ash Hills are wolf country.",
       "homeZones": [
         "ash_hills",
         "bears_throat"
@@ -374,9 +374,9 @@
         "reason": "Grief: lost her mate Rushwater and both cubs in the Breaking and could not bear the old dens."
       },
       "attitudeToOrigin": "Doesn't blame them. Just can't go back.",
-      "range": "The shore of the Drowned Mere.",
+      "range": "Mere Shore.",
       "homeZones": [
-        "drowned_mere"
+        "mere_shore"
       ],
       "secret": "Believes one cub lived and was taken by wolves. She is wrong, and Lichen knows.",
       "sampleLine": "The river took them. It's going to give something back.",
@@ -420,9 +420,9 @@
         "reason": "Stranded on the far bank in the Breaking with a torn leg; by the time he healed, the pride had moved to dens he can't find."
       },
       "attitudeToOrigin": "Wants to go home more than anything.",
-      "range": "The north shore of the Drowned Mere and the Split Rock.",
+      "range": "Island Mere and the Split Rock.",
       "homeZones": [
-        "drowned_mere",
+        "island_mere",
         "split_rock"
       ],
       "secret": "On the ice he turned back instead of reaching for Longshadow, his father. He thinks his brother's mate Sedge would never forgive him.",

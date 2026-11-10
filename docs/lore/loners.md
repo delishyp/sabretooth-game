@@ -97,7 +97,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** wise, gentle, stubborn.
 - **Why she left:** the river took her during the Breaking and dropped her far downstream, half-drowned, near the Tar Seeps. She is too frail now to cross the marsh back home, and too proud to ask to be carried. Mistwood believes she is dead.
 - **Toward Mistwood:** loves them still. She wants them to know she lived, and she wants them to know the truth.
-- **Range:** the Tar Seeps and the southern shore of the Drowned Mere.
+- **Range:** the Tar Seeps and Mere Shore.
 - **Secret / hook:** she warned Longshadow that the ice was rotten. She also found Sedge's last cub on the shore after the flood and buried it.
 - **Sample line:** "The ice told me. It always tells you. Most cats don't listen."
 - **Narrative leaning:** warm and quick to trust (sociability: high). Never a rival (aggression: low). She is past breeding age, so she joins as a non-breeder (§3.1). Recruiting her costs nothing with Mistwood, and may even comfort them.
@@ -109,7 +109,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** guilt-ridden, careful, kind in secret.
 - **Why he left:** in the hungry season after the Breaking, Hollowsong kept every kill for the nursing queens and cubs. Ashfall was caught dragging a goose away from the cubs' share. He would not say why. Hollowsong drove him out, and the pride agreed. It was a real crime, and he has never denied it.
 - **Toward Mistwood:** shame. He avoids their land and won't speak their names.
-- **Range:** the edge of the Ash Hills and the Bear's Throat. He lives where no cat wants to.
+- **Range:** the edge of the Ash Hills and the Bear's Throat. He keeps both. The Ash Hills are wolf country, and he lives where no cat wants to.
 - **Secret / hook:** the goose was for his mate, Reedsong, who was hurt in the Breaking and hidden from the pride so she wouldn't be left behind. She died anyway. No one in Mistwood knows she lived that long.
 - **Sample line:** "I did what they said I did. Don't make me into anything better."
 - **Narrative leaning:** slow to trust and quick to retreat (sociability: low). Not a rival (aggression: medium). Once won over, steady. Recruiting him costs relation with Mistwood (exile penalty).
@@ -121,7 +121,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** sorrowful, watchful, quietly dangerous.
 - **Why she left:** Sedge lost her mate, Rushwater, and both her cubs in the Breaking. She could not bear the dens where they had slept. She left in summer and walks the river looking for them.
 - **Toward Mistwood:** she doesn't blame them. She just can't go back.
-- **Range:** the shore of the Drowned Mere.
+- **Range:** Mere Shore.
 - **Secret / hook:** she believes one cub lived and was carried off by wolves. She is wrong, and Lichen knows.
 - **Sample line:** "The river took them. It's going to give something back."
 - **Narrative leaning:** distant at first, then deeply attached (sociability: medium). Not a rival (aggression: medium). Player kindness to cubs should matter to her more than anything.
@@ -133,7 +133,7 @@ Each cat's **Narrative leaning** line says how the story imagines them against t
 - **Traits:** loyal, haunted, earnest.
 - **Why he left:** the Breaking left Coldwater stranded on the far bank of the Mere with a torn leg. By the time he healed enough to walk the long way round, Hollowsong had led the pride to new dens he couldn't find. He wanders the marsh edge looking for their scent.
 - **Toward Mistwood:** he wants to go home more than anything.
-- **Range:** the north shore of the Drowned Mere and the Split Rock, where every pride's scent passes.
+- **Range:** Island Mere and the Split Rock, where every pride's scent passes.
 - **Secret / hook:** on the ice he turned back instead of reaching for Longshadow. Longshadow was Rushwater's father, and Coldwater was Rushwater's brother. He thinks Sedge would never forgive him.
 - **Sample line:** "If you smell them, any of them, tell me which way."
 - **Narrative leaning:** easy to befriend (sociability: high). Never a rival (aggression: low). The cat most likely to rejoin Mistwood by world drift; the player helping him home could be a story in itself.

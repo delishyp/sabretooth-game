@@ -107,7 +107,7 @@ Notes on the table:
 - \* `blue_caves` is low prey but offers den shelter (+Warmth when resting); tier `safe` for shelter value, not hunting.
 - † `greywater_ford` startHolder `highcrag` with `disputedBy: bonefield` (claim contested from day 1).
 - ‡ `west_spur`–`blue_caves` is a long 2-day mountain skirt edge (optional path around Highcrag; listed in both adjacency rows).
-- § `drowned_mere` is neutral; Mistwood has soft influence via adjacent claims, not ownership.
+- § `drowned_mere` is neutral: Neutral (old Mistwood border land).
 - ¶ `camel_ridge` is neutral but wolf-pressured (`pressureFaction: wolves`).
 - Legacy 10 ids are the ones Saga already wrote blurbs for; the other 20 need new blurbs after approval.
 

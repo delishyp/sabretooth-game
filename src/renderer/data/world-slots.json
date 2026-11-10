@@ -315,7 +315,7 @@
       "storyRole": "Lichen",
       "homeZones": [
         "tar_seeps",
-        "drowned_mere"
+        "mere_shore"
       ],
       "lonerId": "lichen"
     },
@@ -340,7 +340,7 @@
       "ageSeasons": 24,
       "storyRole": "Sedge",
       "homeZones": [
-        "drowned_mere"
+        "mere_shore"
       ],
       "lonerId": "sedge"
     },
@@ -352,7 +352,7 @@
       "ageSeasons": 20,
       "storyRole": "Coldwater",
       "homeZones": [
-        "drowned_mere",
+        "island_mere",
         "split_rock"
       ],
       "lonerId": "coldwater"
