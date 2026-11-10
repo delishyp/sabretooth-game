@@ -26,6 +26,14 @@
     throw new Error('encounter engine config missing');
   }
   const config = loadConfig();
+  function loadNarration() {
+    if (typeof require === 'function') {
+      try { return require('../data/encounter-narration-v1.json'); } catch (e) { /* browser */ }
+    }
+    return { foes: {}, lines: {} };
+  }
+  const narration = loadNarration();
+  const OUTCOMES = Object.keys(narration.lines);
   const POLICIES = {
     fight: ['average', 'sensible', 'biteOnly', 'fleeAt30'],
     hunt: ['steady', 'allBold'],
@@ -84,6 +92,24 @@
     return clamp(points, cfg.clamp[0], cfg.clamp[1]);
   }
 
+  function fillLine(text, vars) {
+    return String(text || '').replace(/\{(foeName|name)\}/g, (token, key) => (vars && vars[key] != null ? String(vars[key]) : token));
+  }
+  function foeOf(opts) {
+    const opponent = (opts && opts.opponent) || {};
+    const catalog = narration.foes || {};
+    const named = catalog[opponent.kind] || catalog[opponent.id] || null;
+    const group = opponent.group === true || !!(named && named.group);
+    const foeName = opponent.foeName || opponent.name || (named && named.foeName) || (group ? 'the wolves' : 'the stranger');
+    const name = (opts && opts.player && opts.player.name) || 'you';
+    return { foeName, name, group };
+  }
+  function beat(key, vars) {
+    return { key, line: fillLine(narration.lines[key], vars) };
+  }
+  function telegraphKey() {
+    return 'fight.telegraph';
+  }
   function policyFight(rng, policy) {
     const cfg = config.proposed;
     const attacks = ['bite', 'claw'];
@@ -185,8 +211,12 @@
 
   function resolve(opts) {
     const kind = opts.kind || 'fight';
+    const who = foeOf(opts);
     if (kind === 'showdown') {
-      return { adapter: 'engine', kind, skipped: true, reason: 'showdown-untouched', rounds: null };
+      return {
+        adapter: 'engine', kind, skipped: true, reason: 'showdown-untouched', rounds: null,
+        beats: [beat('showdown.untouched', who)]
+      };
     }
     const policy = policyName(opts.policy);
     const group = groupOf(kind === 'spar' ? 'fight' : kind);
@@ -203,6 +233,14 @@
       let injuryP = (config.hunt.injury[size] || 0) * (ok ? 1 : config.hunt.injury.failMult);
       if (policy === 'allBold') injuryP *= config.hunt.injury.boldMult;
       const injured = rng() < injuryP;
+      let injury = null;
+      if (injured) {
+        injury = 'minor';
+        if (size === 'large') {
+          const tier = rng();
+          injury = tier < 0.7 ? 'minor' : tier < 0.95 ? 'serious' : 'crippling';
+        }
+      }
       let stamina = config.hunt.stamina;
       let rounds = 0;
       if (!quick) {
@@ -212,10 +250,13 @@
           stamina -= cost * (0.8 + rng() * 0.4);
         }
       }
+      const huntBeats = [beat(ok ? 'hunt.success' : 'hunt.fail', who)];
+      if (injury) huntBeats.push(beat(`hunt.injury.${injury}`, who));
       return {
         adapter: 'engine', kind, policy, policyKnown: known, quick, size,
-        chance, roll, ok, energy, injury: injured ? 'minor' : null, injuryRate: injuryP,
-        rounds: quick ? 1 : rounds, stamina: quick ? null : stamina
+        chance, roll, ok, energy, injury, injuryRate: injuryP,
+        rounds: quick ? 1 : rounds, stamina: quick ? null : stamina,
+        beats: huntBeats
       };
     }
     if (kind === 'courtship') {
@@ -229,18 +270,36 @@
           interest += (chance / 100) * config.courtship.interestPerPoint * (0.8 + rng() * 0.4);
         }
       }
+      const court = opts.courtship || opts.player || {};
+      const accepted = roll * 100 < chance;
+      const sociability = court.sociability != null ? court.sociability : 50;
+      const reaction = court.repeat ? 'courtship.repeat'
+        : sociability >= 70 ? 'courtship.reaction.high'
+          : sociability <= 30 ? 'courtship.reaction.low'
+            : 'courtship.reaction.baseline';
       return {
         adapter: 'engine', kind, policy, policyKnown: known, quick,
-        chance, roll, accepted: roll * 100 < chance, rounds: quick ? 1 : rounds
+        chance, roll, accepted, rounds: quick ? 1 : rounds,
+        beats: [beat('courtship.open', who), beat(reaction, who), beat(accepted ? 'courtship.accepted' : 'courtship.declined', who)]
       };
     }
     const spar = kind === 'spar' || opts.spar === true;
     const ps = opts.player && Number.isFinite(opts.player.strength) ? opts.player.strength : 10;
     const os = opts.opponent && Number.isFinite(opts.opponent.strength) ? opts.opponent.strength : 10;
     const fight = quick ? quickFight(rng, ps, os, policy) : turnFight(rng, ps, os, policy, spar);
+    const fightBeats = [];
+    if (spar) fightBeats.push(beat('spar.open', who), beat('spar.stop', who));
+    else {
+      fightBeats.push(beat('fight.open', who));
+      fightBeats.push(beat(who.group ? 'fight.warning.group' : 'fight.warning', who));
+      fightBeats.push(beat(telegraphKey(), who));
+      if (fight.fled) fightBeats.push(beat('fight.flee', who));
+      else if (fight.timeout) fightBeats.push(beat('fight.timeout', who));
+      else fightBeats.push(beat(fight.winner === 'player' ? 'fight.hit' : 'fight.miss', who), beat(fight.winner === 'player' ? 'fight.win' : 'fight.lose', who));
+    }
     return Object.assign({
       adapter: 'engine', kind: spar ? 'spar' : 'fight', policy, policyKnown: known,
-      lethal: !spar, playerStrength: ps, opponentStrength: os
+      lethal: !spar, playerStrength: ps, opponentStrength: os, beats: fightBeats
     }, fight);
   }
 
@@ -374,5 +433,5 @@
     };
   }
 
-  return { config, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample };
+  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine };
 });

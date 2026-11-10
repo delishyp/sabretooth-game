@@ -17,11 +17,11 @@
   },
   "dangerBands": [
     {
-      "max": 1,
+      "max": 0,
       "danger": 0
     },
     {
-      "max": 5,
+      "max": 2,
       "danger": 1
     },
     {

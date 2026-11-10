@@ -124,7 +124,7 @@ test('simulateEncounter covers bands 1 through 15', () => {
   assert.match(text, /band  7  PASS  hunt bold/);
   assert.match(text, /band  9  PASS  spar ends at 40 HP/);
   assert.match(text, /band 14  PASS  spar length/);
-  assert.match(text, /timeouts  PASS  encounter timeouts  target <4%/);
+  assert.match(text, /timeouts  PASS  encounter timeouts  target <3%/);
   assert.match(log.bands[1].got, /sensible /);
   assert.match(log.bands[1].got, /biteOnly /);
   assert.match(log.bands[1].got, /average /);

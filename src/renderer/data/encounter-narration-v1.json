@@ -1,0 +1,33 @@
+{
+  "foes": {
+    "hyena": { "foeName": "the hyena", "group": false },
+    "wolves": { "foeName": "the wolves", "group": true }
+  },
+  "lines": {
+    "fight.open": "{foeName} steps into the open and holds still.",
+    "fight.telegraph": "{foeName} shows where the next blow will fall.",
+    "fight.warning": "{name} warns {foeName} to keep back.",
+    "fight.warning.group": "{foeName} spread out and warn {name} off.",
+    "fight.hit": "{name} lands the blow on {foeName}.",
+    "fight.miss": "{name} misses {foeName}.",
+    "fight.flee": "{name} breaks away from {foeName}.",
+    "fight.win": "{name} stands over {foeName}.",
+    "fight.lose": "{foeName} stands over {name}.",
+    "fight.timeout": "The fight with {foeName} goes on until both are spent.",
+    "spar.open": "{name} and {foeName} crouch to play.",
+    "spar.stop": "{name} and {foeName} stop while both can still stand.",
+    "hunt.success": "{name} brings the prey down.",
+    "hunt.fail": "The prey slips away from {name}.",
+    "hunt.injury.minor": "{name} takes a small hurt from the large prey.",
+    "hunt.injury.serious": "{name} takes a deep hurt from the large prey.",
+    "hunt.injury.crippling": "{name} takes a lasting hurt from the large prey.",
+    "courtship.open": "{name} approaches {foeName}.",
+    "courtship.reaction.high": "{foeName} leans in, warm and quick.",
+    "courtship.reaction.baseline": "{foeName} listens and does not rush.",
+    "courtship.reaction.low": "{foeName} stays back and answers shortly.",
+    "courtship.repeat": "{foeName} has heard this from {name} before.",
+    "courtship.accepted": "{foeName} accepts {name}.",
+    "courtship.declined": "{foeName} turns {name} away.",
+    "showdown.untouched": "The showdown with {foeName} is left as it was."
+  }
+}

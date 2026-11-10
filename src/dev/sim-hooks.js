@@ -131,7 +131,7 @@ function loadMap(map) {
 function engineOn(opts) {
   return Engine.enabled(opts);
 }
-function simulateEncounter({ kind, seed, count, player, opponent, policy, engine, env, quick, size, style, courtship, spar, bands, slow } = {}) {
+function simulateEncounter({ kind, seed, count, player, opponent, policy, engine, env, quick, size, style, courtship, spar, bands, slow, narration } = {}) {
   const s = seed >>> 0;
   if (bands || kind === 'bands') {
     const table = bandTable({ seed: s, count, engine, env, slow });
@@ -141,6 +141,8 @@ function simulateEncounter({ kind, seed, count, player, opponent, policy, engine
   if (engineOn({ engine, env })) {
     const row = Engine.resolve({ kind: name, seed: s, player, opponent, policy, quick, size, style, courtship, spar });
     row.index = 0;
+    const narrationKeys = (row.beats || []).map((item) => item.key);
+    if (narration) return { command: 'encounter', seed: s, kind: name, adapter: 'engine', enabled: true, narrationKeys, rows: [row] };
     return { command: 'encounter', seed: s, kind: name, adapter: 'engine', enabled: true, rows: [row] };
   }
   const rng = Rng.stream(s, 'sim', 'encounter', name, (player && player.id) || 'player', (opponent && opponent.id) || 'opponent');
@@ -277,7 +279,7 @@ if (require.main === module) {
   const name = args._[0];
   const log = runCommand(name, {
     seed: args.seed, kind: args.kind, count: args.count, seasons: args.seasons, days: args.days,
-    bands: args.bands === true, slow: args.slow === true,
+    bands: args.bands === true, slow: args.slow === true, narration: args.narration === true,
     player: args.player ? { id: args.player } : undefined,
     opponent: args.opponent ? { id: args.opponent } : undefined,
     policy: args.policy ? { name: args.policy } : undefined,
@@ -290,7 +292,9 @@ if (require.main === module) {
     console.error('Use one of: encounter, batch, bands, world, lifetime');
     process.exit(1);
   }
-  if ((name === 'bands' || (name === 'encounter' && args.bands)) && !args.csv && !args.json) {
+  if (name === 'encounter' && args.narration && log.narrationKeys && !args.csv && !args.json) {
+    console.log(log.narrationKeys.join('\n'));
+  } else if ((name === 'bands' || (name === 'encounter' && args.bands)) && !args.csv && !args.json) {
     if (!log.enabled) {
       console.error('Encounter engine is off. Set SABRETOOTH_ENCOUNTER_ENGINE=1 to print the §8.3 band table.');
       process.exit(1);

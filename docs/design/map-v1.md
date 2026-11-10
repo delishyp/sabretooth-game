@@ -227,7 +227,7 @@ Everything is reachable. Longest home-to-home pride trip is about 3 hops.
 | `lost_trail` | Waste the day (no hunt); −10 Energy | pinewood fog |
 
 6.3 Style mult on injury hazards: Story ×0.5, Standard ×1, Sim ×1.5 (play-styles §2.3), same as fight injuries.
-6.4 Region `danger` 0–3 is **derived** and capped at 3. `map.dangerMode` chooses the total: `max` (default, map v0.1.3) is the highest single hazard percentage plus that region's feature bonus; `sum` adds every hazard percentage. The total then bands as 0 (≤1), 1 (≤5), 2 (≤10), 3 (above 10).
+6.4 Region `danger` 0–3 is **derived** and capped at 3. The default is the single highest hazard, plus a feature bonus when one is set. `sum` adds every hazard percentage instead. The total bands as 0 (none), 1 (up to 2), 2 (up to 10), 3 (above 10). Salt Flats and South Range are danger 2.
 
 ---
 

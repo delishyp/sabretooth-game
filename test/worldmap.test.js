@@ -27,6 +27,8 @@ test('every region has a biome, prey, danger band and travel days ≥ 1 to each 
 test('danger mode max uses the highest hazard and sum adds them, both cap at 3', () => {
   assert.strictEqual(WorldMap.mapRules.dangerMode, 'max');
   assert.strictEqual(W.danger('tar_seeps', 'spring'), 2);
+  assert.strictEqual(W.danger('salt_flats', 'spring'), 2);
+  assert.strictEqual(W.danger('south_range', 'spring'), 2);
   assert.strictEqual(W.danger('west_spur', 'spring'), 0);
   const bands = map.dangerBands;
   const hazards = [{ pct: 10 }, { pct: 2 }];
@@ -35,7 +37,7 @@ test('danger mode max uses the highest hazard and sum adds them, both cap at 3',
   assert.strictEqual(WorldMap.dangerValue([{ pct: 80 }, { pct: 80 }], { mode: 'sum', bands }), 3);
   assert.strictEqual(WorldMap.dangerValue([{ pct: 80 }], { mode: 'max', bands, featureBonus: 0 }), 3);
   assert.strictEqual(WorldMap.dangerValue([{ pct: 4 }], { mode: 'max', bands, featureBonus: 8 }), 3);
-  assert.strictEqual(WorldMap.dangerValue([{ pct: 4 }], { mode: 'max', bands, featureBonus: 0 }), 1);
+  assert.strictEqual(WorldMap.dangerValue([{ pct: 4 }], { mode: 'max', bands, featureBonus: 0 }), 2);
 });
 
 test('ownership + trespass: start claims give holders; wolves never trespass-patrol', () => {

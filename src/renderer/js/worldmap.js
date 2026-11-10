@@ -27,7 +27,7 @@
     const mode = (opts && opts.mode) || mapRules.dangerMode || 'max';
     const cap = (opts && opts.cap) || mapRules.dangerCap || 3;
     const bands = (opts && opts.bands) || [
-      { max: 1, danger: 0 }, { max: 5, danger: 1 }, { max: 10, danger: 2 }, { max: 100, danger: 3 }
+      { max: 0, danger: 0 }, { max: 2, danger: 1 }, { max: 10, danger: 2 }, { max: 100, danger: 3 }
     ];
     const pcts = rows.map((hazard) => hazard.pct || 0);
     const peak = pcts.length ? Math.max(...pcts) : 0;
