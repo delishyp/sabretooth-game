@@ -4,6 +4,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const Slice = require('../src/renderer/js/slice');
+const Screen = require('../src/renderer/js/game-screen');
 
 const css = fs.readFileSync(path.join(__dirname, '../src/renderer/styles/menu.css'), 'utf8');
 const D = path.join(__dirname, '../src/renderer/data');
@@ -45,6 +46,25 @@ test('a disputed hunt territory line is the full wrapping claim', () => {
   const owner = copy['game.owner.disputed'].replace('{holder}', holder).replace('{other}', other);
   const line = `${copy['game.region.owner']} ${owner}`;
   assert.strictEqual(line, 'Claimed by Highcrag (disputed by Bonefield)');
+  assert.strictEqual(Screen.territoryLine(own, {
+    claimedBy: copy['game.region.owner'],
+    unclaimed: copy['game.owner.wild'],
+    holder, other,
+    disputed: copy['game.owner.disputed']
+  }), 'Claimed by Highcrag (disputed by Bonefield)');
+});
+
+test('wild land reads Unclaimed, with or without a dispute', () => {
+  const words = {
+    claimedBy: copy['game.region.owner'],
+    unclaimed: copy['game.owner.wild'],
+    other: 'Bonefield',
+    disputed: copy['game.owner.disputed']
+  };
+  assert.strictEqual(Screen.territoryLine({ state: 'wild', holder: 'neutral', disputedBy: null }, words), 'Unclaimed');
+  const disputed = Screen.territoryLine({ state: 'wild', holder: 'neutral', disputedBy: 'bonefield' }, words);
+  assert.strictEqual(disputed, 'Unclaimed (disputed by Bonefield)');
+  assert.ok(!disputed.startsWith('Claimed by'));
   assert.match(css, /\.region-claim \{[^}]*white-space:\s*normal/);
   assert.match(css, /\.region-claim \{[^}]*overflow-wrap:\s*break-word/);
   assert.ok(!/\.region-claim \{[^}]*ellipsis/.test(css));

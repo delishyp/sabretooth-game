@@ -158,6 +158,22 @@
   function killShareText(prideName) {
     return `${prideName} shares a kill with you.`;
   }
+  /**
+   * Territory line. Held and contested ground keep the "Claimed by" prefix.
+   * Wild ground is "Unclaimed" on its own, including when a dispute is recorded.
+   */
+  function territoryLine(own, copy) {
+    const words = copy || {};
+    const unclaimed = words.unclaimed || 'Unclaimed';
+    const claimedBy = words.claimedBy || 'Claimed by';
+    const dispute = (holder, other) => (words.disputed || '{holder} (disputed by {other})').replace('{holder}', holder).replace('{other}', other);
+    if (!own || own.state === 'wild') {
+      if (own && own.disputedBy) return dispute(unclaimed, words.other || '');
+      return unclaimed;
+    }
+    const holder = words.prideName || (own.disputedBy ? dispute(words.holder || '', words.other || '') : (words.holder || ''));
+    return `${claimedBy} ${holder}`;
+  }
   function create(ctx, gameData, nameData) {
     const { t, $ } = ctx;
     const E = Slice.create({ ...gameData, nameData, looks: ctx.creatorLooks });
@@ -443,7 +459,14 @@
       const c = $('#game-region'); c.textContent = ''; const r = W.region(s.region); const se = s.season;
       const own = W.ownership(s.map.claims, s.region);
       const prideName = s.records && s.records.pride && own.holder === s.records.pride.id ? s.records.pride.name : null;
-      const owner = prideName || (own.state !== 'wild' ? (own.disputedBy ? t('game.owner.disputed', { holder: factionName(own.holder), other: factionName(own.disputedBy) }) : factionName(own.holder)) : t('game.owner.wild'));
+      const owner = territoryLine(own, {
+        claimedBy: t('game.region.owner'),
+        unclaimed: t('game.owner.wild'),
+        holder: factionName(own.holder),
+        other: own.disputedBy ? factionName(own.disputedBy) : '',
+        prideName,
+        disputed: t('game.owner.disputed')
+      });
       c.append(el('h2', 'region-name', r.name), el('div', 'region-biome', W.biome(r.biome).name));
       const dl = el('dl', 'region-facts');
       const fact = (k, v, cls = '') => { dl.append(el('dt', '', t(`game.region.${k}`)), el('dd', cls, v)); };
@@ -451,7 +474,7 @@
       fact('danger', t(`game.danger.${W.danger(s.region, se)}`), `danger-${W.danger(s.region, se)}`);
       fact('water', t(W.hasWater(s.region, se) ? 'game.water.yes' : 'game.water.no'));
       c.append(dl);
-      c.append(el('p', 'region-claim', `${t('game.region.owner')} ${owner}`));
+      c.append(el('p', 'region-claim', owner));
       const dk = `map.region.${s.region}.description`;   // Saga, docs/map-copy.md
       c.append(el('p', 'region-desc', t.has(dk) ? t(dk) : t('game.region.descTodo')));
     }
@@ -1008,5 +1031,5 @@
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }
-  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence, resolveSpeaker, sceneHead, headForBeats, appendSpeakerHead, encounterPanels };
+  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence, resolveSpeaker, sceneHead, headForBeats, appendSpeakerHead, encounterPanels, territoryLine };
 });
