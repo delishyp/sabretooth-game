@@ -96,12 +96,12 @@ test('the section 8.3 band table maps all fifteen bands', () => {
   for (const row of log.bands) assert.strictEqual(row.result, 'PASS', JSON.stringify(row));
   assert.match(log.bands[7].name, /showdown/);
   assert.match(log.bands[7].got, /0 differences/);
-  assert.match(log.bands[8].got, /40 HP, 0 injury rolls/);
-  assert.match(log.bands[6].got, /64/);
-  assert.match(log.bands[9].got, /\+/);
+  assert.match(log.bands[6].got, /40 HP, 0 injury rolls/);
+  assert.match(log.bands[9].got, /64/);
+  assert.match(log.bands[12].got, /\+/);
   const text = Sim.formatBandTable(log);
   assert.match(text, /band  8  PASS  showdown, identical seeds/);
-  assert.match(text, /band 13  PASS  HP is the only number exposed  target HP  got HP only/);
+  assert.match(text, /band 15  PASS  HP is the only number exposed  target HP  got HP only/);
   const off = Sim.bandTable({ seed: 8, count: 10 });
   assert.strictEqual(off.enabled, false);
   assert.deepStrictEqual(off.bands, []);
@@ -113,17 +113,17 @@ test('simulateEncounter covers bands 1 through 15', () => {
   const log = Sim.simulateEncounter({ bands: true, seed: 8, count: 4000, engine: true });
   assert.strictEqual(log.command, 'encounter');
   assert.deepStrictEqual(log.bands.map((row) => row.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
-  for (const id of [6, 7, 9, 10, 11, 12, 13, 14]) {
+  for (const id of [1, 2, 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15]) {
     const row = log.bands.find((item) => item.id === id);
     assert.strictEqual(row.result, 'PASS', JSON.stringify(row));
   }
   assert.ok(log.timeouts.ok, JSON.stringify(log.timeouts));
   assert.ok(log.timeouts.rate < 0.03);
   const text = Sim.formatBandTable(log);
-  assert.match(text, /band  6  PASS  hunt steady/);
-  assert.match(text, /band  7  PASS  hunt bold/);
-  assert.match(text, /band  9  PASS  spar ends at 40 HP/);
-  assert.match(text, /band 14  PASS  spar length/);
+  assert.match(text, /band  9  PASS  hunt steady/);
+  assert.match(text, /band 10  PASS  hunt bold/);
+  assert.match(text, /band  7  PASS  spar ends at 40 HP/);
+  assert.match(text, /band  3  PASS  fight length/);
   assert.match(text, /timeouts  PASS  encounter timeouts  target <3%/);
   assert.match(log.bands[1].got, /sensible /);
   assert.match(log.bands[1].got, /biteOnly /);

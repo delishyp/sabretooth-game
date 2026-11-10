@@ -1,8 +1,10 @@
 /**
- * Encounters v0.1.1 §8.3 (Tundra 39fabd7). Fifteen pass bands.
- * Targets live in data/encounter-engine.json. The engine flag stays off.
+ * Encounters v0.1.1 §8.3 (Tundra 65a73c1). Fifteen pass bands.
+ * Fight cells use the eng4 turn model. Targets live in encounter-engine.json.
+ * The engine flag stays off.
  */
 const Engine = require('../renderer/js/encounter-engine');
+const Eng4 = require('../renderer/js/eng4-fight');
 const Parity = require('./encounter-parity');
 const Fight = require('../renderer/js/fight');
 const Rng = require('../renderer/js/rng');
@@ -31,13 +33,13 @@ function line(id, ok, got, extra) {
     got
   };
 }
-function huntStats(n, seed, policy) {
+function huntStats(n, seed, policy, size) {
   let ok = 0;
   let energy = 0;
   let hurt = 0;
   for (let i = 0; i < n; i++) {
     const row = Engine.resolve({
-      kind: 'hunt', seed: seed + i, quick: true, policy, size: 'small', style: 'standard',
+      kind: 'hunt', seed: seed + i, quick: true, policy, size: size || 'small', style: 'standard',
       player: { id: 'player' }, opponent: { id: 'prey' }
     });
     if (row.ok) ok += 1;
@@ -45,6 +47,21 @@ function huntStats(n, seed, policy) {
     if (row.injury) hurt += 1;
   }
   return { success: ok / n, meanEnergy: energy / n, injuryRate: hurt / n };
+}
+function eng4Win(n, seed, pol, sA, sB, foe, opts) {
+  const rng = new Eng4.Random(seed);
+  const other = Eng4.ai(foe[0], foe[1]);
+  let wins = 0;
+  let timeouts = 0;
+  const rounds = [];
+  for (let i = 0; i < n; i++) {
+    const row = Eng4.fight(sA, sB, pol, other, rng, null, 13, opts);
+    if (row.winner === 'A') wins += 1;
+    if (row.timeout) timeouts += 1;
+    rounds.push(row.rounds);
+  }
+  rounds.sort((a, b) => a - b);
+  return { win: wins / n, timeout: timeouts / n, median: rounds[Math.floor(rounds.length / 2)] };
 }
 function expose(row) {
   return { hp: row.hp };
@@ -65,26 +82,82 @@ function measure(opts) {
   const seed = (opts.seed || 1) >>> 0;
   const tol = Engine.config.bands;
   const fightN = tol.fightCells;
-  const checked = Parity.fightReport(fightN, tol.fightTolerance, seed);
-  const fightRows = checked.fights.concat([checked.sensible]);
-  const bands = fightRows.map((row) => line(row.id, row.ok, `${pct(row.got)} ±${tol.fightTolerance * 100}pp n=${fightN}`));
-  const policies = Engine.policySample(fightN, seed);
-  const biteGap = policies.sensible - policies.biteOnly;
-  bands[bands.findIndex((row) => row.id === 2)] = line(
+  const ratios = [1, 1.1, 1.25, 0.8];
+  const targets = [0.5, 0.71, 0.9, 0.1];
+  const quick = Parity.fightReport(fightN, tol.fightTolerance, seed);
+  const turn = ratios.map((ratio, index) => eng4Win(fightN, seed, Eng4.ai(50, 50), 10 * ratio, 10, [50, 50]));
+  const averageOk = turn.every((row, index) => near(row.win, targets[index], tol.fightTolerance))
+    && quick.fights.every((row) => row.ok);
+  const bands = [line(1, averageOk, turn.map((row) => pct(row.win)).join(' / ') + ` ±${tol.fightTolerance * 100}pp n=${fightN}`)];
+
+  const sensibleEqual = eng4Win(fightN, seed + 11, Eng4.sensible, 10, 10, [50, 50]);
+  const sensibleWeak = eng4Win(fightN, seed + 12, Eng4.sensible, 8, 10, [50, 50]);
+  const biteEqual = eng4Win(fightN, seed + 13, Eng4.biteOnly, 10, 10, [50, 50]);
+  const averageEqual = turn[0];
+  const biteGap = sensibleEqual.win - biteEqual.win;
+  const nobodyBeats = sensibleEqual.win + 0.05 >= averageEqual.win && sensibleEqual.win + 0.05 >= biteEqual.win;
+  const policies = { sensible: sensibleEqual.win, biteOnly: biteEqual.win, average: averageEqual.win };
+  bands.push(line(
     2,
-    near(policies.sensible, rowSpec(2).target, tol.fightTolerance) && biteGap >= 0.06 && policies.timeoutRate < tol.timeoutLimit,
-    `sensible ${pct(policies.sensible)} biteOnly ${pct(policies.biteOnly)} average ${pct(policies.average)}`
-  );
+    near(sensibleEqual.win, 0.63, tol.sensibleTolerance) && near(sensibleWeak.win, 0.16, tol.sensibleTolerance) && biteGap >= 0.06 && nobodyBeats,
+    `sensible ${pct(sensibleEqual.win)} / ${pct(sensibleWeak.win)} biteOnly ${pct(biteEqual.win)} average ${pct(averageEqual.win)}`
+  ));
+
+  const lengthOk = averageEqual.median >= 5 && averageEqual.median <= 6 && averageEqual.timeout < tol.timeoutLimit;
+  bands.push(line(3, lengthOk, `median ${averageEqual.median}, timeouts ${pct(averageEqual.timeout)}`));
+
+  const hot = eng4Win(fightN, seed + 21, Eng4.ai(50, 50), 10, 10, [85, 70]);
+  const calm = eng4Win(fightN, seed + 22, Eng4.ai(50, 50), 10, 10, [20, 30]);
+  bands.push(line(4, hot.win >= 0.47 && hot.win <= 0.53 && calm.win >= 0.47 && calm.win <= 0.53, `${pct(hot.win)} and ${pct(calm.win)}`));
+
+  const wilds = [
+    ['hyena', 7, 40, 30, false, 0.98, 0.99],
+    ['dire wolf', 9, 55, 50, false, 0.72, 0.86],
+    ['hyena clan', 12, 70, 50, true, 0.15, 0.25],
+    ['lion', 12, 65, 80, false, 0.16, 0.26],
+    ['wolf pack', 13, 55, 60, true, 0.07, 0.13]
+  ];
+  const wildGot = [];
+  let wildOk = true;
+  wilds.forEach((row, index) => {
+    const optsWild = { bold: { A: 50, B: row[3] }, neverFlee: { B: row[4] } };
+    const avg = eng4Win(fightN, seed + 30 + index, Eng4.ai(50, 50), 10, row[1], [row[2], row[3]], optsWild);
+    const sen = eng4Win(fightN, seed + 40 + index, Eng4.sensible, 10, row[1], [row[2], row[3]], optsWild);
+    if (!near(avg.win, row[5], tol.wildTolerance) || !near(sen.win, row[6], tol.wildTolerance)) wildOk = false;
+    wildGot.push(`${pct(avg.win)}/${pct(sen.win)}`);
+  });
+  bands.push(line(5, wildOk, wildGot.join(', ')));
+
+  const evenFlee = Eng4.fleeChance(100, 100, 0);
+  let fleeBounded = true;
+  for (let hp = 0; hp <= 100; hp += 10) {
+    const chance = Eng4.fleeChance(hp, 100 - hp, 0);
+    if (chance < 0.1 || chance > 0.9) fleeBounded = false;
+  }
+  const fled = Eng4.fight(10, 7, Eng4.ai(50, 50), Eng4.ai(40, 30), new Eng4.Random(seed), null, 13, { bold: { A: 50, B: 30 } });
+  const fleeOk = Math.abs(evenFlee - 0.5) < 1e-9 && fleeBounded && (fled.fled !== true || fled.deathRoll === false);
+  bands.push(line(6, fleeOk, `${pct(evenFlee)} first try, clamped 10-90`));
+
+  const sparN = Math.min(n, 400);
+  let sparBad = 0;
+  let sparRolls = 0;
+  let sparDeaths = 0;
+  const sparRng = new Eng4.Random(seed + 70);
+  for (let i = 0; i < sparN; i++) {
+    const row = Eng4.fight(10, 10, Eng4.ai(50, 50), Eng4.ai(50, 50), sparRng, null, 13, { stop: 40 });
+    if (Math.min(row.hp.A, row.hp.B) > 40) sparBad += 1;
+    sparRolls += row.injuryRolls || 0;
+    if (row.deathRoll) sparDeaths += 1;
+  }
+  const grantOnce = Eng4.sparGrant(null, 1) === 5 && Eng4.sparGrant(1, 5) === 0 && Eng4.sparGrant(1, 6) === 5;
+  bands.push(line(7, sparBad === 0 && sparRolls === 0 && sparDeaths === 0 && grantOnce, `40 HP, ${sparRolls} injury rolls`));
+
   let slow = [];
   if (opts.slow) {
     const slowChecked = Parity.fightReport(tol.slowFightCells, tol.slowFightTolerance, seed);
     slow = slowChecked.fights.concat([slowChecked.sensible]).map((row) => line(row.id, row.ok, `${pct(row.got)} ±${tol.slowFightTolerance * 100}pp n=${tol.slowFightCells}`, { name: row.label, target: row.target }));
   }
 
-  const steady = huntStats(n, seed + 600000, 'steady');
-  const bold = huntStats(n, seed + 700000, 'allBold');
-  bands.push(line(6, near(steady.success, rowSpec(6).target, tol.huntTolerance) && steady.meanEnergy > 0, `${pct(steady.success)} energy ${Math.round(steady.meanEnergy * 10) / 10} injury ${pct(steady.injuryRate)}`));
-  bands.push(line(7, near(bold.success, rowSpec(7).target, tol.huntTolerance) && bold.meanEnergy > steady.meanEnergy && bold.injuryRate > steady.injuryRate, `${pct(bold.success)} energy ${Math.round(bold.meanEnergy * 10) / 10} injury ${pct(bold.injuryRate)}`));
 
   let showdownDiffs = 0;
   const showN = Math.min(n, 1000);
@@ -104,32 +177,47 @@ function measure(opts) {
   }
   bands.push(line(8, showdownDiffs === tol.showdownDiffs, `${showdownDiffs} differences`));
 
-  const sparN = Math.min(n, 400);
-  let floor = 0;
-  let rolls = 0;
-  for (let i = 0; i < sparN; i++) {
-    const row = Engine.resolve({
-      kind: 'spar', seed: seed + i, quick: false, policy: 'average',
-      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
-    });
-    const low = Math.min(row.hp.player, row.hp.opponent);
-    if (low === Engine.config.fight.sparStop) floor += 1;
-    rolls += row.injuryRolls || 0;
-    if (row.injury) rolls += 1;
-  }
-  bands.push(line(9, floor === sparN && rolls === Engine.config.fight.sparInjuryRolls, `${Engine.config.fight.sparStop} HP, ${rolls} injury rolls`));
+  const sizes = ['small', 'medium', 'large'];
+  const steadyTargets = [0.55, 0.5, 0.3];
+  const boldTargets = [0.64, 0.59, 0.41];
+  const steadyRows = sizes.map((size, index) => huntStats(n, seed + 600000 + index * 1000, 'steady', size));
+  const boldRows = sizes.map((size, index) => huntStats(n, seed + 700000 + index * 1000, 'allBold', size));
+  const steadyOk = steadyRows.every((row, index) => near(row.success, steadyTargets[index], tol.huntSteadyTolerance));
+  bands.push(line(9, steadyOk, steadyRows.map((row) => pct(row.success)).join(' / ')));
+  const energyDelta = Engine.config.hunt.energy.allBold - Engine.config.hunt.energy.steady;
+  const boldOk = boldRows.every((row, index) => near(row.success, boldTargets[index], tol.huntTolerance))
+    && energyDelta === 15
+    && Engine.config.hunt.injury.boldMult === 1.5
+    && boldRows[1].meanEnergy - steadyRows[1].meanEnergy === 15;
+  bands.push(line(10, boldOk, `${boldRows.map((row) => pct(row.success)).join(' / ')}, energy -${energyDelta}`));
+
+  const plain = Engine.huntSpecial({ prey: 'fawn', roll: 0.2, partner: false, trailReadingM: 0 });
+  const deer = Engine.huntSpecial({ prey: 'deer', roll: 0.3, partner: false, trailReadingM: 1 });
+  const withPartner = Engine.huntSpecial({ prey: 'horse', roll: 0.1, partner: true, trailReadingM: 0 });
+  const withTrail = Engine.huntSpecial({ prey: 'horse', roll: 0.1, partner: false, trailReadingM: 2 });
+  const specialOk = plain.drift === 0.25 && plain.drifted && deer.drift === 0.35 && deer.drifted
+    && !deer.cutOff && withPartner.cutOff && withTrail.cutOff;
+  bands.push(line(11, specialOk, 'freeze 25% (deer 35%), cut off only with a partner or Trail Reading M2'));
+
+  const at25 = { pairValue: 25, sociability: 50, compat: 0, standing: 0, style: 'standard' };
+  const at50 = { pairValue: 50, sociability: 50, compat: 0, standing: 0, style: 'standard' };
+  const chance25 = Engine.courtshipChance(at25, 'average');
+  const chance50 = Engine.courtshipChance(at50, 'average');
+  const got25 = rate(n, (i) => Engine.resolve({
+    kind: 'courtship', seed: seed + 1100000 + i, quick: true, policy: 'average',
+    player: { id: 'player' }, opponent: { id: 'cat' }, courtship: at25
+  }).accepted);
+  const got50 = rate(Math.min(n, 2000), (i) => Engine.resolve({
+    kind: 'courtship', seed: seed + 1200000 + i, quick: true, policy: 'average',
+    player: { id: 'player' }, opponent: { id: 'cat' }, courtship: at50
+  }).accepted);
+  bands.push(line(12, near(chance25 / 100, 0.35, 0.001) && near(chance50 / 100, 0.5, 0.001) && near(got25, 0.35, tol.courtshipTolerance) && near(got50, 0.5, tol.courtshipTolerance), `${pct(got25)} and ${pct(got50)}`));
 
   const readProfile = { pairValue: 30, sociability: 50, compat: 0, standing: 0, style: 'standard', curiosity: 100 };
   const delta = Engine.courtshipChance(readProfile, 'readTraits') - Engine.courtshipChance(readProfile, 'average');
-  bands.push(line(10, delta <= tol.courtshipReadMax && delta > 0, `+${Math.round(delta * 10) / 10} points`));
-
-  const fresh = { pairValue: 30, sociability: 50, compat: 0, standing: 0, style: 'standard' };
-  const freshChance = Engine.courtshipChance(fresh, 'average') / 100;
-  const freshGot = rate(n, (i) => Engine.resolve({
-    kind: 'courtship', seed: seed + 1100000 + i, quick: true, policy: 'average',
-    player: { id: 'player' }, opponent: { id: 'cat' }, courtship: fresh
-  }).accepted);
-  bands.push(line(11, Math.abs(freshChance - rowSpec(11).target) < 0.001 && near(freshGot, rowSpec(11).target, tol.courtshipTolerance), pct(freshGot)));
+  const capped = Engine.courtshipChance({ pairValue: 200, curiosity: 100 }, 'readTraits') <= 90;
+  const backed = Engine.backOff(25);
+  bands.push(line(13, delta > 0 && delta <= tol.courtshipReadMax && capped && backed.delta === 0 && backed.pairValue === 25, `+${Math.round(delta * 10) / 10} points`));
 
   function bundle(trial) {
     return JSON.stringify([
@@ -139,55 +227,15 @@ function measure(opts) {
     ]);
   }
   const reloadDiffs = bundle(seed) === bundle(seed) ? 0 : 1;
-  bands.push(line(12, reloadDiffs === rowSpec(12).target, `${reloadDiffs} differences`));
+  bands.push(line(14, reloadDiffs === 0, `${reloadDiffs} differences`));
 
   const shown = Engine.resolve({
     kind: 'spar', seed, quick: false, policy: 'average',
     player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
   });
-  bands.push(line(13, hpOnly(shown), 'HP only'));
+  bands.push(line(15, hpOnly(shown), 'HP only'));
 
-  const rounds = [];
-  const roundN = Math.min(n, 800);
-  for (let i = 0; i < roundN; i++) {
-    rounds.push(Engine.resolve({
-      kind: 'spar', seed: i, quick: false, policy: 'average',
-      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
-    }).rounds);
-  }
-  rounds.sort((a, b) => a - b);
-  const mid = rounds[Math.floor(rounds.length / 2)];
-  bands.push(line(14, mid >= tol.sparRounds[0] && mid <= tol.sparRounds[1], String(mid)));
-
-  let fled = 0;
-  let alive = 0;
-  const fleeN = Math.min(n, 200);
-  for (let i = 0; i < fleeN; i++) {
-    const row = Engine.resolve({
-      kind: 'fight', seed: seed + 1500000 + i, quick: false, policy: 'fleeAt30',
-      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
-    });
-    if (row.fled) fled += 1;
-    if (row.hp.player > 0) alive += 1;
-  }
-  bands.push(line(15, fled === fleeN && alive === fleeN, pct(fled / fleeN)));
-
-  let timedOut = 0;
-  const timeoutN = Math.min(n, 400);
-  for (let i = 0; i < timeoutN; i++) {
-    const fight = Engine.resolve({
-      kind: 'fight', seed: seed + 1600000 + i, quick: false, policy: 'average',
-      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
-    });
-    const spar = Engine.resolve({
-      kind: 'spar', seed: seed + 1700000 + i, quick: false, policy: 'average',
-      player: { id: 'player', strength: 10 }, opponent: { id: 'foe', strength: 10 }
-    });
-    if (fight.timeout) timedOut += 1;
-    if (spar.timeout) timedOut += 1;
-  }
-  const timeoutRate = timedOut / (timeoutN * 2);
-  const timeouts = { rate: timeoutRate, limit: tol.timeoutLimit, ok: timeoutRate < tol.timeoutLimit };
+  const timeouts = { rate: averageEqual.timeout, limit: tol.timeoutLimit, ok: averageEqual.timeout < tol.timeoutLimit };
 
   return {
     command: 'bands', seed, count: n, adapter: 'engine', enabled: true,

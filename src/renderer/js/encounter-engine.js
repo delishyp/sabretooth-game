@@ -64,7 +64,7 @@
   function huntChance(size, style, policy) {
     const hunt = config.hunt;
     let points = hunt.base + (hunt.prey[size] || 0) + (hunt.style[style || 'standard'] || 0);
-    if (policy === 'allBold') points += hunt.allBold;
+    if (policy === 'allBold') points += (hunt.allBoldSize && hunt.allBoldSize[size]) || hunt.allBold;
     return clamp(points, hunt.clamp[0], hunt.clamp[1]);
   }
   function relationshipBonus(value, crush) {
@@ -504,5 +504,14 @@
     };
   }
 
-  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, mayFlee, defendCounter, evenCap, isHuman };
+  function huntSpecial(opts) {
+    const row = opts || {};
+    const drift = row.prey === 'deer' ? 0.35 : 0.25;
+    return { drift, drifted: (row.roll || 0) < drift, cutOff: !!(row.partner || (row.trailReadingM || 0) >= 2) };
+  }
+  function backOff(pairValue) {
+    return { pairValue: pairValue || 0, delta: 0, rolled: false };
+  }
+
+  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, mayFlee, defendCounter, evenCap, isHuman, huntSpecial, backOff };
 });
