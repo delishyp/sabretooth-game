@@ -739,7 +739,9 @@
       const own = W.ownership(s.map.claims, s.region);
       return Object.values(s.npcs || {}).filter((n) => {
         if (!n || n.dead || (n.stage !== 'adult' && n.stage !== 'elder')) return false;
-        if ((n.homeZones || []).some((zone) => near.has(zone))) return true;
+        const homes = n.homeZones || [];
+        const anchors = homes.length ? homes : (n.lastRegion ? [n.lastRegion] : []);
+        if (anchors.some((zone) => near.has(zone))) return true;
         if (n.visit && n.visit.region === s.region && s.day <= n.visit.until) return true;
         return !!(n.faction && n.faction !== 'loner' && own.state === 'held' && own.holder === n.faction);
       });
@@ -960,8 +962,9 @@
       if (cat.visit && cat.visit.region === s.region && s.day <= cat.visit.until) return true;
       if (cat.lastRegion === s.region) return true;
       const homes = cat.homeZones || [];
-      if (homes.includes(s.region)) return true;
-      if (homes.some((zone) => W.neighbours(zone).includes(s.region))) return true;
+      const anchors = homes.length ? homes : (cat.lastRegion ? [cat.lastRegion] : []);
+      if (anchors.includes(s.region)) return true;
+      if (anchors.some((zone) => W.neighbours(zone).includes(s.region))) return true;
       return (s.followups || []).some((row) => row.catId === cat.id && !row.fired && (row.region === s.region || (row.region && W.neighbours(row.region).includes(s.region))));
     }
     function meet(s, npc) { npc.met = true; if (Pair.enabled) Pair.onMet(s, npc); }

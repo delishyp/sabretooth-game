@@ -25,7 +25,7 @@
     const name = label(factionId);
     const has = !!(s && s.prideRelation && Object.prototype.hasOwnProperty.call(s.prideRelation, factionId));
     if (!has) return `Faction · ${name} → you · Unknown`;
-    return `Faction · ${name} → you ${signedNumber(s.prideRelation[factionId])}`;
+    return `Faction · ${name}`;
   }
   function killShareText(prideName) {
     return `${prideName} shares a kill with you.`;

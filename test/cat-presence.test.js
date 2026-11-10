@@ -4,6 +4,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const Slice = require('../src/renderer/js/slice');
+const Screen = require('../src/renderer/js/game-screen');
 
 const D = path.join(__dirname, '../src/renderer/data');
 const j = (f) => JSON.parse(fs.readFileSync(path.join(D, f), 'utf8'));
@@ -129,6 +130,33 @@ test('a vantage sighting uses the present cat, and an empty zone invents nobody'
   assert.ok(!stone.pending.presence);
   assert.ok(!stone.pending.catId);
   assert.ok(E.eventById('slice.region.wind_scree').text.includes('small shape'));
+});
+
+test('keep watching leaves a pride cat findable from the sighted zone when he has no home list', () => {
+  let s = E.newRun({ mainCat: player, seed: 8, runId: 'keep-watch' });
+  const cat = Object.values(s.npcs).find((n) => n.faction === 'bonefield' && n.stage === 'adult');
+  cat.homeZones = [];
+  cat.lastRegion = 'horse_meadows';
+  cat.met = true;
+  cat.affinity = 25;
+  for (const npc of Object.values(s.npcs)) if (npc.id !== cat.id) npc.met = false;
+  s.region = 'horse_meadows';
+  s.needs.energy = 80;
+  s = act(s, { type: 'watch' });
+  assert.strictEqual(s.pending.catId, cat.id);
+  s = act(s, { type: 'sceneChoose', choiceId: 'keep_watching' });
+  assert.strictEqual(cat.lastRegion, 'horse_meadows');
+  s.region = 'wind_scree';
+  const near = { neighbours: E.W.neighbours(s.region), priorityIds: [], lonerHomePct: 15, lonerAdjacentPct: 5, ownership: (id) => E.W.ownership(s.map.claims, id) };
+  assert.strictEqual(E.lone.presentCat(s, near, ['near']).id, cat.id);
+  assert.ok(E.lone.menu(s, near).approach.ids.includes(cat.id));
+});
+
+test('a meeting card does not print the faction relationship number', () => {
+  const text = Screen.factionStandingText({ prideRelation: { highcrag: -5 } }, 'highcrag', (id) => id === 'highcrag' ? 'Highcrag' : id);
+  assert.strictEqual(text, 'Faction · Highcrag');
+  assert.ok(!/Faction\s*·\s*.+→\s*you\s*[+\-]?\d+/.test(text));
+  assert.ok(/Faction\s*·\s*.+→\s*you\s*[+\-]?\d+/.test('Faction · Highcrag → you -5'));
 });
 
 test('spar below 20 is shown locked, and the gate still refuses the action', () => {

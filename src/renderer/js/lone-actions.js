@@ -164,8 +164,10 @@
   }
   function zoneBand(npc, s, opts) {
     if (!npc) return null;
-    if ((npc.homeZones || []).includes(s.region) || visiting(npc, s) || npc.lastRegion === s.region) return 'home';
-    if ((npc.homeZones || []).some((z) => (opts.neighbours || []).includes(z))) return 'near';
+    const homes = npc.homeZones || [];
+    const anchors = homes.length ? homes : (npc.lastRegion ? [npc.lastRegion] : []);
+    if (anchors.includes(s.region) || visiting(npc, s) || npc.lastRegion === s.region) return 'home';
+    if (anchors.some((z) => (opts.neighbours || []).includes(z))) return 'near';
     if (npc.faction && npc.faction !== 'loner' && opts.zoneHolder === npc.faction) return 'home';
     if ((opts.presentIds || []).includes(npc.id)) return 'home';
     return null;
