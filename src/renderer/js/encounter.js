@@ -13,6 +13,7 @@
   const HYENA = 'encounter.cave_hyena.v1';
 
   function create(doc, rules) {
+    const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
     const tun = (rules && rules.encounter) || {};
     const searchE = tun.deerSearchEnergy ?? 10;
     const commitE = tun.deerCommitEnergy ?? 20;
@@ -207,7 +208,7 @@
         const row = { id: c.id, label: c.label, disabled: false, reason: '' };
         if (c.id === 'commit_hunt' && (s.needs.energy || 0) < commitE) {
           row.disabled = true;
-          row.reason = `Commit costs Energy −${commitE}. This attempt does not have it.`;
+          row.reason = `Going in for the kill asks more than you have left. ${CardWords.energy(-commitE)}`;
         }
         return row;
       });
@@ -236,7 +237,7 @@
         const row = { id: c.id, label: c.label, disabled: false, reason: '' };
         if (c.id === 'drive_off' && forecast.extraEnergy && (s.needs.energy || 0) < forecast.extraEnergy) {
           row.disabled = true;
-          row.reason = `This contest is ${forecast.tier} and costs Energy −${forecast.extraEnergy}.`;
+          row.reason = `This contest is ${forecast.tier}. ${CardWords.energy(-forecast.extraEnergy)}`;
         }
         return row;
       });

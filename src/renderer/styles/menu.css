@@ -204,8 +204,9 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .home-dock .game-region { width: auto; background: transparent; border: 0; padding: 0; }
 .region-name { font-size: 32px; letter-spacing: 1px; margin: 0 0 4px; color: #f6efe2; }
 .region-biome { font-size: 16px; color: #d4b07a; text-transform: uppercase; letter-spacing: 3px; }
-.region-facts { display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; font-size: 18px; margin: 12px 0; }
+.region-facts { display: grid; grid-template-columns: minmax(0, 130px) minmax(0, 1fr); gap: 6px 12px; font-size: 18px; margin: 12px 0; }
 .region-facts dt { color: #d4b07a; } .region-facts dd { margin: 0; }
+.region-facts dt, .region-facts dd { min-width: 0; white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
 .danger-2, .danger-3 { color: #ffb4a8; }
 .region-desc { font-size: 17px; color: #e7d3b4; font-style: italic; margin: 0 0 12px; }
 .game-actions { display: flex; flex-direction: column; gap: 12px; }

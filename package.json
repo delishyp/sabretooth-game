@@ -51,6 +51,7 @@
       "!src/renderer/js/appearance-preview.js",
       "!src/renderer/js/png-decode.js",
       "!docs/**",
+      "!src/dev/**",
       "!screenshots/**",
       "node_modules/electron-updater/**/*"
     ],

@@ -13,6 +13,20 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives) {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
+  function loadPass6() {
+    if (typeof require === 'function') {
+      try { return require('../data/events/pass-6-tracker-4647955.json'); } catch (e) { /* browser */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/pass-6-tracker-4647955.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) return JSON.parse(xhr.responseText);
+      } catch (e) { /* missing copy */ }
+    }
+    return { variants: [] };
+  }
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
@@ -1279,7 +1293,7 @@
       try { biome = W.region(regionId).biome; } catch (e) { return null; }
       if (line.size !== 'medium' || biome !== 'steppe') return null;
       const pack = beatsByEvent[line.ok ? 'voice.hunt.medium.steppe.ok' : 'voice.hunt.medium.steppe.fail'];
-      return fill((pack && pack.report) || (line.ok ? 'You caught {size} prey and ate.' : 'The prey escaped.'), { size: 'Medium', ate: line.ate });
+      return fill((pack && pack.report) || (line.ok ? 'You caught {size} prey and ate.' : 'The prey escaped.'), { size: String(line.size || 'medium').toLowerCase(), ate: line.ate });
     }
     function huntNumbers(hunt) {
       if (!hunt) return '';
@@ -1375,13 +1389,19 @@
         if (l.k === 'parched') bits.push(CardWords.thirst(-36));
         if (l.k === 'killShare') bits.push(CardWords.hunger(l.hunger));
       }
-      return bits.join('. ');
+      return joinSentences(bits);
+    }
+    function joinSentences(parts) {
+      return parts.filter(Boolean).map((part) => {
+        const text = String(part).trim();
+        return /[.!?]$/.test(text) ? text : `${text}.`;
+      }).join(' ');
     }
     function applyStatLine(ev, rep) {
       if (!ev) return ev;
       const extra = statBits(rep);
       if (!extra) return ev;
-      ev.resultLine = [ev.resultLine, extra].filter(Boolean).join(' ');
+      ev.resultLine = joinSentences([ev.resultLine, extra]);
       return ev;
     }
     function dayFiller(s, rep) {
@@ -1522,7 +1542,17 @@
       const spoken = Pass2.arrival(region.biome, region.name, true);
       return kind === 'drink' ? spoken.drink : spoken.arrive;
     };
-    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, shouldHoldResult, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone };
+    function lonerGreetText(npc) {
+      const variants = (loadPass6().variants) || [];
+      const ctx = { npc: npc || {}, player: {} };
+      for (const row of variants) {
+        if (!row || !row.when) continue;
+        if (Beats.beatOk({ kind: 'speech', text: row.text || 'x', when: row.when }, ctx)) return fill(row.text, { catName: (npc && npc.name) || '' });
+      }
+      const fallback = variants.find((row) => row && !row.when);
+      return fill((fallback && fallback.text) || '', { catName: (npc && npc.name) || '' });
+    }
+    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, shouldHoldResult, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone, lonerGreetText };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

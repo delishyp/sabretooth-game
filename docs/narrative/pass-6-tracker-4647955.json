@@ -1,0 +1,45 @@
+{
+ "_note": "Fix for Tracker 4647955 finding 4: loner greet 'Just me' reply varies by the cat's traits. Same slot design as presence/openers: first matching `when` wins, last entry is the default. Tokens: {catName} only.",
+ "key": "slice.meeting.loner/greet.text",
+ "variants": [
+  {
+   "when": {
+    "trait": "aggression",
+    "band": "high"
+   },
+   "text": "“Just me,” you say. {catName}'s lip lifts off one saber. “Good. Fewer of you to watch.” The look that follows isn't friendly, but it isn't a threat either."
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "high"
+   },
+   "text": "“Just me,” you say. {catName}'s whole face eases. “Me too. It's been a long while since anyone answered back.”"
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "low"
+   },
+   "text": "“Just me,” you say. {catName} only grunts, already half-turned away, as if that settles something."
+  },
+  {
+   "when": {
+    "trait": "curiosity",
+    "band": "high"
+   },
+   "text": "“Just me,” you say. {catName}'s head tilts. “By choice, or did someone send you off?” No answer is waited for, but {catName} doesn't leave either."
+  },
+  {
+   "when": {
+    "trait": "boldness",
+    "band": "low"
+   },
+   "text": "“Just me,” you say. {catName} checks the brush behind you anyway, twice, before letting the hackles settle."
+  },
+  {
+   "when": null,
+   "text": "“Just me,” you say. {catName} looks past you one more time, then gives a short nod. “Then it's two of us on one trail. That'll do.”"
+  }
+ ]
+}

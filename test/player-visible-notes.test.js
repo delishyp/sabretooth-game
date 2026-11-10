@@ -23,7 +23,7 @@ const PHRASES = [
   /relationship:\s*-?\d+/i,
   /Faction\s*·\s*.+→\s*you\s*[+\-]?\d+/,
   /Personal\s*·\s*.+→\s*you\s*[+\-]?\d+/,
-  /(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*\d+/,
+  /(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*(?:\d+|\{|\$\{)/,
   /cost you\s+\d+/i,
   /[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+){2,}|[A-Za-z0-9_.]+\/[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+)+/
 ];
@@ -88,9 +88,9 @@ test('player-visible text does not contain spec or author notes', () => {
   }
   const bad = hits.filter((row) => PHRASES.some((phrase) => phrase.test(row.text)));
   assert.deepStrictEqual(bad.map((row) => `${row.at}: ${row.text}`), []);
-  const statLeak = /(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*\d+|Personal\s*·\s*.+→\s*you\s*[+\-]?\d+/;
+  const statLeak = /(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*(?:\d+|\{|\$\{)|Personal\s*·\s*.+→\s*you\s*[+\-]?\d+/;
   const statHits = [];
-  for (const rel of ['src/renderer/js/slice.js', 'src/renderer/js/lone-actions.js', 'src/renderer/js/card-words.js']) {
+  for (const rel of ['src/renderer/js/slice.js', 'src/renderer/js/lone-actions.js', 'src/renderer/js/card-words.js', 'src/renderer/js/game-screen.js', 'src/renderer/js/encounter.js', 'src/renderer/js/pairing.js', 'src/renderer/js/conversation.js', 'src/renderer/js/world-memory.js']) {
     for (const text of stringsIn(fs.readFileSync(path.join(ROOT, rel), 'utf8'))) {
       if (statLeak.test(text)) statHits.push(`${rel}: ${text}`);
     }

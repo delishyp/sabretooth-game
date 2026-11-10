@@ -76,7 +76,7 @@ test('beats keep order, honour conditions, and fall back when missing or invalid
   const said = E.huntReportText(huntLine, hunted.report.region);
   assert.ok(said);
   assert.ok(!said.includes('%'));
-  assert.ok(said === 'The prey escaped.' || said.startsWith('You caught Medium prey and ate.'));
+  assert.ok(said === 'The prey escaped.' || said.startsWith('You caught medium prey and ate.'));
   assert.ok(String(hunted.pending.eventId).startsWith('voice.hunt.medium.steppe'));
   assert.strictEqual(hunted.pending.beats.length, 4);
   const small = fresh(11);

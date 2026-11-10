@@ -9,6 +9,36 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.GameScreen = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
+  const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
+  function speechLine(shown) {
+    const text = (shown && shown.text) || '';
+    const name = (shown && shown.speaker) || '';
+    const speech = shown && (shown.kind === 'speech' || shown.kind === 'say');
+    if (!speech || !name) return text;
+    const bare = text.replace(/^[\s“"'«]+/, '');
+    if (bare.startsWith(name)) return text;
+    return `${name}: ${text}`;
+  }
+  function sparLockDisplay(rows) {
+    const list = rows || [];
+    const open = list.filter((row) => row && !row.locked);
+    const locked = list.filter((row) => row && row.locked);
+    if (!locked.length) return { open, more: null };
+    const reason = locked.length === 1 && locked[0].line
+      ? locked[0].line
+      : 'Spar stays locked until a cat knows you well enough to wrestle.';
+    return { open, more: { label: 'Spar', reason } };
+  }
+  function sizeInSentence(label) {
+    const word = String(label || '');
+    return word ? word.charAt(0).toLowerCase() + word.slice(1) : word;
+  }
+  function deerCostText(rules) {
+    const c = (rules && rules.encounter) || {};
+    const search = CardWords.energy(-(c.deerSearchEnergy || 0));
+    const commit = CardWords.energy(-(c.deerCommitEnergy || 0));
+    return `The search has used your day. ${search} Watching or leaving costs nothing more but brings no food. Going in for the kill asks more. ${commit} It may fail.`;
+  }
   function signedNumber(n) {
     const v = Math.trunc(Number(n) || 0);
     return v > 0 ? `+${v}` : (v === 0 ? '+0' : String(v));
@@ -81,6 +111,7 @@
       const p = s.pending; if (!p) return '';
       if (p.bond) return p.summary || (p.lines && p.lines[0] && p.lines[0].text) || 'bond';
       const e = E.eventById(p.eventId); if (p.hostile) return '';
+      if (p.eventId === 'slice.meeting.loner' && p.choiceId === 'greet' && p.catId && E.lonerGreetText) return E.lonerGreetText(s.npcs[p.catId]);
       const c = e.choices.find((x) => x.id === p.choiceId); return c && c.text ? fill(c.text) : '';
     }
 
@@ -355,25 +386,27 @@
         if (lone.watch) a.append(btn('Watch from a vantage', { g: 'watch' }));
         for (const row of lone.scout || []) a.append(btn(`Scout the ${row.name} border`, { g: 'scout', pride: row.pride }));
         for (const row of lone.shadow || []) a.append(btn(`Shadow ${row.name}`, { g: 'shadow', cat: row.id }));
-        for (const row of lone.spar || []) {
-          if (row.locked) {
-            const host = lockedDock || a;
-            host.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }, { disabled: true, title: row.line || '' }));
-            if (row.line) host.append(el('p', 'blocked-note', row.line));
-          } else a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }));
+        const spar = sparLockDisplay(lone.spar || []);
+        for (const row of spar.open) a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }));
+        if (spar.more) {
+          const more = el('div', 'action-group is-more');
+          more.append(el('h3', '', 'More'));
+          more.append(btn(spar.more.label, { g: 'spar' }, { disabled: true, title: spar.more.reason }));
+          more.append(el('p', 'blocked-note', spar.more.reason));
+          a.append(more);
         }
         if (lone.steal) a.append(btn('Steal from the kill', { g: 'steal' }));
         if (lone.cub) a.append(btn('Help the cub', { g: 'helpCub' }));
         for (const row of lone.share || []) a.append(btn(`Share the kill with ${row.name}`, { g: 'shareKill', cat: row.id }));
         if (talks.childElementCount) a.append(talks);
-        if (av.seek) a.append(btn(`Seek out ${av.seek.name} · Energy −${av.seek.energy}`, { g: 'seek', cat: av.seek.catId }, { disabled: !av.seek.allowed, title: av.seek.reason || '' }));
+        if (av.seek) a.append(btn(`Seek out ${av.seek.name}`, { g: 'seek', cat: av.seek.catId }, { disabled: !av.seek.allowed, title: av.seek.reason || CardWords.energy(-(av.seek.energy || 0)) }));
         const bond = el('div', 'action-group is-bond');
         const seekers = av.seekMate || [];
         const courts = av.court || [];
         if (seekers.length || courts.length || (av.audience || []).length || (av.challenge || []).length || av.found) {
           bond.append(el('h3', '', 'Courtship and founding'));
-          for (const row of seekers) bond.append(btn(`Seek ${row.name} · Energy −${row.energy}`, { g: 'seekMate', cat: row.catId }, { cls: 'is-seek', disabled: !row.allowed, title: row.reason || '' }));
-          for (const row of courts) bond.append(btn(`Court ${row.name} · Energy −${row.energy}`, { g: 'court', cat: row.catId }, { cls: 'is-court', disabled: !row.allowed, title: row.reason || '' }));
+          for (const row of seekers) bond.append(btn(`Seek ${row.name}`, { g: 'seekMate', cat: row.catId }, { cls: 'is-seek', disabled: !row.allowed, title: row.reason || CardWords.energy(-(row.energy || 0)) }));
+          for (const row of courts) bond.append(btn(`Court ${row.name}`, { g: 'court', cat: row.catId }, { cls: 'is-court', disabled: !row.allowed, title: row.reason || CardWords.energy(-(row.energy || 0)) }));
           for (const row of av.audience || []) bond.append(btn(`Ask ${row.leaderName} about ${row.name}`, { g: 'askLeader', cat: row.catId }, { cls: 'is-court', disabled: !row.allowed }));
           for (const row of av.challenge || []) bond.append(btn(`Challenge ${row.rivalName} for ${row.name}`, { g: 'challenge', cat: row.catId }, { cls: 'is-court', disabled: !row.allowed }));
           if (av.found) bond.append(btn(`Found ${av.found.name}`, { g: 'found', name: av.found.name }, { cls: 'is-found', disabled: !av.found.allowed, title: av.found.reason || '' }));
@@ -427,7 +460,7 @@
         case 'hunt': {
           const voiced = E.huntReportText(l, s.report && s.report.region);
           if (voiced) return voiced;
-          return t(l.ok ? 'game.report.huntOk' : 'game.report.huntFail', { size: t(`game.size.${l.size}`), chance: l.chance, ate: l.ate });
+          return t(l.ok ? 'game.report.huntOk' : 'game.report.huntFail', { size: sizeInSentence(t(`game.size.${l.size}`)), chance: l.chance, ate: l.ate });
         }
         case 'rest': return t('game.report.rest', { energy: l.energy });
         case 'arrive': return E.arrivalText(l.region, 'arrive') || t('game.report.arrive', { region: regionName(l.region) });
@@ -477,7 +510,7 @@
       if (!view.lines.length) scroll.append(el('p', 'event-text', ''));
       for (const line of view.lines) {
         const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+        scroll.append(el('p', cls, speechLine(line)));
       }
       card.append(scroll);
       card.append(costNote());
@@ -505,7 +538,7 @@
       const scroll = el('div', 'event-scroll');
       for (const line of view.lines || []) {
         const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+        scroll.append(el('p', cls, speechLine(line)));
       }
       card.append(scroll);
       const ch = el('div', 'event-choices');
@@ -534,7 +567,7 @@
       if (!lines.length) scroll.append(el('p', 'event-text say', view.guardName + ': ' + view.title));
       for (const line of lines) {
         const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+        scroll.append(el('p', cls, speechLine(line)));
       }
       card.append(scroll);
       const ch = el('div', 'event-choices');
@@ -566,7 +599,7 @@
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
         const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+        scroll.append(el('p', cls, speechLine(line)));
       }
       card.append(scroll);
       card.append(el('p', 'choice-cost', encounterCost(view)));
@@ -579,15 +612,12 @@
       card.append(util);
     }
     function encounterCost(view) {
-      const c = (E.rules && E.rules.encounter) || {};
       const fill = (text, vars) => String(text).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
-      if (view.encounterId === 'encounter.giant_deer.v1') {
-        return fill('The search has used your day (Energy −{deerSearchEnergy}). Watching or leaving costs nothing more but brings no food. Going in for the kill costs Energy −{deerCommitEnergy}, and it may fail.', c);
-      }
+      if (view.encounterId === 'encounter.giant_deer.v1') return deerCostText(E.rules);
       if (view.encounterId === 'encounter.wolf_pack.v1') return "The pack watches you with their heads low. Turning away won't stop them from coming after you if they choose to, and whatever happens here, the wolves won't carry word of it to Highcrag.";
       const f = view.forecast;
       if (!f) return 'You\'ve already helped here; more won\'t earn anything.';
-      const extra = f.extraEnergy ? fill('It will cost Energy −{extraEnergy} more.', f) : 'It won\'t cost extra Energy.';
+      const extra = f.extraEnergy ? CardWords.energy(-f.extraEnergy) : 'It won\'t cost extra Energy.';
       const wound = f.injury ? 'If you fail, you\'ll come away with a minor injury.' : 'Even if you fail, you won\'t be hurt.';
       return fill('Your odds of driving it off look {tier} (fight {stat} against {threat}). {extra} {wound} Backing down earns nothing with Highcrag.', {
         tier: f.tier, stat: Math.round(f.stat * 10) / 10, threat: f.threat, extra, wound
@@ -618,7 +648,7 @@
         const idx = Math.min(p.beatIndex || 0, beatList.length - 1);
         const shown = E.beats.line(beatList[idx], E.beatContext(s));
         const prose = el('div', 'event-beat');
-        prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', shown.kind === 'speech' && shown.speaker ? `${shown.speaker}: ${shown.text}` : shown.text));
+        prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
         card.append(prose);
         const last = idx >= beatList.length - 1;
         const ch = el('div', 'bond-choices');
@@ -639,7 +669,7 @@
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of p.lines || []) {
         const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, line.kind === 'say' ? `${line.speaker}: ${line.text}` : line.text));
+        scroll.append(el('p', cls, speechLine(line)));
       }
       if (s.phase === 'eventResult' && p.summary) scroll.append(el('p', 'event-text result', p.summary));
       card.append(scroll);
@@ -670,7 +700,7 @@
         }
       }
       const prose = el('div', 'event-beat');
-      prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', shown.kind === 'speech' && shown.speaker ? `${shown.speaker}: ${shown.text}` : shown.text));
+      prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
       card.append(prose);
       if (s.pending.reply) card.append(el('p', 'event-text say', s.pending.reply));
       const last = idx >= beats.length - 1;
@@ -699,7 +729,12 @@
         const card = el('div', 'event-card has-beats');
         card.dataset.event = p.eventId || '';
         box.append(card);
-        card.append(el('h2', 'event-title', p.title || (E.eventById(p.eventId) && E.eventById(p.eventId).title) || 'Scene'));
+        const libraryTitle = E.eventById(p.eventId);
+        const title = p.title || (libraryTitle && libraryTitle.title) || 'Scene';
+        const focusBeat = beatList[Math.min(p.beatIndex || 0, beatList.length - 1)];
+        const focus = focusBeat && E.beats.line(focusBeat, E.beatContext(s));
+        const speaker = focus && focus.kind === 'speech' ? focus.speaker : '';
+        if (!(speaker && title === speaker)) card.append(el('h2', 'event-title', title));
         if (s.phase === 'eventResult') {
           const reply = resultText();
           if (reply) card.append(el('p', 'event-text', reply));
@@ -855,5 +890,5 @@
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }
-  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats };
+  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence };
 });
