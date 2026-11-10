@@ -63,7 +63,7 @@ test('report prose does not carry relationship or health-cost numbers', () => {
   s = act(s, { type: 'rest' });
   const beats = ((s.pending && s.pending.beats) || []).map((b) => b.text).join('\n');
   assert.ok(!/Energy \+/.test(beats), beats);
-  assert.match(s.pending.resultLine || '', /Energy \+/);
+  assert.strictEqual(s.pending.resultLine, 'You feel more rested.');
 });
 
 test('scent lines use Saga\'s keys and leave no push without one', () => {
@@ -79,7 +79,7 @@ test('scent lines use Saga\'s keys and leave no push without one', () => {
     report: { region: s.region, day: s.day, lines: [{ k: 'hunt', ok: true }] }
   });
   const text = read.lines.join('\n');
-  assert.ok(text.startsWith(scent.opener));
+  assert.ok(scent.openers.includes(read.lines[0]));
   assert.ok(text.includes(scent.catKnown.replaceAll('{name}', cat.name)));
   assert.ok(text.includes(scent.rivalKnown.replaceAll('{name}', cat.name)));
   assert.ok(text.includes(scent.prideMarked.bonefield));
@@ -92,7 +92,7 @@ test('scent lines use Saga\'s keys and leave no push without one', () => {
   for (const npc of Object.values(bare.npcs)) npc.homeZones = [];
   const empty = E.lone.scentLines(bare, { holder: 'neutral', preyValue: null, hazards: [] });
   assert.ok(empty.lines.includes(scent.nothing));
-  assert.ok(empty.lines.includes(scent.opener));
+  assert.ok(scent.openers.includes(empty.lines[0]));
   const mapHazards = j('map.json').hazards.map((h) => h.id);
   const missing = mapHazards.filter((id) => !scent.hazard[id]);
   assert.deepStrictEqual(missing, []);

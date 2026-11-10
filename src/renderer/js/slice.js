@@ -8,9 +8,10 @@
  * State phases: 'day' (waiting for an action) | 'event' (an event waiting for a choice) | 'eventResult' (choice text shown) | 'over'.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'), require('./pass2'));
-  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2);
-})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rng'), require('./worldmap'), require('./conversation'), require('./personality'), require('./world-memory'), require('./encounter'), require('./pairing'), require('./skills'), require('./beats'), require('./lone-actions'), require('./followups'), require('./pass2'), require('./motives'));
+  else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2, root.Motives);
+})(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives) {
+  const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
@@ -44,6 +45,7 @@
   /** First registered static id. The creator opens on it. Legacy blanks use this same id. Not inferred from genes or a filename. */
   const PLAYER_PRESENTATION_DEFAULT = 'cat-6e2d788dd48ff440';
   const fill = (s, vars) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
+  const momentSummary = (name) => 'The moment passes, and {catName} goes on about the day.'.replace('{catName}', name || '');
 
   function loadPortraitDefaults(passed) {
     if (passed && passed.assignments) return passed.assignments;
@@ -231,6 +233,18 @@
         scout: loneMenu(s).scout.length ? { allowed: true } : scoutOffer(s)
       };
     }
+    function scentSpec(s) {
+      const own = W.ownership(s.map.claims, s.region);
+      return {
+        neighbours: W.neighbours(s.region),
+        holder: own.holder,
+        metPride: !!(own.holder && Object.values(s.npcs).some((n) => n.met && n.faction === own.holder)),
+        preyValue: W.preyFor(s.region, season(s)),
+        hazards: W.hazardsFor(s.region, season(s)).map((h) => h.id),
+        report: s.report,
+        regionIndex: Math.max(0, W.regions.findIndex((r) => r.id === s.region))
+      };
+    }
     function loneOpts(s) {
       const own = W.ownership(s.map.claims, s.region);
       return {
@@ -323,7 +337,7 @@
           event: cat ? Lone.watchPresence(s, cat, opts) : {
             lone: true, eventId: 'action.watch', title: 'The vantage',
             beats: [{ kind: 'narration', text: spoken }], beatIndex: 0, choices: [],
-            summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
+            summary: CardWords.energy(20), resultLine: CardWords.energy(20), day: s.day
           }
         };
       }
@@ -596,15 +610,7 @@
         return { state: s };
       }
       if (s.phase === 'day' && action.type === 'scent') {
-        const own = W.ownership(s.map.claims, s.region);
-        const opened = Lone.beginScent(s, {
-          neighbours: W.neighbours(s.region),
-          holder: own.holder,
-          metPride: !!(own.holder && Object.values(s.npcs).some((n) => n.met && n.faction === own.holder)),
-          preyValue: W.preyFor(s.region, season(s)),
-          hazards: W.hazardsFor(s.region, season(s)).map((h) => h.id),
-          report: s.report
-        });
+        const opened = Lone.beginScent(s, scentSpec(s));
         if (opened.error) return { state: s0, error: opened.error };
         s.pending = opened.event;
         s.phase = 'event';
@@ -1013,6 +1019,8 @@
         if (shared.error) return { state: s, error: shared.error };
         Lone.keepBringPrey(s, npc.id);
         s.pending = shared.event;
+        s.pending.summary = momentSummary(npc.name);
+        s.pending.catName = npc.name;
         s.phase = 'event';
         return { state: s };
       }
@@ -1027,11 +1035,13 @@
           }
         }
         s.pending = Lone.presenceReply(s, npc, 'presence.hunt.warn');
+        s.pending.summary = momentSummary(npc.name);
         s.phase = 'eventResult';
         return { state: s };
       }
       if (choiceId === 'let_watch') {
         s.pending = Lone.presenceReply(s, npc, 'presence.hunt.let_watch');
+        s.pending.summary = momentSummary(npc.name);
         s.phase = 'eventResult';
         return { state: s };
       }
@@ -1055,12 +1065,16 @@
       if (p.hostile) { p.choiceId = 'hostile'; log(s, fill(e.hostileSummary, { catName: p.catName })); s.phase = 'eventResult'; return { state: s }; }
       const c = e.choices.find((x) => x.id === action.choiceId); if (!c) return { state: s, error: 'choice' };
       p.choiceId = c.id;
+      const spoken = fill(c.summary || e.summary, { catName: p.catName });
+      p.summary = spoken;
       if (p.catId) {
         const d = applyIntent(s, p.catId, c.affinityIntent, p.day);
-        if (d) p.resultLine = '';
+        const words = CardWords.affinity(p.catName, d);
+        if (words) p.resultLine = words;
+        else if (d) p.resultLine = '';
         if (s.worldMemory) WM.notePersonal(s, { catId: p.catId, delta: d, receiptKey: `${s.runId || ''}/intent/${p.catId}/${p.eventId}/${c.id}/${p.day}`, sourceType: 'conversation_outcome', scope: 'private' });
       }
-      log(s, fill(c.summary || e.summary, { catName: p.catName }));
+      log(s, spoken);
       s.phase = 'eventResult';
       return { state: s };
     }
@@ -1231,7 +1245,7 @@
     }
     function huntNumbers(hunt) {
       if (!hunt) return '';
-      return hunt.ok ? `Hunger +${hunt.ate}` : 'The prey escaped';
+      return hunt.ok ? CardWords.hunger(hunt.ate) : 'The prey escaped';
     }
     function attachVoiceHunt(s, rep, ev) {
       const next = attachVoice(ev);
@@ -1317,10 +1331,10 @@
     function statBits(rep) {
       const bits = [];
       for (const l of rep || []) {
-        if (l.k === 'rest' && l.energy) bits.push(`Energy +${l.energy}`);
-        if (l.k === 'starving') bits.push(`Health −${l.health}`);
-        if (l.k === 'parched') bits.push(`Health −${l.health}`);
-        if (l.k === 'killShare') bits.push(`Hunger +${l.hunger}`);
+        if (l.k === 'rest' && l.energy) bits.push(CardWords.energy(l.energy));
+        if (l.k === 'starving') bits.push(CardWords.health(-Math.abs(l.health || 0)));
+        if (l.k === 'parched') bits.push(CardWords.health(-Math.abs(l.health || 0)));
+        if (l.k === 'killShare') bits.push(CardWords.hunger(l.hunger));
       }
       return bits.join('. ');
     }
@@ -1341,15 +1355,7 @@
         }
       }
       if (!Lone.usedDay(s, 'scent')) {
-        const own = W.ownership(s.map.claims, s.region);
-        const opened = Lone.beginScent(s, {
-          neighbours: W.neighbours(s.region),
-          holder: own.holder,
-          metPride: !!(own.holder && Object.values(s.npcs).some((n) => n.met && n.faction === own.holder)),
-          preyValue: W.preyFor(s.region, season(s)),
-          hazards: W.hazardsFor(s.region, season(s)).map((h) => h.id),
-          report: s.report
-        });
+        const opened = Lone.beginScent(s, scentSpec(s));
         if (!opened.error) {
           opened.event.filler = true;
           return opened.event;
@@ -1404,7 +1410,7 @@
       });
       return {
         eventId: 'action.watch', title: 'The hillside', filler: true, voice: true, lone: true,
-        beats, beatIndex: 0, choices: [], summary: 'Energy +20', resultLine: 'Energy +20', day: s.day
+        beats, beatIndex: 0, choices: [], summary: CardWords.energy(20), resultLine: CardWords.energy(20), day: s.day
       };
     }
     function quietScene(s, rep) {
@@ -1428,15 +1434,36 @@
         knowsAny: (id) => Object.keys((s.worldMemory && s.worldMemory.knowledge) || {}).some((factId) => WM.knowsFact(s, id, factId))
       };
     }
+    function asideBeat(s, p) {
+      if (!p || !p.catId) return null;
+      const id = p.eventId || '';
+      const meeting = id.startsWith('slice.meeting.') || id.startsWith('m2.') || !!p.presence;
+      if (!meeting) return null;
+      const npc = s.npcs[p.catId];
+      if (!npc) return null;
+      if (p.asideText) return { kind: 'speech', speaker: npc.name, text: p.asideText };
+      if (npc.asideSaid) return null;
+      const line = Motives && Motives.asideLine(npc.id, npc.name);
+      if (!line) return null;
+      npc.asideSaid = true;
+      p.asideText = line;
+      return { kind: 'speech', speaker: npc.name, text: line };
+    }
     function sceneBeats(s) {
       const p = s.pending;
       if (!p) return null;
       const npc = p.catId && s.npcs[p.catId];
       const leader = npc && p.eventId === `slice.meeting.${npc.faction}` && Pass2.leaderMeeting(npc);
-      if (leader) return Beats.visible(leader, beatContext(s));
-      if (Array.isArray(p.beats)) return Beats.visible(p.beats, beatContext(s));
-      const e = p.eventId && eventById(p.eventId);
-      return e && e.beats ? Beats.visible(e.beats, beatContext(s)) : null;
+      let beats = null;
+      if (leader) beats = leader;
+      else if (Array.isArray(p.beats)) beats = p.beats;
+      else {
+        const e = p.eventId && eventById(p.eventId);
+        beats = e && e.beats ? e.beats : null;
+      }
+      if (!beats) return null;
+      const aside = asideBeat(s, p);
+      return Beats.visible(aside ? [aside].concat(beats) : beats, beatContext(s));
     }
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;

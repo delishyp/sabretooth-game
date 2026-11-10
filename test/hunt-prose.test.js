@@ -71,11 +71,9 @@ test('a played hunt shows the four beats, and the number stays on the result lin
   assert.ok(!/[0-9]/.test(text));
   assert.ok(!text.includes('%'));
   assert.ok(!/\{[a-zA-Z]+\}/.test(text));
-  if (hunted.pending.resultLine && hunted.pending.resultLine.startsWith('Hunger')) {
-    assert.match(hunted.pending.resultLine, /^Hunger \+\d+$/);
-    assert.ok(!text.includes(hunted.pending.resultLine));
-  } else {
-    assert.strictEqual(hunted.pending.resultLine, 'The prey escaped');
-    assert.ok(!/injur/i.test(text));
-  }
+  const line = hunted.pending.resultLine || '';
+  assert.ok(!/(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*\d+/.test(line), line);
+  if (line === 'The prey escaped') assert.ok(!/injur/i.test(text));
+  else assert.ok(line === 'Your belly is fuller.' || line === "You've eaten well." || line === "You've taken the edge off your hunger.");
+  assert.ok(!text.includes(line));
 });

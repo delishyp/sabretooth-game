@@ -27,6 +27,11 @@
     if (!has) return `Faction · ${name} → you · Unknown`;
     return `Faction · ${name}`;
   }
+  function resultCardBeats(beats, phase) {
+    const list = beats || [];
+    if (phase !== 'eventResult') return list;
+    return list.filter((beat) => beat && beat.kind !== 'speech');
+  }
   function killShareText(prideName) {
     return `${prideName} shares a kill with you.`;
   }
@@ -117,7 +122,7 @@
       }
       const ends = el('div', 'meter-ends');
       ends.append(el('span', '', '-100'), el('span', '', '0'), el('span', '', '100'));
-      meter.append(track, ends, el('p', 'meter-caption', known ? `Personal · ${who} → you ${signed(personal.value)} · ${tier}` : `Personal · ${who} → you · Unknown`));
+      meter.append(track, ends, el('p', 'meter-caption', `Personal · ${who}`));
       ul.append(meter);
       const pair = s.records && s.records.matePair;
       const mates = !!(pair && pair.mateId === catId);
@@ -679,10 +684,21 @@
         card.dataset.event = p.eventId || '';
         box.append(card);
         card.append(el('h2', 'event-title', p.title || (E.eventById(p.eventId) && E.eventById(p.eventId).title) || 'Scene'));
-        if (s.phase === 'eventResult' && (p.resultLine || p.summary)) card.append(el('p', 'event-result-line', p.resultLine || p.summary));
+        if (s.phase === 'eventResult') {
+          const reply = resultText();
+          if (reply) card.append(el('p', 'event-text', reply));
+          if (p.summary) card.append(el('p', 'event-result-line', p.summary));
+          if (p.resultLine && p.resultLine !== p.summary) card.append(el('p', 'event-result-line', p.resultLine));
+        }
         const library = p.eventId && E.eventById(p.eventId);
         const choices = p.choices && p.choices.length ? p.choices : (!p.lone && library && library.choices) || [];
-        renderBeats(card, beatList, choices);
+        const shownBeats = resultCardBeats(beatList, s.phase);
+        if (shownBeats.length) renderBeats(card, shownBeats, choices);
+        else if (s.phase === 'eventResult') {
+          const ch = el('div', 'event-choices');
+          ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+          card.append(ch);
+        }
         return;
       }
       const box = $('#game-event'); const p = s.pending;
@@ -823,5 +839,5 @@
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }
-  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber };
+  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats };
 });

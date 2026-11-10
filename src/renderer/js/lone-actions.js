@@ -12,6 +12,7 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, Speech) {
   const PRIDE_NAMES = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
   const Pass2 = (typeof require === 'function' ? require('./pass2') : (typeof self !== 'undefined' ? self.Pass2 : null));
+  const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   function loadJson(file) {
     if (typeof require === 'function') {
       try { return require(file); } catch (e) { /* browser loads it below */ }
@@ -100,8 +101,21 @@
     }
     const found = lines.length > 0;
     if (!lines.length && SCENT.nothing) lines.push(SCENT.nothing);
-    if (SCENT.opener) lines.unshift(SCENT.opener);
+    const opener = scentOpener(s, spec);
+    if (opener) lines.unshift(opener);
     return { lines, cats, found };
+  }
+  function scentOpener(s, spec) {
+    const list = Array.isArray(SCENT.openers) && SCENT.openers.length ? SCENT.openers : (SCENT.opener ? [SCENT.opener] : []);
+    if (!list.length) return '';
+    if (!s.records) s.records = {};
+    const saved = s.records.scentOpener;
+    if (saved && saved.day === s.day && typeof saved.index === 'number' && list[saved.index]) return list[saved.index];
+    const regionIndex = spec && Number.isInteger(spec.regionIndex) && spec.regionIndex >= 0 ? spec.regionIndex : 0;
+    let idx = ((s.day || 1) + regionIndex) % list.length;
+    if (saved && saved.day === (s.day || 1) - 1 && saved.index === idx) idx = (idx + 1) % list.length;
+    s.records.scentOpener = { day: s.day, index: idx };
+    return list[idx];
   }
 
   function remember(s, factId, catIds, found) {
@@ -697,7 +711,7 @@
     const text = LINES[ok ? 'steal.success' : 'steal.caught'];
     return {
       ok, owner: offer.owner, text,
-      event: sceneEvent('lone.steal', 'The kill', text, { resultLine: ok ? 'Hunger +25' : '' })
+      event: sceneEvent('lone.steal', 'The kill', text, { resultLine: ok ? CardWords.hunger(25) : '' })
     };
   }
   function cubOffer(s, opts) {
@@ -828,7 +842,7 @@
     return presenceEvent('watch', 'action.watch', 'The vantage', npc, beats, [
       { id: 'go_down', label: 'Go down to them.' },
       { id: 'keep_watching', label: 'Keep watching.' }
-    ], { summary: 'Energy +20', resultLine: 'Energy +20', day: s.day });
+    ], { summary: CardWords.energy(20), resultLine: CardWords.energy(20), day: s.day });
   }
   function stonePresence(s, npc, source) {
     noteSeen(s, npc);

@@ -1,0 +1,36 @@
+{
+ "_readme": "Saga fixes for Tracker's d69115c replay, items 3-5. No numbers, no new mechanics.",
+ "item3_meeting_replies": {
+  "_note": "Choice texts in slice-1.json that now answer the cat's question, so the card reads as a finished exchange. If the result card still repeats the question beat above the reply, Flint should drop beat speech from eventResult and keep only the reply plus summary.",
+  "slice.meeting.loner/greet.text": "“Just me,” you say. {catName} looks past you one more time, then gives a short nod. “Then it's two of us on one trail. That'll do.”",
+  "slice.meeting.highcrag/introduce.text": "You give your name and wait. {catName} repeats it once, slowly, as if setting it somewhere safe. “Then we need not be strangers.” The path between you stays clear."
+ },
+ "item4_scent_openers": {
+  "_note": "Replaces the single scent-sign-v1 'opener' with a list. Pick one by (day + region index) % length, and never use the same one two days running. Plain text, no tokens.",
+  "openers": [
+   "You lower your nose to the ground and breathe in slowly, sorting this place out scent by scent.",
+   "You stop, open your mouth a little, and let the air roll over your tongue. This place has a story, and you start reading it.",
+   "You work slowly along the ground, nose low, stopping at every stone and stem that someone else has touched.",
+   "The wind shifts and brings you something. You turn into it, eyes half closed, and pull the scents apart one by one.",
+   "You find a rubbing post and a scuffed patch of earth beside it, and you settle in to read what's been left there."
+  ]
+ },
+ "item5_let_watch": {
+  "presence.hunt.let_watch": "You go on eating. {name} stays put and watches every bite, until there's nothing left but bones. Then {name} stands, gives you one long look you can't read, and pads away without a word."
+ },
+ "item2_card_words": {
+  "_note": "Words for result cards and the result line; the numbers stay on the meters only. Pick by the signed delta. {catName} is the cat.",
+  "affinity": {
+   "gain_small (+1..+5)": "{catName} seems a little warmer toward you.",
+   "gain_big (+6 or more)": "{catName} has clearly warmed to you.",
+   "loss_small (-1..-5)": "{catName} seems a little cooler toward you.",
+   "loss_big (-6 or less)": "{catName} has turned cold toward you.",
+   "zero": ""
+  },
+  "hunger": {
+   "small (+1..+15)": "You've taken the edge off your hunger.",
+   "medium (+16..+35)": "Your belly is fuller.",
+   "large (+36 or more)": "You've eaten well."
+  }
+ }
+}

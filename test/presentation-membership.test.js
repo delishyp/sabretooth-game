@@ -73,7 +73,8 @@ test('the day report shows the saved kill share once, and reload does not add an
   assert.strictEqual(lines[0].pride, 'highcrag');
   assert.strictEqual(Screen.killShareText('Highcrag', lines[0].hunger), 'Highcrag shares a kill with you.');
   const shown = [rested.pending && rested.pending.resultLine, ...(rested.pending && rested.pending.beats || []).map((b) => b.text)].filter(Boolean).join('\n');
-  assert.ok(shown.includes('Hunger +20'));
+  assert.ok(shown.includes('Your belly is fuller.'));
+  assert.ok(!/(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*\d+/.test(shown), shown);
   assert.ok(!(rested.pending.beats || []).some((b) => /Hunger \+/.test(b.text)));
   assert.strictEqual(rested.records.receipts.filter((key) => key.includes('/kill-share/')).length, before + 1);
   assert.strictEqual(rested.prideRelation.highcrag, -15);

@@ -128,7 +128,8 @@ async function reach(page) {
     assert.strictEqual(at720.meterNow, '0');
     assert.strictEqual(at720.meterMark, true);
     assert.strictEqual(at720.romanceUnknown, true);
-    assert.ok(at720.relations.includes('Personal · Coppergale → you +0 · Neutral'));
+    assert.ok(at720.relations.includes('Personal · Coppergale'));
+    assert.ok(!/Personal\s*·\s*.+→\s*you\s*[+\-]?\d+/.test(at720.relations));
     assert.ok(at720.relations.includes('Romance · Unknown'));
     assert.ok(at720.relations.includes('Faction · Unknown'));
     assert.ok(!at720.relations.includes('No Opinion/Neutral'));

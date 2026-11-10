@@ -645,7 +645,7 @@
         {
           "id": "introduce",
           "label": "Give your name and wait.",
-          "text": "“Then we need not be strangers,” {catName} says. The path between you remains clear.",
+          "text": "You give your name and wait. {catName} repeats it once, slowly, as if setting it somewhere safe. “Then we need not be strangers.” The path between you stays clear.",
           "summary": "You introduced yourself to {catName}.",
           "affinityIntent": "improve"
         },
@@ -861,7 +861,7 @@
         {
           "id": "greet",
           "label": "“Just me. And you?”",
-          "text": "“Just me.” The answer comes with a little less tension.",
+          "text": "“Just me,” you say. {catName} looks past you one more time, then gives a short nod. “Then it's two of us on one trail. That'll do.”",
           "summary": "You exchanged a quiet greeting with {catName}.",
           "affinityIntent": "improve"
         },

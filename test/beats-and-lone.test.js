@@ -110,7 +110,8 @@ test('scent names only met cats, is deterministic, and does not repeat after rel
   assert.strictEqual(resumed.worldMemory.facts.filter((f) => f.kind === 'scent_sign').length, 1);
   const text = first.pending.beats.map((b) => b.text).join('\n');
   assert.ok(text.includes(s.npcs.ln05.name));
-  assert.ok(text.includes('You lower your nose to the ground'));
+  const openers = j('events/scent-sign-v1.json').openers;
+  assert.ok(openers.some((line) => text.includes(line)), text);
   assert.ok(/prey-scent/i.test(text));
   assert.ok(/you don't know/i.test(text));
   assert.strictEqual(first.pending.skill, 'threatScent');
@@ -190,4 +191,30 @@ test('at most one approach a day, gossip uses a real fact, and a promise is reco
   const noOne = E.act(unmet, { type: 'approach' }).state;
   assert.strictEqual(noOne.pending.catId, null);
   console.log('APPROACH SEED', JSON.stringify(found));
+});
+
+test('scent openers rotate by day and region and do not repeat two days running', () => {
+  const openers = j('events/scent-sign-v1.json').openers;
+  const regions = j('map.json').regions.map((r) => r.id);
+  const s = fresh(4);
+  s.region = regions[0];
+  const spec = { regionIndex: 0, preyValue: null, hazards: [] };
+  const first = E.lone.scentLines(s, spec).lines[0];
+  s.day += 1;
+  const second = E.lone.scentLines(s, spec).lines[0];
+  assert.ok(openers.includes(first));
+  assert.notStrictEqual(second, first);
+  const collide = (s.day + 1 + 0) % openers.length;
+  s.day += 1;
+  s.records.scentOpener = { day: s.day - 1, index: collide };
+  const bumped = E.lone.scentLines(s, spec).lines[0];
+  assert.strictEqual(bumped, openers[(collide + 1) % openers.length]);
+  assert.strictEqual(E.lone.scentLines(s, spec).lines[0], bumped);
+  const moved = fresh(5);
+  moved.day = 2;
+  moved.region = regions[4] || regions[0];
+  const stayed = E.lone.scentLines(moved, { regionIndex: 0, preyValue: null, hazards: [] }).lines[0];
+  delete moved.records.scentOpener;
+  const shifted = E.lone.scentLines(moved, { regionIndex: 4 % openers.length, preyValue: null, hazards: [] }).lines[0];
+  if (stayed === shifted) assert.fail('a same-day region change reused an opener after the record was cleared');
 });

@@ -22,6 +22,8 @@ const PHRASES = [
   /% chance/i,
   /relationship:\s*-?\d+/i,
   /Faction\s*·\s*.+→\s*you\s*[+\-]?\d+/,
+  /Personal\s*·\s*.+→\s*you\s*[+\-]?\d+/,
+  /(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*\d+/,
   /cost you\s+\d+/i,
   /[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+){2,}|[A-Za-z0-9_.]+\/[A-Za-z0-9_.]*_[A-Za-z0-9_.]*(?:\/[A-Za-z0-9_.]+)+/
 ];
@@ -86,6 +88,18 @@ test('player-visible text does not contain spec or author notes', () => {
   }
   const bad = hits.filter((row) => PHRASES.some((phrase) => phrase.test(row.text)));
   assert.deepStrictEqual(bad.map((row) => `${row.at}: ${row.text}`), []);
+  const statLeak = /(?:Hunger|Energy|Health|Thirst)\s*[+\-−]\s*\d+|Personal\s*·\s*.+→\s*you\s*[+\-]?\d+/;
+  const statHits = [];
+  for (const rel of ['src/renderer/js/slice.js', 'src/renderer/js/lone-actions.js', 'src/renderer/js/card-words.js']) {
+    for (const text of stringsIn(fs.readFileSync(path.join(ROOT, rel), 'utf8'))) {
+      if (statLeak.test(text)) statHits.push(`${rel}: ${text}`);
+    }
+  }
+  assert.deepStrictEqual(statHits, []);
+  const motives = JSON.parse(fs.readFileSync(path.join(DATA, 'events/motives-v1.json'), 'utf8'));
+  const motiveLines = Object.entries(motives).filter((entry) => entry[1] && entry[1].motive).map((entry) => entry[1].motive);
+  const leaked = hits.filter((row) => motiveLines.some((line) => row.text.includes(line)));
+  assert.deepStrictEqual(leaked.map((row) => row.at), []);
 });
 
 test('the wolf card cost is Saga\'s line, and the ford boundary actions use her cues', () => {

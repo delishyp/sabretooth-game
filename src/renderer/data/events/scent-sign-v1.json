@@ -1,6 +1,12 @@
 {
  "_readme": "Replaces the report-style lines in lone-actions.js scentLines() (pin 3a9f923): 'The scent of X is on this ground.', 'Prey sign is thin.', 'Hazard sign: tar.' and the rest. Each key matches one push() in scentLines. {name} is a met cat, {pride} is a pride name. Every line states only what the code already knows: homeZones means the cat lives on this ground, the rival flag, the holder, the player's own hunt within 2 days, the preyWord band and the hazard ids. The opener is an optional first beat. Every other line keeps its current position.",
- "opener": "You lower your nose to the ground and breathe in slowly, sorting this place out scent by scent.",
+ "openers": [
+  "You lower your nose to the ground and breathe in slowly, sorting this place out scent by scent.",
+  "You stop, open your mouth a little, and let the air roll over your tongue. This place has a story, and you start reading it.",
+  "You work slowly along the ground, nose low, stopping at every stone and stem that someone else has touched.",
+  "The wind shifts and brings you something. You turn into it, eyes half closed, and pull the scents apart one by one.",
+  "You find a rubbing post and a scuffed patch of earth beside it, and you settle in to read what's been left there."
+ ],
  "catKnown": "{name}'s scent is everywhere here, rubbed on the stones and soaked into the earth. This is ground {name} walks often.",
  "catStrange": {
   "male": "A tom you don't know walks this ground often. His scent is on every stone, rank and confident.",
