@@ -19,8 +19,20 @@ test('every region has a biome, prey, danger band and travel days ≥ 1 to each 
     assert.ok(W.biome(W.region(r.id).biome), r.id);
     assert.ok(typeof W.preyPoints(r.id, 'spring') === 'number');
     assert.ok([0, 1, 2, 3].includes(W.danger(r.id, 'spring')));
+    assert.ok(W.danger(r.id, 'spring') <= 3);
     for (const n of W.neighbours(r.id)) assert.ok(W.travelDays(r.id, n, 'spring') >= 1);
   }
+});
+
+test('danger sums the season hazards and caps at 3', () => {
+  assert.strictEqual(W.danger('tar_seeps', 'spring'), 3);
+  assert.strictEqual(W.danger('west_spur', 'spring'), 0);
+  const bumped = JSON.parse(JSON.stringify(map));
+  bumped.regions.find((row) => row.id === 'tar_seeps').hazards = [
+    { id: 'tar', pct: 80, seasons: null },
+    { id: 'wolves', pct: 80, seasons: null }
+  ];
+  assert.strictEqual(WorldMap.create(bumped).danger('tar_seeps', 'spring'), 3);
 });
 
 test('ownership + trespass: start claims give holders; wolves never trespass-patrol', () => {

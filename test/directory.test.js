@@ -265,7 +265,16 @@ test('sort by last seen and by name', () => {
     { id: 'c', name: 'Ash', lastSeen: null }
   ];
   assert.deepStrictEqual(Directory.sortCats(rows, 'name').map((cat) => cat.id), ['a', 'c', 'b']);
-  assert.deepStrictEqual(Directory.sortCats(rows, 'lastSeen').map((cat) => cat.id), ['a', 'b', 'c']);
+  const seen = Directory.sortCats(rows, 'lastSeen');
+  assert.deepStrictEqual(seen.map((cat) => cat.id), ['a', 'b', 'c']);
+  assert.strictEqual(seen[0].lastSeen.when, 'today');
+  assert.strictEqual(seen[1].lastSeen.when, 'this season');
+  assert.strictEqual(Object.hasOwn(seen[0].lastSeen, 'day'), false);
+  assert.strictEqual(Directory.lastSeenWord(20, 21), 'yesterday');
+  assert.strictEqual(Directory.lastSeenWord(18, 21), 'a few days ago');
+  assert.strictEqual(Directory.lastSeenWord(10, 20), 'this season');
+  assert.strictEqual(Directory.lastSeenWord(1, 21), 'last season');
+  assert.strictEqual(Directory.lastSeenWord(1, 41), 'long ago');
 });
 
 test('age words follow the directory bands', () => {

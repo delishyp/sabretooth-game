@@ -84,7 +84,9 @@
     const chance = huntChance(state.pride.roles[cat.id] === 'hunter');
     const roll = rngFor(state, `hunt:${cat.id}`)();
     const ok = roll * 100 < chance;
-    const gained = ok ? config.hunt.store.medium : 0;
+    const once = config.pride.hunterKillFood;
+    const mouths = config.pride.hunterKillPerMember ? Math.max(1, roster(state).length) : 1;
+    const gained = ok ? once * mouths : 0;
     state.pride.food += gained;
     state.lastHunt = { catId: cat.id, chance, ok, gained, prey: 'medium' };
     return state.lastHunt;
@@ -107,9 +109,14 @@
 
   function defendStrength(state) {
     let sum = 0;
+    let usedGuard = false;
     for (const cat of livingDefenders(state)) {
       const stat = Number.isFinite(cat.fight) ? cat.fight : 10;
-      const mult = state.pride.roles[cat.id] === 'guard' ? config.guard.multiplier : 1;
+      let mult = 1;
+      if (state.pride.roles[cat.id] === 'guard' && (config.pride.guardStacks || !usedGuard)) {
+        mult = config.guard.multiplier;
+        usedGuard = true;
+      }
       sum += stat * mult;
     }
     return sum;

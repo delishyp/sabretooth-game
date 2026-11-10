@@ -56,8 +56,12 @@
     const preyPoints = (id, season) => data.preyPoints[preyFor(id, season)];
     /** §6.1: a hazard rolls in `season` when it has no season tag, except thin_ice, which is spring-only unless tagged. */
     const hazardsFor = (id, season) => region(id).hazards.filter((h) => (h.seasons ? h.seasons.includes(season) : h.id !== 'thin_ice' || season === 'spring'));
-    /** §6.4: danger 0–3 from the max daily % of this season's hazards. */
-    const danger = (id, season) => { const max = Math.max(0, ...hazardsFor(id, season).map((h) => h.pct)); return data.dangerBands.find((b) => max <= b.max).danger; };
+    /** §6.4 as ruled: sum this season's hazard percentages, then band the total. The score cannot pass 3. */
+    const danger = (id, season) => {
+      const sum = hazardsFor(id, season).reduce((total, hazard) => total + hazard.pct, 0);
+      const band = data.dangerBands.find((row) => sum <= row.max);
+      return Math.min(3, band ? band.danger : 3);
+    };
     /** §8.1: drinkable water this season (frozen water in winter → eat-snow, not free drink). Tar seeps etc. have water `none`. */
     const hasWater = (id, season) => { const r = region(id); return r.water !== 'none' && !(r.freezes && season === 'winter'); };
     const initClaims = () => {

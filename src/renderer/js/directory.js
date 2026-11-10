@@ -8,6 +8,10 @@
   else root.Directory = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   const HISTORY_CAP = 200;
+  const SEASON_DAYS = 20;
+  const WHEN_RANK = {
+    today: 6, yesterday: 5, 'a few days ago': 4, 'this season': 3, 'last season': 2, 'long ago': 1
+  };
   const TEMPLATE = {
     meet: 'directory.history.meet',
     talk: 'directory.history.talk',
@@ -208,6 +212,26 @@
     if (!row.favorite && at >= 0) d.favorites.splice(at, 1);
     return row.favorite;
   }
+  function seasonOf(day) {
+    return Math.floor((Math.max(day, 1) - 1) / SEASON_DAYS);
+  }
+  /** Relative word for Saga. The query never returns the day number. */
+  function lastSeenWord(seenDay, today) {
+    if (!Number.isInteger(seenDay) || !Number.isInteger(today)) return null;
+    const age = today - seenDay;
+    if (age <= 0) return 'today';
+    if (age === 1) return 'yesterday';
+    if (age <= 4) return 'a few days ago';
+    const gap = seasonOf(today) - seasonOf(seenDay);
+    if (gap <= 0) return 'this season';
+    if (gap === 1) return 'last season';
+    return 'long ago';
+  }
+  function seenQuery(seen, today) {
+    if (!seen || !seen.zoneId) return null;
+    const clock = Number.isInteger(today) ? today : (Number.isInteger(seen.day) ? seen.day : 0);
+    return { zoneId: seen.zoneId, when: lastSeenWord(Number.isInteger(seen.day) ? seen.day : clock, clock) };
+  }
   function ageWord(seasons) {
     if (!Number.isInteger(seasons) || seasons < 0) return null;
     if (seasons <= 3) return 'cub';
@@ -231,7 +255,7 @@
         sex: npc.sex || null,
         ageSeasons: Number.isInteger(seasons) ? seasons : null,
         ageWord: ageWord(seasons),
-        lastSeen: row.lastSeen || null
+        lastSeen: seenQuery(row.lastSeen, s.day)
       };
     });
   }
@@ -245,25 +269,34 @@
       return true;
     });
   }
-  function sortCats(cats, by) {
-    const copy = (cats || []).slice();
+  function sortCats(cats, by, today) {
+    const copy = (cats || []).map((cat) => ({ ...cat, lastSeen: cat.lastSeen ? { ...cat.lastSeen } : null }));
     const nameOf = (cat) => String(cat.name || '');
     const idOf = (cat) => String(cat.id || '');
-    if (by === 'name') {
-      copy.sort((a, b) => nameOf(a).localeCompare(nameOf(b)) || idOf(a).localeCompare(idOf(b)));
-      return copy;
+    const dayOf = (cat) => (cat.lastSeen && Number.isInteger(cat.lastSeen.day) ? cat.lastSeen.day : (WHEN_RANK[cat.lastSeen && cat.lastSeen.when] || -1));
+    if (by === 'name') copy.sort((a, b) => nameOf(a).localeCompare(nameOf(b)) || idOf(a).localeCompare(idOf(b)));
+    else {
+      copy.sort((a, b) => {
+        const bd = dayOf(b);
+        const ad = dayOf(a);
+        if (bd !== ad) return bd - ad;
+        return nameOf(a).localeCompare(nameOf(b)) || idOf(a).localeCompare(idOf(b));
+      });
     }
-    copy.sort((a, b) => {
-      const ad = a.lastSeen && Number.isInteger(a.lastSeen.day) ? a.lastSeen.day : -1;
-      const bd = b.lastSeen && Number.isInteger(b.lastSeen.day) ? b.lastSeen.day : -1;
-      if (bd !== ad) return bd - ad;
-      return nameOf(a).localeCompare(nameOf(b)) || idOf(a).localeCompare(idOf(b));
-    });
+    const clock = Number.isInteger(today) ? today : copy.reduce((max, cat) => Math.max(max, dayOf(cat)), 0);
+    for (const cat of copy) {
+      if (!cat.lastSeen) continue;
+      const seenDay = Number.isInteger(cat.lastSeen.day) ? cat.lastSeen.day : null;
+      cat.lastSeen = {
+        zoneId: cat.lastSeen.zoneId,
+        when: cat.lastSeen.when || (seenDay == null ? null : lastSeenWord(seenDay, clock))
+      };
+    }
     return copy;
   }
 
   return {
     HISTORY_CAP, TEMPLATE, HEARD_KEY, emptyBag, seed, migrate, note, noteTrait, noteVisible, noteGossip, sync,
-    toggleFavorite, isFavorite, ageWord, listCats, filterCats, sortCats
+    toggleFavorite, isFavorite, ageWord, lastSeenWord, listCats, filterCats, sortCats
   };
 });

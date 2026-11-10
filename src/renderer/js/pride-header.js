@@ -7,12 +7,23 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.PrideHeader = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
+  function loadConfig() {
+    if (typeof require === 'function') {
+      try { return require('../data/pride-rules.json'); } catch (e) { /* browser */ }
+    }
+    return { pride: { foodMembers: 'adults+cubs' }, claim: { strongAt: 80, heldAt: 50 } };
+  }
+  const rules = loadConfig();
   const UNITS_PER_DAY = 12;
 
+  function countsAsMouth(member) {
+    if (rules.pride.foodMembers === 'adults') return !member || member.stage !== 'cub';
+    return true;
+  }
   function memberCount(pride) {
     if (!pride) return 0;
     if (Number.isInteger(pride.members) && pride.members > 0) return pride.members;
-    if (Array.isArray(pride.members)) return pride.members.length;
+    if (Array.isArray(pride.members)) return pride.members.filter(countsAsMouth).length;
     if (Number.isInteger(pride.memberCount) && pride.memberCount > 0) return pride.memberCount;
     return 0;
   }
@@ -33,6 +44,19 @@
     if (days < 3) return 'Running low';
     if (days < 6) return 'Enough for now';
     return 'Plenty';
+  }
+  /**
+   * Contested wins over the strength word. Otherwise Strong, Held, or Slipping
+   * from the holder's claim.
+   */
+  function claimWord(ownership) {
+    if (!ownership) return null;
+    if (ownership.state === 'contested' || ownership.disputedBy) return 'Contested';
+    const claim = Number.isFinite(ownership.claim) ? ownership.claim
+      : (ownership.claims && ownership.holder ? ownership.claims[ownership.holder] : 0) || 0;
+    if (claim >= rules.claim.strongAt) return 'Strong';
+    if (claim >= rules.claim.heldAt) return 'Held';
+    return 'Slipping';
   }
 
   function bagFacts(state) {
@@ -108,5 +132,5 @@
     return s.pride;
   }
 
-  return { UNITS_PER_DAY, memberCount, foodDays, headerFood, headerThreat, migrateFood };
+  return { UNITS_PER_DAY, memberCount, foodDays, headerFood, headerThreat, claimWord, migrateFood };
 });

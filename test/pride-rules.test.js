@@ -61,6 +61,11 @@ test('hunter stores a medium kill, and a daily order overrides the role', () => 
   assert.strictEqual(hunter.delta.hunt.prey, 'medium');
   assert.strictEqual(hunter.delta.hunt.chance, 55);
   assert.strictEqual(hunter.delta.hunt.gained, hunter.delta.hunt.ok ? 50 : 0);
+  const crowded = Rules.clone(Rules.sample());
+  crowded.roster.push({ id: 'cub', stage: 'cub', status: 'member', fight: 4 });
+  const again = Rules.actions.assignHunter(crowded);
+  assert.strictEqual(again.delta.hunt.gained, again.delta.hunt.ok ? Rules.config.pride.hunterKillFood : 0);
+  assert.strictEqual(Rules.config.pride.hunterKillPerMember, false);
   const ordered = Rules.actions.orderHunt(Rules.sample());
   assert.strictEqual(ordered.state.pride.orders.briar, 'hunt');
   assert.strictEqual(ordered.delta.hunt.chance, 50);
@@ -74,6 +79,12 @@ test('a guard counts one tenth more, and a cub-sitter covers cubs unless the sto
   const open = Rules.defendStrength(base);
   const guarded = Rules.actions.assignGuard(Rules.clone(base));
   assert.ok(Math.abs(guarded.delta.strength - (open + 1)) < 1e-9);
+  const two = Rules.clone(base);
+  two.roster.push({ id: 'second', stage: 'adult', status: 'member', fight: 10 });
+  two.pride.roles.briar = 'guard';
+  two.pride.roles.second = 'guard';
+  assert.strictEqual(Rules.defendStrength(two), 31);
+  assert.strictEqual(Rules.config.pride.guardStacks, false);
   const cared = Rules.actions.assignCubSitter(Rules.clone(base));
   assert.strictEqual(cared.delta.starvingExtra, 0);
   const empty = Rules.clone(base);

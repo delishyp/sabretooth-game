@@ -62,7 +62,24 @@ test('food words hit every band edge and never print a number', () => {
   assert.strictEqual(one(12, 0), 'Nothing left');
   assert.strictEqual(one(12, []), 'Nothing left');
   assert.strictEqual(Header.headerFood({ food: 108, members: ['a', 'b', 'c'] }), 'Enough for now');
+  const at = (days) => Header.headerFood({ food: days * 12, members: 1 });
+  assert.strictEqual(at(0.99), 'Nothing left');
+  assert.strictEqual(at(1), 'Running low');
+  assert.strictEqual(at(2.5), 'Running low');
+  assert.strictEqual(at(2.99), 'Running low');
+  assert.strictEqual(at(3), 'Enough for now');
+  assert.strictEqual(at(5.5), 'Enough for now');
+  assert.strictEqual(at(5.99), 'Enough for now');
+  assert.strictEqual(at(6), 'Plenty');
   for (const word of WORDS) assert.ok(!/\d/.test(word), word);
+});
+
+test('a contested claim is Contested ahead of Strong, Held, or Slipping', () => {
+  assert.strictEqual(Header.claimWord({ state: 'held', claim: 90 }), 'Strong');
+  assert.strictEqual(Header.claimWord({ state: 'held', claim: 60 }), 'Held');
+  assert.strictEqual(Header.claimWord({ state: 'held', claim: 40 }), 'Slipping');
+  assert.strictEqual(Header.claimWord({ state: 'contested', claim: 90, disputedBy: 'bonefield' }), 'Contested');
+  assert.strictEqual(Header.claimWord({ holder: 'highcrag', disputedBy: 'bonefield', claims: { highcrag: 80, bonefield: 70 } }), 'Contested');
 });
 
 test('the threat word uses only a fact the player knows', () => {

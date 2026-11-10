@@ -227,7 +227,7 @@ Everything is reachable. Longest home-to-home pride trip is about 3 hops.
 | `lost_trail` | Waste the day (no hunt); −10 Energy | pinewood fog |
 
 6.3 Style mult on injury hazards: Story ×0.5, Standard ×1, Sim ×1.5 (play-styles §2.3), same as fight injuries.
-6.4 Region `danger` 0–3 from the lean draft is **derived** for UI as: max daily hazard % band → 0 (<2), 1 (2–5), 2 (6–10), 3 (>10). Flint may show either.
+6.4 Region `danger` 0–3 is **derived**: sum the daily hazard percentages for the season, then band that total → 0 (≤1), 1 (≤5), 2 (≤10), 3 (above 10). The score is capped at 3.
 
 ---
 
