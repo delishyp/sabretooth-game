@@ -101,7 +101,10 @@
         return (k.prideIds || []).includes(npc.faction) || (k.participantIds || []).includes(npc.id) || (k.witnessIds || []).includes(npc.id) || (k.disclosedTo || []).includes(npc.id);
       });
       for (let i = 0; i < ids.length; i++) {
-        const line = Pass2.gossipPhrase(ids[i], s.runId, phraseCtx);
+        const row = known[ids[i]];
+        const line = Pass2.gossipPhrase(ids[i], s.runId, Object.assign({}, phraseCtx, {
+          listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
+        }));
         if (line) return { id: ids[i], line };
       }
       return null;
@@ -122,7 +125,12 @@
       const beats = Pass2.openingBeats(row.kind, npc);
       const told = row.kind === 'ford_friend' ? gossipFact(s, npc, ctx) : null;
       if (told && told.line) {
-        beats.push({ kind: 'speech', speaker: npc.name, text: Pass2.lines()['followups.js:gossipBeat'].replace('{fact}', told.line) });
+        const line = told.line;
+        if (line && typeof line === 'object') {
+          const parts = Array.isArray(line.parts) ? line.parts : [];
+          const text = parts.map((part) => (part && (part.say || part.beat)) || '').filter(Boolean).join(' ');
+          beats.push({ kind: 'speech', speaker: npc.name, speakerId: line.speaker || null, parts, text });
+        } else beats.push({ kind: 'speech', speaker: npc.name, text: Pass2.lines()['followups.js:gossipBeat'].replace('{fact}', line) });
         learn(s, told.id);
       }
       return {

@@ -382,8 +382,17 @@
       cubPride: (cubId) => {
         const cub = s.npcs && s.npcs[cubId];
         return cub && cub.faction || null;
-      }
+      },
+      listenerParticipated: !!(opts && opts.listenerParticipated)
     };
+  }
+  function gossipBeat(speaker, line, template) {
+    if (line && typeof line === 'object') {
+      const parts = Array.isArray(line.parts) ? line.parts : [];
+      const text = parts.map((part) => (part && (part.say || part.beat)) || '').filter(Boolean).join(' ');
+      return { kind: 'speech', speaker: speaker, speakerId: line.speaker || null, parts, text };
+    }
+    return { kind: 'speech', speaker, text: String(template || '').replace('{fact}', line || '') };
   }
   function speakableFact(s, factId, opts) {
     return Pass2.gossipPhrase(factId, s && s.runId, phraseCtx(s, opts));
@@ -441,13 +450,15 @@
       beats.push({ kind: 'narration', speaker: 'npc', text: OPENERS[kind] || OPENERS.baseline });
       facts = knownFacts(s, picked.id, opts.knowsFact || (() => false));
       let told = null;
+      const knowledge = s.worldMemory && s.worldMemory.knowledge || {};
       for (const id of facts) {
-        const line = speakableFact(s, id, opts);
+        const row = knowledge[id];
+        const line = speakableFact(s, id, Object.assign({}, opts, {
+          listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
+        }));
         if (line) { told = line; gossipSourceId = id; break; }
       }
-      if (told) {
-        beats.push({ kind: 'speech', speaker: picked.name, text: Pass2.lines()['lone-actions.js:gossipBeat'].replace('{fact}', told) });
-      }
+      if (told) beats.push(gossipBeat(picked.name, told, Pass2.lines()['lone-actions.js:gossipBeat']));
     }
     const knows = opts.knowsFact || (() => false);
     const playerFacts = picked ? knownFacts(s, 'player', knows).filter((id) => !facts.includes(id)) : [];

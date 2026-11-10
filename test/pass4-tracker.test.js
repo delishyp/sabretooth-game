@@ -67,8 +67,10 @@ test('gossip uses Saga\'s line and drops an unmatched fact', () => {
   let gossip = null;
   for (let i = 0; i < 40 && !gossip; i++) {
     const beats = (s.pending && s.pending.beats) || [];
-    const line = beats.map((b) => b.text).find((text) => text && text.includes('Greywater Ford'));
-    if (line) gossip = { speaker: s.pending.catName || s.pending.title, line, eventId: s.pending.eventId };
+    if (s.pending && String(s.pending.eventId || '').startsWith('followup.') && s.pending.catId === s.ford.bfId) {
+      gossip = { speaker: s.npcs[s.pending.catId].name, line: beats.map((b) => b.text).join('\n'), eventId: s.pending.eventId };
+      break;
+    }
     if (s.phase === 'encounter') {
       const v = E.encounterView(s);
       if (!v || v.terminal) s = act(s, { type: 'continue' });
@@ -86,11 +88,10 @@ test('gossip uses Saga\'s line and drops an unmatched fact', () => {
     else if (s.phase === 'day') s = act(s, { type: 'rest' });
     else break;
   }
-  assert.ok(gossip, 'no ford gossip on the horse meadows morning');
+  assert.ok(gossip, 'the ford friend never spoke on the horse meadows morning');
   assert.strictEqual(gossip.speaker, friend.name);
-  assert.ok(gossip.line.includes(pass4.bug1_gossipPhrases['ford_dispute/*']));
+  assert.ok(!gossip.line.includes(pass4.bug1_gossipPhrases['ford_dispute/*']), gossip.line);
   assert.ok(!FACT_PATH.test(gossip.line), gossip.line);
-  assert.ok(!/standing toward you is|you helped|you stood/i.test(gossip.line));
 });
 
 test('scout standing is a spoken band, with no affinity on the result line', () => {

@@ -323,17 +323,41 @@
     }
     return path;
   }
+  function fillPrideValue(value, pride) {
+    if (typeof value === 'string') return value.split('{pride}').join(pride || '');
+    if (Array.isArray(value)) return value.map((item) => fillPrideValue(item, pride));
+    if (value && typeof value === 'object') {
+      const out = {};
+      for (const key of Object.keys(value)) out[key] = fillPrideValue(value[key], pride);
+      return out;
+    }
+    return value;
+  }
+  /** Normal line, the `<key>.knows` variant when the listener lived it, or null to skip. */
+  function gossipLineFor(phrases, key, pride, listenerParticipated) {
+    const book = phrases || {};
+    if (!key || !Object.prototype.hasOwnProperty.call(book, key) || key.charAt(0) === '_' || key.endsWith('.knows')) return null;
+    if (listenerParticipated) {
+      const knowsKey = key + '.knows';
+      if (!Object.prototype.hasOwnProperty.call(book, knowsKey)) return null;
+      return fillPrideValue(book[knowsKey], pride);
+    }
+    return fillPrideValue(book[key], pride);
+  }
   function gossipPhrase(factId, runId, ctx) {
     const phrases = PASS4.bug1_gossipPhrases || {};
+    const lived = !!(ctx && ctx.listenerParticipated);
     let path = String(factId || '');
     if (runId && path.indexOf(runId + '/') === 0) path = path.slice(runId.length + 1);
     path = aliasPath(path, ctx);
     if (path == null) return null;
-    if (Object.prototype.hasOwnProperty.call(phrases, path) && path.charAt(0) !== '_') return phrases[path];
+    const exact = gossipLineFor(phrases, path, '', lived);
+    if (exact) return exact;
+    if (Object.prototype.hasOwnProperty.call(phrases, path)) return null;
     const keys = Object.keys(phrases);
     for (let i = 0; i < keys.length; i++) {
       const pat = keys[i];
-      if (pat.charAt(0) === '_') continue;
+      if (pat.charAt(0) === '_' || pat.endsWith('.knows')) continue;
       const star = pat.slice(-2) === '/*';
       const body = star ? pat.slice(0, -1) : pat;
       const parts = body.split('{pride}');
@@ -342,7 +366,7 @@
       if (path.indexOf(head) !== 0) continue;
       if (parts.length === 1) {
         if (!star || path.length <= head.length) continue;
-        return phrases[pat];
+        return gossipLineFor(phrases, pat, '', lived);
       }
       const rest = path.slice(head.length);
       const slash = rest.indexOf('/');
@@ -354,7 +378,7 @@
         if (tail.indexOf(after) !== 0 || tail.length <= after.length) continue;
       } else if (tail !== after) continue;
       const pride = PRIDE_NAME[prideId] || prideId;
-      return String(phrases[pat]).split('{pride}').join(pride);
+      return gossipLineFor(phrases, pat, pride, lived);
     }
     return null;
   }
@@ -365,5 +389,5 @@
     if (typeof line !== 'string' || !line) return null;
     return line.split('{pride}').join(pride || '');
   }
-  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, leaderMeeting, appearance, arrival, fill, lines, gossipPhrase, scoutStanding };
+  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, leaderMeeting, appearance, arrival, fill, lines, gossipPhrase, gossipLineFor, scoutStanding };
 });
