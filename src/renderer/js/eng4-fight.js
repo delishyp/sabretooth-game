@@ -80,9 +80,9 @@
     return hit;
   }
   function sensible(m, o, rng, af, tel) {
-    if (tel === 'pounce') return 'defend';
+    if (tel === 'pounce' && af.indexOf('defend') !== -1) return 'defend';
     if ((o.open || o.shaken) && af.indexOf('pounce') !== -1) return 'pounce';
-    if (m.last === 'bite' && m.rep >= 1) return af.indexOf('swipe') !== -1 ? 'swipe' : 'defend';
+    if (m.last === 'bite' && m.rep >= 1 && af.indexOf('swipe') !== -1) return 'swipe';
     if (af.indexOf('bite') !== -1) return 'bite';
     return af.indexOf('swipe') !== -1 ? 'swipe' : 'defend';
   }

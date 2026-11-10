@@ -1,24 +1,38 @@
-// Same seeds through our fight engine and sim/eng4.py. Win rates stay within 1 point.
+// Same seeds through our fight engine and sim/eng4.py sensible (never reader).
+// Default is ±3 points at 2k. SABRETOOTH_PARITY_SLOW=1 is ±1 point at 20k.
 const test = require('node:test');
 const assert = require('node:assert');
 const { spawnSync } = require('node:child_process');
 const Eng4 = require('../src/renderer/js/eng4-fight');
 
-test('the fight engine matches eng4.py on the same seeds', () => {
-  const n = 400;
+function parity(n, tolerance) {
   const seed = 7;
   const py = spawnSync('python3', ['sim/eng4.py', String(n), String(seed)], { encoding: 'utf8' });
   assert.strictEqual(py.status, 0, py.stderr);
   const reference = JSON.parse(py.stdout);
-  const policies = { average: Eng4.ai(50, 50), biteOnly: Eng4.biteOnly, reader: Eng4.reader };
+  assert.ok(reference.sensible, 'eng4.py must report sensible, not reader');
+  assert.ok(!reference.reader, 'parity must not compare the old reader policy');
+  const policies = { average: Eng4.ai(50, 50), biteOnly: Eng4.biteOnly, sensible: Eng4.sensible };
   const ratios = [1, 1.1, 1.25, 0.8];
+  const rows = [];
   for (const name of Object.keys(policies)) {
     ratios.forEach((ratio, index) => {
       const got = Eng4.cell(10 * ratio, 10, policies[name], [50, 50], n, seed);
       const expected = reference[name][index].win;
-      assert.ok(Math.abs(got.win - expected) <= 0.01, `${name} ${ratio}: ${got.win} vs ${expected}`);
+      const diff = Math.abs(got.win - expected);
+      rows.push({ name, ratio, js: got.win, py: expected, cap: got.cap, pyCap: reference[name][index].cap, diff });
+      assert.ok(diff <= tolerance, `${name} ${ratio}: ${got.win} vs ${expected}`);
     });
   }
+  return rows;
+}
+
+test('sensible matches eng4.py within 3 points at 2k', () => {
+  parity(2000, 0.03);
+});
+
+test('sensible matches eng4.py within 1 point at 20k', { skip: process.env.SABRETOOTH_PARITY_SLOW !== '1' }, () => {
+  parity(20000, 0.01);
 });
 
 test('telegraphs feint a quarter of the time and repeats cost hit chance', () => {

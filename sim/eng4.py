@@ -1,4 +1,4 @@
-"""Fight engine v0.1.2: telegraphed intent (75% honest) plus the repetition penalty.
+"""Fight engine v0.1.2 (Tundra 00984a1): telegraphed intent plus §8.1 sensible.
 
 The move table and the personality weights live here so this file runs on its own.
 They are the eng3 values the reference fight calls.
@@ -54,6 +54,7 @@ def fixed(name):
 
 
 def reader(m, o, r, af, tel):
+    """Older variant. Kept for history. Parity uses sensible, not this."""
     if tel in ('pounce', 'bite') and m['hp'] <= 100:
         return 'defend'
     if (o['open'] or o['shaken']) and 'pounce' in af:
@@ -65,6 +66,22 @@ def reader(m, o, r, af, tel):
     if 'bite' in af:
         return 'bite'
     return 'swipe' if 'swipe' in af else 'defend'
+
+
+def sensible(m, o, r, af, tel):
+    """encounters §8.1 sensible. reader above is an older variant kept for history."""
+    if tel == 'pounce' and 'defend' in af:
+        return 'defend'
+    if (o['open'] or o['shaken']) and 'pounce' in af:
+        return 'pounce'
+    if m['last'] == 'bite' and m['rep'] >= 1 and 'swipe' in af:
+        return 'swipe'
+    if 'bite' in af:
+        return 'bite'
+    return 'swipe' if 'swipe' in af else 'defend'
+
+
+sensible.__name__ = 'reader'  # fight() keys telegraph handling on this name
 
 
 def fight(sA, sB, polA, polB, rng, k=K, maxr=13):
@@ -143,7 +160,7 @@ if __name__ == '__main__':
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 20000
     seed = int(sys.argv[2]) if len(sys.argv) > 2 else 7
     out = {}
-    for nm, p in [('average', ai((50, 50))), ('biteOnly', fixed('bite')), ('reader', reader)]:
+    for nm, p in [('average', ai((50, 50))), ('biteOnly', fixed('bite')), ('sensible', sensible)]:
         out[nm] = []
         for ratio in (1.0, 1.1, 1.25, 0.8):
             win, med, timed = cell(10 * ratio, 10, p, n=n, seed=seed)
