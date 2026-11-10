@@ -2,7 +2,7 @@
 // Blocks marked FIXTURE set state on purpose and are not acceptance of a played run.
 const test = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs'); const path = require('path');
+const fs = require('fs'); const path = require('path'); const os = require('os');
 const Slice = require('../src/renderer/js/slice');
 const D = path.join(__dirname, '../src/renderer/data');
 const j = (f) => JSON.parse(fs.readFileSync(path.join(D, f), 'utf8'));
@@ -324,5 +324,5 @@ test('ordinary loner courtship can pair, found, and reach day 21 without a scrip
   assert.strictEqual(again.records.seasonEndShown, true);
   assert.deepStrictEqual(again.records.matePair, s.records.matePair);
   assert.deepStrictEqual(again.npcs[mate.id].personality, mate.personality);
-  fs.writeFileSync('/tmp/first-season-win.json', JSON.stringify({ seed: s.seed, sex: s.cat.sex, mateId: mate.id, day: s.day }));
+  fs.writeFileSync(path.join(os.tmpdir(), 'first-season-win.json'), JSON.stringify({ seed: s.seed, sex: s.cat.sex, mateId: mate.id, day: s.day }));
 });

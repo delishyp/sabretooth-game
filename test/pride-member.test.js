@@ -1,7 +1,7 @@
 // Pride-member courtship. Ordinary play is unlabeled. FIXTURE blocks set state on purpose.
 const test = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs'); const path = require('path');
+const fs = require('fs'); const path = require('path'); const os = require('os');
 const Slice = require('../src/renderer/js/slice');
 const Speech = require('../src/renderer/js/speech');
 const D = path.join(__dirname, '../src/renderer/data');
@@ -325,6 +325,7 @@ test('ordinary play can take one pride cat from consent through departure, found
     assert.strictEqual(fought.lethal, false);
     assert.ok(qualified.some((n) => n.id === fought.rivalId));
   }
-  fs.writeFileSync('/tmp/pride-path.json', JSON.stringify({ seed: s.seed, faction: s.records.departure.from, mateId: mate.id, sex: s.cat.sex, day: s.day, fights: s.records.fights.length }));
-  console.log('PRIDE PATH', fs.readFileSync('/tmp/pride-path.json', 'utf8'));
+  const pridePath = path.join(os.tmpdir(), 'pride-path.json');
+  fs.writeFileSync(pridePath, JSON.stringify({ seed: s.seed, faction: s.records.departure.from, mateId: mate.id, sex: s.cat.sex, day: s.day, fights: s.records.fights.length }));
+  console.log('PRIDE PATH', fs.readFileSync(pridePath, 'utf8'));
 });
