@@ -204,9 +204,11 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .home-nav .nav-state { font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: #d7c4a4; }
 .home-nav button.is-unavailable { color: #b7aa9a; opacity: .72; border: 1px dashed rgba(212, 176, 122, .55); background: rgba(20, 14, 10, .55); }
 .home-dock { position: absolute; z-index: 3; top: 104px; right: 16px; width: 420px; max-height: calc(100% - 124px); overflow: hidden; display: flex; flex-direction: column; padding: 14px 16px 16px; background: rgba(20, 13, 9, .82); border: 1px solid rgba(212, 176, 122, .65); box-shadow: inset 0 0 0 1px rgba(243, 221, 176, .15); border-radius: 12px; min-width: 0; }
-#home-panel, #dock-kept { flex: 0 0 auto; }
+#home-panel, #dock-kept { flex: 0 0 auto; min-width: 0; }
+#home-panel:has(.home-cats) { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+.home-cats { padding-bottom: 16px; }
 #dock-kept .game-report { margin-top: 8px; max-height: 9.5em; overflow: auto; }
-.home-dock .game-region { flex: 0 1 auto; max-height: 34%; overflow: auto; }
+.home-dock .game-region { flex: 0 0 auto; max-height: none; overflow: visible; }
 .home-dock .game-actions { flex: 1 1 auto; min-height: 72px; overflow-x: hidden; overflow-y: auto; }
 .home-panel-title { font-size: 28px; letter-spacing: 2px; margin: 0 0 8px; color: #f6efe2; }
 .home-facts { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; margin: 0 0 12px; font-size: 18px; }
@@ -218,7 +220,8 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .region-biome { font-size: 16px; color: #d4b07a; text-transform: uppercase; letter-spacing: 3px; }
 .region-facts { display: grid; grid-template-columns: minmax(0, 130px) minmax(0, 1fr); gap: 6px 12px; font-size: 18px; margin: 12px 0; }
 .region-facts dt { color: #d4b07a; } .region-facts dd { margin: 0; }
-.region-facts dt, .region-facts dd { min-width: 0; white-space: normal; overflow-wrap: anywhere; text-overflow: clip; }
+.region-facts dt, .region-facts dd { min-width: 0; white-space: normal; overflow: visible; overflow-wrap: anywhere; text-overflow: unset; height: auto; max-height: none; }
+.region-claim { margin: 0 0 12px; font-size: 18px; line-height: 1.45; color: #f6efe2; white-space: normal; overflow: visible; overflow-wrap: break-word; text-overflow: unset; height: auto; max-height: none; }
 .danger-2, .danger-3 { color: #ffb4a8; }
 .region-desc { font-size: 17px; color: #e7d3b4; font-style: italic; margin: 0 0 12px; }
 .game-actions { display: flex; flex-direction: column; gap: 12px; }
@@ -263,9 +266,9 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .conversation-card .event-cast { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; width: 100%; }
 .conversation-card .event-cast-name { font-family: var(--font-title); font-size: 32px; letter-spacing: 1px; color: #f6efe2; }
 .conversation-card .event-affinity { flex: 0 0 auto; margin: 0; width: 100%; text-align: left; }
-.conversation-card .event-scroll { flex: 1 1 auto; min-height: 96px; max-height: 140px; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding: 10px 12px; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
+.conversation-card .event-scroll { flex: 1 1 auto; align-self: stretch; min-height: 0; max-height: none; height: auto; overflow-x: hidden; overflow-y: auto; width: 100%; text-align: left; padding: 10px 12px 14px; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
 .conversation-card .event-scroll.focused, .conversation-card .event-scroll:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.encounter-card .event-scroll { flex: 0 0 auto; min-height: 64px; max-height: 88px; }
+.encounter-card .event-scroll { flex: 1 1 auto; align-self: stretch; min-height: 0; max-height: none; height: auto; overflow-x: hidden; overflow-y: auto; }
 .encounter-card .event-title { margin: 0; }
 .encounter-art { box-sizing: border-box; flex: 0 0 auto; width: fit-content; max-width: 100%; align-self: center; margin: 0 auto; padding: 12px; background: #31241D; border-radius: 8px; }
 .encounter-art img { display: block; width: auto; height: 420px; max-width: 100%; object-fit: contain; object-position: center; background: #31241D; }
@@ -273,13 +276,13 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 @media (max-height: 800px) {
   .encounter-card.conversation-card { padding: 8px 14px; gap: 6px; }
   .encounter-card .event-title { font-size: 28px; }
-  .encounter-card .event-scroll { min-height: 48px; max-height: 64px; }
+  .encounter-card .event-scroll { min-height: 0; max-height: none; }
   .encounter-art { padding: 12px; }
   .encounter-art img { height: 360px; }
 }
 @media (min-height: 1000px) {
   .encounter-art img { height: 460px; }
-  .encounter-card .event-scroll { min-height: 72px; max-height: 96px; }
+  .encounter-card .event-scroll { min-height: 0; max-height: none; }
 }
 .encounter-inspect { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(8, 5, 3, .78); }
 .encounter-inspect[hidden] { display: none; }
@@ -314,7 +317,8 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .action-group.is-bond button.is-court { background: #1c3a28; border-color: #8fbf9a; }
 .action-group.is-bond button.is-found { background: #3a2e14; border-color: #e6c98a; }
 .bond-card.conversation-card { overflow: hidden; }
-.bond-card .event-scroll { flex: 0 1 auto; max-height: 132px; }
+.bond-card .event-scroll { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; }
+.event-scroll .event-text { overflow: visible; display: block; line-height: 1.45; }
 .bond-card .bond-choices { display: flex; flex-direction: column; gap: 14px; width: 100%; margin-top: 8px; padding: 14px; box-sizing: border-box; background: #142018; border: 2px solid #7dba8a; border-radius: 10px; flex: 1 1 auto; min-height: 180px; overflow-x: hidden; overflow-y: auto; }
 .bond-card .bond-choices button { flex: 0 0 auto; min-height: 56px; font-size: 22px; line-height: 1.35; padding: 12px 18px; white-space: normal; text-align: left; border-width: 2px; border-radius: 8px; }
 .bond-card .bond-choices button.is-court { background: #1c3a28; border-color: #8fbf9a; }

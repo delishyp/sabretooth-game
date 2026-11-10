@@ -438,8 +438,8 @@
       fact('prey', t(`game.prey.${W.preyFor(s.region, se)}`));
       fact('danger', t(`game.danger.${W.danger(s.region, se)}`), `danger-${W.danger(s.region, se)}`);
       fact('water', t(W.hasWater(s.region, se) ? 'game.water.yes' : 'game.water.no'));
-      fact('owner', owner);
       c.append(dl);
+      c.append(el('p', 'region-claim', `${t('game.region.owner')} ${owner}`));
       const dk = `map.region.${s.region}.description`;   // Saga, docs/map-copy.md
       c.append(el('p', 'region-desc', t.has(dk) ? t(dk) : t('game.region.descTodo')));
     }
