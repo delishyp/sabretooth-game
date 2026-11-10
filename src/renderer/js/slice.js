@@ -1024,7 +1024,7 @@
           rep.push({ k: 'meetLoner', catId: n.id });
           const followed = meetingFollow(s, n);
           if (followed) { meet(s, n); return followed; }
-          if (n.met) return Pair.enabled ? attachVoice(Pair.meetingEvent(s, n, bondDeps(s, rep))) : null;
+          if (n.met) return Pair.enabled ? attachVoice(Pair.meetingEvent(s, n, bondDeps(s, rep)), s) : null;
           const e = eventFor('first_meeting', 'loner'); meet(s, n);
           return e ? bind(e, n, { day: s.day }) : null;
         }
@@ -1082,7 +1082,7 @@
       const followed = meetingFollow(s, npc);
       if (followed) { meet(s, npc); s.pending = followed; s.phase = 'event'; return { state: s }; }
       if (Pair.enabled) {
-        const ev = attachVoice(Pair.meetingEvent(s, npc, bondDeps(s, [])));
+        const ev = attachVoice(Pair.meetingEvent(s, npc, bondDeps(s, [])), s);
         if (ev) {
           s.pending = ev;
           s.phase = 'event';
@@ -1311,12 +1311,22 @@
       s.saveVersion = R.saveVersion;
       return s;
     }
-    function attachVoice(ev) {
+    function settleBeatText(beats, ctx) {
+      if (!Array.isArray(beats) || !ctx || !ctx.npc) return;
+      for (const beat of beats) {
+        if (!beat || typeof beat.text !== 'string' || !/\{[A-Za-z0-9_]+\}/.test(beat.text)) continue;
+        const shown = Beats.line(beat, ctx);
+        if (shown && typeof shown.text === 'string') beat.text = shown.text;
+      }
+    }
+    function attachVoice(ev, state) {
       if (!ev || ev.beats || !ev.eventId) return ev;
       const extra = beatsByEvent[ev.eventId];
       if (!extra || !Array.isArray(extra.beats)) return ev;
       ev.beats = extra.beats.map((b) => Object.assign({}, b));
       ev.beatIndex = ev.beatIndex || 0;
+      const npc = state && ev.catId && state.npcs ? state.npcs[ev.catId] : null;
+      settleBeatText(ev.beats, { player: state && state.cat, npc, injured: !!(state && state.injuries && state.injuries.length) });
       return ev;
     }
     /** Four beats: biome/size opener, two size hit-or-miss beats, biome closer. Null keeps the one-line fallback. */
@@ -1360,7 +1370,7 @@
       return hunt.ok ? CardWords.hunger(hunt.ate) : 'The prey escaped';
     }
     function attachVoiceHunt(s, rep, ev) {
-      const next = attachVoice(ev);
+      const next = attachVoice(ev, s);
       const hunt = (rep || []).find((l) => l.k === 'hunt');
       if (!hunt || s.dead || hunt.foal) return next;
       const scene = huntScene(s, hunt);
@@ -1581,6 +1591,7 @@
         beats = e && e.beats ? e.beats : null;
       }
       if (!beats) return null;
+      if (beats === p.beats) settleBeatText(beats, beatContext(s));
       const aside = asideBeat(s, p);
       const visible = Beats.visible(aside ? [aside].concat(beats) : beats, beatContext(s));
       if (Directory) {

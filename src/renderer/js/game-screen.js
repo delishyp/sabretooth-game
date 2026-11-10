@@ -100,9 +100,26 @@
     }
     if (s.pending && s.pending.showPortrait && s.pending.catId && s.npcs[s.pending.catId]) return s.npcs[s.pending.catId];
     const beats = resultCardBeats((hooks.sceneBeats && hooks.sceneBeats(s)) || (s.pending && s.pending.beats) || [], s.phase);
-    if (!beats.length) return null;
-    const idx = Math.min((s.pending && s.pending.beatIndex) || 0, beats.length - 1);
-    return resolveSpeaker(s, beats[idx]);
+    return headForBeats(s, beats);
+  }
+  /** Current beat's cat, or the card's speaking cat when this beat is only narration. */
+  function headForBeats(s, beats) {
+    const list = beats || [];
+    if (!s || !list.length) return null;
+    const pending = s.pending || {};
+    const idx = Math.min(pending.beatIndex || 0, list.length - 1);
+    const current = resolveSpeaker(s, list[idx]);
+    const mother = pending.motherId && s.npcs && s.npcs[pending.motherId];
+    if (current && !(pending.cubId && current.id === pending.cubId && mother)) return current;
+    if (mother && (pending.eventId === 'lone.cub' || pending.cub || pending.cubId)) return mother;
+    if (current) return current;
+    if (pending.eventId === 'lone.scent') {
+      for (const beat of list) {
+        const who = resolveSpeaker(s, beat);
+        if (who) return who;
+      }
+    }
+    return null;
   }
   /** Same portrait frame the speech cards already use. */
   function appendSpeakerHead(card, npc, paint) {
@@ -743,7 +760,7 @@
       const idx = Math.min(s.pending.beatIndex || 0, beats.length - 1);
       const beat = beats[idx];
       const shown = (typeof Beats !== 'undefined' ? Beats : E.beats).line(beat, E.beatContext(s));
-      const npc = resolveSpeaker(s, Object.assign({}, beat, shown));
+      const npc = headForBeats(s, beats);
       if (npc) appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const prose = el('div', 'event-beat');
       prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
@@ -954,5 +971,5 @@
       state: () => s, setState: (x) => { s = x; }, run: () => run, act, lastSaved: () => lastSaved, busy: () => busy
     };
   }
-  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence, resolveSpeaker, sceneHead, appendSpeakerHead };
+  return { create, presentationPrideName, factionStandingText, killShareText, signedNumber, resultCardBeats, speechLine, sparLockDisplay, deerCostText, sizeInSentence, resolveSpeaker, sceneHead, headForBeats, appendSpeakerHead };
 });

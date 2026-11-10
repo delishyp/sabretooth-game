@@ -145,7 +145,7 @@ test('seed 8 cards that name a speaker all draw that cat\'s head', () => {
   function check(s, label) {
     const speaker = Screen.sceneHead(s, hooks());
     if (!speaker) return;
-    const key = `${s.phase}:${(s.pending && s.pending.eventId) || label}`;
+    const key = `${s.phase}:${(s.pending && s.pending.eventId) || label}:${(s.pending && s.pending.beatIndex) || 0}`;
     if (seen.has(key)) return;
     painted.length = 0;
     const head = paintCard(screen, s);
@@ -164,14 +164,20 @@ test('seed 8 cards that name a speaker all draw that cat\'s head', () => {
   assert.ok(scent && scent.pending && scent.pending.eventId === 'lone.scent');
   const catBeat = (scent.pending.beats || []).findIndex((beat) => beat.speakerId);
   assert.ok(catBeat >= 0, 'the scent card never names a cat');
+  const speakerId = scent.pending.beats[catBeat].speakerId;
+  scent.pending.beatIndex = 0;
+  assert.strictEqual(Screen.sceneHead(scent, hooks()).id, speakerId, 'the scent card keeps the speaking cat on the opener');
+  check(scent, 'lone.scent');
   scent.pending.beatIndex = catBeat;
-  assert.strictEqual(Screen.sceneHead(scent, hooks()).id, scent.pending.beats[catBeat].speakerId);
+  assert.strictEqual(Screen.sceneHead(scent, hooks()).id, speakerId);
   check(scent, 'lone.scent');
 
   let cub = E.newRun({ mainCat: player, seed: 8, runId: 'seed-8-cub' });
   cub.needs.energy = 90;
   cub = act(cub, { type: 'helpCub' });
   assert.strictEqual(cub.pending.eventId, 'lone.cub');
+  assert.notStrictEqual(Screen.sceneHead(cub, hooks()).id, cub.pending.cubId);
+  assert.strictEqual(Screen.sceneHead(cub, hooks()).id, cub.pending.motherId);
   check(cub, 'lone.cub');
   cub = act(cub, { type: 'sceneChoose', choiceId: 'guide' });
   assert.ok((cub.pending.beats || []).some((beat) => beat.text && beat.text.includes('walk beside')));
@@ -199,7 +205,7 @@ test('seed 8 cards that name a speaker all draw that cat\'s head', () => {
     walk = next;
   }
 
-  assert.ok(seen.has('event:lone.scent'), [...seen.keys()].join(','));
+  assert.ok([...seen.keys()].some((key) => key.includes('lone.scent')), [...seen.keys()].join(','));
   assert.ok([...seen.keys()].some((key) => key.includes('lone.cub')), [...seen.keys()].join(','));
   assert.ok(seen.size >= 2, [...seen.keys()].join(','));
 });

@@ -791,12 +791,12 @@
     if ((s.needs.energy || 0) < 15) return { error: 'tired' };
     s.needs.energy -= 15;
     s.records.cubPrideDay[offer.pride] = s.day;
-    const cub = s.npcs[offer.cubId];
+    const motherNpc = s.npcs[offer.motherId];
     return {
       event: {
         lone: true, cub: true, eventId: 'lone.cub', title: 'A cub',
         pride: offer.pride, cubId: offer.cubId, motherId: offer.motherId,
-        beats: [{ kind: 'narration', text: fillTokens(LINES['cub.intro'], { pride: offer.name }), speaker: cub && cub.name, speakerId: cub && cub.id }],
+        beats: [{ kind: 'narration', text: fillTokens(LINES['cub.intro'], { pride: offer.name }), speaker: motherNpc && motherNpc.name, speakerId: motherNpc && motherNpc.id }],
         beatIndex: 0, day: s.day, choices: [
           { id: 'guide', label: 'Walk the cub back to its mother.' },
           { id: 'ignore', label: 'Leave the cub where it is.' }
