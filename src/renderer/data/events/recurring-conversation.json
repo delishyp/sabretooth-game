@@ -276,23 +276,15 @@
     "fallback": "Did you want to stop here?",
     "choices": [
       {
-        "id": "remember",
-        "label": "“I remember that too.”",
-        "next": "later_check_in"
-      },
-      {
-        "id": "reset_tone",
-        "label": "“Could we try something different today?”",
-        "next": "later_new_tone"
-      },
-      {
         "id": "leave",
         "label": "“Another time.”",
         "outcome": "later_left"
       }
     ],
     "nodes": {
+      "later_opening": { "removed": true },
       "later_check_in": {
+        "removed": true,
         "B": "“And what would you like today?”",
         "choices": [
           {
@@ -308,6 +300,7 @@
         ]
       },
       "later_new_tone": {
+        "removed": true,
         "B": "“Tell me what you have in mind.”",
         "choices": [
           {
@@ -688,12 +681,6 @@
           "label": "Stay for a while.",
           "B": "“Come sit here.”",
           "outcome": "third_neutral_stay"
-        },
-        {
-          "id": "go",
-          "label": "“Not today.”",
-          "B": "“Another time.”",
-          "outcome": "third_neutral_go"
         }
       ]
     },

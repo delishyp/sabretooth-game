@@ -118,7 +118,7 @@ test('AUTHOR PROOF ordinary seed 3: return_quiet keeps one promise and reaches c
   assert.strictEqual(held.length, 1);
   assert.strictEqual(held[0].promise, 'kept');
   assert.strictEqual(held[0].sourceChoiceKey, 'quiet_walk/return_quiet');
-  assert.strictEqual(s.npcs.ln05.affinity, 15);
+  assert.strictEqual(s.npcs.ln05.affinity, 20);
   assert.strictEqual(s.conversation.ledger.filter((row) => row.promiseApplied).length, 1);
 });
 
@@ -140,5 +140,5 @@ test('AUTHOR PROOF ordinary seed 3: the boundary path reaches repair and does no
   assert.strictEqual(s.conversation.cats.ln05.followupOutcome, 'boundary_difference');
   assert.strictEqual(s.conversation.cats.ln05.thirdOutcome, 'third_repair_offer');
   assert.ok(!(s.conversation.cats.ln05.facts || []).some((f) => f.promise === 'kept'));
-  assert.strictEqual(s.npcs.ln05.affinity, -10);
+  assert.strictEqual(s.npcs.ln05.affinity, -5);
 });

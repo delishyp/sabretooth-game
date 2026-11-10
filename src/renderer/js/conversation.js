@@ -8,6 +8,7 @@
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./speech'));
   else root.Conversation = factory(root.Speech);
 })(typeof self !== 'undefined' ? self : this, function (Speech) {
+  const Beats = (typeof require === 'function' ? require('./beats') : (typeof self !== 'undefined' ? self.Beats : null));
   const SCHEMA = 1;
   const TOPIC = {
     left_politely: 'company', quiet_company: 'company', quiet_no_promise: 'company', gave_space: 'company',
@@ -146,11 +147,14 @@
         return { id, opening: true, narration: null, lead: null, speechPath: `/thirdMeeting/${kind}`, B: block.B, choices: block.choices || [] };
       }
       if (id === 'later_opening') {
+        const mark = graph.laterMeeting && graph.laterMeeting.nodes && graph.laterMeeting.nodes.later_opening;
+        if (mark && mark.removed) return null;
         return { id, opening: true, narration: null, lead: null, B: graph.laterMeeting.fallback, choices: graph.laterMeeting.choices || [] };
       }
       if (id === 'later_check_in' || id === 'later_new_tone') {
         const n = graph.laterMeeting.nodes[id];
-        return n ? { id, opening: false, narration: null, lead: null, speechPath: `/laterMeeting/nodes/${id}`, B: n.B, choices: n.choices || [] } : null;
+        if (!n || n.removed) return null;
+        return { id, opening: false, narration: null, lead: null, speechPath: `/laterMeeting/nodes/${id}`, B: n.B, choices: n.choices || [] };
       }
       if (id === 'repeat_fallback') {
         return { id, opening: true, narration: null, lead: null, speechPath: '/laterMeeting/fallback', B: graph.laterMeeting.fallback, choices: [] };
@@ -176,7 +180,7 @@
       const out = [];
       if (r.gap) out.push({ kind: 'gap', text: r.gap });
       if (r.action) out.push({ kind: 'action', text: r.action });
-      if (r.text) out.push({ kind: 'say', speaker: npc.name, text: r.text, variantId: r.variantId });
+      if (r.text) out.push({ kind: 'say', speaker: npc.name, text: (typeof Beats !== 'undefined' && Beats.curlySay) ? Beats.curlySay(r.text) : r.text, variantId: r.variantId });
       return { lines: out, variantId: r.variantId, actionId: r.actionId, characterization: r.characterization };
     }
     function choicePath(node, choice) {

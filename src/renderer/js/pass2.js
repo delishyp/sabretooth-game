@@ -220,10 +220,37 @@
     if (dot <= 0 || dot !== String(key).lastIndexOf('.')) return null;
     return { scene: key.slice(0, dot), id: key.slice(dot + 1) };
   }
-  function choiceLabel(kind, id) {
+  function beatsApi() {
+    if (typeof require === 'function') {
+      try { return require('./beats'); } catch (e) { /* browser global */ }
+    }
+    return typeof Beats !== 'undefined' ? Beats : null;
+  }
+  function labelText(entry) {
+    if (typeof entry === 'string') return entry;
+    if (!entry || typeof entry !== 'object') return '';
+    if (typeof entry.label === 'string') return entry.label;
+    if (typeof entry.default === 'string') return entry.default;
+    if (typeof entry.text === 'string') return entry.text;
+    return '';
+  }
+  function byCatHit(entry, catId) {
+    if (!entry || typeof entry !== 'object' || !entry.byCat || !catId) return null;
+    if (!Object.prototype.hasOwnProperty.call(entry.byCat, catId)) return null;
+    return entry.byCat[catId];
+  }
+  function choiceLabel(kind, id, ctx) {
     const table = choiceTable();
-    const scoped = kind && table[kind + '.' + id];
-    return scoped || table[id] || id;
+    const catId = ctx && (ctx.catId || (ctx.npc && ctx.npc.id) || '');
+    const scoped = kind ? table[kind + '.' + id] : undefined;
+    const base = table[id];
+    const catPick = byCatHit(scoped, catId);
+    const picked = catPick != null ? catPick : byCatHit(base, catId);
+    let raw = picked != null ? (typeof picked === 'string' ? picked : labelText(picked)) : '';
+    if (!raw) raw = typeof scoped === 'string' ? scoped : labelText(scoped);
+    if (!raw) raw = typeof base === 'string' ? base : (labelText(base) || id);
+    const api = beatsApi();
+    return api && ctx ? api.materialize(raw, ctx) : raw;
   }
   function choiceReply(kind, id) {
     const table = replyTable();
@@ -246,8 +273,10 @@
       return { role: 'beat', text: part && part.beat != null ? String(part.beat) : '' };
     });
   }
-  function presentChoice(kind, choiceId, resultBeats) {
-    const reply = choiceReply(kind, choiceId);
+  function presentChoice(kind, choiceId, resultBeats, ctx) {
+    let reply = choiceReply(kind, choiceId);
+    const api = beatsApi();
+    if (reply != null && api && ctx) reply = api.materialize(reply, ctx);
     const result = resultBeats || [];
     if (reply == null) return result.slice();
     return [{ reply: true, log: replyLog(reply) }].concat(result);
@@ -271,6 +300,12 @@
   function validateChoices(table, replies, known) {
     const ids = choiceIds(table);
     Object.keys(table || {}).forEach((key) => {
+      const entry = table[key];
+      if (entry && typeof entry === 'object' && entry.byCat) {
+        Object.keys(entry.byCat).forEach((catId) => {
+          if (known && !knownSpeaker(known, catId) && catId !== 'player') throw new Error('unknown catId ' + catId + ' in ' + key);
+        });
+      }
       if (key.indexOf('.') === -1) return;
       const parts = splitSceneKey(key);
       if (!parts || !SCENE_KINDS.has(parts.scene)) throw new Error('unknown scene ' + (parts && parts.scene || key));

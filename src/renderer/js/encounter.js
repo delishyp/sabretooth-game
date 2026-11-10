@@ -108,7 +108,7 @@
         contextActions[id] = {};
         for (const trait of traits) {
           const cue = cues[trait];
-          if (cue) contextActions[id][trait] = [cue.high, cue.low];
+          if (cue) contextActions[id][trait] = { high: cue.high, low: cue.low, middle: cue.middle };
         }
       }
       return { speechLocations, contextActions };

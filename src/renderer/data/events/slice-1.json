@@ -795,7 +795,7 @@
             "band": "high",
             "who": "npc"
           },
-          "text": "\"Another cat on {his} own!\" {catName}'s stubby tail flicks up. \"I was starting to think I was the only one out here. Is it just you?\""
+          "text": "Another cat on {playerHis} own! {catName}'s stubby tail flicks up. I was starting to think I was the only one out here. Is it just you?"
         },
         {
           "kind": "speech",

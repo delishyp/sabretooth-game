@@ -54,6 +54,52 @@ function talk(s) {
 }
 function roundTrip(s) { return E.migrate(JSON.parse(JSON.stringify(s))); }
 
+test('ending a talk is free, third neutral has one Leave, and nothing routes to a removed node', () => {
+  let s = E.act(meet(fresh()), { type: 'choose', choiceId: 'greet' }).state;
+  s = finish(pick(pick(pick(s, 'company'), 'quiet'), 'no_promise'));
+  s.day = 3;
+  s = finish(pick(talk(s), 'talk_today'));
+  s.day = 5;
+  const third = talk(s);
+  assert.strictEqual(third.conversation.pending.nodeId, 'third:neutral');
+  const view = E.talkView(third);
+  assert.deepStrictEqual(view.choices.map((c) => c.id).sort(), ['leave', 'stay']);
+  assert.ok(!view.choices.some((c) => c.label && c.label.includes('Not today')));
+  const needs = { energy: third.needs.energy, hunger: third.needs.hunger, thirst: third.needs.thirst };
+  const left = pick(third, 'leave');
+  assert.deepStrictEqual(
+    { energy: left.needs.energy, hunger: left.needs.hunger, thirst: left.needs.thirst },
+    needs
+  );
+  assert.strictEqual(left.npcs.ln05.affinity, third.npcs.ln05.affinity);
+
+  const removed = new Set(Object.entries(graph.laterMeeting.nodes).filter(([, node]) => node.removed).map(([id]) => id));
+  assert.deepStrictEqual([...removed].sort(), ['later_check_in', 'later_new_tone', 'later_opening']);
+  const pointed = [];
+  const take = (node) => { for (const choice of (node && node.choices) || []) if (choice.next) pointed.push(choice.next); };
+  take(graph.laterMeeting);
+  for (const node of Object.values(graph.nodes || {})) take(node);
+  for (const block of Object.values(graph.laterMeeting.followupByOutcome || {})) take(block);
+  for (const kind of ['confiding', 'repair', 'neutral']) take(graph.thirdMeeting[kind]);
+  for (const next of pointed) assert.ok(!removed.has(next), next);
+  const ending = [];
+  const gather = (node) => {
+    for (const choice of (node && node.choices) || []) {
+      if (choice.next) continue;
+      if (choice.pause || choice.id === 'leave' || choice.id === 'pause' || choice.outcome === 'later_left' || choice.outcome === 'left_politely' || choice.outcome === 'repeat_fallback_left') ending.push(choice);
+    }
+  };
+  gather(graph.laterMeeting);
+  for (const node of Object.values(graph.nodes || {})) gather(node);
+  for (const block of Object.values(graph.laterMeeting.followupByOutcome || {})) gather(block);
+  for (const kind of ['confiding', 'repair', 'neutral']) gather(graph.thirdMeeting[kind]);
+  assert.ok(ending.length >= 2);
+  for (const choice of ending) {
+    if (!choice.outcome) continue;
+    assert.strictEqual(rules.conversation.outcomeDelta[choice.outcome] || 0, 0, choice.outcome);
+  }
+});
+
 test('graph revision 6 is the authored source the engine loads', () => {
   assert.strictEqual(graph.revision, 6);
   assert.strictEqual(Object.keys(graph.personalityCoverage.speechLocations).length, 76);
@@ -69,7 +115,12 @@ test('tunables are the provisional §11.3a defaults and unlisted outcomes are no
   );
   assert.strictEqual(rules.conversation.outcomeDelta.quiet_company, 5);
   assert.strictEqual(rules.conversation.outcomeDelta.dismissed_boundary, -5);
-  assert.strictEqual(rules.conversation.outcomeDelta.third_confide_listen, 0);
+  assert.strictEqual(rules.conversation.outcomeDelta.third_confide_listen, 5);
+  assert.strictEqual(rules.conversation.outcomeDelta.third_repair_offer, 5);
+  assert.strictEqual(rules.conversation.outcomeDelta.third_confide_limit, 0);
+  assert.strictEqual(rules.conversation.outcomeDelta.third_distance, 0);
+  assert.strictEqual(rules.conversation.outcomeDelta.third_neutral_stay, 0);
+  assert.strictEqual(rules.conversation.outcomeDelta.third_neutral_go, 0);
   assert.strictEqual(rules.saveVersion, 1);
   assert.strictEqual(rules.seasonDays, 20);
 });
@@ -155,7 +206,7 @@ test('quiet company without a promise and a boundary dismissal are different lat
   assert.strictEqual(qDone.conversation.cats.ln05.thirdOutcome, 'third_neutral_stay');
   assert.strictEqual(pDone.conversation.cats.ln05.thirdOutcome, 'third_repair_offer');
   assert.strictEqual(qDone.npcs.ln05.affinity, 0);
-  assert.strictEqual(pDone.npcs.ln05.affinity, -10);
+  assert.strictEqual(pDone.npcs.ln05.affinity, -5);
   assert.deepStrictEqual(ident(qDone.npcs.ln05), ident(fresh().npcs.ln05));
   assert.deepStrictEqual(ident(pDone.npcs.ln05), ident(fresh().npcs.ln05));
   assert.strictEqual(qDone.cat.portraitId, 'cat-6e2d788dd48ff440');
@@ -232,7 +283,7 @@ test('return_quiet is the only quiet promise; a free Leave keeps it pending; a l
   assert.ok(E.talkView(third).lines.some((l) => l.text.includes('You came back, and you let the quiet stay quiet')));
   const done = finish(pick(third, 'listen'));
   assert.strictEqual(done.conversation.cats.ln05.thirdOutcome, 'third_confide_listen');
-  assert.strictEqual(done.npcs.ln05.affinity, 15);
+  assert.strictEqual(done.npcs.ln05.affinity, 20);
   assert.strictEqual(done.conversation.cats.ln05.initialOutcome, 'quiet_company');
 });
 

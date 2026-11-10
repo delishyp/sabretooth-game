@@ -181,11 +181,11 @@
       "space_independent": 0,
       "space_understood": 5,
       "third_confide_limit": 0,
-      "third_confide_listen": 0,
+      "third_confide_listen": 5,
       "third_distance": 0,
       "third_neutral_go": 0,
       "third_neutral_stay": 0,
-      "third_repair_offer": 0,
+      "third_repair_offer": 5,
       "trust_direct": 0,
       "trust_response": 5
     }

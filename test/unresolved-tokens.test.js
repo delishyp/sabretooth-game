@@ -37,10 +37,19 @@ function stringsOf(s) {
   const out = [];
   collect(pending.beats, out);
   collect(pending.lines, out);
-  collect(pending.choices, out);
+  const ctx = E.beatContext(s);
+  for (const choice of pending.choices || []) {
+    if (!choice) continue;
+    if (typeof choice.label === 'string') out.push(E.beats.materialize(choice.label, ctx));
+    if (choice.reply != null) collect(E.beats.materialize(choice.reply, ctx), out);
+  }
+  const library = pending.eventId && E.eventById(pending.eventId);
+  for (const choice of (!pending.choices || !pending.choices.length) && library && library.choices || []) {
+    if (choice && typeof choice.label === 'string') out.push(E.beats.materialize(choice.label, ctx));
+    if (choice && choice.reply != null) collect(E.beats.materialize(choice.reply, ctx), out);
+  }
   if (pending.summary) out.push(pending.summary);
   const beats = E.sceneBeats(s) || [];
-  const ctx = E.beatContext(s);
   for (const beat of beats) {
     collect(beat, out);
     collect(E.beats.line(beat, ctx), out);
@@ -90,6 +99,24 @@ test('seed 8 rendered beats and cub text have no unresolved tokens', () => {
   cub = E.act(cub, { type: 'sceneChoose', choiceId: 'guide' }).state;
   assert.ok((cub.pending.beats || []).some((beat) => beat.text && beat.text.includes(cub.npcs[cub.pending.motherId].name)));
   assertResolved(cub, 'cub help');
+});
+
+test('choice labels and reply blocks are filled before the token scan', () => {
+  const s = E.newRun({ mainCat: player, seed: 8, runId: 'label-fill' });
+  const cat = s.npcs.ln02;
+  s.pending = {
+    eventId: 'lone.scent',
+    catId: cat.id,
+    choices: [{
+      id: 'explain',
+      label: 'Meet {catName}',
+      reply: { speaker: cat.id, parts: [{ beat: '{playerName} waits.' }, { say: 'Hello, {catName}.' }] }
+    }]
+  };
+  s.phase = 'event';
+  assertResolved(s, 'filled label and reply');
+  const ctx = E.beatContext(s);
+  assert.strictEqual(E.beats.materialize('Meet {catName}', ctx), `Meet ${cat.name}`);
 });
 
 test('a choice reply is covered by the unresolved-token scan', () => {

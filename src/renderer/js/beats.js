@@ -40,6 +40,39 @@
   function fill(text, vars) {
     return String(text || '').replace(/\{(\w+)\}/g, (m, k) => (vars && Object.prototype.hasOwnProperty.call(vars, k) ? String(vars[k]) : m));
   }
+  /** Cat speech is stored without quote marks. The renderer adds one pair of curly quotes. */
+  function curlySay(text) {
+    const bare = String(text || '').replace(/^[\s"'“”«»]+|[\s"'“”«»]+$/g, '').replace(/[“”«»]/g, '').trim();
+    if (!bare) return '';
+    return '\u201C' + bare + '\u201D';
+  }
+  /** Fill a label string or a {speaker, parts} reply with the same pronouns as a beat. */
+  function materialize(value, ctx) {
+    if (typeof value === 'string') return fill(value, varsFor(ctx, null));
+    if (!value || typeof value !== 'object') return value;
+    const vars = varsFor(ctx, value);
+    if (Array.isArray(value.parts)) {
+      return Object.assign({}, value, {
+        parts: value.parts.map((part) => {
+          if (!part || typeof part !== 'object') return part;
+          const next = Object.assign({}, part);
+          if (part.beat != null) next.beat = fill(part.beat, vars);
+          if (part.say != null) next.say = fill(part.say, vars);
+          return next;
+        })
+      });
+    }
+    if (typeof value.text === 'string' || typeof value.label === 'string') {
+      const next = Object.assign({}, value);
+      if (typeof value.text === 'string') next.text = fill(value.text, vars);
+      if (typeof value.label === 'string') next.label = fill(value.label, vars);
+      return next;
+    }
+    return value;
+  }
+  function removed(beat) {
+    return !!(beat && beat.removed === true);
+  }
   function personality(ctx, who) {
     if (who === 'player') return ctx && ctx.player && ctx.player.personality;
     return ctx && ctx.npc && ctx.npc.personality;
@@ -72,21 +105,44 @@
     const list = Array.isArray(conds) ? conds : [conds];
     return list.every((cond) => conditionHolds(cond, ctx));
   }
+  function acceptable(b) {
+    if (!b) return false;
+    if (removed(b)) return true;
+    if (Array.isArray(b.parts) && b.parts.length) return true;
+    return (b.kind === 'narration' || b.kind === 'speech') && typeof b.text === 'string' && b.text.length > 0;
+  }
   function validBeats(beats) {
     if (!Array.isArray(beats) || !beats.length) return false;
-    return beats.every((b) => b && (b.kind === 'narration' || b.kind === 'speech') && typeof b.text === 'string' && b.text.length > 0);
+    return beats.every(acceptable);
   }
-  /** Ordered beats whose conditions pass. Null means fall back to `text`. */
+  /** Ordered beats whose conditions pass. A removed beat is kept by the loader and skipped here. */
   function visible(beats, ctx) {
     if (!validBeats(beats)) return null;
-    const out = beats.filter((b) => beatOk(b, ctx));
+    const out = beats.filter((b) => !removed(b) && beatOk(b, ctx));
     return out.length ? out : null;
+  }
+  function boundSpeaker(beat, ctx) {
+    const raw = (beat && beat.speaker) || '';
+    if (raw === 'narrator') return { speaker: '', speakerId: '' };
+    if (raw === '{catId}' && ctx && ctx.npc) return { speaker: ctx.npc.name || ctx.npc.id || '', speakerId: ctx.npc.id || '' };
+    return { speaker: raw, speakerId: (beat && beat.speakerId) || '' };
   }
   function line(beat, ctx) {
     const vars = varsFor(ctx, beat);
-    const text = fill(beat.text, vars);
-    if (beat.kind === 'speech') return { kind: 'speech', speaker: beat.speaker || (ctx && ctx.npc && ctx.npc.name) || '', text };
+    const who = boundSpeaker(beat, ctx);
+    if (beat && Array.isArray(beat.parts) && beat.parts.length) {
+      const parts = beat.parts.map((part) => {
+        if (part && part.say != null) return { say: curlySay(fill(part.say, vars)) };
+        if (part && part.beat != null) return { beat: fill(part.beat, vars) };
+        return null;
+      }).filter(Boolean);
+      const text = parts.map((part) => part.say || part.beat || '').filter(Boolean).join(' ');
+      return { kind: who.speaker ? (beat.kind || 'speech') : 'narration', speaker: who.speaker, speakerId: who.speakerId, parts, text };
+    }
+    const spoken = fill(beat.text, vars);
+    const text = (beat.kind === 'speech' || who.speaker) ? curlySay(spoken) : spoken;
+    if (beat.kind === 'speech' || who.speaker) return { kind: 'speech', speaker: who.speaker || beat.speaker || (ctx && ctx.npc && ctx.npc.name) || '', speakerId: who.speakerId, text };
     return { kind: 'narration', text };
   }
-  return { band, pronouns, fill, validBeats, visible, line, beatOk };
+  return { band, pronouns, fill, curlySay, materialize, validBeats, visible, line, beatOk, removed };
 });

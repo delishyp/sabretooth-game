@@ -21,6 +21,16 @@
   function nameVars(npc, extra) {
     return Object.assign({ catName: npc && npc.name || '' }, pronouns(npc && npc.sex), extra || {});
   }
+  function cueLine(pair, which) {
+    if (!pair) return null;
+    if (Array.isArray(pair)) {
+      if (which === 'high') return pair[0];
+      if (which === 'low') return pair[1];
+      return pair.length > 2 ? pair[2] : null;
+    }
+    if (which === 'middle') return pair.middle || pair.baseline || pair.base || null;
+    return pair[which] || null;
+  }
   function fill(s, vars) {
     return String(s || '').replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? String(vars[k]) : m));
   }
@@ -63,11 +73,13 @@
     const picked = actionPick(personality, row.focusTrait);
     let action; let actionId;
     if (!picked) {
-      action = fill(NEUTRAL, vars);
-      actionId = `${row.context}:neutral`;
+      const mid = cueLine(coverage.contextActions && coverage.contextActions[row.context] && coverage.contextActions[row.context][row.focusTrait], 'middle');
+      action = fill(mid || NEUTRAL, vars);
+      actionId = mid ? `${row.context}:${row.focusTrait}:middle` : `${row.context}:neutral`;
     } else {
       const pair = coverage.contextActions && coverage.contextActions[row.context] && coverage.contextActions[row.context][picked.trait];
-      action = pair ? fill(pair[picked.band === 'high' ? 0 : 1], vars) : fill(NEUTRAL, vars);
+      const cue = cueLine(pair, picked.band);
+      action = cue ? fill(cue, vars) : fill(NEUTRAL, vars);
       actionId = `${row.context}:${picked.trait}:${picked.band}`;
     }
     return {

@@ -71,7 +71,7 @@
           contextActions[row.familyId] = {};
           for (const trait of TRAITS) {
             const cue = cues[trait];
-            if (cue) contextActions[row.familyId][trait] = [cue.high, cue.low];
+            if (cue) contextActions[row.familyId][trait] = { high: cue.high, low: cue.low, middle: cue.middle };
           }
         }
       }

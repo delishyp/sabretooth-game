@@ -1081,6 +1081,15 @@
       const already = !!npc.met;
       const followed = meetingFollow(s, npc);
       if (followed) { meet(s, npc); s.pending = followed; s.phase = 'event'; return { state: s }; }
+      if (!already) {
+        const faction = npc.faction === 'highcrag' || npc.faction === 'bonefield' || npc.faction === 'mistwood' ? npc.faction : 'loner';
+        const e = eventFor('first_meeting', faction);
+        if (!e) return { state: s, error: 'meeting' };
+        s.pending = bind(e, npc, { day: s.day });
+        meet(s, npc);
+        s.phase = 'event';
+        return { state: s };
+      }
       if (Pair.enabled) {
         const ev = attachVoice(Pair.meetingEvent(s, npc, bondDeps(s, [])), s);
         if (ev) {
@@ -1556,9 +1565,12 @@
     }
     function beatContext(s) {
       const npc = s.pending && s.pending.catId ? s.npcs[s.pending.catId] : null;
+      let regionName = s.region;
+      try { regionName = W.region(s.region).name; } catch (e) { regionName = s.region; }
       return {
         player: Object.assign({}, s.cat, { injuries: s.injuries || [] }),
         npc, injured: !!(s.injuries && s.injuries.length),
+        vars: { regionName },
         knowsFact: (id, factId) => WM.knowsFact(s, id, factId),
         knowsAny: (id) => Object.keys((s.worldMemory && s.worldMemory.knowledge) || {}).some((factId) => WM.knowsFact(s, id, factId))
       };

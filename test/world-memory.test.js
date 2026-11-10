@@ -178,7 +178,7 @@ test('two runtime cats keep their own saved traits; the border scene does not bo
   s.npcs.ln05.met = true;
   const talked = E.act(s, { type: 'talk', catId: 'ln05' }).state;
   const say = E.talkView(talked).lines.find((l) => l.kind === 'say');
-  assert.strictEqual(say.text, found.ln.text);
+  assert.strictEqual(say.text, require('../src/renderer/js/beats').curlySay(found.ln.text));
   const refused = E.act(E.newRun({ mainCat: cat, seed: found.seed }), { type: 'talk', catId: 'hc07' });
   assert.strictEqual(refused.error, 'cat');
   let border = E.newRun({ mainCat: cat, seed: found.seed });

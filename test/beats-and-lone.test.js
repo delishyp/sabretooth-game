@@ -92,7 +92,7 @@ test('pronouns follow the cat sex', () => {
   const line = Beats.line({ kind: 'speech', speaker: 'npc', text: '{He} watches {playerName}. {playerHe} waits.' }, {
     player: { name: 'Tester', sex: 'male' }, npc: { name: 'Moss', sex: 'female' }
   });
-  assert.strictEqual(line.text, 'She watches Tester. he waits.');
+  assert.strictEqual(line.text, '\u201CShe watches Tester. he waits.\u201D');
 });
 
 test('scent names only met cats, is deterministic, and does not repeat after reload', () => {

@@ -817,7 +817,7 @@
       else if (!(choices || []).length) ch.append(btn(t('game.event.continue'), { g: 'advanceBeat' }, { cls: 'primary' }));
       else for (const c of choices) {
         const kind = s.pending.lone ? 'sceneChoose' : 'choose';
-        ch.append(btn(c.id === 'continue' ? t('game.event.continue') : c.label, { g: kind, choice: c.id }));
+        ch.append(btn(c.id === 'continue' ? t('game.event.continue') : shownCopy(c.label), { g: kind, choice: c.id }));
       }
       card.append(ch);
     }
@@ -838,10 +838,13 @@
       const spec = fightBarSpec();
       if (spec && FightHp) FightHp.mount(card, spec);
     }
+    function shownCopy(value) {
+      return E.beats.materialize(value, E.beatContext(s));
+    }
     function appendChoiceReply(card, pending) {
       if (!Pass2 || !pending) return;
       const chosen = (pending.choices || []).find((row) => row.id === pending.choiceId);
-      const reply = chosen && chosen.reply;
+      const reply = chosen && chosen.reply != null ? shownCopy(chosen.reply) : null;
       if (reply == null) return;
       const line = el('p', 'event-text choice-reply');
       line.dataset.reply = '1';
@@ -912,7 +915,7 @@
         card.append(el('p', 'event-text', fill(p.hostile ? e.hostileText : e.text)));
         const ch = el('div', 'event-choices');
         if (p.hostile) ch.append(btn(t('game.event.flee'), { g: 'choose' }, { cls: 'primary' }));
-        else for (const c of e.choices) ch.append(btn(c.id === 'continue' && e.kind === 'region' ? t('game.event.continue') : c.label, { g: 'choose', choice: c.id }));
+        else for (const c of e.choices) ch.append(btn(c.id === 'continue' && e.kind === 'region' ? t('game.event.continue') : shownCopy(c.label), { g: 'choose', choice: c.id }));
         card.append(ch);
       } else {
         card.append(el('p', 'event-text result', resultText()));

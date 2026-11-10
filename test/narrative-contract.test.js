@@ -71,7 +71,7 @@ test('FIXTURE meeting placement: quiet-return and boundary-disagreement reach di
   const heard = finish(E, pick(E, third, 'listen'));
   assert.strictEqual(heard.conversation.cats.ln05.thirdOutcome, 'third_confide_listen');
   assert.strictEqual(heard.conversation.cats.ln05.initialOutcome, 'quiet_company');
-  assert.strictEqual(heard.npcs.ln05.affinity, before);
+  assert.strictEqual(heard.npcs.ln05.affinity, before + 5);
   assert.deepStrictEqual(heard.records.playerSkills, xp);
   assert.deepStrictEqual(heard.npcs.ln05.personality, traits);
 
