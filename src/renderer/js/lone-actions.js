@@ -387,9 +387,22 @@
     if (!npc.lastRegion || npc.lastRegion !== s.region) return null;
     return npc;
   }
+  function rendezvousHere(s) {
+    const row = s.records && s.records.rendezvous;
+    if (!row || row.met || row.day !== s.day || s.region !== row.zoneId) return null;
+    const npc = s.npcs && s.npcs[row.catId];
+    if (!npc || npc.dead || npc.lastRegion !== s.region) return null;
+    return npc;
+  }
   function beginApproach(s, opts) {
     opts = opts || {};
     if (usedDay(s, 'approach')) return { error: 'duplicate' };
+    const rendezvous = rendezvousHere(s);
+    if (rendezvous) {
+      mark(s, 'approach', rendezvous.id);
+      s.records.rendezvous.met = true;
+      return { rendezvous };
+    }
     const watched = watchedCat(s);
     if (watched) {
       mark(s, 'approach', watched.id);
@@ -900,6 +913,17 @@
     offer, usedDay, scentLines, beginScent, beginApproach, peekApproach, choose, openerKind, OPENERS, preyWord,
     outcomeXp: (found) => (found ? 10 : 4), mistwoodRequest, bringPrey, keepBringPrey, breakBringPrey, breakOtherBringPrey,
     candidates, menu, beginShadow, beginSpar, beginScout, beginSteal, beginCub, resolveCub, shareKill, noteKill, watchText, adjacentPrides,
-    presentCat, revealRoute, watchPresence, stonePresence, killPresence, presenceReply
+    presentCat, revealRoute, watchPresence, stonePresence, killPresence, presenceReply,
+    promiseShare: (st, catId) => createBringPrey(st, catId, null),
+    refuseShare: (st, npc) => {
+      if (!npc) return;
+      const factId = `${st.runId || ''}/refused_share/${npc.id}/${st.day}`;
+      if (!st.worldMemory) return;
+      if (!Array.isArray(st.worldMemory.facts)) st.worldMemory.facts = [];
+      if (!st.worldMemory.knowledge) st.worldMemory.knowledge = {};
+      if (st.worldMemory.facts.some((row) => row.factId === factId)) return;
+      st.worldMemory.facts.push({ factId, kind: 'refused_share', participants: ['player', npc.id] });
+      st.worldMemory.knowledge[factId] = { scope: 'private', participantIds: ['player', npc.id], witnessIds: [], disclosedTo: [], prideIds: [], learnedAbsDay: st.day };
+    }
   };
 });

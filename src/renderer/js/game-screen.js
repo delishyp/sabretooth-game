@@ -224,9 +224,10 @@
         strip.id = 'skill-strip';
         for (const id of ['display', 'standing']) {
           const xp = skills.xp[id] || 0;
-          const next = [100, 300, 600, 1000].find((n) => n > xp) || 1000;
+          const name = id === 'display' ? 'Display' : 'Standing';
           const m = [100, 300, 600, 1000].filter((n) => xp >= n).length;
-          const row = el('p', 'skill-row', `${id === 'display' ? 'Display' : 'Standing'} ${xp}/${next} · M${m}`);
+          if (xp === 0 && m === 0) continue;
+          const row = el('p', 'skill-row', m > 0 ? `${name}, milestone ${m}` : name);
           row.dataset.skill = id;
           row.dataset.xp = String(xp);
           row.dataset.milestone = String(m);
@@ -238,6 +239,7 @@
           chip.type = 'button';
           strip.append(chip);
         }
+        if (!strip.childElementCount) strip.hidden = true;
         h.append(strip);
       }
     }
@@ -331,6 +333,8 @@
     }
     function renderActions() {
       const a = $('#game-actions'); a.textContent = ''; const av = E.available(s);
+      const lockedDock = $('#dock-locked');
+      if (lockedDock) lockedDock.textContent = '';
       if (av.phase) { /* event open: actions wait behind the event card */ } else if (av.talkOnly) {
         a.append(el('p', 'forced-note', t('talk.held')), talkGroup(av.talk));
       } else if (av.forced) {
@@ -353,8 +357,9 @@
         for (const row of lone.shadow || []) a.append(btn(`Shadow ${row.name}`, { g: 'shadow', cat: row.id }));
         for (const row of lone.spar || []) {
           if (row.locked) {
-            a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }, { disabled: true, title: row.line || '' }));
-            if (row.line) a.append(el('p', 'blocked-note', row.line));
+            const host = lockedDock || a;
+            host.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }, { disabled: true, title: row.line || '' }));
+            if (row.line) host.append(el('p', 'blocked-note', row.line));
           } else a.append(btn(`Spar with ${row.name}`, { g: 'spar', cat: row.id }));
         }
         if (lone.steal) a.append(btn('Steal from the kill', { g: 'steal' }));
@@ -653,6 +658,17 @@
       const idx = Math.min(s.pending.beatIndex || 0, beats.length - 1);
       const beat = beats[idx];
       const shown = (typeof Beats !== 'undefined' ? Beats : E.beats).line(beat, E.beatContext(s));
+      if (shown.kind === 'speech' && shown.speaker) {
+        const npc = Object.values(s.npcs || {}).find((cat) => cat && cat.name === shown.speaker);
+        if (npc) {
+          const cast = el('div', 'event-cast');
+          const cv = el('canvas', 'event-portrait');
+          cv.id = 'beat-head';
+          ctx.portrait({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' }).catch(() => {});
+          cast.append(framed(cv, 'md'), el('div', 'event-cast-name', npc.name));
+          card.append(cast);
+        }
+      }
       const prose = el('div', 'event-beat');
       prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', shown.kind === 'speech' && shown.speaker ? `${shown.speaker}: ${shown.text}` : shown.text));
       card.append(prose);

@@ -12,6 +12,7 @@
   else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2, root.Motives);
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives) {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
+  const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   /** A registered portrait id is kept. A slug that is not in the registry is not a saved choice. */
@@ -257,7 +258,7 @@
         scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
         priorityIds: priorityIdsFor(s),
         presentIds: followPresentIds(s),
-        followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc)),
+        followScene: (npc) => meetingFollow(s, npc),
         ownership: (id) => W.ownership(s.map.claims, id),
         regionName: (id) => { try { return W.region(id).name; } catch (e) { return id; } },
         preyValue: (id) => W.preyFor(id, season(s)),
@@ -302,7 +303,7 @@
       return stat;
     }
     function priorityIdsFor(s) {
-      const ids = Follow.priorityIds(s);
+      const ids = Follow.priorityIds(s).concat(Payoffs.priorityIds(s));
       const next = s.records && s.records.presenceFirst;
       if (!next || next.day !== s.day || !next.catId) return ids;
       return [next.catId].concat(ids.filter((id) => id !== next.catId));
@@ -515,6 +516,9 @@
         s.phase = 'eventResult';
         return { state: s };
       }
+      if (s.phase === 'event' && s.pending && (action.choiceId === 'ask_meet' || action.choiceId === 'say_goodbye')) {
+        return Payoffs.answerRendezvous(s, action.choiceId);
+      }
       if (s.phase === 'event' && Pair.enabled && s.pending && s.pending.bond) {
         const catId = s.pending.catId;
         const picked = Pair.choose(s, action, bondDeps(s, rep));
@@ -539,6 +543,12 @@
           if (r.error) return { state: s0, error: r.error };
           return { state: s };
         }
+      }
+      if (s.phase === 'event' && s.pending && s.pending.payoff && (action.type === 'sceneChoose' || action.type === 'choose')) {
+        return Payoffs.apply(s, action.choiceId, {
+          promiseShare: (st, id) => Lone.promiseShare(st, id),
+          refuseShare: (st, cat) => Lone.refuseShare(st, cat)
+        });
       }
       if (s.phase === 'event' && (action.type === 'sceneChoose' || action.type === 'choose') && s.pending && (s.pending.followUp || s.pending.meadow)) {
         if (s.pending.meadow) return meadowChoose(s, action.choiceId === 'continue' ? 'move_on' : action.choiceId, rep);
@@ -619,8 +629,16 @@
       if (s.phase === 'day' && action.type === 'approach') {
         const opened = Lone.beginApproach(s, loneOpts(s));
         if (opened.error) return { state: s0, error: opened.error };
+        if (opened.rendezvous) {
+          const scene = Payoffs.youCame(s, opened.rendezvous);
+          meet(s, opened.rendezvous);
+          s.pending = scene;
+          s.phase = 'event';
+          return { state: s };
+        }
         if (opened.meeting) return openMeeting(s, opened.meeting);
         s.pending = opened.event;
+        if (opened.event && opened.event.catId && s.npcs[opened.event.catId] && s.npcs[opened.event.catId].met && !opened.event.payoff && !opened.event.followUp) offerRendezvous(s, true);
         s.phase = 'event';
         return { state: s };
       }
@@ -807,6 +825,7 @@
     // ---------- day end ----------
     function endDay(s, rep, ctx) {
       ctx = ctx || {};
+      Payoffs.settleRendezvous(s);
       Follow.spreadRumors(s);
       let hazardHit = false;
       if (!ctx.resumed) {
@@ -981,19 +1000,36 @@
     }
     function meet(s, npc) { npc.met = true; if (Pair.enabled) Pair.onMet(s, npc); }
     function meetingFollow(s, npc) {
+      const due = Payoffs.due(s, npc);
+      if (due) return due;
       return Follow.scene(s, npc.id, followCtx(s, npc));
     }
+    function offerRendezvous(s, already) {
+      if (!already || !s.pending || s.pending.payoff || s.pending.followUp) return;
+      const e = eventById(s.pending.eventId);
+      if (!s.pending.choices || !s.pending.choices.length) s.pending.choices = ((e && e.choices) || []).map((row) => Object.assign({}, row));
+      let zoneName = s.region;
+      try { zoneName = W.region(s.region).name; } catch (err) { zoneName = s.region; }
+      Payoffs.attachRendezvous(s, zoneName);
+    }
     function openMeeting(s, npc) {
+      const already = !!npc.met;
       const followed = meetingFollow(s, npc);
       if (followed) { meet(s, npc); s.pending = followed; s.phase = 'event'; return { state: s }; }
       if (Pair.enabled) {
         const ev = attachVoice(Pair.meetingEvent(s, npc, bondDeps(s, [])));
-        if (ev) { s.pending = ev; s.phase = 'event'; return { state: s }; }
+        if (ev) {
+          s.pending = ev;
+          s.phase = 'event';
+          offerRendezvous(s, already);
+          return { state: s };
+        }
       }
       const faction = npc.faction === 'highcrag' || npc.faction === 'bonefield' || npc.faction === 'mistwood' ? npc.faction : 'loner';
       const e = eventFor('first_meeting', faction);
       if (!e) return { state: s, error: 'meeting' };
       s.pending = bind(e, npc, { day: s.day });
+      offerRendezvous(s, already);
       s.phase = 'event';
       return { state: s };
     }
@@ -1042,6 +1078,7 @@
       if (choiceId === 'let_watch') {
         s.pending = Lone.presenceReply(s, npc, 'presence.hunt.let_watch');
         s.pending.summary = momentSummary(npc.name);
+        Payoffs.noteLetWatch(s, npc);
         s.phase = 'eventResult';
         return { state: s };
       }
@@ -1075,6 +1112,7 @@
         if (s.worldMemory) WM.notePersonal(s, { catId: p.catId, delta: d, receiptKey: `${s.runId || ''}/intent/${p.catId}/${p.eventId}/${c.id}/${p.day}`, sourceType: 'conversation_outcome', scope: 'private' });
       }
       log(s, spoken);
+      if (p.catId && (c.id === 'introduce' || c.id === 'greet')) Payoffs.noteReply(s, s.npcs[p.catId], c.id);
       s.phase = 'eventResult';
       return { state: s };
     }
@@ -1313,7 +1351,7 @@
         scene: beatsByEvent['npc_initiative.mistwood.request_help.v1'] || null,
         priorityIds: priorityIdsFor(s),
         presentIds: followPresentIds(s),
-        followScene: (npc) => Follow.scene(s, npc.id, followCtx(s, npc)),
+        followScene: (npc) => meetingFollow(s, npc),
         ownership: (id) => W.ownership(s.map.claims, id)
       };
     }
@@ -1468,7 +1506,7 @@
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;
       if (!e) {
-        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || id === 'lone.shadow' || id === 'lone.spar' || id === 'lone.scout' || id === 'lone.steal' || id === 'lone.cub' || id === 'lone.share' || id === 'lone.presence.hunt' || id === 'lone.presence.reply' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.')))) {
+        if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || id === 'lone.shadow' || id === 'lone.spar' || id === 'lone.scout' || id === 'lone.steal' || id === 'lone.cub' || id === 'lone.share' || id === 'lone.presence.hunt' || id === 'lone.presence.reply' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.') || id.startsWith('payoff.')))) {
           return { id, title: 'Scene', text: '', choices: [{ id: 'continue', label: 'Continue', summary: 'Continue', affinityIntent: 'unchanged' }] };
         }
         return null;

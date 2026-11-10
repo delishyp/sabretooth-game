@@ -1,0 +1,243 @@
+{
+ "_readme": "Copy for Tundra's choice-payoffs-v0.2 (8015554). Tokens: {catName} = the cat speaking, {sourceName} = the cat who passed the fact on (§1.4, Tundra wrote {catName}; renamed so it's not the speaker), {playerName}, {zoneName}. No pronoun tokens, no numbers. Openers have one line per sociability band, so exactly one plays. Choice 'text' is what plays after the pick.",
+ "1.3_knows_name_opener": [
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "high",
+    "who": "npc"
+   },
+   "text": "\"{playerName}! You came back.\" {catName} sounds honestly pleased. \"I hoped you would.\""
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "baseline",
+    "who": "npc"
+   },
+   "text": "\"{playerName}. You came back.\" {catName} says the name carefully, as if checking it still fits."
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "low",
+    "who": "npc"
+   },
+   "text": "\"{playerName}.\" Just the name, flat, and a long look. \"You came back, then.\""
+  }
+ ],
+ "1.4_pridemate_heard_opener": [
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "high",
+    "who": "npc"
+   },
+   "text": "\"Wait, you're the one {sourceName} spoke of! I wondered when I'd see you.\""
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "baseline",
+    "who": "npc"
+   },
+   "text": "\"You're the one {sourceName} spoke of.\" {catName} looks you over, comparing you to the story."
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "low",
+    "who": "npc"
+   },
+   "text": "\"You're the one {sourceName} spoke of.\" It doesn't sound like a compliment, and it doesn't sound like an insult."
+  }
+ ],
+ "1.5_still_alone": {
+  "opener": [
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "high",
+     "who": "npc"
+    },
+    "text": "\"Still walking alone? I keep thinking about that. It seems a lonely way to live.\""
+   },
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "baseline",
+     "who": "npc"
+    },
+    "text": "\"Still walking alone?\" {catName} glances past you, as if half expecting someone this time."
+   },
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "low",
+     "who": "npc"
+    },
+    "text": "\"Still alone.\" It isn't quite a question. {catName} has noticed."
+   }
+  ],
+  "choices": {
+   "for_now": {
+    "label": "\"For now.\"",
+    "text": "\"For now,\" you say. {catName} lets it rest there."
+   },
+   "not_by_choice": {
+    "label": "\"Not by choice.\"",
+    "text": "\"Not by choice.\" It comes out more honest than you meant. {catName} goes quiet, and you can see the words being kept somewhere."
+   },
+   "leave": {
+    "label": "Change the subject.",
+    "text": "You turn the talk to the weather and the prey. {catName} follows your lead without pushing."
+   }
+  }
+ },
+ "1.5_seeking_company_gossip_opener": "\"I heard you're looking for company out there. Is that true?\"",
+ "2.1_rendezvous": {
+  "ask_meet": {
+   "label": "\"Meet me at {zoneName} tomorrow.\"",
+   "text": [
+    {
+     "when": {
+      "trait": "sociability",
+      "band": "high",
+      "who": "npc"
+     },
+     "text": "\"Tomorrow? Yes!\" {catName} doesn't even pretend to think about it. \"I'll be there.\""
+    },
+    {
+     "when": {
+      "trait": "sociability",
+      "band": "baseline",
+      "who": "npc"
+     },
+     "text": "{catName} thinks it over, then nods once. \"{zoneName}, tomorrow. All right.\""
+    },
+    {
+     "when": {
+      "trait": "sociability",
+      "band": "low",
+      "who": "npc"
+     },
+     "text": "\"Maybe.\" {catName} looks away. \"If I'm passing.\" It sounds more like yes than no."
+    }
+   ]
+  },
+  "say_goodbye": {
+   "label": "Say goodbye.",
+   "text": "You part ways. {catName} looks back once before the land swallows the trail."
+  }
+ },
+ "2.2_you_came": [
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "high",
+    "who": "npc"
+   },
+   "text": "{catName} is already there, and comes to meet you halfway. \"You came!\""
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "baseline",
+    "who": "npc"
+   },
+   "text": "{catName} is waiting at {zoneName}, and sits up when you appear. \"You came.\""
+  },
+  {
+   "when": {
+    "trait": "sociability",
+    "band": "low",
+    "who": "npc"
+   },
+   "text": "{catName} is there, pretending not to be waiting. \"You came.\" A pause. \"Good.\""
+  }
+ ],
+ "2.3_i_waited": {
+  "opener": [
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "high",
+     "who": "npc"
+    },
+    "text": "\"I waited at {zoneName}. All day.\" {catName} sounds more hurt than angry. \"Did something happen?\""
+   },
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "baseline",
+     "who": "npc"
+    },
+    "text": "\"I waited at {zoneName}.\" {catName} says it plainly, and waits to hear why."
+   },
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "low",
+     "who": "npc"
+    },
+    "text": "\"I waited at {zoneName}.\" {catName}'s tail flicks once. \"I won't make a habit of it.\""
+   }
+  ],
+  "choices": {
+   "explain": {
+    "label": "Tell {catName} what kept you.",
+    "text": "You tell {catName} what kept you. {catName} listens to all of it, and some of the stiffness goes out of the moment."
+   },
+   "repair": {
+    "label": "\"I'm sorry. I should have come.\"",
+    "text": "\"I'm sorry. I should have come.\" {catName} looks at you a long moment, then lets it go."
+   },
+   "leave": {
+    "label": "Say nothing about it.",
+    "text": "You don't answer. {catName} doesn't ask again, and the silence sits between you."
+   }
+  }
+ },
+ "3.3_ate_whole_thing": {
+  "opener": [
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "high",
+     "who": "npc"
+    },
+    "text": "\"You ate the whole thing and never looked up!\" {catName} sounds more amazed than angry. \"I was right there.\""
+   },
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "baseline",
+     "who": "npc"
+    },
+    "text": "\"You ate the whole thing and never looked up.\" {catName} says it lightly, but watches for your answer."
+   },
+   {
+    "when": {
+     "trait": "sociability",
+     "band": "low",
+     "who": "npc"
+    },
+    "text": "\"You ate the whole thing and never looked up.\" {catName} hasn't forgotten a single bite."
+   }
+  ],
+  "choices": {
+   "promise_share": {
+    "label": "\"Next time, I'll share.\"",
+    "text": "\"Next time, I'll share.\" {catName}'s ears come forward. \"I'll hold you to that.\""
+   },
+   "my_kill": {
+    "label": "\"It was my kill.\"",
+    "text": "\"It was my kill.\" {catName} takes that in without a word, and something between you goes a little colder."
+   },
+   "leave": {
+    "label": "Let it go.",
+    "text": "You let the remark pass. {catName} doesn't press it."
+   }
+  }
+ }
+}
