@@ -4,9 +4,9 @@
  * A private wildlife result writes no pride standing. The only +5 deeds are the hyena scene.
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./speech'));
-  else root.Encounter = factory(root.Speech);
-})(typeof self !== 'undefined' ? self : this, function (Speech) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./speech'), require('./rng'));
+  else root.Encounter = factory(root.Speech, root.Rng);
+})(typeof self !== 'undefined' ? self : this, function (Speech, Rng) {
   const TRAITS = ['aggression', 'sociability', 'boldness', 'loyalty', 'curiosity'];
   const DEER = 'encounter.giant_deer.v1';
   const WOLF = 'encounter.wolf_pack.v1';
@@ -380,6 +380,39 @@
       return { error: 'choice' };
     }
 
+    function wolvesPursuitPct() {
+      let row = null;
+      if (typeof require === 'function') {
+        try { row = require('../data/map.json').hazards.find((hazard) => hazard.id === 'wolves'); } catch (e) { row = null; }
+      }
+      const match = row && String(row.defaultOutcome || '').match(/(\d+)%/);
+      return match ? Number(match[1]) : 40;
+    }
+    function carriedCarcass(s) {
+      const kill = s.records && s.records.freshKill;
+      if (!kill || kill.stolen || kill.shared || kill.lost) return null;
+      if (typeof kill.day === 'number' && s.day - kill.day > 2) return null;
+      return kill;
+    }
+    /** map-v1 §10.1 wolves row, used by m2 §13.5.5. Not the combat-flee formula. */
+    function wolfFlee(s) {
+      const p = box(s).pending;
+      const kill = carriedCarcass(s);
+      if (kill) {
+        kill.lost = true;
+        return { flee: 'loss', pursued: true, injuryTier: null, pct: wolvesPursuitPct() };
+      }
+      const pct = wolvesPursuitPct();
+      const rng = Rng.stream(s.seed, 'wolves', 'flee', p.encounterInstanceId);
+      const pursued = Rng.chance(rng, pct);
+      if (!pursued) return { flee: 'success', pursued: false, injuryTier: null, pct };
+      const minor = (rules && rules.injuries && rules.injuries.minor) || { health: 10, days: 3 };
+      if (!Array.isArray(s.injuries)) s.injuries = [];
+      s.injuries.push({ tier: 'minor', daysLeft: minor.days, source: p.encounterInstanceId, rolled: 'minor' });
+      s.needs.health = Math.max(healthFloor, (s.needs.health || 0) - minor.health);
+      if (s.dead && s.dead.cause === p.encounterInstanceId) s.dead = null;
+      return { flee: 'injury', pursued: true, injuryTier: 'minor', pct };
+    }
     function chooseWolf(s, choiceId) {
       const spec = byId[WOLF];
       const p = box(s).pending;
@@ -392,7 +425,9 @@
         p.lines = p.lines.concat([narrate(spec.nodes.watch.text)]);
         return { ok: true };
       }
-      const rendering = choiceId === 'keep_cover' ? spec.outcomeRendering.resolve_existing_flee_with_cover : spec.outcomeRendering.resolve_existing_flee;
+      const plain = spec.outcomeRendering.resolve_existing_flee;
+      const cover = spec.outcomeRendering.resolve_existing_flee_with_cover;
+      const rendering = choiceId === 'keep_cover' ? cover : plain;
       const sighting = `${s.runId || ''}/encounter/${WOLF}/first_sighting`;
       if (s.worldMemory && !(s.worldMemory.ledger || []).some((row) => row.receiptKey === sighting)) {
         s.worldMemory.ledger.push({
@@ -400,8 +435,18 @@
           target: WOLF, delta: 0, auditOnly: true, absDay: s.day
         });
       }
-      p.result = { outcomeId: choiceId === 'keep_cover' ? 'resolve_existing_flee_with_cover' : 'resolve_existing_flee', yieldHunger: 0, injuryTier: null };
-      finishNode(s, p.result.outcomeId, [narrate(rendering.success)]);
+      const resolved = wolfFlee(s);
+      const lines = [];
+      if (resolved.flee === 'success') lines.push(narrate(rendering.success));
+      else {
+        lines.push(narrate(plain.pursued));
+        lines.push(narrate(resolved.flee === 'loss' ? plain.lossOverlay : plain.injuryOverlay));
+      }
+      p.result = {
+        outcomeId: choiceId === 'keep_cover' ? 'resolve_existing_flee_with_cover' : 'resolve_existing_flee',
+        flee: resolved.flee, pursued: resolved.pursued, yieldHunger: 0, injuryTier: resolved.injuryTier, pct: resolved.pct
+      };
+      finishNode(s, p.result.outcomeId, lines);
       return { ok: true };
     }
 
