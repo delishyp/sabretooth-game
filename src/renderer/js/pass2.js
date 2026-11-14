@@ -96,7 +96,7 @@
     "followups.js:relayBeat": "I'll tell our leader what you did. What happens after that isn't up to me.",
     "followups.js:choices": {
       "listen": "Stay and listen.",
-      "honest_limit": "“I can't always be around.”",
+      "honest_limit": "“I already know. I was there.”",
       "leave": "Head off.",
       "explain": "“I wasn't against your pride. I had to decide fast.”",
       "repair": "“I'm sorry. I'd like to put it right.”",
@@ -127,7 +127,7 @@
       "ford_cold.repair": "“I'm sorry. I'd like to put it right.”",
       "ford_cold.explain": "“I wasn't against your pride. I had to decide fast.”",
       "ford_friend.leave": "Nod and head off.",
-      "ford_friend.honest_limit": "“I was glad to help, but I can't always be there.”",
+      "ford_friend.honest_limit": "“I already know. I was there.”",
       "ford_friend.listen": "Stay and listen.",
     },
     "lone-actions.js:approachOpeners": {
@@ -172,7 +172,7 @@
   }
   const REPLIES = {
     'ford_friend.listen': catReply('That\'s all I wanted to say. Thanks for hearing me out.'),
-    'ford_friend.honest_limit': catReply('That\'s fair. You were there when it counted.'),
+    'ford_friend.honest_limit': catReply('Of course you were. I wasn\'t telling it like news.'),
     'ford_friend.leave': catReply('Go on, then. Safe trails.'),
     'ford_cold.explain': catReply('Maybe not. It looked that way from where I stood.'),
     'ford_cold.repair': catReply('All right. Thank you for saying it. We can leave it there.'),
@@ -292,6 +292,11 @@
     return entry.byCat[catId];
   }
   function choiceLabel(kind, id, ctx) {
+    if (kind === 'ford_friend' && id === 'honest_limit' && !(ctx && ctx.gossip)) {
+      const raw = '“I was glad to help, but I can\'t always be there.”';
+      const api = beatsApi();
+      return api && ctx ? api.materialize(raw, ctx) : raw;
+    }
     const table = choiceTable();
     const catId = ctx && (ctx.catId || (ctx.npc && ctx.npc.id) || '');
     const scoped = kind ? table[kind + '.' + id] : undefined;
@@ -304,7 +309,10 @@
     const api = beatsApi();
     return api && ctx ? api.materialize(raw, ctx) : raw;
   }
-  function choiceReply(kind, id) {
+  function choiceReply(kind, id, ctx) {
+    if (kind === 'ford_friend' && id === 'honest_limit' && !(ctx && ctx.gossip)) {
+      return catReply('That\'s fair. You were there when it counted.');
+    }
     const table = replyTable();
     const scoped = kind + '.' + id;
     if (Object.prototype.hasOwnProperty.call(table, scoped)) return table[scoped];
@@ -332,7 +340,7 @@
     });
   }
   function presentChoice(kind, choiceId, resultBeats, ctx) {
-    let reply = bindReply(choiceReply(kind, choiceId), ctx);
+    let reply = bindReply(choiceReply(kind, choiceId, ctx), ctx);
     const api = beatsApi();
     if (reply != null && api && ctx) reply = api.materialize(reply, ctx);
     const result = resultBeats || [];
@@ -378,7 +386,7 @@
     return true;
   }
   function withReply(kind, row, ctx) {
-    let reply = bindReply(choiceReply(kind, row.id), ctx);
+    let reply = bindReply(choiceReply(kind, row.id, ctx), ctx);
     if (reply == null) return row;
     const api = beatsApi();
     if (api && ctx) reply = api.materialize(reply, ctx);

@@ -140,7 +140,7 @@ test('each courtship block has its own reason, and a null year stays generic', (
   s.records.yearLengthDays = 20;
   const season = pair.courtGate(s, npc);
   assert.strictEqual(season.code, 'court.ineligible.season');
-  assert.ok(season.hint.includes('next spring'));
+  assert.ok(season.hint.includes('mating season in spring'));
 });
 
 test('a null year leaves out next spring, and a set year says courtship opens again', () => {

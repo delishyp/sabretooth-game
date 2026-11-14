@@ -174,7 +174,7 @@ test('FIXTURE: an unmated season choice is an intent, and day 21 can change it w
   assert.ok(E.available(changed).hunt.allowed || E.available(changed).hunt.reason);
   const group = E.act(changed, { type: 'setRoute', intent: 'group' }).state;
   const reason = E.available(group).route.reason;
-  assert.ok(reason.includes('No loners travel together near here yet.') || reason.includes('Loners are travelling together near here.'), reason);
+  assert.ok(reason.includes('No loners are travelling together near here yet.') || reason.includes('Loners are travelling together near here.'), reason);
   assert.deepStrictEqual(group.needs, changed.needs);
   assert.deepStrictEqual(group.records.playerSkills, xp);
 });

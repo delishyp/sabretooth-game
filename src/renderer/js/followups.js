@@ -103,8 +103,9 @@
       for (let i = 0; i < ids.length; i++) {
         const row = known[ids[i]];
         if (row && (row.participantIds || []).includes(npc.id)) continue;
+        const playerThere = !!(row && (row.participantIds || []).concat(row.witnessIds || []).includes('player'));
         const line = Pass2.gossipPhrase(ids[i], s.runId, Object.assign({}, phraseCtx, {
-          listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
+          listenerParticipated: playerThere
         }));
         if (line) {
           if (/saw_out_here\//.test(ids[i])) {
@@ -152,7 +153,7 @@
         sourceEventId: row.sourceEventId, choiceId: row.choiceId, factId: row.factId,
         receipt: receipt(s, row), huntReady: !!ctx.huntReady, memberShare: !!ctx.memberShare,
         beats, beatIndex: 0, day: s.day,
-        choices: choicesFor(row, Object.assign({ npc: npc, catId: npc.id, player: s.cat }, ctx)),
+        choices: choicesFor(row, Object.assign({ npc: npc, catId: npc.id, player: s.cat, gossip: !!(told && told.line) }, ctx)),
         absDelta: 0,
         ...(told && told.id ? { gossipSourceId: told.id } : {})
       };

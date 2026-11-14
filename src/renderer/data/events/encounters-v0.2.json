@@ -195,9 +195,9 @@
             "Otherwise show injury consequence only when a real injury/damage effect exists.",
             "Show prey_taken only with an actual kill/food resolver result, prey_escaped otherwise."
           ],
-          "prey_taken": "The deer goes down, and you wait until its struggling has ended before feeding. The food you can use is the amount the hunt has actually yielded.",
+          "prey_taken": "The deer goes down, and you wait until its struggling has ended before you feed.",
           "prey_escaped": "The deer breaks away before you can bring it down. Its antlers pass out of reach, and it runs on. There is no kill to claim.",
-          "injuryOverlay": "The attempt has left you hurt. The wound remains when the encounter ends.",
+          "injuryOverlay": "The attempt has left you hurt. The wound stays with you.",
           "effectRule": "Food, needs, injury and action costs come ONLY from the pinned resolver. Success and injury may coexist if the engine says so; the overlay never awards or removes a kill."
         }
       },
@@ -280,14 +280,14 @@
       "outcomeRendering": {
         "resolve_existing_flee": {
           "requires": "one actual existing flee/hazard result, not a new combat roll",
-          "success": "You put distance between yourself and the wolves. This encounter ends without a fight.",
+          "success": "You put distance between yourself and the wolves, and they don't come after you.",
           "successRequires": "engine reports escaped, alive and no combat",
-          "pursued": "The pack follows as you withdraw. Their warning has become a pursuit.",
+          "pursued": "The pack follows as you withdraw. They aren't letting you go.",
           "pursuedRequires": "actual pursuit/escalation flag; do not add this purely for drama",
-          "injuryOverlay": "You get clear, but not without injury. The damage remains after the wolves are out of reach.",
+          "injuryOverlay": "You get clear, but you're hurt. The wound stays with you after the wolves are out of reach.",
           "injuryRequires": "actual escaped+injured result; never narrate escape if unresolved/dead",
           "death": "No proof encounter death: apply v0.6 injury cap before display. Independent needs/other hazard death remains separate.",
-          "lossOverlay": "The carried food is gone.",
+          "lossOverlay": "The food you were carrying is gone.",
           "lossRequires": "engine actually removes a specific tracked carried resource once. Successful hunt flag alone is not a second carcass to surrender."
         },
         "resolve_existing_flee_with_cover": {
@@ -411,7 +411,7 @@
             "speech": "failed",
             "noDeeds": true
           },
-          "injuryOverlay": "The attempt has left you with an injury. Show this only when the actual minor-injury effect is committed."
+          "injuryOverlay": "The hyena has left you hurt. The wound stays with you."
         },
         "hyena_keeps_kill": {
           "text": "You turn from the carcass and leave it to the hyena's cackling. There's no meat for you, and no help given.",

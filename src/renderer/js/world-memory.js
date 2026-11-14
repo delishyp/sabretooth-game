@@ -654,9 +654,17 @@
       } else {
         box(s).ledger.push({ receiptKey: key, sourceType: 'ford_choice', recordKind: 'observation', actor: 'player', target: 'greywater_ford', delta: 0, auditOnly: true, absDay: s.day });
       }
+      const result = fordDoc.results && fordDoc.results[choiceId];
+      const resultLine = result ? String(result.text).replace(/\{highcragCatName\}/g, hc.name).replace(/\{bonefieldCatName\}/g, bf.name) : '';
+      const dispute = box(s).knowledge[`${s.runId || ''}/ford_dispute/highcrag/bonefield`];
+      if (dispute && result) dispute.preyKeeper = result.keeper;
+      const sided = box(s).knowledge[choiceId === 'help_bonefield_cat' ? `${s.runId || 'run'}/player_aided_bonefield` : choiceId === 'side_with_highcrag' ? `${s.runId || 'run'}/player_sided_highcrag` : ''];
+      if (sided && result) sided.preyKeeper = result.keeper;
       s.ford.choiceId = choiceId;
       s.ford.node = 'answered';
-      s.ford.lines = fordLines(hc, bf, responses);
+      s.ford.outcome = result && result.outcome || null;
+      s.ford.resultLine = resultLine;
+      s.ford.lines = fordLines(hc, bf, responses).concat(resultLine ? [{ kind: 'narration', text: resultLine }] : []);
       return { ok: true };
     }
     function fordView(s) {

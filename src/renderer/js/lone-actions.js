@@ -319,8 +319,9 @@
     if (!fact) return null;
     const row = s && s.worldMemory && s.worldMemory.knowledge && s.worldMemory.knowledge[fact.factId];
     if (row && npc && (row.participantIds || []).includes(npc.id)) return null;
+    const playerThere = !!(row && (row.participantIds || []).concat(row.witnessIds || []).includes('player'));
     const phrase = Pass2.gossipPhrase(fact.factId, s && s.runId, {
-      listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
+      listenerParticipated: playerThere
     });
     if (typeof phrase === 'string' && phrase) return phrase;
     if (phrase && phrase.say) return phrase.say;
@@ -489,8 +490,9 @@
       for (const id of facts) {
         const row = knowledge[id];
         if (row && (row.participantIds || []).includes(picked.id)) continue;
+        const playerThere = !!(row && (row.participantIds || []).concat(row.witnessIds || []).includes('player'));
         const line = speakableFact(s, id, Object.assign({}, opts, {
-          listenerParticipated: !!(row && (row.participantIds || []).includes('player'))
+          listenerParticipated: playerThere
         }));
         if (line) {
           told = line;

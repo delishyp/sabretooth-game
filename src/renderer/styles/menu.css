@@ -15,7 +15,7 @@ body.reduced-motion #snow, body.menu-hidden #snow { animation: none; display: no
    Title text box ≈ 8.9 × font-size (Cinzel, letter-spacing 0.16em incl. the trailing one); (58cqw − 160px screen padding − 24px) ÷ 9.2. */
 .screen { position: absolute; inset: 0; padding: 120px 160px; display: none; }
 .screen.active { display: block; }
-.title { margin-bottom: 70px; }
+.title { margin-bottom: 70px; display: inline-block; max-width: min(960px, 58%); padding: 18px 28px 22px; border-radius: 14px; background: linear-gradient(180deg, rgba(7, 12, 18, .84), rgba(7, 12, 18, .66)); }
 #logo { max-width: min(720px, calc(58cqw - 184px)); max-height: 260px; }
 #logo-text { font-family: var(--font-title); font-size: min(112px, calc((58cqw - 184px) / 9.2)); letter-spacing: 0.16em; white-space: nowrap; margin: 0; color: var(--frost); text-shadow: 0 0 30px rgba(127,208,236,.35); }
 .wt { font-size: 22px; letter-spacing: 8px; text-transform: uppercase; color: var(--ice-dim); margin-top: -6px; }
@@ -137,7 +137,7 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 /* Slice 1 home scene. Landscape is assets/game/home-landscape.png (1280×720, 16:9). UI sits on top. */
 .screen[data-screen="game"] { padding: 0; color: #f3e6d0; }
 #game-main { position: absolute; inset: 0; }
-#game-main.dimmed { filter: brightness(.45); }
+#game-main.dimmed .home-landscape, #game-main.dimmed .home-cat { filter: brightness(.45); }
 .home-landscape { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; background: #140e0b; pointer-events: none; z-index: 0; }
 .home-cat { position: absolute; z-index: 1; pointer-events: none; }
 .hotspot { position: absolute; z-index: 2; display: flex; align-items: flex-end; justify-content: center; padding: 12px; background: transparent; border-color: transparent; min-height: 0; }
@@ -148,7 +148,7 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .hotspot-wild { left: 56%; top: 74%; width: 18%; height: 16%; align-items: center; }
 .home-top { position: absolute; z-index: 4; left: 210px; right: 0; top: 0; height: 88px; display: flex; align-items: center; gap: 22px; padding: 8px 18px; background: linear-gradient(180deg, rgba(18, 12, 8, .88), rgba(18, 12, 8, .55)); border-bottom: 1px solid rgba(212, 176, 122, .35); pointer-events: none; }
 .home-top > * { pointer-events: auto; }
-.home-brand { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.home-brand { display: flex; gap: 12px; align-items: center; min-width: 0; padding: 6px 12px; border-radius: 10px; background: rgba(8, 5, 3, .78); }
 .home-player-line { display: flex; align-items: center; gap: 8px; margin: 2px 0 0; }
 .event-who { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .event-affinity { margin: 0; color: #e6c98a; font-size: 20px; letter-spacing: .04em; }

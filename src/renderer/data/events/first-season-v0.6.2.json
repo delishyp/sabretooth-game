@@ -59,14 +59,14 @@
       "choices": [
         {
           "id": "talk_warm",
-          "label": "“I'd like some company. Walk with me a while?”",
+          "label": "“Sure, let's walk.”",
           "summary": "You walked a while with {catName}.",
           "result": "talk_improve",
           "reply": {
             "speaker": "{catId}",
             "parts": [
               {
-                "say": "All right, for a little way."
+                "say": "Good. This way, then."
               },
               {
                 "beat": "You walk together for a while before {catName} turns back."
@@ -76,14 +76,14 @@
         },
         {
           "id": "talk_plain",
-          "label": "Stop for a few words, then head off.",
+          "label": "“I can stop for a few words, but I can't walk today.”",
           "summary": "You traded a few words with {catName}.",
           "result": "talk_unchanged",
           "reply": {
             "speaker": "{catId}",
             "parts": [
               {
-                "say": "Mm. Safe trails, then."
+                "say": "That's fine. A few words is better than none."
               }
             ]
           }
@@ -208,7 +208,7 @@
       "choices": [
         {
           "id": "talk_warm",
-          "label": "“Come and walk with me a while.”",
+          "label": "“Sure, let's walk.”",
           "summary": "You walked a while with {catName}.",
           "result": "talk_improve",
           "reply": {
@@ -225,14 +225,14 @@
         },
         {
           "id": "talk_plain",
-          "label": "Chat for a bit, then head off.",
+          "label": "“I can stop for a few words, but I can't walk today.”",
           "summary": "You traded a few words with {catName}.",
           "result": "talk_unchanged",
           "reply": {
             "speaker": "{catId}",
             "parts": [
               {
-                "say": "Short and sweet. All right."
+                "say": "That's fine. A few words is better than none."
               }
             ]
           }
@@ -832,7 +832,7 @@
               "beats": [
                 {
                   "kind": "narration",
-                  "text": "The season turned before you and {catName} became mates. What might have been is still unsettled, and tomorrow is another day."
+                  "text": "The mating season is over. You and {catName} didn't become mates this season."
                 }
               ],
               "summary": "The mating season ended while you courted {catName}."
@@ -1026,16 +1026,16 @@
     }
   ],
   "uiHints": {
-    "court.notInSeason": "The mating season is over. You can still spend time together, but cannot court now.",
-    "court.cooldown": "You asked {catName} recently. Give it a few days.",
-    "court.locked": "Spend more time with {catName} first.",
-    "court.ineligible": "{catName} cannot be courted.",
-    "court.ineligible.young": "{catName} is not grown, and cannot be courted.",
+    "court.notInSeason": "The mating season is over. You can still spend time together, but you can't court now.",
+    "court.cooldown": "You asked {catName} not long ago. Wait a few days before you ask again.",
+    "court.locked": "You and {catName} need to be closer before you can court.",
+    "court.ineligible": "You can't court {catName}.",
+    "court.ineligible.young": "{catName} isn't grown yet. Give it time.",
     "court.ineligible.mated": "{catName} already has a mate.",
-    "court.ineligible.kin": "{catName} is kin, and cannot be courted.",
-    "court.ineligible.dislike": "{catName} wants nothing to do with you.",
-    "court.ineligible.season": "Courting opens again next spring.",
-    "found.notWild": "This land is claimed. Travel to wild land to found a pride.",
+    "court.ineligible.kin": "{catName} is your kin, so courting isn't an option.",
+    "court.ineligible.dislike": "{catName} doesn't want you around like that right now.",
+    "court.ineligible.season": "Courting has to wait for the mating season in spring.",
+    "found.notWild": "A pride already holds this land. Travel to wild land to found your own.",
     "found.noMate": "You need a mate to found a pride.",
     "bondStage.met": "Met",
     "bondStage.acquainted": "Acquainted",
@@ -1044,7 +1044,7 @@
     "bondStage.mates": "Mates",
     "bondStage.none": "Strangers",
     "_note": "Bonded labels arc-stage close only, not affinity Close. Year length unset; mixed-sex group/leave-to-found remain proposed defaults. No new year date promised.",
-    "join.cooldown": "You have already asked this pride in the current period.",
+    "join.cooldown": "You've already asked this pride this season.",
     "group.full": "This group has no room for another cat."
   },
   "revision": "first-season-v0.6.2-r1",

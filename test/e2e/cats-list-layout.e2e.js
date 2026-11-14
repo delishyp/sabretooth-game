@@ -7,7 +7,7 @@ const assert = require('node:assert');
 const fs = require('fs'); const os = require('os'); const path = require('path');
 const root = path.join(__dirname, '..', '..');
 const SHOTS = process.env.LIST_SHOTS || '/opt/cursor/artifacts/cats-list-layout';
-const SCENE = 'assets/menu/night/work/bg1920.png';
+const SCENE = 'assets/menu/background-1920.png';
 const CATS = [
   { slot: 'hc01', id: 'cat-46f04e1c79d4e443', kind: 'dark' },
   { slot: 'hc05', id: 'cat-f70f52f0f22da7fc', kind: 'pale' },

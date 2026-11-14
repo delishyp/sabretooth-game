@@ -147,7 +147,7 @@ test('the season-end roll can form a loner group, and an empty range uses the no
   assert.ok(formed.records.lonerGroups[0].memberIds.includes('ln01'));
   formed.region = 'horse_meadows';
   const away = pair.groupVisit(formed, deps);
-  assert.strictEqual(away.line, 'No loners travel together near here yet.');
+  assert.strictEqual(away.line, 'No loners are travelling together near here yet.');
   formed.region = 'split_rock';
   const here = pair.groupVisit(formed, deps);
   assert.ok(here.event.lines.some((line) => line.text.includes('trail')));

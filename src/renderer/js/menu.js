@@ -47,28 +47,24 @@
     stage.style.transform = `translate(-50%, -50%) scale(${s})`;
     fitActive();
   }
-  /** N1 safety net: if a screen's content is still larger than the (scaled) stage, shrink just that screen to fit. */
+  /** Chrome that sticks out is a layout bug. Full-bleed plates are not chrome, and this never zooms or rescales a screen. */
   function fitActive() {
-    const sc = document.querySelector('.screen.active'); if (!sc) return;
-    sc.style.zoom = '';
-    const R = $('#stage').getBoundingClientRect(), k = R.height / $('#stage').offsetHeight;  // screen px per logical px
-    const margin = 24 * k;
-    const extent = () => {
-      let right = 0, bottom = 0;
-      for (const el of sc.querySelectorAll('*')) {
-        // The cats list scrolls inside the dock. Its rows must not shrink the whole screen.
-        if (el.closest('.home-dock') && !el.classList.contains('home-dock')) continue;
-        const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
-        right = Math.max(right, r.right - R.left); bottom = Math.max(bottom, r.bottom - R.top);
-      }
-      return Math.max((right + margin) / R.width, (bottom + margin) / R.height);
-    };
-    // Zoomed text doesn't always shrink exactly in proportion (font hinting, min sizes, wraps), so re-measure and tighten a few times.
-    let zoom = 1;
-    for (let i = 0; i < 4; i++) {
-      const need = extent(); if (need <= 1.001) break;
-      zoom /= need; sc.style.zoom = String(zoom);
+    const sc = document.querySelector('.screen.active');
+    if (!sc) return;
+    const stage = $('#stage');
+    const box = stage.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    const margin = 24 * (box.height / (stage.offsetHeight || box.height));
+    let right = 0, bottom = 0;
+    for (const el of sc.querySelectorAll('*')) {
+      if (el.classList.contains('creator-scene') || el.classList.contains('home-landscape')) continue;
+      if (el.closest('.home-dock') && !el.classList.contains('home-dock')) continue;
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      right = Math.max(right, r.right - box.left);
+      bottom = Math.max(bottom, r.bottom - box.top);
     }
+    sc.dataset.chromeOverflow = (right + margin > box.width + 1 || bottom + margin > box.height + 1) ? '1' : '0';
   }
   if (document.fonts) document.fonts.ready.then(() => fitActive());
   addEventListener('resize', scale);

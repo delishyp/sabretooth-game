@@ -159,18 +159,18 @@
           "speaker": "leader",
           "focusTrait": "loyalty",
           "context": "boundary",
-          "base": "Hold any requests about Bonefield for now. That's a delay, not a feud.",
-          "high": "Hold them for now. I won't let a vague request turn into a promise made for my pride.",
-          "low": "Hold them for now. Taking a request doesn't tie my pride to anything.",
+          "base": "Any request about Bonefield is on hold. You can ask again by the same route after a wait. That's a delay, not a feud.",
+          "high": "This request is on hold. I won't let it turn into a promise. You can ask again by the same route after a wait.",
+          "low": "This request is on hold. You can bring it again by the same route after a wait.",
           "requires": "committed defer_relay decision without verified conflict cause"
         },
         "leader_defer_cause": {
           "speaker": "leader",
           "focusTrait": "aggression",
           "context": "boundary",
-          "base": "The trouble with Bonefield has to be settled before anything else. Hold those requests.",
-          "high": "That trouble isn't settled, and I won't pretend it is. Hold the requests.",
-          "low": "What happened with Bonefield isn't settled yet. Let's hold the requests for now.",
+          "base": "This request is on hold until the trouble with Bonefield is settled.",
+          "high": "That trouble isn't settled, and I won't pretend it is. This request is on hold until it is.",
+          "low": "What happened with Bonefield isn't settled. This request is on hold until that trouble is.",
           "requires": "committed defer_relay; leader knows actual applicable source event. Attach source-event summary only from verified fact, never authored invented incident."
         },
         "guard_permitted": {
@@ -258,9 +258,9 @@
           "speaker": "leader",
           "focusTrait": "aggression",
           "context": "boundary",
-          "base": "I won't take this request from you today.",
-          "high": "I won't take this request from you today. Don't think I'm agreeing just because I listened.",
-          "low": "I'm not ready to take this request from you. It stays unanswered today.",
+          "base": "This request is on hold until this pride thinks better of you.",
+          "high": "This request is on hold until this pride thinks better of you. Don't think I'm agreeing just because I listened.",
+          "low": "This request is on hold until this pride thinks better of you.",
           "requires": "committed standing-caused deferral; no invented offense or feud"
         },
         "leader_permit_warm": {
@@ -315,7 +315,23 @@
       }
     ],
     "knowledge": "The dispute source is pride_known to both by Tundra rule; the player’s choice is a SEPARATE witnessed/private fact. Aid fact reaches other Highcrag members only through explicit disclosure/relay or the enabled 3-day rumor rule. Numeric faction delta alone does not teach a guard the player’s deed.",
-    "ending": "The argument remains unsettled when you move away. The recorded incident is the faction cause; no truce, victory, prey transfer, injury or promised retaliation is silently added.",
+    "results": {
+      "help_bonefield_cat": {
+        "outcome": "ford_bonefield_keeps",
+        "keeper": "bonefield",
+        "text": "{bonefieldCatName} drags the carcass out of the water. {highcragCatName} backs off and lets it go."
+      },
+      "side_with_highcrag": {
+        "outcome": "ford_highcrag_keeps",
+        "keeper": "highcrag",
+        "text": "{bonefieldCatName} lets go and wades back to the bank. {highcragCatName} hauls the carcass up out of the water."
+      },
+      "stay_out": {
+        "outcome": "ford_river_takes",
+        "keeper": "river",
+        "text": "The current pulls the carcass free and carries it downstream. Both cats leave with nothing."
+      }
+    },
     "personalityPolicyRef": "Revision6 full required speaker data, low/high focus and contextual action policy. For EACH speaking cat use its own saved traits/name/portrait, with exact selected line/action restored on Continue. Player choice labels are player intentions, not NPC personality.",
     "speechLocations": {
       "highcrag_open": {
@@ -346,9 +362,9 @@
         "speaker": "highcragCat",
         "focusTrait": "aggression",
         "context": "boundary",
-        "base": "So it's out of the water. That doesn't make it theirs.",
-        "high": "Don't look so pleased with yourself. Dragging it out doesn't decide who eats it.",
-        "low": "At least the river didn't take it. But who it belongs to is still an open question."
+        "base": "All right. I'll leave it. It's yours.",
+        "high": "Fine. Take it and go.",
+        "low": "All right. It's yours. I'm not standing in the way."
       },
       "side_highcrag_response": {
         "speaker": "highcragCat",
@@ -362,9 +378,9 @@
         "speaker": "bonefieldCat",
         "focusTrait": "aggression",
         "context": "boundary",
-        "base": "Two of you now. That doesn't change a thing.",
-        "high": "Two voices, same demand. I still haven't said yes.",
-        "low": "I heard you both. That isn't the same as agreeing."
+        "base": "All right. I'm letting go.",
+        "high": "Fine. I'm letting go.",
+        "low": "All right. I'm letting it go."
       },
       "stay_highcrag_response": {
         "speaker": "highcragCat",
@@ -378,9 +394,9 @@
         "speaker": "bonefieldCat",
         "focusTrait": "curiosity",
         "context": "question",
-        "base": "Then don't go telling anyone whose side was right.",
-        "high": "You're watching, so watch properly. Hear us both before you decide what you saw here.",
-        "low": "Then leave it to us. I'm not answering your questions."
+        "base": "The river's taken it. There's nothing left to fight over.",
+        "high": "It's gone. The current took it downstream.",
+        "low": "It's gone. The river's taken it."
       }
     },
     "authoringValidation": {

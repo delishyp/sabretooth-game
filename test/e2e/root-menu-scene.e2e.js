@@ -62,7 +62,7 @@ const sha = (rel) => crypto.createHash('sha256').update(fs.readFileSync(path.joi
     await page.waitForTimeout(200);
     const info = await sample();
     assert.strictEqual(info.screen, 'root');
-    assert.ok(info.creator.includes('assets/menu/night/work/bg1920.png'));
+    assert.ok(info.creator.includes('assets/menu/background-1920.png'));
     assert.ok(info.den.includes('assets/game/home-landscape.png'));
     const dist = (a, b) => a.reduce((sum, v, i) => sum + Math.abs(v - b[i]), 0);
     assert.ok(dist(info.shown, info.approved) < 40, JSON.stringify({ shown: info.shown, approved: info.approved }));

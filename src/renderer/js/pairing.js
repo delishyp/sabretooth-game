@@ -436,7 +436,7 @@
     }
 
     function courtHint(key, npc) {
-      const text = hints[key] || hints['court.ineligible'] || '{catName} cannot be courted.';
+      const text = hints[key] || hints['court.ineligible'] || 'You can\'t court {catName}.';
       return fill(text, { catName: npc && npc.name || '' });
     }
     function grown(npc) {
@@ -1356,7 +1356,7 @@
         const here = (s.records.lonerGroups || []).find((group) => (group.homeZones || []).includes(s.region));
         const authored = families['m2.loner_group'] && families['m2.loner_group'].noGroup;
         if (here && (here.memberIds || []).length >= 3) reason = hints['group.full'] || 'This group has no room for another cat.';
-        else reason = here ? 'Loners are travelling together near here.' : (authored || 'No loners travel together near here yet.');
+        else reason = here ? 'Loners are travelling together near here.' : (authored || 'No loners are travelling together near here yet.');
       }
       else if (intent === 'alone') reason = 'Hunt, rest, and travel stay available.';
       return { intent, reason, choices: ['pride', 'group', 'alone'] };
@@ -1392,7 +1392,7 @@
       const here = (s.records.lonerGroups || []).find((group) => (group.homeZones || []).includes(s.region));
       if (!here) {
         const authored = families['m2.loner_group'] && families['m2.loner_group'].noGroup;
-        return { line: authored || 'No loners travel together near here yet.' };
+        return { line: authored || 'No loners are travelling together near here yet.' };
       }
       if ((here.memberIds || []).length >= 3) return { line: hints['group.full'] || 'This group has no room for another cat.', full: true };
       const member = s.npcs[here.memberIds[0]];

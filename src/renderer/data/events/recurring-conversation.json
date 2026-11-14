@@ -16,7 +16,7 @@
       "choices": [
         {
           "id": "company",
-          "label": "“I'd like some company. Can I walk with you?”",
+          "label": "“Sure, let's walk.”",
           "next": "company"
         },
         {
@@ -37,17 +37,17 @@
       "choices": [
         {
           "id": "quiet",
-          "label": "Fall in beside {catName} and keep quiet.",
+          "label": "“Yes, let's walk.”",
           "next": "quiet_walk"
         },
         {
           "id": "ask_first",
-          "label": "“Do you want me to leave you alone?”",
+          "label": "“Not today, sorry.”",
           "next": "space"
         },
         {
           "id": "press",
-          "label": "“I didn't come for a silent walk. I want to talk.”",
+          "label": "“I'll walk, but I want to talk.”",
           "next": "boundary"
         }
       ],
@@ -87,7 +87,7 @@
       ]
     },
     "space": {
-      "B": "Not alone, no. Just quiet. That's different.",
+      "B": "All right. I won't keep you.",
       "choices": [
         {
           "id": "respect",
@@ -1457,9 +1457,9 @@
       },
       "/nodes/space": {
         "focusTrait": "sociability",
-        "high": "No! I want you here. I just don't feel like talking much.",
-        "low": "I didn't say go. I just like it quiet. You can stay if you don't talk the whole way.",
-        "base": "Not alone, no. Just quiet. That's different.",
+        "high": "Oh. All right, if that's what you want. I did hope you'd stay.",
+        "low": "All right. I won't keep you, if you'd rather go.",
+        "base": "All right. I won't keep you.",
         "context": "return",
         "highActionDecision": "Use the context/action table for the focused high trait; not just an emotional adjective.",
         "lowActionDecision": "Use the context/action table for the focused low trait; not a relationship penalty."
