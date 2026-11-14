@@ -226,6 +226,12 @@
     const cat = s.conversation && s.conversation.cats && s.conversation.cats[catId];
     return (cat && cat.facts || []).find((f) => f.promiseId === 'keep_secret' && f.promise === 'pending' && f.catId === catId) || null;
   }
+  function secretCue(npc, which) {
+    const table = (Pass2.lines()['lone-actions.js:approachRequest'] || {})[which] || {};
+    const value = npc && npc.personality && npc.personality.aggression;
+    const band = typeof value !== 'number' ? 'base' : value >= 70 ? 'high' : value <= 30 ? 'low' : 'base';
+    return String(table[band] || table.base || '').replace(/\{catName\}/g, (npc && npc.name) || '');
+  }
   function keepSecret(s, catId) {
     const fact = secretPromise(s, catId);
     if (!fact || fact.told || fact.absDay === s.day) return { kept: false };
@@ -233,7 +239,7 @@
     fact.resolvedDay = s.day;
     const npc = s.npcs && s.npcs[catId];
     if (npc) npc.affinity = Math.max(-100, Math.min(100, (npc.affinity || 0) + 5));
-    return { kept: true, delta: 5 };
+    return { kept: true, delta: 5, line: secretCue(npc, 'kept') };
   }
   function breakSecret(s, factId) {
     const match = String(factId || '').match(/saw_out_here\/([^/]+)/);
@@ -245,7 +251,7 @@
     fact.resolvedDay = s.day;
     const npc = s.npcs && s.npcs[match[1]];
     if (npc) npc.affinity = Math.max(-100, Math.min(100, (npc.affinity || 0) - 5));
-    return { broken: true, delta: -5 };
+    return { broken: true, delta: -5, line: secretCue(npc, 'broken'), catId: match[1] };
   }
   function bringPrey(s, catId) {
     const cat = s.conversation && s.conversation.cats && s.conversation.cats[catId];
@@ -466,7 +472,7 @@
       return { meeting: watched };
     }
     const picked = pickApproach(s, opts);
-    if (picked) keepSecret(s, picked.id);
+    const kept = picked ? keepSecret(s, picked.id) : null;
     mark(s, 'approach', picked ? picked.id : 'none');
     if (picked && opts.followScene) {
       const follow = opts.followScene(picked);
@@ -483,6 +489,7 @@
       beats.push({ kind: 'narration', text: Pass2.lines()['lone-actions.js:noApproach'] });
     } else {
       kind = openerKind(picked);
+      if (kept && kept.line) beats.push({ kind: 'speech', speaker: picked.name, speakerId: picked.id, text: kept.line });
       beats.push({ kind: 'narration', speaker: 'npc', text: OPENERS[kind] || OPENERS.baseline });
       facts = knownFacts(s, picked.id, opts.knowsFact || (() => false));
       let told = null;
@@ -497,7 +504,10 @@
         if (line) {
           told = line;
           gossipSourceId = id;
-          breakSecret(s, id);
+          const broke = breakSecret(s, id);
+          if (broke && broke.line && broke.catId === picked.id) {
+            beats.push({ kind: 'speech', speaker: picked.name, speakerId: picked.id, text: broke.line });
+          }
           break;
         }
       }

@@ -10,8 +10,8 @@
       ],
       "season": "spring",
       "oncePerRun": true,
-      "title": "A voice in the ice",
-      "text": "A deep crack travels through the glacier. You hold still until the last echo fades; no snow falls from the face above.",
+      "title": "The glacier cracks",
+      "text": "A deep crack runs through the glacier. You hold still until the echo dies away, but no snow falls from the ice above.",
       "summary": "You listened to the glacier settle.",
       "choices": [
         {
@@ -137,7 +137,7 @@
       "season": "spring",
       "oncePerRun": true,
       "title": "Heads raised",
-      "text": "Horses stand among the cropped grass. One lifts its head, then another, until the whole group is watching your patch of hillside.",
+      "text": "Horses stand among the cropped grass. A horse lifts its head, then another, until the whole herd is looking up at your patch of hillside.",
       "summary": "You watched the meadow horses notice you.",
       "choices": [
         {
@@ -178,8 +178,8 @@
       ],
       "season": "spring",
       "oncePerRun": true,
-      "title": "Overwritten",
-      "text": "Two cat scents overlap on a stone above the crossing. One is fresher, but neither has quite covered the other.",
+      "title": "Mixed scent",
+      "text": "Scents from different cats overlap on a stone above the crossing. The newer scent is stronger, but it hasn't covered the older.",
       "summary": "You found rival scent marks at the ford.",
       "choices": [
         {
@@ -242,7 +242,7 @@
       "season": "spring",
       "oncePerRun": true,
       "title": "Many feet",
-      "text": "Hoofprints press into older hoofprints until the trail is wider than a den. You find a single tuft of coarse fur caught on a low stem.",
+      "text": "Hoofprints press into older hoofprints until the trail is wider than a den. You find a tuft of coarse fur caught on a low stem.",
       "summary": "You examined the signs along the herd trail.",
       "choices": [
         {
@@ -305,7 +305,7 @@
       "season": "spring",
       "oncePerRun": true,
       "title": "A place to sit",
-      "text": "The split in the great boulder holds a narrow strip of shade. Old cat scents mingle at its base, with no single scent strong enough to claim it.",
+      "text": "The split in the great boulder holds a narrow strip of shade. Old cat scents mingle at its base, and none of them is strong enough to claim it.",
       "summary": "You paused beneath the Split Rock.",
       "choices": [
         {
@@ -325,7 +325,7 @@
       ],
       "season": "spring",
       "oncePerRun": true,
-      "title": "Two currents",
+      "title": "Where the streams meet",
       "text": "At the fork, clear ripples meet a cloudy stream. A leaf turns where the waters join before slipping downstream.",
       "summary": "You watched the currents meet at Twin Forks.",
       "choices": [
@@ -494,7 +494,7 @@
       "season": "spring",
       "oncePerRun": true,
       "title": "Across the ridge",
-      "text": "You reach a hollow between two heights. Wind whistles through it, carrying the dry scrape of a stone rolling somewhere out of sight.",
+      "text": "You reach a hollow between the heights. Wind whistles through it, carrying the dry scrape of a stone rolling somewhere out of sight.",
       "summary": "You listened to loose stone on East Saddle.",
       "choices": [
         {
@@ -556,7 +556,7 @@
       ],
       "season": "spring",
       "oncePerRun": true,
-      "title": "Not water",
+      "title": "A black pool",
       "text": "The dark surface shines like a still pool, but its smell is thick and bitter. A trapped leaf tilts slowly without drifting towards the edge.",
       "summary": "You watched a leaf held fast in the tar.",
       "choices": [
@@ -598,7 +598,7 @@
       ],
       "season": "spring",
       "oncePerRun": true,
-      "title": "Single file",
+      "title": "A worn track",
       "text": "The ground is worn into a narrow track. Wolf scent lies along it in layers, some fresh enough to make you lift your head and listen.",
       "summary": "You noticed fresh scent on the wolf run.",
       "choices": [

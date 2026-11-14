@@ -60,8 +60,8 @@ test('bf06 byCat changes only the courtship result line', () => {
   const event = pair.resultScene('accepted', s, npc, deps, null);
   const text = event.lines.map((line) => line.text).join('\n');
   assert.ok(text.includes('Would you be my mate?'));
-  assert.ok(text.includes('turns toward you'));
-  assert.ok(text.includes('I have been waiting for you to ask'));
+  assert.ok(text.includes('find {catName} on the trail') || text.includes('on the trail'));
+  assert.ok(/Yes\./.test(text), text);
   assert.ok(!text.includes('This opening must stay'));
 });
 
@@ -76,21 +76,21 @@ test('membership blockers use one comparison', () => {
   const gate = pair.joinBlockers(s, Object.assign({}, deps, {
     held: (region, pride) => region === 'bonefield' && pride === 'bonefield'
   }));
-  const memberLines = gate.blockers.filter((line) => line.startsWith('You are a member of '));
-  assert.deepStrictEqual(memberLines, ['You are a member of Highcrag.']);
+  const memberLines = gate.blockers.filter((line) => line.startsWith("You're already a member of "));
+  assert.deepStrictEqual(memberLines, ["You're already a member of Highcrag."]);
 });
 
 test('season end, solo, and pride admission play their authored beats', () => {
   const s = run();
   const end = pair.seasonPending(s, deps);
   const text = end.lines.map((line) => line.text).join('\n');
-  assert.ok(text.includes('The mating season draws to a close'));
-  assert.ok(text.includes('You can try to earn a place in a pride'));
+  assert.ok(text.includes('The mating season is over'));
+  assert.ok(text.includes('Whatever you choose next'));
   s.pending = end;
   s.phase = 'event';
   const alone = pair.choose(s, { type: 'choose', choiceId: 'route_alone' }, deps);
   assert.ok(!alone.error, alone.error);
-  assert.ok(s.pending.lines.map((line) => line.text).join('\n').includes('You turn back toward your own tracks'));
+  assert.ok(s.pending.lines.map((line) => line.text).join('\n').includes('You turn back to your own tracks'));
 
   const ask = run();
   ask.region = 'bonefield';
@@ -101,7 +101,7 @@ test('season end, solo, and pride admission play their authored beats', () => {
   }));
   assert.ok(joined.event, joined.error);
   const admission = joined.event.lines.map((line) => line.text).join('\n');
-  assert.ok(admission.includes('I am asking for a place'));
+  assert.ok(admission.includes("I'd like to join"));
   assert.ok(admission.includes('Bonefield') || admission.includes(ask.npcs.bf01.name));
 });
 

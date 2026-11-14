@@ -37,7 +37,7 @@ test('FIXTURE: Greywater is not held land, and the reminder does not name courts
   s.records.routeIntent = 'pride';
   s.region = 'greywater_ford';
   const reason = E.available(s).route.reason;
-  assert.ok(reason.includes('not on land a pride holds'));
+  assert.ok(reason.includes("aren't on land a pride holds"));
   assert.ok(!reason.includes('courtship'));
   const blocked = E.act(s, { type: 'joinAsk', pride: 'highcrag' });
   assert.strictEqual(blocked.error, 'join.notHeld');
@@ -223,7 +223,7 @@ test('FIXTURE: the ask stays shut until the leader has been met', () => {
   s.region = 'highcrag';
   assert.strictEqual(s.npcs.hc01.met, false);
   const gate = E.available(s).joinAsk;
-  assert.ok(gate.blockers.some((line) => line.includes('have not met') && line.includes(s.npcs.hc01.name)));
+      assert.ok(gate.blockers.some((line) => line.includes("haven't met") && line.includes(s.npcs.hc01.name)));
   assert.ok(!gate.blockers.some((line) => line.includes('courtship')));
   const blocked = E.act(s, { type: 'joinAsk', pride: 'highcrag' });
   assert.strictEqual(blocked.error, 'join.blocked');

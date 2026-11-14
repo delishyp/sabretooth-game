@@ -1077,10 +1077,16 @@
       Payoffs.attachRendezvous(s, zoneName);
     }
     function openMeeting(s, npc) {
-      if (npc) Lone.keepSecret(s, npc.id);
+      const kept = npc ? Lone.keepSecret(s, npc.id) : null;
       const already = !!npc.met;
+      const noteKept = () => {
+        if (!kept || !kept.line || !s.pending) return;
+        const beat = { kind: 'speech', speaker: npc.name, speakerId: npc.id, text: kept.line };
+        if (Array.isArray(s.pending.beats)) s.pending.beats.unshift(beat);
+        else if (Array.isArray(s.pending.lines)) s.pending.lines.unshift(beat);
+      };
       const followed = meetingFollow(s, npc);
-      if (followed) { meet(s, npc); s.pending = followed; s.phase = 'event'; return { state: s }; }
+      if (followed) { meet(s, npc); s.pending = followed; s.phase = 'event'; noteKept(); return { state: s }; }
       if (!already) {
         const faction = npc.faction === 'highcrag' || npc.faction === 'bonefield' || npc.faction === 'mistwood' ? npc.faction : 'loner';
         const e = eventFor('first_meeting', faction);
@@ -1088,6 +1094,7 @@
         s.pending = bind(e, npc, { day: s.day });
         meet(s, npc);
         s.phase = 'event';
+        noteKept();
         return { state: s };
       }
       if (Pair.enabled) {
@@ -1096,6 +1103,7 @@
           s.pending = ev;
           s.phase = 'event';
           offerRendezvous(s, already);
+          noteKept();
           return { state: s };
         }
       }
@@ -1105,6 +1113,7 @@
       s.pending = bind(e, npc, { day: s.day });
       offerRendezvous(s, already);
       s.phase = 'event';
+      noteKept();
       return { state: s };
     }
     function presenceChoose(s, choiceId) {

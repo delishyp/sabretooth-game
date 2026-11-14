@@ -446,7 +446,7 @@
       return Pairs.stored(s.records.catToCat, s.cat.catId, npc.id) || Pairs.stored(s.records.catToCat, npc.id, s.cat.catId);
     }
     function courtGate(s, npc) {
-      if (!npc) return { code: 'court.ineligible', hint: hints['court.ineligible'] || 'Nobody is there to court.' };
+      if (!npc) return { code: 'court.ineligible', hint: hints['court.ineligible'] || 'There\'s nobody here to court.' };
       if (!grown(npc)) return { code: 'court.ineligible.young', hint: courtHint('court.ineligible.young', npc) };
       if (targetMated(s, npc)) return { code: 'court.ineligible.mated', hint: courtHint('court.ineligible.mated', npc) };
       if (!grown(s.cat) || playerMated(s)) return { code: 'court.ineligible', hint: courtHint('court.ineligible', npc) };
@@ -553,7 +553,7 @@
       const origin = s.records.bonds[npc.id] && s.records.bonds[npc.id].originPrideId;
       if (origin) {
         const named = PRIDE_NAMES[origin] || origin;
-        beats.splice(1, 0, { kind: 'narration', text: `${npc.name} has left ${named} to make this pride with you.` });
+        beats.splice(1, 0, { kind: 'narration', text: `${npc.name} has left ${named} to start this pride with you.` });
       }
       return scene('m2.pride_founded', s, npc, deps, {
         beats, heading: 'Founding', group: 'founding', result: true, choices: [], showPortrait: true,
@@ -979,7 +979,7 @@
       return PRIDE_NAMES[s.cat.prideId] || s.cat.prideId;
     }
     function membershipLine(label) {
-      return `You are a member of ${label}.`;
+      return `You're already a member of ${label}.`;
     }
     function bondLabel(stage) {
       return hints['bondStage.' + stage] || stage;
@@ -990,20 +990,20 @@
       if (!pride) {
         const blockers = [];
         if (mine) blockers.push(membershipLine(mine));
-        blockers.push('You are not on land a pride holds.');
+        blockers.push('You aren\'t on land a pride holds.');
         return { pride: null, leader: null, blockers };
       }
       const leader = leaderOf(s, pride);
       const name = PRIDE_NAMES[pride] || pride;
       const blockers = [];
-      if (!leader || !leader.met) blockers.push(`You have not met ${leader ? leader.name : 'the leader'}.`);
+      if (!leader || !leader.met) blockers.push(`You haven't met ${leader ? leader.name : 'the leader'} yet.`);
       const prior = s.records.joinAsk && s.records.joinAsk[pride];
       const season = seasonIndex(s);
       const memberHere = !!(s.cat && s.cat.status === 'member' && s.cat.prideId === pride && prior && prior.approved);
       if (prior && (prior.season == null || prior.season === season)) {
         blockers.push(memberHere
           ? membershipLine(name)
-          : fill(hints['join.cooldown'] || `You already asked ${name} this season. The request was ${prior.approved ? 'approved' : 'refused'}.`, { catName: leader ? leader.name : name }));
+          : fill(hints['join.cooldown'] || `You already asked ${name} this season, and the answer was ${prior.approved ? 'yes' : 'no'}.`, { catName: leader ? leader.name : name }));
       }
       if (mine && !blockers.some((line) => line === membershipLine(mine))) blockers.push(membershipLine(mine));
       return { pride, leader, blockers };
@@ -1275,8 +1275,8 @@
       } else if (pride && s.records.matePair && !mate) {
         variant = 'widowed_founded';
         const name = pride.name;
-        summary = 'The mating season ended. Your pride remains, and your mate is gone.';
-        beats = [{ kind: 'narration', text: `The mating season has ended. ${name} remains your pride. Your mate is no longer beside you, but another day begins.` }];
+        summary = 'The mating season is over. Your pride is still yours, but your mate is gone.';
+        beats = [{ kind: 'narration', text: `The mating season is over. ${name} is still your pride, but your mate is gone.` }];
         choices = [{ id: 'continue', label: 'Continue.', summary: 'Life continued after the mating season.', result: 'acknowledge' }];
         npc = null;
       } else {
@@ -1348,10 +1348,10 @@
     function routeStatus(s, deps) {
       if (!s.records || !s.records.seasonEndShown || s.records.matePair) return null;
       const intent = s.records.routeIntent || null;
-      let reason = 'No route is chosen.';
+      let reason = 'You haven\'t chosen a route yet.';
       if (intent === 'pride') {
         const gate = joinBlockers(s, deps);
-        reason = gate.blockers.length ? gate.blockers.join(' ') : `You can ask ${gate.leader.name} to join ${PRIDE_NAMES[gate.pride]}.`;
+        reason = gate.blockers.length ? gate.blockers.join(' ') : `You can ask ${gate.leader.name} if you can join ${PRIDE_NAMES[gate.pride]}.`;
       } else if (intent === 'group') {
         const here = (s.records.lonerGroups || []).find((group) => (group.homeZones || []).includes(s.region));
         const authored = families['m2.loner_group'] && families['m2.loner_group'].noGroup;

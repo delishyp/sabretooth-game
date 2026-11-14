@@ -444,7 +444,7 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "You face {catName} on the trail."
+          "text": "You find {catName} on the trail and go over."
         },
         {
           "kind": "line",
@@ -460,11 +460,11 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "{catName} turns toward you to answer."
+              "text": "{catName}'s ears come up."
             },
             {
               "kind": "line",
-              "text": "“Yes. I would like that.”",
+              "text": "“Yes. I'd like that.”",
               "speaker": "B",
               "speechId": "m2.courtship|results.accepted.beats.1"
             }
@@ -476,11 +476,11 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "{catName} looks away toward the far hills, then back."
+              "text": "{catName} hesitates."
             },
             {
               "kind": "line",
-              "text": "“Not now. I am not ready to answer yes.”",
+              "text": "“Not now. I'm not ready to say yes.”",
               "speaker": "B",
               "speechId": "m2.courtship|results.declined.beats.1"
             }
@@ -492,11 +492,11 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "{catName} answers without coming closer."
+              "text": "{catName} doesn't come any closer."
             },
             {
               "kind": "line",
-              "text": "“I do not feel that way about you.”",
+              "text": "“I'm sorry. I don't feel that way about you.”",
               "speaker": "B",
               "speechId": "m2.courtship|results.declined_attraction.beats.1"
             }
@@ -521,17 +521,17 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "You and {catName} stand before {leaderName}."
+          "text": "You and {catName} go to {leaderName} together."
         },
         {
           "kind": "line",
-          "text": "“Tell me what you are asking of the pride.”",
+          "text": "“What are you asking of the pride?”",
           "speaker": "C",
           "speechId": "m2.leader_approval|beats.1"
         },
         {
           "kind": "line",
-          "text": "“We want to be mates. Will your pride recognise our bond?”",
+          "text": "“{catName} and I want to be mates. Will the pride accept that?”",
           "speaker": "A"
         }
       ],
@@ -543,13 +543,13 @@
           "beats": [
             {
               "kind": "line",
-              "text": "“I recognise your bond.”",
+              "text": "“Yes. The pride will accept you as mates.”",
               "speaker": "C",
               "speechId": "m2.leader_approval|results.approved.beats.0"
             },
             {
               "kind": "narration",
-              "text": "The leader has given approval. Your bond still follows the remaining requirements."
+              "text": "{leaderName} has said yes. A rival can still challenge you before you become mates."
             }
           ],
           "summary": "{leaderName} approved your bond with {catName}."
@@ -558,13 +558,13 @@
           "beats": [
             {
               "kind": "line",
-              "text": "“Not this season.”",
+              "text": "“No. Not this season, so don't ask me again.”",
               "speaker": "C",
               "speechId": "m2.leader_approval|results.refused.beats.0"
             },
             {
               "kind": "narration",
-              "text": "The answer is no. {catName} looks at you for a long moment, and whatever {catName} feels about it stays unspoken."
+              "text": "{catName}'s ears go flat, but {he} doesn't say anything."
             }
           ],
           "summary": "{leaderName} refused your bond with {catName}.",
@@ -589,11 +589,11 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "{rivalName} takes a place across the trail."
+          "text": "{rivalName} steps out and blocks the trail in front of you."
         },
         {
           "kind": "line",
-          "text": "“You court {catName}. Face my challenge.”",
+          "text": "“You're courting {catName}? So am I. Let's settle this.”",
           "speaker": "C",
           "speechId": "m2.mate_rival|beats.1"
         }
@@ -606,7 +606,7 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "You face {rivalName} in a non-lethal challenge."
+              "text": "You and {rivalName} square up. Neither of you means to kill."
             }
           ],
           "summary": "You faced {rivalName} in a non-lethal challenge."
@@ -619,7 +619,7 @@
             },
             {
               "kind": "line",
-              "text": "“You won. It is {catName}’s choice.”",
+              "text": "“Fine. You won. But {catName} still gets to choose.”",
               "speaker": "C",
               "speechId": "m2.mate_rival|results.won.beats.1"
             }
@@ -631,11 +631,11 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "You give ground first, breath coming hard. {rivalName} holds the trail."
+              "text": "You give ground, panting hard. {rivalName} keeps the trail."
             },
             {
               "kind": "narration",
-              "text": "The challenge has ended without a victory for you."
+              "text": "You lost the challenge."
             }
           ],
           "summary": "You lost the challenge against {rivalName}.",
@@ -657,11 +657,11 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "{catName} stands beside you as you acknowledge the bond you have both chosen."
+          "text": "{catName} comes and stands close beside you."
         },
         {
           "kind": "line",
-          "text": "“Mates, then. You and me.”",
+          "text": "“So we're mates now. You and me.”",
           "speaker": "B",
           "speechId": "m2.mates_confirmed|beats.1"
         }
@@ -669,13 +669,13 @@
       "choices": [
         {
           "id": "acknowledge",
-          "label": "“You and me.”",
+          "label": "“I'm glad it's you.”",
           "summary": "You and {catName} became mates.",
           "result": "acknowledge"
         },
         {
           "id": "found_here",
-          "label": "“Let us make our home here, in {regionName}.”",
+          "label": "“Let's make our home right here in {regionName}.”",
           "summary": "You chose to found a pride with {catName} here.",
           "result": "found",
           "mappingNote": "Offer ONLY if engine reports current region wild (§3.7.2–3). Selecting it requests the Found action; founding scene follows only on engine success."
@@ -707,17 +707,17 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "You and {catName} leave your scent marks in {regionName}."
+          "text": "You and {catName} leave your scent on the land in {regionName}. It's yours now."
         },
         {
           "kind": "line",
-          "text": "“Our own pride. {newPrideName}.”",
+          "text": "“Our own pride. {newPrideName}. I like the sound of that.”",
           "speaker": "B",
           "speechId": "m2.pride_founded|beats.1"
         },
         {
           "kind": "narration",
-          "text": "This is the den of {newPrideName}. Another day of keeping it begins."
+          "text": "This den belongs to {newPrideName} now."
         }
       ],
       "choices": [],
@@ -730,7 +730,7 @@
       ],
       "conditionalDeparture": {
         "when": "Actual founder mate has committed originPrideId→newPrideId membership transfer with this Found receipt",
-        "afterCommitText": "{catName} has left {originPrideName} to make this pride with you.",
+        "afterCommitText": "{catName} has left {originPrideName} to start this pride with you.",
         "otherwise": "Omit; loner mates have no invented former pride. Never use this at mates_confirmed."
       }
     },
@@ -746,7 +746,7 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "The mating season draws to a close. Scent trails cross the Vale, and another day waits beyond this one."
+          "text": "The mating season is over."
         }
       ],
       "results": {
@@ -754,7 +754,7 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "{catName} stands beside you. You have founded {newPrideName}; now there are trails to watch and another day to feed yourselves."
+              "text": "The mating season is over. {catName} is still by your side, and {newPrideName} is still yours."
             }
           ],
           "summary": "The mating season ended with your mate and pride beside you.",
@@ -771,7 +771,7 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "{catName} is still your mate. You have no pride of your own yet, but you can still find wild land and found one together."
+              "text": "The mating season is over. {catName} is still your mate. You don't have a pride yet, but you can still find wild land and start a pride together."
             }
           ],
           "summary": "The mating season ended; you can still found a pride with {catName}.",
@@ -788,7 +788,7 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "You can try to earn a place in a pride, seek other loners, or keep yourself alive alone. None of those paths closes the others."
+              "text": "Whatever you choose next, you can change your mind later."
             }
           ],
           "recapByBestStage": {
@@ -796,7 +796,7 @@
               "beats": [
                 {
                   "kind": "narration",
-                  "text": "The mating season has ended, but your next trail is still yours to choose."
+                  "text": "The mating season is over. Where you go next is up to you."
                 }
               ],
               "summary": "The mating season ended before you met another cat."
@@ -805,7 +805,7 @@
               "beats": [
                 {
                   "kind": "narration",
-                  "text": "You remember {catName} where your trails crossed."
+                  "text": "You remember meeting {catName}."
                 }
               ],
               "summary": "The mating season ended; you remembered {catName}."
@@ -814,7 +814,7 @@
               "beats": [
                 {
                   "kind": "narration",
-                  "text": "You still know {catName}’s scent among the others."
+                  "text": "You'd know {catName}'s scent anywhere by now."
                 }
               ],
               "summary": "The mating season ended; you knew {catName}’s scent."
@@ -823,7 +823,7 @@
               "beats": [
                 {
                   "kind": "narration",
-                  "text": "The time you spent with {catName} remains part of your story, even without a mate bond."
+                  "text": "You and {catName} got close this season, even if you didn't become mates."
                 }
               ],
               "summary": "The mating season ended with {catName} close to you."
@@ -842,21 +842,21 @@
           "choices": [
             {
               "id": "route_pride",
-              "label": "Seek a place in an existing pride.",
+              "label": "Look for a pride that will take you in.",
               "summary": "You turned toward the prides of the Vale.",
               "result": "route_intent.pride",
               "mappingNote": "Sets route intent only, with no lock or cost, then continues into normal day21; no automatic acceptance, membership or encounter."
             },
             {
               "id": "route_group",
-              "label": "Look for other loners to travel with.",
+              "label": "Look for other loners.",
               "summary": "You went looking for other loners.",
               "result": "route_intent.loner_group",
               "mappingNote": "Sets route intent only, with no lock or cost, then continues into normal day21; no automatic acceptance, membership or encounter."
             },
             {
               "id": "route_alone",
-              "label": "Keep travelling alone.",
+              "label": "Keep going on your own.",
               "summary": "You chose to walk on alone.",
               "result": "route_intent.solitary",
               "mappingNote": "Sets route intent only, with no lock or cost, then continues into normal day21; no automatic acceptance, membership or encounter."
@@ -887,7 +887,7 @@
       "beats": [
         {
           "kind": "narration",
-          "text": "You turn back toward your own tracks. For now there is water to find, prey to follow, and somewhere sheltered to rest."
+          "text": "You turn back to your own tracks. There's still water to find and prey to hunt."
         }
       ],
       "choices": [],
@@ -917,12 +917,12 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "Several scent trails meet by the path. One of the loners rises as you approach."
+              "text": "Scent trails from several cats meet by the path. A loner gets up as you come closer."
             },
             {
               "kind": "line",
               "speaker": "C",
-              "text": "“What brings you along our trail?”",
+              "text": "“You're on our trail. What do you want?”",
               "speechId": "m2.loner_group|results.meet.beats.1"
             }
           ],
@@ -933,12 +933,12 @@
             {
               "kind": "line",
               "speaker": "C",
-              "text": "“Come with us, then. We move together.”",
+              "text": "“Come with us, then. We're moving on.”",
               "speechId": "m2.loner_group|results.join.beats.0"
             },
             {
               "kind": "narration",
-              "text": "The others leave a space for you as they set off."
+              "text": "The others make room for you as they set off."
             }
           ],
           "summary": "The loners accepted you into their group."
@@ -948,12 +948,12 @@
             {
               "kind": "line",
               "speaker": "C",
-              "text": "“No. We are not taking you with us.”",
+              "text": "“No. We're not taking you with us.”",
               "speechId": "m2.loner_group|results.refused.beats.0"
             },
             {
               "kind": "narration",
-              "text": "The group moves on without making room."
+              "text": "The group moves on and leaves you behind."
             }
           ],
           "summary": "The loners refused your request to join."
@@ -982,12 +982,12 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "{leaderName} waits at the scent-marked trail. You stop in front of them."
+              "text": "{leaderName} is waiting where the scent marks begin, so you go over."
             },
             {
               "kind": "line",
               "speaker": "A",
-              "text": "“I am asking for a place in {originPrideName}.”"
+              "text": "“I'd like to join {originPrideName}, if you'll have me.”"
             }
           ],
           "summary": "You asked to join {originPrideName}."
@@ -997,7 +997,7 @@
             {
               "kind": "line",
               "speaker": "C",
-              "text": "“You may stay. Walk beside us.”",
+              "text": "“You can stay. Come on, walk with us.”",
               "speechId": "m2.pride_admission|results.accepted.beats.0"
             },
             {
@@ -1012,12 +1012,12 @@
             {
               "kind": "line",
               "speaker": "C",
-              "text": "“No. There is no place for you here now.”",
+              "text": "“No. There's no place for you here.”",
               "speechId": "m2.pride_admission|results.refused.beats.0"
             },
             {
               "kind": "narration",
-              "text": "{leaderName} stays between you and the pride."
+              "text": "{leaderName} stays put, between you and the pride."
             }
           ],
           "summary": "{originPrideName} refused your request to join."
@@ -1097,9 +1097,9 @@
         "location": "results.accepted.beats.1",
         "speakerSlot": "B",
         "focusTrait": "sociability",
-        "low": "“Yes. I want that.”",
-        "baseline": "“Yes. I would like that.”",
-        "high": "“Yes. I want to be your mate.”"
+        "low": "Yes. I want that too.",
+        "baseline": "Yes. I'd like that.",
+        "high": "Yes! I was hoping you'd ask me that."
       },
       {
         "speechId": "m2.courtship|results.declined.beats.1",
@@ -1107,9 +1107,9 @@
         "location": "results.declined.beats.1",
         "speakerSlot": "B",
         "focusTrait": "aggression",
-        "low": "“No. I cannot say yes now.”",
-        "baseline": "“Not now. I am not ready to answer yes.”",
-        "high": "“No. Not now.”"
+        "low": "Not yet. I'm sorry. I'm just not ready to say yes.",
+        "baseline": "Not now. I'm not ready to say yes.",
+        "high": "No. Not now, and don't push me on it."
       },
       {
         "speechId": "m2.courtship|results.declined_attraction.beats.1",
@@ -1117,9 +1117,9 @@
         "location": "results.declined_attraction.beats.1",
         "speakerSlot": "B",
         "focusTrait": "sociability",
-        "low": "“No. I do not feel that way about you.”",
-        "baseline": "“I do not feel that way about you.”",
-        "high": "“We can still talk, but I do not feel that way about you.”"
+        "low": "No. I don't feel that way about you.",
+        "baseline": "I'm sorry. I don't feel that way about you.",
+        "high": "I like you, I really do. Just not like that. We can still talk, though."
       },
       {
         "speechId": "m2.leader_approval|beats.1",
@@ -1127,9 +1127,9 @@
         "location": "beats.1",
         "speakerSlot": "C",
         "focusTrait": "curiosity",
-        "low": "“State your request.”",
-        "baseline": "“Tell me what you are asking of the pride.”",
-        "high": "“Tell me what you both want the pride to recognise.”"
+        "low": "Well? What do you want?",
+        "baseline": "What are you asking of the pride?",
+        "high": "You've come to me together. What is it you want?"
       },
       {
         "speechId": "m2.leader_approval|results.approved.beats.0",
@@ -1137,9 +1137,9 @@
         "location": "results.approved.beats.0",
         "speakerSlot": "C",
         "focusTrait": "loyalty",
-        "low": "“I recognise your bond.”",
-        "baseline": "“I recognise your bond.”",
-        "high": "“As leader, I recognise your bond before this pride.”"
+        "low": "All right. The pride accepts it.",
+        "baseline": "Yes. The pride will accept you as mates.",
+        "high": "Yes. You have the pride's blessing, both of you."
       },
       {
         "speechId": "m2.leader_approval|results.refused.beats.0",
@@ -1147,9 +1147,9 @@
         "location": "results.refused.beats.0",
         "speakerSlot": "C",
         "focusTrait": "aggression",
-        "low": "“I cannot give that approval this season.”",
-        "baseline": "“Not this season.”",
-        "high": "“No. Not this season.”"
+        "low": "I'm sorry. I can't give you that this season.",
+        "baseline": "No. Not this season, so don't ask me again.",
+        "high": "No. And don't ask me again this season."
       },
       {
         "speechId": "m2.mate_rival|beats.1",
@@ -1157,9 +1157,9 @@
         "location": "beats.1",
         "speakerSlot": "C",
         "focusTrait": "aggression",
-        "low": "“I challenge you over courting {catName}.”",
-        "baseline": "“You court {catName}. Face my challenge.”",
-        "high": "“You want to court {catName}? Face me.”"
+        "low": "I'm sorry, but I'm courting {catName} too. I have to challenge you.",
+        "baseline": "You're courting {catName}? So am I. Let's settle this.",
+        "high": "You think you can court {catName}? Prove it. Come on."
       },
       {
         "speechId": "m2.mate_rival|results.won.beats.1",
@@ -1167,9 +1167,9 @@
         "location": "results.won.beats.1",
         "speakerSlot": "C",
         "focusTrait": "boldness",
-        "low": "“I yield. {catName} still chooses.”",
-        "baseline": "“You won. It is {catName}’s choice.”",
-        "high": "“You won this challenge. {catName} still chooses.”"
+        "low": "All right, you win. It's still up to {catName}, though.",
+        "baseline": "Fine. You won. But {catName} still gets to choose.",
+        "high": "Fine, you won fair. {catName} still chooses, not you."
       },
       {
         "speechId": "m2.mates_confirmed|beats.1",
@@ -1177,9 +1177,9 @@
         "location": "beats.1",
         "speakerSlot": "B",
         "focusTrait": "loyalty",
-        "low": "“Mates. That is what I choose.”",
-        "baseline": "“Mates, then. You and me.”",
-        "high": "“Mates. I choose this bond with you.”"
+        "low": "So we're mates now. I'm choosing this, you know.",
+        "baseline": "So we're mates now. You and me.",
+        "high": "Mates, then. I'm staying right beside you."
       },
       {
         "speechId": "m2.pride_founded|beats.1",
@@ -1187,9 +1187,9 @@
         "location": "beats.1",
         "speakerSlot": "B",
         "focusTrait": "curiosity",
-        "low": "“Our pride. {newPrideName}.”",
-        "baseline": "“Our own pride. {newPrideName}.”",
-        "high": "“{newPrideName}. There is much here for us to learn.”"
+        "low": "Our own pride, then. {newPrideName}.",
+        "baseline": "Our own pride. {newPrideName}. I like the sound of that.",
+        "high": "{newPrideName}. Our own pride! I want to see every bit of this place."
       },
       {
         "speechId": "m2.loner_group|results.meet.beats.1",
@@ -1197,9 +1197,9 @@
         "location": "results.meet.beats.1",
         "speakerSlot": "C",
         "focusTrait": "curiosity",
-        "low": "“What do you want?”",
-        "baseline": "“What brings you along our trail?”",
-        "high": "“Where has your trail brought you from?”"
+        "low": "What do you want with us?",
+        "baseline": "You're on our trail. What do you want?",
+        "high": "Where have you come from? I'd like to hear."
       },
       {
         "speechId": "m2.loner_group|results.join.beats.0",
@@ -1207,9 +1207,9 @@
         "location": "results.join.beats.0",
         "speakerSlot": "C",
         "focusTrait": "sociability",
-        "low": "“You can travel with us.”",
-        "baseline": "“Come with us, then. We move together.”",
-        "high": "“Come with us. There is room for you beside us.”"
+        "low": "Fine. You can come with us.",
+        "baseline": "Come with us, then. We're moving on.",
+        "high": "Come with us! It'll be nice to have someone new."
       },
       {
         "speechId": "m2.loner_group|results.refused.beats.0",
@@ -1217,9 +1217,9 @@
         "location": "results.refused.beats.0",
         "speakerSlot": "C",
         "focusTrait": "aggression",
-        "low": "“No. We will go on without you.”",
-        "baseline": "“No. We are not taking you with us.”",
-        "high": "“No. You are not coming with us.”"
+        "low": "Sorry. We can't take you with us.",
+        "baseline": "No. We're not taking you with us.",
+        "high": "No. Go find your own way."
       },
       {
         "speechId": "m2.pride_admission|results.accepted.beats.0",
@@ -1227,9 +1227,9 @@
         "location": "results.accepted.beats.0",
         "speakerSlot": "C",
         "focusTrait": "loyalty",
-        "low": "“You may stay with this pride.”",
-        "baseline": "“You may stay. Walk beside us.”",
-        "high": "“You may stay as a member of this pride.”"
+        "low": "All right. You can stay with us.",
+        "baseline": "You can stay. Come on, walk with us.",
+        "high": "You're with us now. Welcome to {originPrideName}."
       },
       {
         "speechId": "m2.pride_admission|results.refused.beats.0",
@@ -1237,9 +1237,9 @@
         "location": "results.refused.beats.0",
         "speakerSlot": "C",
         "focusTrait": "aggression",
-        "low": "“I cannot accept you into the pride now.”",
-        "baseline": "“No. There is no place for you here now.”",
-        "high": "“No. You are not joining the pride now.”"
+        "low": "I'm sorry. There's no place for you here right now.",
+        "baseline": "No. There's no place for you here.",
+        "high": "No. You're not joining us."
       }
     ],
     "fiveTraitActionCues": {

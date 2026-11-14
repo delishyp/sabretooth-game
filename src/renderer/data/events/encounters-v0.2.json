@@ -126,57 +126,57 @@
           "No new breeding, inventory or combat subsystem"
         ]
       },
-      "opening": "A giant deer stands beyond the low cover, its antlers broad above its back. It lifts its head between mouthfuls. You have room to leave without making an approach.",
+      "opening": "A giant deer stands beyond the low cover, its antlers spread wide above its back. It lifts its head between mouthfuls. You can still back away from here.",
       "nodes": {
         "opening": {
           "choices": [
             {
               "id": "observe",
-              "label": "Watch its footing and the space around its antlers.",
+              "label": "Watch how it moves before you try.",
               "next": "observe"
             },
             {
               "id": "stalk",
-              "label": "Begin a careful approach.",
+              "label": "Creep closer.",
               "next": "approach",
               "requires": "engine says hunt may begin; show actual cost/risk before choice"
             },
             {
               "id": "leave",
-              "label": "Leave the deer and end this attempt.",
+              "label": "Leave the deer alone.",
               "outcome": "prey_attempt_abandoned"
             }
           ]
         },
         "observe": {
-          "text": "The deer swings its great head, and the antlers sweep the air like a falling branch. You see now how it guards its throat, turning to face every rustle. If there's a way in, it's narrow.",
+          "text": "The deer swings its great head, and the antlers sweep the air. It turns to face every rustle, keeping its throat covered. Getting in close won't be easy.",
           "choices": [
             {
               "id": "stalk",
-              "label": "Approach only as far as the cover allows.",
+              "label": "Creep up to the edge of the cover.",
               "next": "approach",
               "requires": "same hunt eligibility as direct stalk"
             },
             {
               "id": "leave",
-              "label": "Decide against the attempt.",
+              "label": "Leave it.",
               "outcome": "prey_attempt_abandoned"
             }
           ],
           "effect": "Observation only. No automatic accuracy bonus, extra hunger, consumed day, injury, attraction or knowledge of hidden numerical odds."
         },
         "approach": {
-          "text": "Belly to the ground, you creep to the last of the cover. One more step and you'll be in the open. The deer is still upright, still chewing, and your heart is hammering.",
+          "text": "Belly to the ground, you creep to the edge of the cover. Another step and you'll be in the open. The deer is still chewing, and your heart is hammering.",
           "choices": [
             {
               "id": "commit_hunt",
-              "label": "Commit to the hunt.",
+              "label": "Go for it.",
               "outcome": "resolve_one_large_prey_attempt",
               "requires": "engine hunt eligibility; actual cost and non-guaranteed risk shown"
             },
             {
               "id": "break_off",
-              "label": "Break off before closing the distance.",
+              "label": "Back off.",
               "outcome": "prey_attempt_abandoned"
             }
           ],
@@ -202,7 +202,7 @@
         }
       },
       "nonHuntSighting": {
-        "text": "You watch the giant deer until it fades into the trees. A beast like that would have fed you for days, if you'd dared.",
+        "text": "The giant deer wanders off into the trees. It would have fed you for days.",
         "writes": "Optional witnessed sighting event only, no food or extra resolution."
       },
       "memory": {
@@ -241,18 +241,18 @@
           "No wolf faction diplomacy, breeding or pet system"
         ]
       },
-      "opening": "Three wolves face you, teeth showing. They hold their ground instead of rushing. The space between you is still open, but none of them turns aside to invite you through.",
+      "opening": "A small pack of wolves faces you, teeth showing. They hold their ground instead of rushing you, and none of them moves aside to let you past.",
       "nodes": {
         "opening": {
           "choices": [
             {
               "id": "give_ground",
-              "label": "Give ground and withdraw without approaching.",
+              "label": "Back away slowly.",
               "outcome": "resolve_existing_flee"
             },
             {
               "id": "watch",
-              "label": "Stay behind the available cover and watch before moving.",
+              "label": "Stay behind cover and wait.",
               "next": "watch",
               "requires": "actual coverAvailable; omit rather than invent shelter if false"
             }
@@ -260,16 +260,16 @@
           "effect": "The warning is visible now. No injury/food loss follows merely from the enemy label or image."
         },
         "watch": {
-          "text": "The wolves keep facing you, ears pricked. No way through them looks safe, and there's no telling whether they'll follow if you run.",
+          "text": "The wolves keep facing you, ears pricked. There's no safe way past them, and you can't tell if they'll follow if you run.",
           "choices": [
             {
               "id": "withdraw",
-              "label": "Leave the cover and withdraw.",
+              "label": "Break cover and back away.",
               "outcome": "resolve_existing_flee"
             },
             {
               "id": "keep_cover",
-              "label": "Keep the cover between you and the pack as you move away.",
+              "label": "Slip away behind the cover.",
               "outcome": "resolve_existing_flee_with_cover",
               "requires": "Actual coverAvailable and legal route. If no cover modifier is supported, same flee resolver with different text only; no bonus. Omit if no cover."
             }
@@ -320,42 +320,42 @@
         "priorFacts": "The carcass is an actual committed scene resource owned by Highcrag, not evidence of a prior witnessed hunt. No leader order, theft, war, permission to enter Highcrag land or former feud is inferred.",
         "costs": "No extra day or base Energy beyond originating Travel/Hunt. Travel day1 base Energy -15 per needs-spec; partial contest adds Energy -10 per §13.6. Share/warn/finish add no extra day, Energy or Hunger award."
       },
-      "opening": "A cave hyena faces a carcass at the forks, its mouth open and its shoulders high. {hunterName} is beside the kill. Neither animal has yielded the space around it.",
+      "opening": "A cave hyena stands over a carcass at the forks, mouth open, shoulders hunched high. {hunterName} is right beside the kill, and neither of them is backing down.",
       "openingSpeech": "opening",
       "nodes": {
         "opening": {
           "choices": [
             {
               "id": "drive_off",
-              "label": "Try to drive the hyena away from Highcrag’s kill.",
+              "label": "Help drive the hyena off Highcrag’s kill.",
               "outcome": "resolve_hyena_contest",
               "requires": "Actual eligible witness and committed Highcrag carcass; show deterministic tiers and extra Energy/injury risk."
             },
             {
               "id": "yield_kill",
-              "label": "Leave the contested kill to the hyena.",
+              "label": "Let the hyena have it.",
               "outcome": "hyena_keeps_kill"
             },
             {
               "id": "take_the_kill",
-              "label": "Take meat from Highcrag’s kill for yourself.",
+              "label": "Grab some of Highcrag’s meat for yourself.",
               "outcome": "player_takes_kill",
               "requires": "Actual carcass share available; display Hunger +50, witnessed Highcrag standing -5 once. Do not claim to carry away an entire kill."
             },
             {
               "id": "retreat",
-              "label": "Withdraw without taking anything.",
+              "label": "Back off and leave them to it.",
               "outcome": "hyena_retreated"
             }
           ]
         },
         "after_drive": {
-          "text": "The hyena has moved away from the carcass. {hunterName} remains with the kill.",
+          "text": "The hyena slinks off. {hunterName} stays by the kill.",
           "speech": "driven",
           "choices": [
             {
               "id": "share_remains",
-              "label": "Help the hunter keep a share for Highcrag.",
+              "label": "Help guard the meat for Highcrag.",
               "next": "after_drive",
               "speech": "share",
               "requires": "Successful clean/partial drive, carcass present, hunter present, share_kill receipt unused. Record resolved sharing once; do not donate someone else’s whole kill or conjure player inventory.",
@@ -363,7 +363,7 @@
             },
             {
               "id": "warn_off_trespasser",
-              "label": "Ask the lingering cat to move away from the cache.",
+              "label": "Ask the cat by the cache to move off.",
               "next": "after_drive",
               "speechSequence": [
                 "cache_request",
@@ -375,7 +375,7 @@
             },
             {
               "id": "finish",
-              "label": "Leave the hunter with the kill.",
+              "label": "Leave the hunter to it.",
               "outcome": "leave_after_aid"
             }
           ],
@@ -400,7 +400,7 @@
             "deed": "drive_hyena"
           },
           "partial": {
-            "text": "You keep pressing until the hyena moves away. The effort has cost more energy.",
+            "text": "You keep pressing until the hyena moves off. It takes a lot out of you.",
             "outcome": "hyena_driven",
             "next": "after_drive",
             "deed": "drive_hyena"
@@ -414,25 +414,25 @@
           "injuryOverlay": "The hyena has left you hurt. The wound stays with you."
         },
         "hyena_keeps_kill": {
-          "text": "You turn from the carcass and leave it to the hyena's cackling. There's no meat for you, and no help given.",
+          "text": "You turn away and leave the carcass to the hyena.",
           "standing": 0,
           "terminal": true
         },
         "player_takes_kill": {
-          "text": "You tear a mouthful from the Highcrag kill. {hunterName} sees you do it, and the look says it plainly: this was not your hunt.",
+          "text": "You tear a mouthful from the Highcrag kill. {hunterName} sees you do it.",
           "speech": "steal",
           "effects": "v0.6 Hunger +50 and witnessed Highcrag standing -5 hunt_steal once; no private/automatic spillover, extra player kill, predator defeat or carried carcass.",
           "terminal": true
         },
         "hyena_retreated": {
-          "text": "You move away without taking anything. The contest at the carcass is left behind.",
+          "text": "You move away without taking anything.",
           "speech": "exit",
           "clarification": "ID adopted unchanged; the player retreats, not a claimed defeated hyena.",
           "standing": 0,
           "terminal": true
         },
         "leave_after_aid": {
-          "text": "You leave the kill with {hunterName}. Only the help you actually completed is recorded.",
+          "text": "You leave {hunterName} with the kill.",
           "standing": "No additional award on exit.",
           "terminal": true
         }
@@ -472,90 +472,90 @@
         "utterances": {
           "opening": {
             "focusTrait": "loyalty",
-            "baseline": "That kill is Highcrag's. The hyena has come up to it.",
-            "low": "I brought this down. The hyena has come up to it.",
-            "high": "That's Highcrag's kill. I won't leave it unguarded."
+            "baseline": "That's Highcrag's kill, and the hyena wants it.",
+            "low": "I brought this down. Now the hyena wants it.",
+            "high": "That's Highcrag's kill. I'm not leaving it to a hyena."
           },
           "driven": {
             "focusTrait": "sociability",
-            "baseline": "It's moved off. You helped keep the kill here.",
-            "low": "It's off. You helped.",
-            "high": "It's off! You helped us keep the kill."
+            "baseline": "It's gone. Thanks for helping me keep the kill.",
+            "low": "It's gone. Thanks.",
+            "high": "It's gone! Thank you, we kept the kill!"
           },
           "failed": {
             "focusTrait": "boldness",
-            "baseline": "It still has the carcass. There's no share to offer you here.",
-            "low": "It has the carcass. Keep your distance.",
-            "high": "It still has the carcass. That attempt didn't shift it."
+            "baseline": "It's still got the carcass. There's no meat to share now.",
+            "low": "It's still got the carcass. Stay back.",
+            "high": "It's still on the carcass. That didn't shift it at all."
           },
           "share": {
             "focusTrait": "loyalty",
-            "baseline": "You helped keep a share here for Highcrag.",
-            "low": "There is still meat here. You helped keep it.",
-            "high": "There is still a share here for Highcrag. Your help made a difference."
+            "baseline": "Thanks. There's still meat here for Highcrag.",
+            "low": "There's still meat here. Thanks for that.",
+            "high": "There's still meat left for Highcrag, and that's down to you."
           },
           "cache_request": {
             "focusTrait": "curiosity",
-            "baseline": "Another cat is lingering by the cache. Will you ask them to move away?",
-            "low": "Another cat is by the cache. Ask them to move away.",
-            "high": "Another cat is lingering by the cache. Will you find out whether they'll move away?"
+            "baseline": "Yes, that cat by the cache. Go on, ask.",
+            "low": "That cat by the cache. Go on.",
+            "high": "That cat by the cache? I'd like to see if you can get it to move."
           },
           "cache_ack": {
             "focusTrait": "sociability",
-            "baseline": "They've moved away from the cache. I saw you speak to them.",
-            "low": "They're clear of the cache. I saw.",
-            "high": "They've moved away. Thank you for speaking to them; I saw what you did."
+            "baseline": "That cat's gone from the cache. Thanks for asking.",
+            "low": "It's clear. Thanks.",
+            "high": "That cat's gone! Thanks for asking so nicely."
           },
           "steal": {
             "focusTrait": "aggression",
-            "baseline": "You took meat from our kill. I saw you take it.",
+            "baseline": "You took meat from our kill. I saw that.",
             "low": "That was our meat. I saw you take it.",
-            "high": "That's our kill! I saw you take that meat."
+            "high": "That's our kill! I saw you take it!"
           },
           "exit": {
             "focusTrait": "boldness",
-            "baseline": "You're leaving. I'll stay here.",
-            "low": "You're going. I'll keep my distance.",
-            "high": "You're going. I'll hold here."
+            "baseline": "You're going? I'll stay with the kill.",
+            "low": "You're going. I'll keep back.",
+            "high": "Go on, then. I'll hold the kill."
           },
           "outsider_request": {
             "focusTrait": "aggression",
-            "baseline": "I'll move away from the cache.",
-            "low": "All right. I'll move away.",
-            "high": "Keep your teeth to yourself. I'm moving away."
+            "baseline": "All right. I'll move away from the cache.",
+            "low": "All right, all right. I'm going.",
+            "high": "Keep your teeth to yourself. I'm going."
           }
         },
         "allTraitActionCues": {
           "aggression": {
-            "low": "{catName} speaks with the teeth hidden.",
+            "low": "{catName} keeps {his} teeth hidden.",
             "middle": "{catName} speaks evenly.",
-            "high": "{catName}'s lip curls back from a saber, just for a moment.",
+            "high": "{catName}'s lip curls back from a saber.",
             "devNote": {
               "high": "Lifts the lip briefly, without an unchosen attack."
             }
           },
           "sociability": {
-            "low": "{catName} spares you a glance, then fixes again on the hyena.",
+            "low": "{catName} glances at you, then away.",
             "middle": "{catName} looks your way for an answer.",
             "high": "{catName} turns toward you, glad of the company."
           },
           "boldness": {
-            "low": "{catName} keeps well back from the hyena's snapping jaws.",
-            "middle": "{catName} holds ground.",
-            "high": "{catName} stands in the open, daring the hyena to come.",
+            "low": "{catName} keeps well back.",
+            "middle": "{catName} holds {his} ground.",
+            "high": "{catName} stands out in the open, ears up.",
             "devNote": {
               "high": "Stands openly without retreating; does not approach an unsupported danger."
             }
           },
           "loyalty": {
-            "low": "{catName} hunches over the kill, ignoring you.",
-            "middle": "{catName} keeps checking the carcass between words.",
-            "high": "{catName} keeps {his} body between the kill and anything that wants it."
+            "low": "{catName} hunches over the kill.",
+            "middle": "{catName} keeps checking the carcass.",
+            "high": "{catName} keeps {his} body between the kill and the hyena."
           },
           "curiosity": {
-            "low": "{catName} answers and turns straight back to the kill.",
-            "middle": "{catName} glances around once.",
-            "high": "{catName} reads the tracks around the carcass before answering, nose low.",
+            "low": "{catName} answers, then turns straight back to the kill.",
+            "middle": "{catName} glances around.",
+            "high": "{catName} sniffs the tracks around the carcass before answering.",
             "devNote": {
               "high": "Studies the visible tracks and positions before replying; learns no hidden facts."
             }

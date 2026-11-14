@@ -9,15 +9,15 @@
       },
       {
         "kind": "narration",
-        "text": "You drop until your belly brushes the frost-stiff stems. One paw, then the next. The foal tears at a tuft and swings its head away, and its ears flick at a fly and nothing else."
+        "text": "You drop until your belly brushes the frost-stiff stems and edge forward, paw by paw. The foal tears at a tuft and flicks an ear at a fly."
       },
       {
         "kind": "narration",
-        "text": "Three bounds. The grass whips your face, and the foal is only beginning to turn when your weight takes it down. Your sabers find the throat the way they were made to."
+        "text": "You burst out of the grass. The foal is only starting to turn when your weight takes it down, and your sabers find its throat."
       },
       {
         "kind": "narration",
-        "text": "Afterwards you eat crouched low, ears turning to every sound. In the Vale, a kill out in the open draws company fast."
+        "text": "Afterwards you eat crouched low, ears turning at every sound. A kill out in the open soon draws other hunters."
       }
     ]
   },
@@ -30,11 +30,11 @@
       },
       {
         "kind": "narration",
-        "text": "You creep closer, closer, until you can hear it chewing. Then a stem snaps under your hind paw, louder than any stem has a right to be."
+        "text": "You creep closer until you can hear it chewing. Then a stem snaps under your hind paw."
       },
       {
         "kind": "narration",
-        "text": "The foal's head snaps up. It squeals once and is gone, a brown streak racing back toward the herd, and the mares are already wheeling to meet it."
+        "text": "The foal's head jerks up. It squeals and races back to the herd, and the mares are already turning to meet it."
       },
       {
         "kind": "narration",
@@ -275,20 +275,21 @@
       "decline": "“I understand. Forget you saw me out here. Please.”",
       "reminder": "Did you find me a hare? Anything small from these marshes would do.",
       "kept": "{catName} takes the meat gently, the way you'd carry a cub. “They'll eat tonight. Thank you.”",
-      "broken": "{catName} keeps a little distance. “So nothing's coming. All right. I'll manage.”"
+      "broken": "{catName} keeps a little distance. “So nothing's coming. All right. I'll manage.”",
+      "keptShare": "“This is for the elders, isn't it? You remembered. They'll eat tonight.”"
     },
     "choices": [
       {
         "id": "bring_prey",
-        "label": "“I'll bring it.”"
+        "label": "“All right. I'll bring you something.”"
       },
       {
         "id": "ask_pride",
-        "label": "“Why not ask your own pride?”"
+        "label": "“Can't your own pride help?”"
       },
       {
         "id": "decline",
-        "label": "“I can't.”"
+        "label": "“Sorry, I can't.”"
       }
     ]
   }

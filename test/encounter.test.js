@@ -41,7 +41,7 @@ test('the three supplied images are the unchanged originals', () => {
   const hyena = encounters.encounters.find((row) => row.id === 'encounter.cave_hyena.v1');
   const correction = hyena.outcomeRendering.resolve_hyena_contest.thresholdCorrection;
   assert.strictEqual(correction.handoffSha256, '66de49ea1afaf66b11e04d41256d201446735827e94241811914044b8909b475');
-  assert.strictEqual(hash(path.join(D, 'events/encounters-v0.2.json')), 'b01347027be5fb2de048e36eca14164c1a47a254f302e1d192000aee0ad84327');
+  assert.strictEqual(hash(path.join(D, 'events/encounters-v0.2.json')), '32bfc245325cc33b7709d906b04793609bde1f4a1162c20c9bf2b4137f7abcc9');
   assert.strictEqual(hash(path.join(root, 'giant-deer.png')), encounters.assets['giant-deer.png'].sha256);
   assert.strictEqual(hash(path.join(root, 'old-pack-enemy.png')), encounters.assets['old-pack-enemy.png'].sha256);
   assert.strictEqual(hash(path.join(root, 'cave-hyena.png')), encounters.assets['cave-hyena.png'].sha256);

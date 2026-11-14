@@ -51,12 +51,12 @@ test('asking the lingering cat plays the reply, and the question comes first', (
   let cur = E.act(hyenaRun(), { type: 'travel', to: 'twin_forks' }).state;
   cur = E.act(cur, { type: 'encounterChoose', choiceId: 'drive_off' }).state;
   const before = E.encounterView(cur).lines.map((line) => line.text);
-  assert.ok(before.some((line) => /ask them to move away/i.test(line)));
+  assert.ok(before.some((line) => /that cat by the cache/i.test(line)));
   cur = E.act(cur, { type: 'encounterChoose', choiceId: 'warn_off_trespasser' }).state;
   const after = E.encounterView(cur).lines.map((line) => line.text);
   const added = after.slice(before.length);
-  assert.ok(!added.some((line) => /ask them to move away|Will you ask/i.test(line)));
-  assert.ok(added.some((line) => /move away|moved away|clear of the cache/i.test(line)));
+  assert.ok(!added.some((line) => /that cat by the cache|Will you ask/i.test(line)));
+  assert.ok(added.some((line) => /move away|moved away|clear of the cache|gone from the cache/i.test(line)));
 });
 
 test('a middle focus trait uses the middle hyena cue', () => {
@@ -100,9 +100,9 @@ test('an unknown cat is not called male, and a strange scent line has no placeho
   s.phase = 'event';
   const watched = E.act(s, { type: 'choose', choiceId: 'watch_herd' }).state;
   const text = ((watched.pending && watched.pending.beats) || (watched.report && watched.report.lines) || []).map((beat) => beat.text || '').join('\n');
-  assert.ok(text.includes('Ash'), text);
-  assert.ok(text.includes('their'), text);
-  assert.ok(!/\bhis\b/.test(text), text);
+  const ash = text.split('\n').find((line) => line.includes('Ash')) || '';
+  assert.ok(ash.includes('their'), text);
+  assert.ok(!/\bhis\b/.test(ash), ash);
   const scent = E.lone.scentLines(s, { holder: null, preyValue: null, hazards: [] });
   assert.ok(!scent.lines.some((line) => /A tom/.test(line) || line.includes('{')));
 });
@@ -148,12 +148,12 @@ test('a null year leaves out next spring, and a set year says courtship opens ag
   s.records.yearLengthDays = null;
   const open = pair.seasonPending(s, deps);
   const quiet = open.lines.map((line) => line.text).join('\n');
-  assert.ok(quiet.includes('You can try to earn a place'));
+  assert.ok(quiet.includes('Whatever you choose next'));
   assert.ok(!quiet.includes('Courting opens again next spring'));
   s.records.yearLengthDays = 20;
   const dated = pair.seasonPending(s, deps);
   const spoken = dated.lines.map((line) => line.text);
-  const routes = spoken.findIndex((line) => line.includes('You can try to earn a place'));
+  const routes = spoken.findIndex((line) => line.includes('Whatever you choose next'));
   const spring = spoken.findIndex((line) => line.includes('Courting opens again next spring'));
   assert.ok(routes >= 0 && spring === routes + 1);
 });

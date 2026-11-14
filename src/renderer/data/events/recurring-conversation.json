@@ -277,7 +277,7 @@
     "choices": [
       {
         "id": "leave",
-        "label": "“Not now. I'm heading off.”",
+        "label": "“I remember.”",
         "outcome": "later_left"
       }
     ],

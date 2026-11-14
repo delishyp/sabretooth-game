@@ -46,7 +46,7 @@ test('the home route says membership after an accepted ask, and the card shows t
   s.prideRelation.highcrag = -15;
   s.worldMemory.prideToPlayer['highcrag->player'].value = 0;
   const reason = E.available(s).route.reason;
-  assert.ok(reason.includes('You are a member of Highcrag'));
+  assert.ok(reason.includes("You're already a member of Highcrag"));
   assert.ok(!reason.includes('already asked'));
   assert.strictEqual(Screen.factionStandingText(s, 'highcrag', label), 'Faction · Highcrag');
   assert.ok(!/→\s*you\s*[+\-]?\d+/.test(Screen.factionStandingText(s, 'highcrag', label)));

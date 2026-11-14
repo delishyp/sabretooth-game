@@ -152,8 +152,8 @@ test('FIXTURE: an unmated season choice is an intent, and day 21 can change it w
   }
   assert.strictEqual(s.pending.variant, 'unmated');
   const prose = (s.pending.lines || []).map((l) => l.text).join('\n');
-  assert.ok(prose.includes('The mating season draws to a close'));
-  assert.ok(prose.includes('You can try to earn a place in a pride'));
+  assert.ok(prose.includes('The mating season is over'));
+  assert.ok(prose.includes('Whatever you choose next'));
   s = E.act(s, { type: 'choose', choiceId: 'route_pride' }).state;
   assert.strictEqual(s.pending.summary, 'You decide to seek a place in an existing pride.');
   assert.strictEqual(s.records.routeIntent, 'pride');
@@ -164,7 +164,7 @@ test('FIXTURE: an unmated season choice is an intent, and day 21 can change it w
   assert.deepStrictEqual(s.records.playerSkills, xp);
   const offered = E.available(s);
   assert.strictEqual(offered.route.intent, 'pride');
-  assert.ok(offered.route.reason.includes('not on land a pride holds'));
+  assert.ok(offered.route.reason.includes("aren't on land a pride holds"));
   assert.ok(!offered.route.reason.includes('courtship'));
   const changed = E.act(s, { type: 'setRoute', intent: 'alone' }).state;
   assert.strictEqual(changed.records.routeIntent, 'alone');

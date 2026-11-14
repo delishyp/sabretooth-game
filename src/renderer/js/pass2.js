@@ -137,6 +137,7 @@
       "curious": "{catName} circles you, sniffing, with {his} ears up. “You smell of places I don't know. I've got questions, if you've got a moment.”",
       "baseline": "{catName} comes as far as the edge of your scent and stops. “Mind if I talk to you for a bit?”"
     },
+    "lone-actions.js:approachRequest": {"kept": {"low": "You never told anybody you saw me out there. Thank you. I mean it.", "base": "Nobody's said a word about seeing me out there. Thanks for keeping that quiet.", "high": "Not a word got out about seeing me. Good. I had a feeling I could trust you."}, "broken": {"low": "{catName}'s ears droop. You told somebody you saw me. I really thought you wouldn't.", "base": "You told somebody you saw me out there. I asked you not to.", "high": "{catName}'s hackles go up. You told them you saw me. That was all I asked of you, and you couldn't do it."}},
     "lone-actions.js:noApproach": "You wait while the light shifts across the ground. No cat comes to you today, only the wind.",
     "lone-actions.js:gossipBeat": "{catName} leans in and lowers {his} voice. “{fact}”",
     "lone-actions.js:summary": {
@@ -147,24 +148,24 @@
     },
     "slice.js:horses": {
       "beats": [
-        "The meadow grass is cropped short and sweet-smelling, and the wind brings you horse long before you see them: dung, sweat, the green breath of chewed stems.",
-        "A herd grazes downslope. One mare lifts her head, then another, until every long face is turned toward your hillside.",
-        "Near the edge, a foal has wandered after a patch of clover, a few lengths from its mother. Its legs are still too long for it."
+        "The meadow grass is cropped short and smells sweet, and the wind brings you the smell of horse long before you see them.",
+        "A herd grazes downslope. A mare looks up, then another, and soon the whole herd has its ears turned toward your hillside.",
+        "Near the edge, a foal has wandered after a patch of clover, a few lengths from its mother. It's all legs."
       ],
       "stalk_foal": "Stalk the foal.",
       "watch_herd": "Settle on the rise and watch.",
       "move_on": "Leave them be.",
       "move_on_result": "You turn away. Behind you, the mares go back to grazing as if you were never there.",
-      "watch_result": "You fold your paws under you on the warm rise. The herd drifts, the clouds drift, and the valley passes beneath you."
+      "watch_result": "You fold your paws under you on the warm rise. Below, the herd drifts slowly across the meadow."
     },
     "slice.js:foalResult": {
-      "ok": "Three bounds, and the grass whips your face. The foal is only starting to turn when your weight takes it down. Afterwards you eat crouched low, ears turning to every sound. A kill out in the open draws company fast.",
-      "fail": "A stem snaps under your hind paw, louder than any stem has a right to be. The foal squeals and bolts for the herd, and the mares are already wheeling to meet it. You're left in the flattened grass with an empty belly."
+      "ok": "You burst out of the grass. The foal is only starting to turn when your weight takes it down. You eat crouched low, ears turning at every sound, because a kill out in the open draws other hunters.",
+      "fail": "A stem snaps under your hind paw. The foal squeals and bolts for the herd, and the mares are already turning to meet it. You're left in the flattened grass with an empty belly."
     },
     "slice.js:watchSighting": {
-      "on their own ground": "Below you, {catName} moves along {his} own trails, unhurried, marking a stone as {he} passes.",
-      "crossing the hillside": "{catName} crosses the hillside below, quick and low, glancing back once as if feeling watched.",
-      "none": "No cat crosses the slope today. Only the herd moves, slow as cloud-shadow."
+      "on their own ground": "Below you, {catName} walks {his} own trails at an easy pace, marking a stone as {he} passes.",
+      "crossing the hillside": "{catName} crosses the hillside below, quick and low, with a glance back over {his} shoulder.",
+      "none": "No cat crosses the slope today. Only the herd moves."
     }
   };
   function catReply(say) {
