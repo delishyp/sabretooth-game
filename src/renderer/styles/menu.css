@@ -77,6 +77,16 @@ button.primary { border-color: var(--accent); }
 #sandbox-panel .note { font-size: clamp(11px, 1.4cqh, 16px); color: var(--ice-dim); margin: clamp(4px, 0.5cqh, 10px) 0 0; }
 .summary { font-size: clamp(13px, 2cqh, 24px); color: var(--ice); margin: clamp(4px, 0.6cqh, 22px) 0 0; }
 .setup-actions { margin-top: clamp(4px, 0.6cqh, 16px); }
+.setup-tutorial { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: clamp(4px, 0.6cqh, 12px); max-width: min(720px, 100%); }
+#tutorial-toggle { text-align: left; min-height: clamp(28px, 4.4cqh, 48px); font-size: clamp(13px, 2cqh, 22px); }
+#tutorial-hint { margin: 0; font-size: clamp(12px, 1.6cqh, 18px); color: var(--ice-dim); max-width: 100%; }
+.goal-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; max-width: 100%; }
+.urgent-line { margin: 0; font-size: 16px; color: #e6c46a; }
+.goal-line { margin: 0; min-height: 0; padding: 0; background: transparent; border: 0; color: #f6efe2; text-align: left; font-size: 16px; cursor: pointer; }
+.goal-line:hover, .goal-line.focused, .goal-line:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.tutorial-card { position: absolute; z-index: 3; left: 220px; right: 460px; bottom: 12px; max-width: 640px; pointer-events: auto; }
+.tutorial-card .tutorial-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.is-tutorial-target { outline: 2px solid #e6c98a; outline-offset: 3px; }
 /* runs */
 .runs { display: flex; flex-direction: column; gap: clamp(8px, 1.2cqh, 16px); width: min(1300px, 100%); }
 .run { display: flex; flex-direction: column; gap: clamp(2px, 0.4cqh, 6px); text-align: left; padding: clamp(8px, 1cqh, 18px) clamp(10px, 1.4cqw, 28px); min-height: 0; }

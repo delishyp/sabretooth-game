@@ -118,7 +118,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
      * Create a run. Uses the first free slot, or replaces `replaceRunId` (deleting it and all its saves).
      * Throws if no slot is free and no replacement was given.
      */
-    createRun({ style = DEFAULT_STYLE, difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride', playerCat = null } = {}) {
+    createRun({ style = DEFAULT_STYLE, difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride', playerCat = null, tutorial = false } = {}) {
       if (!STYLES.includes(style)) throw new Error(`invalid style ${style}`);
       if (!DIFFICULTIES.includes(difficulty)) throw new Error(`invalid difficulty ${difficulty}`);
       let slotIndex;
@@ -133,6 +133,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
         runId: crypto.randomUUID(), slotIndex, catName, prideName, style, difficulty,
         sandboxOptions: difficulty === 'sandbox' ? normalizeSandboxOptions(sandboxOptions) : null,
         storytellerMode, generation: 1, createdAt: t, lastPlayedAt: t, gameVersion,
+        tutorial: tutorial === true,
         playerCat   // cat-creator-spec v0.2 §5.2: full Cat record of the player cat (ageSeasons, birthSeason; lifeStage derived), or null
       };
       writeJson(path.join(runDir(slotIndex), 'run.json'), run);

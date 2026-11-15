@@ -14,6 +14,7 @@
   const HomeScene = (typeof require === 'function' ? require('./home-scene') : (typeof self !== 'undefined' ? self.HomeScene : null));
   const FightHp = (typeof require === 'function' ? require('./fight-hp') : (typeof self !== 'undefined' ? self.FightHp : null));
   const Pass2 = (typeof require === 'function' ? require('./pass2') : (typeof self !== 'undefined' ? self.Pass2 : null));
+  const Tutorial = (typeof require === 'function' ? require('./tutorial') : (typeof self !== 'undefined' ? self.Tutorial : null));
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -188,10 +189,12 @@
 
     function start(newRun, mainCat, seed) {
       run = newRun; s = E.newRun({ mainCat, seed, runId: newRun.runId });
+      if (Tutorial) Tutorial.ensure(s, run.tutorial === true);
       ctx.show('game');   // first autosave after day 1 ends (Flint call: the run record exists already; nothing to save before an action)
     }
     function resume(r, game) {
       run = r; s = E.migrate(game);
+      if (Tutorial) Tutorial.ensure(s, run.tutorial === true);
       ctx.show(s.over ? 'summary' : 'game');
     }
     async function autosave() {
@@ -349,7 +352,11 @@
       day.id = 'game-day';
       const pair = s.records && s.records.matePair;
       const mate = pair && s.npcs[pair.mateId];
-      const needs = el('div', 'hud-needs'); for (const k of ['health', 'hunger', 'thirst', 'energy']) needs.append(needBar(k, s.needs[k]));
+      const needs = el('div', 'hud-needs');
+      for (const k of ['health', 'hunger', 'thirst', 'energy']) {
+        if (k === 'thirst' && run && run.style === 'story') continue;
+        needs.append(needBar(k, s.needs[k]));
+      }
       const inj = el('div', 'hud-injuries'); for (const i of s.injuries) inj.append(el('span', `chip chip-${i.tier}`, t.plural(`game.injury.${i.tier}`, i.daysLeft)));
       h.append(day, needs, inj);
       if (mate) {
@@ -453,6 +460,21 @@
         }
         p.append(ul);
         if (!met.length) p.append(el('p', 'home-empty', t('home.noCats')));
+      } else if (view === 'lore') {
+        const book = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
+        p.append(el('h2', 'home-panel-title', (book && book.bookTitle) || t('home.nav.lore')));
+        p.append(el('h3', 'guide-heading', (book && book.sectionHeading) || 'Guide'));
+        const list = el('div', 'guide-list');
+        const entries = (Tutorial && s.tutorial && Tutorial.view(s, tutorialFacts()).guide) || [];
+        if (!entries.length) list.append(el('p', 'home-empty', ''));
+        for (const entry of entries) {
+          const block = el('article', 'guide-entry');
+          block.dataset.guide = entry.id;
+          if (entry.current) block.dataset.current = '1';
+          block.append(el('h4', '', entry.title), el('p', '', entry.body));
+          list.append(block);
+        }
+        p.append(list);
       }
     }
     function renderRegion() {
@@ -925,7 +947,7 @@
     }
     function render() {
       if (!s) return;
-      renderChrome(); renderNav(); renderHud(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
+      renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       const evOpen = !$('#game-event').hidden;
       const perkOpen = !!document.getElementById('perk-modal');
       let target = null;
@@ -941,8 +963,104 @@
       if (next.unavailable) { ctx.toast(t('home.unavailable', { section: navLabel(next.unavailable) })); return; }
       view = next.view; render();
     }
+    function tutorialFacts(extra) {
+      const thirstShown = !(run && run.style === 'story');
+      const low = {};
+      for (const k of ['health', 'hunger', 'thirst', 'energy']) low[k] = E.needState(s.needs[k]) !== 'ok';
+      const rec = s.records || {};
+      const seasonOver = !!(rec.seasonEndShown || s.day > E.rules.seasonDays);
+      const inWindow = s.day <= E.rules.seasonDays && !rec.seasonEndShown;
+      const pair = rec.matePair;
+      const mateNpc = pair && s.npcs[pair.mateId];
+      const mate = mateNpc && mateNpc.met !== false ? { name: mateNpc.name, met: true } : null;
+      const lines = Array.isArray(s.report) ? s.report : [];
+      const hunt = [...lines].reverse().find((l) => l && l.k === 'hunt');
+      const last = lines[lines.length - 1];
+      const lastAction = hunt ? 'hunt' : last && last.k === 'rest' ? 'rest' : last && (last.k === 'arrive' || last.k === 'travelling') ? 'travel' : last && last.k === 'watch' ? 'watch' : null;
+      const met = Object.values(s.npcs || {}).filter((n) => n && n.met);
+      const stageOf = (n) => rec.bonds && rec.bonds[n.id] && rec.bonds[n.id].stage;
+      const bonded = (n) => ['close', 'courting', 'mates'].includes(stageOf(n));
+      const rank = (n) => (typeof n.affinity === 'number' ? n.affinity : 0);
+      const courtCat = met.filter(bonded).sort((a, b) => rank(b) - rank(a))[0];
+      const av = E.available(s);
+      const approvalRow = av.challenge && av.challenge[0];
+      const audience = av.audience && av.audience.find((row) => row.allowed === false || row.allowed === true);
+      let approval = null;
+      if (approvalRow) approval = { variant: 'challenge', leaderName: approvalRow.leaderName || approvalRow.rivalName || '' };
+      else if (audience && audience.leaderName) approval = { variant: 'approval', leaderName: audience.leaderName };
+      const known = s.worldMemory && s.worldMemory.knowledge;
+      const gossip = !!known && Object.values(known).some((k) => k && k.disclosedTo && k.disclosedTo.length);
+      const promised = !!(s.conversation && s.conversation.cats && Object.values(s.conversation.cats).some((c) => (c.facts || []).some((f) => f.promise || f.promiseId)));
+      const own = W.ownership(s.map.claims, s.region);
+      return {
+        day: s.day, inScene: s.phase !== 'day', thirstShown, low, inWindow, seasonOver,
+        founded: !!(rec.pride && rec.pride.name), mate, routeIntent: rec.routeIntent || null,
+        courtCat: courtCat ? { name: courtCat.name } : null,
+        bondEligible: met.some((n) => stageOf(n) && stageOf(n) !== 'none' && !bonded(n)),
+        eligibleMet: met.some((n) => stageOf(n) && stageOf(n) !== 'none'),
+        approval, metCat: met[0] ? { name: met[0].name } : null,
+        lastAction, huntMiss: !!(hunt && hunt.ok === false),
+        showReport: lines.length > 0,
+        leftPath: !!(lastAction && lastAction !== 'hunt'),
+        enabled: run && run.tutorial === true,
+        flags: Object.assign({
+          lowNeed: Object.entries(low).some(([k, v]) => v && (k !== 'thirst' || thirstShown)),
+          healthDropped: s.needs.health < 100,
+          injured: !!(s.injuries && s.injuries.length),
+          huntResult: !!hunt,
+          rest: lines.some((l) => l && l.k === 'rest'),
+          travelOpened: view === 'wilderness',
+          watch: lines.some((l) => l && l.k === 'watch'),
+          meetingEnded: met.length > 0 && s.phase === 'day',
+          scent: lines.some((l) => l && l.k === 'scent'),
+          sparShown: !!(av.lone && av.lone.spar && av.lone.spar.length),
+          courtShown: !!((av.court && av.court.length) || (av.seekMate && av.seekMate.length)),
+          foundShown: !!(av.found),
+          shareChoice: !!(av.lone && av.lone.share && av.lone.share.length),
+          promise: promised,
+          danger: s.phase === 'encounter',
+          border: s.phase === 'border' || lines.some((l) => l && l.k === 'patrol') || (own && own.state === 'held' && !(rec.pride && own.holder === rec.pride.id)),
+          gossip, bondChanged: met.some((n) => stageOf(n) && stageOf(n) !== 'none'),
+          standingChanged: Object.values(s.prideRelation || {}).some((n) => n),
+          seasonEnd: !!rec.seasonEndShown,
+          place: view && view !== 'home' ? view : null
+        }, extra || {})
+      };
+    }
+    function renderTutorial() {
+      const old = document.getElementById('tutorial-card');
+      if (old) old.remove();
+      document.querySelectorAll('.is-tutorial-target').forEach((el) => el.classList.remove('is-tutorial-target'));
+      if (!Tutorial || !s) return;
+      const shown = Tutorial.sync(s, tutorialFacts());
+      const stack = el('div', 'goal-stack');
+      stack.id = 'goal-stack';
+      if (shown.urgent) stack.append(el('p', 'urgent-line', shown.urgent));
+      const goalBtn = el('button', 'goal-line', shown.goal.line);
+      goalBtn.type = 'button'; goalBtn.id = 'goal-line'; goalBtn.dataset.g = 'goalOpen'; goalBtn.dataset.goal = shown.goal.id;
+      stack.append(goalBtn);
+      const hud = $('#game-hud');
+      if (hud) hud.append(stack);
+      if (!shown.card) return;
+      const card = el('div', 'event-card tutorial-card');
+      card.id = 'tutorial-card';
+      card.dataset.tip = shown.card.id;
+      if (shown.card.title) card.append(el('h2', 'event-title', shown.card.title));
+      card.append(el('p', 'event-text', shown.card.body));
+      const row = el('div', 'tutorial-actions');
+      const ok = el('button', 'primary', (shown.buttons && shown.buttons.dismiss) || '');
+      ok.type = 'button'; ok.dataset.g = 'tutorialDismiss';
+      const off = el('button', '', (shown.buttons && shown.buttons.turnOff) || '');
+      off.type = 'button'; off.dataset.g = 'tutorialOff';
+      row.append(ok, off);
+      card.append(row);
+      $('#game-main').append(card);
+    }
     function onClick(b) {
       const d = b.dataset;
+      if (d.g === 'tutorialDismiss') { if (Tutorial) Tutorial.dismiss(s, tutorialFacts()); render(); return; }
+      if (d.g === 'tutorialOff') { if (Tutorial) Tutorial.turnOff(s, tutorialFacts()); render(); return; }
+      if (d.g === 'goalOpen') { view = 'lore'; render(); return; }
       if (d.g === 'nav') return showView(d.view);
       if (d.g === 'unavailable') return showView(d.view);
       if (d.g === 'den') return showView('den');

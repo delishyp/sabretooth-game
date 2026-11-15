@@ -771,7 +771,7 @@
           "beats": [
             {
               "kind": "narration",
-              "text": "The mating season is over. {catName} is still your mate. You don't have a pride yet, but you can still find wild land and start a pride together."
+              "text": "{catName} is still your mate. You have no pride of your own yet, but you can still find Unclaimed land and Found a pride together."
             }
           ],
           "summary": "The mating season ended; you can still found a pride with {catName}.",
@@ -1035,7 +1035,7 @@
     "court.ineligible.kin": "{catName} is your kin, so courting isn't an option.",
     "court.ineligible.dislike": "{catName} doesn't want you around like that right now.",
     "court.ineligible.season": "Courting has to wait for the mating season in spring.",
-    "found.notWild": "A pride already holds this land. Travel to wild land to found your own.",
+    "found.notWild": "This land is already Claimed by a pride. Travel to Unclaimed land to Found a pride.",
     "found.noMate": "You need a mate to found a pride.",
     "bondStage.met": "Met",
     "bondStage.acquainted": "Acquainted",

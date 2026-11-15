@@ -1,0 +1,721 @@
+{
+  "_readme": "Saga draft of tutorial copy v2, for Anna's sign-off against Tundra tutorial v0.1.3 (docs/design/tutorial-v0.1.md, local commit 10218e8). Built against v0.1.5 UI names. Pass-2 narrator voice, second person, plain and clear, no numbers or number words. Nothing here is built, merged, or committed to the game repo.",
+  "source": {
+    "spec": "docs/design/tutorial-v0.1.md",
+    "specVersion": "v0.1.3",
+    "commit": "10218e8",
+    "uiNames": "v0.1.5",
+    "menuSpec": "v1.4.5",
+    "fromDraft": "tips-copy-v1"
+  },
+  "voice": "narrator, second person, pass-2, in-world, plain and clear, no numbers",
+  "newGame": {
+    "id": "newGame.tutorial",
+    "label": "Guided first day and tips",
+    "labelNote": "Kept exactly as Tundra wrote it. On by default, shown in every Style, locked per run. Saga writes only the description.",
+    "descriptionId": "newGame.tutorialHint",
+    "description": "A short walk through your opening day, then notes when something new happens."
+  },
+  "loreBook": {
+    "bookTitle": "Lore Book",
+    "sectionHeading": "Guide",
+    "sectionHeadingNote": "ANNA-APPROVED heading. It sits with Common knowledge, Learned, Rumours and Useful notes. The Places nav button that opens the book is Lore."
+  },
+  "buttons": {
+    "dismiss": "Got it",
+    "turnOff": "Turn off tips"
+  },
+  "goalLine": {
+    "_note": "A single line under the day header, shown whenever run.tutorial is on, on the day screen and in Places. Selecting it opens that goal's Guide entry. Evaluated after each result beat; the first matching state shows. Tokens {catName}, {mateName}, and {leaderName} are only used when that cat has been met. When several cats qualify for approval or court, use the one with the highest bond.",
+    "defaultLine": "Stay alive.",
+    "states": [
+      {
+        "id": "goal.first_day",
+        "when": "absDay 1",
+        "line": "Get your bearings. Eat, and look at the land."
+      },
+      {
+        "id": "goal.found_set",
+        "when": "founded a pride",
+        "line": "Feed your pride, and hold your land."
+      },
+      {
+        "id": "goal.found",
+        "when": "have a mate, no pride yet",
+        "line": "Found a pride with {mateName} on Unclaimed land.",
+        "tokens": [
+          "mateName"
+        ]
+      },
+      {
+        "id": "goal.approval",
+        "when": "a pride cat accepted the courtship and approval or the rival challenge is pending",
+        "variants": {
+          "approval": "Win {leaderName}'s approval.",
+          "challenge": "Face the challenge."
+        },
+        "tokens": [
+          "leaderName"
+        ]
+      },
+      {
+        "id": "goal.court",
+        "when": "in the mating window and some cat is Bonded and eligible",
+        "line": "Court {catName}.",
+        "tokens": [
+          "catName"
+        ]
+      },
+      {
+        "id": "goal.bond",
+        "when": "in the mating window and you've met at least one eligible cat",
+        "line": "Grow closer to a cat you could take as a mate."
+      },
+      {
+        "id": "goal.meet",
+        "when": "in the mating window, no eligible cat met yet",
+        "line": "Meet the cats of the prides and the loners."
+      },
+      {
+        "id": "goal.route_pride",
+        "when": "mating window over, no mate, routeIntent is pride",
+        "line": "Ask to join a pride."
+      },
+      {
+        "id": "goal.route_group",
+        "when": "mating window over, no mate, routeIntent is group",
+        "line": "Find loners to travel with."
+      },
+      {
+        "id": "goal.route_alone",
+        "when": "mating window over, no mate, routeIntent is alone",
+        "line": "Survive on your own."
+      },
+      {
+        "id": "goal.route_choose",
+        "when": "after season_end, no mate, no route chosen yet (goal 9, tutorial v0.1.5)",
+        "line": "Choose your path. You can ask to join a pride, look for other loners, or go on alone."
+      }
+    ],
+    "urgent": {
+      "_note": "When any shown need, or Health, is in its Low band, one line appears above the goal and clears when that need recovers. Never shown during a scene. If several are Low, show only the most dangerous: Health, then Thirst (when shown), then Hunger, then Energy (tutorial v0.1.5). The Thirst line is skipped when Thirst is hidden (Story style).",
+      "hunger": "Eat before you go on.",
+      "energy": "Rest before you go on.",
+      "thirst": "Find water before you go on.",
+      "thirstHidden": null,
+      "health": "Rest and recover before you go on."
+    }
+  },
+  "tips": [
+    {
+      "id": "tip.needs",
+      "trigger": "First shown need in its warning band. The Thirst sentence is skipped when Thirst is hidden (Story style).",
+      "title": "When a bar is Low",
+      "body": "A bar at Low is a warning to take care of it. Hunger falls unless you Hunt, and Rest brings Energy back. Thirst eases where Water is Available.",
+      "variants": {
+        "thirstHidden": "A bar at Low is a warning to take care of it. Hunger falls unless you Hunt, and Rest brings Energy back."
+      },
+      "taughtBy": "G1"
+    },
+    {
+      "id": "tip.health",
+      "trigger": "First Health drop",
+      "title": "Health",
+      "body": "Injuries and going without food wear your Health down, and Rest brings it back.",
+      "taughtBy": "G1"
+    },
+    {
+      "id": "tip.injury",
+      "trigger": "First injury",
+      "title": "Injuries",
+      "body": "An injury wears your Health down. Rest helps you recover."
+    },
+    {
+      "id": "tip.hunt",
+      "trigger": "First Hunt result",
+      "title": "Hunting",
+      "body": "A Hunt can fail or leave you hurt, and Prey changes from region to region. If another cat comes to the kill, you can Share the kill with that cat.",
+      "taughtBy": "G3-4 (partial; tip still fires later)"
+    },
+    {
+      "id": "tip.rest",
+      "trigger": "First Rest, or the first time Energy is Low",
+      "title": "Rest",
+      "body": "Rest brings your Energy back. Pick it when Energy is Low."
+    },
+    {
+      "id": "tip.travel",
+      "trigger": "First time Travel is opened: days pass on the way, and regions differ",
+      "title": "Travel",
+      "body": "Travel spends the day, and some trails take more than a day. Prey and Danger differ from region to region, and so do Water and Claimed by."
+    },
+    {
+      "id": "tip.watch",
+      "trigger": "First Watch",
+      "title": "Watch from a vantage",
+      "body": "Watch from a vantage spends the day. You see which cats pass this ground, and what they are doing."
+    },
+    {
+      "id": "tip.meet",
+      "trigger": "First meeting ends",
+      "title": "Meeting a cat",
+      "body": "Cats remember what you say and do. Your words change how they feel about you.",
+      "taughtBy": "G6 when a meeting happens and the guided lines are used"
+    },
+    {
+      "id": "tip.scent",
+      "trigger": "First scent sign: what marks tell you and why they matter",
+      "title": "Read scent sign",
+      "body": "Read scent sign tells you who has been on this ground, and whether a pride has marked it. That can warn you before you cross their path."
+    },
+    {
+      "id": "tip.spar",
+      "trigger": "First time Spar is shown locked or open",
+      "title": "Spar",
+      "body": "Spar is a wrestle with a cat who knows you well enough. If Spar is locked, that cat isn't ready yet."
+    },
+    {
+      "id": "tip.court",
+      "trigger": "First time Court is shown (open or locked): mating window, Bonded, leader approval for pride cats",
+      "title": "Courting",
+      "body": "Court opens when you and a cat are Bonded, during the mating season. For a pride cat, you must also Ask the leader about that cat."
+    },
+    {
+      "id": "tip.found",
+      "trigger": "First time Found is shown: needs a mate and Unclaimed land",
+      "title": "Founding a pride",
+      "body": "With a mate, you can Found a pride on land marked Unclaimed. Travel there if the ground you're standing on is already Claimed by a pride."
+    },
+    {
+      "id": "tip.share",
+      "trigger": "First share choice",
+      "title": "Share the kill",
+      "body": "If another cat comes to the kill, you can Share the kill with that cat."
+    },
+    {
+      "id": "tip.promise",
+      "trigger": "First promise made",
+      "title": "Promises",
+      "body": "When you make a promise, that cat will remember whether you keep it."
+    },
+    {
+      "id": "tip.danger",
+      "trigger": "First predator or hazard encounter",
+      "title": "Danger",
+      "body": "When a predator or a hazard is in front of you, you can Run."
+    },
+    {
+      "id": "tip.place.home",
+      "trigger": "First time Home is opened",
+      "title": "Home",
+      "body": "Home is your resting place, and it holds the day screen."
+    },
+    {
+      "id": "tip.place.pride",
+      "trigger": "First time Pride is opened",
+      "title": "Pride",
+      "body": "When you have a pride, Pride is where you find them. Until then, it shows who holds what."
+    },
+    {
+      "id": "tip.place.den",
+      "trigger": "First time Den is opened",
+      "title": "The Den",
+      "body": "The Den is where you Rest."
+    },
+    {
+      "id": "tip.place.wilderness",
+      "trigger": "First time Wilderness is opened",
+      "title": "Wilderness",
+      "body": "Wilderness shows the wider land. You can read the regions and who holds them, and you can see Danger and Water."
+    },
+    {
+      "id": "tip.place.cats",
+      "trigger": "First time Smilodons is opened",
+      "title": "Smilodons",
+      "body": "Smilodons lists every cat you've met. You'll see their pride and Bond stage, and what they remember of you."
+    },
+    {
+      "id": "tip.place.unavailable",
+      "trigger": "First time a Places section shows Unavailable",
+      "title": "Unavailable",
+      "body": "Unavailable means this section opens later in the season, or later in the game."
+    },
+    {
+      "id": "tip.place.lore",
+      "trigger": "First time Lore is opened",
+      "title": "Lore",
+      "body": "Lore opens the Lore Book. Rumours in it may be false. The Guide keeps everything explained so far.",
+      "taughtBy": "G7 (partial; the guided line does not mention Rumours, so this tip still fires when Lore is opened)"
+    },
+    {
+      "id": "tip.borders",
+      "trigger": "First time entering claimed land or meeting a patrol",
+      "title": "Pride land",
+      "body": "Pride land is marked and watched. Crossing ground that is Claimed by a pride can bring you into a patrol's path, and they will remember it."
+    },
+    {
+      "id": "tip.gossip",
+      "trigger": "First time a cat repeats news about you",
+      "title": "Word travels",
+      "body": "Word of what you do travels. Cats and prides will hear of it, even when they weren't there."
+    },
+    {
+      "id": "tip.bond",
+      "trigger": "First Bond stage change",
+      "title": "Bonds",
+      "body": "A bond grows as you meet a cat and make your choices, and you'll see it change. Look under Smilodons for the Bond stage, such as Met or Bonded."
+    },
+    {
+      "id": "tip.standing",
+      "trigger": "First change in how a pride sees you",
+      "title": "Pride standing",
+      "body": "How a pride sees you can change as you deal with them. You'll see that change when it happens."
+    },
+    {
+      "id": "tip.season_end",
+      "trigger": "First season_end scene, with no next-year promise while yearLengthDays is null",
+      "title": "The mating season ends",
+      "body": "The mating season is over, and you can't Court now. The days still go on, and you can still choose how to live in the Vale."
+    }
+  ],
+  "guide": {
+    "_note": "Every seen tip and every goal is listed under the Guide heading in Lore. Selecting the goal line opens that goal's entry, which explains why and how.",
+    "tips": [
+      {
+        "id": "guide.tip.needs",
+        "of": "tip.needs",
+        "title": "When a bar is Low",
+        "body": "The bars at the top are your needs, and a bar at Low is a warning to take care of it. Hunt feeds Hunger, and Rest brings Energy back. Thirst eases where Water is Available."
+      },
+      {
+        "id": "guide.tip.needs.thirstHidden",
+        "of": "tip.needs",
+        "title": "When a bar is Low",
+        "body": "The bars at the top are your needs. A bar at Low is a warning to take care of it. Hunt feeds Hunger, and Rest brings Energy back.",
+        "when": "Thirst is hidden (Story style)"
+      },
+      {
+        "id": "guide.tip.health",
+        "of": "tip.health",
+        "title": "Health",
+        "body": "Watch your Health as well as your needs. Injuries and going without food wear it down, and Rest brings it back."
+      },
+      {
+        "id": "guide.tip.injury",
+        "of": "tip.injury",
+        "title": "Injuries",
+        "body": "When you take an injury, it wears your Health down. Rest helps you recover."
+      },
+      {
+        "id": "guide.tip.hunt",
+        "of": "tip.hunt",
+        "title": "Hunting",
+        "body": "Each Hunt spends the day, and it can fail or leave you hurt. Prey changes from region to region. If another cat comes to the kill, you can Share the kill with that cat."
+      },
+      {
+        "id": "guide.tip.rest",
+        "of": "tip.rest",
+        "title": "Rest",
+        "body": "Rest spends the day and brings your Energy back. Pick it when Energy is Low."
+      },
+      {
+        "id": "guide.tip.travel",
+        "of": "tip.travel",
+        "title": "Travel",
+        "body": "Travel spends the day, and some trails take more than a day. Prey and Danger change as you move, and so do Water and Claimed by."
+      },
+      {
+        "id": "guide.tip.watch",
+        "of": "tip.watch",
+        "title": "Watch from a vantage",
+        "body": "Watch from a vantage spends the day. From up there you can see which cats pass this ground, and what they are doing."
+      },
+      {
+        "id": "guide.tip.meet",
+        "of": "tip.meet",
+        "title": "Meeting a cat",
+        "body": "Cats remember what you say and do, and your words change how they feel about you. After you meet a cat, you can find them under Smilodons."
+      },
+      {
+        "id": "guide.tip.scent",
+        "of": "tip.scent",
+        "title": "Read scent sign",
+        "body": "Read scent sign does not spend the day. The marks tell you who has been on this ground, and whether a pride has claimed it, so you can judge the path ahead."
+      },
+      {
+        "id": "guide.tip.spar",
+        "of": "tip.spar",
+        "title": "Spar",
+        "body": "Spar is a wrestle, and it stays locked until a cat knows you well enough. When it is open, you can Spar with that cat."
+      },
+      {
+        "id": "guide.tip.court",
+        "of": "tip.court",
+        "title": "Courting",
+        "body": "Court opens during the mating season, and only when you and a cat are Bonded. For a pride cat, you must also Ask the leader about that cat."
+      },
+      {
+        "id": "guide.tip.found",
+        "of": "tip.found",
+        "title": "Founding a pride",
+        "body": "To Found a pride you need a mate, and you need to stand on land marked Unclaimed. If this ground is Claimed by a pride, Travel until you find Unclaimed land."
+      },
+      {
+        "id": "guide.tip.share",
+        "of": "tip.share",
+        "title": "Share the kill",
+        "body": "After a Hunt, you may be able to Share the kill with a cat who is there. That choice is remembered."
+      },
+      {
+        "id": "guide.tip.promise",
+        "of": "tip.promise",
+        "title": "Promises",
+        "body": "If you make a promise to a cat, they will remember it. Keep it or break it, and they will know."
+      },
+      {
+        "id": "guide.tip.danger",
+        "of": "tip.danger",
+        "title": "Danger",
+        "body": "When a predator or a hazard stands in your path, you can Run."
+      },
+      {
+        "id": "guide.tip.place.home",
+        "of": "tip.place.home",
+        "title": "Home",
+        "body": "Home is your resting place. The day screen lives here, with your needs and the goal line, and with the day's choice."
+      },
+      {
+        "id": "guide.tip.place.pride",
+        "of": "tip.place.pride",
+        "title": "Pride",
+        "body": "When you have a pride, the Pride section is where you find them. Until then, it shows who holds what in the Vale."
+      },
+      {
+        "id": "guide.tip.place.den",
+        "of": "tip.place.den",
+        "title": "The Den",
+        "body": "The Den is the place you Rest. Opening it does not spend the day, but Rest does."
+      },
+      {
+        "id": "guide.tip.place.wilderness",
+        "of": "tip.place.wilderness",
+        "title": "Wilderness",
+        "body": "Wilderness is the wider land. You can read the regions and who holds them, and you can see Danger and Water, without spending the day."
+      },
+      {
+        "id": "guide.tip.place.cats",
+        "of": "tip.place.cats",
+        "title": "Smilodons",
+        "body": "Smilodons holds every cat you've met. Open a cat to see their pride and Bond stage, and what they remember of you."
+      },
+      {
+        "id": "guide.tip.place.unavailable",
+        "of": "tip.place.unavailable",
+        "title": "Unavailable",
+        "body": "When a Places section says Unavailable, it isn't open yet. It will open later in the season, or later in the game."
+      },
+      {
+        "id": "guide.tip.place.lore",
+        "of": "tip.place.lore",
+        "title": "Lore",
+        "body": "Lore opens the Lore Book, where you can read what you've learned. Rumours may be false. The Guide keeps the tips and goals you've already seen."
+      },
+      {
+        "id": "guide.tip.borders",
+        "of": "tip.borders",
+        "title": "Pride land",
+        "body": "When you enter land that is Claimed by a pride, you may meet a patrol. They will remember that you crossed their ground."
+      },
+      {
+        "id": "guide.tip.gossip",
+        "of": "tip.gossip",
+        "title": "Word travels",
+        "body": "Word of what you do travels ahead of you. A cat may repeat news about you even if they were not there to see it."
+      },
+      {
+        "id": "guide.tip.bond",
+        "of": "tip.bond",
+        "title": "Bonds",
+        "body": "A bond grows as you spend time with a cat and make your choices. Watch the Bond stage under Smilodons. Court waits until you are Bonded."
+      },
+      {
+        "id": "guide.tip.standing",
+        "of": "tip.standing",
+        "title": "Pride standing",
+        "body": "Each pride keeps its own view of you, and that view can change as you deal with them. You'll see it when it changes."
+      },
+      {
+        "id": "guide.tip.season_end",
+        "of": "tip.season_end",
+        "title": "The mating season ends",
+        "body": "When the mating season ends, you can't Court. The days still go on, and you can still choose how to live in the Vale. A mate can still Found a pride with you on Unclaimed land."
+      }
+    ],
+    "goals": [
+      {
+        "id": "guide.goal.first_day",
+        "of": "goal.first_day",
+        "title": "Get your bearings",
+        "body": "You're new here, and this is the time to get your bearings. Hunt if you need to eat, and look at the facts of this land."
+      },
+      {
+        "id": "guide.goal.found_set",
+        "of": "goal.found_set",
+        "title": "Hold your pride",
+        "body": "You have a pride now, and they look to you. Hunt to feed them, and hold the land you've claimed."
+      },
+      {
+        "id": "guide.goal.found",
+        "of": "goal.found",
+        "title": "Found a pride",
+        "body": "You and {mateName} can Found a pride, but only on land marked Unclaimed. Travel there if the ground you're standing on is already Claimed by a pride.",
+        "tokens": [
+          "mateName"
+        ]
+      },
+      {
+        "id": "guide.goal.approval",
+        "of": "goal.approval",
+        "title": "Win approval",
+        "body": "A pride cat has accepted your courtship, but you still need the leader's word. Ask the leader about that cat, or face the challenge if a rival stands in the way."
+      },
+      {
+        "id": "guide.goal.court",
+        "of": "goal.court",
+        "title": "Court a mate",
+        "body": "You and {catName} are Bonded, and Court is open during the mating season. If {catName} belongs to a pride, you must also Ask the leader about that cat.",
+        "tokens": [
+          "catName"
+        ]
+      },
+      {
+        "id": "guide.goal.bond",
+        "of": "goal.bond",
+        "title": "Grow closer",
+        "body": "You've met a cat you could take as a mate. Spend time together until you are Bonded. Court opens when you are Bonded, during the mating season."
+      },
+      {
+        "id": "guide.goal.meet",
+        "of": "goal.meet",
+        "title": "Meet the cats",
+        "body": "To Found a pride you need a mate. Travel the land and take your days among the prides and the loners, and meet the cats who live there."
+      },
+      {
+        "id": "guide.goal.route_pride",
+        "of": "goal.route_pride",
+        "title": "Join a pride",
+        "body": "The mating season is over, and you have no mate. Seek a place in an existing pride, and Ask the leader to join."
+      },
+      {
+        "id": "guide.goal.route_group",
+        "of": "goal.route_group",
+        "title": "Find loners",
+        "body": "The mating season is over, and you have no mate. Look for other loners to travel with."
+      },
+      {
+        "id": "guide.goal.route_alone",
+        "of": "goal.route_alone",
+        "title": "Survive on your own",
+        "body": "The mating season is over, and you have no mate. Keep travelling alone, and survive on your own."
+      },
+      {
+        "id": "guide.goal.route_choose",
+        "of": "goal.route_choose",
+        "title": "Choose your path",
+        "body": "The mating season is over, and you have no mate. Decide whether to ask a pride to take you in, travel with other loners, or keep going alone."
+      }
+    ]
+  },
+  "guidedDay": {
+    "_note": "Nine narrator steps and highlights on top of the normal day, only on absDay 1 with run.tutorial on. Guidance never rigs a roll, adds food, locks a choice, or advances time. The player can do anything at any step; guidance moves to the matching step or steps aside. Any steps not done turn back into normal tips. A guided step marks a tip seen only if its lines teach everything that tip does.",
+    "steps": [
+      {
+        "id": "guided.needs",
+        "step": 1,
+        "name": "Arrival and your needs",
+        "highlight": "The needs bars (Health, Hunger, Thirst, Energy). Thirst is hidden in Story style.",
+        "marksSeen": [
+          "tip.needs",
+          "tip.health"
+        ],
+        "marksSeenNote": "These lines teach the full tip.needs (including the Water sentence, skipped when Thirst is hidden) and the full tip.health. They do not teach tip.injury.",
+        "splitNote": "Per tutorial v0.1.5: step one covers the needs bars and Health and marks both tips seen; step two covers the goal line.",
+        "beats": [
+          {
+            "id": "guided.needs.place",
+            "body": "You're alone at The Split Rock, which no pride claims."
+          },
+          {
+            "id": "guided.needs.needs",
+            "body": "The bars at the top show how you're holding up. A bar at Low is a warning to take care of it. Hunger falls unless you Hunt, and Rest brings Energy back."
+          },
+          {
+            "id": "guided.needs.thirst",
+            "body": "Thirst eases where Water is Available.",
+            "when": "Thirst is shown (not Story style)"
+          },
+          {
+            "id": "guided.needs.health",
+            "body": "Injuries and going without food wear your Health down, and Rest brings it back."
+          }
+        ]
+      },
+      {
+        "id": "guided.goal",
+        "step": 2,
+        "name": "The goal line",
+        "highlight": "The goal line under the day header.",
+        "marksSeen": [],
+        "body": "The line under the day header always shows what to aim for. It changes as you go."
+      },
+      {
+        "id": "guided.land",
+        "step": 3,
+        "name": "The land here",
+        "highlight": "The region facts on the day screen: Prey, Danger, Water, and Claimed by. No map screen is built.",
+        "marksSeen": [],
+        "body": "The facts on this screen change from place to place. Prey and Danger are not the same everywhere, and Water and Claimed by change too."
+      },
+      {
+        "id": "guided.choice",
+        "step": 4,
+        "name": "The day's choice",
+        "highlight": "The action row. Suggest Hunt, but do not lock it.",
+        "marksSeen": [],
+        "marksSeenNote": "Naming the actions is not the full teaching of tip.hunt, tip.rest, tip.travel, or tip.watch, so those tips still fire later.",
+        "beats": [
+          {
+            "id": "guided.choice.row",
+            "body": "Each day you make a choice from the row in front of you. The row has Hunt and Rest, and it also has Travel and Watch from a vantage."
+          },
+          {
+            "id": "guided.choice.suggestHunt",
+            "body": "Hunt will spend the day if you pick it. Prey lives on this ground, but it can get away."
+          }
+        ]
+      },
+      {
+        "id": "guided.after",
+        "step": 5,
+        "name": "After the action",
+        "highlight": "The action result.",
+        "marksSeen": [],
+        "marksSeenNote": "The Hunt lines cover food, Share the kill, and misses, but not that Prey changes by region or that a Hunt can leave you hurt, so tip.hunt still fires later. tip.share still fires on the first share choice. For Rest, Travel, or Watch, the line matches that action's teaching and may mark the matching tip seen if the player took that action.",
+        "variants": {
+          "huntOk": {
+            "id": "guided.after.huntOk",
+            "when": "The day's action was Hunt, and it was not a miss.",
+            "body": "A Hunt can feed you. If another cat comes to the kill, you can Share the kill with that cat."
+          },
+          "huntMiss": {
+            "id": "guided.after.huntMiss",
+            "when": "The Hunt result is a miss.",
+            "body": "A miss is normal. Rest if you need to, or Hunt again when you're ready."
+          },
+          "rest": {
+            "id": "guided.after.rest",
+            "when": "The day's action was Rest.",
+            "body": "Rest brings your Energy back. Pick it when Energy is Low.",
+            "marksSeen": [
+              "tip.rest"
+            ]
+          },
+          "travel": {
+            "id": "guided.after.travel",
+            "when": "The day's action was Travel.",
+            "body": "Travel spends the day, and some trails take more than a day. Regions differ as you go.",
+            "marksSeen": [
+              "tip.travel"
+            ]
+          },
+          "watch": {
+            "id": "guided.after.watch",
+            "when": "The day's action was Watch from a vantage.",
+            "body": "Watch from a vantage spends the day. You see which cats pass this ground, and what they are doing.",
+            "marksSeen": [
+              "tip.watch"
+            ]
+          }
+        }
+      },
+      {
+        "id": "guided.places",
+        "step": 6,
+        "name": "Places",
+        "highlight": "Places, then Wilderness (the wider land) and Smilodons (every cat you've met).",
+        "marksSeen": [],
+        "marksSeenNote": "Each Places section explains itself the first time it is opened, so place tips are not marked here.",
+        "body": "Places holds everything outside the day's choice. Wilderness is the wider land, and Smilodons is every cat you've met."
+      },
+      {
+        "id": "guided.cats",
+        "step": 7,
+        "name": "Cats",
+        "when": "A meeting happened this day. Skipped if none did.",
+        "highlight": "That cat's entry under Smilodons.",
+        "marksSeen": [
+          "tip.meet"
+        ],
+        "marksSeenNote": "These lines teach the full tip.meet, so it is marked seen if this step plays.",
+        "body": "You can find {catName} under Smilodons now. Cats remember what you say and do, and your words change how they feel about you.",
+        "tokens": [
+          "catName"
+        ]
+      },
+      {
+        "id": "guided.lore",
+        "step": 8,
+        "name": "Lore",
+        "highlight": "Lore",
+        "marksSeen": [],
+        "marksSeenNote": "This line does not mention Rumours, so tip.place.lore still fires when Lore is opened.",
+        "body": "Lore keeps a Guide of everything explained so far."
+      },
+      {
+        "id": "guided.closing",
+        "step": 9,
+        "name": "Day's end",
+        "slot": "The day report panel, titled Day {n} in code (game.report.title). The spoken line does not name the day count.",
+        "highlight": "Save and Continue on the Day {n} report.",
+        "marksSeen": [],
+        "body": "You can Save or Continue from this report. Your needs change overnight, and the mating season is short."
+      }
+    ],
+    "stepOff": {
+      "id": "guided.stepOff",
+      "when": "The player leaves the guided path or picks a different action than the suggested Hunt.",
+      "body": "That's fine. You can spend the day however you like."
+    }
+  },
+  "foundHints": {
+    "_note": "Tundra's ruling: use Unclaimed everywhere, including Found hints that currently say wild land. These strings are not in the local sabretooth worktree at 10218e8 (that checkout is an older slice). They are in the built game on origin/release/v0.1.5, which the tutorial spec is written against. Line numbers are from that tree. This list is corrected copy only; the game files were not edited.",
+    "sourceTree": "origin/release/v0.1.5",
+    "rows": [
+      {
+        "key": "uiHints.found.notWild",
+        "file": "src/renderer/data/events/first-season-v0.6.2.json",
+        "line": 871,
+        "before": "This land is claimed. Travel to wild land to found a pride.",
+        "after": "This land is already Claimed by a pride. Travel to Unclaimed land to Found a pride."
+      },
+      {
+        "key": "m2.season_end.results.mated_unfounded.beats[0].text",
+        "file": "src/renderer/data/events/first-season-v0.6.2.json",
+        "line": 612,
+        "before": "{catName} is still your mate. You have no pride of your own yet, but you can still find wild land and found one together.",
+        "after": "{catName} is still your mate. You have no pride of your own yet, but you can still find Unclaimed land and Found a pride together.",
+        "tokens": [
+          "catName"
+        ]
+      }
+    ]
+  },
+  "droppedFromV1": {
+    "_note": "tip.day is not in tutorial v0.1.3. The day loop is taught by guided steps 3 and 8. Unused guided steps still turn back into normal tips, using the guided lines above.",
+    "ids": [
+      "tip.day"
+    ]
+  },
+  "questionsForTundra": [],
+  "rulingsApplied": "Tundra tutorial v0.1.5 (493a4f1): step one split (needs and Health, then goal line); Breeding, Market and Inventory tips dropped; most dangerous Low need wins; goal.route_choose added."
+}

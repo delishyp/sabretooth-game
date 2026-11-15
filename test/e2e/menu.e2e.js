@@ -22,6 +22,17 @@ async function launch(ud) {
 }
 /** One fresh Electron app per device scale. Debug calls keep their promise on window so Chromium cannot collect it. */
 async function fitButtonsAtDeviceScale(dsf) {
+  let last;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try { return await fitButtonsAtDeviceScaleOnce(dsf); }
+    catch (err) {
+      last = err;
+      if (attempt === 1 || !/garbage collected/i.test(String(err && err.message))) throw err;
+    }
+  }
+  throw last;
+}
+async function fitButtonsAtDeviceScaleOnce(dsf) {
   const ud = fs.mkdtempSync(path.join(os.tmpdir(), `sabre-fit-${dsf}-`));
   let app = null;
   let page = null;
@@ -53,11 +64,15 @@ async function fitButtonsAtDeviceScale(dsf) {
         return true;
       }, dsf);
       for (const screen of ['root', 'newGame', 'newGame:sandbox']) {
-        await page.evaluate(async (sc) => {
-          window.__e2eHold = window.__menuDebug.show(sc);
-          try { await window.__e2eHold; return true; }
-          finally { delete window.__e2eHold; }
+        // Do not await the page promise inside evaluate. Chromium collects that promise at device scale 1.25.
+        await page.evaluate((sc) => {
+          window.__e2eDone = '';
+          const pending = Promise.resolve().then(() => window.__menuDebug.show(sc));
+          window.__e2eHold = pending;
+          pending.then(() => { window.__e2eDone = 'ok'; }, () => { window.__e2eDone = 'err'; });
+          return true;
         }, screen);
+        await page.waitForFunction(() => window.__e2eDone === 'ok' || window.__e2eDone === 'err', null, { timeout: 8000 });
         await new Promise((r) => setTimeout(r, 120));
         const bad = await page.evaluate(() => {
           const W = innerWidth, H = innerHeight, out = [];
@@ -96,7 +111,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
   const STYLES = ['story', 'standard', 'sim']; const DEATHS = ['permadeath', 'heir', 'sandbox'];
   const horiz = (from, to, list) => { const d = list.indexOf(to) - list.indexOf(from); return Array(Math.abs(d)).fill(d < 0 ? 'ArrowLeft' : 'ArrowRight'); };
   const keysFor = (style, death) => [...horiz('standard', style, STYLES), 'Enter', 'ArrowDown', ...horiz('heir', death, DEATHS), 'Enter', 'ArrowDown',
-    ...(death === 'sandbox' ? Array(4).fill('ArrowDown') : []), 'Enter'];
+    ...(death === 'sandbox' ? Array(4).fill('ArrowDown') : []), 'ArrowDown', 'Enter'];
   // All 9 Style × Death rule combinations, by keyboard, two per app instance (slot 0 then slot 1).
   const combos = STYLES.flatMap((st) => DEATHS.map((d) => [st, d]));
   for (let i = 0; i < combos.length; i += 2) {
@@ -396,7 +411,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         const victim = runJson(ud, 0).runId;
         await page.mouse.move(2, 2); await press(page, 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'newGameSetup');   // replace run 1
         await press(page, 'ArrowRight', 'Enter', 'ArrowDown', 'ArrowLeft', 'Enter');      // Sim + Permadeath
-        await press(page, 'ArrowDown', 'Enter'); await waitState(page, 'creator');        // Begin
+        await press(page, 'ArrowDown', 'ArrowDown', 'Enter'); await waitState(page, 'creator');        // past the tips toggle, then Begin
         assert.ok(fs.existsSync(path.join(ud, 'saves', 'run-0', 'run.json')) && runJson(ud, 0).runId === victim, 'not deleted on Begin');
         await press(page, 'Escape'); await waitState(page, 'newGameSetup');
         const s = await st(page);

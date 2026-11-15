@@ -25,7 +25,7 @@
     { id: 'breeding', implemented: false },
     { id: 'market', implemented: false },
     { id: 'inventory', implemented: false },
-    { id: 'lore', implemented: false },
+    { id: 'lore', implemented: true },
   ];
 
   function navItem(id) {

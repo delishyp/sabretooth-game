@@ -274,6 +274,10 @@
     const target = replaceRunId && runs.find((r) => r && r.runId === replaceRunId);
     const vars = { styleName: styleName(setup.style), deathRuleName: diffName(setup.death) };
     $('#setup-summary').textContent = target ? t('newGame.summaryReplacing', { ...vars, runLabel: runLabel(target) }) : t('newGame.summary', vars);
+    const tipCopy = (typeof Tutorial !== 'undefined' && Tutorial.copy && Tutorial.copy.newGame) || {};
+    const toggle = $('#tutorial-toggle'); const hint = $('#tutorial-hint');
+    if (toggle) toggle.textContent = `${tipCopy.label || ''} · ${t(setup.tutorial ? 'common.on' : 'common.off')}`;
+    if (hint) hint.textContent = tipCopy.description || '';
     fitActive();
     focus($(`${SCREEN} [data-nav="${setup.focus}"]`));
   }
@@ -306,7 +310,7 @@
   const isRareOption = (c, id) => id === 'oddEyes' || (id === 'coat' && Creator.RARE_COATS.includes(c.coat));
 
   function openCreator(effect) {
-    pendingSetup = { style: effect.style, difficulty: effect.difficulty, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
+    pendingSetup = { style: effect.style, difficulty: effect.difficulty, tutorial: effect.tutorial === true, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
     const ids = portraits.registry().portraits.map((p) => p.id);
     creator = Creator.init({ names: creatorNames(), difficulty: effect.difficulty, sandboxOptions: effect.sandboxOptions, portraitIds: ids });
     starting = false; preview.key = null;
@@ -841,8 +845,8 @@
 
   // ---------- actions ----------
   /** Creator Start (v1.4): menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, mainCat}. The replaced run is deleted only now (main). */
-  async function startNewGame({ style, difficulty, sandboxOptions, mainCat }) {
-    const res = await api.menu.newGame({ style, difficulty, replaceRunId: replaceRunId || undefined, sandboxOptions, mainCat });
+  async function startNewGame({ style, difficulty, sandboxOptions, mainCat, tutorial }) {
+    const res = await api.menu.newGame({ style, difficulty, replaceRunId: replaceRunId || undefined, sandboxOptions, mainCat, tutorial: tutorial === true });
     if (!res.ok) { toast(t('toast.startFailed')); return; }   // B12: raw error is logged by main only
     fallbackToast(res.storyteller?.preferred, res.storyteller?.effective);
     replaceRunId = null; creator = null;
@@ -1005,7 +1009,7 @@
     },
     reloadGame: (saved) => { if (game && game.run()) game.resume(game.run(), saved); },
     creditsRunning: () => !!creditsTimer,
-    game: () => (game ? { state: game.state(), run: game.run(), available: game.state() ? game.E.available(game.state()) : null, summary: game.state() ? game.E.summary(game.state()) : null, busy: game.busy() } : null),
+    game: () => (game ? { state: game.state(), run: game.run(), available: game.state() ? game.E.available(game.state()) : null, summary: game.state() ? game.E.summary(game.state()) : null, busy: game.busy(), render: () => game.render() } : null),
     /** Direct slice handler. A refusal leaves the live state untouched. */
     gameAct: (action) => {
       if (!game || !game.state()) return { error: 'no-game' };
