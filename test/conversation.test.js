@@ -310,6 +310,18 @@ function pickOn(engine, s, id) {
 }
 function finishOn(engine, s) { return engine.act(s, { type: 'continue' }).state; }
 
+test('the post-walk no_promise label fills the cat name', () => {
+  let s = E.act(meet(fresh()), { type: 'choose', choiceId: 'greet' }).state;
+  s = pick(s, 'company');
+  s = pick(s, 'quiet');
+  const view = E.talkView(s);
+  const choice = view.choices.find((c) => c.id === 'no_promise');
+  const name = s.npcs.ln05.name;
+  assert.ok(choice, `no_promise missing at ${view.nodeId}`);
+  assert.ok(!String(choice.label).includes('{catName}'), choice.label);
+  assert.ok(String(choice.label).includes(name), choice.label);
+});
+
 test('save before a choice keeps it pending; save after keeps one set of consequences', () => {
   let s = E.act(meet(fresh()), { type: 'choose', choiceId: 'greet' }).state;
   const waiting = roundTrip(s);

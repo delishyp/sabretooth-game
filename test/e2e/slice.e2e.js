@@ -54,7 +54,10 @@ async function step(page, shots) {
   }
   if (s.phase === 'event') {
     if (!shots.event && s.pending.catId) { await page.waitForTimeout(400); await shot(page, '04-event'); shots.event = true; }
-    const b = page.locator('#game-event [data-g="choose"]').first(); await b.click(); await idle(page); return 'choose';
+    const beat = page.locator('#game-event [data-g="advanceBeat"]');
+    if (await beat.count()) { await beat.first().click(); await idle(page); return 'advanceBeat'; }
+    const b = page.locator('#game-event [data-g="choose"], #game-event [data-g="sceneChoose"]').first();
+    await b.click(); await idle(page); return 'choose';
   }
   if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'continue'; }
   if (av.forced) { await page.locator('[data-g="forced"]').click(); await idle(page); return 'forced'; }

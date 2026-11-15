@@ -207,6 +207,44 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
       await page.waitForTimeout(150); await page.screenshot({ path: path.join(root, 'screenshots', 'new-game-sandbox-scale125.png') });
     } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
   }
+  for (const dsf of [1.1, 1.25, 1.5]) {
+    const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-fit-'));
+    const app = await electron.launch({
+      executablePath: require('electron'),
+      args: ['--no-sandbox', `--force-device-scale-factor=${dsf}`, root],
+      env: { ...process.env, SABRETOOTH_USERDATA: ud, SABRETOOTH_MENU_UNLOCK: '1' }
+    });
+    const page = await app.firstWindow();
+    try {
+      await check(`root and New Game buttons stay inside the CSS viewport at device scale ${dsf} (1280×720 and 1600×900)`, async () => {
+        await page.waitForFunction(() => window.__menuDebug);
+        const viewports = [[1280, 720], [1600, 900]].flatMap(([w, h]) => [[w, h], [Math.round(w / dsf), Math.round(h / dsf)]]);
+        for (const [w, h] of viewports) {
+          await app.evaluate(({ BrowserWindow }, size) => BrowserWindow.getAllWindows()[0].setContentSize(size.w, size.h), { w, h });
+          await page.waitForTimeout(200);
+          await page.evaluate((v) => window.__menuDebug.setUiScale(v), dsf);
+          for (const screen of ['root', 'newGame', 'newGame:sandbox']) {
+            await page.evaluate((sc) => window.__menuDebug.show(sc), screen);
+            await page.waitForTimeout(120);
+            const bad = await page.evaluate(() => {
+              const W = innerWidth, H = innerHeight, out = [];
+              for (const el of document.querySelectorAll('.screen.active button')) {
+                const r = el.getBoundingClientRect();
+                if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;
+                if (r.left < -0.5 || r.top < -0.5 || r.right > W + 0.5 || r.bottom > H + 0.5) {
+                  out.push(`${el.id || el.className || el.tagName} [${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.right)},${Math.round(r.bottom)}] in ${W}×${H} dpr ${devicePixelRatio}`);
+                }
+              }
+              return out;
+            });
+            assert.deepStrictEqual(bad, [], `${screen} ${w}×${h} @${dsf}: ${bad.join('; ')}`);
+          }
+        }
+        const dpr = await page.evaluate(() => devicePixelRatio);
+        assert.ok(Math.abs(dpr - dsf) < 0.05, `devicePixelRatio ${dpr} != ${dsf}`);
+      });
+    } finally { await app.close().catch(() => {}); fs.rmSync(ud, { recursive: true, force: true }); }
+  }
   {
     // Make Your Sabrecat (cat-creator-spec v0.2 §7 checks 1–11), keyboard / mouse / gamepad.
     const C = require(path.join(root, 'src/renderer/js/creator.js'));

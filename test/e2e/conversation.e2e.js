@@ -105,8 +105,10 @@ function assertLayout(box, { scroll = false } = {}) {
         if (s.phase === 'event' && s.pending && s.pending.catId === 'ln05') break;
         if (s.phase === 'conversation' && s.conversation.pending && s.conversation.pending.catId === 'ln05') break;
         if (s.phase === 'event') {
+          const beat = page.locator('#game-event [data-g="advanceBeat"]');
+          if (await beat.count()) { await beat.first().click(); await idle(page); continue; }
           const pass = page.locator('#game-event [data-choice="pass"]');
-          if (await pass.count()) await pass.click(); else await page.locator('#game-event [data-g="choose"]').first().click();
+          if (await pass.count()) await pass.click(); else await page.locator('#game-event [data-g="choose"], #game-event [data-g="sceneChoose"]').first().click();
           await idle(page); continue;
         }
         if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); continue; }
@@ -120,6 +122,12 @@ function assertLayout(box, { scroll = false } = {}) {
 
     let identity;
     await check('greet enters the talk; a double click charges once', async () => {
+      for (let i = 0; i < 6 && !(await page.locator('#game-event [data-choice="greet"]').count()); i++) {
+        const beat = page.locator('#game-event [data-g="advanceBeat"]');
+        if (!(await beat.count())) break;
+        await beat.first().click();
+        await idle(page);
+      }
       await page.locator('#game-event [data-choice="greet"]').click();
       await idle(page);
       const opened = (await g(page)).state;
@@ -221,8 +229,12 @@ function assertLayout(box, { scroll = false } = {}) {
         while ((await g(page)).state.phase !== 'day' && guard++ < 8) {
           const phase = (await g(page)).state.phase;
           if (phase === 'event') {
-            const pass = page.locator('#game-event [data-choice="pass"]');
-            if (await pass.count()) await pass.click(); else await page.locator('#game-event [data-g="choose"]').first().click();
+            const beat = page.locator('#game-event [data-g="advanceBeat"]');
+            if (await beat.count()) await beat.first().click();
+            else {
+              const pass = page.locator('#game-event [data-choice="pass"]');
+              if (await pass.count()) await pass.click(); else await page.locator('#game-event [data-g="choose"], #game-event [data-g="sceneChoose"]').first().click();
+            }
           } else if (phase === 'eventResult' || phase === 'conversation') {
             const cont = page.locator('#game-event [data-g="continue"]');
             if (await cont.count()) await cont.click();
@@ -263,8 +275,12 @@ function assertLayout(box, { scroll = false } = {}) {
         while ((await g(page)).state.phase !== 'day' && guard++ < 8) {
           const phase = (await g(page)).state.phase;
           if (phase === 'event') {
-            const pass = page.locator('#game-event [data-choice="pass"]');
-            if (await pass.count()) await pass.click(); else await page.locator('#game-event [data-g="choose"]').first().click();
+            const beat = page.locator('#game-event [data-g="advanceBeat"]');
+            if (await beat.count()) await beat.first().click();
+            else {
+              const pass = page.locator('#game-event [data-choice="pass"]');
+              if (await pass.count()) await pass.click(); else await page.locator('#game-event [data-g="choose"], #game-event [data-g="sceneChoose"]').first().click();
+            }
           } else if (phase === 'eventResult' || phase === 'conversation') {
             const cont = page.locator('#game-event [data-g="continue"]');
             if (await cont.count()) await cont.click();

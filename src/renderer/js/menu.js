@@ -292,7 +292,8 @@
   let creator = null;               // Creator model
   let pendingSetup = null;          // {style, difficulty, sandboxOptions?} from Begin
   let starting = false;             // guards a double Start
-  const preview = { token: 0, key: null, ms: null, drawn: [], skipped: [], pose: null, poses: new Map(), tints: new Map(), log: [], preloadMs: null };
+  const preview = { token: 0, key: null, ms: null, drawn: [], skipped: [], pose: null, poses: new Map(), tints: new Map(), plates: new Map(), bodies: new Map(), log: [], preloadMs: null };
+  const PREVIEW_SCALE = 0.5;
   const creatorNames = () => (copy.creator && copy.creator.defaultNames) || [];
   const device = () => document.body.dataset.device || 'keyboard';
   const creatorEnv = () => ({ names: creatorNames(), nameData: copy.nameData || null, device: device() });
@@ -440,7 +441,7 @@
     preview.poses.set(pose, p); p.catch(() => preview.poses.delete(pose));
     return p;
   }
-  const composeOpts = (a, canvas) => ({ canvas, lifeStage: 'adult', scars: [], tintCache: preview.tints, dir: a.pose,
+  const composeOpts = (a, canvas) => ({ canvas, lifeStage: 'adult', scars: [], tintCache: preview.tints, dir: a.pose, pixelScale: PREVIEW_SCALE,
     loadImage: (f) => { const k = f.slice(a.pose.length + 1); return a.imgs[k] ? Promise.resolve(a.imgs[k]) : Promise.reject(new Error(`missing ${k}`)); } });
   /**
    * Tracker C3: at app start, load + decode both adult poses and warm the tint cache with every common coat on each (the layers that depend
@@ -486,11 +487,42 @@
       // Gene-look mode only, when the static registry is not in use.
       paintJobs.set(cv, { spec: { portraitId: null, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, opts: { frame: 'head' } });
       const a = await poseAssets(PortraitView.sharedPose(portraitReg));
-      const off = document.createElement('canvas');
-      const res = await Compositor.compose(a.manifest, Creator.genesFor(c), composeOpts(a, off));
+      const genes = Creator.genesFor(c);
+      const plateKey = [a.pose, c.sex, c.coat, c.markings, c.eyes, c.oddEyes, c.eyeRight || ''].join('|');
+      let plate = preview.plates.get(plateKey);
+      if (!plate) {
+        const ordered = Compositor.stackOrder(a.manifest.layers || [], Compositor.genesToLayers(genes, { lifeStage: 'adult', scars: [] }));
+        const eyeIds = new Set(['eye_left', 'eye_right']);
+        let seenEye = false; const beforeIds = [], afterIds = [];
+        for (const layer of ordered) {
+          if (eyeIds.has(layer.id)) { seenEye = true; continue; }
+          (seenEye ? afterIds : beforeIds).push(layer.id);
+        }
+        const bodyKey = [a.pose, c.sex, c.coat, c.markings].join('|');
+        let body = preview.bodies.get(bodyKey);
+        if (!body) {
+          const before = document.createElement('canvas');
+          const after = document.createElement('canvas');
+          const bres = await Compositor.compose(a.manifest, genes, { ...composeOpts(a, before), onlyIds: beforeIds, skipLineart: true });
+          const ares = await Compositor.compose(a.manifest, genes, { ...composeOpts(a, after), onlyIds: afterIds });
+          body = { before, after, drawnBefore: bres.drawn, drawnAfter: ares.drawn, skipped: bres.skipped.concat(ares.skipped) };
+          preview.bodies.set(bodyKey, body);
+        }
+        const eyes = document.createElement('canvas');
+        const eres = await Compositor.compose(a.manifest, genes, { ...composeOpts(a, eyes), onlyIds: ['eye_left', 'eye_right'], skipLineart: true });
+        const off = document.createElement('canvas');
+        off.width = body.before.width || eyes.width; off.height = body.before.height || eyes.height;
+        const g = off.getContext('2d');
+        if (body.before.width) g.drawImage(body.before, 0, 0);
+        if (eyes.width) g.drawImage(eyes, 0, 0);
+        if (body.after.width) g.drawImage(body.after, 0, 0);
+        plate = { canvas: off, drawn: body.drawnBefore.concat(eres.drawn, body.drawnAfter), skipped: body.skipped.concat(eres.skipped) };
+        preview.plates.set(plateKey, plate);
+      }
       if (token !== preview.token) return;
-      PortraitView.blitHead(off, cv, PortraitView.entryFor(portraitReg, null, c.sex).head);
-      cv._full = off; cv._portraitId = null; cv.dataset.runtime = '1';
+      PortraitView.blitHead(plate.canvas, cv, PortraitView.entryFor(portraitReg, null, c.sex).head);
+      const res = plate;
+      cv._full = plate.canvas; cv._portraitId = null; cv.dataset.runtime = '1';
       Object.assign(preview, { ms: performance.now() - t0, drawn: res.drawn, skipped: res.skipped, pose: a.pose, rendered: key });
       preview.log.push({ key, ms: preview.ms });
     } catch (e) {

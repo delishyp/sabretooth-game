@@ -223,7 +223,7 @@
         characterization: (built.meta[0] && built.meta[0].characterization) || 'unresolved',
         traits: npc.personality ? { ...npc.personality } : null,
         choiceIds: presented(node).map((c) => c.id),
-        choiceRows: presented(node).map((c) => ({ id: c.id, label: c.label, pause: !!c.pause, outcome: c.outcome || null }))
+        choiceRows: presented(node).map((c) => ({ id: c.id, label: c.label ? fill(c.label, vars) : c.label, pause: !!c.pause, outcome: c.outcome || null }))
       };
     }
     function topicFor(outcome, cat) {
@@ -333,9 +333,9 @@
       let choices = [];
       if (!p.showingTerminal) {
         const frozen = p.presentation && p.presentation.nodeId === p.nodeId && p.presentation.choiceRows;
-        const rows = frozen || (node ? presented(node).map((c) => ({ id: c.id, label: c.label, pause: !!c.pause })) : []);
+        const rows = frozen || (node ? presented(node).map((c) => ({ id: c.id, label: c.label ? fill(c.label, v) : c.label, pause: !!c.pause })) : []);
         choices = rows.map((c) => ({
-          id: c.id, label: c.label, pause: !!c.pause,
+          id: c.id, label: c.label ? fill(c.label, v) : c.label, pause: !!c.pause,
           disabled: !p.slotCharged && !(c.pause || c.id === 'leave' || FREE_LEAVE.has(c.outcome)) && !canAfford(s)
         }));
       }
