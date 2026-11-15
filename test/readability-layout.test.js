@@ -11,14 +11,25 @@ const D = path.join(__dirname, '../src/renderer/data');
 const j = (f) => JSON.parse(fs.readFileSync(path.join(D, f), 'utf8'));
 const copy = j('menu-copy.json').strings;
 
-test('the scene log is not capped at 140px or 64px and can scroll', () => {
+test('the talk log is capped so choices stay on the card', () => {
   assert.ok(!/\.conversation-card \.event-scroll \{[^}]*max-height:\s*140px/.test(css));
   assert.ok(!/\.encounter-card \.event-scroll \{[^}]*max-height:\s*64px/.test(css));
   assert.ok(!/\.encounter-card \.event-scroll \{[^}]*max-height:\s*88px/.test(css));
-  assert.match(css, /\.conversation-card \.event-scroll \{[^}]*overflow-y:\s*auto/);
-  assert.match(css, /\.conversation-card \.event-scroll \{[^}]*max-height:\s*none/);
+  const talk = css.match(/\.conversation-card \.event-scroll \{[^}]*\}/);
+  assert.ok(talk, 'conversation scroll rule');
+  assert.match(talk[0], /overflow-y:\s*auto/);
+  assert.match(talk[0], /max-height:\s*min\(240px,\s*32cqh\)/);
+  assert.ok(!/max-height:\s*none/.test(talk[0]), talk[0]);
   assert.match(css, /\.encounter-card \.event-scroll \{[^}]*max-height:\s*none/);
   assert.match(css, /\.event-scroll \.event-text \{[^}]*overflow:\s*visible/);
+  assert.match(css, /\.conversation-card \{[^}]*overflow:\s*hidden/);
+  assert.match(css, /\.conversation-card \.event-choices \{[^}]*flex:\s*0 0 auto/);
+  const screen = fs.readFileSync(path.join(__dirname, '../src/renderer/js/game-screen.js'), 'utf8');
+  const talkFn = screen.slice(screen.indexOf('function renderTalk'), screen.indexOf('function renderFord'));
+  const scrollAt = talkFn.indexOf('card.append(scroll)');
+  const choicesAt = talkFn.indexOf('card.append(ch)');
+  assert.ok(scrollAt > 0 && choicesAt > scrollAt, 'choices sit on the card, after the scroll pane');
+  assert.ok(!talkFn.includes('scroll.append(ch)'));
 });
 
 test('the Smilodon directory list scrolls inside the dock', () => {
