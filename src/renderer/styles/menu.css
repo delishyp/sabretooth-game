@@ -268,6 +268,11 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .tone-narrator { color: #e7d3b4; font-style: italic; }
 .tone-npc { color: #f8cc6e; font-style: normal; }
 .tone-player { color: #f6efe2; font-style: normal; }
+.word-bar { width: 100%; margin: 6px 0 0; }
+.word-bar-title, .word-bar-word { margin: 0; font-size: clamp(12px, 1.6cqh, 16px); color: #e7d3b4; }
+.word-bar-track { display: flex; gap: 4px; height: 12px; margin: 4px 0; }
+.word-bar-track i { flex: 1; background: #0e0b09; border: 1px solid #5a3422; }
+.word-bar-track i.is-filled { background: linear-gradient(180deg, #c94b3c, #a83a30); }
 .event-result-line { margin: 6px 0 8px; font-size: 20px; letter-spacing: .02em; color: #f3d9a0; text-align: center; line-height: 1.45; }
 .event-card.has-beats .event-cast { display: flex; align-items: center; gap: 12px; width: 100%; }
 .event-card.has-beats .event-cast-name { font-family: var(--font-title); font-size: 28px; letter-spacing: 1px; color: #f6efe2; }

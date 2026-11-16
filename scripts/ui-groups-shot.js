@@ -37,8 +37,8 @@ async function prime(page) {
       s.encounters = s.encounters || { schema: 1, log: [], cooldowns: {}, pending: null, rendezvous: null };
       s.encounters.pending = {
         encounterId: 'encounter.giant_deer.v1', assetId: 'giant-deer.png', displayName: 'Giant deer',
-        nodeId: 'sighted', lines: [{ kind: 'narration', text: 'A deer stands in the open.' }],
-        choices: [{ id: 'leave', label: 'Run' }], terminal: false, encounterInstanceId: 'shot',
+        nodeId: 'opening', lines: [{ kind: 'narration', text: 'A deer stands in the open.' }],
+        terminal: false, encounterInstanceId: 'shot',
         absDay: s.day, regionId: s.region, meter: { kind: 'hunt', band: 1 }
       };
     } else if (which === 'directory') {

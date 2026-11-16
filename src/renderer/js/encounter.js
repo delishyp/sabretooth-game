@@ -289,7 +289,8 @@
         nodeId: p.nodeId, lines: (p.lines || []).map((line) => ({ ...line })),
         choices, terminal: !!p.terminal, cast: p.cast, forecast, result: p.result,
         costs: p.costs || null, day: p.absDay, regionId: p.regionId,
-        instanceId: p.encounterInstanceId
+        instanceId: p.encounterInstanceId,
+        meter: p.meter || (p.encounterId === DEER ? { kind: 'hunt', band: 0 } : null)
       };
     }
 

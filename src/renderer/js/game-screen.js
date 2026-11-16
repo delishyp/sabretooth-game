@@ -16,6 +16,7 @@
   const Pass2 = (typeof require === 'function' ? require('./pass2') : (typeof self !== 'undefined' ? self.Pass2 : null));
   const Tutorial = (typeof require === 'function' ? require('./tutorial') : (typeof self !== 'undefined' ? self.Tutorial : null));
   const SceneLog = (typeof require === 'function' ? require('./scene-log') : (typeof self !== 'undefined' ? self.SceneLog : null));
+  const WordBar = (typeof require === 'function' ? require('./word-bar') : (typeof self !== 'undefined' ? self.WordBar : null));
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -735,6 +736,7 @@
       art.append(img);
       row.append(you, art);
       card.append(row, btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
+      if (WordBar && view.meter) WordBar.mount(card, view.meter);
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
