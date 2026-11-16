@@ -63,5 +63,5 @@
     parent.append(box);
     return box;
   }
-  return { KINDS, describe, mount };
+  return { KINDS, describe, mount, label };
 });

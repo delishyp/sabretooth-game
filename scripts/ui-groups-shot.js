@@ -52,7 +52,11 @@ async function prime(page) {
       window.__uiShotView = 'lore';
     }
     game.render();
-    if (window.__uiShotView && window.__menuDebug.showView) window.__menuDebug.showView(window.__uiShotView);
+    const view = { directory: 'cats', map: 'map', lore: 'lore' }[which];
+    if (view) {
+      const button = document.querySelector('[data-view="' + view + '"]');
+      if (button) button.click();
+    }
   }, group);
 }
 

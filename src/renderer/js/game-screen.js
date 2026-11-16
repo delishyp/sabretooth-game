@@ -17,6 +17,7 @@
   const Tutorial = (typeof require === 'function' ? require('./tutorial') : (typeof self !== 'undefined' ? self.Tutorial : null));
   const SceneLog = (typeof require === 'function' ? require('./scene-log') : (typeof self !== 'undefined' ? self.SceneLog : null));
   const WordBar = (typeof require === 'function' ? require('./word-bar') : (typeof self !== 'undefined' ? self.WordBar : null));
+  const DirectoryPanel = (typeof require === 'function' ? require('./directory-panel') : (typeof self !== 'undefined' ? self.DirectoryPanel : null));
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -181,7 +182,8 @@
     const { t, $ } = ctx;
     const E = Slice.create({ ...gameData, nameData, looks: ctx.creatorLooks });
     const W = E.W;
-    let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home'; let tutorialPulse = null;
+    let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home'; let tutorialPulse = null; let selectedCat = null;
+    const ph = (id) => (WordBar && WordBar.label ? WordBar.label(id) : id);
     const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; };
     const framed = (canvas, size) => { const f = el('div', 'portrait-frame frame-' + size); f.append(canvas); return f; };
     const btn = (label, data, opts = {}) => { const b = el('button', opts.cls || '', label); Object.assign(b.dataset, data); if (opts.disabled) b.disabled = true; if (opts.title) b.title = opts.title; return b; };
@@ -437,6 +439,8 @@
           row('Standing', `You are a member of ${factionName(s.cat.prideId)}.`);
         }
         row(t('home.you'), s.cat.name);
+        const emptyPride = DirectoryPanel && DirectoryPanel.pride(!!(s.records && s.records.pride && s.records.pride.name));
+        if (emptyPride) row(ph(emptyPride.emptyKey), '');
         row(t('creator.row.sex'), s.cat.sex === 'female' ? t('creator.sex.female') : t('creator.sex.male'));
         for (const [id, rel] of Object.entries(s.prideRelation || {})) row(`Faction · ${factionName(id)} → you`, signed(rel));
         p.append(dl);
@@ -451,7 +455,7 @@
           const li = el('li', 'met-cat');
           const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
           ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});
-          li.append(framed(mini, 'sm'), el('span', 'met-name', n.name));
+          li.append(framed(mini, 'sm'), btn(n.name, { g: 'selectCat', cat: n.id }, { cls: 'met-name' }));
           li.append(relationMeters(n.id));
           const stage = s.records && s.records.bonds && s.records.bonds[n.id] && s.records.bonds[n.id].stage;
           if (stage && stage !== 'none') li.append(el('p', 'bond-stage', `Bond · ${E.bondLabel ? E.bondLabel(stage) : stage}`));
@@ -462,6 +466,16 @@
         }
         p.append(ul);
         if (!met.length) p.append(el('p', 'home-empty', t('home.noCats')));
+        const picked = met.find((n) => n.id === selectedCat) || null;
+        const info = DirectoryPanel ? DirectoryPanel.detail(picked && { id: picked.id, name: picked.name, bond: (s.records && s.records.bonds && s.records.bonds[picked.id] && s.records.bonds[picked.id].stage) || '' }) : null;
+        if (info) {
+          const box = el('article', 'cat-detail');
+          box.dataset.cat = info.id || '';
+          box.append(el('h3', '', ph(info.titleKey)));
+          box.append(el('p', '', info.name || ph(info.emptyKey)));
+          if (info.bond) box.append(el('p', 'bond-stage', info.bond));
+          p.append(box);
+        }
       } else if (view === 'lore') {
         const book = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
         p.append(el('h2', 'home-panel-title', (book && book.bookTitle) || t('home.nav.lore')));
@@ -1073,6 +1087,7 @@
       if (d.g === 'tutorialDismiss') { if (Tutorial) Tutorial.dismiss(s, tutorialFacts()); render(); return; }
       if (d.g === 'tutorialOff') { if (Tutorial) Tutorial.turnOff(s, tutorialFacts()); render(); return; }
       if (d.g === 'goalOpen') { view = 'lore'; render(); return; }
+      if (d.g === 'selectCat') { selectedCat = d.cat; view = 'cats'; render(); return; }
       if (d.g === 'nav') return showView(d.view);
       if (d.g === 'unavailable') return showView(d.view);
       if (d.g === 'den') return showView('den');
