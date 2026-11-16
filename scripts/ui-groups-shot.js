@@ -51,6 +51,10 @@ async function prime(page) {
       window.__uiShotView = 'map';
     } else if (which === 'lore') {
       s.phase = 'day'; s.pending = null;
+      s.worldMemory = s.worldMemory || {};
+      s.worldMemory.knowledge = s.worldMemory.knowledge || {};
+      s.worldMemory.knowledge['shot/learned'] = { scope: 'private', participantIds: ['player'] };
+      s.worldMemory.knowledge['shot/rumour'] = { scope: 'private', rumorPride: 'highcrag', rumorDay: s.day };
       window.__uiShotView = 'lore';
     }
     game.render();

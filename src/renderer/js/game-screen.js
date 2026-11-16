@@ -19,6 +19,7 @@
   const WordBar = (typeof require === 'function' ? require('./word-bar') : (typeof self !== 'undefined' ? self.WordBar : null));
   const DirectoryPanel = (typeof require === 'function' ? require('./directory-panel') : (typeof self !== 'undefined' ? self.DirectoryPanel : null));
   const RegionMap = (typeof require === 'function' ? require('./region-map') : (typeof self !== 'undefined' ? self.RegionMap : null));
+  const LoreBook = (typeof require === 'function' ? require('./lore-book') : (typeof self !== 'undefined' ? self.LoreBook : null));
   function logClass(line, cat) {
     if (!line || line.kind === 'gap') return 'event-text gap';
     if (line.kind === 'action') return 'event-text action';
@@ -489,20 +490,30 @@
           p.append(box);
         }
       } else if (view === 'lore') {
-        const book = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
-        p.append(el('h2', 'home-panel-title', (book && book.bookTitle) || t('home.nav.lore')));
-        p.append(el('h3', 'guide-heading', (book && book.sectionHeading) || 'Guide'));
-        const list = el('div', 'guide-list');
+        const bookCopy = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
         const entries = (Tutorial && s.tutorial && Tutorial.view(s, tutorialFacts()).guide) || [];
-        if (!entries.length) list.append(el('p', 'home-empty', ''));
-        for (const entry of entries) {
-          const block = el('article', 'guide-entry');
-          block.dataset.guide = entry.id;
-          if (entry.current) block.dataset.current = '1';
-          block.append(el('h4', '', entry.title), el('p', '', entry.body));
-          list.append(block);
+        const model = LoreBook ? LoreBook.book(s, { heading: bookCopy && bookCopy.sectionHeading, entries }) : [];
+        const root = el('div', 'lore-book');
+        root.append(el('h2', 'home-panel-title', (bookCopy && bookCopy.bookTitle) || t('home.nav.lore')));
+        for (const section of model) {
+          const block = el('section', 'lore-section');
+          block.dataset.section = section.id;
+          block.append(el('h3', 'guide-heading', section.title || ph(section.titleKey)));
+          if (!section.entries.length) block.append(el('p', 'home-empty', ph(LoreBook.EMPTY)));
+          for (const entry of section.entries) {
+            const article = el('article', 'guide-entry');
+            if (entry.id) article.dataset.guide = entry.id;
+            if (entry.current) article.dataset.current = '1';
+            if (entry.title) article.append(el('h4', '', entry.title));
+            const body = entry.body
+              || (entry.descriptionKey && t.has(entry.descriptionKey) ? t(entry.descriptionKey) : '')
+              || (entry.bodyKey ? ph(entry.bodyKey) : '');
+            if (body) article.append(el('p', '', body));
+            block.append(article);
+          }
+          root.append(block);
         }
-        p.append(list);
+        p.append(root);
       } else if (view === 'map' && RegionMap) {
         const model = RegionMap.build(W, s, { hover: s.region });
         const board = el('div', 'region-map');
