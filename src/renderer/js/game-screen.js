@@ -18,6 +18,7 @@
   const SceneLog = (typeof require === 'function' ? require('./scene-log') : (typeof self !== 'undefined' ? self.SceneLog : null));
   const WordBar = (typeof require === 'function' ? require('./word-bar') : (typeof self !== 'undefined' ? self.WordBar : null));
   const DirectoryPanel = (typeof require === 'function' ? require('./directory-panel') : (typeof self !== 'undefined' ? self.DirectoryPanel : null));
+  const RegionMap = (typeof require === 'function' ? require('./region-map') : (typeof self !== 'undefined' ? self.RegionMap : null));
   function logClass(line, cat) {
     if (!line || line.kind === 'gap') return 'event-text gap';
     if (line.kind === 'action') return 'event-text action';
@@ -317,6 +318,7 @@
       if (id === 'den') return t('home.nav.den');
       if (id === 'wilderness') return t('home.nav.wilderness');
       if (id === 'cats') return t('home.nav.cats');
+      if (id === 'map') return ph('ui.map.nav');
       if (id === 'breeding') return t('home.nav.breeding');
       if (id === 'market') return t('home.nav.market');
       if (id === 'inventory') return t('home.nav.inventory');
@@ -501,6 +503,41 @@
           list.append(block);
         }
         p.append(list);
+      } else if (view === 'map' && RegionMap) {
+        const model = RegionMap.build(W, s, { hover: s.region });
+        const board = el('div', 'region-map');
+        board.append(el('h2', 'home-panel-title', ph('ui.map.title')));
+        const body = el('div', 'region-map-body');
+        const stage = el('div', 'region-map-board');
+        const card = el('aside', 'region-map-card');
+        const paint = (row) => {
+          card.textContent = '';
+          if (!row) return;
+          card.dataset.region = row.id || '';
+          card.dataset.known = row.known ? '1' : '0';
+          if (!row.known) { card.append(el('h3', '', t(row.unknownKey))); return; }
+          card.append(el('h3', '', row.name));
+          if (row.descriptionKey && t.has(row.descriptionKey)) card.append(el('p', 'region-desc', t(row.descriptionKey)));
+        };
+        for (const node of model.nodes) {
+          const b = el('button', 'region-node' + (node.here ? ' is-here' : ''));
+          b.type = 'button';
+          b.style.left = node.left + '%';
+          b.style.top = node.top + '%';
+          b.style.width = node.width + '%';
+          b.style.height = node.height + '%';
+          b.dataset.region = node.id;
+          b.textContent = node.name;
+          if (node.here) b.setAttribute('aria-current', 'true');
+          const show = () => paint(RegionMap.cardFor(W, s, node.id));
+          b.addEventListener('mouseenter', show);
+          b.addEventListener('focus', show);
+          stage.append(b);
+        }
+        paint(model.card);
+        body.append(card, stage);
+        board.append(body);
+        p.append(board);
       }
     }
     function renderRegion() {

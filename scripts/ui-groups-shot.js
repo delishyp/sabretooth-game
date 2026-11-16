@@ -46,6 +46,8 @@ async function prime(page) {
       window.__uiShotView = 'cats';
     } else if (which === 'map') {
       s.phase = 'day'; s.pending = null;
+      s.map.discovered = ['ice_wall', 'frost_tongue', 'blue_caves', 'wind_scree', 'north_pass', 'highcrag', 'horse_meadows', 'upper_greywater', 'greywater_ford', 'salt_flats', 'bonefield', 'herd_trail', 'tallgrass', 'south_range', 'split_rock', 'twin_forks', 'reedbank', 'mistwood', 'fog_paths', 'west_spur', 'drowned_mere', 'mere_shore', 'island_mere', 'east_saddle', 'bears_throat', 'claw_gorge', 'tar_seeps', 'ash_hills', 'wolf_run', 'camel_ridge'];
+      s.map.visited = ['split_rock'];
       window.__uiShotView = 'map';
     } else if (which === 'lore') {
       s.phase = 'day'; s.pending = null;
@@ -71,7 +73,17 @@ async function prime(page) {
   await page.waitForFunction(() => window.__menuDebug);
   await start(page);
   await prime(page);
-  await page.waitForTimeout(400);
+  if (group === 'map' || group === 'lore') {
+    await page.evaluate((which) => {
+      const game = window.__menuDebug.game();
+      const t = game.state.tutorial;
+      if (t) { t.off = true; t.active = null; }
+      game.render();
+      const button = document.querySelector('[data-view="' + which + '"]');
+      if (button) button.click();
+    }, group);
+  }
+  await page.waitForTimeout(300);
   const files = [];
   for (const [w, h, tag] of [[1280, 720, '720'], [1920, 1080, '1080']]) {
     await app.evaluate(({ BrowserWindow }, size) => BrowserWindow.getAllWindows()[0].setContentSize(size.w, size.h), { w, h });

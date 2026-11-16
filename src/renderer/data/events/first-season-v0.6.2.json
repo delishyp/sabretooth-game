@@ -1042,6 +1042,8 @@
     "ui.directory.choose": "[PH] Choose a cat",
     "ui.directory.detail": "[PH] Cat detail",
     "ui.pride.empty": "[PH] No pride yet",
+    "ui.map.nav": "[PH] Map",
+    "ui.map.title": "[PH] Map",
     "found.noMate": "You need a mate to found a pride.",
     "bondStage.met": "Met",
     "bondStage.acquainted": "Acquainted",

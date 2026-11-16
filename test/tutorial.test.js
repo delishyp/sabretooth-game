@@ -90,6 +90,13 @@ test('goal states follow the spec order and never name an unmet cat', () => {
   assert.strictEqual(Tutorial.goal(base({ day: 3, inWindow: false, seasonOver: false, founded: false, mate: null })).line, 'Stay alive.');
 });
 
+test('a places screen with no written tip does not open a blank card', () => {
+  const state = {};
+  const shown = Tutorial.sync(state, base({ day: 3, view: 'map' }));
+  assert.notStrictEqual(state.tutorial.active && state.tutorial.active.id, 'tip.place.map');
+  assert.ok(!shown.card || shown.card.id !== 'tip.place.map');
+});
+
 test('the Day 1 report continues steps 5–9 after the clock has rolled, and the action tips are offered', () => {
   const state = {};
   let facts = base();

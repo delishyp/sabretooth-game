@@ -22,6 +22,7 @@
     { id: 'den', implemented: true },
     { id: 'wilderness', implemented: true },
     { id: 'cats', implemented: true },
+    { id: 'map', implemented: true },
     { id: 'breeding', implemented: false },
     { id: 'market', implemented: false },
     { id: 'inventory', implemented: false },

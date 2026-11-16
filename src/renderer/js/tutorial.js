@@ -252,9 +252,13 @@
     if (flags.seasonEnd) offer(t, 'tip.season_end', facts);
     if (facts.view && facts.view !== 'home') {
       t.leftHome = true;
-      offer(t, `tip.place.${facts.view === 'cats' ? 'cats' : facts.view}`, facts);
+      const placeId = `tip.place.${facts.view === 'cats' ? 'cats' : facts.view}`;
+      if (tipById[placeId]) offer(t, placeId, facts);
     } else if (facts.view === 'home' && t.leftHome) offer(t, 'tip.place.home', facts);
-    if (flags.place) offer(t, `tip.place.${flags.place === 'cats' ? 'cats' : flags.place}`, facts);
+    if (flags.place) {
+      const placeId = `tip.place.${flags.place === 'cats' ? 'cats' : flags.place}`;
+      if (tipById[placeId]) offer(t, placeId, facts);
+    }
     if (flags.unavailable) offer(t, 'tip.place.unavailable', facts);
   }
   function cardFromActive(t, facts) {
