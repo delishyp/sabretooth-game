@@ -227,7 +227,8 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .home-dock:has(.region-map) #game-region, .home-dock:has(.region-map) #game-actions, .home-dock:has(.region-map) #dock-kept,
 .home-dock:has(.lore-book) #game-region, .home-dock:has(.lore-book) #game-actions, .home-dock:has(.lore-book) #dock-kept { display: none; }
 #home-panel, #dock-kept { flex: 0 0 auto; min-width: 0; }
-#home-panel:has(.home-cats), #home-panel:has(.region-map), #home-panel:has(.lore-book) { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+#home-panel:has(.home-cats) { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+#home-panel:has(.region-map), #home-panel:has(.lore-book) { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
 .region-map { display: flex; flex-direction: column; min-height: 0; height: 100%; }
 .region-map-body { display: flex; gap: 12px; flex: 1 1 auto; min-height: 0; }
 .region-map-board { position: relative; flex: 1 1 auto; min-height: min(52cqh, 640px); background: rgba(12, 9, 7, .55); border: 1px solid rgba(212, 176, 122, .4); border-radius: 10px; }

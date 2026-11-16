@@ -344,6 +344,9 @@
       const expand = $('#home-expand'); if (expand) expand.dataset.name = s.cat.name;
       const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
       den.title = t('home.denTip'); wild.title = t('home.wildTip');
+      const covered = view === 'map' || view === 'lore';
+      den.hidden = covered;
+      wild.hidden = covered;
       den.classList.toggle('is-current', view === 'den');
       wild.classList.toggle('is-current', view === 'wilderness');
       if (view === 'den') den.setAttribute('aria-current', 'true'); else den.removeAttribute('aria-current');
