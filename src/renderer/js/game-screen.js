@@ -319,7 +319,7 @@
       if (id === 'den') return t('home.nav.den');
       if (id === 'wilderness') return t('home.nav.wilderness');
       if (id === 'cats') return t('home.nav.cats');
-      if (id === 'map') return ph('ui.map.nav');
+      if (id === 'map') return t('home.nav.map');
       if (id === 'breeding') return t('home.nav.breeding');
       if (id === 'market') return t('home.nav.market');
       if (id === 'inventory') return t('home.nav.inventory');
@@ -520,7 +520,7 @@
       } else if (view === 'map' && RegionMap) {
         const model = RegionMap.build(W, s, { hover: s.region });
         const board = el('div', 'region-map');
-        board.append(el('h2', 'home-panel-title', ph('ui.map.title')));
+        board.append(el('h2', 'home-panel-title', t('home.nav.map')));
         const body = el('div', 'region-map-body');
         const stage = el('div', 'region-map-board');
         const card = el('aside', 'region-map-card');

@@ -113,6 +113,7 @@ Owner: Saga. Replaces all 102 placeholder strings in `src/renderer/js/i18n.js`. 
     "home.nav.den": "Den",
     "home.nav.wilderness": "Wilderness",
     "home.nav.cats": "Smilodons",
+    "home.nav.map": "Map",
     "home.nav.breeding": "Breeding",
     "home.nav.market": "Market",
     "home.nav.inventory": "Inventory",
