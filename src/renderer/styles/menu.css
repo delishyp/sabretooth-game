@@ -264,10 +264,10 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .game-event .event-card { pointer-events: auto; }
 .game-event[hidden] { display: none; }
 .event-beat { max-height: min(42vh, 420px); overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere; white-space: pre-wrap; }
-.scene-log { max-height: calc(10 * 1.45em); overflow-x: hidden; overflow-y: auto; -webkit-mask-image: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 8px), transparent); mask-image: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 8px), transparent); }
+.event-beat.scene-log { max-height: calc(10 * 1.45em); overflow-x: hidden; overflow-y: auto; -webkit-mask-image: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 8px), transparent); mask-image: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 8px), transparent); }
 .tone-narrator { color: #e7d3b4; font-style: italic; }
-.tone-npc { color: #f8cc6e; font-style: normal; }
-.tone-player { color: #f6efe2; font-style: normal; }
+.tone-npc, .event-text.tone-npc { color: #f8cc6e; font-style: normal; }
+.tone-player, .event-text.tone-player { color: #f6efe2; font-style: normal; }
 .word-bar { width: 100%; margin: 6px 0 0; }
 .word-bar-title, .word-bar-word { margin: 0; font-size: clamp(12px, 1.6cqh, 16px); color: #e7d3b4; }
 .word-bar-track { display: flex; gap: 4px; height: 12px; margin: 4px 0; }

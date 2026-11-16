@@ -18,6 +18,16 @@
   const SceneLog = (typeof require === 'function' ? require('./scene-log') : (typeof self !== 'undefined' ? self.SceneLog : null));
   const WordBar = (typeof require === 'function' ? require('./word-bar') : (typeof self !== 'undefined' ? self.WordBar : null));
   const DirectoryPanel = (typeof require === 'function' ? require('./directory-panel') : (typeof self !== 'undefined' ? self.DirectoryPanel : null));
+  function logClass(line, cat) {
+    if (!line || line.kind === 'gap') return 'event-text gap';
+    if (line.kind === 'action') return 'event-text action';
+    if (line.kind === 'say' || line.kind === 'speech') {
+      const who = line.speakerId || line.speaker || '';
+      const mine = who === 'player' || (cat && (who === cat.catId || who === cat.name));
+      return 'event-text say tone-' + (mine ? 'player' : 'npc');
+    }
+    return 'event-text narration';
+  }
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -661,8 +671,7 @@
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       if (!view.lines.length) scroll.append(el('p', 'event-text', ''));
       for (const line of view.lines) {
-        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, speechLine(line)));
+        scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
       card.append(scroll);
       card.append(costNote());
@@ -684,8 +693,7 @@
       appendSpeakerHead(card, s.npcs[view.speakerId], (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const scroll = el('div', 'event-scroll');
       for (const line of view.lines || []) {
-        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, speechLine(line)));
+        scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
       card.append(scroll);
       const ch = el('div', 'event-choices');
@@ -707,10 +715,9 @@
       appendSpeakerHead(card, guard, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const scroll = el('div', 'event-scroll');
       const lines = view.lines || [];
-      if (!lines.length) scroll.append(el('p', 'event-text say', view.guardName + ': ' + view.title));
+      if (!lines.length) scroll.append(el('p', 'event-text say tone-npc', view.guardName + ': ' + view.title));
       for (const line of lines) {
-        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, speechLine(line)));
+        scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
       card.append(scroll);
       const ch = el('div', 'event-choices');
@@ -754,8 +761,7 @@
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
-        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, speechLine(line)));
+        scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
       card.append(scroll);
       card.append(el('p', 'choice-cost', encounterCost(view)));
@@ -804,7 +810,7 @@
         const shown = E.beats.line(beatList[idx], E.beatContext(s));
         const prose = el('div', 'event-beat scene-log');
         if (SceneLog) SceneLog.append(prose, shown, { catId: p.catId, playerId: s.cat && s.cat.catId, playerName: s.cat && s.cat.name });
-        else prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
+        else prose.append(el('p', logClass(shown, s.cat), speechLine(shown)));
         card.append(prose);
         const last = idx >= beatList.length - 1;
         const ch = el('div', 'bond-choices');
@@ -824,8 +830,7 @@
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of p.lines || []) {
-        const cls = line.kind === 'say' ? 'event-text say' : line.kind === 'gap' ? 'event-text gap' : line.kind === 'action' ? 'event-text action' : 'event-text narration';
-        scroll.append(el('p', cls, speechLine(line)));
+        scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
       if (s.phase === 'eventResult' && p.summary) scroll.append(el('p', 'event-text result', p.summary));
       card.append(scroll);
@@ -848,9 +853,9 @@
       if (npc) appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const prose = el('div', 'event-beat scene-log');
       if (SceneLog) SceneLog.append(prose, shown, { catId: s.pending && s.pending.catId, playerId: s.cat && s.cat.catId, playerName: s.cat && s.cat.name, npc: s.pending && s.npcs && s.npcs[s.pending.catId] });
-      else prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
+      else prose.append(el('p', logClass(shown, s.cat), speechLine(shown)));
       card.append(prose);
-      if (s.pending.reply) card.append(el('p', 'event-text say', s.pending.reply));
+      if (s.pending.reply) card.append(el('p', 'event-text say tone-npc', s.pending.reply));
       const last = idx >= beats.length - 1;
       const ch = el('div', 'event-choices');
       if (s.phase === 'eventResult') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
