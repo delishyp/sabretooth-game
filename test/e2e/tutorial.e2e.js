@@ -48,6 +48,69 @@ async function startRun(page, { tips }) {
       await page.locator('[data-g="tutorialDismiss"]').click();
       assert.match(await page.locator('#tutorial-card').innerText(), /Thirst eases where Water is Available/);
     });
+    await check('tips on: the first hunt reaches the Day 1 report and steps 5–9', async () => {
+      for (let i = 0; i < 8 && await page.locator('#tutorial-card').count(); i++) {
+        await page.locator('[data-g="tutorialDismiss"]').click();
+      }
+      await page.locator('[data-g="hunt"][data-size="small"]').click();
+      const seen = [];
+      const firstVisible = async (sel) => {
+        const loc = page.locator(sel);
+        const n = await loc.count();
+        for (let i = 0; i < n; i++) if (await loc.nth(i).isVisible()) return loc.nth(i);
+        return null;
+      };
+      const playOut = async () => {
+        for (let i = 0; i < 48; i++) {
+          const tip = await firstVisible('#tutorial-card');
+          if (tip) {
+            seen.push(await tip.getAttribute('data-tip'));
+            await tip.locator('[data-g="tutorialDismiss"]').click();
+            continue;
+          }
+          const beat = await firstVisible('#game-event [data-g="advanceBeat"]');
+          if (beat) { await beat.click(); continue; }
+          const choose = await firstVisible('#game-event [data-g="choose"], #game-event [data-g="sceneChoose"], #game-event [data-g="encounterChoose"], #game-event [data-g="continue"]');
+          if (choose) { await choose.click(); continue; }
+          break;
+        }
+      };
+      await playOut();
+      assert.ok(seen.some((id) => id === 'guided.after.huntOk' || id === 'guided.after.huntMiss'), seen.join(','));
+      assert.ok(seen.includes('guided.places'), seen.join(','));
+      assert.ok(seen.includes('guided.lore'), seen.join(','));
+      assert.ok(seen.includes('guided.closing'), seen.join(','));
+      const held = await page.evaluate(() => {
+        const t = window.__menuDebug.game().state.tutorial;
+        return t.seen.concat(t.queue, t.active ? [t.active.id] : []);
+      });
+      assert.ok(held.includes('tip.hunt'), held.join(','));
+      for (let i = 0; i < 6 && await page.locator('#tutorial-card').count(); i++) {
+        await page.locator('[data-g="tutorialDismiss"]').click();
+      }
+      await page.locator('[data-g="watch"]').click();
+      await playOut();
+      await page.locator('[data-g="scent"]').click();
+      await playOut();
+      const actions = await page.evaluate(() => {
+        const t = window.__menuDebug.game().state.tutorial;
+        return t.seen.concat(t.queue, t.active ? [t.active.id] : []);
+      });
+      assert.ok(actions.includes('tip.watch'), actions.join(','));
+      assert.ok(actions.includes('tip.scent'), actions.join(','));
+      for (let i = 0; i < 4 && await page.locator('#tutorial-card').count(); i++) {
+        await page.locator('[data-g="tutorialDismiss"]').click();
+      }
+      await page.locator('[data-view="wilderness"]').click();
+      await page.locator('[data-view="breeding"]').click();
+      await page.locator('[data-view="home"]').click();
+      const places = await page.evaluate(() => {
+        const t = window.__menuDebug.game().state.tutorial;
+        return t.seen.concat(t.queue, t.active ? [t.active.id] : []);
+      });
+      assert.ok(places.includes('tip.place.unavailable'), places.join(','));
+      assert.ok(places.includes('tip.place.home'), places.join(','));
+    });
     await check('tips off: no arrival card, goal line and a low-need line still show', async () => {
       await startRun(page, { tips: false });
       assert.strictEqual(await page.locator('#tutorial-card').count(), 0);

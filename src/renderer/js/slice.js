@@ -889,7 +889,7 @@
         if (own.holder === 'mistwood' && own.state === 'held') Pair.noteMistwoodDay(s);
       }
       ev = presentDay(s, rep, ev);
-      s.report = { day: s.day, region: s.region, lines: rep };
+      s.report = { day: s.day, region: s.region, lines: rep, action: ctx.action || null };
       noteUnloggedMeets(s);
       if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;

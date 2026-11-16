@@ -153,8 +153,38 @@
     }
     t.guidedDone = true;
   }
+  /** The guided day follows tutorial progress and the Day 1 report, not the clock after the first action. */
+  function guidedOpen(t, facts) {
+    if (!t || t.guidedDone) return false;
+    if (facts.day === 1 || facts.reportDay === 1) return true;
+    return t.guidedIndex > 0;
+  }
+  function linesOf(report) {
+    if (!report) return [];
+    if (Array.isArray(report)) return report;
+    return Array.isArray(report.lines) ? report.lines : [];
+  }
+  /** Last action and whether the Day report is on screen. report is {day, region, lines}. */
+  function actionFrom(report) {
+    const lines = linesOf(report);
+    const hunt = [...lines].reverse().find((l) => l && l.k === 'hunt');
+    const last = lines[lines.length - 1];
+    const named = report && !Array.isArray(report) ? report.action : null;
+    const lastAction = hunt ? 'hunt'
+      : last && last.k === 'rest' ? 'rest'
+      : last && (last.k === 'arrive' || last.k === 'travelling') ? 'travel'
+      : last && last.k === 'watch' ? 'watch'
+      : (named === 'hunt' || named === 'rest' || named === 'travel' || named === 'watch') ? named
+      : null;
+    return {
+      lines, lastAction,
+      huntMiss: !!(hunt && hunt.ok === false),
+      showReport: lines.length > 0,
+      reportDay: report && !Array.isArray(report) && report.day != null ? report.day : null
+    };
+  }
   function currentBeat(t, facts) {
-    if (!tipsOn(t) || t.guidedDone || facts.day !== 1) return null;
+    if (!tipsOn(t) || !guidedOpen(t, facts)) return null;
     skipEmpty(t, facts);
     if (t.guidedDone) return null;
     const step = steps[t.guidedIndex];
@@ -175,9 +205,8 @@
       t.active = { kind: 'tip', id };
       return;
     }
-    if (t.active && t.active.kind === 'guided' && !place) { t.queue.push(id); return; }
+    if (t.active) { t.queue.push(id); return; }
     if (!place && t.shownTipDay === facts.day) { t.queue.push(id); return; }
-    if (t.active && !place) { t.queue.push(id); return; }
     t.active = { kind: 'tip', id };
     if (!place) t.shownTipDay = facts.day;
   }
@@ -190,7 +219,7 @@
   }
   function presentGuided(t, facts) {
     if (!tipsOn(t)) return;
-    if (!t.stepOffShown && facts.leftPath && facts.day === 1 && (!t.active || (t.active.kind === 'guided' && t.active.id !== 'guided.stepOff'))) {
+    if (!t.stepOffShown && facts.leftPath && guidedOpen(t, facts) && (!t.active || (t.active.kind === 'guided' && t.active.id !== 'guided.stepOff'))) {
       t.active = { kind: 'guided', id: 'guided.stepOff', beat: 0 };
       return;
     }
@@ -221,6 +250,10 @@
     if (flags.bondChanged) offer(t, 'tip.bond', facts);
     if (flags.standingChanged) offer(t, 'tip.standing', facts);
     if (flags.seasonEnd) offer(t, 'tip.season_end', facts);
+    if (facts.view && facts.view !== 'home') {
+      t.leftHome = true;
+      offer(t, `tip.place.${facts.view === 'cats' ? 'cats' : facts.view}`, facts);
+    } else if (facts.view === 'home' && t.leftHome) offer(t, 'tip.place.home', facts);
     if (flags.place) offer(t, `tip.place.${flags.place === 'cats' ? 'cats' : flags.place}`, facts);
     if (flags.unavailable) offer(t, 'tip.place.unavailable', facts);
   }
@@ -315,5 +348,5 @@
     return { goal: goal(f), urgent: urgent(f), card, guide: guideEntries(t, f), buttons: copy && copy.buttons };
   }
 
-  return { copy, empty, ensure, tipsOn, goal, urgent, sync, dismiss, turnOff, view, fill };
+  return { copy, empty, ensure, tipsOn, goal, urgent, sync, dismiss, turnOff, view, fill, actionFrom, linesOf, guidedOpen };
 });

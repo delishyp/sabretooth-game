@@ -179,7 +179,7 @@
     const { t, $ } = ctx;
     const E = Slice.create({ ...gameData, nameData, looks: ctx.creatorLooks });
     const W = E.W;
-    let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home';
+    let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home'; let tutorialPulse = null;
     const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; };
     const framed = (canvas, size) => { const f = el('div', 'portrait-frame frame-' + size); f.append(canvas); return f; };
     const btn = (label, data, opts = {}) => { const b = el('button', opts.cls || '', label); Object.assign(b.dataset, data); if (opts.disabled) b.disabled = true; if (opts.title) b.title = opts.title; return b; };
@@ -960,7 +960,13 @@
     }
     function showView(id) {
       const next = HomeScene.selectView(view, id);
-      if (next.unavailable) { ctx.toast(t('home.unavailable', { section: navLabel(next.unavailable) })); return; }
+      if (next.unavailable) {
+        ctx.toast(t('home.unavailable', { section: navLabel(next.unavailable) }));
+        tutorialPulse = { unavailable: true };
+        render();
+        tutorialPulse = null;
+        return;
+      }
       view = next.view; render();
     }
     function tutorialFacts(extra) {
@@ -973,10 +979,10 @@
       const pair = rec.matePair;
       const mateNpc = pair && s.npcs[pair.mateId];
       const mate = mateNpc && mateNpc.met !== false ? { name: mateNpc.name, met: true } : null;
-      const lines = Array.isArray(s.report) ? s.report : [];
+      const fromReport = Tutorial ? Tutorial.actionFrom(s.report) : { lines: [], lastAction: null, huntMiss: false, showReport: false, reportDay: null };
+      const lines = fromReport.lines;
       const hunt = [...lines].reverse().find((l) => l && l.k === 'hunt');
-      const last = lines[lines.length - 1];
-      const lastAction = hunt ? 'hunt' : last && last.k === 'rest' ? 'rest' : last && (last.k === 'arrive' || last.k === 'travelling') ? 'travel' : last && last.k === 'watch' ? 'watch' : null;
+      const lastAction = fromReport.lastAction;
       const met = Object.values(s.npcs || {}).filter((n) => n && n.met);
       const stageOf = (n) => rec.bonds && rec.bonds[n.id] && rec.bonds[n.id].stage;
       const bonded = (n) => ['close', 'courting', 'mates'].includes(stageOf(n));
@@ -999,20 +1005,21 @@
         bondEligible: met.some((n) => stageOf(n) && stageOf(n) !== 'none' && !bonded(n)),
         eligibleMet: met.some((n) => stageOf(n) && stageOf(n) !== 'none'),
         approval, metCat: met[0] ? { name: met[0].name } : null,
-        lastAction, huntMiss: !!(hunt && hunt.ok === false),
-        showReport: lines.length > 0,
+        lastAction, huntMiss: fromReport.huntMiss,
+        showReport: fromReport.showReport, reportDay: fromReport.reportDay,
+        view,
         leftPath: !!(lastAction && lastAction !== 'hunt'),
         enabled: run && run.tutorial === true,
         flags: Object.assign({
           lowNeed: Object.entries(low).some(([k, v]) => v && (k !== 'thirst' || thirstShown)),
           healthDropped: s.needs.health < 100,
           injured: !!(s.injuries && s.injuries.length),
-          huntResult: !!hunt,
+          huntResult: !!hunt || lastAction === 'hunt',
           rest: lines.some((l) => l && l.k === 'rest'),
           travelOpened: view === 'wilderness',
           watch: lines.some((l) => l && l.k === 'watch'),
           meetingEnded: met.length > 0 && s.phase === 'day',
-          scent: lines.some((l) => l && l.k === 'scent'),
+          scent: lines.some((l) => l && l.k === 'scent') || (s.pending && s.pending.eventId === 'lone.scent') || !!(rec.seenCats && rec.seenCats[s.day]),
           sparShown: !!(av.lone && av.lone.spar && av.lone.spar.length),
           courtShown: !!((av.court && av.court.length) || (av.seekMate && av.seekMate.length)),
           foundShown: !!(av.found),
@@ -1023,8 +1030,8 @@
           gossip, bondChanged: met.some((n) => stageOf(n) && stageOf(n) !== 'none'),
           standingChanged: Object.values(s.prideRelation || {}).some((n) => n),
           seasonEnd: !!rec.seasonEndShown,
-          place: view && view !== 'home' ? view : null
-        }, extra || {})
+          place: null
+        }, tutorialPulse || {}, extra || {})
       };
     }
     function renderTutorial() {
