@@ -264,6 +264,10 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .game-event .event-card { pointer-events: auto; }
 .game-event[hidden] { display: none; }
 .event-beat { max-height: min(42vh, 420px); overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere; white-space: pre-wrap; }
+.scene-log { max-height: calc(10 * 1.45em); overflow-x: hidden; overflow-y: auto; -webkit-mask-image: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 8px), transparent); mask-image: linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 8px), transparent); }
+.tone-narrator { color: #e7d3b4; font-style: italic; }
+.tone-npc { color: #f8cc6e; font-style: normal; }
+.tone-player { color: #f6efe2; font-style: normal; }
 .event-result-line { margin: 6px 0 8px; font-size: 20px; letter-spacing: .02em; color: #f3d9a0; text-align: center; line-height: 1.45; }
 .event-card.has-beats .event-cast { display: flex; align-items: center; gap: 12px; width: 100%; }
 .event-card.has-beats .event-cast-name { font-family: var(--font-title); font-size: 28px; letter-spacing: 1px; color: #f6efe2; }

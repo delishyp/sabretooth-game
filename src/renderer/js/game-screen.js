@@ -15,6 +15,7 @@
   const FightHp = (typeof require === 'function' ? require('./fight-hp') : (typeof self !== 'undefined' ? self.FightHp : null));
   const Pass2 = (typeof require === 'function' ? require('./pass2') : (typeof self !== 'undefined' ? self.Pass2 : null));
   const Tutorial = (typeof require === 'function' ? require('./tutorial') : (typeof self !== 'undefined' ? self.Tutorial : null));
+  const SceneLog = (typeof require === 'function' ? require('./scene-log') : (typeof self !== 'undefined' ? self.SceneLog : null));
   function speechLine(shown) {
     const text = (shown && shown.text) || '';
     const name = (shown && shown.speaker) || '';
@@ -785,8 +786,9 @@
       if (beatList) {
         const idx = Math.min(p.beatIndex || 0, beatList.length - 1);
         const shown = E.beats.line(beatList[idx], E.beatContext(s));
-        const prose = el('div', 'event-beat');
-        prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
+        const prose = el('div', 'event-beat scene-log');
+        if (SceneLog) SceneLog.append(prose, shown, { catId: p.catId, playerId: s.cat && s.cat.catId, playerName: s.cat && s.cat.name });
+        else prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
         card.append(prose);
         const last = idx >= beatList.length - 1;
         const ch = el('div', 'bond-choices');
@@ -828,8 +830,9 @@
       const shown = (typeof Beats !== 'undefined' ? Beats : E.beats).line(beat, E.beatContext(s));
       const npc = headForBeats(s, beats);
       if (npc) appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
-      const prose = el('div', 'event-beat');
-      prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
+      const prose = el('div', 'event-beat scene-log');
+      if (SceneLog) SceneLog.append(prose, shown, { catId: s.pending && s.pending.catId, playerId: s.cat && s.cat.catId, playerName: s.cat && s.cat.name, npc: s.pending && s.npcs && s.npcs[s.pending.catId] });
+      else prose.append(el('p', shown.kind === 'speech' ? 'event-text say' : 'event-text narration', speechLine(shown)));
       card.append(prose);
       if (s.pending.reply) card.append(el('p', 'event-text say', s.pending.reply));
       const last = idx >= beats.length - 1;
@@ -873,8 +876,8 @@
       const pieces = Pass2.replyLog(reply);
       pieces.forEach((piece, i) => {
         if (i) line.append(document.createTextNode(' '));
-        if (piece.role === 'narration') line.append(document.createTextNode(piece.text));
-        else line.append(el('span', piece.role === 'say' ? 'said' : 'beat', piece.text));
+        const voice = piece.role === 'say' ? 'npc' : 'narrator';
+        line.append(el('span', (piece.role === 'say' ? 'said ' : 'beat ') + 'tone-' + voice, piece.text));
       });
       card.append(line);
     }
