@@ -10,7 +10,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   const FALLBACK = {
     sharedPose: 'portrait-female',
-    defaultHead: { x: 0.63, y: 0.0, w: 0.35, h: 0.54 },
+    defaultHead: { x: 0.5856, y: 0.0, w: 0.4144, h: 0.5525 },
     portraits: [],
   };
 

@@ -584,7 +584,7 @@
     const cv = $('#creator-canvas');
     try {
       if (c.portraitId) {
-        const painted = await paintPortrait({ portraitId: c.portraitId, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, cv, { frame: 'head' });
+        const painted = await paintPortrait({ portraitId: c.portraitId, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, cv, { mode: 'full', place: 'creator' });
         if (token !== preview.token) return;
         Object.assign(preview, { ms: performance.now() - t0, drawn: painted.runtime ? [] : [c.portraitId], skipped: painted.runtime ? ['file'] : [], pose: painted.runtime ? PortraitView.sharedPose(portraitReg) : c.portraitId, rendered: key });
         preview.log.push({ key, ms: preview.ms });
@@ -599,7 +599,7 @@
         return;
       }
       // Gene-look mode only, when the static registry is not in use.
-      paintJobs.set(cv, { spec: { portraitId: null, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, opts: { frame: 'head' } });
+      paintJobs.set(cv, { spec: { portraitId: null, sex: c.sex, name: c.name, look: c, genes: Creator.genesFor(c) }, opts: { mode: 'full', place: 'creator', compose: true } });
       const a = await poseAssets(PortraitView.sharedPose(portraitReg));
       const genes = Creator.genesFor(c);
       const plateKey = [a.pose, c.sex, c.coat, c.markings, c.eyes, c.oddEyes, c.eyeRight || ''].join('|');
@@ -634,9 +634,11 @@
         preview.plates.set(plateKey, plate);
       }
       if (token !== preview.token) return;
-      PortraitView.blitHead(plate.canvas, cv, PortraitView.entryFor(portraitReg, null, c.sex).head);
+      cv.width = plate.canvas.width; cv.height = plate.canvas.height;
+      cv.getContext('2d').drawImage(plate.canvas, 0, 0);
+      cv.dataset.portraitMode = 'full';
       const res = plate;
-      cv._full = plate.canvas; cv._portraitId = null; cv.dataset.runtime = '1';
+      cv._full = plate.canvas; cv._portraitId = null; cv.dataset.runtime = '1'; cv.dataset.portraitId = ''; cv.dataset.artGap = '0';
       Object.assign(preview, { ms: performance.now() - t0, drawn: res.drawn, skipped: res.skipped, pose: a.pose, rendered: key });
       preview.log.push({ key, ms: preview.ms });
     } catch (e) {
@@ -877,10 +879,27 @@
     const still = () => portraits.current(canvas, job.token, job.generation);
     try {
       const off = document.createElement('canvas');
-      let head = entry.head;
+      const Modes = typeof PortraitModes !== 'undefined' ? PortraitModes : null;
+      const composed = !!(opts.compose && (spec.genes || spec.look));
+      let head = composed && Modes ? Modes.cropFor(spec && spec.sex) : entry.head;
       let shownId = entry.runtime ? null : entry.id;
       let runtime = entry.runtime;
-      if (entry.file) {
+      if (composed) {
+        const pose = Modes ? Modes.poseFor(spec && spec.sex) : PortraitView.sharedPose(job.registry);
+        const a = await poseAssets(pose);
+        if (!still()) return { ok: true, id: null, runtime: true, stale: true };
+        await Compositor.compose(a.manifest, spec.genes || Creator.genesFor(spec.look || {}), composeOpts(a, off));
+        shownId = 'composed';
+        runtime = true;
+      } else if (!spec.portraitId && (spec.genes || spec.look)) {
+        const pose = Modes ? Modes.poseFor(spec && spec.sex) : PortraitView.sharedPose(job.registry);
+        const a = await poseAssets(pose);
+        if (!still()) return { ok: true, id: null, runtime: true, stale: true };
+        await Compositor.compose(a.manifest, spec.genes || Creator.genesFor(spec.look || {}), composeOpts(a, off));
+        head = Modes ? Modes.cropFor(spec && spec.sex) : head;
+        shownId = 'composed';
+        runtime = true;
+      } else if (entry.file) {
         try {
           const img = new Image();
           img.src = new URL('../../assets/portraits/' + entry.file, window.location.href).href;
@@ -910,9 +929,13 @@
       canvas.dataset.artGap = '0';
       canvas._full = off;
       canvas._portraitId = shownId;
-      canvas.dataset.portraitId = shownId || '';
+      canvas.dataset.portraitId = shownId && shownId !== 'composed' ? shownId : '';
       canvas.dataset.runtime = runtime ? '1' : '0';
-      if (opts.frame === 'head') PortraitView.blitHead(off, canvas, head);
+      const placeMode = Modes && opts.place ? Modes.modeFor(opts.place) : null;
+      const mode = placeMode === 'headshot' || opts.frame === 'head' || opts.mode === 'headshot' ? 'headshot' : 'full';
+      canvas.dataset.portraitMode = mode;
+      if (mode === 'headshot' && Modes) head = Modes.cropFor();
+      if (mode === 'headshot') PortraitView.blitHead(off, canvas, head);
       else { canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0); }
       return { ok: true, id: shownId, runtime, stale: false };
     } catch (e) {

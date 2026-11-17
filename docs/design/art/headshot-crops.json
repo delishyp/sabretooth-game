@@ -1,0 +1,107 @@
+{
+ "version": 1,
+ "source": "ac2665d",
+ "shape": "square (1:1 in pixels)",
+ "normalised": {
+  "x": 0.5856,
+  "y": 0.0,
+  "w": 0.4144,
+  "h": 0.5525
+ },
+ "bySex": {
+  "female": {
+   "adult": {
+    "normalised": {
+     "x": 0.5856,
+     "y": 0.0,
+     "w": 0.4144,
+     "h": 0.5525
+    },
+    "historicalJpg": {
+     "file": "/workspace/sabretooth-art-reference/archive/historical-portraits/1cffd694c43c_1cffd694c43cc74f8ae7faa7d7c6e1d052a48af84469d702de874579c4cacbdb.jpg",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-female/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    }
+   },
+   "cub": "use adult",
+   "adolescent": "use adult",
+   "elder": "use adult"
+  },
+  "male": {
+   "adult": {
+    "normalised": {
+     "x": 0.5856,
+     "y": 0.0,
+     "w": 0.4144,
+     "h": 0.5525
+    },
+    "historicalJpg": {
+     "file": "/workspace/sabretooth-art-reference/archive/historical-portraits/617660c40258_617660c40258ec321d64133393dadc5088a3d9e2096c46231c44a51e16233ffc.jpg",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-male/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    }
+   },
+   "cub": "use adult",
+   "adolescent": "use adult",
+   "elder": "use adult"
+  }
+ },
+ "staticIllustrated": {
+  "files": "assets/portraits/cats/cat-*.png (40)",
+  "canvas": [
+   1448,
+   1086
+  ],
+  "px": {
+   "x": 848,
+   "y": 0,
+   "w": 600,
+   "h": 600
+  },
+  "oneBoxFitsAll": true,
+  "perImageBoxes": []
+ },
+ "ageVariants": "none: no cub, adolescent or elder art exists at ac2665d; npc-portrait-defaults.json uses adult images for cub slots. adult box applies to every age."
+}

@@ -59,9 +59,14 @@
   function digits(text) {
     return /\d/.test(String(text || ''));
   }
+  function artFor(row) {
+    const Art = typeof require === 'function' ? require('./encounter-art') : (typeof self !== 'undefined' ? self.EncounterArt : null);
+    return Art ? Art.resolve(row) : { art: null, portrait: false, fallback: 'Something is here.', label: 'Something is here.', cat: null };
+  }
   function screen(input) {
     const row = input || {};
     const kind = row.kind;
+    const mapped = artFor(row);
     if (kind === 'fight' || kind === 'spar') {
       return {
         kind: 'fight',
@@ -70,8 +75,12 @@
         moves: FIGHT_MOVES.map(move),
         bars: 'hp',
         tell: row.tell !== false,
-        art: row.art || 'encounters/giant-deer.png',
-        flip: true,
+        art: mapped.art,
+        cat: mapped.cat,
+        portrait: mapped.portrait,
+        fallback: mapped.fallback,
+        displayName: mapped.label,
+        flip: !mapped.portrait,
         log: row.log || []
       };
     }
@@ -82,7 +91,8 @@
         moves: FIGHT_MOVES.map(move),
         bars: 'hp',
         tell: true,
-        art: 'encounters/cave-hyena.png',
+        art: mapped.art,
+        fallback: mapped.fallback,
         flip: true,
         log: row.log || []
       };
@@ -95,6 +105,7 @@
         bars: null,
         tell: false,
         art: null,
+        fallback: mapped.fallback || 'The human',
         flip: false,
         log: row.log || []
       };
@@ -113,7 +124,8 @@
         word: bandWord('hunt', row.band || 0),
         wordKey: 'ui.meter.hunt.word.' + (row.band || 0),
         tell: false,
-        art: row.art || 'encounters/giant-deer.png',
+        art: mapped.art,
+        fallback: mapped.fallback,
         flip: true,
         log: row.log || []
       };
@@ -139,7 +151,10 @@
         directionId: line ? line.id || line.directionId : null,
         directionText: line ? line.text || line.directionText : null,
         tell: false,
-        art: row.art || null,
+        art: mapped.art,
+        cat: mapped.cat,
+        portrait: mapped.portrait,
+        fallback: mapped.fallback,
         flip: false,
         log: row.log || []
       };

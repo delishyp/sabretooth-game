@@ -26,6 +26,8 @@
   const Territory = (typeof require === 'function' ? require('./territory') : (typeof self !== 'undefined' ? self.Territory : null));
   const Councils = (typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null));
   const Unlocks = (typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null));
+  const PortraitModes = (typeof require === 'function' ? require('./portrait-modes') : (typeof self !== 'undefined' ? self.PortraitModes : null));
+  const EncounterArt = (typeof require === 'function' ? require('./encounter-art') : (typeof self !== 'undefined' ? self.EncounterArt : null));
   function logClass(line, cat) {
     if (!line || line.kind === 'gap') return 'event-text gap';
     if (line.kind === 'action') return 'event-text action';
@@ -49,11 +51,20 @@
   /** Equal full-body frames. The player already faces right. Animal foes flip to face left. Humans stay unflipped. */
   function encounterPanels(view, player) {
     const id = (player && player.portraitId) || PLAYER_STILL;
-    const asset = (view && view.assetId) || '';
-    const human = /human/i.test(asset) || /human/i.test((view && view.encounterId) || '');
+    const mapped = EncounterArt ? EncounterArt.resolve(view || {}) : { art: null, portrait: false, fallback: 'Something is here.', label: '' };
+    const file = mapped.art ? mapped.art.split('/').pop() : '';
     return {
-      player: { src: '../../assets/portraits/cats/' + id + '.png', flip: false, alt: (player && player.name) || '' },
-      foe: { src: '../../assets/encounters/' + asset, flip: !human && !!asset, asset, alt: (view && view.displayName) || '' }
+      player: { src: '../../assets/portraits/cats/' + id + '.png', flip: false, alt: (player && player.name) || '', mode: 'full' },
+      foe: {
+        src: mapped.art ? '../../assets/' + mapped.art : '',
+        flip: !!mapped.art && mapped.kind !== 'human' && mapped.kind !== 'humans',
+        asset: file,
+        alt: mapped.label || (view && view.displayName) || '',
+        fallback: mapped.fallback,
+        portrait: !!mapped.portrait,
+        cat: mapped.cat || null,
+        mode: mapped.portrait ? 'full' : null
+      }
     };
   }
   function sparLockDisplay(rows) {
@@ -166,14 +177,17 @@
     cv.dataset.portraitId = npc.portraitId || '';
     cv.dataset.speaker = npc.name || '';
     const frame = document.createElement('div');
-    frame.className = 'portrait-frame frame-md';
+    frame.className = 'portrait-frame frame-md is-headshot';
+    frame.dataset.portraitMode = 'headshot';
     frame.append(cv);
     const name = document.createElement('div');
     name.className = 'event-cast-name';
     name.textContent = npc.name || '';
     cast.append(frame, name);
     card.append(cast);
-    const painted = paint && paint({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId }, cv, { frame: 'head' });
+    const opts = PortraitModes ? PortraitModes.speakerOpts() : { frame: 'head', mode: 'headshot', place: 'dialogue' };
+    if (!npc.portraitId && (npc.genes || npc.look)) opts.compose = true;
+    const painted = paint && paint({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId, genes: npc.genes || null }, cv, opts);
     if (painted && typeof painted.catch === 'function') painted.catch(() => {});
     return cv;
   }
@@ -203,7 +217,13 @@
     let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home'; let tutorialPulse = null; let selectedCat = null;
     const ph = (id) => (WordBar && WordBar.label ? WordBar.label(id) : id);
     const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; };
-    const framed = (canvas, size) => { const f = el('div', 'portrait-frame frame-' + size); f.append(canvas); return f; };
+    const framed = (canvas, size, mode) => {
+      const which = mode || 'full';
+      const f = el('div', 'portrait-frame frame-' + size + (which === 'headshot' ? ' is-headshot' : ' is-full'));
+      f.dataset.portraitMode = which;
+      f.append(canvas);
+      return f;
+    };
     const btn = (label, data, opts = {}) => { const b = el('button', opts.cls || '', label); Object.assign(b.dataset, data); if (opts.disabled) b.disabled = true; if (opts.title) b.title = opts.title; return b; };
     const regionName = (id) => (W.region(id) ? W.region(id).name : id);
     const factionName = (id) => (s && s.records && s.records.pride && id === s.records.pride.id) ? s.records.pride.name : t(`game.faction.${id}`);
@@ -360,9 +380,11 @@
       const cv = $('#home-cat');
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
       placeCat();
-      ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId }, cv).catch(() => {});
+      cv.dataset.portraitMode = 'full';
+      const catSpec = { genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId, look: s.cat };
+      ctx.portrait(catSpec, cv, PortraitModes ? PortraitModes.fullOpts('den') : { mode: 'full', place: 'den' }).catch(() => {});
       const head = $('#home-head');
-      if (head) ctx.portrait({ genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId }, head, { frame: 'head' }).catch(() => {});
+      if (head) ctx.portrait(catSpec, head, { frame: 'head', mode: 'headshot', place: 'head' }).catch(() => {});
       const expand = $('#home-expand'); if (expand) expand.dataset.name = s.cat.name;
       const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
       den.title = t('home.denTip'); wild.title = t('home.wildTip');
@@ -493,8 +515,10 @@
           if (s.cat && n.id === s.cat.catId) continue;
           const li = el('li', 'met-cat');
           const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
-          ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});
-          li.append(framed(mini, 'sm'), btn(n.name, { g: 'selectCat', cat: n.id }, { cls: 'met-name' }));
+          const miniOpts = { frame: 'head', mode: 'headshot', place: 'directory' };
+          if (!n.portraitId && (n.genes || n.look)) miniOpts.compose = true;
+          ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId, genes: n.genes || null }, mini, miniOpts).catch(() => {});
+          li.append(framed(mini, 'sm', 'headshot'), btn(n.name, { g: 'selectCat', cat: n.id }, { cls: 'met-name' }));
           li.append(relationMeters(n.id));
           const stage = s.records && s.records.bonds && s.records.bonds[n.id] && s.records.bonds[n.id].stage;
           if (stage && stage !== 'none') li.append(el('p', 'bond-stage', `Bond · ${E.bondLabel ? E.bondLabel(stage) : stage}`));
@@ -950,6 +974,23 @@
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
       card.append(util);
     }
+    function paintEncounterCat(figure, cat, compose) {
+      const cv = el('canvas', 'encounter-body');
+      cv.dataset.portraitMode = 'full';
+      figure.append(cv);
+      if (!cat || !ctx.portrait) return cv;
+      const spec = {
+        genes: cat.genes || null,
+        sex: cat.sex,
+        name: cat.name,
+        look: cat.look || cat,
+        portraitId: compose ? null : (cat.portraitId || null)
+      };
+      const opts = PortraitModes ? PortraitModes.fullOpts('encounter') : { mode: 'full', place: 'encounter' };
+      if (compose || !spec.portraitId) opts.compose = true;
+      ctx.portrait(spec, cv, opts).catch(() => {});
+      return cv;
+    }
     function renderEncounter() {
       const box = $('#game-event'); const view = E.encounterView(s);
       const show = !!view;
@@ -966,17 +1007,17 @@
       const panels = encounterPanels(view, s.cat);
       const row = el('div', 'encounter-panels');
       const you = el('figure', 'encounter-panel is-player');
-      const youImg = el('img', 'encounter-body');
-      youImg.src = panels.player.src;
-      youImg.alt = panels.player.alt || s.cat.name;
-      you.append(youImg);
+      paintEncounterCat(you, s.cat, false);
       const art = el('figure', 'encounter-panel is-foe encounter-art');
-      const img = el('img', 'encounter-img encounter-body' + (panels.foe.flip ? ' is-flipped' : ''));
-      img.src = panels.foe.src;
-      img.alt = panels.foe.alt;
-      img.dataset.asset = panels.foe.asset;
-      if (panels.foe.flip) img.dataset.flip = 'left';
-      art.append(img);
+      if (panels.foe.portrait && panels.foe.cat) paintEncounterCat(art, panels.foe.cat, !panels.foe.cat.portraitId);
+      else if (panels.foe.src) {
+        const img = el('img', 'encounter-img encounter-body' + (panels.foe.flip ? ' is-flipped' : ''));
+        img.src = panels.foe.src;
+        img.alt = panels.foe.alt;
+        img.dataset.asset = panels.foe.asset;
+        if (panels.foe.flip) img.dataset.flip = 'left';
+        art.append(img);
+      } else art.append(el('p', 'encounter-fallback', panels.foe.fallback || panels.foe.alt || 'Something is here.'));
       row.append(you, art);
       card.append(row, btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
       if (WordBar && view.meter) WordBar.mount(card, view.meter);
@@ -1136,24 +1177,23 @@
       box.append(card);
       const panels = el('div', 'encounter-panels');
       const you = el('figure', 'encounter-panel is-player');
-      const youImg = el('img', 'encounter-body');
-      youImg.src = '../../assets/portraits/cats/' + ((s.cat && s.cat.portraitId) || 'cat-6e2d788dd48ff440') + '.png';
-      youImg.alt = s.cat && s.cat.name || '';
-      you.append(youImg);
+      paintEncounterCat(you, s.cat, false);
       const foe = el('figure', 'encounter-panel is-foe');
-      if (view.art) {
+      if (view.portrait && view.cat) paintEncounterCat(foe, view.cat, !view.cat.portraitId);
+      else if (view.art) {
         const img = el('img', 'encounter-img encounter-body' + (view.flip ? ' is-flipped' : ''));
         img.src = '../../assets/' + view.art;
-        img.alt = view.kind;
+        img.alt = view.displayName || view.kind;
+        img.dataset.asset = view.art.split('/').pop();
         foe.append(img);
-      }
+      } else foe.append(el('p', 'encounter-fallback', view.fallback || view.displayName || 'Something is here.'));
       panels.append(you, foe);
       card.append(panels);
       if (view.bars === 'hp' && FightHp) {
         FightHp.mount(card, {
           kind: view.yieldAt ? 'spar' : 'fight',
           player: { name: s.cat.name, hp: s.pending.playerHp != null ? s.pending.playerHp : 74 },
-          foe: { name: s.pending.foeName || view.kind, hp: s.pending.foeHp != null ? s.pending.foeHp : 61 }
+          foe: { name: (view.cat && view.cat.name) || s.pending.foeName || view.displayName || view.fallback || view.kind, hp: s.pending.foeHp != null ? s.pending.foeHp : 61 }
         });
       } else if ((view.bars === 'hunt' || view.bars === 'court') && WordBar) {
         WordBar.mount(card, {

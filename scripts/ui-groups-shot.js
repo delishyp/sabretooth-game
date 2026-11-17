@@ -68,6 +68,9 @@ async function prime(page) {
       s.phase = 'event';
       s.pending = { questPanels: true, catId: 'bf01', catName: npc.name };
     } else if (which === 'fight' || which === 'hyena' || which === 'human' || which === 'hunt' || which === 'courtship') {
+      const asCat = (npc) => npc && { id: npc.id, catId: npc.id, name: npc.name, sex: npc.sex, genes: npc.genes || null, look: npc.look || null, portraitId: npc.portraitId || null };
+      const sleet = asCat(s.npcs.hc07);
+      const courted = asCat(s.npcs.bf01);
       s.phase = 'event';
       s.pending = {
         screenKind: which,
@@ -78,8 +81,10 @@ async function prime(page) {
         band: which === 'courtship' ? 3 : which === 'hunt' ? 2 : 1,
         direction: which === 'courtship' ? 'down' : undefined,
         directionId: which === 'courtship' ? 'dir.down.a' : undefined,
-        foeName: which === 'human' ? 'Humans' : 'Hyena',
-        art: which === 'fight' ? 'portraits/cats/cat-eec858c7a583cdc6.png' : which === 'courtship' ? 'portraits/cats/cat-46f04e1c79d4e443.png' : undefined,
+        species: which === 'hyena' ? 'hyena' : which === 'human' ? 'human' : which === 'hunt' ? 'deer' : undefined,
+        cat: which === 'fight' ? sleet : which === 'courtship' ? courted : undefined,
+        catId: which === 'fight' ? sleet && sleet.id : which === 'courtship' ? courted && courted.id : undefined,
+        foeName: which === 'fight' ? sleet && sleet.name : which === 'courtship' ? courted && courted.name : which === 'human' ? 'The human' : which === 'hyena' ? 'Cave hyena' : 'Giant deer',
         playerHp: 74,
         foeHp: 61
       };

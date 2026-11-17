@@ -1,26 +1,26 @@
 {
   "sharedPose": "portrait-female",
   "defaultHead": {
-    "x": 0.63,
-    "y": 0.0,
-    "w": 0.35,
-    "h": 0.54
+    "x": 0.5856,
+    "y": 0,
+    "w": 0.4144,
+    "h": 0.5525
   },
   "staticHead": {
-    "x": 0.57,
-    "y": 0.0,
-    "w": 0.43,
-    "h": 0.42
+    "x": 0.5856,
+    "y": 0,
+    "w": 0.4144,
+    "h": 0.5525
   },
   "portraits": [
     {
       "id": "cat-6e2d788dd48ff440",
       "file": "cats/cat-6e2d788dd48ff440.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "brown-brown",
@@ -50,10 +50,10 @@
       "id": "cat-6477d01534355420",
       "file": "cats/cat-6477d01534355420.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "cream-brown",
@@ -83,10 +83,10 @@
       "id": "cat-8ac6058de8429d56",
       "file": "cats/cat-8ac6058de8429d56.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "donor complete-cat source; coat label unknown",
@@ -116,10 +116,10 @@
       "id": "cat-702c446a6136b904",
       "file": "cats/cat-702c446a6136b904.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "donor complete-cat source; coat label unknown",
@@ -149,10 +149,10 @@
       "id": "cat-4f7ea03373d6f000",
       "file": "cats/cat-4f7ea03373d6f000.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "donor complete-cat source; coat label unknown",
@@ -182,10 +182,10 @@
       "id": "cat-2fe9cb1d7fac044f",
       "file": "cats/cat-2fe9cb1d7fac044f.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "gray-brown",
@@ -215,10 +215,10 @@
       "id": "cat-605f7d890ed2cbf1",
       "file": "cats/cat-605f7d890ed2cbf1.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "brown-undertone-green-eyes",
@@ -248,10 +248,10 @@
       "id": "cat-4cd271c4c8628739",
       "file": "cats/cat-4cd271c4c8628739.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "cream-undertone-gold-eyes",
@@ -281,10 +281,10 @@
       "id": "cat-6f686632edadccea",
       "file": "cats/cat-6f686632edadccea.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "gray-undertone-blue-eyes",
@@ -314,10 +314,10 @@
       "id": "cat-3c3c02a1296dcbb1",
       "file": "cats/cat-3c3c02a1296dcbb1.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "white-undertone-red-eyes",
@@ -358,10 +358,10 @@
       "id": "cat-502538fcf3eb0e3e",
       "file": "cats/cat-502538fcf3eb0e3e.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "brown-tiger-white-undertone",
@@ -391,10 +391,10 @@
       "id": "cat-f865fbd2eafb9f38",
       "file": "cats/cat-f865fbd2eafb9f38.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "brown-tiger",
@@ -424,10 +424,10 @@
       "id": "cat-88528d4656792b28",
       "file": "cats/cat-88528d4656792b28.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "brown-tiger-blue-eyes",
@@ -457,10 +457,10 @@
       "id": "cat-b3dbfcaa759427b4",
       "file": "cats/cat-b3dbfcaa759427b4.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "brown-tiger-white-undertone-green-eyes",
@@ -490,10 +490,10 @@
       "id": "cat-5b118d80461187e7",
       "file": "cats/cat-5b118d80461187e7.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "coat-1 (tan-golden)",
@@ -534,10 +534,10 @@
       "id": "cat-46f04e1c79d4e443",
       "file": "cats/cat-46f04e1c79d4e443.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "coat-2 (dark-gray)",
@@ -567,10 +567,10 @@
       "id": "cat-f70f52f0f22da7fc",
       "file": "cats/cat-f70f52f0f22da7fc.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "coat-3 (pale-cream)",
@@ -600,10 +600,10 @@
       "id": "cat-ff92bf3c32b9245e",
       "file": "cats/cat-ff92bf3c32b9245e.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "coat-4 (orange)",
@@ -633,10 +633,10 @@
       "id": "cat-7c5ab14d9e51320a",
       "file": "cats/cat-7c5ab14d9e51320a.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "coat-5 (pale-gray-white)",
@@ -666,10 +666,10 @@
       "id": "cat-1e34c4845adf8357",
       "file": "cats/cat-1e34c4845adf8357.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "donor complete-cat source; coat label unknown",
@@ -699,10 +699,10 @@
       "id": "cat-4919cb1c1c79953a",
       "file": "cats/cat-4919cb1c1c79953a.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "donor complete-cat source; coat label unknown",
@@ -732,10 +732,10 @@
       "id": "cat-e745411905dd6aee",
       "file": "cats/cat-e745411905dd6aee.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "donor complete-cat source; coat label unknown",
@@ -776,10 +776,10 @@
       "id": "cat-96beb4613b169dfd",
       "file": "cats/cat-96beb4613b169dfd.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "coat-1 (tan-golden)",
@@ -820,10 +820,10 @@
       "id": "cat-ac1a47847b87727e",
       "file": "cats/cat-ac1a47847b87727e.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "coat-2 (dark-gray)",
@@ -853,10 +853,10 @@
       "id": "cat-ab15b6f437a072cc",
       "file": "cats/cat-ab15b6f437a072cc.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "coat-3 (pale-cream)",
@@ -886,10 +886,10 @@
       "id": "cat-3315fea2b57a0746",
       "file": "cats/cat-3315fea2b57a0746.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "coat-4 (orange)",
@@ -919,10 +919,10 @@
       "id": "cat-3f9fb78fb1697a76",
       "file": "cats/cat-3f9fb78fb1697a76.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "coat-5 (pale-gray-white)",
@@ -952,10 +952,10 @@
       "id": "cat-eec858c7a583cdc6",
       "file": "cats/cat-eec858c7a583cdc6.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "brown-white",
@@ -985,10 +985,10 @@
       "id": "cat-4a74e453bae483ad",
       "file": "cats/cat-4a74e453bae483ad.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "gold-white",
@@ -1018,10 +1018,10 @@
       "id": "cat-44c73696e0dc7be0",
       "file": "cats/cat-44c73696e0dc7be0.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "brown-white-gray-eyes",
@@ -1051,10 +1051,10 @@
       "id": "cat-28145089a90d5f9f",
       "file": "cats/cat-28145089a90d5f9f.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "gold-white-green-eyes",
@@ -1084,10 +1084,10 @@
       "id": "cat-e67924de1f224fd0",
       "file": "cats/cat-e67924de1f224fd0.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "special-1",
@@ -1117,10 +1117,10 @@
       "id": "cat-412f097a30e3558e",
       "file": "cats/cat-412f097a30e3558e.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "special-2",
@@ -1150,10 +1150,10 @@
       "id": "cat-ee0fe001a6afbf55",
       "file": "cats/cat-ee0fe001a6afbf55.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "special-3",
@@ -1185,10 +1185,10 @@
       "id": "cat-59d2b8291b22010d",
       "file": "cats/cat-59d2b8291b22010d.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "special-4",
@@ -1218,10 +1218,10 @@
       "id": "cat-2e94d0c70183b853",
       "file": "cats/cat-2e94d0c70183b853.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "special-1-blue-eyes",
@@ -1251,10 +1251,10 @@
       "id": "cat-b4bfb0e3eeff9eff",
       "file": "cats/cat-b4bfb0e3eeff9eff.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "special-2-green-eyes",
@@ -1284,10 +1284,10 @@
       "id": "cat-f5e6e4ae9ef0a12f",
       "file": "cats/cat-f5e6e4ae9ef0a12f.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "special-3-red-eyes",
@@ -1319,10 +1319,10 @@
       "id": "cat-ff1036767ec8ca63",
       "file": "cats/cat-ff1036767ec8ca63.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "eye-alternate",
       "sourceLabel": "special-4-green-eyes",
@@ -1352,10 +1352,10 @@
       "id": "cat-07a1fa7882dd5e6d",
       "file": "cats/cat-07a1fa7882dd5e6d.png",
       "head": {
-        "x": 0.57,
-        "y": 0.0,
-        "w": 0.43,
-        "h": 0.42
+        "x": 0.5856,
+        "y": 0,
+        "w": 0.4144,
+        "h": 0.5525
       },
       "role": "original",
       "sourceLabel": "white undertone (linked by undertone-eye-set REPORT reused red output); base coat label unknown",
