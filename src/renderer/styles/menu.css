@@ -265,6 +265,18 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .appearance-text { width: 100%; min-height: 72px; font-size: 16px; color: #f6efe2; background: #140e0b; border: 1px solid #c6a15a; border-radius: 8px; }
 .appearance-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .encounter-tell, .encounter-word { margin: 0; color: #e7d3b4; font-size: 16px; }
+.level-row, #level-cards { display: flex; flex-wrap: wrap; gap: 8px; }
+.level-choice, #level-cards .card { min-height: 44px; }
+.level-choice.is-on, #level-cards .card.selected { border-color: #e6c98a; }
+.level-flavour { margin: 4px 0 8px; color: #e7d3b4; font-size: 16px; }
+.deeds-screen { width: min(960px, 100%); margin: 12px auto; display: flex; flex-direction: column; gap: 8px; }
+.deeds-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.deeds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.deed-tile { background: #24180f; border: 1px solid #5a3422; border-radius: 8px; padding: 8px 10px; color: #f6efe2; }
+.deed-tile.is-earned { border-color: #e6c98a; }
+.deed-tile.is-hidden.is-locked { opacity: 0.85; font-style: italic; }
+.deed-tile.is-hard { border-color: #a86b45; }
+.deed-challenge { margin: 0; color: #e6c98a; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
 .word-bar-word.encounter-word { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
 .encounter-direction { color: #f3d9a0; }
 .region-map-card .region-desc { margin: 0; }

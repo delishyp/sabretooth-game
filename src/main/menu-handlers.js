@@ -33,7 +33,7 @@ function createMenuHandlers({ settings, saves, log, t, checkStoryteller, lock = 
         const preferred = settings.get().storyteller.mode;
         const effective = await effectiveStoryteller(preferred, checkStoryteller);
         const run = saves.createRun({
-          style: p.style, difficulty: p.difficulty, replaceRunId: p.replaceRunId, sandboxOptions: p.sandboxOptions, storytellerMode: effective,
+          style: p.style, difficulty: p.difficulty, level: p.level || 'standard', replaceRunId: p.replaceRunId, sandboxOptions: p.sandboxOptions, storytellerMode: effective,
           tutorial: p.tutorial === true,
           catName: cat ? cat.snapshot.name : t('run.defaultCatName'), prideName: t('run.defaultPrideName'), playerCat: cat ? cat.record : null
         });
@@ -53,7 +53,7 @@ function createMenuHandlers({ settings, saves, log, t, checkStoryteller, lock = 
       try { game = saves.readGame(p.runId, p.saveId); } catch (e) { log(`menu:loadSave game.json unreadable ${JSON.stringify(p)}: ${e.message}`); return { ok: false, errorId: 'toast.saveLoadFailed' }; }
       if (!game) { log(`menu:loadSave ${JSON.stringify(p)} (placeholder)`); return { ok: true, placeholder: true }; }
       log(`menu:loadSave ${JSON.stringify(p)} day ${game.day}`);
-      return { ok: true, game, run: { runId: run.runId, catName: run.catName, prideName: run.prideName, style: run.style, difficulty: run.difficulty, tutorial: run.tutorial === true, playerCat: run.playerCat || null } };
+      return { ok: true, game, run: { runId: run.runId, catName: run.catName, prideName: run.prideName, style: run.style, difficulty: run.difficulty, level: run.level || 'standard', tutorial: run.tutorial === true, playerCat: run.playerCat || null } };
     },
     /**
      * game:save {runId, kind: 'auto'|'manual', game} (slice 1). Autosave = save slot 0, manual = slot 1, each overwritten

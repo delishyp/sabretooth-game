@@ -233,6 +233,7 @@
   function renderSetup() {
     $('#style-cards').replaceChildren(...setupStyles().map((d) => cardButton('style', d)));
     $('#death-cards').replaceChildren(...setupDeaths().map((d) => cardButton('death', d)));
+    renderLevelCards();
     $('#sandbox-title').textContent = copy.sandboxPanel.title; $('#sandbox-note').textContent = copy.sandboxPanel.note;
     applySetup();
   }
@@ -264,10 +265,30 @@
       if (d.clientWidth && d.scrollWidth > d.clientWidth && o.description) d.textContent = o.description;
     }
   }
+  const LEVEL_NAMES = { gentle: 'Gentle', standard: 'Standard', harsh: 'Harsh', ice_age: 'Ice Age' };
+  function levelFlavour(id) {
+    const bank = window.Deeds && window.Deeds.copy && window.Deeds.copy.creator && window.Deeds.copy.creator.difficulty;
+    return (bank && bank[id]) || '';
+  }
+  function renderLevelCards() {
+    const box = $('#level-cards');
+    if (!box || !window.Difficulty) return;
+    const title = $('#level-title');
+    if (title && window.Deeds && window.Deeds.copy.creator) title.textContent = window.Deeds.copy.creator.difficultyHeading;
+    box.replaceChildren(...window.Difficulty.LEVELS.map((id) => {
+      const b = document.createElement('button');
+      b.className = 'card'; b.type = 'button'; b.dataset.level = id;
+      b.innerHTML = '<span class="name"></span><span class="desc"></span>';
+      b.querySelector('.name').textContent = LEVEL_NAMES[id] || id;
+      b.querySelector('.desc').textContent = levelFlavour(id);
+      return b;
+    }));
+  }
   /** Render the Nav model: selected cards, panel only when Sandbox is SELECTED, summary line, focus ring. */
   function applySetup() {
     $$('#style-cards .card').forEach((c) => c.classList.toggle('selected', c.dataset.nav === `style:${setup.style}`));
     $$('#death-cards .card').forEach((c) => c.classList.toggle('selected', c.dataset.nav === `death:${setup.death}`));
+    $$('#level-cards .card').forEach((c) => c.classList.toggle('selected', c.dataset.level === (setup.level || 'standard')));
     const sandbox = setup.death === 'sandbox';
     $('#sandbox-panel').hidden = !sandbox;
     if (sandbox) { renderSandboxRows(); fitSandboxDescs(); }
@@ -288,6 +309,8 @@
     if (effect && effect.type === 'leave') goBack();
   }
   $(SCREEN).addEventListener('click', (ev) => {
+    const level = ev.target.closest('[data-level]');
+    if (level && !dialog) { setup = { ...setup, level: level.dataset.level }; applySetup(); return; }
     const b = ev.target.closest('[data-nav]'); if (b && !dialog) setupDispatch('click', b.dataset.nav);
   });
 
@@ -310,7 +333,8 @@
   const isRareOption = (c, id) => id === 'oddEyes' || (id === 'coat' && Creator.RARE_COATS.includes(c.coat));
 
   function openCreator(effect) {
-    pendingSetup = { style: effect.style, difficulty: effect.difficulty, tutorial: effect.tutorial === true, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
+    pendingSetup = { style: effect.style, difficulty: effect.difficulty, level: effect.level || setup.level || 'standard', tutorial: effect.tutorial === true, ...(effect.sandboxOptions ? { sandboxOptions: effect.sandboxOptions } : {}) };
+    renderCreatorLevels();
     const ids = portraits.registry().portraits.map((p) => p.id);
     creator = Creator.init({ names: creatorNames(), difficulty: effect.difficulty, sandboxOptions: effect.sandboxOptions, portraitIds: ids });
     starting = false; preview.key = null;
@@ -633,6 +657,13 @@
   }
   // Mouse: arrows change a row, a value click cycles it, the track sets a slider, buttons act; hover moves focus only.
   $(CSCREEN).addEventListener('click', (ev) => {
+    const level = ev.target.closest('[data-creator-level]');
+    if (level && pendingSetup && !dialog) {
+      pendingSetup.level = level.dataset.creatorLevel;
+      if (pendingSetup.difficulty === 'sandbox' && api.achievements) { /* level is stored when the run is created */ }
+      renderCreatorLevels();
+      return;
+    }
     if (dialog || state !== 'creator') return;
     const arrow = ev.target.closest('.arrow');
     if (arrow) return creatorDispatch('arrow', { id: arrow.closest('.crow').dataset.row, dir: Number(arrow.dataset.arrow) });
@@ -934,8 +965,21 @@
 
   // ---------- actions ----------
   /** Creator Start (v1.4): menu:newGame {style, difficulty, replaceRunId?, sandboxOptions?, mainCat}. The replaced run is deleted only now (main). */
-  async function startNewGame({ style, difficulty, sandboxOptions, mainCat, tutorial }) {
-    const res = await api.menu.newGame({ style, difficulty, replaceRunId: replaceRunId || undefined, sandboxOptions, mainCat, tutorial: tutorial === true });
+  function renderCreatorLevels() {
+    const box = $('#creator-levels');
+    if (!box || !window.Difficulty || !pendingSetup) return;
+    box.replaceChildren(...window.Difficulty.LEVELS.map((id) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.creatorLevel = id;
+      b.className = 'level-choice' + (pendingSetup.level === id ? ' is-on' : '');
+      b.textContent = LEVEL_NAMES[id] || id;
+      return b;
+    }));
+    const line = $('#creator-level-flavour');
+    if (line) line.textContent = levelFlavour(pendingSetup.level || 'standard');
+  }
+  async function startNewGame({ style, difficulty, sandboxOptions, mainCat, tutorial, level }) {
+    const res = await api.menu.newGame({ style, difficulty, level: level || 'standard', replaceRunId: replaceRunId || undefined, sandboxOptions, mainCat, tutorial: tutorial === true });
     if (!res.ok) { toast(t('toast.startFailed')); return; }   // B12: raw error is logged by main only
     fallbackToast(res.storyteller?.preferred, res.storyteller?.effective);
     replaceRunId = null; creator = null;
@@ -954,6 +998,7 @@
   function openSetup() {
     // Every New Game resets to the defaults: Standard, Heir, default Sandbox options (B7, spec v1.3).
     setup = Nav.setupInit(setupStyles().map((d) => d.id), setupDeaths().map((d) => d.id), optionDefs());
+    setup.level = 'standard';
     show('newGameSetup');
   }
   const quit = () => confirmDialog(t('quitConfirm.body'), t('quitConfirm.ok'), () => api.app.quit());

@@ -38,7 +38,7 @@
   function cycle(def, cur, dir) { const v = def.values; return v[(v.indexOf(cur) + dir + v.length) % v.length]; }
 
   function startEffect(s) {
-    return { type: 'start', style: s.style, difficulty: s.death, tutorial: s.tutorial !== false, ...(s.death === 'sandbox' ? { sandboxOptions: { ...s.opts } } : {}) };
+    return { type: 'start', style: s.style, difficulty: s.death, tutorial: s.tutorial !== false, ...(s.level ? { level: s.level } : {}), ...(s.death === 'sandbox' ? { sandboxOptions: { ...s.opts } } : {}) };
   }
 
   /** Vertical stops; each is a list of focus ids plus the id to land on when entering it. */

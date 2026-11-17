@@ -435,7 +435,11 @@
     }
     const spar = kind === 'spar' || opts.spar === true;
     const ps = opts.player && Number.isFinite(opts.player.strength) ? opts.player.strength : 10;
-    const os = opts.opponent && Number.isFinite(opts.opponent.strength) ? opts.opponent.strength : 10;
+    let os = opts.opponent && Number.isFinite(opts.opponent.strength) ? opts.opponent.strength : 10;
+    if (opts.level && opts.level !== 'standard') {
+      const Difficulty = typeof require === 'function' ? require('./difficulty') : (typeof self !== 'undefined' ? self.Difficulty : null);
+      if (Difficulty) os *= Difficulty.foeMultiplier(opts.level, opts.opponent);
+    }
     const defender = opts.defender === 'player' || opts.defender === 'foe' ? opts.defender : null;
     const fight = quick ? quickFight(rng, ps, os, policy) : turnFight(rng, ps, os, policy, spar, opts.opponent, defender);
     const fightBeats = [];

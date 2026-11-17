@@ -33,6 +33,8 @@
     <h2 data-t="newGame.title"></h2>
     <h3 class="row-title" data-t="newGame.styleRow"></h3>
     <div class="cards-row" id="style-cards"></div>
+    <h3 class="row-title" id="level-title">The season</h3>
+    <div class="cards-row" id="level-cards"></div>
     <div class="setup-death">
       <div><h3 class="row-title" data-t="newGame.deathRuleRow"></h3><div class="cards-row" id="death-cards"></div></div>
       <div id="sandbox-panel" hidden><h3 id="sandbox-title"></h3><div id="sandbox-rows"></div><p class="note" id="sandbox-note"></p></div>
@@ -47,6 +49,8 @@
     <h2 data-t="creator.title"></h2>
     <p class="sub creator-sub" data-t="creator.subtitle"></p>
     <p class="creator-step" id="creator-step"></p>
+    <div class="level-row" id="creator-levels"></div>
+    <p class="level-flavour" id="creator-level-flavour"></p>
     <div class="creator-body">
       <div class="creator-preview">
         <div class="portrait-frame frame-lg"><canvas id="creator-canvas" role="img" width="1152" height="864"></canvas></div>
@@ -192,6 +196,8 @@
 <script src="js/pride-header.js"></script>
 <script src="js/pride-rules.js"></script>
 <script src="js/quests.js"></script>
+<script src="js/difficulty.js"></script>
+<script src="js/deeds.js"></script>
 <script src="js/slice.js"></script>
 <script src="js/scene-log.js"></script>
 <script src="js/word-bar.js"></script>

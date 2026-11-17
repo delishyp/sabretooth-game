@@ -21,6 +21,7 @@
   const DirectoryPanel = (typeof require === 'function' ? require('./directory-panel') : (typeof self !== 'undefined' ? self.DirectoryPanel : null));
   const RegionMap = (typeof require === 'function' ? require('./region-map') : (typeof self !== 'undefined' ? self.RegionMap : null));
   const LoreBook = (typeof require === 'function' ? require('./lore-book') : (typeof self !== 'undefined' ? self.LoreBook : null));
+  const Deeds = (typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null));
   function logClass(line, cat) {
     if (!line || line.kind === 'gap') return 'event-text gap';
     if (line.kind === 'action') return 'event-text action';
@@ -223,12 +224,24 @@
       const res = await ctx.api.game.save(run.runId, 'manual', s);
       ctx.toast(res && res.ok ? t('game.saved') : t('toast.saveFailed'));
     }
+    async function awardDeeds() {
+      if (!Deeds || !ctx.api.achievements || !run) return;
+      s.deathRule = run.difficulty;
+      s.level = run.level || s.level || 'standard';
+      const fresh = Deeds.scan(s);
+      for (const id of fresh) {
+        const res = await ctx.api.achievements.earn({ id, runId: run.runId, death: run.difficulty, level: s.level, difficulty: s.level });
+        s.earnedDeeds = (s.earnedDeeds || []).concat(id);
+        if (res && res.rows) s.earnedDeeds = res.rows.map((row) => row.id);
+      }
+    }
     async function act(action) {
       if (busy) return; busy = true;
       try {
         const r = E.act(s, action);
         if (r.error) { console.warn('slice action refused', r.error); return; }
         s = r.state;
+        await awardDeeds();
         // Region moments / hostile patrols have no follow-up text: skip the empty result step.
         if (s.phase === 'eventResult' && !resultText() && !E.shouldHoldResult(s)) s = E.act(s, { type: 'continue' }).state;
         await autosave();
@@ -321,6 +334,7 @@
       if (id === 'wilderness') return t('home.nav.wilderness');
       if (id === 'cats') return t('home.nav.cats');
       if (id === 'map') return t('home.nav.map');
+      if (id === 'deeds') return (Deeds && Deeds.copy.screen && Deeds.copy.screen.title) || 'Deeds';
       if (id === 'breeding') return t('home.nav.breeding');
       if (id === 'market') return t('home.nav.market');
       if (id === 'inventory') return t('home.nav.inventory');
@@ -345,7 +359,7 @@
       const expand = $('#home-expand'); if (expand) expand.dataset.name = s.cat.name;
       const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
       den.title = t('home.denTip'); wild.title = t('home.wildTip');
-      const covered = view === 'map' || view === 'lore';
+      const covered = view === 'map' || view === 'lore' || view === 'deeds';
       den.hidden = covered;
       wild.hidden = covered;
       den.classList.toggle('is-current', view === 'den');
@@ -493,6 +507,33 @@
           if (info.bond) box.append(el('p', 'bond-stage', info.bond));
           p.append(box);
         }
+      } else if (view === 'deeds' && Deeds) {
+        const screen = Deeds.copy.screen || {};
+        const earned = s.earnedDeeds || [];
+        const root = el('div', 'deeds-screen');
+        root.append(el('h2', 'home-panel-title', screen.title || 'Deeds'));
+        root.append(el('p', 'deeds-note', screen.header || ''));
+        root.append(el('p', 'deeds-counter', Deeds.counter(earned)));
+        const filters = el('div', 'deeds-filters');
+        const names = (screen.filters) || {};
+        for (const id of ['all', 'earned', 'locked', 'hidden', 'challenge']) {
+          const b = btn(names[id] || id, { g: 'deedFilter', filter: id });
+          if ((s.deedFilter || 'all') === id) b.classList.add('is-on');
+          filters.append(b);
+        }
+        root.append(filters);
+        const grid = el('div', 'deeds-grid');
+        for (const tile of Deeds.grid(earned, s.deedFilter || 'all')) {
+          const card = el('article', 'deed-tile is-' + tile.kind + (tile.earned ? ' is-earned' : ' is-locked'));
+          card.dataset.deed = tile.id;
+          card.append(el('h3', '', tile.name));
+          if (tile.challenge) card.append(el('p', 'deed-challenge', screen.challengeLabel || 'Challenge'));
+          if (tile.flavour) card.append(el('p', '', tile.flavour));
+          else if (tile.hint) card.append(el('p', '', tile.hint));
+          grid.append(card);
+        }
+        root.append(grid);
+        p.append(root);
       } else if (view === 'lore') {
         const bookCopy = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
         const entries = (Tutorial && s.tutorial && Tutorial.view(s, tutorialFacts()).guide) || [];
@@ -1272,6 +1313,7 @@
       if (d.g === 'tutorialOff') { if (Tutorial) Tutorial.turnOff(s, tutorialFacts()); render(); return; }
       if (d.g === 'goalOpen') { view = 'lore'; render(); return; }
       if (d.g === 'selectCat') { selectedCat = d.cat; view = 'cats'; render(); return; }
+      if (d.g === 'deedFilter') { s.deedFilter = d.filter; view = 'deeds'; render(); return; }
       if (d.g === 'nav') return showView(d.view);
       if (d.g === 'unavailable') return showView(d.view);
       if (d.g === 'den') return showView('den');

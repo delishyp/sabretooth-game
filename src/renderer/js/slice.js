@@ -13,6 +13,8 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives, Directory, PrideHeader, PrideRules) {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   const CatTraits = (typeof require === 'function' ? require('./cat-traits') : (typeof self !== 'undefined' ? self.CatTraits : null));
+  const Difficulty = (typeof require === 'function' ? require('./difficulty') : (typeof self !== 'undefined' ? self.Difficulty : null));
+  const Deeds = (typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null));
   const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
   function loadPass6() {
     if (typeof require === 'function') {
@@ -141,11 +143,11 @@
       }
       return out;
     }
-    function newRun({ mainCat, seed = Rng.newSeed(), runId = null }) {
+    function newRun({ mainCat, seed = Rng.newSeed(), runId = null, level = 'standard' }) {
       const st = R.start;
       const s = {
         saveVersion: R.saveVersion, dataVersion: W.dataVersion, eventsVersion: (events && events.contentVersion) || 0,
-        runId, seed: seed >>> 0, year: st.year, season: st.season, day: 1, phase: 'day',
+        runId, seed: seed >>> 0, year: st.year, season: st.season, day: 1, phase: 'day', level: Difficulty ? Difficulty.levelOf(level) : 'standard',
         cat: { catId: mainCat.catId, name: mainCat.name, sex: mainCat.sex, lifeStage: mainCat.lifeStage, genes: mainCat.genes, scars: mainCat.scars || [], portraitId: keptPortraitId(mainCat.portraitId), traits: mainCat.traits || [], bloodline: mainCat.bloodline || {}, appearanceText: mainCat.appearanceText || '', appearanceTags: mainCat.appearanceTags || [], birthPride: mainCat.birthPride || null },
         needs: { health: st.health, hunger: st.needs, thirst: st.needs, energy: st.needs },
         injuries: [], counters: { starving: 0, parched: 0 },
@@ -214,9 +216,11 @@
     // ---------- injuries ----------
     /** needs §2.1/§2.3: a second injury of the same tier raises it one tier; the slice has no crippling tier, so it caps at serious. */
     function injure(s, tier, source, rep, opts) {
+      if (Difficulty) tier = Difficulty.adjustInjury(s.level, tier);
       if (tier === 'crippling') tier = 'serious';                         // Flint call: slice chips are minor/serious only
       const same = s.injuries.find((i) => i.tier === tier);
-      if (same) { s.injuries = s.injuries.filter((i) => i !== same); tier = 'serious'; }
+      const stack = Difficulty && Difficulty.forgiveness(s.level).stack;
+      if (same && !stack) { s.injuries = s.injuries.filter((i) => i !== same); tier = 'serious'; }
       if (tier === 'serious') s.injuries = s.injuries.filter((i) => i.tier !== 'serious');
       s.injuries.push({ tier, daysLeft: R.injuries[tier].days, source });
       if (CatTraits && tier === 'serious' && s.cat) {
@@ -236,7 +240,8 @@
     /** Hunt points (formulas §1.2, Standard, no skills/perks/party/mood/weather). */
     function huntChance(s, size) {
       const inj = worstInjury(s);
-      const pts = H.base + H.size[size] + W.preyPoints(s.region, season(s)) + (hungry(s) ? H.hungry : 0)
+      const preyScale = Difficulty ? Difficulty.applied('prey', s.level) : 1;
+      const pts = H.base + H.size[size] + W.preyPoints(s.region, season(s)) * preyScale + (hungry(s) ? H.hungry : 0)
         + (s.needs.health < H.lowHealth.below ? H.lowHealth.points : 0) + (inj ? R.injuries[inj].hunt : 0);
       return clamp(pts, H.clamp[0], H.clamp[1]);
     }
@@ -824,6 +829,10 @@
       else if (s.records) s.records._huntOk = !!ok;
       if (Pair.enabled && s.records) s.records._huntOk = !!ok;
       rep.push(Object.assign({ k: 'hunt', size, chance: p, ok, ate: ok ? N.eat[size] : 0 }, extra || {}));
+      if (ok && Deeds) {
+        Deeds.note(s, 'hunt.success');
+        if (size === 'large') Deeds.note(s, 'hunt.large');
+      }
       const injPct = H.injuryPct[size] * (ok ? 1 : H.failInjuryMult) * H.styleInjuryMult;
       if (rng() * 100 < injPct) injure(s, tierRoll(rng), 'hunt', rep);
       return { ok, chance: p };
@@ -1237,7 +1246,8 @@
     function overnight(s, rep, rested) {
       if (s.dead) return;
       const n = s.needs;
-      n.hunger = clamp(n.hunger - N.decay.hunger, 0, 100);
+      const hungerScale = Difficulty ? Difficulty.applied('hunger', s.level) : 1;
+      n.hunger = clamp(n.hunger - N.decay.hunger * hungerScale, 0, 100);
       n.thirst = clamp(n.thirst - N.decay.thirst, 0, 100);
       const restore = hungry(s) || thirsty(s) ? Math.floor(N.energy.overnight / 2) : N.energy.overnight;
       n.energy = clamp(n.energy + restore, 0, 100);
@@ -1323,6 +1333,7 @@
       const s = clone(saved);
       if (!s || typeof s !== 'object' || !s.map) throw new Error('not a slice save');
       if ((s.saveVersion || 0) > R.saveVersion) throw new Error(`save version ${s.saveVersion} is newer than ${R.saveVersion}`);
+      if (!s.level) s.level = 'standard';
       if ((s.map.dataVersion || 0) < W.dataVersion) { s.map = WorldMap.migrateMap(s.map, W); s.dataVersion = W.dataVersion; }
       if (!W.regions.some((r) => r.id === s.region)) s.region = R.start.region;
       if (s.cat) {
