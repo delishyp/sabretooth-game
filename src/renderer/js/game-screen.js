@@ -418,15 +418,17 @@
         deeds: '<path d="M7 4h10v16l-5-3-5 3z"/>',
         reputation: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5 6.9 19.2l1-5.7-4.1-4 5.7-.8z"/>'
       };
+      const held = sceneOpen();
       const items = HomeScene.NAV.slice().sort((a, b) => (order.indexOf(a.id) < 0 ? 99 : order.indexOf(a.id)) - (order.indexOf(b.id) < 0 ? 99 : order.indexOf(b.id)));
       for (const item of items) {
         const state = Unlocks ? Unlocks.displayState(s, item.id) : 'open';
-        const b = el('button', 'item' + (state === 'locked' ? ' is-locked' : state === 'new' ? ' is-new' : ''));
+        const b = el('button', 'item' + (state === 'locked' || held ? ' is-locked' : state === 'new' ? ' is-new' : ''));
         b.type = 'button'; b.dataset.g = 'nav'; b.dataset.view = item.id; b.dataset.unlock = state;
         const lock = state === 'locked' ? '<svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg>' : '';
         b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + (icons[item.id] || icons.home) + '</svg>' + lock;
         b.append(el('span', 'nav-label', navLabel(item.id)));
-        b.title = state === 'locked' && Unlocks ? (Unlocks.opensWhenLine(item.id === 'cats' ? 'smilodons' : item.id) || navLabel(item.id)) : navLabel(item.id);
+        if (held) { b.setAttribute('aria-disabled', 'true'); b.title = 'Finish this first'; }
+        else b.title = state === 'locked' && Unlocks ? (Unlocks.opensWhenLine(item.id === 'cats' ? 'smilodons' : item.id) || navLabel(item.id)) : navLabel(item.id);
         if (state !== 'locked' && view === item.id) b.setAttribute('aria-current', 'page');
         nav.append(b);
       }
@@ -1381,7 +1383,11 @@
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
       ctx.focus(target || null);
     }
+    function sceneOpen() {
+      return !!(s && ['encounter', 'conversation', 'event', 'eventResult', 'ford', 'border'].includes(s.phase));
+    }
     function showView(id) {
+      if (sceneOpen()) return;
       const next = HomeScene.selectView(view, id);
       if (next.unavailable) {
         ctx.toast(t('home.unavailable', { section: navLabel(next.unavailable) }));
@@ -1491,7 +1497,7 @@
       const d = b.dataset;
       if (d.g === 'tutorialDismiss') { if (Tutorial) Tutorial.dismiss(s, tutorialFacts()); render(); return; }
       if (d.g === 'tutorialOff') { if (Tutorial) Tutorial.turnOff(s, tutorialFacts()); render(); return; }
-      if (d.g === 'goalOpen') { view = 'lore'; render(); return; }
+      if (d.g === 'goalOpen') { if (sceneOpen()) return; view = 'lore'; render(); return; }
       if (d.g === 'selectCat') { selectedCat = d.cat; view = 'cats'; render(); return; }
       if (d.g === 'deedFilter') { s.deedFilter = d.filter; view = 'deeds'; render(); return; }
       if (d.g === 'councilSit' && Councils) {
@@ -1526,6 +1532,7 @@
         return;
       }
       if (d.g === 'nav' || d.g === 'unavailable') {
+        if (sceneOpen()) return;
         if (Unlocks) {
           const picked = Unlocks.selectSection(s, d.view);
           if (picked.opensWhen) {

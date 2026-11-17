@@ -39,7 +39,15 @@
   background: transparent; border: 1px solid transparent; color: #f6efe2; border-radius: .45rem;
 }
 .screen[data-screen="game"] .rail button svg { width: 1.2rem; height: 1.2rem; stroke: currentColor; fill: none; stroke-width: 1.7; }
-.screen[data-screen="game"] .rail button.is-locked { color: #9c8c78; }
+.screen[data-screen="game"] .rail button.is-locked,
+.screen[data-screen="game"] .rail button[aria-disabled="true"] { color: #9c8c78; cursor: default; }
+.screen[data-screen="game"] .rail button[aria-disabled="true"]:hover::after,
+.screen[data-screen="game"] .rail button[aria-disabled="true"]:focus::after {
+  content: "Finish this first";
+  position: absolute; left: calc(100% + .3rem); top: .2rem; z-index: 9;
+  white-space: nowrap; background: #1a120c; color: #f6efe2;
+  border: 1px solid #d4b07a; border-radius: .3rem; padding: .15rem .4rem; font-size: .85rem;
+}
 .screen[data-screen="game"] .rail button.is-locked .lock { position: absolute; top: .1rem; right: .15rem; width: .7rem; height: .7rem; }
 .screen[data-screen="game"] .rail button[aria-current="page"] { background: rgba(110,72,32,.72); border-color: #e6c98a; }
 .screen[data-screen="game"] .home-landscape, .screen[data-screen="game"] .home-cat { top: 5.75rem; }
