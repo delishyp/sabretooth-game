@@ -187,7 +187,7 @@
     card.append(cast);
     const opts = PortraitModes ? PortraitModes.speakerOpts() : { frame: 'head', mode: 'headshot', place: 'dialogue' };
     const stage = npc.stage || npc.lifeStage || null;
-    if (stage !== 'cub' && !npc.portraitId && (npc.genes || npc.look)) opts.compose = true;
+    if (stage === 'cub' || (!npc.portraitId && (npc.genes || npc.look))) opts.compose = true;
     const painted = paint && paint({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId, genes: npc.genes || null, stage: stage, lifeStage: stage }, cv, opts);
     if (painted && typeof painted.catch === 'function') painted.catch(() => {});
     return cv;
@@ -517,7 +517,7 @@
           const li = el('li', 'met-cat');
           const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
           const miniOpts = { frame: 'head', mode: 'headshot', place: 'directory' };
-          if (!n.portraitId && (n.genes || n.look)) miniOpts.compose = true;
+          if (n.stage === 'cub' || (!n.portraitId && (n.genes || n.look))) miniOpts.compose = true;
           ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId, genes: n.genes || null, stage: n.stage, lifeStage: n.stage }, mini, miniOpts).catch(() => {});
           li.append(framed(mini, 'sm', 'headshot'), btn(n.name, { g: 'selectCat', cat: n.id }, { cls: 'met-name' }));
           li.append(relationMeters(n.id));
@@ -1006,7 +1006,7 @@
         lifeStage: cat.lifeStage || cat.stage || null
       };
       const opts = PortraitModes ? PortraitModes.fullOpts('encounter') : { mode: 'full', place: 'encounter' };
-      if (compose || !spec.portraitId) opts.compose = true;
+      if (compose || !spec.portraitId || spec.lifeStage === 'cub' || spec.stage === 'cub') opts.compose = true;
       ctx.portrait(spec, cv, opts).catch(() => {});
       return cv;
     }

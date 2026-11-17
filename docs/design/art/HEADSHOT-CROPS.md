@@ -20,7 +20,7 @@ Use: `sx = round(x*W)`, `sy = round(y*H)`, `sw = round(w*W)`, `sh = round(h*H)`.
 
 ## Notes
 - **Base files.** Director's store isn't mounted for me (`/cursor/stores/` has only `user`). I used byte-identical copies from `/workspace/sabretooth-art-reference/archive/historical-portraits/`, `1cffd694c43c_1cffd694…cacbdb.jpg` (female) and `617660c40258_617660c4…233ffc.jpg` (male). Their sha256 matches the file names.
-- **Age variants: none.** ac2665d has no cub, adolescent or elder art. `npc-portrait-defaults.json` flags cub slots "adult image used for cub slot". The JSON lists cub, adolescent and elder as "use adult". If age art arrives at another scale, it needs its own box.
+- **Cub has its own box.** Layered cub bases (`portrait-female-cub`, `portrait-male-cub`) use `bySex.*.cub`: x 0.6337, y 0.0694, w 0.3472, h 0.4630 (730, 60, 400, 400 on 1152×864). Adolescent and elder still use the adult box. Cub slots flagged `adultArtOnly` composite the cub pose; `smilodon-cub.png` is source art only (`docs/design/art/source/`).
 - **Illustrated NPC portraits:** one box works for all 40. No per-image boxes are needed (`perImageBoxes: []`). Two limits are in the source art, not the box:
   - **Small top margin.** The ears sit 11–36 px below the canvas top, so the top margin is small on every still.
   - **Nose at the canvas edge.** On 26 stills the nose tip touches the right edge of the canvas, so no box can add space in front of the nose; the UI frame pads around it instead. The 26 are:

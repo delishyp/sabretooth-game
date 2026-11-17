@@ -25,9 +25,12 @@ test('headshots use Ochre\'s one square box for every base, portrait and age', (
   assert.deepStrictEqual(Modes.cropFor('female'), box);
   assert.deepStrictEqual(Modes.cropFor('male', 'elder'), box);
   for (const age of Modes.AGES) {
-    assert.deepStrictEqual(Modes.cropFor('female', age), box);
-    assert.deepStrictEqual(Modes.cropFor('male', age), box);
+    const expect = age === 'cub' ? Modes.CUB_HEAD : box;
+    assert.deepStrictEqual(Modes.cropFor('female', age), expect, age);
+    assert.deepStrictEqual(Modes.cropFor('male', age), expect, age);
   }
+  assert.deepStrictEqual(Modes.cropFor({ lifeStage: 'cub', name: 'Little Reed' }), Modes.CUB_HEAD);
+  assert.deepStrictEqual(View.sourceRect(1152, 864, Modes.CUB_HEAD), { sx: 730, sy: 60, sw: 400, sh: 400 });
   assert.deepStrictEqual(View.sourceRect(1152, 864, box), { sx: 675, sy: 0, sw: 477, sh: 477 });
   assert.deepStrictEqual(View.sourceRect(1448, 1086, box), { sx: 848, sy: 0, sw: 600, sh: 600 });
   const raw = JSON.parse(fs.readFileSync(path.join(__dirname, '../assets/portraits/registry.json'), 'utf8'));
@@ -41,11 +44,17 @@ test('headshots use Ochre\'s one square box for every base, portrait and age', (
     assert.strictEqual(Modes.modeFor(place), 'full', place);
   }
   assert.deepStrictEqual(View.sourceRect(1448, 1086, Modes.HEAD), { sx: 848, sy: 0, sw: 600, sh: 600 });
-  assert.deepStrictEqual(Modes.stillFor({ stage: 'cub' }), Modes.CUB_STILL);
-  assert.strictEqual(Modes.stillFor({ lifeStage: 'cub', name: 'Little Reed' }).file, 'cats/smilodon-cub.png');
-  assert.strictEqual(Modes.stillFor({ stage: 'cub', portraitId: 'cat-4a74e453bae483ad' }).plain, true);
+  const Compositor = require('../src/renderer/js/compositor');
   assert.strictEqual(Modes.stillFor({ stage: 'adult' }), null);
-  assert.ok(fs.existsSync(path.join(__dirname, '../assets/portraits/cats/smilodon-cub.png')));
+  assert.strictEqual(Modes.stillFor({ lifeStage: 'cub', sex: 'female', name: 'Little Reed' }).pose, 'portrait-female-cub');
+  assert.strictEqual(Modes.poseFor('male', 'cub'), 'portrait-male-cub');
+  assert.strictEqual(Modes.poseFor('female', 'adult'), 'portrait-female');
+  assert.strictEqual(Compositor.poseFor('female', 'cub'), 'portrait-female-cub');
+  assert.strictEqual(Compositor.poseFor('male', 'adult'), 'portrait-male');
+  assert.ok(fs.existsSync(path.join(__dirname, '../assets/portraits/portrait-female-cub/manifest.json')));
+  assert.ok(fs.existsSync(path.join(__dirname, '../assets/portraits/stills/cub-full-tawny-spotted.png')));
+  assert.ok(fs.existsSync(path.join(__dirname, '../docs/design/art/source/smilodon-cub.png')));
+  assert.ok(!fs.existsSync(path.join(__dirname, '../assets/portraits/cats/smilodon-cub.png')));
   assert.strictEqual(Modes.speakerOpts().mode, 'headshot');
   assert.strictEqual(Modes.speakerOpts().place, 'dialogue');
   assert.match(game, /PortraitModes\.speakerOpts\(\)/);

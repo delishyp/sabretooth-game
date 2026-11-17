@@ -44,7 +44,28 @@
      }
     }
    },
-   "cub": "use adult",
+   "cub": {
+    "normalised": {
+     "x": 0.6337,
+     "y": 0.0694,
+     "w": 0.3472,
+     "h": 0.463
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-female-cub/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 730,
+      "y": 60,
+      "w": 400,
+      "h": 400
+     }
+    },
+    "note": "Cub base v1 (Ochre, 2026-11-17). One cub base shared by both sexes. Square; ears 51px from the top, nose 72px and whisker tips 47px from the right, chin and shoulders inside. The adult box (0.5856, 0, 0.4144, 0.5525) also contains the whole cub head but leaves the head smaller and lower in frame."
+   },
    "adolescent": "use adult",
    "elder": "use adult"
   },
@@ -83,7 +104,28 @@
      }
     }
    },
-   "cub": "use adult",
+   "cub": {
+    "normalised": {
+     "x": 0.6337,
+     "y": 0.0694,
+     "w": 0.3472,
+     "h": 0.463
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-male-cub/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 730,
+      "y": 60,
+      "w": 400,
+      "h": 400
+     }
+    },
+    "note": "Cub base v1 (Ochre, 2026-11-17). One cub base shared by both sexes. Square; ears 51px from the top, nose 72px and whisker tips 47px from the right, chin and shoulders inside. The adult box (0.5856, 0, 0.4144, 0.5525) also contains the whole cub head but leaves the head smaller and lower in frame."
+   },
    "adolescent": "use adult",
    "elder": "use adult"
   }
@@ -103,5 +145,5 @@
   "oneBoxFitsAll": true,
   "perImageBoxes": []
  },
- "ageVariants": "none: no cub, adolescent or elder art exists at ac2665d; npc-portrait-defaults.json uses adult images for cub slots. adult box applies to every age."
+ "ageVariants": "cub: own box (bySex.*.cub, cub base v1, /workspace/qa/cub-base). adolescent and elder: none yet, use adult box."
 }

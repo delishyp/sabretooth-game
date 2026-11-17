@@ -9,10 +9,10 @@
   else root.PortraitModes = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   const POSE = { female: 'portrait-female', male: 'portrait-male' };
-  /** One square head-and-shoulders box. Ochre: every base, every still, every age. */
+  /** Adult head-and-shoulders box. Ochre: every adult base and still. */
   const HEAD = { x: 0.5856, y: 0.0, w: 0.4144, h: 0.5525 };
-  /** Finished cub still. Spots and the open mouth are baked in, so it is never tinted. */
-  const CUB_STILL = { id: 'smilodon-cub', file: 'cats/smilodon-cub.png', plain: true };
+  /** Cub base v1. Square on 1152×864: 730, 60, 400, 400. */
+  const CUB_HEAD = { x: 0.6337, y: 0.0694, w: 0.3472, h: 0.4630 };
   const FULL = { width: 1152, height: 864 };
   const AGES = ['cub', 'adolescent', 'adult', 'elder'];
   const HEAD_PLACES = {
@@ -20,18 +20,42 @@
     head: true, council: true, heir: true, lore: true, headshot: true
   };
 
-  function poseFor(sex) {
-    return sex === 'male' ? POSE.male : POSE.female;
+  function stageOf(spec, lifeStage) {
+    if (lifeStage === 'cub' || lifeStage === 'adolescent' || lifeStage === 'adult' || lifeStage === 'elder') return lifeStage;
+    if (spec && typeof spec === 'object') {
+      return spec.lifeStage || spec.stage || (spec.look && (spec.look.lifeStage || spec.look.stage)) || 'adult';
+    }
+    return 'adult';
   }
-  function cropFor() {
-    return HEAD;
+  function poseFor(sex, lifeStage) {
+    const base = sex === 'male' ? POSE.male : POSE.female;
+    const stage = stageOf(null, lifeStage);
+    return stage === 'cub' ? base + '-cub' : base;
+  }
+  function cropFor(sexOrSpec, lifeStage) {
+    return stageOf(sexOrSpec, lifeStage) === 'cub' ? CUB_HEAD : HEAD;
   }
   function isCub(spec) {
-    const stage = spec && (spec.stage || spec.lifeStage || (spec.look && (spec.look.stage || spec.look.lifeStage)));
-    return stage === 'cub';
+    return stageOf(spec) === 'cub';
   }
+  /** Gene composite on the cub pose. Not the baked smilodon-cub.png still. */
   function stillFor(spec) {
-    return isCub(spec) ? CUB_STILL : null;
+    if (!isCub(spec)) return null;
+    const sex = (spec && (spec.sex || (spec.look && spec.look.sex))) || 'female';
+    return { pose: poseFor(sex, 'cub'), crop: CUB_HEAD, plain: false };
+  }
+  function cubFallback(spec) {
+    const coat = (spec && spec.look && spec.look.coat) || '';
+    const file = {
+      gray: 'stills/cub-full-greydun-faintstripe.png',
+      greydun: 'stills/cub-full-greydun-faintstripe.png',
+      black: 'stills/cub-full-melan-rosette.png',
+      melan: 'stills/cub-full-melan-rosette.png',
+      sandy: 'stills/cub-full-sandy-plain.png',
+      tan: 'stills/cub-full-tawny-spotted.png',
+      tawny: 'stills/cub-full-tawny-spotted.png'
+    }[coat] || 'stills/cub-full-tawny-spotted.png';
+    return file;
   }
   function modeFor(place) {
     return HEAD_PLACES[place] ? 'headshot' : 'full';
@@ -69,5 +93,5 @@
     }
     return out;
   }
-  return { POSE, HEAD, CUB_STILL, FULL, AGES, poseFor, cropFor, isCub, stillFor, modeFor, aspect, speakerOpts, fullOpts, cssViolations };
+  return { POSE, HEAD, CUB_HEAD, FULL, AGES, poseFor, cropFor, isCub, stillFor, cubFallback, modeFor, aspect, speakerOpts, fullOpts, cssViolations };
 });
