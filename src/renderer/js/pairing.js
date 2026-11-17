@@ -577,6 +577,28 @@
       if ((npc.homeZones || []).includes(s.region)) return true;
       return isPrideMember(npc) && prideLand(s, npc.faction, deps);
     }
+    function noteMetLeader(s, npc) {
+      if (!npc || !Object.values(LEADERS).includes(npc.id)) return false;
+      if (!s.worldMemory || typeof s.worldMemory !== 'object') s.worldMemory = { facts: [] };
+      if (!Array.isArray(s.worldMemory.facts)) s.worldMemory.facts = [];
+      const have = s.worldMemory.facts.some((row) => row && row.kind === 'met_leader' && row.leaderId === npc.id);
+      if (!have) {
+        s.worldMemory.facts.push({
+          factId: `${s.runId || 'run'}/met-leader/${npc.id}`,
+          kind: 'met_leader', leaderId: npc.id, prideId: npc.faction, day: s.day || 1
+        });
+      }
+      npc.met = true;
+      return true;
+    }
+    function leaderIsMet(s, leader) {
+      if (!leader) return false;
+      const facts = (s.worldMemory && s.worldMemory.facts) || [];
+      const have = facts.some((row) => row && row.kind === 'met_leader' && row.leaderId === leader.id);
+      if (leader.met && !have) noteMetLeader(s, leader);
+      if (have && !leader.met) leader.met = true;
+      return !!(leader.met || have);
+    }
     function leaderOf(s, pride) {
       const id = LEADERS[pride];
       const leader = id && s.npcs[id];
@@ -1023,7 +1045,7 @@
       const leader = leaderOf(s, pride);
       const name = PRIDE_NAMES[pride] || pride;
       const blockers = [];
-      if (!leader || !leader.met) blockers.push(`You haven't met ${leader ? leader.name : 'the leader'} yet.`);
+      if (!leaderIsMet(s, leader)) blockers.push(`You haven't met ${leader ? leader.name : 'the leader'} yet.`);
       const prior = s.records.joinAsk && s.records.joinAsk[pride];
       const season = seasonIndex(s);
       const memberHere = !!(s.cat && s.cat.status === 'member' && s.cat.prideId === pride && prior && prior.approved);
@@ -1445,7 +1467,7 @@
     return {
       enabled, inWindow, initNew, normalize, onMet, meetingEvent, seekOffers, beginSeek,
       courtOffers, beginCourt, audienceOffers, beginAudience, challengeOffers, beginChallenge, foundOffer, beginFound, choose, seasonPending, commitSeason,
-      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, joinBlockers, beginJoinAsk, formLonerGroups, groupVisit, seasonPending, resultScene, bondLabel, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
+      courtGate, noteHunt, noteMistwoodDay, commitFightInjuries, routeStatus, setRoute, joinBlockers, beginJoinAsk, noteMetLeader, formLonerGroups, groupVisit, seasonPending, resultScene, bondLabel, FOUND_CLAIM, gaps: GAPS, leaders: LEADERS
     };
   }
 

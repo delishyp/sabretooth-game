@@ -1189,7 +1189,10 @@
     function meet(s, npc) {
       if (!npc) return;
       npc.met = true;
-      if (Pair.enabled) Pair.onMet(s, npc);
+      if (Pair.enabled) {
+        Pair.onMet(s, npc);
+        if (Pair.noteMetLeader) Pair.noteMetLeader(s, npc);
+      }
       noteDir(s, 'meet', npc.id, (s.pending && s.pending.eventId) || 'meet', s.day);
     }
     /** Cats marked met outside meet() still get one meet line. A logged meet is left alone. */

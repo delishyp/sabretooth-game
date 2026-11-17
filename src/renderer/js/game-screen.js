@@ -389,8 +389,8 @@
     }
     function renderHud() {
       const h = $('#game-hud'); h.textContent = '';
-      const dayLabel = t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) });
-      const day = el('div', 'hud-day', s.records && s.day > E.rules.seasonDays ? `${dayLabel} · after the mating season` : dayLabel);
+      const dayLabel = Unlocks ? Unlocks.topBarDay(s, E.rules.seasonDays) : t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) });
+      const day = el('div', 'hud-day', dayLabel);
       day.id = 'game-day';
       const pair = s.records && s.records.matePair;
       const mate = pair && s.npcs[pair.mateId];
@@ -1374,8 +1374,13 @@
         if (!opened.error) render();
         return;
       }
-      if (d.g === 'nav') return showView(d.view);
-      if (d.g === 'unavailable') return showView(d.view);
+      if (d.g === 'nav' || d.g === 'unavailable') {
+        if (Unlocks && !Unlocks.SHOW_ALL) {
+          const picked = Unlocks.selectSection(s, d.view);
+          if (picked.opensWhen) { ctx.toast(picked.opensWhen); return; }
+        }
+        return showView(d.view);
+      }
       if (d.g === 'den') return showView('den');
       if (d.g === 'wild') return showView('wilderness');
       if (d.g === 'hunt') return act({ type: 'hunt', size: d.size });

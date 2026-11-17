@@ -44,6 +44,26 @@ test('FIXTURE: Greywater is not held land, and the reminder does not name courts
   assert.strictEqual(blocked.state.records.joinAsk.highcrag, undefined);
 });
 
+test('a met leader is recorded, and the ask stays open out of season', () => {
+  const s = fresh(4);
+  s.region = 'highcrag';
+  s.npcs.hc01.met = true;
+  const gate = E.available(s).joinAsk;
+  assert.deepStrictEqual(gate.blockers, []);
+  assert.ok(s.worldMemory.facts.some((row) => row.kind === 'met_leader' && row.leaderId === 'hc01'));
+  const later = fresh(5);
+  later.region = 'highcrag';
+  later.day = 21;
+  later.records.seasonEndShown = true;
+  later.npcs.hc01.met = false;
+  later.worldMemory.facts.push({ factId: 'met_leader/hc01', kind: 'met_leader', leaderId: 'hc01' });
+  assert.deepStrictEqual(E.available(later).joinAsk.blockers, []);
+  assert.strictEqual(later.npcs.hc01.met, true);
+  later.cat.status = 'member';
+  later.cat.prideId = 'bonefield';
+  assert.ok(E.available(later).joinAsk.blockers.some((line) => line.includes('already a member')));
+});
+
 test('FIXTURE: an unmated cat on Highcrag can ask once the leader is met, without courtship', () => {
   const found = { approved: null, refused: null };
   for (let seed = 1; seed <= 80 && (!found.approved || !found.refused); seed++) {

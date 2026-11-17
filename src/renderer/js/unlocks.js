@@ -11,7 +11,20 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   const STARTERS = ['home', 'wilderness', 'smilodons', 'lore'];
   const SECTIONS = ['pride', 'den', 'breeding', 'inventory', 'market', 'quests', 'reputation', 'councils'];
-  const ACTIONS = ['court', 'found', 'spar'];
+  const ACTIONS = ['court', 'found', 'spar', 'askjoin'];
+  const ACTION_ORDER = [
+    { id: 'hunt', name: 'Hunt' },
+    { id: 'rest', name: 'Rest' },
+    { id: 'travel', name: 'Travel' },
+    { id: 'watch', name: 'Watch from a vantage' },
+    { id: 'scent', name: 'Scent sign' },
+    { id: 'spar', name: 'Spar', gate: 'spar' },
+    { id: 'court', name: 'Court', gate: 'court' },
+    { id: 'found', name: 'Found', gate: 'found' },
+    { id: 'askjoin', name: 'Ask to join', gate: 'askjoin' },
+    { id: 'patrol', name: 'Patrol' },
+    { id: 'mark', name: 'Mark' }
+  ];
   const SYSTEMS = STARTERS.concat(SECTIONS);
   const ALWAYS = STARTERS.concat(['map', 'deeds', 'cats']);
   /** Live play stays fully open. Derived states and selectSection stay available. */
@@ -128,6 +141,30 @@
   function sparReady(save) {
     return Object.values((save && save.npcs) || {}).some((npc) => npc && npc.met && !npc.dead && npc.stage === 'adult' && (npc.affinity || 0) >= 20);
   }
+  function leaderMet(save, pride) {
+    const ids = { highcrag: 'hc01', bonefield: 'bf01', mistwood: 'mw01' };
+    const id = ids[pride];
+    const npc = id && save && save.npcs && save.npcs[id];
+    if (npc && npc.met) return true;
+    return facts(save).some((row) => row && row.kind === 'met_leader' && row.leaderId === id);
+  }
+  function heldHere(save) {
+    const id = save && save.region;
+    const claims = (save && save.map && save.map.claims && id && save.map.claims[id]) || {};
+    let best = null;
+    let bestN = 0;
+    for (const [faction, n] of Object.entries(claims)) if (n > bestN) { best = faction; bestN = n; }
+    if (bestN < HOLD_MIN || !best || best === 'neutral' || best === 'wolves') return null;
+    return best;
+  }
+  function askJoinReady(save) {
+    const s = save || {};
+    if (s.cat && s.cat.status === 'member') return false;
+    if (founded(s)) return false;
+    const pride = heldHere(s);
+    if (!pride) return false;
+    return leaderMet(s, pride);
+  }
   function eligible(save) {
     const s = save || {};
     return {
@@ -149,6 +186,7 @@
     if (id === 'court') return courtReady(save);
     if (id === 'found') return foundReady(save);
     if (id === 'spar') return sparReady(save);
+    if (id === 'askjoin') return askJoinReady(save);
     return false;
   }
   function systemState(save, id) {
@@ -175,6 +213,39 @@
   }
   function unavailableTip() {
     return { title: fill('tip.place.unavailable.title'), body: fill('tip.place.unavailable') };
+  }
+  function topBarDay(save, seasonDays) {
+    const s = save || {};
+    const season = String(s.season || 'spring');
+    const name = season.charAt(0).toUpperCase() + season.slice(1);
+    const day = s.day || 1;
+    const limit = seasonDays || s.seasonDays || 20;
+    let line = name + ' · Day ' + day;
+    const closed = s.records && s.records.seasonEndShown;
+    if (!closed && day >= 1 && day <= limit) line += ' · Mating season';
+    return line;
+  }
+  function foeStateLine(foe) {
+    const named = foe && (foe.properName || (foe.named ? foe.name : ''));
+    const kind = String((foe && (foe.kind || foe.species || foe.displayName || foe.name)) || 'stranger').replace(/^the\s+/i, '');
+    const who = named || ('The ' + kind.charAt(0).toLowerCase() + kind.slice(1));
+    const template = fill('ui.encounter.state.circling') || '{foe} is circling. You\'re winded.';
+    return template.replace(/\{foe\}/g, who);
+  }
+  function actionLine(id) {
+    return fill('ui.action.' + id + '.line');
+  }
+  function moreActions(save) {
+    const open = [];
+    const locked = [];
+    for (const row of ACTION_ORDER) {
+      if (row.gate && !actionOpen(save, row.gate)) {
+        locked.push({ id: row.id, name: row.name, locked: true, opensWhen: opensWhenLine(row.gate), line: actionLine(row.id) });
+      } else {
+        open.push({ id: row.id, name: row.name, locked: false, line: actionLine(row.id) });
+      }
+    }
+    return open.concat(locked);
   }
   function selectSection(save, id) {
     const key = id === 'cats' ? 'smilodons' : id;
@@ -208,6 +279,7 @@
     SYSTEMS, STARTERS, SECTIONS, ACTIONS, SHOW_ALL,
     eligible, systemState, unlockedSystems, displayState,
     opensWhenLine, toastLine, unavailableTip, selectSection,
+    topBarDay, foeStateLine, actionLine, moreActions,
     noteUse, remember, persist
   };
 });

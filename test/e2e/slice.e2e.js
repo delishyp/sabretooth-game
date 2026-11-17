@@ -101,7 +101,8 @@ async function step(page, shots) {
       assert.strictEqual((await st(page)).state, 'game');
       const { state: s } = await g(page);
       assert.deepStrictEqual([s.day, s.region, s.seed, s.needs], [1, 'split_rock', SEED, { health: 100, hunger: 80, thirst: 80, energy: 80 }]);
-      assert.match(await page.locator('#game-day').textContent(), /day 1 of 20/);
+      assert.match(await page.locator('#game-day').textContent(), /Spring · Day 1 · Mating season/);
+      assert.ok(!(await page.locator('#game-day').textContent()).includes('of 20'));
       assert.strictEqual(await page.locator('.region-name').textContent(), W.region('split_rock').name);
       assert.strictEqual(await page.locator('.region-desc').textContent(), COPY['map.region.split_rock.description']);   // Saga, docs/map-copy.md
       assert.ok(!(await page.locator('#stage').textContent()).includes('[PH]'), 'no placeholder text on screen');
@@ -140,7 +141,10 @@ async function step(page, shots) {
       assert.strictEqual(s.records.seasonEndShown, true);
       assert.strictEqual(s.year, 1);
       assert.strictEqual(s.records.yearLengthDays, null);
-      assert.match(await page.locator('#game-day').textContent(), /after the mating season/);
+      const dayText = await page.locator('#game-day').textContent();
+      assert.match(dayText, /Day 21/);
+      assert.ok(!dayText.includes('Mating season'));
+      assert.ok(!dayText.includes('of 20'));
       assert.strictEqual(summary.survived, true);
       await shot(page, '05-day-21');
       assert.strictEqual(gameJson(ud, 0, 0).over, false);

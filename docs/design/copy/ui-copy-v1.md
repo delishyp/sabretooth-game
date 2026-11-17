@@ -90,7 +90,7 @@ Greyed Places sections from §2, plus Deeds as named in §2. Greyed actions: Cou
 
 | key | where it shows | line | source |
 |---|---|---|---|
-| `place.pride.opensWhen` | Shown when a greyed Pride rail item is selected | Opens when you catch a border scent or patrol. It also opens after you join a pride or Found a pride. | UX v0.1.3 §2, 7fea4cb:docs/design/ux-simplification-v0.1.md (Pride row) |
+| `place.pride.opensWhen` | Shown when a greyed Pride rail item is selected | Opens when you catch a border scent, meet a patrol, join a pride or Found one. | UX v0.1.3 §2, 7fea4cb:docs/design/ux-simplification-v0.1.md (Pride row) |
 | `place.den.opensWhen` | Shown when a greyed Den rail item is selected | Opens after you Found a pride. | UX v0.1.3 §2 (Den) |
 | `place.breeding.opensWhen` | Shown when a greyed Breeding rail item is selected | Opens when you take a mate. | UX v0.1.3 §2 (Breeding); example line in §1.6 |
 | `place.inventory.opensWhen` | Shown when a greyed Inventory rail item is selected | Opens when you gain an item. | UX v0.1.3 §2 (Inventory) |
@@ -118,15 +118,19 @@ For Ochre to drop into `/workspace/qa/ux-simplify-mockup/`. Shared opens-when li
 | `action.rest.line` | Rest one-liner in the action panel | Rest the day away and get your Energy back. | NOTES.md item 1; aligned with tip.rest (Energy), den-actions.html |
 | `action.travel.line` | Travel one-liner in the action panel | Walk to a neighbouring region. | NOTES.md item 1; den-actions.html |
 | `action.watch.line` | Watch from a vantage one-liner in the action panel | See which cats pass this ground, and what they're doing. | NOTES.md item 1, adapted from tip.watch; den-actions.html uses the official action name Watch from a vantage |
-| `action.drink.line` | Drink one-liner under More actions | Find water here. | NOTES.md item 1; den-more-actions.html |
-| `action.scent.line` | Read scent sign one-liner under More actions | See who has been on this ground. | NOTES.md item 1, adapted from tip.scent; den-more-actions.html |
-| `action.scout.line` | Scout the border one-liner under More actions | Look over the next region. | NOTES.md item 1; den-more-actions.html |
+| `action.scent.line` | Scent sign one-liner | See who has been on this ground. | NOTES.md item 1, adapted from tip.scent; den-more-actions.html |
+| `action.spar.line` | Spar one-liner in the action panel | Wrestle with a cat who knows you well. | UX v0.1.4 (e7b291f) §3 action names |
+| `action.court.line` | Court one-liner in the action panel | Win over a Bonded cat. | UX v0.1.4 (e7b291f) §3 action names |
+| `action.found.line` | Found one-liner in the action panel | Start your pride here. | UX v0.1.4 (e7b291f) §3 action names |
+| `action.askjoin.line` | Ask to join one-liner in the action panel | Ask this pride to take you in. | UX v0.1.4 (e7b291f) §3 action names |
+| `action.patrol.line` | Patrol one-liner in the action panel | Walk your borders and watch for trouble. | UX v0.1.4 (e7b291f) §3 action names |
+| `action.mark.line` | Mark one-liner in the action panel | Leave your scent so others know this land is held. | UX v0.1.4 (e7b291f) §3 action names |
 | `action.cost.day` | Cost word on a same-day action (Hunt, Rest, Watch, and the like) | Costs: the day | NOTES.md item 2; den-actions.html |
 | `action.cost.dayOrMore` | Cost word on Travel, when a trail may take more than the day | Costs: the day, or more | NOTES.md item 2; den-actions.html |
 | `den.situation` | Den situation line on den-later, once a pride is founded | Your pride is resting in the shade of The Split Rock. | NOTES.md item 6; den-later.html. Place name taken from the built tutorial card, The Split Rock. |
-| `dialogue.mood.easy` | Mood word under the portrait on dialogue / event, beside the Bond word | Easy | NOTES.md item 7; dialogue.html, dialogue-choices.html |
+| `dialogue.mood.friendly` | Mood word under the portrait on dialogue / event, beside the Bond word | Friendly | UX v0.1.4 (e7b291f) |
 | `encounter.health.hurt` | Health word above the encounter bar (Fine / Hurt / Badly hurt) | Hurt | NOTES.md item 8; UX §1.4 and §4C; encounter.html |
-| `encounter.state.circling` | Example encounter state line above the telegraph | It's circling. You're winded. | NOTES.md item 8; UX §4C example (It's circling. You're winded.). encounter.html had He's circling. |
+| `encounter.state.circling` | Example encounter state line above the telegraph | {foe} is circling. You're winded. | NOTES.md item 8; UX §4C example (It's circling. You're winded.). encounter.html had He's circling. |
 | `map.prey.good` | Prey word in the Map region drawer (Low / Fair / Good) | Good | NOTES.md item 9; UX §1.4; map.html |
 | `map.water.river` | Water word in the Map region drawer | River | NOTES.md item 9; map.html |
 | `creator.seasonSummary` | One-line season / style summary under the creator portrait, with Change | Standard Vale | NOTES.md item 10; traits.html |
@@ -144,7 +148,7 @@ For Ochre to drop into `/workspace/qa/ux-simplify-mockup/`. Shared opens-when li
 | `label.showPrides` | Map layer control, closed, with Prides on by default | Show: Prides | NOTES.md item 11; UX §4E |
 | `label.whatCatsAreSaying` | Map drawer for gossip | What cats are saying | NOTES.md item 11; map.html |
 | `label.todaysReport` | Drawer for the day report | Today's report | NOTES.md item 11 |
-| `dayWords.springNew` | Season-day in words in the top bar, at the start of spring | Spring, a new day | NOTES.md item 11, 'Spring, the first day' style day words |
+| `dayWords.springNew` | Season-day in words in the top bar, at the start of spring | {Season} · Day {n} | NOTES.md item 11, 'Spring, the first day' style day words |
 | `ui.traits.full` | Trait picker budget bar word when there is no room left, beside Room for more | Full | UX §4D, named with Room for more; not a [PH] key, included so the pair is complete |
 
 Shared keys already written in §B: `action.spar.opensWhen`, `action.court.opensWhen`, `place.*.opensWhen` for Pride, Den, Breeding, Inventory, Market, Quests, Reputation and Councils, `tip.place.unavailable`, `toast.newSection`.
@@ -163,23 +167,15 @@ These seven were part of the original 13 placeholders on the UI groups 1–5 bra
 | `ui.lore.learnedLine` | Fallback body for a Learned entry when the real fact line is not wired | Something you've learned. | c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1050 |
 | `ui.lore.rumour` | Fallback body for a Rumours entry when the real rumour line is not wired | A rumour you've heard. It may be false. | c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1051 |
 
+## Rulings applied
+
+Tundra UX v0.1.4 (e7b291f): the spec unlock triggers stand (Flint updates unlocks.js). Map is Wilderness and Deeds stay in Lore. Drink and Scout the border are removed, and the official action names are used. The mood word is Friendly. Greyed items stay selectable.
+
 ## Open questions
 
-1. **Tundra.** Map is a Places item in the c4daae4 and 3afe9da builds, but it is not in unlocks.js SYSTEMS and not on Ochre's 12-item rail (the Map mockup highlights Wilderness). §2 gives Map no unlock trigger, so I wrote no opens-when line. Please confirm Map is not a greyed rail section.
+UX v0.1.5 (66eaeb7) applied: the top bar label, Ask to join ("Opens once you've met this pride's leader. Stand on their land to ask."), the named threat, and "Locked" for locked actions.
 
-2. **Tundra.** Achievements (Deeds) is in §2 as 'it's in Lore', with no first-use tip, and it is not on Ochre's rail or in unlocks.js. I still wrote place.deeds.opensWhen. Confirm it stays inside Lore and that the New toast is enough.
-
-3. **Tundra and Flint.** I wrote every greyed-section line from §2, not from unlocks.js. At 3afe9da, Pride becomes eligible only on a scout/border-scent receipt, not also on patrol, joining or founding. Inventory and Market become eligible on first use of the section, not on 'first item gained' or 'first trade offer'.
-
-4. **Flint.** ui.meter.band is left blank on purpose. word-bar.js still fills {band}/{bands} with digits. The band words on this tip (Nearly yours, and the rest) should be the only caption. Please stop rendering this key as a numeric line.
-
-5. **Flint.** ui.council.agenda.truce is still hardcoded in councils.js (lines 82 and 89), not in uiHints. ui.council.leave is also hardcoded as a fallback at line 70. 3afe9da has no string keys yet for the opens-when lines, the New toast, or the rewritten tip, and SHOW_ALL is still true so the screens do not change.
-
-6. **Tundra.** Mood word Easy is the mockup stand-in. Bond word Friendly is already a Tundra band. UX §4B asks for a mood word, but I don't have an approved mood list.
-
-7. **Tundra.** Drink and Scout the border one-liners use Ochre's action labels. Please confirm those names. Day-in-words uses 'Spring, a new day' because 'the first day' has a number word; I need the pattern for later days.
-
-8. **Ochre and Tundra.** The mockup makes greyed rail items not clickable, but §1.6 and the rewritten tip say that selecting a greyed section shows what opens it (as den-locked already shows). The live tip will tell the player to select it.
+2. **Flint.** Leave `ui.meter.band` blank and use band words, not digits. Wire `ui.council.agenda.truce`. Add keys for the opens-when lines, the toast and the new tip.
 
 ## Self-check
 

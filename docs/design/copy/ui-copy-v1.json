@@ -357,52 +357,52 @@
   },
   "opensWhen": {
     "place.pride.opensWhen": {
-      "text": "Opens when you catch a border scent or patrol. It also opens after you join a pride or Found a pride.",
+      "text": "Opens when you catch a border scent, meet a patrol, join a pride or Found one.",
       "where": "Shown when a greyed Pride rail item is selected",
-      "source": "UX v0.1.3 §2, 7fea4cb:docs/design/ux-simplification-v0.1.md (Pride row)",
+      "source": "UX v0.1.4 §2, 7fea4cb:docs/design/ux-simplification-v0.1.md (Pride row)",
       "notes": "unlocks.js at 3afe9da only treats a scout/border-scent receipt as eligible, and does not yet check patrol, joining or founding."
     },
     "place.den.opensWhen": {
       "text": "Opens after you Found a pride.",
       "where": "Shown when a greyed Den rail item is selected",
-      "source": "UX v0.1.3 §2 (Den)"
+      "source": "UX v0.1.4 §2 (Den)"
     },
     "place.breeding.opensWhen": {
       "text": "Opens when you take a mate.",
       "where": "Shown when a greyed Breeding rail item is selected",
-      "source": "UX v0.1.3 §2 (Breeding); example line in §1.6"
+      "source": "UX v0.1.4 §2 (Breeding); example line in §1.6"
     },
     "place.inventory.opensWhen": {
       "text": "Opens when you gain an item.",
       "where": "Shown when a greyed Inventory rail item is selected",
-      "source": "UX v0.1.3 §2 (Inventory)",
+      "source": "UX v0.1.4 §2 (Inventory)",
       "notes": "unlocks.js currently flags this on first use of the section, not on gaining an item."
     },
     "place.market.opensWhen": {
       "text": "Opens when you get a trade offer.",
       "where": "Shown when a greyed Market rail item is selected",
-      "source": "UX v0.1.3 §2 (Market / trade); UI label is Market",
+      "source": "UX v0.1.4 §2 (Market / trade); UI label is Market",
       "notes": "unlocks.js currently flags this on first use of the section, not on a trade offer."
     },
     "place.quests.opensWhen": {
       "text": "Opens when you accept a request.",
       "where": "Shown when a greyed Quests rail item is selected",
-      "source": "UX v0.1.3 §2 (Quests)"
+      "source": "UX v0.1.4 §2 (Quests)"
     },
     "place.reputation.opensWhen": {
       "text": "Opens after you earn a deed.",
       "where": "Shown when a greyed Reputation rail item is selected",
-      "source": "UX v0.1.3 §2 (Reputation)"
+      "source": "UX v0.1.4 §2 (Reputation)"
     },
     "place.councils.opensWhen": {
       "text": "Opens when you're invited to a council, or after you lead a pride.",
       "where": "Shown when a greyed Councils rail item is selected",
-      "source": "UX v0.1.3 §2 (Councils)"
+      "source": "UX v0.1.4 §2 (Councils)"
     },
     "place.deeds.opensWhen": {
       "text": "Opens after you earn an achievement.",
       "where": "If Achievements (Deeds) is shown greyed. §2 says it lives in Lore, and the New toast teaches it.",
-      "source": "UX v0.1.3 §2 (Achievements (Deeds))",
+      "source": "UX v0.1.4 §2 (Achievements (Deeds))",
       "notes": "Not a Places rail item in Ochre's 12-section rail or in unlocks.js SYSTEMS. Confirm it stays inside Lore."
     },
     "action.court.opensWhen": {
@@ -421,13 +421,23 @@
       "where": "Greyed Spar row under More actions",
       "source": "Ochre mockup §3.2 locked list; trigger from approved tip.spar and presence.spar.locked",
       "notes": "§3 does not itself name Spar. The approved tip already says Spar opens when a cat knows you well enough. The live presence line is '{name} doesn't know you well enough to play-fight yet.'"
+    },
+    "action.askjoin.opensWhen": {
+      "text": "Opens once you've met this pride's leader. Stand on their land to ask.",
+      "where": "Focused locked Ask to join",
+      "source": "UX v0.1.5 (66eaeb7) item 2"
+    },
+    "action.locked.label": {
+      "text": "Locked",
+      "where": "After a locked action's name under More actions",
+      "source": "UX v0.1.5 item 4"
     }
   },
   "toast": {
     "toast.newSection": {
       "text": "New: {section}",
       "where": "Short toast when a Places section unlocks, with a dot on the rail until it is opened",
-      "source": "UX v0.1.3 §2, 'An unlock shows a short \"New: {section}\" toast'"
+      "source": "UX v0.1.4 §2, 'An unlock shows a short \"New: {section}\" toast'"
     }
   },
   "tips": {
@@ -437,7 +447,7 @@
       "trigger": "The first time a player selects a greyed Places section",
       "body": "Greyed sections open as the story moves on. Select a greyed section to see what opens it.",
       "where": "First-use tip when a greyed Places section is selected",
-      "source": "Rewrite of /workspace/saga-narrative-voice/tutorial/tips-copy-v2.json (tip.place.unavailable); UX v0.1.3 §2"
+      "source": "Rewrite of /workspace/saga-narrative-voice/tutorial/tips-copy-v2.json (tip.place.unavailable); UX v0.1.4 §2"
     },
     "guide.tip.place.unavailable": {
       "id": "guide.tip.place.unavailable",
@@ -445,7 +455,7 @@
       "title": "Greyed sections",
       "body": "When a Places section is greyed, it isn't open yet. It will open as the story moves on, and selecting it says what opens it.",
       "where": "Guide entry for tip.place.unavailable",
-      "source": "Rewrite of tips-copy-v2.json guide.tip.place.unavailable; UX v0.1.3 §2"
+      "source": "Rewrite of tips-copy-v2.json guide.tip.place.unavailable; UX v0.1.4 §2"
     }
   },
   "mockups": {
@@ -471,27 +481,13 @@
       "text": "See which cats pass this ground, and what they're doing.",
       "where": "Watch from a vantage one-liner in the action panel",
       "source": "NOTES.md item 1, adapted from tip.watch; den-actions.html uses the official action name Watch from a vantage",
-      "notesLabel": "Watch"
-    },
-    "action.drink.line": {
-      "text": "Find water here.",
-      "where": "Drink one-liner under More actions",
-      "source": "NOTES.md item 1; den-more-actions.html",
-      "notesLabel": "Drink",
-      "notes": "Uses Ochre's action label Drink. Confirm that is the official name."
+      "notesLabel": "Watch from a vantage"
     },
     "action.scent.line": {
       "text": "See who has been on this ground.",
-      "where": "Read scent sign one-liner under More actions",
-      "source": "NOTES.md item 1, adapted from tip.scent; den-more-actions.html",
-      "notesLabel": "Read scent sign"
-    },
-    "action.scout.line": {
-      "text": "Look over the next region.",
-      "where": "Scout the border one-liner under More actions",
-      "source": "NOTES.md item 1; den-more-actions.html",
-      "notesLabel": "Scout the border",
-      "notes": "Uses Ochre's action label Scout the border. Confirm that is the official name."
+      "where": "Scent sign one-liner",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Scent sign"
     },
     "action.cost.day": {
       "text": "Costs: the day",
@@ -511,13 +507,6 @@
       "source": "NOTES.md item 6; den-later.html. Place name taken from the built tutorial card, The Split Rock.",
       "notesLabel": "Den situation line"
     },
-    "dialogue.mood.easy": {
-      "text": "Easy",
-      "where": "Mood word under the portrait on dialogue / event, beside the Bond word",
-      "source": "NOTES.md item 7; dialogue.html, dialogue-choices.html",
-      "notesLabel": "Mood word: Easy",
-      "notes": "Bond word Friendly is Tundra's band. Mood bands are not named in the UX spec. Easy is the mockup stand-in until Tundra lists mood words."
-    },
     "encounter.health.hurt": {
       "text": "Hurt",
       "where": "Health word above the encounter bar (Fine / Hurt / Badly hurt)",
@@ -525,11 +514,11 @@
       "notesLabel": "Encounter health words: Hurt"
     },
     "encounter.state.circling": {
-      "text": "It's circling. You're winded.",
+      "text": "{foe} is circling. You're winded.",
       "where": "Example encounter state line above the telegraph",
       "source": "NOTES.md item 8; UX §4C example (It's circling. You're winded.). encounter.html had He's circling.",
       "notesLabel": "Encounter state line",
-      "notes": "Uses It's, matching the spec example, and avoiding a gendered pronoun for the foe."
+      "notes": "{foe} is the named cat, or 'The wolf' / 'The hyena' style for animals. Never It next to a named cat."
     },
     "map.prey.good": {
       "text": "Good",
@@ -634,17 +623,60 @@
       "notesLabel": "Today's report"
     },
     "dayWords.springNew": {
-      "text": "Spring, a new day",
+      "text": "{season} · Day {n}",
       "where": "Season-day in words in the top bar, at the start of spring",
       "source": "NOTES.md item 11, 'Spring, the first day' style day words",
       "notesLabel": "Spring, the first day style day words",
-      "notes": "Did not use 'the first day', because first is a number word. Confirm the pattern for later days once Tundra names it."
+      "notes": "UX v0.1.5 (66eaeb7): label, number allowed. Add ' · Mating season' while the window is open."
     },
     "ui.traits.full": {
       "text": "Full",
       "where": "Trait picker budget bar word when there is no room left, beside Room for more",
       "source": "UX §4D, named with Room for more; not a [PH] key, included so the pair is complete",
       "notesLabel": "Full"
+    },
+    "action.spar.line": {
+      "text": "Wrestle with a cat who knows you well.",
+      "where": "Spar one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Spar"
+    },
+    "action.court.line": {
+      "text": "Win over a Bonded cat.",
+      "where": "Court one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Court"
+    },
+    "action.found.line": {
+      "text": "Start your pride here.",
+      "where": "Found one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Found"
+    },
+    "action.askjoin.line": {
+      "text": "Ask this pride to take you in.",
+      "where": "Ask to join one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Ask to join"
+    },
+    "action.patrol.line": {
+      "text": "Walk your borders and watch for trouble.",
+      "where": "Patrol one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Patrol"
+    },
+    "action.mark.line": {
+      "text": "Leave your scent so others know this land is held.",
+      "where": "Mark one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Mark"
+    },
+    "dialogue.mood.friendly": {
+      "text": "Friendly",
+      "where": "Mood word under the portrait on dialogue / event, beside the Bond word",
+      "source": "NOTES.md item 7; dialogue.html, dialogue-choices.html",
+      "notesLabel": "Mood word: Friendly",
+      "notes": "Tundra v0.1.4: use Friendly, not Easy."
     }
   },
   "mockupAliases": {
@@ -661,40 +693,7 @@
     "tip.place.unavailable": "See tips.tip.place.unavailable (NOTES.md item 5). The mockup's short stand-in was 'Sections open as your story moves on.'",
     "toast.newSection": "See toast.toast.newSection. Text is New: {section}."
   },
-  "openQuestions": [
-    {
-      "for": "Tundra",
-      "q": "Map is a Places item in the c4daae4 and 3afe9da builds, but it is not in unlocks.js SYSTEMS and not on Ochre's 12-item rail (the Map mockup highlights Wilderness). §2 gives Map no unlock trigger, so I wrote no opens-when line. Please confirm Map is not a greyed rail section."
-    },
-    {
-      "for": "Tundra",
-      "q": "Achievements (Deeds) is in §2 as 'it's in Lore', with no first-use tip, and it is not on Ochre's rail or in unlocks.js. I still wrote place.deeds.opensWhen. Confirm it stays inside Lore and that the New toast is enough."
-    },
-    {
-      "for": "Tundra and Flint",
-      "q": "I wrote every greyed-section line from §2, not from unlocks.js. At 3afe9da, Pride becomes eligible only on a scout/border-scent receipt, not also on patrol, joining or founding. Inventory and Market become eligible on first use of the section, not on 'first item gained' or 'first trade offer'."
-    },
-    {
-      "for": "Flint",
-      "q": "ui.meter.band is left blank on purpose. word-bar.js still fills {band}/{bands} with digits. The band words on this tip (Nearly yours, and the rest) should be the only caption. Please stop rendering this key as a numeric line."
-    },
-    {
-      "for": "Flint",
-      "q": "ui.council.agenda.truce is still hardcoded in councils.js (lines 82 and 89), not in uiHints. ui.council.leave is also hardcoded as a fallback at line 70. 3afe9da has no string keys yet for the opens-when lines, the New toast, or the rewritten tip, and SHOW_ALL is still true so the screens do not change."
-    },
-    {
-      "for": "Tundra",
-      "q": "Mood word Easy is the mockup stand-in. Bond word Friendly is already a Tundra band. UX §4B asks for a mood word, but I don't have an approved mood list."
-    },
-    {
-      "for": "Tundra",
-      "q": "Drink and Scout the border one-liners use Ochre's action labels. Please confirm those names. Day-in-words uses 'Spring, a new day' because 'the first day' has a number word; I need the pattern for later days."
-    },
-    {
-      "for": "Ochre and Tundra",
-      "q": "The mockup makes greyed rail items not clickable, but §1.6 and the rewritten tip say that selecting a greyed section shows what opens it (as den-locked already shows). The live tip will tell the player to select it."
-    }
-  ],
+  "openQuestions": [],
   "selfCheck": {
     "passed": true,
     "placeholderCountUiHints": 57,
@@ -703,5 +702,6 @@
     "missingGreyedSections": [],
     "missingGreyedActions": [],
     "unavailableAvoidsWord": true
-  }
+  },
+  "rulingsApplied": "Tundra UX v0.1.4 (e7b291f): spec unlock triggers stand; Map is Wilderness and Deeds stay in Lore; Drink and Scout the border removed; official action names used; mood word Friendly; greyed items selectable. UX v0.1.5 (66eaeb7): top bar '{Season} · Day {n}', Ask to join after meeting the leader, threat named in state lines, locked actions show name plus Locked."
 }
