@@ -53,7 +53,10 @@
       if ((cat.perks || []).includes(id)) perks *= 1.1;
     }
     const standing = cat.mateChallenge ? (1 + 0.02 * (cat.standingM || 0)) : 1;
-    return 10 * saber * agg * stage * health * wound * perks * standing;
+    let stat = 10 * saber * agg * stage * health * wound * perks * standing;
+    const Traits = typeof require === 'function' ? require('./cat-traits') : (typeof self !== 'undefined' ? self.CatTraits : null);
+    if (Traits) stat *= Traits.strengthMult(cat);
+    return stat;
   }
   /**
    * rng() is U(0, 1). Order when the fight is rolled: suitor, rival, loser hit, loser tier if hit, winner hit, winner tier if hit.

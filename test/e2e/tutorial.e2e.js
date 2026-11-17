@@ -26,7 +26,7 @@ async function startRun(page, { tips }) {
   }
   await page.locator('[data-nav="begin"]').click();
   await page.waitForFunction(() => window.__menuDebug.state().state === 'creator');
-  await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter');
+  await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter');
   await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
 }
 

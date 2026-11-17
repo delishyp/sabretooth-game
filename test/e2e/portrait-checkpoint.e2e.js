@@ -176,6 +176,8 @@ const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, name) });
       await resize(1280, 720);
       await shot(page, 'checkpoint-creator-head-720.png');
       await page.locator('[data-cnav="next"]').click();
+      await page.locator('[data-cnav="next"]').click();
+      await page.locator('[data-cnav="next"]').click();
       await page.locator('[data-cnav="start"]').click();
       await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
       await page.waitForFunction((id) => document.getElementById('home-head').dataset.portraitId === id, chosen, { timeout: 8000 });

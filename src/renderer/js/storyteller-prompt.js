@@ -11,13 +11,18 @@
     if (withMotive) row.motive = Motives.motive(npc && npc.id);
     return row;
   }
-  function buildPrompt(mode, npc) {
+  function buildPrompt(mode, npc, player) {
     const told = mode === 'online' || mode === 'local';
-    return { mode, cast: [cast(npc, told)] };
+    const prompt = { mode, cast: [cast(npc, told)] };
+    if (told && player) {
+      prompt.appearanceText = player.appearanceText || '';
+      prompt.appearanceTags = (player.appearanceTags || []).slice();
+    }
+    return prompt;
   }
   return {
-    buildOnlinePrompt: (npc) => buildPrompt('online', npc),
-    buildLocalPrompt: (npc) => buildPrompt('local', npc),
-    buildOfflinePrompt: (npc) => buildPrompt('offline', npc)
+    buildOnlinePrompt: (npc, player) => buildPrompt('online', npc, player),
+    buildLocalPrompt: (npc, player) => buildPrompt('local', npc, player),
+    buildOfflinePrompt: (npc, player) => buildPrompt('offline', npc, player)
   };
 });

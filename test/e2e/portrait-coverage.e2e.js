@@ -120,6 +120,8 @@ fs.mkdirSync(SHOTS, { recursive: true });
   await page.evaluate(() => { const host = document.getElementById('coverage-host'); if (host) host.remove(); });
 
   await page.locator('[data-cnav="next"]').click();
+  await page.locator('[data-cnav="next"]').click();
+  await page.locator('[data-cnav="next"]').click();
   await page.locator('[data-cnav="start"]').click();
   await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
   await page.waitForFunction(() => document.getElementById('home-head'), null, { timeout: 8000 });

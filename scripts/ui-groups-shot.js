@@ -15,7 +15,7 @@ async function start(page) {
   await page.waitForFunction(() => window.__menuDebug.state().state === 'newGameSetup');
   await page.locator('[data-nav="begin"]').click();
   await page.waitForFunction(() => window.__menuDebug.state().state === 'creator');
-  for (const k of ['ArrowUp', 'Enter', 'ArrowUp', 'Enter']) await page.keyboard.press(k);
+  for (const k of ['ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter']) await page.keyboard.press(k);
   await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
 }
 

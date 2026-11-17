@@ -12,6 +12,7 @@
   else root.Slice = factory(root.Rng, root.WorldMap, root.Conversation, root.Personality, root.WorldMemory, root.Encounter, root.Pairing, root.Skills, root.Beats, root.LoneActions, root.Followups, root.Pass2, root.Motives, root.Directory, root.PrideHeader, root.PrideRules);
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives, Directory, PrideHeader, PrideRules) {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
+  const CatTraits = (typeof require === 'function' ? require('./cat-traits') : (typeof self !== 'undefined' ? self.CatTraits : null));
   const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
   function loadPass6() {
     if (typeof require === 'function') {
@@ -145,7 +146,7 @@
       const s = {
         saveVersion: R.saveVersion, dataVersion: W.dataVersion, eventsVersion: (events && events.contentVersion) || 0,
         runId, seed: seed >>> 0, year: st.year, season: st.season, day: 1, phase: 'day',
-        cat: { catId: mainCat.catId, name: mainCat.name, sex: mainCat.sex, lifeStage: mainCat.lifeStage, genes: mainCat.genes, scars: mainCat.scars || [], portraitId: keptPortraitId(mainCat.portraitId) },
+        cat: { catId: mainCat.catId, name: mainCat.name, sex: mainCat.sex, lifeStage: mainCat.lifeStage, genes: mainCat.genes, scars: mainCat.scars || [], portraitId: keptPortraitId(mainCat.portraitId), traits: mainCat.traits || [], bloodline: mainCat.bloodline || {}, appearanceText: mainCat.appearanceText || '', appearanceTags: mainCat.appearanceTags || [], birthPride: mainCat.birthPride || null },
         needs: { health: st.health, hunger: st.needs, thirst: st.needs, energy: st.needs },
         injuries: [], counters: { starving: 0, parched: 0 },
         region: st.region, travel: null, forced: null,
@@ -158,6 +159,10 @@
         pride: { food: 0 }
       };
       migratePlayerPortrait(s.cat);
+      if (CatTraits) {
+        CatTraits.migrateCat(s.cat);
+        CatTraits.seedBloodlines(s.npcs);
+      }
       Personality.applyNew(s, R);
       applyNpcPortraits(s);
       WM.initNew(s);
@@ -214,6 +219,11 @@
       if (same) { s.injuries = s.injuries.filter((i) => i !== same); tier = 'serious'; }
       if (tier === 'serious') s.injuries = s.injuries.filter((i) => i.tier !== 'serious');
       s.injuries.push({ tier, daysLeft: R.injuries[tier].days, source });
+      if (CatTraits && tier === 'serious' && s.cat) {
+        const place = opts && opts.place;
+        const event = place === 'leg' ? 'serious-leg' : place === 'face' ? (opts && opts.lostFight ? 'lost-fight-face' : 'serious-face') : (opts && opts.prideFight ? 'pride-fight-wound' : null);
+        if (event) s.cat.traits = CatTraits.playChange(s.cat, event);
+      }
       s.needs.health = clamp(s.needs.health - R.injuries[tier].health, 0, 100);
       rep.push({ k: 'injury', tier, source });
       if (opts && opts.nonlethal) { if (s.needs.health <= 0) s.needs.health = 1; }
@@ -1315,7 +1325,11 @@
       if ((s.saveVersion || 0) > R.saveVersion) throw new Error(`save version ${s.saveVersion} is newer than ${R.saveVersion}`);
       if ((s.map.dataVersion || 0) < W.dataVersion) { s.map = WorldMap.migrateMap(s.map, W); s.dataVersion = W.dataVersion; }
       if (!W.regions.some((r) => r.id === s.region)) s.region = R.start.region;
-      if (s.cat) migratePlayerPortrait(s.cat);
+      if (s.cat) {
+        migratePlayerPortrait(s.cat);
+        if (CatTraits) CatTraits.migrateCat(s.cat);
+      }
+      if (CatTraits && s.npcs) CatTraits.seedBloodlines(s.npcs);
       for (const n of Object.values(s.npcs || {})) {
         // A missing portraitId is not the same as a stored null. Only validate a field the save actually has.
         if (Object.prototype.hasOwnProperty.call(n, 'portraitId')) {

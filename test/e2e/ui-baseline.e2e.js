@@ -44,7 +44,7 @@ async function shot(page, name, w, h) {
     await page.waitForFunction(() => window.__menuDebug.state().state === 'newGameSetup');
     await press(page, 'ArrowUp', 'Enter');
     await page.waitForFunction(() => window.__menuDebug.state().state === 'creator');
-    await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter');
+    await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter');
     await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
     await idle(page);
     for (let i = 0; i < 30; i++) {

@@ -22,6 +22,8 @@ const root = path.join(__dirname, '..', '..');
   await page.locator('[data-nav="begin"]').click();
   await page.waitForFunction(() => window.__menuDebug.state().state === 'creator');
   await page.locator('[data-cnav="next"]').click();
+  await page.locator('[data-cnav="next"]').click();
+  await page.locator('[data-cnav="next"]').click();
   await page.locator('[data-cnav="start"]').click();
   await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
   await page.evaluate(() => {

@@ -97,7 +97,7 @@ async function step(page, shots) {
       await press(page, 'ArrowUp', 'Enter'); await waitState(page, 'creator');
       await page.waitForFunction(() => window.__menuDebug.creator().preview.rendered, null, { timeout: 5000 }).catch(() => {});
       await shot(page, '01-creator');
-      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
+      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
       assert.strictEqual((await st(page)).state, 'game');
       const { state: s } = await g(page);
       assert.deepStrictEqual([s.day, s.region, s.seed, s.needs], [1, 'split_rock', SEED, { health: 100, hunger: 80, thirst: 80, energy: 80 }]);
@@ -151,7 +151,7 @@ async function step(page, shots) {
       await press(page, 'Escape'); await waitState(page, 'root');
       await page.evaluate(() => document.querySelector('[data-action="newGame"]').click()); await waitState(page, 'newGameSetup');
       await page.mouse.move(2, 2); await press(page, 'ArrowUp', 'Enter'); await waitState(page, 'creator');
-      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
+      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
       // Director fix: singular day counts ("1 day", never "1 days") on the travel buttons and the injury chip
       await page.evaluate(() => window.__menuDebug.gamePatch({ injuries: [{ tier: 'minor', daysLeft: 1, source: 'e2e' }, { tier: 'serious', daysLeft: 2, source: 'e2e' }] }));
       assert.strictEqual(await page.locator('.chip-minor').textContent(), 'Minor injury · 1 day remaining');

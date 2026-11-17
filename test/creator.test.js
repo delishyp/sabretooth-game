@@ -27,7 +27,8 @@ test('mainCat: spec §5.2–5.4 shape, homozygous chosen loci, fixed defaults, p
     genes: { v: 1, loci: { coat: ['greydun', 'greydun'], dilute: ['D', 'D'], marking: ['faintstripe', 'faintstripe'], dorsal: ['ds', 'ds'],
       intensity: ['I+', 'I-'], white: ['none', 'none'], eyes: ['green', 'green'], saber: ['ivory', 'ivory'], het: ['Het', 'Het'] }, eyeRight: null, mutations: [],
       personality: { aggression: 75, sociability: 20, boldness: 80, loyalty: 35, curiosity: 55 } },
-    scars: [], portraitId: null
+    scars: [], portraitId: null,
+    traits: (s.founder.traits || []).slice(), bloodline: s.founder.bloodline, appearanceText: '', appearanceTags: [], birthPride: null
   });
   assert.doesNotThrow(() => validateMainCat(m, { difficulty: 'heir' }));
 });
@@ -92,7 +93,7 @@ test('option → allele mapping covers all 90 common looks (5 coats in every Sty
 });
 test('blank / whitespace name → random default name on Start (§4.2), never an error', () => {
   for (const nm of ['', '   ']) {
-    const { effect } = run(base({ name: nm, step: 2, focus: 'start' }), ['confirm']);
+    const { effect } = run(base({ name: nm, step: 4, focus: 'start' }), ['confirm']);
     assert.strictEqual(effect.type, 'start'); assert.ok(names.includes(effect.mainCat.name), effect.mainCat.name);
   }
 });
@@ -188,7 +189,7 @@ test('navigation: focus starts on Name; Up/Down wrap; button row enters on Next/
   const s2 = run({ ...s, focus: 'next' }, ['confirm']).state;
   assert.deepStrictEqual([s2.step, s2.focus], [2, 'preset']);
   const seq2 = []; st = s2; for (let i = 0; i < 7; i++) { st = run(st, ['down']).state; seq2.push(st.focus); }
-  assert.deepStrictEqual(seq2, ['trait:aggression', 'trait:sociability', 'trait:boldness', 'trait:loyalty', 'trait:curiosity', 'start', 'preset']);
+  assert.deepStrictEqual(seq2, ['trait:aggression', 'trait:sociability', 'trait:boldness', 'trait:loyalty', 'trait:curiosity', 'next', 'preset']);
 });
 test('Name: gamepad A rerolls from names.json (same as the dice); keyboard Enter moves on; sex change keeps the look', () => {
   const nameData = require('../src/renderer/data/names/names.json');
@@ -215,7 +216,8 @@ test('Back: step 2 → step 1 keeps look and personality (check 10); step 1 → 
   assert.deepStrictEqual(run({ ...s, focus: 'back' }, ['confirm']).effect, { type: 'leave' });
   assert.strictEqual(run({ ...p, focus: 'back' }, ['confirm']).state.step, 1);
   assert.strictEqual(run(s, ['start']).state.step, 2);
-  const st = run({ ...p, focus: 'preset' }, ['start']).effect;
+  assert.strictEqual(run({ ...p, focus: 'preset' }, ['start']).state.step, 3);
+  const st = run({ ...p, step: 4, focus: 'start' }, ['confirm']).effect;
   assert.strictEqual(st.type, 'start'); assert.deepStrictEqual(st.mainCat.genes.personality, p.traits);   // check 11
 });
 test('mouse: click cycles a value, arrows change rows, hover moves focus only', () => {
@@ -271,7 +273,7 @@ test('§3c: rare looks never survive outside Sandbox + Free Customization (resto
     assert.ok(C.COATS.includes(c.coat)); assert.deepStrictEqual([c.oddEyes, c.eyeRight], ['off', null]); assert.ok(C.ROWS(c).includes(c.focus) || c.focus === 'name');
     const r = run(s, ['down']).state;
     assert.ok(C.COATS.includes(r.coat)); assert.strictEqual(r.oddEyes, 'off');
-    const m = run({ ...s, step: 2, focus: 'start' }, ['confirm']).effect.mainCat;
+    const m = run({ ...s, step: 4, focus: 'start' }, ['confirm']).effect.mainCat;
     assert.ok(C.COATS.some((k) => JSON.stringify(C.COAT_GENES[k]) === JSON.stringify(m.genes.loci.coat)));
     assert.deepStrictEqual([m.genes.loci.het, m.genes.eyeRight], [['Het', 'Het'], null]);
     assert.doesNotThrow(() => validateMainCat(m, { difficulty: d, sandboxOptions: o }));

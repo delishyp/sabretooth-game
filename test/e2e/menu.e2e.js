@@ -103,7 +103,7 @@ async function fitButtonsAtDeviceScaleOnce(dsf) {
 const st = (page) => page.evaluate(() => window.__menuDebug.state());
 /** Wait (up to 3s) until the menu reaches `state`; avoids timing flakes from async IPC. */
 /** Creator with defaults: Up (button row, Next) Enter → step 2, Up (Start) Enter. */
-async function throughCreator(page) { for (const k of ['ArrowUp', 'Enter', 'ArrowUp', 'Enter']) await page.keyboard.press(k); }
+async function throughCreator(page) { for (let i = 0; i < 4; i++) { await page.keyboard.press('ArrowUp'); await page.keyboard.press('Enter'); } }
 const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebug.state().state === s, state, { timeout: 3000 }).catch(() => {});
 
 (async () => {
@@ -379,8 +379,8 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await press(page, 'Escape'); m = await model(page);                               // check 10
         assert.deepStrictEqual([m.step, m.focus, m.coat, m.markings, m.eyes, m.name], [1, 'next', lookBefore.coat, lookBefore.markings, lookBefore.eyes, 'Ash  Tail']);
         await press(page, 'Enter'); m = await model(page); assert.deepStrictEqual([m.step, m.traits], [2, traits]);
-        await press(page, 'ArrowUp'); assert.strictEqual((await model(page)).focus, 'start');
-        await press(page, 'Enter'); await waitState(page, 'game');
+        await press(page, 'ArrowUp'); assert.strictEqual((await model(page)).focus, 'next');
+        await press(page, 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
         const run = runJson(ud, 0);                                                       // checks 6 + 11
         assert.strictEqual(run.catName, 'Ash Tail');
         const pc = run.playerCat;
@@ -402,7 +402,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await toCreator(page);
         await page.keyboard.press('Control+A'); await page.keyboard.press('Backspace'); await page.keyboard.type('   ');
         assert.match(await page.locator('[data-row="name"] .crow-help').textContent(), /Leave it blank/);
-        await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
+        await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
         assert.ok(names.includes(runJson(ud, 1).catName), runJson(ud, 1).catName);
       });
       await check('creator §7.5 + §1.2: Back from step 1 keeps setup choices and the run picked for replacement still exists', async () => {
@@ -480,6 +480,8 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await page.locator('[data-row="trait:boldness"] .arrow[data-arrow="1"]').click(); assert.strictEqual((await model(page)).traits.boldness, 55);
         await page.locator('#creator-actions [data-cnav="back"]').click(); assert.strictEqual((await model(page)).step, 1);
         await page.locator('[data-cnav="next"]').click(); m = await model(page); assert.strictEqual(m.traits.boldness, 55);
+        await page.locator('[data-cnav="next"]').click();
+        await page.locator('[data-cnav="next"]').click();
         await page.locator('[data-cnav="start"]').click(); await waitState(page, 'game');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));
         assert.strictEqual(run.catName, 'Mouse Cat'); assert.deepStrictEqual(run.playerCat.genes.personality, m.traits);
@@ -513,7 +515,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await tap(DOWN); await tap(LEFT); m = await model(page); assert.deepStrictEqual([m.traits.aggression, m.preset], [70, 'custom']);
         await tap(B); assert.strictEqual((await model(page)).step, 1);
         await tap(START); assert.strictEqual((await model(page)).traits.aggression, 70);
-        await tap(START); await waitState(page, 'game');
+        await tap(START); await tap(START); await tap(START); await waitState(page, 'game');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-1', 'run.json'), 'utf8'));
         assert.deepStrictEqual([run.catName, run.playerCat.genes.personality.aggression], [n2, 70]);
       });
@@ -627,6 +629,8 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         m = await model(page); assert.deepStrictEqual([m.coat, m.eyes, m.oddEyes, m.eyeRight], ['ash', 'amber', 'on', 'green']);
         assert.strictEqual(await page.locator('[data-row="coat"]').count(), 0);
         assert.strictEqual(await page.locator('[data-row="portrait"]').count(), 1);
+        await page.evaluate(() => document.querySelector('[data-cnav="next"]').click());
+        await page.evaluate(() => document.querySelector('[data-cnav="next"]').click());
         await page.evaluate(() => document.querySelector('[data-cnav="next"]').click());
         await page.evaluate(() => document.querySelector('[data-cnav="start"]').click()); await waitState(page, 'game');
         const run = JSON.parse(fs.readFileSync(path.join(ud, 'saves', 'run-0', 'run.json'), 'utf8'));

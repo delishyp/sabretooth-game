@@ -250,6 +250,20 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .gift-hint, .trade-breaks { color: #e7d3b4; }
 .encounter-moves { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 .encounter-moves button { flex: 1 1 30%; min-height: 44px; font-size: 16px; }
+.trait-picker, .appearance-step { width: 100%; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.trait-tally { display: flex; gap: 12px; align-items: center; }
+.trait-pips { display: flex; gap: 4px; }
+.trait-pips i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #c6a15a; background: transparent; }
+.trait-pips.is-plus i.is-on { background: #c6a15a; }
+.trait-pips.is-minus i.is-on { background: #a85a3a; }
+.trait-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.trait-tab, .trait-chip, .appearance-chip { min-height: 36px; font-size: 16px; background: #24180f; color: #f6efe2; border: 1px solid #5a3422; border-radius: 8px; }
+.trait-tab.is-on, .trait-chip.is-on { border-color: #e6c98a; }
+.trait-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 280px; overflow: auto; }
+.trait-chip { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 6px 8px; }
+.trait-hint, .trait-balance, .trait-legend, .trait-detail, .appearance-note, .appearance-room, .appearance-gentle, .trait-lock { margin: 0; color: #e7d3b4; font-size: 16px; }
+.appearance-text { width: 100%; min-height: 72px; font-size: 16px; color: #f6efe2; background: #140e0b; border: 1px solid #c6a15a; border-radius: 8px; }
+.appearance-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .encounter-tell, .encounter-word { margin: 0; color: #e7d3b4; font-size: 16px; }
 .word-bar-word.encounter-word { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
 .encounter-direction { color: #f3d9a0; }

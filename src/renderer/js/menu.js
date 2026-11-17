@@ -365,11 +365,80 @@
     return row;
   }
   /** Builds the right panel when its row list changes (step, or the §3c odd-eyes split), so the Name field otherwise keeps its caret. */
-  const panelKey = (c) => `${c.step}:${Creator.ROWS(c).join(',')}`;
+  const traitHint = (id) => (window.WordBar && window.WordBar.label ? window.WordBar.label(id) : id);
+  const panelKey = (c) => {
+    if (c.step === 3) return `3:${c.tab}:${(c.picks || []).join(',')}`;
+    if (c.step === 4) return `4:${(c.appearanceTags || []).join(',')}:${(c.droppedTags || []).join(',')}:${(c.picks || []).join(',')}`;
+    return `${c.step}:${Creator.ROWS(c).join(',')}`;
+  };
+  function traitPanel() {
+    const api = window.CatTraits;
+    const wrap = el('div', 'trait-picker');
+    const tally = api.tally(creator.picks || []);
+    const pips = el('div', 'trait-tally');
+    const strengths = el('span', 'trait-pips is-plus');
+    const flaws = el('span', 'trait-pips is-minus');
+    for (let i = 0; i < 3; i++) strengths.append(el('i', i < tally.pos ? 'is-on' : ''));
+    for (let i = 0; i < 3; i++) flaws.append(el('i', i < tally.neg ? 'is-on' : ''));
+    const balance = tally.spend === 0 && tally.give === 0 ? '' : tally.spend < tally.give ? traitHint('ui.traits.balance.left') : tally.spend === tally.give ? traitHint('ui.traits.balance.even') : traitHint('ui.traits.balance.short');
+    pips.append(strengths, flaws, el('p', 'trait-balance', balance));
+    wrap.append(pips);
+    const tabs = el('div', 'trait-tabs');
+    for (const group of api.GROUPS) {
+      const count = api.ROWS.filter((item) => item.group === group.id).length;
+      const labels = { body: 'Body', mind: 'Mind and temperament', social: 'Social', lineage: 'Lineage and scars' };
+      const b = el('button', 'trait-tab' + (creator.tab === group.id ? ' is-on' : ''), labels[group.id] + ' ' + count);
+      b.type = 'button'; b.dataset.tab = group.id;
+      b.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('setTab', group.id); });
+      tabs.append(b);
+    }
+    wrap.append(tabs, el('p', 'trait-legend', traitHint('ui.traits.lookTag')));
+    const grid = el('div', 'trait-grid');
+    const detail = el('p', 'trait-detail', '');
+    for (const item of api.ROWS.filter((row) => row.group === creator.tab)) {
+      const spec = api.copy.traits[item.id] || {};
+      const on = (creator.picks || []).includes(item.id);
+      const chip = el('button', 'trait-chip' + (on ? ' is-on' : '') + (item.playOnly ? ' is-play' : '') + (item.effect.tag ? ' has-tag' : ''));
+      chip.type = 'button'; chip.dataset.pick = item.id;
+      chip.append(el('span', 'trait-name', spec.name || item.id), el('span', 'trait-hint', spec.hint || ''));
+      chip.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('togglePick', item.id); });
+      grid.append(chip);
+    }
+    const focused = (creator.picks || [])[0];
+    const shown = api.copy.traits[focused] || api.copy.traits[(creator.focus || '').replace('pick:', '')] || {};
+    detail.textContent = shown.flavour ? shown.name + '. ' + shown.flavour : '';
+    wrap.append(grid, detail);
+    if (creator.pickReason === 'fight') wrap.append(el('p', 'trait-lock', traitHint('ui.traits.fightLock')));
+    return wrap;
+  }
+  function appearancePanel() {
+    const api = window.CatTraits;
+    const genes = Creator.genesFor(creator);
+    const look = api.appearanceOf(creator.appearanceText || '', genes, creator.picks || [], creator.droppedTags || []);
+    const wrap = el('div', 'appearance-step');
+    const box = el('textarea', 'appearance-text');
+    box.maxLength = api.APPEARANCE_MAX;
+    box.value = creator.appearanceText || '';
+    box.addEventListener('input', () => creatorDispatch('setAppearance', box.value));
+    const chips = el('div', 'appearance-chips');
+    for (const tag of look.tags) {
+      const spec = api.copy.appearance.tags[tag] || {};
+      const chip = el('button', 'appearance-chip', traitHint('ui.traits.tag.' + tag));
+      chip.type = 'button';
+      chip.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('dropTag', tag); });
+      chips.append(chip);
+    }
+    wrap.append(box, chips, el('p', 'appearance-note', traitHint('ui.traits.portraitWins')), el('p', 'appearance-room', traitHint('ui.traits.room')));
+    if (look.colourNote) wrap.append(el('p', 'appearance-gentle', traitHint(look.colourNote)));
+    if (look.geneNote) wrap.append(el('p', 'appearance-gentle', traitHint(look.geneNote)));
+    return wrap;
+  }
   function buildCreatorPanel() {
     const panel = $('#creator-panel');
     if (creator.step === 1) panel.replaceChildren(nameRow(), ...Creator.ROWS(creator).slice(1).map(optionRow));
-    else panel.replaceChildren(optionRow('preset'), ...Creator.TRAITS.map(sliderRow));
+    else if (creator.step === 2) panel.replaceChildren(optionRow('preset'), ...Creator.TRAITS.map(sliderRow));
+    else if (creator.step === 3) panel.replaceChildren(traitPanel());
+    else panel.replaceChildren(appearancePanel());
     panel.dataset.step = String(creator.step); panel.dataset.rows = panelKey(creator);
     if (creator.step === 1) $('#creator-name').value = creator.name;
   }
@@ -383,7 +452,8 @@
   function applyCreator() {
     const c = creator; const sc = $(CSCREEN);
     if (sc.querySelector('#creator-panel').dataset.rows !== panelKey(c)) buildCreatorPanel();
-    $('#creator-step').textContent = t('creator.step.indicator', { n: c.step, total: 2, stepName: t(c.step === 1 ? 'creator.step.look' : 'creator.step.personality') });
+    const stepName = c.step === 1 ? t('creator.step.look') : c.step === 2 ? t('creator.step.personality') : c.step === 3 ? 'Traits' : 'Appearance';
+    $('#creator-step').textContent = t('creator.step.indicator', { n: c.step, total: 4, stepName });
     for (const row of $$('#creator-panel .crow')) {
       const id = row.dataset.row; const help = row.querySelector('.crow-help');
       row.classList.toggle('focused', c.focus === id);
@@ -415,8 +485,24 @@
         help.textContent = helpText(id);
       }
     }
-    $('#creator-actions [data-cnav="next"]').hidden = c.step !== 1;
-    $('#creator-actions [data-cnav="start"]').hidden = c.step !== 2;
+    if (c.step === 4 && window.CatTraits) {
+      const look = window.CatTraits.appearanceOf(c.appearanceText || '', Creator.genesFor(c), c.picks || [], c.droppedTags || []);
+      const chips = document.querySelector('.appearance-chips');
+      if (chips && chips.dataset.tags !== look.tags.join(',')) {
+        chips.dataset.tags = look.tags.join(',');
+        chips.replaceChildren(...look.tags.map((tag) => {
+          const chip = el('button', 'appearance-chip', traitHint('ui.traits.tag.' + tag));
+          chip.type = 'button';
+          chip.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('dropTag', tag); });
+          return chip;
+        }));
+      }
+      const gentle = document.querySelector('.appearance-gentle');
+      if (gentle) gentle.textContent = look.colourNote ? traitHint(look.colourNote) : look.geneNote ? traitHint(look.geneNote) : '';
+    }
+    $('#creator-actions [data-cnav="next"]').hidden = c.step === 4;
+    $('#creator-actions [data-cnav="start"]').hidden = c.step !== 4;
+    $('#creator-actions [data-cnav="randomize"]').hidden = c.step > 2;
     $$('#creator-actions button').forEach((b) => b.classList.toggle('focused', b.dataset.cnav === c.focus));
     $('#creator-rand-help').textContent = t(c.step === 1 ? 'creator.help.randomize' : 'creator.help.randomizePersonality');
     const hintKey = { keyboard: 'creator.hint.keyboard', controller: 'creator.hint.gamepad', mouse: c.step === 2 ? 'creator.hint.mousePersonality' : 'creator.hint.mouse' }[device()] || 'creator.hint.keyboard';
@@ -540,7 +626,10 @@
     creator = next;
     if (effect && effect.type === 'leave') { show('newGameSetup'); return; }   // §1.3: back to setup, its choices kept; no confirmation
     applyCreator(); renderPreview();
-    if (effect && effect.type === 'start') { starting = true; startNewGame({ ...pendingSetup, mainCat: effect.mainCat }).finally(() => { starting = false; }); }
+    if (effect && effect.type === 'start') {
+      const panel = $('#creator-panel'); if (panel) panel.textContent = '';
+      starting = true; startNewGame({ ...pendingSetup, mainCat: effect.mainCat }).finally(() => { starting = false; });
+    }
   }
   // Mouse: arrows change a row, a value click cycles it, the track sets a slider, buttons act; hover moves focus only.
   $(CSCREEN).addEventListener('click', (ev) => {

@@ -37,6 +37,8 @@ fs.mkdirSync(SHOTS, { recursive: true });
   await page.locator('[data-action="newGame"]').click();
   await page.locator('[data-nav="begin"]').click();
   await page.locator('[data-cnav="next"]').click();
+  await page.locator('[data-cnav="next"]').click();
+  await page.locator('[data-cnav="next"]').click();
   await page.locator('[data-cnav="start"]').click();
   await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
 
