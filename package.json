@@ -1,7 +1,7 @@
 {
   "name": "sabretooth",
   "productName": "Sabretooth",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Sabretooth (working title): single-player Ice Age Smilodon pride game. Main menu only.",
   "main": "src/main/main.js",
   "scripts": {
@@ -62,8 +62,10 @@
     "nsis": {
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
     },
     "publish": [
       {

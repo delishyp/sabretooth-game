@@ -1,0 +1,74 @@
+name: Upgrade check
+on:
+  workflow_dispatch:
+  push:
+    branches: [cursor/recurring-conversation-proof-ddae]
+    paths:
+      - package.json
+      - package-lock.json
+      - src/main/updater.js
+      - scripts/upgrade-check.ps1
+      - .github/workflows/upgrade-check.yml
+jobs:
+  upgrade:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Download the published 0.1.8 installer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download v0.1.8 --repo delishyp/sabretooth-game --pattern Sabretooth-Setup-0.1.8.exe --dir "$env:RUNNER_TEMP"
+      - name: Install 0.1.8 per-user the way Anna has it
+        shell: pwsh
+        run: |
+          ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe" -OutDir upgrade-evidence
+          ./scripts/upgrade-check.ps1 -Step seed -OutDir upgrade-evidence
+      - name: Build the 0.1.9 installer
+        run: |
+          npm ci
+          npx electron-builder --win nsis
+      - name: Transitional update (0.1.8 updater args, no /S)
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem dist -Filter '*.exe' | Select-Object -First 1
+          ./scripts/upgrade-check.ps1 -Step run -Installer $exe.FullName -ArgsLine '--updated --force-run' -Label transitional -OutDir upgrade-evidence
+      - name: Reinstall 0.1.8 and run the silent update
+        shell: pwsh
+        run: |
+          Get-Process Sabretooth -ErrorAction SilentlyContinue | Stop-Process -Force
+          ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe" -OutDir upgrade-evidence
+          $exe = Get-ChildItem dist -Filter '*.exe' | Select-Object -First 1
+          ./scripts/upgrade-check.ps1 -Step run -Installer $exe.FullName -ArgsLine '--updated /S --force-run' -Label silent -OutDir upgrade-evidence
+      - name: Assert silent upgrade
+        shell: pwsh
+        run: |
+          $before = Get-Content upgrade-evidence/save-sha256-before.txt
+          $after = Get-Content upgrade-evidence/silent-save-sha256.txt
+          $log = Get-Content upgrade-evidence/silent.log
+          $ver = Get-Content upgrade-evidence/silent-product-version.txt
+          $folders = @(Get-Content upgrade-evidence/silent-folders.txt | Where-Object { $_ })
+          $keys = @(Get-Content upgrade-evidence/silent-uninstall.txt | Where-Object { $_ })
+          $procs = @(Get-Content upgrade-evidence/silent-procs.txt | Where-Object { $_ })
+          $trans = Get-Content upgrade-evidence/transitional.log
+          $lines = @()
+          function Add([string]$name, [bool]$ok, [string]$detail) { $script:lines += "$name $(if ($ok) {'PASS'} else {'FAIL'}) $detail" }
+          Add 'no-wizard' ($log -contains 'NO_WIZARD_PAGE') ($log -join ';')
+          Add 'one-uninstall' ($keys.Count -eq 1) ("count=$($keys.Count)")
+          Add 'one-folder' ($folders.Count -eq 1) ("count=$($folders.Count) $($folders -join ',')")
+          Add 'version-0.1.9' ($ver -like '0.1.9*') $ver
+          Add 'relaunched' ($procs.Count -ge 1) ("pids=$($procs -join ',')")
+          Add 'save-unchanged' ($before -eq $after) "before=$before after=$after"
+          $lines += "transitional $($trans -join ';')"
+          $lines | Set-Content upgrade-evidence/summary.txt
+          Get-Content upgrade-evidence/summary.txt
+          if ($lines -match ' FAIL ') { exit 1 }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: upgrade-evidence
+          path: upgrade-evidence
+          if-no-files-found: warn
