@@ -1,0 +1,183 @@
+{
+ "_readme": "Copy for Ochre's Requests and talk gift/trade stills in /workspace/qa/ui-declutter-mockup/ (requests.html, requests-empty.html, talk-gift-trade.html). Replaces every PLACEHOLDER. 'strings' are tokenised for Flint; 'stills' are the same strings filled for the seed-8 stand-in names Ochre used.",
+ "strings": {
+  "requests.tab": "[PH] Requests",
+  "requests.logSource": "",
+  "requests.filter.open": "Open",
+  "requests.filter.kept": "Kept",
+  "requests.filter.failed": "Failed",
+  "requests.filter.all": "All",
+  "requests.chip.promised": "Promised",
+  "requests.chip.kept": "Kept",
+  "requests.chip.failed": "Failed",
+  "requests.ask.bring_prey": "Bring {askerName} a {preySize} kill.",
+  "requests.ask.scout_region": "Spend a day at {regionName}, then come back.",
+  "requests.ask.drive_off": "Drive off the hyena at {regionName}.",
+  "requests.ask.carry_word": "Take word to {targetName}, and tell no other pride before that.",
+  "requests.ask.find_cub": "Find {cubName} at {regionName} and bring the cub home.",
+  "requests.meta.due": "Due by the end of the season",
+  "requests.meta.kept": "You kept your word",
+  "requests.meta.failed.deadline": "The season ended before you did this",
+  "requests.meta.failed.fled": "You fled from it",
+  "requests.meta.failed.third_pride": "Another pride heard it before {targetName} did",
+  "requests.meta.failed.cub_lost": "You didn't find {cubName} in time",
+  "requests.line.kicker": "Quest line",
+  "requests.line.progressAria": "Quest line progress",
+  "requests.line.done": "Done: {prevAsk}",
+  "requests.line.branch.ql_bf06_somebody_listening.credit": "You told {leaderName} it was {questgiverName}'s find.",
+  "requests.line.branch.ql_bf06_somebody_listening.own_name": "You told {leaderName} you found it yourself.",
+  "requests.line.branch.ql_mw03_the_forks.keep_secret": "You kept {questgiverName}'s secret.",
+  "requests.line.branch.ql_mw03_the_forks.tell_leg": "You told {leaderName} about {questgiverName}'s leg.",
+  "requests.empty.open": "Nobody has asked you for anything yet.",
+  "requests.empty.hint": "Cats who like you, and leaders of prides that aren't hostile to you, may ask for your help. Saying yes is a promise. Saying no costs you nothing.",
+  "requests.empty.done": "Nothing kept or failed yet.",
+  "gift.intro": "Prey from the pride store, or the find you're carrying.",
+  "gift.store": "The store: {storeWord}",
+  "gift.prey.small": "Small prey",
+  "gift.prey.medium": "Medium prey",
+  "gift.prey.large": "Large prey",
+  "gift.find.label": "Carried find",
+  "gift.find.herb": "A herb",
+  "gift.find.bone": "A bone",
+  "gift.find.trophy": "A trophy",
+  "gift.find.none": "Nothing carried",
+  "gift.give": "Give this",
+  "gift.hint.aggression": "{catName} would like a trophy or a large kill. A herb might come across as an insult.",
+  "gift.hint.sociability": "{catName} would like prey shared where other cats can see. A trophy brought to the den would go down badly.",
+  "gift.hint.curiosity": "{catName} likes odd finds, like a bone or a herb, but not something you've brought before.",
+  "gift.hint.none": "{catName} would be glad of prey or a herb.",
+  "gift.reaction.liked": "Pleased",
+  "gift.reaction.neutral": "Unmoved",
+  "gift.reaction.disliked": "Offended",
+  "trade.intro": "Trades are agreements with a pride, struck at a council or by talking to a leader. Keeping a trade helps the standing between prides, and breaking it hurts. What you give leaves your pride's store. A trade never adds food.",
+  "trade.food_for_passage.title": "Food for safe passage",
+  "trade.food_for_passage.body": "You take a kill to their den. Your pride may cross their ground until the season ends.",
+  "trade.food_for_passage.breaks": "This breaks if you mark, hunt or fight there.",
+  "trade.food_for_hunting.title": "A large kill for hunting rights",
+  "trade.food_for_hunting.body": "You give a large kill now. Your pride may hunt {regionName}, on their ground, until the season ends.",
+  "trade.food_for_hunting.breaks": "This breaks if you hunt anywhere else of theirs.",
+  "trade.help_for_help.title": "A favour for a favour",
+  "trade.help_for_help.body": "You do a request for them. In return they scout a region for you, or drive off a hyena.",
+  "trade.help_for_help.breaks": "This breaks if either side fails its part."
+ },
+ "stills": {
+  "requests.html": {
+   "open": [
+    {
+     "asker": "Sleetbark",
+     "slot": "hc07",
+     "ask": "Spend a day at Greywater Ford, then come back.",
+     "meta": "Greywater Ford · Due by the end of the season",
+     "chip": "Promised"
+    },
+    {
+     "asker": "Sunstep",
+     "slot": "(stand-in)",
+     "ask": "Find the lost cub at Reedbank and bring the cub home.",
+     "meta": "Reedbank · Due by the end of the season",
+     "chip": "Promised"
+    },
+    {
+     "asker": "Rimerain",
+     "slot": "bf06 (seed 8), line ql_bf06_somebody_listening",
+     "portrait": "portraits/neutral-head.png until a bf06 head exists",
+     "kicker": "Quest line",
+     "pips": {
+      "done": 2,
+      "total": 3
+     },
+     "ask": "Bring Rimerain a small kill.",
+     "meta": "Wherever Rimerain finds you · Due by the end of the season",
+     "how": [
+      "Done: Spend a day at The Herd Trail, then come back.",
+      "Done: Take word to Galestride, and tell no other pride before that."
+     ],
+     "branch": "You told Galestride it was Rimerain's find.",
+     "chip": "Promised"
+    }
+   ],
+   "doneAndFailed": [
+    {
+     "asker": "Duskrunner",
+     "slot": "ln05",
+     "ask": "Bring Duskrunner a small kill.",
+     "meta": "The Split Rock · You kept your word",
+     "chip": "Kept"
+    },
+    {
+     "asker": "Summercloud",
+     "slot": "mw04",
+     "ask": "Spend a day at Reedbank, then come back.",
+     "meta": "Reedbank · The season ended before you did this",
+     "chip": "Failed"
+    }
+   ]
+  },
+  "requests-empty.html": {
+   "open": "Nobody has asked you for anything yet.",
+   "hint": "Cats who like you, and leaders of prides that aren't hostile to you, may ask for your help. Saying yes is a promise. Saying no costs you nothing.",
+   "done": "Nothing kept or failed yet."
+  },
+  "talk-gift-trade.html": {
+   "log": [
+    {
+     "speaker": "narrator",
+     "parts": [
+      {
+       "beat": "You find Galestride at the Split Rock, lying on the warm side of the stone."
+      }
+     ]
+    },
+    {
+     "speaker": "bf01",
+     "parts": [
+      {
+       "beat": "He lifts his head as your scent reaches him."
+      },
+      {
+       "say": "There you are. I wondered if you'd come by today."
+      }
+     ]
+    },
+    {
+     "speaker": "narrator",
+     "parts": [
+      {
+       "beat": "You sit down on the warm stone beside him."
+      }
+     ]
+    },
+    {
+     "speaker": "bf01",
+     "parts": [
+      {
+       "say": "So what is it? You've either brought me something or you want something. Which?"
+      }
+     ]
+    }
+   ],
+   "choices": [
+    "“I've brought you something.”",
+    "“I'd like to make a deal with your pride.”",
+    "“Nothing. I was just passing.”"
+   ],
+   "choiceKeys": [
+    "talk.gift.open",
+    "talk.trade.open",
+    "talk.leave"
+   ],
+   "giftHint": "Galestride would like prey shared where other cats can see. A trophy brought to the den would go down badly.",
+   "huntingRightsBody": "You give a large kill now. Your pride may hunt Horse Meadows, on their ground, until the season ends.",
+   "storeWord": "Enough for now"
+  }
+ },
+ "notesForOchre": [
+  "'Step two of three' is gone: prose has no number words, so the line card shows pips (Director's deed-progress ruling) with the word kicker 'Quest line'.",
+  "The drive_off card said The Tar Seeps. The only hyena encounter in the build is at Twin Forks (encounter.cave_hyena.v1), so a drive_off should name Twin Forks.",
+  "Summercloud (mw04) is Mistwood, so her failed scout now names Reedbank instead of Greywater Ford.",
+  "The quest-line card is my Bonefield join line at its last step, so the asker is Rimerain (bf06 in seed 8) and the leader is Galestride (bf01 in seed 8). There's no bf06 head in portraits/, so neutral-head.png stands in. Galestride is Bonefield's leader in seed 8, so the Highcrag name tint on the talk still looks wrong.",
+  "The top-bar date 'Summer, the ninth day' uses an ordinal. Please use whatever the shipped date string is, or 'Midsummer' for the still.",
+  "The talk log is now four lines with no repeated arrival. The player's line moved into the choices, which answer his question.",
+  "Trade copy no longer has an em dash or the number word in 'one named region'."
+ ]
+}

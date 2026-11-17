@@ -240,6 +240,14 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .lore-section { display: flex; flex-direction: column; gap: 6px; }
 .lore-section h4 { margin: 8px 0 0; font-size: clamp(16px, 2cqh, 20px); color: #f6efe2; }
 .lore-section p { margin: 0; font-size: clamp(15px, 1.8cqh, 18px); line-height: 1.4; color: #e7d3b4; }
+.request-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.request-filter { min-height: 36px; padding: 4px 10px; font-size: 16px; }
+.request-card { margin-top: 8px; padding: 8px 10px; border: 1px solid rgba(212, 176, 122, .55); border-radius: 8px; background: rgba(20, 13, 9, .72); }
+.request-chip { color: #f8cc6e; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+.gift-panel, .trade-panel { width: 100%; box-sizing: border-box; margin-top: 8px; padding: 10px 12px; background: #1c140e; border: 1px solid rgba(230, 201, 138, .7); border-radius: 8px; }
+.trade-row { margin-top: 8px; }
+.trade-row h3 { margin: 0 0 4px; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; color: #d4b07a; }
+.gift-hint, .trade-breaks { color: #e7d3b4; }
 .region-map-card .region-desc { margin: 0; }
 .home-cats { padding-bottom: 16px; }
 #dock-kept .game-report { margin-top: 8px; max-height: 9.5em; overflow: auto; }

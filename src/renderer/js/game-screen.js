@@ -516,6 +516,37 @@
           }
           root.append(block);
         }
+        const requests = el('section', 'lore-section requests-log');
+        requests.dataset.section = 'requests';
+        requests.append(el('h3', 'guide-heading', E.quests ? E.quests.text('requests.tab') : ''));
+        const filters = el('div', 'request-filters');
+        for (const key of ['open', 'kept', 'failed', 'all']) {
+          const b = el('button', 'request-filter', E.quests ? E.quests.text('requests.filter.' + key) : key);
+          b.type = 'button';
+          b.dataset.filter = key;
+          filters.append(b);
+        }
+        requests.append(filters);
+        if (E.quests) s._regionName = (id) => { try { return W.region(id).name; } catch (e) { return id || ''; } };
+        const book = E.quests ? E.quests.log(s) : { open: [], kept: [], failed: [], offers: [] };
+        const rows = book.open.concat(book.offers, book.kept, book.failed);
+        if (!rows.length) {
+          requests.append(el('p', 'requests-empty', E.quests ? E.quests.text('requests.empty.open') : ''));
+          requests.append(el('p', 'requests-hint', E.quests ? E.quests.text('requests.empty.hint') : ''));
+          requests.append(el('p', 'requests-empty-done', E.quests ? E.quests.text('requests.empty.done') : ''));
+        }
+        for (const row of rows) {
+          const card = el('article', 'request-card');
+          card.dataset.request = row.id;
+          card.dataset.state = row.state;
+          const who = s.npcs[row.askerId];
+          card.append(el('h4', '', (who && who.name) || row.askerId));
+          card.append(el('p', '', row.line || (E.quests ? E.quests.askLine(s, row) : '')));
+          const chip = row.state === 'kept' ? 'requests.chip.kept' : row.state === 'failed' ? 'requests.chip.failed' : row.state === 'open' ? 'requests.chip.promised' : '';
+          card.append(el('p', 'request-chip', E.quests ? E.quests.text(chip) : ''));
+          requests.append(card);
+        }
+        root.append(requests);
         p.append(root);
       } else if (view === 'map' && RegionMap) {
         const model = RegionMap.build(W, s, { hover: s.region });
@@ -733,6 +764,50 @@
       const util = el('div', 'talk-utility');
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
       card.append(util);
+      appendTradeGift(card, npc);
+    }
+    function questCopy(id, vars) {
+      return E.quests ? E.quests.text(id, vars) : '';
+    }
+    function appendTradeGift(card, npc) {
+      if (!E.quests || !npc) return;
+      const gift = el('section', 'gift-panel');
+      gift.dataset.panel = 'gift';
+      const carried = (s.world && s.world.carried) || null;
+      const feel = carried ? E.quests.giftFeel(s, npc, carried) : 'neutral';
+      gift.append(el('p', '', questCopy('gift.intro')));
+      gift.append(el('p', '', carried ? questCopy('gift.find.' + carried.kind) : questCopy('gift.find.none')));
+      const hintKey = E.quests.traitHigh ? null : (npc.personality && npc.personality.sociability >= 70 ? 'gift.hint.sociability' : npc.personality && npc.personality.aggression >= 70 ? 'gift.hint.aggression' : npc.personality && npc.personality.curiosity >= 70 ? 'gift.hint.curiosity' : 'gift.hint.none');
+      gift.append(el('p', 'gift-hint', questCopy(hintKey || 'gift.hint.none', { catName: npc.name })));
+      gift.append(el('p', 'gift-reaction', questCopy('gift.reaction.' + feel)));
+      if (carried) gift.append(btn(questCopy('gift.give'), { g: 'giftGive', cat: npc.id }));
+      const trade = el('section', 'trade-panel');
+      trade.dataset.panel = 'trade';
+      trade.append(el('p', '', questCopy('trade.intro')));
+      for (const kind of ['food_for_passage', 'food_for_hunting', 'help_for_help']) {
+        const block = el('article', 'trade-row');
+        block.dataset.trade = kind;
+        block.append(el('h3', '', questCopy('trade.' + kind + '.title')));
+        const home = npc.homeZones && npc.homeZones[0];
+        let tradeRegion = '';
+        try { tradeRegion = home ? W.region(home).name : ''; } catch (e) { tradeRegion = ''; }
+        block.append(el('p', '', questCopy('trade.' + kind + '.body', { regionName: tradeRegion })));
+        block.append(el('p', 'trade-breaks', questCopy('trade.' + kind + '.breaks')));
+        if (E.quests.LEADERS[npc.faction] === npc.id) block.append(btn(questCopy('trade.' + kind + '.title'), { g: 'tradeStrike', leader: npc.id, kind }));
+        trade.append(block);
+      }
+      card.append(gift, trade);
+    }
+    function renderQuestPanels() {
+      const box = $('#game-event');
+      box.hidden = false;
+      box.textContent = '';
+      const npc = s.npcs[s.pending.catId] || { id: s.pending.catId, name: s.pending.catName || '', faction: 'bonefield', personality: { sociability: 80 } };
+      const card = el('div', 'event-card conversation-card');
+      card.dataset.questPanels = '1';
+      box.append(card);
+      card.append(el('h2', 'event-title', npc.name || 'Talk'));
+      appendTradeGift(card, npc);
     }
     function renderFord() {
       const box = $('#game-event'); const view = E.world.fordView(s);
@@ -954,6 +1029,7 @@
       card.append(line);
     }
     function renderEvent() {
+      if (s.pending && s.pending.questPanels) return renderQuestPanels();
       if (s.phase === 'encounter') return renderEncounter();
       if (s.phase === 'ford') return renderFord();
       if (s.phase === 'border') return renderBorder();
@@ -1171,6 +1247,11 @@
       if (d.g === 'askLeader') return act({ type: 'askLeader', catId: d.cat });
       if (d.g === 'joinAsk') return act({ type: 'joinAsk', pride: d.pride });
       if (d.g === 'scent') return act({ type: 'scent' });
+      if (d.g === 'giftGive') {
+        const carried = s.world && s.world.carried;
+        return act({ type: 'gift', catId: d.cat, item: carried, conversationId: (s.conversation && s.conversation.pending && s.conversation.pending.instanceId) || d.cat });
+      }
+      if (d.g === 'tradeStrike') return act({ type: 'trade', leaderId: d.leader, kind: d.kind });
       if (d.g === 'approach') return act({ type: 'approach' });
       if (d.g === 'advanceBeat') return act({ type: 'advanceBeat' });
       if (d.g === 'sceneChoose') return act({ type: 'sceneChoose', choiceId: d.choice });

@@ -113,6 +113,8 @@
     const Pair = Pairing.create(firstSeason, R);
     const Follow = Followups.create(R);
     const EV = (events && events.events) || [];
+    const Quests = (typeof require === 'function' ? require('./quests') : (typeof self !== 'undefined' ? self.Quests : null));
+    const Q = Quests ? Quests.create(R) : null;
     const beatsByEvent = loadSampleBeats(sampleBeats);
     const season = (s) => s.season;
     /** needs §1.6a named state. */
@@ -161,6 +163,7 @@
       WM.initNew(s);
       Pair.initNew(s);
       if (Directory) Directory.seed(s);
+      if (Q) Q.ensure(s);
       if (PrideHeader) PrideHeader.migrateFood(s);
       if (PrideRules) PrideRules.migrate(s);
       return s;
@@ -464,6 +467,11 @@
         }
         if (action.type === 'continue') { WM.closeFord(s); return { state: s }; }
         return { state: s0, error: 'ford' };
+      }
+      if (Q && ((s.pending && s.pending.questAsk) || Q.isAction(action))) {
+        const qr = Q.act(s, action);
+        if (qr && qr.error && qr.error !== 'quest') return { state: s0, error: qr.error };
+        if (qr && !qr.error) return { state: s };
       }
       if (action.type === 'border') {
         if (!atHighcragBorder(s)) return { state: s0, error: 'border' };
@@ -915,6 +923,7 @@
         }
       }
       noteUnloggedMeets(s);
+      if (Q) Q.onDay(s);
     }
     function finishBond(s) {
       const p = s.pending;
@@ -1326,6 +1335,7 @@
       if (Directory) Directory.migrate(s, slots);
       if (PrideHeader) PrideHeader.migrateFood(s);
       if (PrideRules) PrideRules.migrate(s);
+      if (Q) Q.ensure(s);
       s.saveVersion = R.saveVersion;
       return s;
     }
@@ -1584,7 +1594,7 @@
       return {
         player: Object.assign({}, s.cat, { injuries: s.injuries || [] }),
         npc, injured: !!(s.injuries && s.injuries.length),
-        vars: { regionName },
+        vars: Object.assign({ regionName }, Q ? Q.tokens(s) : {}),
         knowsFact: (id, factId) => WM.knowsFact(s, id, factId),
         knowsAny: (id) => Object.keys((s.worldMemory && s.worldMemory.knowledge) || {}).some((factId) => WM.knowsFact(s, id, factId))
       };
@@ -1655,7 +1665,7 @@
       const fallback = variants.find((row) => row && !row.when);
       return fill((fallback && fallback.text) || '', { catName: (npc && npc.name) || '' });
     }
-    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, shouldHoldResult, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone, lonerGreetText, bondLabel: (stage) => Pair.enabled ? Pair.bondLabel(stage) : stage };
+    return { W, needState, newRun, available, huntChance, huntReportText, huntBeats, act, summary, migrate, eventById, sceneBeats, beatContext, shouldHoldResult, applyIntent, fill, rules: R, arrivalText, pass2: Pass2, talkView: (st) => C.view(st), encounterView: (st) => Enc.view(st), personalBand: (st, id) => WM.personalBand((st.npcs[id] && st.npcs[id].affinity) || 0), world: WM, encounter: Enc, beats: Beats, lone: Lone, lonerGreetText, quests: Q, bondLabel: (stage) => Pair.enabled ? Pair.bondLabel(stage) : stage };
   }
   return { create, fill, setRegisteredPortraits: rememberPortraits };
 });

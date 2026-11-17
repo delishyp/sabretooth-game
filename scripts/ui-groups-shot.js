@@ -49,6 +49,24 @@ async function prime(page) {
       s.map.discovered = ['ice_wall', 'frost_tongue', 'blue_caves', 'wind_scree', 'north_pass', 'highcrag', 'horse_meadows', 'upper_greywater', 'greywater_ford', 'salt_flats', 'bonefield', 'herd_trail', 'tallgrass', 'south_range', 'split_rock', 'twin_forks', 'reedbank', 'mistwood', 'fog_paths', 'west_spur', 'drowned_mere', 'mere_shore', 'island_mere', 'east_saddle', 'bears_throat', 'claw_gorge', 'tar_seeps', 'ash_hills', 'wolf_run', 'camel_ridge'];
       s.map.visited = ['split_rock'];
       window.__uiShotView = 'map';
+    } else if (which === 'requests' || which === 'requests-empty') {
+      s.phase = 'day'; s.pending = null;
+      if (!s.world) s.world = {};
+      s.world.requests = which === 'requests' ? [
+        { id: 'shot-open', kind: 'scout_region', askerId: 'hc07', state: 'open', region: 'greywater_ford', day: s.day },
+        { id: 'shot-kept', kind: 'bring_prey', askerId: 'ln05', state: 'kept', preySize: 'small', day: 1 },
+        { id: 'shot-failed', kind: 'scout_region', askerId: 'mw04', state: 'failed', region: 'reedbank', failReason: 'deadline', day: 2 }
+      ] : [];
+      s.world.offers = [];
+      window.__uiShotView = 'lore';
+    } else if (which === 'talk-gift') {
+      const npc = s.npcs.bf01;
+      npc.met = true;
+      npc.personality = Object.assign({}, npc.personality, { sociability: 80 });
+      s.world = s.world || {};
+      s.world.carried = { kind: 'trophy' };
+      s.phase = 'event';
+      s.pending = { questPanels: true, catId: 'bf01', catName: npc.name };
     } else if (which === 'lore') {
       s.phase = 'day'; s.pending = null;
       s.worldMemory = s.worldMemory || {};
@@ -58,7 +76,7 @@ async function prime(page) {
       window.__uiShotView = 'lore';
     }
     game.render();
-    const view = { directory: 'cats', map: 'map', lore: 'lore' }[which];
+    const view = { directory: 'cats', map: 'map', lore: 'lore', requests: 'lore', 'requests-empty': 'lore' }[which];
     if (view) {
       const button = document.querySelector('[data-view="' + view + '"]');
       if (button) button.click();
@@ -77,14 +95,24 @@ async function prime(page) {
   await page.waitForFunction(() => window.__menuDebug);
   await start(page);
   await prime(page);
-  if (group === 'map' || group === 'lore') {
+  if (group === 'map' || group === 'lore' || group === 'requests' || group === 'requests-empty' || group === 'talk-gift') {
     await page.evaluate((which) => {
       const game = window.__menuDebug.game();
       const t = game.state.tutorial;
       if (t) { t.off = true; t.active = null; }
       game.render();
-      const button = document.querySelector('[data-view="' + which + '"]');
+      const view = which === 'requests' || which === 'requests-empty' || which === 'lore' ? 'lore' : which === 'map' ? 'map' : '';
+      const button = view && document.querySelector('[data-view="' + view + '"]');
       if (button) button.click();
+      if (which === 'talk-gift') {
+        const s = game.state;
+        s.phase = 'event';
+        s.pending = { questPanels: true, catId: 'bf01', catName: s.npcs.bf01.name };
+        s.world = s.world || {};
+        s.world.carried = { kind: 'trophy' };
+        if (!s.npcs.bf01.homeZones || !s.npcs.bf01.homeZones.length) s.npcs.bf01.homeZones = ['horse_meadows'];
+        game.render();
+      }
     }, group);
   }
   await page.waitForTimeout(300);

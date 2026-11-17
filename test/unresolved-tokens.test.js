@@ -18,7 +18,7 @@ const E = Slice.create({
   sampleBeats: j('events/sample-beats.json')
 });
 const player = { catId: 'c1', name: 'Ravenmark', sex: 'female', lifeStage: 'adult', genes: {} };
-const TOKEN = /\{(name|catName|playerName)\}/;
+const TOKEN = /\{(name|catName|playerName|questgiverName|cubName|leaderName|regionName)\}/;
 
 function collect(value, out) {
   if (typeof value === 'string') { out.push(value); return; }
