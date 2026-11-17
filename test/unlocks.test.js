@@ -15,15 +15,18 @@ function save(extra) {
   }, extra || {});
 }
 
-test('home, wilderness, smilodons and lore start open, and the live flag keeps every section open', () => {
+test('home, wilderness, smilodons and lore start open, and locked sections stay grey', () => {
   const fresh = save();
   const states = Unlocks.unlockedSystems(fresh);
   for (const id of Unlocks.STARTERS) assert.strictEqual(states[id], 'open', id);
   for (const id of Unlocks.SECTIONS) assert.strictEqual(states[id], 'locked', id);
   assert.strictEqual(states.map, undefined);
   assert.strictEqual(states.deeds, undefined);
-  assert.strictEqual(Unlocks.SHOW_ALL, true);
-  assert.strictEqual(Unlocks.displayState(fresh, 'pride'), 'open');
+  assert.strictEqual(Unlocks.SHOW_ALL, false);
+  assert.strictEqual(Unlocks.displayState(fresh, 'pride'), 'locked');
+  assert.strictEqual(Unlocks.displayState(fresh, 'home'), 'open');
+  assert.strictEqual(Unlocks.displayState(fresh, 'map'), 'open');
+  assert.strictEqual(Unlocks.displayState(fresh, 'deeds'), 'open');
 });
 
 test('pride opens on the first of border scent, patrol, joining or founding', () => {

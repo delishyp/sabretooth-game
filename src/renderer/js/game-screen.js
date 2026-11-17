@@ -186,8 +186,9 @@
     cast.append(frame, name);
     card.append(cast);
     const opts = PortraitModes ? PortraitModes.speakerOpts() : { frame: 'head', mode: 'headshot', place: 'dialogue' };
-    if (!npc.portraitId && (npc.genes || npc.look)) opts.compose = true;
-    const painted = paint && paint({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId, genes: npc.genes || null }, cv, opts);
+    const stage = npc.stage || npc.lifeStage || null;
+    if (stage !== 'cub' && !npc.portraitId && (npc.genes || npc.look)) opts.compose = true;
+    const painted = paint && paint({ look: npc.look, sex: npc.sex, name: npc.name, portraitId: npc.portraitId, genes: npc.genes || null, stage: stage, lifeStage: stage }, cv, opts);
     if (painted && typeof painted.catch === 'function') painted.catch(() => {});
     return cv;
   }
@@ -288,7 +289,7 @@
     function needBar(id, v) {
       const name = t(`game.need.${id}`);
       const row = el('div', `need need-${id} state-${E.needState(v)}`);
-      row.append(el('span', 'need-label', name), el('span', 'need-bar'), el('span', 'need-value', String(v)));
+      row.append(el('span', 'need-label', name), el('span', 'need-bar'), el('span', 'need-value', E.needState(v) === 'low' ? 'Low' : ''));
       row.children[1].append(el('i')); row.children[1].firstChild.style.width = `${v}%`;
       row.title = `${name} ${v}. ${t(`game.needState.${E.needState(v)}`)}`;
       row.dataset.need = id; row.dataset.value = v; row.setAttribute('aria-label', `${name} ${v}`);
@@ -381,16 +382,15 @@
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
       placeCat();
       cv.dataset.portraitMode = 'full';
-      const catSpec = { genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId, look: s.cat };
+      const catSpec = { genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId, look: s.cat, stage: s.cat.lifeStage, lifeStage: s.cat.lifeStage };
       ctx.portrait(catSpec, cv, PortraitModes ? PortraitModes.fullOpts('den') : { mode: 'full', place: 'den' }).catch(() => {});
       const head = $('#home-head');
       if (head) ctx.portrait(catSpec, head, { frame: 'head', mode: 'headshot', place: 'head' }).catch(() => {});
       const expand = $('#home-expand'); if (expand) expand.dataset.name = s.cat.name;
       const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
       den.title = t('home.denTip'); wild.title = t('home.wildTip');
-      const covered = view === 'map' || view === 'lore' || view === 'deeds' || view === 'reputation';
-      den.hidden = covered;
-      wild.hidden = covered;
+      den.hidden = true;
+      wild.hidden = true;
       den.classList.toggle('is-current', view === 'den');
       wild.classList.toggle('is-current', view === 'wilderness');
       if (view === 'den') den.setAttribute('aria-current', 'true'); else den.removeAttribute('aria-current');
@@ -400,12 +400,13 @@
       const nav = $('#home-nav'); nav.textContent = '';
       nav.setAttribute('aria-label', t('home.nav.label'));
       for (const item of HomeScene.NAV) {
-        const b = el('button', item.implemented ? '' : 'is-unavailable');
-        b.type = 'button'; b.dataset.g = item.implemented ? 'nav' : 'unavailable'; b.dataset.view = item.id;
+        const state = Unlocks ? Unlocks.displayState(s, item.id) : 'open';
+        const b = el('button', state === 'locked' ? 'is-locked' : state === 'new' ? 'is-new' : '');
+        b.type = 'button'; b.dataset.g = 'nav'; b.dataset.view = item.id; b.dataset.unlock = state;
         b.append(el('span', 'nav-label', navLabel(item.id)));
-        if (!item.implemented) b.append(el('span', 'nav-state', t('home.unavailableShort')));
-        b.title = item.implemented ? navLabel(item.id) : t('home.unavailable', { section: navLabel(item.id) });
-        if (item.implemented && view === item.id) b.setAttribute('aria-current', 'page');
+        if (state === 'locked') b.append(el('span', 'nav-state', 'Locked'));
+        b.title = state === 'locked' && Unlocks ? (Unlocks.opensWhenLine(item.id === 'cats' ? 'smilodons' : item.id) || navLabel(item.id)) : navLabel(item.id);
+        if (state !== 'locked' && view === item.id) b.setAttribute('aria-current', 'page');
         nav.append(b);
       }
     }
@@ -517,7 +518,7 @@
           const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
           const miniOpts = { frame: 'head', mode: 'headshot', place: 'directory' };
           if (!n.portraitId && (n.genes || n.look)) miniOpts.compose = true;
-          ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId, genes: n.genes || null }, mini, miniOpts).catch(() => {});
+          ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId, genes: n.genes || null, stage: n.stage, lifeStage: n.stage }, mini, miniOpts).catch(() => {});
           li.append(framed(mini, 'sm', 'headshot'), btn(n.name, { g: 'selectCat', cat: n.id }, { cls: 'met-name' }));
           li.append(relationMeters(n.id));
           const stage = s.records && s.records.bonds && s.records.bonds[n.id] && s.records.bonds[n.id].stage;
@@ -732,6 +733,7 @@
       const a = $('#game-actions'); a.textContent = ''; const av = E.available(s);
       const lockedDock = $('#dock-locked');
       if (lockedDock) lockedDock.textContent = '';
+      if (av.forced || av.talkOnly) a.hidden = false;
       if (av.phase) { /* event open: actions wait behind the event card */ } else if (av.talkOnly) {
         a.append(el('p', 'forced-note', t('talk.held')), talkGroup(av.talk));
       } else if (av.forced) {
@@ -801,6 +803,21 @@
         if (av.border && av.border.allowed) a.append(btn(`Ask ${av.border.name} at the Highcrag border`, { g: 'border', guard: av.border.guardId }));
         const spot = s.encounters && s.encounters.rendezvous;
         if (spot && spot.sought && s.region === spot.regionId && s.npcs[spot.catId]) a.append(btn(`Speak with ${s.npcs[spot.catId].name}`, { g: 'border', guard: spot.catId }));
+        if (Unlocks) {
+          const locked = Unlocks.moreActions(s).filter((row) => row.locked);
+          if (locked.length) {
+            const more = el('div', 'action-group is-more');
+            more.append(el('h3', '', 'More actions'));
+            for (const row of locked) {
+              const b = btn(`${row.name} · Locked`, { g: 'lockedAction', action: row.id });
+              b.classList.add('is-locked-action');
+              b.title = row.opensWhen || '';
+              const note = el('p', 'opens-when', row.opensWhen || '');
+              more.append(b, note);
+            }
+            a.append(more);
+          }
+        }
       }
     }
     function talkNote(o) {
@@ -984,7 +1001,9 @@
         sex: cat.sex,
         name: cat.name,
         look: cat.look || cat,
-        portraitId: compose ? null : (cat.portraitId || null)
+        portraitId: compose ? null : (cat.portraitId || null),
+        stage: cat.stage || cat.lifeStage || null,
+        lifeStage: cat.lifeStage || cat.stage || null
       };
       const opts = PortraitModes ? PortraitModes.fullOpts('encounter') : { mode: 'full', place: 'encounter' };
       if (compose || !spec.portraitId) opts.compose = true;
@@ -1414,10 +1433,31 @@
         if (!opened.error) render();
         return;
       }
+      if (d.g === 'openActions') {
+        const box = $('#game-actions');
+        if (box) box.hidden = !box.hidden;
+        return;
+      }
+      if (d.g === 'lockedAction') {
+        const row = Unlocks && Unlocks.moreActions(s).find((item) => item.id === d.action);
+        if (row && row.opensWhen) ctx.toast(row.opensWhen);
+        return;
+      }
       if (d.g === 'nav' || d.g === 'unavailable') {
-        if (Unlocks && !Unlocks.SHOW_ALL) {
+        if (Unlocks) {
           const picked = Unlocks.selectSection(s, d.view);
-          if (picked.opensWhen) { ctx.toast(picked.opensWhen); return; }
+          if (picked.opensWhen) {
+            ctx.toast(picked.opensWhen);
+            tutorialPulse = { unavailable: true };
+            render();
+            tutorialPulse = null;
+            return;
+          }
+          const key = d.view === 'cats' ? 'smilodons' : d.view;
+          if (Unlocks.displayState(s, key) === 'new') {
+            ctx.toast(Unlocks.toastLine(navLabel(d.view)));
+            Unlocks.remember(s, key);
+          }
         }
         return showView(d.view);
       }

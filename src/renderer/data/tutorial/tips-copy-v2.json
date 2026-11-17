@@ -236,9 +236,9 @@
     },
     {
       "id": "tip.place.unavailable",
-      "trigger": "First time a Places section shows Unavailable",
-      "title": "Unavailable",
-      "body": "Unavailable means this section opens later in the season, or later in the game."
+      "trigger": "First time a Places section is greyed",
+      "title": "Greyed sections",
+      "body": "When a Places section is greyed, it isn't open yet. It will open as the story moves on, and selecting it says what opens it."
     },
     {
       "id": "tip.place.lore",
@@ -411,8 +411,8 @@
       {
         "id": "guide.tip.place.unavailable",
         "of": "tip.place.unavailable",
-        "title": "Unavailable",
-        "body": "When a Places section says Unavailable, it isn't open yet. It will open later in the season, or later in the game."
+        "title": "Greyed sections",
+        "body": "When a Places section is greyed, it isn't open yet. It will open as the story moves on, and selecting it says what opens it."
       },
       {
         "id": "guide.tip.place.lore",

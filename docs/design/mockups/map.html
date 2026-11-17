@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Wilderness map — UX simplify mockup</title>
+<link rel="stylesheet" href="shell.css"><link rel="stylesheet" href="screens.css"></head>
+<body>
+<div class="corner"><button class="back" type="button"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Back</button></div>
+<header class="top">
+  <div class="who"><div class="avatar"><img src="assets/player-headshot.png" alt=""></div><div><p class="kicker">A lone cat</p><h1>Ravenmark</h1></div></div>
+  <p class="where-when"><b>The Split Rock</b> · Spring · Day 2 · Mating season</p>
+  <div class="needs" aria-label="Needs">
+<div class="need"><span class="lab">Health</span><span class="bar"><i style="width:100%"></i></span></div>
+<div class="need"><span class="lab">Hunger</span><span class="bar"><i style="width:70%"></i></span></div>
+<div class="need"><span class="lab">Thirst</span><span class="bar"><i style="width:62%"></i></span></div>
+<div class="need"><span class="lab">Energy</span><span class="bar"><i style="width:85%"></i></span></div>
+</div>
+  <button class="menu-btn" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+</header>
+<div class="goal"><span class="tag">Goal</span><span class="line">Meet the cats of the prides and the loners.</span><span class="guide">Guide</span></div>
+
+<div class="stage dim"><img class="landscape" src="assets/home-landscape.png" alt=""></div>
+<nav class="rail" aria-label="Places">
+<a class="item" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 10.8V20h12V10.8"/><path d="M10 20v-6h4v6"/></svg><span>Home</span></a>
+<a class="item is-current" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 19.5 9 8.5l4 6.2 2.8-3.9 5.7 8.7z"/><path d="M7.3 11.4 9 12.6l1.6-1.4"/></svg><span>Wilderness</span></a>
+<a class="item" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11c0-2 1.2-4.5 3.2-5.2L7 3.5 10 6c.6-.2 1.3-.3 2-.3s1.4.1 2 .3l3-2.5-1.2 2.3C17.8 6.5 19 9 19 11c0 4-3.1 7-7 7s-7-3-7-7z"/><path d="M10 15.2c.6.6 1.4.6 2 0"/></svg><span>Smilodons</span></a>
+<a class="item" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3-1 6-.8 8 1v12.5c-2-1.6-5-1.8-8-.8z"/><path d="M20 5.5c-3-1-6-.8-8 1v12.5c2-1.6 5-1.8 8-.8z"/></svg><span>Lore</span></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-3 2-5 5-5s5 2 5 5"/><circle cx="10" cy="9" r="2.3"/><path d="M14 19c.4-2.4 2-4 4.2-4 2 0 3.3 1.2 3.8 3"/><circle cx="18.2" cy="11" r="1.8"/></svg><span>Pride</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19.5c0-7 4-12 9-12s9 5 9 12"/><path d="M8 19.5c0-3 1.8-5.2 4-5.2s4 2.2 4 5.2"/><path d="M2 19.5h20"/></svg><span>Den</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/></svg><span>Breeding</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Inventory</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/></svg><span>Market</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3-5 3z"/></svg><span>Quests</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg><span>Reputation</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="4.5" r="1.3"/><circle cx="19.5" cy="12" r="1.3"/><circle cx="12" cy="19.5" r="1.3"/><circle cx="4.5" cy="12" r="1.3"/></svg><span>Councils</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+</nav>
+<main class="main mapmain">
+  <div class="mapbox">    <svg class="map-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 640" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of the Vale">
+
+  <defs>
+    <pattern id="contestedHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#7A8B9A" fill-opacity=".42"/>
+      <rect width="4" height="8" fill="#A67C52" fill-opacity=".5"/>
+    </pattern>
+    <pattern id="edgeHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#7A8B9A" fill-opacity=".2"/>
+      <rect width="4" height="8" fill="#A67C52" fill-opacity=".95"/>
+    </pattern>
+    
+    <filter id="labello" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="1.2" flood-color="#0c0907" flood-opacity=".9"/>
+    </filter>
+  </defs>
+
+<rect x="0" y="0" width="1100" height="640" fill="none"/>
+<path class="region-poly" id="r-ice_wall" data-id="ice_wall" d="M 513.1,129.4 558.0,117.6 615.1,19.6 427.7,19.6 513.1,129.4" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-frost_tongue" data-id="frost_tongue" d="M 372.3,141.7 479.3,180.8 510.6,131.3 423.7,19.6 368.3,19.6 372.3,141.7" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-blue_caves" data-id="blue_caves" d="M 251.6,186.0 303.8,217.7 369.1,142.2 365.1,19.6 218.4,19.6 251.6,186.0" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-wind_scree" data-id="wind_scree" d="M 561.0,118.7 640.1,195.9 719.5,159.8 702.7,19.6 618.8,19.6 561.0,118.7" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-north_pass" data-id="north_pass" d="M 722.7,159.8 770.0,188.1 1030.6,22.3 1028.0,19.6 705.9,19.6 722.7,159.8" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-west_spur" data-id="west_spur" d="M 189.2,210.7 248.4,186.0 215.1,19.6 19.6,19.6 19.6,135.3 189.2,210.7" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-highcrag" data-id="highcrag" d="M 465.8,238.4 478.4,219.1 478.4,183.9 371.2,144.7 305.9,220.1 313.0,238.4 465.8,238.4" fill="#7A8B9A" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-horse_meadows" data-id="horse_meadows" d="M 614.0,265.1 637.9,198.2 558.5,120.8 513.5,132.6 481.6,183.2 481.6,218.4 614.0,265.1" fill="#7A8B9A" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-east_saddle" data-id="east_saddle" d="M 1064.9,53.8 1058.1,39.1 1033.2,24.4 771.8,190.7 797.8,294.5 800.1,295.0 1080.4,201.5 1080.4,122.9 1064.9,53.8" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-island_mere" data-id="island_mere" d="M 163.8,283.6 187.2,213.3 19.6,138.8 19.6,312.4 163.8,283.6" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-upper_greywater" data-id="upper_greywater" d="M 311.6,274.7 333.5,318.4 462.0,318.4 465.0,241.6 313.5,241.6 311.6,274.7" fill="#7A8B9A" fill-opacity="0.38"/>
+
+<path class="region-poly is-selected" id="r-greywater_ford" data-id="greywater_ford" d="M 465.2,319.6 468.8,325.9 601.5,325.9 618.4,292.1 613.5,268.4 480.7,221.5 468.2,240.5 465.2,319.6" fill="#7A8B9A" fill-opacity="0.38"/>
+<path class="disputed-edge" d="M 465.2,319.6 468.8,325.9 601.5,325.9 618.4,292.1 613.5,268.4 480.7,221.5 468.2,240.5 465.2,319.6" fill="none" stroke="url(#edgeHatch)" stroke-width="12" pointer-events="none"/>
+
+<path class="region-poly" id="r-salt_flats" data-id="salt_flats" d="M 302.8,220.8 250.1,188.8 190.5,213.6 166.8,284.6 207.0,324.7 308.5,274.0 310.3,240.3 302.8,220.8" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-fog_paths" data-id="fog_paths" d="M 165.1,421.4 200.0,382.6 205.0,327.3 164.5,286.7 19.6,315.7 19.6,466.9 165.1,421.4" fill="#5B7F6A" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-mere_shore" data-id="mere_shore" d="M 208.2,327.7 203.3,381.9 274.7,390.9 330.6,323.7 330.9,320.3 309.3,277.1 208.2,327.7" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-drowned_mere" data-id="drowned_mere" d="M 621.5,290.9 767.0,317.4 794.7,295.2 768.6,191.0 721.1,162.5 641.0,198.9 616.6,267.3 621.5,290.9" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-twin_forks" data-id="twin_forks" d="M 334.0,321.6 333.8,324.1 405.7,467.8 452.9,501.5 466.3,327.9 462.6,321.6 334.0,321.6" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly is-current" id="r-split_rock" data-id="split_rock" d="M 455.9,504.1 462.8,516.4 573.9,463.8 606.4,409.6 601.0,329.1 469.4,329.1 455.9,504.1" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-reedbank" data-id="reedbank" d="M 277.2,392.8 300.2,446.4 401.6,466.7 331.9,327.3 277.2,392.8" fill="#5B7F6A" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-bonefield" data-id="bonefield" d="M 604.1,327.8 609.5,408.4 740.2,408.4 765.4,320.3 621.0,294.1 604.1,327.8" fill="#A67C52" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-tallgrass" data-id="tallgrass" d="M 250.0,480.9 297.1,447.3 274.3,394.0 202.1,385.0 168.3,422.6 250.0,480.9" fill="#A67C52" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-herd_trail" data-id="herd_trail" d="M 248.4,483.7 165.7,424.6 19.6,470.2 19.6,620.4 248.4,620.4 248.4,483.7" fill="#A67C52" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-mistwood" data-id="mistwood" d="M 460.5,518.7 453.1,505.6 403.8,470.4 299.4,449.5 251.6,483.7 251.6,620.4 441.4,620.4 460.5,518.7" fill="#5B7F6A" fill-opacity="0.38"/>
+
+<path class="region-poly" id="r-south_range" data-id="south_range" d="M 740.4,411.6 608.9,411.6 577.2,464.5 698.3,537.1 760.7,459.1 740.4,411.6" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-tar_seeps" data-id="tar_seeps" d="M 891.7,403.6 799.3,298.1 796.9,297.6 768.8,320.0 743.1,409.9 763.7,458.0 785.6,464.2 891.7,403.6" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-bears_throat" data-id="bears_throat" d="M 802.9,297.4 895.1,402.6 1037.7,443.4 1080.4,443.4 1080.4,204.9 802.9,297.4" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-claw_gorge" data-id="claw_gorge" d="M 843.5,529.5 1032.8,445.3 894.4,405.8 788.3,466.4 843.5,529.5" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<path class="region-poly" id="r-ash_hills" data-id="ash_hills" d="M 841.4,531.9 784.9,467.4 763.1,461.1 700.3,539.7 710.4,620.4 826.6,620.4 841.4,531.9" fill="#8A8680" fill-opacity="0.50"/>
+
+<path class="region-poly" id="r-wolf_run" data-id="wolf_run" d="M 1037.8,446.6 844.5,532.5 829.9,620.4 1080.4,620.4 1080.4,446.6 1037.8,446.6" fill="#8A8680" fill-opacity="0.50"/>
+
+<path class="region-poly" id="r-camel_ridge" data-id="camel_ridge" d="M 574.9,466.8 463.6,519.5 444.7,620.4 707.2,620.4 697.2,540.2 574.9,466.8" fill="rgba(40,30,20,.18)" fill-opacity="1"/>
+
+<text class="map-label" x="525.3" y="61.2" text-anchor="middle" font-size="13" filter="url(#labello)">The Ice Wall</text>
+<text class="map-label" x="428.8" y="100.9" text-anchor="middle" font-size="13" filter="url(#labello)">The Frost Tongue</text>
+<text class="map-label" x="298.6" y="102.6" text-anchor="middle" font-size="13" filter="url(#labello)">The Blue Caves</text>
+<text class="map-label" x="649.0" y="102.9" text-anchor="middle" font-size="13" filter="url(#labello)">The Wind Scree</text>
+<text class="map-label" x="826.4" y="80.5" text-anchor="middle" font-size="13" filter="url(#labello)">North Pass</text>
+<text class="map-label" x="134.4" y="103.2" text-anchor="middle" font-size="13" filter="url(#labello)">West Spur</text>
+<text class="map-label" x="396.4" y="201.8" text-anchor="middle" font-size="13" filter="url(#labello)">Highcrag</text>
+<text class="map-label" x="558.1" y="193.4" text-anchor="middle" font-size="13" filter="url(#labello)">Horse Meadows</text>
+<text class="map-label" x="940.7" y="167.9" text-anchor="middle" font-size="13" filter="url(#labello)">East Saddle</text>
+<text class="map-label" x="87.3" y="233.4" text-anchor="middle" font-size="13" filter="url(#labello)">Island Mere</text>
+<text class="map-label" x="390.7" y="278.9" text-anchor="middle" font-size="13" filter="url(#labello)">Upper Greywater</text>
+<text class="map-label" x="533.1" y="283.4" text-anchor="middle" font-size="13" filter="url(#labello)">Greywater Ford</text>
+<text class="map-label" x="238.1" y="254.9" text-anchor="middle" font-size="13" filter="url(#labello)">The Salt Flats</text>
+<text class="map-label" x="104.1" y="370.1" text-anchor="middle" font-size="13" filter="url(#labello)">Fog Paths</text>
+<text class="map-label" x="265.8" y="339.2" text-anchor="middle" font-size="13" filter="url(#labello)">Mere Shore</text>
+<text class="map-label" x="708.4" y="245.7" text-anchor="middle" font-size="13" filter="url(#labello)">The Drowned Mere</text>
+<text class="map-label" x="414.2" y="389.2" text-anchor="middle" font-size="13" filter="url(#labello)">Twin Forks</text>
+<text class="map-label is-current-label" x="526.3" y="408.3" text-anchor="middle" font-size="13" filter="url(#labello)">The Split Rock</text>
+<text class="you-are-here-svg" x="526.3" y="424.3" text-anchor="middle">You are here</text>
+<text class="map-label" x="333.8" y="407.1" text-anchor="middle" font-size="13" filter="url(#labello)">Reedbank</text>
+<text class="map-label" x="677.8" y="355.8" text-anchor="middle" font-size="13" filter="url(#labello)">The Bonefield</text>
+<text class="map-label" x="237.1" y="427.8" text-anchor="middle" font-size="13" filter="url(#labello)">Tallgrass Reach</text>
+<text class="map-label" x="134.2" y="534.5" text-anchor="middle" font-size="13" filter="url(#labello)">The Herd Trail</text>
+<text class="map-label" x="348.6" y="543.0" text-anchor="middle" font-size="13" filter="url(#labello)">The Mistwood</text>
+<text class="map-label" x="674.3" y="461.0" text-anchor="middle" font-size="13" filter="url(#labello)">South Range</text>
+<text class="map-label" x="805.2" y="387.3" text-anchor="middle" font-size="13" filter="url(#labello)">The Tar Seeps</text>
+<text class="map-label" x="976.6" y="330.0" text-anchor="middle" font-size="13" filter="url(#labello)">The Bear's Throat</text>
+<text class="map-label" x="895.5" y="462.6" text-anchor="middle" font-size="13" filter="url(#labello)">Claw Gorge</text>
+<text class="map-label" x="770.7" y="553.0" text-anchor="middle" font-size="13" filter="url(#labello)">The Ash Hills</text>
+<text class="map-label" x="973.4" y="549.1" text-anchor="middle" font-size="13" filter="url(#labello)">Wolf Run</text>
+<text class="map-label" x="574.5" y="559.4" text-anchor="middle" font-size="13" filter="url(#labello)">Camel Ridge</text>
+<g class="feat human" transform="translate(200.0,212.0)">
+              <circle r="11" fill="#3a160f" stroke="#e6c98a" stroke-width="1.4"/>
+              <path d="M-6 4 L0 -6 L6 4 Z" fill="none" stroke="#f3ddb0" stroke-width="1.5"/>
+            </g>
+<g class="feat human" transform="translate(640.0,520.0)">
+              <circle r="11" fill="#3a160f" stroke="#e6c98a" stroke-width="1.4"/>
+              <path d="M-6 4 L0 -6 L6 4 Z" fill="none" stroke="#f3ddb0" stroke-width="1.5"/>
+            </g>
+<g class="feat hyena" transform="translate(860.0,338.0)">
+          <circle r="11" fill="#3a160f" stroke="#e6c98a" stroke-width="1.4"/>
+          <path d="M0 -6 L5 0 L0 6 L-5 0 Z" fill="none" stroke="#f3ddb0" stroke-width="1.5"/>
+        </g>
+<g class="feat hyena" transform="translate(735.0,492.0)">
+          <circle r="11" fill="#3a160f" stroke="#e6c98a" stroke-width="1.4"/>
+          <path d="M0 -6 L5 0 L0 6 L-5 0 Z" fill="none" stroke="#f3ddb0" stroke-width="1.5"/>
+        </g>
+<g class="council-mark" transform="translate(548.0,448.0)">
+      <circle r="10" fill="#2a1c12" stroke="#e6c98a" stroke-width="1.4"/>
+      <path d="M-4 3 L0 -4 L4 3 Z" fill="#e6c98a"/>
+    </g>
+</svg>
+</div>
+  <div class="showctl"><button class="drawer-pill" type="button">Show: Prides</button></div>
+  <div class="key"><span><i style="background:var(--highcrag)"></i>Highcrag</span><span><i style="background:var(--bonefield)"></i>Bonefield</span><span><i style="background:var(--mistwood)"></i>Mistwood</span><span><i class="hatch"></i>Contested</span><span><i class="ring"></i>You are here</span></div>
+</main>
+<aside class="card region-drawer">
+  <p class="kick">Region</p>
+  <h2>Greywater Ford</h2>
+  <p class="arrive">The river shallows over a bed of stones, and hoofprints crowd the banks.</p>
+  <dl>
+    <dt>Prey</dt><dd>Good</dd>
+    <dt>Danger</dt><dd>Dangerous</dd>
+    <dt>Water</dt><dd>River</dd>
+    <dt>Claimed by</dt><dd>Highcrag <span class="contest">Contested by Bonefield</span></dd>
+  </dl>
+  <p class="trip">A day's travel</p>
+  <div class="exp"><button class="drawer-pill" type="button">What cats are saying</button><button class="drawer-pill" type="button">About this place</button></div>
+</aside>
+<button class="primary" type="button">Travel here</button>
+
+</body></html>

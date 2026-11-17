@@ -113,6 +113,7 @@ function assertLayout(box, { scroll = false } = {}) {
         }
         if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); continue; }
         if (s.phase === 'conversation') { await clickChoice(page, 'leave'); continue; }
+        if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
         await page.locator('[data-g="rest"]').click(); await idle(page);
       }
       const { state: s } = await g(page);
@@ -227,6 +228,7 @@ function assertLayout(box, { scroll = false } = {}) {
         const avail = (await g(page)).available;
         const row = (avail.talk || []).find((t) => t.catId === 'ln05');
         if (row && row.allowed) break;
+        if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
         await page.locator('[data-g="rest"]').click();
         await idle(page);
         let guard = 0;
@@ -273,6 +275,7 @@ function assertLayout(box, { scroll = false } = {}) {
         const avail = (await g(page)).available;
         const ready = (avail.talk || []).find((t) => t.catId === 'ln05');
         if (ready && ready.allowed) break;
+        if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
         await page.locator('[data-g="rest"]').click();
         await idle(page);
         let guard = 0;

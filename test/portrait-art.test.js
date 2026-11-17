@@ -40,6 +40,12 @@ test('headshots use Ochre\'s one square box for every base, portrait and age', (
   for (const place of ['den', 'creator', 'encounter', 'home']) {
     assert.strictEqual(Modes.modeFor(place), 'full', place);
   }
+  assert.deepStrictEqual(View.sourceRect(1448, 1086, Modes.HEAD), { sx: 848, sy: 0, sw: 600, sh: 600 });
+  assert.deepStrictEqual(Modes.stillFor({ stage: 'cub' }), Modes.CUB_STILL);
+  assert.strictEqual(Modes.stillFor({ lifeStage: 'cub', name: 'Little Reed' }).file, 'cats/smilodon-cub.png');
+  assert.strictEqual(Modes.stillFor({ stage: 'cub', portraitId: 'cat-4a74e453bae483ad' }).plain, true);
+  assert.strictEqual(Modes.stillFor({ stage: 'adult' }), null);
+  assert.ok(fs.existsSync(path.join(__dirname, '../assets/portraits/cats/smilodon-cub.png')));
   assert.strictEqual(Modes.speakerOpts().mode, 'headshot');
   assert.strictEqual(Modes.speakerOpts().place, 'dialogue');
   assert.match(game, /PortraitModes\.speakerOpts\(\)/);

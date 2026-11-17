@@ -11,6 +11,8 @@
   const POSE = { female: 'portrait-female', male: 'portrait-male' };
   /** One square head-and-shoulders box. Ochre: every base, every still, every age. */
   const HEAD = { x: 0.5856, y: 0.0, w: 0.4144, h: 0.5525 };
+  /** Finished cub still. Spots and the open mouth are baked in, so it is never tinted. */
+  const CUB_STILL = { id: 'smilodon-cub', file: 'cats/smilodon-cub.png', plain: true };
   const FULL = { width: 1152, height: 864 };
   const AGES = ['cub', 'adolescent', 'adult', 'elder'];
   const HEAD_PLACES = {
@@ -23,6 +25,13 @@
   }
   function cropFor() {
     return HEAD;
+  }
+  function isCub(spec) {
+    const stage = spec && (spec.stage || spec.lifeStage || (spec.look && (spec.look.stage || spec.look.lifeStage)));
+    return stage === 'cub';
+  }
+  function stillFor(spec) {
+    return isCub(spec) ? CUB_STILL : null;
   }
   function modeFor(place) {
     return HEAD_PLACES[place] ? 'headshot' : 'full';
@@ -60,5 +69,5 @@
     }
     return out;
   }
-  return { POSE, HEAD, FULL, AGES, poseFor, cropFor, modeFor, aspect, speakerOpts, fullOpts, cssViolations };
+  return { POSE, HEAD, CUB_STILL, FULL, AGES, poseFor, cropFor, isCub, stillFor, modeFor, aspect, speakerOpts, fullOpts, cssViolations };
 });

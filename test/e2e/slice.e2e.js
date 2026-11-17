@@ -61,6 +61,7 @@ async function step(page, shots) {
   }
   if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'continue'; }
   if (av.forced) { await page.locator('[data-g="forced"]').click(); await idle(page); return 'forced'; }
+  if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
   if (s.needs.thirst < 50 && !W.hasWater(s.region, 'spring')) {
     const to = av.travel.find((o) => o.allowed && W.hasWater(o.to, 'spring') && o.days === 1) || av.travel.find((o) => o.allowed);
     await page.locator(`[data-g="travel"][data-to="${to.to}"]`).click(); await idle(page); return `travel ${to.to}`;
@@ -164,6 +165,7 @@ async function step(page, shots) {
       assert.ok(!/\b1 days\b/.test(await page.locator('#stage').textContent()), 'no "1 days" on screen');
       await shot(page, '07-one-day-travel-and-injury');
       await page.evaluate(() => window.__menuDebug.gamePatch({ needs: { health: 10, hunger: 0, thirst: 100, energy: 100 }, counters: { starving: 2, parched: 0 } }));
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
       await page.locator('[data-g="rest"]').click(); await waitState(page, 'summary');
       const { summary, state: s } = await g(page);
       assert.deepStrictEqual([summary.survived, summary.cause, s.dead.day], [false, 'starvation', 1]);

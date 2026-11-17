@@ -27,8 +27,8 @@
   ];
   const SYSTEMS = STARTERS.concat(SECTIONS);
   const ALWAYS = STARTERS.concat(['map', 'deeds', 'cats']);
-  /** Live play stays fully open. Derived states and selectSection stay available. */
-  const SHOW_ALL = true;
+  /** Locked sections stay on the rail, greyed, and still selectable. */
+  const SHOW_ALL = false;
   const HOLD_MIN = 50;
 
   let hintCache = null;
@@ -202,8 +202,10 @@
     return out;
   }
   function displayState(save, id) {
+    const key = id === 'cats' ? 'smilodons' : id;
+    if (ALWAYS.indexOf(id) >= 0 || STARTERS.indexOf(key) >= 0) return 'open';
     if (SHOW_ALL) return 'open';
-    return systemState(save, id);
+    return systemState(save, key);
   }
   function opensWhenLine(id) {
     return fill('unlock.opensWhen.' + id);

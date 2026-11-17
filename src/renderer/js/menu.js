@@ -886,18 +886,29 @@
     try {
       const off = document.createElement('canvas');
       const Modes = typeof PortraitModes !== 'undefined' ? PortraitModes : null;
-      const composed = !!(opts.compose && (spec.genes || spec.look));
+      const cubStill = Modes && Modes.stillFor(spec);
+      const composed = !cubStill && !!(opts.compose && (spec.genes || spec.look));
       let head = composed && Modes ? Modes.cropFor(spec && spec.sex) : entry.head;
       let shownId = entry.runtime ? null : entry.id;
       let runtime = entry.runtime;
-      if (composed) {
+      if (cubStill) {
+        const img = new Image();
+        img.src = new URL('../../assets/portraits/' + cubStill.file, window.location.href).href;
+        await img.decode();
+        if (!still()) return { ok: true, id: null, runtime: false, stale: true };
+        off.width = img.naturalWidth; off.height = img.naturalHeight;
+        off.getContext('2d').drawImage(img, 0, 0);
+        shownId = cubStill.id;
+        runtime = false;
+        head = Modes.cropFor();
+      } else if (composed) {
         const pose = Modes ? Modes.poseFor(spec && spec.sex) : PortraitView.sharedPose(job.registry);
         const a = await poseAssets(pose);
         if (!still()) return { ok: true, id: null, runtime: true, stale: true };
         await Compositor.compose(a.manifest, composeGenes(spec), composeOpts(a, off));
         shownId = 'composed';
         runtime = true;
-      } else if (!spec.portraitId && (spec.genes || spec.look)) {
+      } else if (!cubStill && !spec.portraitId && (spec.genes || spec.look)) {
         const pose = Modes ? Modes.poseFor(spec && spec.sex) : PortraitView.sharedPose(job.registry);
         const a = await poseAssets(pose);
         if (!still()) return { ok: true, id: null, runtime: true, stale: true };

@@ -52,6 +52,7 @@ async function startRun(page, { tips }) {
       for (let i = 0; i < 8 && await page.locator('#tutorial-card').count(); i++) {
         await page.locator('[data-g="tutorialDismiss"]').click();
       }
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
       await page.locator('[data-g="hunt"][data-size="small"]').click();
       const seen = [];
       const firstVisible = async (sel) => {
