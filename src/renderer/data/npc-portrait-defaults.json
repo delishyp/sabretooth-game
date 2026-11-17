@@ -1,6 +1,5 @@
 {
   "note": "Ochre presentation defaults. Not names, not genes, not a phenotype guarantee.",
-  "ln05": "cat-6e2d788dd48ff440",
   "assignments": {
     "hc01": {
       "id": "cat-3f9fb78fb1697a76",
@@ -266,7 +265,8 @@
       "adultArtOnly": false
     },
     "ln05": {
-      "id": "cat-6e2d788dd48ff440",
+      "id": null,
+      "source": "compositor",
       "flags": [
         "historical tawny/white-socks/green-eye description differs from dark brown-undertone/brown-eye image",
         "faint spots not reproduced",

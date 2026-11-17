@@ -76,7 +76,7 @@ async function shot(page, name, w, h) {
       };
     });
     assert.strictEqual(fixture.nodeId, 'quiet_walk');
-    assert.strictEqual(fixture.portraitId, 'cat-6e2d788dd48ff440');
+    assert.notStrictEqual(fixture.portraitId, 'cat-6e2d788dd48ff440');
     assert.ok(fixture.affinityText.includes(String(fixture.affinity)));
     fs.writeFileSync(path.join(SHOTS, 'ui-baseline-quiet-walk.json'), JSON.stringify(fixture, null, 2));
     await shot(page, 'baseline-dialogue-720', 1280, 720);

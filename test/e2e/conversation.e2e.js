@@ -171,8 +171,12 @@ function assertLayout(box, { scroll = false } = {}) {
       assert.deepStrictEqual(await choiceIds(), idsBefore);
       assert.deepStrictEqual(after.conversation.pending.presentation.variantIds, variantBefore);
       assert.ok(after.npcs.ln05.personality);
-      assert.strictEqual(after.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
-      await page.waitForFunction(() => document.getElementById('event-head')?.dataset.portraitId === 'cat-6e2d788dd48ff440');
+      assert.notStrictEqual(after.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+      assert.notStrictEqual(after.npcs.ln05.portraitId, after.cat.portraitId);
+      await page.waitForFunction(() => {
+        const head = document.getElementById('event-head');
+        return head && head.width > 0 && head.dataset.portraitId !== 'cat-6e2d788dd48ff440';
+      });
       assert.strictEqual(after.npcs.ln05.name, identity.name);
       assert.strictEqual(after.npcs.ln05.portraitId, identity.portraitId);
       assert.deepStrictEqual(after.npcs.ln05.look, identity.look);

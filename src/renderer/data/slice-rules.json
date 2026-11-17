@@ -191,8 +191,7 @@
     }
   },
   "presentationPortraits": {
-    "$comment": "Presentation only for the ln05 proof. The id is a registered static portrait, not a genotype and not an index into registry order. Sex is ignored by portrait lookup. A stored id is kept. A stored null is legacy absence or a cleared choice and is not filled.",
-    "ln05": "cat-6e2d788dd48ff440"
+    "$comment": "Sunstep (ln05) has no still. A fresh player uses the creator default, and Sunstep is drawn from the compositor so the two cannot share that file. A stored id is kept. A stored null is not filled with the player still."
   },
   "encounter": {
     "$comment": "PROPOSED DEFAULT, not Anna-approved. Deer search is Energy -10 and commit_hunt the remaining -20. Hyena partial adds Energy -10. Seek out at the recorded rendezvous is Energy -5. Fresh fight stat is formulas §4.1 with no Saber Strike skill. v0.6.2 (Tundra local ad097bd) moves only hyenaCleanAt from 12 to 11. Partial, fail, deed ids, and +5 values are unchanged.",

@@ -871,6 +871,12 @@
     await Compositor.compose(a.manifest, genes, composeOpts(a, off));
     return PortraitView.entryFor(portraitReg, null, spec && spec.sex);
   }
+  function composeGenes(spec) {
+    if (spec && spec.genes && spec.genes.loci) return spec.genes;
+    const look = { ...((spec && spec.look) || {}), sex: (spec && spec.sex) || (spec && spec.look && spec.look.sex) || 'female' };
+    if (!look.traits) look.traits = (spec && spec.personality) || { ...Creator.PRESETS.balanced };
+    return Creator.genesFor(look);
+  }
   async function paintPortrait(spec, canvas, opts = {}) {
     if (!canvas) return { ok: false, id: null, runtime: true, stale: false };
     paintJobs.set(canvas, { spec, opts });
@@ -888,14 +894,14 @@
         const pose = Modes ? Modes.poseFor(spec && spec.sex) : PortraitView.sharedPose(job.registry);
         const a = await poseAssets(pose);
         if (!still()) return { ok: true, id: null, runtime: true, stale: true };
-        await Compositor.compose(a.manifest, spec.genes || Creator.genesFor(spec.look || {}), composeOpts(a, off));
+        await Compositor.compose(a.manifest, composeGenes(spec), composeOpts(a, off));
         shownId = 'composed';
         runtime = true;
       } else if (!spec.portraitId && (spec.genes || spec.look)) {
         const pose = Modes ? Modes.poseFor(spec && spec.sex) : PortraitView.sharedPose(job.registry);
         const a = await poseAssets(pose);
         if (!still()) return { ok: true, id: null, runtime: true, stale: true };
-        await Compositor.compose(a.manifest, spec.genes || Creator.genesFor(spec.look || {}), composeOpts(a, off));
+        await Compositor.compose(a.manifest, composeGenes(spec), composeOpts(a, off));
         head = Modes ? Modes.cropFor(spec && spec.sex) : head;
         shownId = 'composed';
         runtime = true;

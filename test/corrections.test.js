@@ -18,11 +18,11 @@ const mk = () => Slice.create({
   firstSeason: j('events/first-season-v0.6.2.json')
 });
 const female = { catId: 'c1', name: 'Tester', sex: 'female', lifeStage: 'adult', genes: {} };
-// Names and traits are unchanged. The hash moved when the Ochre portrait defaults replaced nulls.
+// Names and traits are unchanged. Sunstep (ln05) has no still, so the portrait field is null.
 const IDENTITY = {
-  1: 'e4844df7d574752ad3af1973d60f56d7e54d1e4288d8d117477a54d91a6c9e1a',
-  2: '747cf3fe04015696536f143a037b9ef99f636da4e306ca3b57a3841d60584bca',
-  9: 'a04420160fd43a885cd23caea72b84b81b9dbe4805b7be6d21ca140162475868'
+  1: 'e047745e2bd7b904c1241c99ee1426a920fb04315ace7a17e98e19a8cfada190',
+  2: '5f52e828d153354e630e8a1bfd66071ab0b3f173d758f9e581f7189f6c2a8efb',
+  9: 'e59524f8a2873d6ab70479e4b193b352c99d079cffac7314caf49501fe4e87bf'
 };
 
 function rosterHash(s) {

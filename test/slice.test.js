@@ -233,8 +233,9 @@ test('portrait id is kept verbatim, and a legacy blank or corrupt id gets the cr
   const marked = { ...cat, portraitId: 'cat-6e2d788dd48ff440' };
   const s = E.newRun({ mainCat: marked, seed: 1 });
   assert.strictEqual(s.cat.portraitId, 'cat-6e2d788dd48ff440');
-  assert.ok(Object.values(s.npcs).every((n) => typeof n.portraitId === 'string' && n.portraitId.startsWith('cat-')));
-  assert.strictEqual(s.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+  assert.ok(Object.values(s.npcs).every((n) => n.portraitId == null || (typeof n.portraitId === 'string' && n.portraitId.startsWith('cat-'))));
+  assert.ok(Object.values(s.npcs).every((n) => n.portraitId !== 'cat-6e2d788dd48ff440'));
+  assert.strictEqual(s.npcs.ln05.portraitId, null);
   const legacy = JSON.parse(JSON.stringify(s));
   delete legacy.cat.portraitId;
   delete legacy.cat.portraitLegacy;

@@ -26,12 +26,27 @@ test('the roster is 11 Highcrag, 10 Bonefield, 9 Mistwood and 9 loners, and ever
   assert.deepStrictEqual(byFaction, { highcrag: 11, bonefield: 10, mistwood: 9, loner: 9 });
   assert.strictEqual(Object.keys(defaults.assignments).length, 39);
   const files = new Set(registry.portraits.map((p) => p.id));
+  const playerStill = 'cat-6e2d788dd48ff440';
+  assert.ok(!Object.prototype.hasOwnProperty.call(defaults, 'ln05'));
   for (const [id, spec] of Object.entries(defaults.assignments)) {
-    assert.ok(files.has(spec.id), id);
+    assert.notStrictEqual(spec.id, playerStill, id);
+    if (spec.id == null) {
+      assert.strictEqual(id, 'ln05');
+      assert.strictEqual(spec.source, 'compositor');
+    } else assert.ok(files.has(spec.id), id);
     const slot = slots.find((s) => s.slot === id);
     assert.strictEqual(spec.adultArtOnly, slot.stage !== 'adult');
   }
-  assert.strictEqual(defaults.assignments.ln05.id, 'cat-6e2d788dd48ff440');
+});
+
+test('no NPC shares the player default still', () => {
+  const playerStill = 'cat-6e2d788dd48ff440';
+  const E = mk();
+  const s = E.newRun({ mainCat: { ...player, portraitId: playerStill }, seed: 4, runId: 'distinct' });
+  assert.strictEqual(s.cat.portraitId, playerStill);
+  assert.strictEqual(s.npcs.ln05.portraitId, null);
+  assert.strictEqual(s.npcs.ln05.portraitAssignment, 'compositor');
+  for (const npc of Object.values(s.npcs)) assert.notStrictEqual(npc.portraitId, playerStill, npc.id);
 });
 
 test('new games use the presentation default without rewriting the run name, stage, or genes', () => {

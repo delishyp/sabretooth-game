@@ -89,17 +89,20 @@
   function portraitGap() {
     return { status: 'no-approved-assignment', portraitId: null, note: 'No approved slot-to-portrait map. Registry order is not an assignment.' };
   }
-  const PROOF_PORTRAIT = 'cat-6e2d788dd48ff440';
+  const PLAYER_STILL = 'cat-6e2d788dd48ff440';
+  const PROOF_PORTRAIT = null;
   function proofPortrait(rules) {
     const id = rules && rules.presentationPortraits && rules.presentationPortraits.ln05;
-    return typeof id === 'string' && id ? id : PROOF_PORTRAIT;
+    if (typeof id !== 'string' || !id || id === PLAYER_STILL) return null;
+    return id;
   }
   function assignProofPortrait(npc, rules) {
     if (!npc || npc.id !== 'ln05') return;
     if (npc.portraitAssignment === 'cleared' || npc.portraitAssignment === 'legacy-null') return;
     if (typeof npc.portraitId === 'string' && npc.portraitId) return;
-    npc.portraitId = proofPortrait(rules);
-    npc.portraitAssignment = 'presentation-proof-v1';
+    const id = proofPortrait(rules);
+    npc.portraitId = id;
+    npc.portraitAssignment = id ? 'presentation-proof-v1' : 'compositor';
     npc.portraitGap = null;
   }
   function applyNew(state, rules) {

@@ -54,7 +54,7 @@ const press = async (page, ...keys) => { for (const k of keys) await page.keyboa
     assert.ok(cats.ln05 && cats.hc07);
     assert.notDeepStrictEqual(cats.ln05, cats.hc07);
     assert.deepStrictEqual(cats.snapshot, cats.hc07);
-    assert.strictEqual(cats.portrait, 'cat-6e2d788dd48ff440');
+    assert.notStrictEqual(cats.portrait, 'cat-6e2d788dd48ff440');
     assert.ok(cats.title.includes('What brings you to our border'));
     await page.locator('#game-event [data-choice="request_introduction"]').click();
     await idle(page);

@@ -29,8 +29,8 @@ test('new-game personalities use kin order and do not store the ln05 lean', () =
   const s = E.newRun({ mainCat: cat, seed: 4 });
   assert.deepStrictEqual(s.npcs.ln05.personality, a.byId.ln05.personality);
   assert.strictEqual(s.npcs.ln05.name, 'Bitterwatch');
-  assert.strictEqual(s.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
-  assert.strictEqual(s.npcs.ln05.portraitAssignment, 'presentation-proof-v1');
+  assert.strictEqual(s.npcs.ln05.portraitId, null);
+  assert.strictEqual(s.npcs.ln05.portraitAssignment, 'compositor');
   assert.strictEqual(s.npcs.hc01.portraitId, 'cat-3f9fb78fb1697a76');
   assert.notStrictEqual(s.npcs.hc01.name, 'Ashmane');
   assert.strictEqual(s.npcs.ln05.affinity, 0);
@@ -40,7 +40,7 @@ test('old saves do not receive a new personality, and affinity stays 1:1', () =>
   const s = E.newRun({ mainCat: cat, seed: 4 });
   delete s.npcs.ln05.personality; delete s.npcs.hc01.personality;
   s.npcs.ln04.personality = { aggression: 10, sociability: 20, boldness: 30, loyalty: 40, curiosity: 50 };
-  s.npcs.ln05.portraitId = 'cat-6e2d788dd48ff440';
+  s.npcs.ln05.portraitId = 'cat-6477d01534355420';
   s.npcs.ln05.affinity = 0; s.npcs.hc01.affinity = 40; s.npcs.bf01.affinity = -100; s.npcs.mw01.affinity = 100;
   s.prideRelation.highcrag = -5;
   delete s.worldMemory;
@@ -49,7 +49,7 @@ test('old saves do not receive a new personality, and affinity stays 1:1', () =>
   assert.strictEqual(once.npcs.ln05.personalityGap.status, 'unresolved');
   assert.strictEqual(once.npcs.ln05.personalityGap.recoverable, false);
   assert.deepStrictEqual(once.npcs.ln04.personality, s.npcs.ln04.personality);
-  assert.strictEqual(once.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(once.npcs.ln05.portraitId, 'cat-6477d01534355420');
   assert.strictEqual(once.npcs.ln05.affinity, 0);
   assert.strictEqual(once.npcs.hc01.affinity, 40);
   assert.strictEqual(once.worldMemory.catToPlayer['ln05->player'].value, 0);
@@ -150,7 +150,7 @@ test('a cleared or stored-null ln05 portrait stays empty, and a missing field is
   delete legacy.npcs.ln05.portraitAssignment;
   delete legacy.npcs.ln05.portraitGap;
   const keptNull = E.migrate(JSON.parse(JSON.stringify(legacy)));
-  assert.strictEqual(keptNull.npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(keptNull.npcs.ln05.portraitId, null);
   assert.strictEqual(keptNull.npcs.ln05.name, legacy.npcs.ln05.name);
   const other = E.newRun({ mainCat: cat, seed: 2 });
   other.npcs.ln05.portraitId = 'cat-6477d01534355420';
@@ -159,8 +159,8 @@ test('a cleared or stored-null ln05 portrait stays empty, and a missing field is
   const missing = E.newRun({ mainCat: cat, seed: 2 });
   delete missing.npcs.ln05.portraitId;
   delete missing.npcs.ln05.portraitAssignment;
-  assert.strictEqual(E.migrate(missing).npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
-  assert.strictEqual(E.migrate(JSON.parse(JSON.stringify(missing))).npcs.ln05.portraitId, 'cat-6e2d788dd48ff440');
+  assert.strictEqual(E.migrate(missing).npcs.ln05.portraitId, null);
+  assert.strictEqual(E.migrate(JSON.parse(JSON.stringify(missing))).npcs.ln05.portraitId, null);
 });
 
 test('two runtime cats keep their own saved traits; the border scene does not borrow ln05 lines', () => {

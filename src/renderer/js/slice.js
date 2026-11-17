@@ -1430,10 +1430,20 @@
         const spec = portraitDefaults[npc.id];
         if (!spec || npc.portraitAssignment === 'cleared') continue;
         const valid = keptPortraitId(npc.portraitId);
-        if (valid) {
+        if (valid && valid !== PLAYER_PRESENTATION_DEFAULT) {
           if (!npc.portraitLegacy) npc.portraitLegacy = { status: 'kept', id: valid, phenotypeMatch: false };
           if (!npc.portraitPresentation) npc.portraitPresentation = { adultArtOnly: npc.stage !== 'adult', phenotypeMatch: false, mismatchFlags: spec.flags || [] };
           npc.portraitGap = null;
+          continue;
+        }
+        if (!spec.id || spec.id === PLAYER_PRESENTATION_DEFAULT) {
+          npc.portraitId = null;
+          npc.portraitAssignment = 'compositor';
+          npc.portraitPresentation = { adultArtOnly: npc.stage !== 'adult', phenotypeMatch: false, mismatchFlags: spec.flags || [] };
+          npc.portraitGap = null;
+          if (!npc.portraitLegacy || npc.portraitLegacy.status !== 'compositor') {
+            npc.portraitLegacy = { status: 'compositor', id: null, rejected: valid === PLAYER_PRESENTATION_DEFAULT ? PLAYER_PRESENTATION_DEFAULT : (npc.portraitLegacy && npc.portraitLegacy.rejected) || null, phenotypeMatch: false };
+          }
           continue;
         }
         const rejected = npc.portraitRejected || (npc.portraitId != null && npc.portraitId !== spec.id ? String(npc.portraitId) : null);

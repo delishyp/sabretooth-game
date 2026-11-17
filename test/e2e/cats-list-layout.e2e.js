@@ -8,11 +8,8 @@ const fs = require('fs'); const os = require('os'); const path = require('path')
 const root = path.join(__dirname, '..', '..');
 const SHOTS = process.env.LIST_SHOTS || '/opt/cursor/artifacts/cats-list-layout';
 const SCENE = 'assets/menu/background-1920.png';
-const CATS = [
-  { slot: 'hc01', id: 'cat-46f04e1c79d4e443', kind: 'dark' },
-  { slot: 'hc05', id: 'cat-f70f52f0f22da7fc', kind: 'pale' },
-  { slot: 'ln05', id: 'cat-ee0fe001a6afbf55', kind: 'special-background' }
-];
+const defaults = require(path.join(root, 'src/renderer/data/npc-portrait-defaults.json'));
+const CATS = ['hc01', 'hc05', 'ln05'].map((slot) => ({ slot, id: defaults.assignments[slot].id }));
 fs.mkdirSync(SHOTS, { recursive: true });
 
 (async () => {
@@ -62,15 +59,13 @@ fs.mkdirSync(SHOTS, { recursive: true });
   await page.waitForFunction(() => document.getElementById('home-head'));
   await page.evaluate((cats) => {
     const s = window.__menuDebug.game().state;
-    for (const cat of cats) {
-      s.npcs[cat.slot].met = true;
-      window.__menuDebug.assignPortrait(cat.slot, cat.id);
-    }
+    for (const cat of cats) s.npcs[cat.slot].met = true;
     document.querySelector('[data-view="cats"]').click();
   }, CATS);
   await page.waitForFunction((id) => {
     const c = document.getElementById('met-hc01');
-    return c && c.dataset.portraitId === id && c.width > 0;
+    const all = [...document.querySelectorAll('.met-cat canvas')];
+    return c && c.dataset.portraitId === id && all.length === 3 && all.every((canvas) => canvas.dataset.portraitMode === 'headshot' && canvas.width > 0 && canvas.width !== 300);
   }, CATS[0].id, { timeout: 8000 });
 
   for (const [w, h, tag] of [[1280, 720, '720'], [1920, 1080, '1080']]) {
@@ -116,11 +111,16 @@ fs.mkdirSync(SHOTS, { recursive: true });
     console.log('layout', tag, JSON.stringify({ zoom: report.zoom, widest: report.widest, frame: report.frame, dock: report.dock }));
     assert.strictEqual(report.rows.length, 3, JSON.stringify(report.rows.map((r) => r.id)));
     const ids = report.rows.map((r) => r.id);
-    for (const cat of CATS) assert.ok(ids.includes(cat.id), cat.id);
+    for (const cat of CATS) {
+      if (cat.id) assert.ok(ids.includes(cat.id), cat.slot + ' ' + cat.id);
+      else assert.ok(ids.includes('') || ids.includes(null), cat.slot);
+    }
+    assert.ok(!ids.includes('cat-6e2d788dd48ff440'));
     for (const row of report.rows) {
       assert.ok(row.frame.w >= 60 && row.frame.h >= 48, JSON.stringify(row.frame));
       assert.ok(row.frame.w / row.frame.h > 0.9 && row.frame.w / row.frame.h < 1.5, JSON.stringify(row.frame));
-      assert.ok(row.canvas.bitmapW / row.canvas.bitmapH > 1.2, JSON.stringify(row.canvas));
+      const ratio = row.canvas.bitmapW / row.canvas.bitmapH;
+      assert.ok(ratio > 0.95 && ratio < 1.05, JSON.stringify(row.canvas));
       const b = row.button;
       assert.strictEqual(b.text, 'Entire cat');
       assert.ok(b.w >= 60 && b.h >= 22, JSON.stringify(b));
