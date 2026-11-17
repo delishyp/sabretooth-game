@@ -91,8 +91,13 @@ async function step(page, shots) {
       assert.deepStrictEqual(await page.evaluate(() => window.__menuDebug.menuLock()), { styles: ['standard'], difficulties: ['permadeath'] });
       await page.mouse.move(2, 2);
       await press(page, 'Enter'); await waitState(page, 'newGameSetup');
-      const cards = () => page.evaluate(() => [...document.querySelectorAll('#style-cards .card, #death-cards .card')].map((c) => c.dataset.nav));
-      assert.deepStrictEqual(await cards(), ['style:standard', 'death:permadeath']);
+      const cards = () => page.evaluate(() => [...document.querySelectorAll('#style-cards .card, #death-cards .card')].map((c) => ({ nav: c.dataset.nav, disabled: c.disabled })));
+      assert.deepStrictEqual(await cards(), [
+        { nav: 'style:standard', disabled: false },
+        { nav: 'death:permadeath', disabled: false },
+        { nav: 'death:heir', disabled: true },
+        { nav: 'death:sandbox', disabled: true }
+      ]);
       let s = (await st(page)).setup; assert.deepStrictEqual([s.style, s.death], ['standard', 'permadeath']);
       await press(page, 'ArrowLeft', 'Enter', 'ArrowRight', 'Enter', 'ArrowDown', 'ArrowLeft', 'Enter', 'ArrowRight', 'Enter', 'ArrowUp');
       s = (await st(page)).setup; assert.deepStrictEqual([s.style, s.death, s.focus], ['standard', 'permadeath', 'style:standard']);

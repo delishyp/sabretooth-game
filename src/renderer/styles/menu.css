@@ -65,7 +65,25 @@ button.primary { border-color: var(--accent); }
 #version { position: fixed; left: 16px; right: auto; bottom: 10px; z-index: 8; font-size: 13px; color: var(--ice-dim); opacity: .8; }
 /* New Game setup (v1.3) */
 .screen[data-screen="newGameSetup"] { padding: clamp(4px, 1cqh, 48px) clamp(14px, 3cqw, 160px); }
-.screen[data-screen="newGameSetup"] .cards-row .card { width: clamp(112px, 13.2cqw, 220px); }
+.screen[data-screen="newGameSetup"] .cards-row .card { width: clamp(112px, 13.2cqw, 220px); background: #101820; color: #f4f7fb; border: 2px solid #3d4e60; opacity: 1; }
+.screen[data-screen="newGameSetup"] .cards-row .card.focused,
+.screen[data-screen="newGameSetup"] .cards-row .card:focus-visible { background: #101820; opacity: 1; }
+.screen[data-screen="newGameSetup"] .cards-row .card .name,
+.screen[data-screen="newGameSetup"] .cards-row .card .desc { color: #f4f7fb; opacity: 1; }
+.screen[data-screen="newGameSetup"] .cards-row .card .desc { display: block; overflow: visible; white-space: normal; -webkit-line-clamp: unset; -webkit-box-orient: unset; }
+.screen[data-screen="newGameSetup"] .cards-row .card.selected { background: #172433; border-color: #e6c98a; box-shadow: none; }
+.screen[data-screen="newGameSetup"] .cards-row .card.selected .name::before { content: "✓ "; color: #e6c98a; }
+.screen[data-screen="newGameSetup"] .cards-row .card.selected .name,
+.screen[data-screen="newGameSetup"] .cards-row .card.selected .desc { color: #ffffff; opacity: 1; }
+.screen[data-screen="newGameSetup"] .cards-row .card.is-unavailable,
+.screen[data-screen="newGameSetup"] .cards-row .card:disabled { background: #1c2430; color: #9aabba; border-color: #3a4654; opacity: 1; }
+.screen[data-screen="newGameSetup"] .cards-row .card.is-unavailable .name,
+.screen[data-screen="newGameSetup"] .cards-row .card.is-unavailable .desc,
+.screen[data-screen="newGameSetup"] .cards-row .card:disabled .name,
+.screen[data-screen="newGameSetup"] .cards-row .card:disabled .desc { color: #b7c3ce; }
+.screen[data-screen="newGameSetup"] .cards-row .card .soon { display: block; margin-top: 4px; color: #d4b07a; font-size: clamp(11px, 1.4cqh, 14px); }
+.screen[data-screen="newGameSetup"] #sandbox-panel,
+.screen[data-screen="newGameSetup"] #sandbox-panel .setting { background: #101820; opacity: 1; color: #f4f7fb; }
 .screen[data-screen="newGameSetup"] #sandbox-panel { width: min(480px, 40%); margin-top: 0; }
 .screen[data-screen="newGameSetup"] h2 { font-size: clamp(20px, 3.8cqh, 54px); margin-bottom: 2px; }
 .row-title { font-family: var(--font-title); font-size: clamp(12px, 1.8cqh, 26px); letter-spacing: clamp(1px, 0.2cqw, 3px); color: var(--ice-dim); margin: clamp(2px, 0.6cqh, 14px) 0 clamp(2px, 0.4cqh, 10px); text-transform: uppercase; }

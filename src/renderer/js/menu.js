@@ -221,18 +221,25 @@
   // ---------- New Game setup (spec v1.3; B1/B2 focus ≠ selection, via Nav.setupReduce) ----------
   const optionDefs = () => copy.sandboxPanel.options;
   const SCREEN = '.screen[data-screen="newGameSetup"]';
-  function cardButton(kind, d) {
+  function cardButton(kind, d, unavailable) {
     const b = document.createElement('button'); b.className = 'card'; b.dataset.nav = `${kind}:${d.id}`;
     b.innerHTML = '<span class="name"></span><span class="desc"></span>';
     b.querySelector('.name').textContent = d.name; b.querySelector('.desc').textContent = d.description;
+    if (unavailable) {
+      b.disabled = true;
+      b.classList.add('is-unavailable');
+      const note = document.createElement('span'); note.className = 'soon'; note.textContent = 'Not yet available';
+      b.append(note);
+    }
     return b;
   }
   /** Slice 1 lock (scope IN §1, slice-rules menuLock): only Standard + Permadeath cards exist; the rest are hidden, not just disabled. */
   const setupStyles = () => (copy.menuLock ? copy.playStyles.filter((d) => copy.menuLock.styles.includes(d.id)) : copy.playStyles);
   const setupDeaths = () => (copy.menuLock ? copy.difficulties.filter((d) => copy.menuLock.difficulties.includes(d.id)) : copy.difficulties);
   function renderSetup() {
-    $('#style-cards').replaceChildren(...setupStyles().map((d) => cardButton('style', d)));
-    $('#death-cards').replaceChildren(...setupDeaths().map((d) => cardButton('death', d)));
+    $('#style-cards').replaceChildren(...setupStyles().map((d) => cardButton('style', d, false)));
+    const deathOpen = new Set(setupDeaths().map((d) => d.id));
+    $('#death-cards').replaceChildren(...copy.difficulties.map((d) => cardButton('death', d, !deathOpen.has(d.id))));
     renderLevelCards();
     $('#sandbox-title').textContent = copy.sandboxPanel.title; $('#sandbox-note').textContent = copy.sandboxPanel.note;
     applySetup();
