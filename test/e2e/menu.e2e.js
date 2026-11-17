@@ -487,6 +487,7 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         assert.strictEqual(run.catName, 'Mouse Cat'); assert.deepStrictEqual(run.playerCat.genes.personality, m.traits);
       });
       await check('creator §7.7 gamepad only: A on Name rerolls, D-pad rows/values, B back, Start = Next then Start; hint + name helper', async () => {
+        await page.mouse.move(2, 2);   // a resting pointer must not steal New Game focus when the setup screen opens
         // Fake XInput pad: navigator.getGamepads is read every frame by js/input.js.
         await page.evaluate(() => {
           const pad = { buttons: Array.from({ length: 17 }, () => ({ pressed: false })), axes: [0, 0] };

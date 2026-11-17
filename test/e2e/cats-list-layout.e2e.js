@@ -6,7 +6,12 @@ const { _electron: electron } = require('playwright-core');
 const assert = require('node:assert');
 const fs = require('fs'); const os = require('os'); const path = require('path');
 const root = path.join(__dirname, '..', '..');
-const SHOTS = process.env.LIST_SHOTS || '/opt/cursor/artifacts/cats-list-layout';
+function shotDir() {
+  const preferred = process.env.LIST_SHOTS || '/opt/cursor/artifacts/cats-list-layout';
+  try { fs.mkdirSync(preferred, { recursive: true }); fs.accessSync(preferred, fs.constants.W_OK); return preferred; }
+  catch (e) { return fs.mkdtempSync(path.join(os.tmpdir(), 'cats-list-')); }
+}
+const SHOTS = shotDir();
 const SCENE = 'assets/menu/background-1920.png';
 const defaults = require(path.join(root, 'src/renderer/data/npc-portrait-defaults.json'));
 const CATS = ['hc01', 'hc05', 'ln05'].map((slot) => ({ slot, id: defaults.assignments[slot].id }));

@@ -44,6 +44,17 @@
     const sex = (spec && (spec.sex || (spec.look && spec.look.sex))) || 'female';
     return { pose: poseFor(sex, 'cub'), crop: CUB_HEAD, plain: false };
   }
+  /**
+   * A cub always composites the cub pose. An assigned adult still is ignored until the cat is adult.
+   * Adolescent and elder keep that still.
+   */
+  function resolveArt(spec) {
+    const stage = stageOf(spec);
+    const sex = (spec && (spec.sex || (spec.look && spec.look.sex))) || 'female';
+    if (stage === 'cub') return { stage, sex, pose: poseFor(sex, 'cub'), crop: CUB_HEAD, portraitId: null, compose: true };
+    const portraitId = (spec && spec.portraitId) || null;
+    return { stage, sex, pose: poseFor(sex, 'adult'), crop: HEAD, portraitId, compose: !portraitId };
+  }
   function cubFallback(spec) {
     const coat = (spec && spec.look && spec.look.coat) || '';
     const file = {
@@ -93,5 +104,5 @@
     }
     return out;
   }
-  return { POSE, HEAD, CUB_HEAD, FULL, AGES, poseFor, cropFor, isCub, stillFor, cubFallback, modeFor, aspect, speakerOpts, fullOpts, cssViolations };
+  return { POSE, HEAD, CUB_HEAD, FULL, AGES, poseFor, cropFor, isCub, stillFor, resolveArt, cubFallback, modeFor, aspect, speakerOpts, fullOpts, cssViolations };
 });

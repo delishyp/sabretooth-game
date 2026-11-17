@@ -891,14 +891,16 @@
     try {
       const off = document.createElement('canvas');
       const Modes = typeof PortraitModes !== 'undefined' ? PortraitModes : null;
-      const cub = Modes && Modes.isCub(spec);
-      const stage = spec && (spec.lifeStage || spec.stage);
-      const composed = cub || !!(opts.compose && (spec.genes || spec.look)) || (!spec.portraitId && (spec.genes || spec.look));
-      let head = Modes ? Modes.cropFor(spec) : entry.head;
+      const art = Modes && Modes.resolveArt(spec);
+      const cub = !!(art && art.stage === 'cub');
+      const stage = art ? art.stage : (spec && (spec.lifeStage || spec.stage));
+      if (cub) entry.file = null;
+      const composed = cub || !!(opts.compose && (spec.genes || spec.look)) || (!entry.file && (spec.genes || spec.look));
+      let head = cub ? art.crop : (Modes ? Modes.cropFor(spec) : entry.head);
       let shownId = entry.runtime ? null : entry.id;
       let runtime = entry.runtime;
       if (composed) {
-        const pose = Modes ? Modes.poseFor(spec && spec.sex, stage) : PortraitView.sharedPose(job.registry);
+        const pose = cub ? art.pose : (Modes ? Modes.poseFor(spec && spec.sex, stage) : PortraitView.sharedPose(job.registry));
         try {
           const a = await poseAssets(pose);
           if (!still()) return { ok: true, id: null, runtime: true, stale: true };
@@ -950,7 +952,7 @@
       const placeMode = Modes && opts.place ? Modes.modeFor(opts.place) : null;
       const mode = placeMode === 'headshot' || opts.frame === 'head' || opts.mode === 'headshot' ? 'headshot' : 'full';
       canvas.dataset.portraitMode = mode;
-      if (mode === 'headshot' && Modes) head = Modes.cropFor(spec);
+      if (mode === 'headshot' && art) head = art.crop;
       if (mode === 'headshot') PortraitView.blitHead(off, canvas, head);
       else { canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0); }
       return { ok: true, id: shownId, runtime, stale: false };

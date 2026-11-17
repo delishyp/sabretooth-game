@@ -1,7 +1,7 @@
 {
  "_readme": "Copy for Ochre's Requests and talk gift/trade stills in /workspace/qa/ui-declutter-mockup/ (requests.html, requests-empty.html, talk-gift-trade.html). Replaces every PLACEHOLDER. 'strings' are tokenised for Flint; 'stills' are the same strings filled for the seed-8 stand-in names Ochre used.",
  "strings": {
-  "requests.tab": "[PH] Requests",
+  "requests.tab": "Requests",
   "requests.logSource": "",
   "requests.filter.open": "Open",
   "requests.filter.kept": "Kept",

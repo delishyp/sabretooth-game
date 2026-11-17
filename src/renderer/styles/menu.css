@@ -15,9 +15,12 @@ body.reduced-motion #snow, body.menu-hidden #snow { animation: none; display: no
    Title text box ≈ 8.9 × font-size (Cinzel, letter-spacing 0.16em incl. the trailing one); (58cqw − 160px screen padding − 24px) ÷ 9.2. */
 .screen { position: absolute; inset: 0; padding: clamp(16px, 5cqh, 120px) clamp(20px, 6cqw, 160px); display: none; box-sizing: border-box; max-height: 100%; }
 .screen.active { display: block; }
-.screen[data-screen="root"].active,
-.screen[data-screen="newGameSetup"].active {
+.screen[data-screen="root"].active {
   display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+  overflow: hidden; min-height: 0;
+}
+.screen[data-screen="newGameSetup"].active {
+  display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;
   overflow: hidden; min-height: 0;
 }
 .title { margin-bottom: clamp(8px, 3cqh, 70px); display: inline-block; max-width: min(960px, 58%); padding: clamp(6px, 1.2cqh, 18px) clamp(10px, 1.6cqw, 28px) clamp(8px, 1.4cqh, 22px); border-radius: 14px; background: linear-gradient(180deg, rgba(7, 12, 18, .84), rgba(7, 12, 18, .66)); flex: 0 1 auto; min-height: 0; }
@@ -61,7 +64,9 @@ button.primary { border-color: var(--accent); }
 .toast { background: #1c3446; border: 1px solid var(--accent); padding: 12px 24px; border-radius: 6px; font-size: 18px; }
 #version { position: fixed; left: 16px; right: auto; bottom: 10px; z-index: 8; font-size: 13px; color: var(--ice-dim); opacity: .8; }
 /* New Game setup (v1.3) */
-.screen[data-screen="newGameSetup"] { padding: clamp(8px, 1.6cqh, 60px) clamp(14px, 3cqw, 160px); }
+.screen[data-screen="newGameSetup"] { padding: clamp(4px, 1cqh, 48px) clamp(14px, 3cqw, 160px); }
+.screen[data-screen="newGameSetup"] .cards-row .card { width: clamp(112px, 13.2cqw, 220px); }
+.screen[data-screen="newGameSetup"] #sandbox-panel { width: min(480px, 40%); margin-top: 0; }
 .screen[data-screen="newGameSetup"] h2 { font-size: clamp(20px, 3.8cqh, 54px); margin-bottom: 2px; }
 .row-title { font-family: var(--font-title); font-size: clamp(12px, 1.8cqh, 26px); letter-spacing: clamp(1px, 0.2cqw, 3px); color: var(--ice-dim); margin: clamp(2px, 0.6cqh, 14px) 0 clamp(2px, 0.4cqh, 10px); text-transform: uppercase; }
 .cards-row { display: flex; flex-wrap: wrap; gap: clamp(6px, 1cqw, 20px); min-width: 0; }
