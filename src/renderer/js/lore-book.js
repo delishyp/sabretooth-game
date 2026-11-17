@@ -67,9 +67,26 @@
     });
     return state.directory.lore;
   }
+  function catName(state, id) {
+    const npc = id && state && state.npcs && state.npcs[id];
+    return (npc && npc.name) || '';
+  }
+  function varsFor(state, stored) {
+    const vars = Object.assign({}, (state && state._loreVars) || {});
+    const ids = (stored && stored.catIds) || [];
+    if (!vars.name) vars.name = catName(state, ids[0]);
+    if (!vars.subjectName) vars.subjectName = catName(state, ids[1]) || vars.name;
+    if (!vars.sourceName) vars.sourceName = catName(state, stored && stored.how && stored.how.sourceCatId);
+    if (!vars.zoneName && stored && stored.regionId) vars.zoneName = (state && state._regionName && state._regionName(stored.regionId)) || '';
+    if (!vars.pride && stored && stored.prideId) {
+      const own = state && state.records && state.records.pride;
+      vars.pride = (own && own.id === stored.prideId && own.name) || '';
+    }
+    return vars;
+  }
   function entryText(id, stored, vars) {
     const common = (copy.common_knowledge || []).find((row) => row.id === id);
-    if (common) return { title: common.title, body: common.text, how: HOW.common || '' };
+    if (common) return { title: common.title, body: fill(common.text, vars), how: fill(HOW.common || '', vars) };
     const kind = kindOf(id);
     const rumour = stored && stored.section === 'rumour';
     const bank = rumour && copy.rumour && copy.rumour[kind];
@@ -93,7 +110,7 @@
     const rumours = [];
     Object.keys(lore).forEach((id) => {
       const stored = lore[id];
-      const text = entryText(id, stored, vars);
+      const text = entryText(id, stored, varsFor(s, stored));
       const row = { id, title: text.title, body: text.body, how: text.how, seen: stored.seen !== false ? true : false, struck: !!text.struck };
       if (stored.section === 'common') common.push(row);
       else if (stored.section === 'rumour') rumours.push(row);
