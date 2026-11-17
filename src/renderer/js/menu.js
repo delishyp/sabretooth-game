@@ -426,8 +426,13 @@
       chip.type = 'button'; chip.dataset.pick = item.id;
       chip.append(el('span', 'trait-name', spec.name || item.id), el('span', 'trait-hint', spec.hint || ''));
       chip.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('togglePick', item.id); });
+      if (grid.childElementCount >= 5) chip.classList.add('is-extra');
       grid.append(chip);
     }
+    const moreTraits = el('button', 'more', 'More ' + (creator.tab || 'body') + ' traits');
+    moreTraits.type = 'button';
+    moreTraits.addEventListener('click', (ev) => { ev.stopPropagation(); grid.classList.toggle('show-all'); });
+    grid.append(moreTraits);
     const focused = (creator.picks || [])[0];
     const shown = api.copy.traits[focused] || api.copy.traits[(creator.focus || '').replace('pick:', '')] || {};
     detail.textContent = shown.flavour ? shown.name + '. ' + shown.flavour : '';

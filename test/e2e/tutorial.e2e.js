@@ -53,6 +53,7 @@ async function startRun(page, { tips }) {
         await page.locator('[data-g="tutorialDismiss"]').click();
       }
       if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
+      if (await page.locator('[data-g="hunt"][data-size="small"]').isHidden() && await page.locator('[data-g="pickHunt"]').isVisible()) await page.locator('[data-g="pickHunt"]').click();
       await page.locator('[data-g="hunt"][data-size="small"]').click();
       const seen = [];
       const firstVisible = async (sel) => {
@@ -89,8 +90,10 @@ async function startRun(page, { tips }) {
       for (let i = 0; i < 6 && await page.locator('#tutorial-card').count(); i++) {
         await page.locator('[data-g="tutorialDismiss"]').click();
       }
+      if (await page.locator('[data-g="watch"]').isHidden() && await page.locator('[data-g="showMore"]').isVisible()) await page.locator('[data-g="showMore"]').click();
       await page.locator('[data-g="watch"]').click();
       await playOut();
+      if (await page.locator('[data-g="scent"]').isHidden() && await page.locator('[data-g="showMore"]').isVisible()) await page.locator('[data-g="showMore"]').click();
       await page.locator('[data-g="scent"]').click();
       await playOut();
       const actions = await page.evaluate(() => {

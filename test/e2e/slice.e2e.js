@@ -62,11 +62,18 @@ async function step(page, shots) {
   if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'continue'; }
   if (av.forced) { await page.locator('[data-g="forced"]').click(); await idle(page); return 'forced'; }
   if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
+  const showStep = async (sel) => {
+    if (await page.locator(sel).first().isVisible()) return;
+    if (sel.includes('hunt') && await page.locator('[data-g="pickHunt"]').isVisible()) await page.locator('[data-g="pickHunt"]').click();
+    if (sel.includes('travel') && await page.locator('[data-g="pickTravel"]').isVisible()) await page.locator('[data-g="pickTravel"]').click();
+  };
   if (s.needs.thirst < 50 && !W.hasWater(s.region, 'spring')) {
     const to = av.travel.find((o) => o.allowed && W.hasWater(o.to, 'spring') && o.days === 1) || av.travel.find((o) => o.allowed);
+    await showStep(`[data-g="travel"][data-to="${to.to}"]`);
     await page.locator(`[data-g="travel"][data-to="${to.to}"]`).click(); await idle(page); return `travel ${to.to}`;
   }
   if (s.needs.hunger < 65 && av.hunt.allowed) {
+    await showStep('[data-g="hunt"][data-size="small"]');
     await page.locator('[data-g="hunt"][data-size="small"]').click(); await idle(page);
     if (!shots.hunt) { await shot(page, '03-hunt-result'); shots.hunt = true; }
     return 'hunt';
@@ -120,6 +127,7 @@ async function step(page, shots) {
       while ((await g(page)).state.day < 6) await step(page, shots);
       while ((await g(page)).state.phase !== 'day') await step(page, shots);
       assert.ok(gameJson(ud, 0, 0).day >= 6, 'autosave each day');
+      if (await page.locator('.home-tools [data-g="save"]').isHidden()) await page.locator('[data-g="openMenu"]').click();
       await page.locator('.home-tools [data-g="save"]').click(); await page.waitForTimeout(300);
       before = (await g(page)).state;
       assert.deepStrictEqual(gameJson(ud, 0, 1), before);

@@ -6,6 +6,7 @@
 <title>Sabretooth</title>
 <link rel="stylesheet" href="styles/theme.css">
 <link rel="stylesheet" href="styles/menu.css">
+<link rel="stylesheet" href="styles/game-shell.css">
 </head>
 <!-- All visible text is filled from copy ids via data-t (see js/i18n.js). Credits names are data. -->
 <body>
@@ -82,22 +83,32 @@
       <canvas id="home-cat" class="home-cat" width="1152" height="864"></canvas>
       <button type="button" id="hotspot-den" class="hotspot hotspot-den" data-g="den" hidden><span data-t="home.den"></span></button>
       <button type="button" id="hotspot-wild" class="hotspot hotspot-wild" data-g="wild" hidden><span data-t="home.wilderness"></span></button>
-      <header class="home-top">
-        <div class="home-brand">
-          <div class="portrait-frame frame-sm is-headshot" data-portrait-mode="headshot"><canvas id="home-head" class="home-head" width="64" height="64"></canvas></div>
+      <header class="home-top shell-top">
+        <div class="home-brand who">
+          <div class="portrait-frame frame-sm is-headshot avatar" data-portrait-mode="headshot"><canvas id="home-head" class="home-head" width="64" height="64"></canvas></div>
           <div>
-            <p class="home-kicker" data-t="home.nav.pride"></p>
-            <h1 id="home-pride-name" class="home-pride-name"></h1>
-            <p class="home-player-line"><span id="home-player-name" class="home-player-name"></span><button type="button" id="home-expand" class="portrait-expand" data-g="expandCat" data-source="home-head" data-t="portrait.expand"></button></p>
+            <p id="home-pride-name" class="home-kicker home-pride-name"></p>
+            <h1 id="home-player-name" class="home-player-name"></h1>
           </div>
         </div>
-        <div class="home-status" id="game-hud"></div>
+        <p id="game-day" class="where-when"></p>
+        <div class="home-status needs" id="game-hud"></div>
         <div class="home-tools">
-          <button type="button" data-g="save" data-t="game.action.save"></button>
-          <button type="button" data-g="menu" data-t="common.mainMenu"></button>
+          <button type="button" class="menu-btn" data-g="openMenu">Menu</button>
+          <div id="game-menu" class="game-menu" hidden>
+            <button type="button" data-g="save" data-t="game.action.save"></button>
+            <button type="button" data-g="menu" data-t="common.mainMenu"></button>
+            <button type="button" id="home-expand" class="portrait-expand" data-g="expandCat" data-source="home-head" data-t="portrait.expand"></button>
+          </div>
         </div>
       </header>
-      <nav id="home-nav" class="home-nav"></nav>
+      <div id="goal-strip" class="goal">
+        <span class="tag">Goal</span>
+        <span id="goal-slot"></span>
+        <button type="button" class="drawer-pill" data-g="aboutPlace">About this place</button>
+        <button type="button" class="guide" data-g="goalOpen">Guide</button>
+      </div>
+      <nav id="home-nav" class="home-nav rail"></nav>
       <aside class="home-dock">
         <div id="home-panel"></div>
         <div id="dock-kept">
@@ -109,8 +120,8 @@
           <div class="game-region" id="game-region"></div>
         </details>
       </aside>
-      <div class="game-actions" id="game-actions" hidden></div>
-      <button type="button" class="day-primary" data-g="openActions">Choose today's action</button>
+      <div class="game-actions card action-sheet" id="game-actions" hidden></div>
+      <button type="button" id="day-primary" class="day-primary primary" data-g="openActions">Choose today's action</button>
     </div>
     <div class="game-event" id="game-event" hidden></div>
   </section>

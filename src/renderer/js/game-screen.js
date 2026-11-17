@@ -183,7 +183,10 @@
     const name = document.createElement('div');
     name.className = 'event-cast-name';
     name.textContent = npc.name || '';
-    cast.append(frame, name);
+    const mood = document.createElement('p');
+    mood.className = 'speaker-mood';
+    mood.textContent = 'Friendly';
+    cast.append(frame, name, mood);
     card.append(cast);
     const opts = PortraitModes ? PortraitModes.speakerOpts() : { frame: 'head', mode: 'headshot', place: 'dialogue' };
     const stage = npc.stage || npc.lifeStage || null;
@@ -215,7 +218,7 @@
     const { t, $ } = ctx;
     const E = Slice.create({ ...gameData, nameData, looks: ctx.creatorLooks });
     const W = E.W;
-    let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home'; let tutorialPulse = null; let selectedCat = null;
+    let s = null; let run = null; let busy = false; let lastSaved = null; let view = 'home'; let tutorialPulse = null; let selectedCat = null; let uiStep = 'main'; let uiMore = false;
     const ph = (id) => (WordBar && WordBar.label ? WordBar.label(id) : id);
     const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; };
     const framed = (canvas, size, mode) => {
@@ -376,7 +379,8 @@
       cv.style.width = box.width + 'px'; cv.style.height = box.height + 'px';
     }
     function renderChrome() {
-      $('#home-pride-name').textContent = presentationPrideName(s, run && run.prideName, factionName);
+      const prideLabel = presentationPrideName(s, run && run.prideName, factionName);
+      $('#home-pride-name').textContent = prideLabel || 'A lone cat';
       $('#home-player-name').textContent = s.cat.name;
       const cv = $('#home-cat');
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
@@ -399,12 +403,29 @@
     function renderNav() {
       const nav = $('#home-nav'); nav.textContent = '';
       nav.setAttribute('aria-label', t('home.nav.label'));
-      for (const item of HomeScene.NAV) {
+      const order = ['home', 'wilderness', 'cats', 'lore', 'pride', 'den', 'breeding', 'inventory', 'market', 'map', 'deeds', 'reputation'];
+      const icons = {
+        home: '<path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 10.8V20h12V10.8"/>',
+        wilderness: '<path d="M2.5 19.5 9 8.5l4 6.2 2.8-3.9 5.7 8.7z"/>',
+        cats: '<path d="M5 11c0-2 1.2-4.5 3.2-5.2L7 3.5 10 6c.6-.2 1.3-.3 2-.3s1.4.1 2 .3l3-2.5-1.2 2.3C17.8 6.5 19 9 19 11c0 4-3.1 7-7 7s-7-3-7-7z"/>',
+        lore: '<path d="M4 5.5c3-1 6-.8 8 1v12.5c-2-1.6-5-1.8-8-.8z"/><path d="M20 5.5c-3-1-6-.8-8 1v12.5c2-1.6 5-1.8 8-.8z"/>',
+        pride: '<path d="M5 19c0-3 2-5 5-5s5 2 5 5"/><circle cx="10" cy="9" r="2.3"/>',
+        den: '<path d="M3 19.5c0-7 4-12 9-12s9 5 9 12"/>',
+        breeding: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/>',
+        inventory: '<path d="M6 8h12l-1 12H7z"/>',
+        market: '<path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/>',
+        map: '<path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"/>',
+        deeds: '<path d="M7 4h10v16l-5-3-5 3z"/>',
+        reputation: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5 6.9 19.2l1-5.7-4.1-4 5.7-.8z"/>'
+      };
+      const items = HomeScene.NAV.slice().sort((a, b) => (order.indexOf(a.id) < 0 ? 99 : order.indexOf(a.id)) - (order.indexOf(b.id) < 0 ? 99 : order.indexOf(b.id)));
+      for (const item of items) {
         const state = Unlocks ? Unlocks.displayState(s, item.id) : 'open';
-        const b = el('button', state === 'locked' ? 'is-locked' : state === 'new' ? 'is-new' : '');
+        const b = el('button', 'item' + (state === 'locked' ? ' is-locked' : state === 'new' ? ' is-new' : ''));
         b.type = 'button'; b.dataset.g = 'nav'; b.dataset.view = item.id; b.dataset.unlock = state;
+        const lock = state === 'locked' ? '<svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg>' : '';
+        b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + (icons[item.id] || icons.home) + '</svg>' + lock;
         b.append(el('span', 'nav-label', navLabel(item.id)));
-        if (state === 'locked') b.append(el('span', 'nav-state', 'Locked'));
         b.title = state === 'locked' && Unlocks ? (Unlocks.opensWhenLine(item.id === 'cats' ? 'smilodons' : item.id) || navLabel(item.id)) : navLabel(item.id);
         if (state !== 'locked' && view === item.id) b.setAttribute('aria-current', 'page');
         nav.append(b);
@@ -413,8 +434,9 @@
     function renderHud() {
       const h = $('#game-hud'); h.textContent = '';
       const dayLabel = Unlocks ? Unlocks.topBarDay(s, E.rules.seasonDays) : t('game.dayOf', { day: s.day, days: E.rules.seasonDays, season: t(`season.${s.season}`) });
-      const day = el('div', 'hud-day', dayLabel);
-      day.id = 'game-day';
+      const day = $('#game-day') || el('p', 'where-when');
+      if (!day.id) day.id = 'game-day';
+      day.textContent = regionName(s.region) + ' · ' + dayLabel;
       const pair = s.records && s.records.matePair;
       const mate = pair && s.npcs[pair.mateId];
       const needs = el('div', 'hud-needs');
@@ -423,7 +445,7 @@
         needs.append(needBar(k, s.needs[k]));
       }
       const inj = el('div', 'hud-injuries'); for (const i of s.injuries) inj.append(el('span', `chip chip-${i.tier}`, t.plural(`game.injury.${i.tier}`, i.daysLeft)));
-      h.append(day, needs, inj);
+      h.append(needs, inj);
       if (mate) {
         const mates = el('div', 'hud-mates', 'Mates');
         mates.dataset.mate = pair.mateId;
@@ -739,19 +761,52 @@
       } else if (av.forced) {
         a.append(el('p', 'forced-note', t(`game.forced.${av.forced}`, { region: av.to ? regionName(av.to) : '' })), btn(t('game.action.continueDay'), { g: 'forced' }, { cls: 'primary' }));
       } else {
-        const hunt = el('div', 'action-group'); hunt.append(el('h3', '', t('game.action.hunt')));
+        const actRow = (title, line, cost, attrs) => {
+          const b = btn('', attrs, { cls: 'act' });
+          b.append(el('b', '', title), el('span', '', line), el('i', '', cost));
+          return b;
+        };
+        const main = el('div', 'sheet-main');
+        main.hidden = uiStep !== 'main';
+        main.append(el('p', 'kick', "Today's action"));
+        main.append(actRow('Rest', 'Rest the day away and get your Energy back.', 'Costs: the day', { g: 'rest' }));
+        main.append(actRow('Travel', 'Walk to a neighbouring region.', 'Costs: the day, or more', { g: 'pickTravel' }));
+        if ((av.lone || {}).watch) main.append(actRow('Watch from a vantage', 'See which cats pass this ground.', 'Costs: the day', { g: 'watch' }));
+        const talks = talkGroup(av.talk);
+        if (talks.childElementCount) main.append(talks);
+        main.append(btn('More actions', { g: 'showMore' }, { cls: 'more' }));
+        const hunt = el('div', 'sheet-hunt action-group');
+        hunt.hidden = uiStep !== 'hunt';
+        hunt.append(el('h3', '', t('game.action.hunt')));
         for (const size of ['small', 'medium', 'large']) hunt.append(btn(t('game.action.huntSize', { size: t(`game.size.${size}`), chance: av.hunt.chance[size] }), { g: 'hunt', size }, { disabled: !av.hunt.allowed, title: av.hunt.allowed ? '' : t('game.blocked.tired') }));
         if (!av.hunt.allowed) hunt.append(el('p', 'blocked-note', t('game.blocked.tired')));
-        const rest = el('div', 'action-group is-rest' + (view === 'den' ? ' is-target' : '')); rest.append(el('h3', '', t('game.action.restTitle')), btn(t('game.action.rest'), { g: 'rest' }));
-        const tr = el('div', 'action-group travel is-travel' + (view === 'wilderness' ? ' is-target' : '')); tr.append(el('h3', '', t('game.action.travel')));
+        const rest = el('div', 'action-group is-rest'); rest.hidden = true;
+        const tr = el('div', 'sheet-travel action-group travel');
+        tr.hidden = uiStep !== 'travel';
+        tr.append(el('h3', '', t('game.action.travel')));
         for (const o of av.travel) {
           const discovered = s.map.discovered.includes(o.to);
           tr.append(btn(t.plural('game.action.travelTo', o.days, { region: discovered ? regionName(o.to) : t('game.region.unknown') }), { g: 'travel', to: o.to }, { disabled: !o.allowed, title: o.allowed ? '' : t('game.blocked.edge') }));
         }
-        const talks = talkGroup(av.talk);
-        a.append(hunt, rest, tr);
+        a.append(main, hunt, rest, tr);
+        const primary = $('#day-primary');
+        if (primary) {
+          primary.hidden = false;
+          if (a.hidden) {
+            primary.dataset.g = 'openActions';
+            primary.className = 'day-primary primary';
+            primary.textContent = "Choose today's action";
+          } else if (uiStep === 'main') {
+            primary.dataset.g = 'pickHunt';
+            primary.className = 'day-primary primary is-suggested';
+            primary.replaceChildren(el('span', 'sugg', 'Suits your goal'), document.createTextNode('Hunt'), el('span', 'sub', 'Track prey in this region.'));
+          } else {
+            primary.dataset.g = 'uiBack';
+            primary.className = 'day-primary primary';
+            primary.textContent = 'Back';
+          }
+        }
         const lone = av.lone || {};
-        if (lone.watch) a.append(btn('Watch from a vantage', { g: 'watch' }));
         for (const row of lone.scout || []) a.append(btn(`Scout the ${row.name} border`, { g: 'scout', pride: row.pride }));
         for (const row of lone.shadow || []) a.append(btn(`Shadow ${row.name}`, { g: 'shadow', cat: row.id }));
         const spar = sparLockDisplay(lone.spar || []);
@@ -766,7 +821,6 @@
         if (lone.steal) a.append(btn('Steal from the kill', { g: 'steal' }));
         if (lone.cub) a.append(btn('Help the cub', { g: 'helpCub' }));
         for (const row of lone.share || []) a.append(btn(`Share the kill with ${row.name}`, { g: 'shareKill', cat: row.id }));
-        if (talks.childElementCount) a.append(talks);
         if (av.seek) a.append(btn(`Seek out ${av.seek.name}`, { g: 'seek', cat: av.seek.catId }, { disabled: !av.seek.allowed, title: av.seek.reason || CardWords.energy(-(av.seek.energy || 0)) }));
         const bond = el('div', 'action-group is-bond');
         const seekers = av.seekMate || [];
@@ -817,6 +871,12 @@
             }
             a.append(more);
           }
+        }
+        for (const child of [...a.children]) {
+          if (child.classList.contains('sheet-main')) child.hidden = uiStep !== 'main';
+          else if (child.classList.contains('sheet-hunt')) child.hidden = uiStep !== 'hunt';
+          else if (child.classList.contains('sheet-travel')) child.hidden = uiStep !== 'travel';
+          else child.hidden = !(uiMore && uiStep === 'main');
         }
       }
     }
@@ -1020,6 +1080,8 @@
       card.dataset.node = view.nodeId; card.dataset.encounter = view.encounterId; card.dataset.asset = view.assetId;
       box.append(card);
       card.append(el('h2', 'event-title', view.displayName));
+      const foeKind = /wolf/.test(view.encounterId || '') ? 'wolf' : /hyena/.test(view.encounterId || '') ? 'hyena' : /deer/.test(view.encounterId || '') ? 'deer' : (view.displayName || '');
+      card.append(el('p', 'statel', Unlocks ? Unlocks.foeStateLine({ kind: foeKind, displayName: view.displayName }) : view.displayName));
       const spoken = (view.lines || []).find((row) => row && (row.kind === 'say' || row.kind === 'speech') && (row.speakerId || row.speaker));
       const speaker = spoken && resolveSpeaker(s, spoken);
       if (speaker) appendSpeakerHead(card, speaker, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
@@ -1047,7 +1109,7 @@
       }
       card.append(scroll);
       card.append(el('p', 'choice-cost', encounterCost(view)));
-      const ch = el('div', 'event-choices');
+      const ch = el('div', 'event-choices moves');
       if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.label, { g: 'encounterChoose', choice: c.id }, { disabled: !!c.disabled, title: c.reason || '' }));
       card.append(ch);
@@ -1304,7 +1366,10 @@
     }
     function render() {
       if (!s) return;
+      if (s.phase === 'day') uiStep = 'main';
       if (Unlocks) Unlocks.persist(s);
+      const dock = $('#home-dock');
+      if (dock) dock.hidden = view === 'home';
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       const evOpen = !$('#game-event').hidden;
       const perkOpen = !!document.getElementById('perk-modal');
@@ -1404,8 +1469,9 @@
       const goalBtn = el('button', 'goal-line', shown.goal.line);
       goalBtn.type = 'button'; goalBtn.id = 'goal-line'; goalBtn.dataset.g = 'goalOpen'; goalBtn.dataset.goal = shown.goal.id;
       stack.append(goalBtn);
-      const hud = $('#game-hud');
-      if (hud) hud.append(stack);
+      const slot = $('#goal-slot');
+      if (slot) { slot.textContent = ''; slot.append(stack); }
+      else { const hud = $('#game-hud'); if (hud) hud.append(stack); }
       if (!shown.card) return;
       const card = el('div', 'event-card tutorial-card');
       card.id = 'tutorial-card';
@@ -1433,11 +1499,27 @@
         if (!opened.error) render();
         return;
       }
-      if (d.g === 'openActions') {
-        const box = $('#game-actions');
-        if (box) box.hidden = !box.hidden;
+      if (d.g === 'openMenu') {
+        const menu = $('#game-menu');
+        if (menu) menu.hidden = !menu.hidden;
         return;
       }
+      if (d.g === 'aboutPlace') {
+        const box = $('#place-drawer');
+        if (box) box.open = !box.open;
+        return;
+      }
+      if (d.g === 'openActions') {
+        const box = $('#game-actions');
+        if (box) box.hidden = false;
+        uiStep = 'main';
+        renderActions();
+        return;
+      }
+      if (d.g === 'pickHunt') { uiStep = 'hunt'; $('#game-actions').hidden = false; renderActions(); return; }
+      if (d.g === 'pickTravel') { uiStep = 'travel'; $('#game-actions').hidden = false; renderActions(); return; }
+      if (d.g === 'uiBack') { uiStep = 'main'; renderActions(); return; }
+      if (d.g === 'showMore') { uiMore = !uiMore; renderActions(); return; }
       if (d.g === 'lockedAction') {
         const row = Unlocks && Unlocks.moreActions(s).find((item) => item.id === d.action);
         if (row && row.opensWhen) ctx.toast(row.opensWhen);
