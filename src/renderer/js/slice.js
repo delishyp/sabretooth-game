@@ -175,6 +175,8 @@
       if (Q) Q.ensure(s);
       if (PrideHeader) PrideHeader.migrateFood(s);
       if (PrideRules) PrideRules.migrate(s);
+      const Unlocks = typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null);
+      if (Unlocks) Unlocks.persist(s);
       return s;
     }
     function bondDeps(s, rep) {
@@ -1004,6 +1006,8 @@
       }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;
       const finished = !Pair.enabled && s.day >= R.seasonDays;
+      const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
+      if (Councils) Councils.scan(s);
       if (!finished && !closing) s.day += 1;
       if (ev) {
         s.pending = ev; s.phase = ev.result ? 'eventResult' : 'event';
@@ -1014,14 +1018,18 @@
       } else if (finished) { s.over = true; s.phase = 'over'; }
       else {
         s.phase = 'day';
-        const open = !WM.considerFord(s) && !WM.considerRelay(s);
-        if (open && offerMeadow(s)) return;
-        if (open && !ctx.resumed) {
-          const now = s.day;
-          s.day = now - 1;
-          const filler = quietScene(s, rep);
-          s.day = now;
-          if (filler) { filler.day = now - 1; s.pending = filler; s.phase = 'event'; }
+        const early = Councils && !s.pendingArc ? Councils.offerEarly(s) : null;
+        const seated = early && s.pending && s.pending.council;
+        if (!seated) {
+          const openSlot = !WM.considerFord(s) && !WM.considerRelay(s);
+          if (openSlot && offerMeadow(s)) return;
+          if (openSlot && !ctx.resumed) {
+            const now = s.day;
+            s.day = now - 1;
+            const filler = quietScene(s, rep);
+            s.day = now;
+            if (filler) { filler.day = now - 1; s.pending = filler; s.phase = 'event'; }
+          }
         }
       }
       noteUnloggedMeets(s);

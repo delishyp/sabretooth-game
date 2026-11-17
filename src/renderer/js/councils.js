@@ -27,17 +27,37 @@
     const honour = clamp((opts.honourLevel || 0) * CANDIDATE.honourPerLevel, -CANDIDATE.honourCap, CANDIDATE.honourCap);
     return clamp(base + 10 * strength + temper + honour, 5, 90);
   }
+  const HOSTILE = -50;
+  const RECOGNISE_ABOVE = -15;
+  const RECOGNISE_COUNT = 2;
   function mayAttend(state) {
     return !!(state.records && state.records.pride && state.records.pride.name);
+  }
+  function prideToPlayer(state, id) {
+    const bag = state.worldMemory && state.worldMemory.prideToPlayer;
+    const rec = bag && bag[id + '->player'];
+    if (rec && typeof rec.value === 'number') return rec.value;
+    return (state.prideRelation && state.prideRelation[id]) || 0;
+  }
+  function recognised(state) {
+    let above = 0;
+    for (const id of PRIDES) if (prideToPlayer(state, id) > RECOGNISE_ABOVE) above += 1;
+    return above >= RECOGNISE_COUNT;
+  }
+  function playerParty(state, parties) {
+    const id = state.records && state.records.pride && state.records.pride.id;
+    return (parties || []).some((party) => party === 'player' || (id && party === id));
   }
   function open(state) {
     if (!mayAttend(state)) return { error: 'loner' };
     const season = seasonOf(state.day);
     if (state.records.lastCouncilSeason === season) return { error: 'already' };
     state.records.lastCouncilSeason = season;
+    const heldLatch = state.records.councilLatch || null;
+    state.records.councilLatch = null;
     const Deeds = typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null);
     if (Deeds) Deeds.note(state, 'council.attended');
-    const items = agenda(state);
+    const items = agenda(state, heldLatch);
     const LoreBook = typeof require === 'function' ? require('./lore-book') : (typeof self !== 'undefined' ? self.LoreBook : null);
     const line = LoreBook && LoreBook.copy && (LoreBook.copy.common_knowledge || []).find((row) => row.id === 'ck_custom_councils');
     state.pending = {
@@ -52,9 +72,15 @@
     state.phase = 'event';
     return { state, items };
   }
-  function agenda(state) {
+  function agenda(state, latch) {
     const items = [];
     const names = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
+    const held = latch || (state.records && state.records.councilLatch);
+    const fight = held && held.reason === 'fight' && held.pair;
+    if (fight) {
+      const pair = held.pair;
+      items.push({ id: 'fight-' + pair[0] + '-' + pair[1], kind: 'truce', parties: pair, afterBlood: true, label: '[PH] A truce between ' + (names[pair[0]] || pair[0]) + ' and ' + (names[pair[1]] || pair[1]) });
+    }
     for (let i = 0; i < PRIDES.length; i++) {
       for (let j = i + 1; j < PRIDES.length; j++) {
         const a = PRIDES[i];
@@ -67,6 +93,7 @@
   }
   function strike(state, item, accepted) {
     if (!accepted) return { state, agreed: false };
+    if (playerParty(state, item.parties) && !recognised(state)) return { state, agreed: false, reason: 'unrecognised' };
     const row = {
       id: (state.runId || 'run') + '/council/' + item.id + '/' + seasonOf(state.day),
       kind: item.kind || 'truce',
@@ -132,16 +159,79 @@
     }
     const Deeds = typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null);
     if (Deeds) Deeds.note(state, 'agreement.broken');
+    latch(state, { reason: 'breach' });
     const Reputation = typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null);
     if (Reputation) Reputation.add(state, { axis: 'honour', sign: -1, deedId: 'agreement_broken', weightClass: 'big', receiptKey: row.id + '/broken', day: state.day, factId: fact });
     return { state, agreement: row, fact };
   }
   function resolve(state, choiceId) {
     const item = (state.pending && state.pending.agenda || []).find((row) => row.id === choiceId);
-    if (item) strike(state, item, true);
+    let result = { state, agreed: false };
+    if (item && !recognised(state)) result = { state, agreed: false, reason: 'unrecognised' };
+    else if (item) result = strike(state, item, true);
     if (state.pending) state.pending = null;
     state.phase = 'day';
-    return { state };
+    return result;
   }
-  return { PRIDES, CANDIDATE, acceptChance, seasonOf, mayAttend, open, agenda, strike, keep, breach, resolve, agreements, relation, shift };
+  function latch(state, spec) {
+    if (!state.records) state.records = {};
+    if (state.records.lastCouncilSeason === seasonOf(state.day)) return null;
+    state.records.councilLatch = { reason: spec.reason, pair: spec.pair || null, day: state.day || 1 };
+    return state.records.councilLatch;
+  }
+  function relationsNow(state) {
+    const now = {};
+    const world = (state.world && state.world.relations) || {};
+    for (const [key, value] of Object.entries(world)) now['world:' + key] = value;
+    for (const id of PRIDES) now['player:' + id] = (state.prideRelation && state.prideRelation[id]) || 0;
+    const between = (state.worldMemory && state.worldMemory.prideToPride) || {};
+    for (const [key, rec] of Object.entries(between)) now['pride:' + key] = (rec && rec.value) || 0;
+    return now;
+  }
+  function scan(state) {
+    if (!state.records) state.records = {};
+    const now = relationsNow(state);
+    if (!state.records.councilRelations) {
+      state.records.councilRelations = now;
+      return [];
+    }
+    const prev = state.records.councilRelations;
+    const crossed = [];
+    const keys = new Set(Object.keys(prev).concat(Object.keys(now)));
+    for (const key of keys) {
+      const before = prev[key] == null ? 0 : prev[key];
+      const after = now[key] == null ? 0 : now[key];
+      if (before > HOSTILE && after <= HOSTILE) crossed.push(key);
+    }
+    state.records.councilRelations = now;
+    if (crossed.length) latch(state, { reason: 'hostile', pair: pairFromKey(crossed[0]) });
+    return crossed;
+  }
+  function pairFromKey(key) {
+    const raw = String(key).split(':').pop();
+    const parts = raw.split('>');
+    if (parts.length === 2 && PRIDES.indexOf(parts[0]) >= 0 && PRIDES.indexOf(parts[1]) >= 0) return parts;
+    return null;
+  }
+  function noteFight(state, a, b) {
+    const row = latch(state, { reason: 'fight', pair: [a, b] });
+    return row;
+  }
+  function offerEarly(state) {
+    scan(state);
+    if (!state.records || !state.records.councilLatch) return null;
+    if (state.pendingArc) return null;
+    if (state.records.lastCouncilSeason === seasonOf(state.day)) return null;
+    if (!mayAttend(state)) {
+      state.records.lastCouncilSeason = seasonOf(state.day);
+      state.records.councilLatch = null;
+      return { seated: false, state };
+    }
+    return open(state);
+  }
+  return {
+    PRIDES, CANDIDATE, HOSTILE, RECOGNISE_ABOVE, acceptChance, seasonOf, mayAttend, recognised,
+    open, agenda, strike, keep, breach, resolve, agreements, relation, shift,
+    scan, noteFight, offerEarly, latch
+  };
 });

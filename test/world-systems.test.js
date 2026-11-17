@@ -99,6 +99,47 @@ test('councils: one season, keep is +5 each way, a break is -15/-10 plus a negat
   assert.strictEqual(Councils.acceptChance(0, 8, 7, 'mistwood', 'truce', { afterBlood: true }), 70);
 });
 
+test('a feud that crosses -50 calls the season council on the next free day, and an unrecognised founder cannot ratify', () => {
+  const state = fresh();
+  Councils.scan(state);
+  state.world.relations = { 'highcrag>bonefield': -60, 'bonefield>highcrag': -40 };
+  const crossed = Councils.scan(state);
+  assert.ok(crossed.some((key) => key.indexOf('highcrag>bonefield') >= 0));
+  state.pendingArc = { nodeId: 'talk' };
+  assert.strictEqual(Councils.offerEarly(state), null);
+  delete state.pendingArc;
+  const early = Councils.offerEarly(state);
+  assert.strictEqual(early.error, undefined);
+  assert.strictEqual(state.pending.council, true);
+  assert.strictEqual(state.records.lastCouncilSeason, 0);
+  assert.strictEqual(Councils.offerEarly(state), null);
+  const blocked = fresh();
+  blocked.worldMemory.prideToPlayer = {
+    'highcrag->player': { value: -15 },
+    'bonefield->player': { value: -20 },
+    'mistwood->player': { value: 0 }
+  };
+  assert.strictEqual(Councils.recognised(blocked), false);
+  const voted = Councils.strike(blocked, { id: 'mine', kind: 'truce', parties: ['player', 'mistwood'] }, true);
+  assert.strictEqual(voted.reason, 'unrecognised');
+  assert.strictEqual(voted.agreed, false);
+  blocked.pending = { council: true, agenda: [{ id: 'feud', kind: 'truce', parties: ['highcrag', 'bonefield'] }] };
+  const heard = Councils.resolve(blocked, 'feud');
+  assert.strictEqual(heard.reason, 'unrecognised');
+  assert.strictEqual((blocked.world.agreements || []).length, 0);
+  const known = fresh();
+  known.worldMemory.prideToPlayer = {
+    'highcrag->player': { value: -14 },
+    'bonefield->player': { value: 0 },
+    'mistwood->player': { value: -40 }
+  };
+  assert.strictEqual(Councils.recognised(known), true);
+  Councils.noteFight(known, 'bonefield', 'mistwood');
+  const fight = Councils.offerEarly(known);
+  assert.strictEqual(fight.items[0].parties[0], 'bonefield');
+  assert.strictEqual(fight.items[0].kind, 'truce');
+});
+
 test('territory and council pass bands over 200 seeds and 40 seasons', () => {
   const band = WorldSim.summarise(200, 40);
   assert.ok(band.holderChanges >= 0.6 && band.holderChanges <= 1.5, String(band.holderChanges));

@@ -25,6 +25,7 @@
   const Reputation = (typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null));
   const Territory = (typeof require === 'function' ? require('./territory') : (typeof self !== 'undefined' ? self.Territory : null));
   const Councils = (typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null));
+  const Unlocks = (typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null));
   function logClass(line, cat) {
     if (!line || line.kind === 'gap') return 'event-text gap';
     if (line.kind === 'action') return 'event-text action';
@@ -1244,6 +1245,7 @@
     }
     function render() {
       if (!s) return;
+      if (Unlocks) Unlocks.persist(s);
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       const evOpen = !$('#game-event').hidden;
       const perkOpen = !!document.getElementById('perk-modal');
