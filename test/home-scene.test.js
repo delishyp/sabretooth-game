@@ -21,7 +21,7 @@ test('portrait box keeps 1152:864, fills the ledge width, and puts the paw line 
 });
 
 test('sidebar: home, pride, den, wilderness, and met cats are real; the rest stay unavailable', () => {
-  assert.deepStrictEqual(H.NAV.filter((item) => item.implemented).map((item) => item.id), ['home', 'pride', 'den', 'wilderness', 'cats', 'map', 'lore', 'deeds']);
+  assert.deepStrictEqual(H.NAV.filter((item) => item.implemented).map((item) => item.id), ['home', 'pride', 'den', 'wilderness', 'cats', 'map', 'lore', 'deeds', 'reputation']);
   assert.deepStrictEqual(H.NAV.filter((item) => !item.implemented).map((item) => item.id), ['breeding', 'market', 'inventory']);
   assert.deepStrictEqual(H.selectView('home', 'den'), { view: 'den', unavailable: null });
   assert.deepStrictEqual(H.selectView('den', 'wilderness'), { view: 'wilderness', unavailable: null });

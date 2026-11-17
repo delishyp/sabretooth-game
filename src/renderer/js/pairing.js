@@ -743,6 +743,8 @@
       event.rivalId = rival.id;
       event.committedInjuries = [];
       remember(s, [s.cat.catId, npc.id, rival.id], won ? 'rival_won' : 'rival_lost', event.summary, key, day);
+      const Reputation = typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null);
+      if (Reputation) Reputation.add(s, { axis: 'courage', sign: 1, weightClass: won ? 'medium' : 'small', deedId: won ? 'rival_won' : 'rival_lost', receiptKey: key + '/rep', day });
       return event;
     }
     function approvalScene(s, npc, deps, day) {

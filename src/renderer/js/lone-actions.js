@@ -902,6 +902,8 @@
       else if (s.records) s.records.cubs = { [p.cubId]: s.day };
       const factId = `${s.runId || ''}/cub/${p.cubId}`;
       rememberFact(s, factId, { kind: 'pride_aid', summary: `You walked a cub back to ${mother.name}.`, participants: ['player', mother.id, p.cubId], prideIds: [p.pride], skill: 'grooming', xpOutcome: 10, xpGranted: false });
+      const Reputation = typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null);
+      if (Reputation) Reputation.add(s, { axis: 'mercy', sign: 1, weightClass: 'medium', deedId: 'pride_aid', receiptKey: factId + '/rep', day: s.day });
       p.beats = (p.beats || []).concat([{ kind: 'narration', text: fillTokens(LINES['cub.help'], { mother: mother.name }), speaker: mother.name, speakerId: mother.id }]);
       p.resultLine = '';
       p.prideDelta = 5;
@@ -926,6 +928,8 @@
     mark(s, 'share', `${catId}/${kill.day}`);
     kill.shared = true;
     npc.affinity = Math.min(100, (npc.affinity || 0) + 10);
+    const Reputation = typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null);
+    if (Reputation) Reputation.add(s, { axis: 'mercy', sign: 1, weightClass: 'small', deedId: 'share_kill', receiptKey: key + '/rep', day: s.day });
     npc.met = true;
     keepBringPrey(s, catId);
     return {

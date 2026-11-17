@@ -95,6 +95,8 @@
     }
     function deed(s, axis, weightClass, key) {
       ensure(s).deeds.push({ axis, weightClass, receiptKey: key, day: s.day });
+      const Reputation = typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null);
+      if (Reputation) Reputation.add(s, { axis, sign: 1, weightClass, deedId: key, receiptKey: 'rep/' + key, day: s.day });
     }
     function openRequests(s) { return ensure(s).requests.filter((r) => r.state === 'open'); }
     function text(id, vars) {
@@ -410,8 +412,12 @@
       }
       return { state: s, trade, food: s.pride.food };
     }
-    function councilHook() {
-      return { todo: 'council-struck trades wait until the council system exists' };
+    function councilHook(s, trade) {
+      const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
+      if (!Councils || !s || !trade) return { agreed: false };
+      const kind = trade.kind === 'food_for_hunting' ? 'shared_hunting_ground' : trade.kind === 'help_for_help' ? 'admission_courtesy' : 'truce';
+      const player = (s.records && s.records.pride && s.records.pride.id) || 'player';
+      return Councils.strike(s, { id: trade.id || kind, kind, parties: [player, trade.prideId].filter(Boolean), regionId: trade.region || null }, true);
     }
     function act(s, action) {
       ensure(s);

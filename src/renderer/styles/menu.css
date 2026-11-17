@@ -223,17 +223,29 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .home-nav .nav-state { font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: #d7c4a4; }
 .home-nav button.is-unavailable { color: #b7aa9a; opacity: .72; border: 1px dashed rgba(212, 176, 122, .55); background: rgba(20, 14, 10, .55); }
 .home-dock { position: absolute; z-index: 3; top: 104px; right: 16px; width: 420px; max-height: calc(100% - 124px); overflow: hidden; display: flex; flex-direction: column; padding: 14px 16px 16px; background: rgba(20, 13, 9, .82); border: 1px solid rgba(212, 176, 122, .65); box-shadow: inset 0 0 0 1px rgba(243, 221, 176, .15); border-radius: 12px; min-width: 0; }
-.home-dock:has(.region-map), .home-dock:has(.lore-book) { left: 220px; right: 16px; width: auto; top: 96px; bottom: 16px; max-height: none; background: rgba(16, 11, 8, .96); }
+.home-dock:has(.region-map), .home-dock:has(.lore-book), .home-dock:has(.reputation-screen) { left: 220px; right: 16px; width: auto; top: 96px; bottom: 16px; max-height: none; background: rgba(16, 11, 8, .96); }
 .home-dock:has(.region-map) #game-region, .home-dock:has(.region-map) #game-actions, .home-dock:has(.region-map) #dock-kept,
-.home-dock:has(.lore-book) #game-region, .home-dock:has(.lore-book) #game-actions, .home-dock:has(.lore-book) #dock-kept { display: none; }
+.home-dock:has(.lore-book) #game-region, .home-dock:has(.lore-book) #game-actions, .home-dock:has(.lore-book) #dock-kept,
+.home-dock:has(.reputation-screen) #game-region, .home-dock:has(.reputation-screen) #game-actions, .home-dock:has(.reputation-screen) #dock-kept { display: none; }
 #home-panel, #dock-kept { flex: 0 0 auto; min-width: 0; }
 #home-panel:has(.home-cats) { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
-#home-panel:has(.region-map), #home-panel:has(.lore-book) { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+#home-panel:has(.region-map), #home-panel:has(.lore-book), #home-panel:has(.reputation-screen) { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; }
 .region-map { display: flex; flex-direction: column; min-height: 0; height: 100%; }
 .region-map-body { display: flex; gap: 12px; flex: 1 1 auto; min-height: 0; }
 .region-map-board { position: relative; flex: 1 1 auto; min-height: min(52cqh, 640px); background: rgba(12, 9, 7, .55); border: 1px solid rgba(212, 176, 122, .4); border-radius: 10px; }
 .region-node { position: absolute; margin: 0; padding: 2px 3px; font-size: clamp(10px, 1.35cqh, 13px); line-height: 1.15; text-align: center; color: #f6efe2; background: rgba(42, 28, 18, .92); border: 1px solid rgba(212, 176, 122, .7); border-radius: 6px; overflow: hidden; }
 .region-node.is-here { border-color: #f8cc6e; box-shadow: inset 0 0 0 1px #f8cc6e; }
+.region-node.is-highcrag { border-left: 4px solid #7A8B9A; }
+.region-node.is-bonefield { border-left: 4px solid #A67C52; }
+.region-node.is-mistwood { border-left: 4px solid #5B7F6A; }
+.region-node.is-wolves { border-left: 4px solid #6e6258; }
+.reputation-screen { display: flex; flex-direction: column; gap: 12px; }
+.rep-axes { display: flex; flex-direction: column; gap: 8px; }
+.axis-row { display: grid; grid-template-columns: 90px auto 1fr; gap: 10px; align-items: center; }
+.rep-pips { display: flex; gap: 4px; }
+.rep-pips .pip { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #c6a15a; display: inline-block; }
+.rep-pips .pip.is-on { background: #c6a15a; }
+.rep-renown, .rep-feed, .axis-word { color: #f6efe2; }
 .region-map-card { position: relative; flex: 0 0 28%; box-sizing: border-box; margin: 0; padding: 10px 12px; overflow: auto; background: rgba(20, 13, 9, .94); border: 1px solid rgba(212, 176, 122, .75); border-radius: 10px; color: #f6efe2; }
 .region-map-card h3 { margin: 0 0 6px; font-size: clamp(16px, 2cqh, 22px); }
 .lore-book { display: flex; flex-direction: column; gap: 16px; padding-bottom: 12px; }

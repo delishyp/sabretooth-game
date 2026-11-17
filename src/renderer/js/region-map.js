@@ -61,7 +61,8 @@
         width: NODE.width,
         height: NODE.height,
         here: region.id === s.region,
-        visited: visited.has(region.id)
+        visited: visited.has(region.id),
+        holder: holderOf(s, region.id)
       };
     }).filter(Boolean);
     const card = hover ? cardFor(map, s, hover) : null;
@@ -72,13 +73,32 @@
     if (!region) return null;
     const known = !!((state.map && state.map.discovered) || []).includes(id);
     if (!known) return { id, known: false, unknownKey: 'game.region.unknown' };
-    return {
+    const Territory = typeof require === 'function' ? require('./territory') : (typeof self !== 'undefined' ? self.Territory : null);
+    const card = {
       id,
       known: true,
       name: region.name,
       descriptionKey: 'map.region.' + id + '.description',
-      here: state.region === id
+      here: state.region === id,
+      holder: holderOf(state, id)
     };
+    if (Territory && (state.map.visited || []).indexOf(id) >= 0) {
+      const lead = Territory.lead(state.map && state.map.claims, id);
+      const viewer = state.records && state.records.pride && state.records.pride.id;
+      card.dangerWord = Territory.word(Territory.danger(region, { holder: lead.holder, claim: lead.claim }, viewer));
+      card.arrival = Territory.arrival(id, (state.map.visited || []).filter((row) => row === id).length > 1 ? 'return' : 'first');
+      if (id === 'split_rock') {
+        const LoreBook = typeof require === 'function' ? require('./lore-book') : (typeof self !== 'undefined' ? self.LoreBook : null);
+        const line = LoreBook && LoreBook.copy && (LoreBook.copy.common_knowledge || []).find((row) => row.id === 'ck_custom_councils');
+        card.council = line && line.text;
+      }
+    } else if (Territory) card.dangerWord = 'Unknown';
+    return card;
+  }
+  function holderOf(state, id) {
+    const Territory = typeof require === 'function' ? require('./territory') : (typeof self !== 'undefined' ? self.Territory : null);
+    if (!Territory || !state.map) return 'neutral';
+    return Territory.lead(state.map.claims, id).holder || 'neutral';
   }
   return { LAYOUT, NODE, CARD, intersects, saddleBox, build, cardFor };
 });

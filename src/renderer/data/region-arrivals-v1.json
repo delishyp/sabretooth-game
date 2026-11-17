@@ -1,0 +1,393 @@
+{
+ "_readme": "Arrival prose for each map region. Tokens allowed: {holderName} and {prideName}. Landscape only; no digits.",
+ "ice_wall": {
+  "first": "Blue ice towers above the scree, and the wind carries the deep cracking of the glacier. Even in sunlight, the cold reaches through your coat. Prey-scent is scarce here, and cats say the sabretooths of the Vale came out of this wall.",
+  "return": "The wall is as it was: blue, loud with cracking ice, and bitter to the bone.",
+  "held_by_other": "{holderName} marks are smeared on the bare scree at the foot of the ice, a claim that feels small against the glacier, and wrong to walk across.",
+  "unclaimed": "No pride has left a mark on this frozen ground; the ice belongs to itself.",
+  "held_by_you": "{prideName} has marked the scree at the foot of the wall, and the familiar scent is a small warmth in all this cold.",
+  "season": {
+   "spring": "Meltwater begins to run from the ice, and the air tastes of wet stone.",
+   "summer": "The brief brightness does not soften the wall; the cold still comes up from the ice.",
+   "autumn": "The melt slows, and what little prey there was has already moved down-valley.",
+   "winter": "The meltwater is frozen, the wind is loud, and there is nothing here to hunt."
+  }
+ },
+ "frost_tongue": {
+  "first": "A low tongue of glacier ice stretches toward the foothills, cloudy and cracked. Meltwater runs beneath the crust, and loose snow waits on the slopes above. You test each step, listening for the hollow sound of ice that will not hold.",
+  "return": "You know now where the tongue is solid and where the melt runs underfoot, but the ice still has to be read with care.",
+  "held_by_other": "{holderName} scent lies along the edge of the ice, and walking it feels like crossing a claim the cold itself might yet take back.",
+  "unclaimed": "The tongue of ice carries no pride's mark, only the mineral smell of melt.",
+  "held_by_you": "{prideName} marks stand on the firmer ice at the edge, and you know this crossing as your own.",
+  "season": {
+   "spring": "The crust looks sound, but meltwater talks underneath, and the ice has a rotten smell.",
+   "summer": "More prey has come up to the melt; you catch warm musk against the cold air.",
+   "autumn": "The melt thins, and the tongue grows quiet and hard again.",
+   "winter": "The melt is frozen solid, and the tongue is empty of anything worth hunting."
+  }
+ },
+ "blue_caves": {
+  "first": "Blue light filters through hollows in the ice, and the mouths of the caves offer a pause from the wind. Inside, the cold remains, deep and still. There is little prey-scent here, but the stone is dry enough to rest on.",
+  "return": "The blue dark of the caves is familiar now, and you slip into the nearest mouth to get out of the wind.",
+  "held_by_other": "{holderName} has marked the cave mouths, and the sheltered dark no longer feels as if it is waiting for just anyone.",
+  "unclaimed": "The caves hold no pride's scent, only old ice and the drip of melt.",
+  "held_by_you": "The smell of {prideName} is on the cave walls, and the shelter feels like a den you could trust.",
+  "season": {
+   "spring": "Meltwater ticks from the ice and gathers in shallow pools at the cave mouths.",
+   "summer": "The drip is steady, and the blue light is a little stronger in the long daylight.",
+   "autumn": "The melt slows, and the caves grow quieter.",
+   "winter": "The meltwater is frozen in pale sheets, and the caves are colder still."
+  }
+ },
+ "wind_scree": {
+  "first": "Loose stones cover the exposed slope, with little grass between the rocks. The wind snatches every scent away before you can follow it, and your paws rattle the scree with each step. This is hungry ground, open and bare.",
+  "return": "The scree still shifts under you, and the wind still steals the scents, just as it did before.",
+  "held_by_other": "{holderName} marks cling to the larger stones, already worn thin by the wind, but clear enough to make you glance behind you.",
+  "unclaimed": "Nothing has claimed this wind-scoured slope; the stones smell only of cold dust.",
+  "held_by_you": "Even here, {prideName} has left marks on the sturdier rocks, and you catch your own pride's scent between gusts.",
+  "season": {
+   "spring": "New grass tries to show between the stones, then the wind flattens it.",
+   "summer": "The slope is no kinder; the stones bake in the brief sun and the wind does not stop.",
+   "autumn": "What little life the scree had is already gone, blown out or eaten.",
+   "winter": "Snow hisses over the stones, and there is no prey-scent left at all."
+  }
+ },
+ "north_pass": {
+  "first": "A high gap cuts through the mountains, narrowing beneath steep snowfields. The route is long, and the snow above has a heavy, waiting look. Meltwater threads the stones underfoot, and the air is thin and sharp.",
+  "return": "You know the shape of the pass now, but the snowfields still hang over the trail, and you keep moving.",
+  "held_by_other": "{holderName} has marked the narrowest point of the pass, and there is no way through without walking over that scent.",
+  "unclaimed": "The pass carries no claim, only wind and the mineral smell of snowmelt.",
+  "held_by_you": "{prideName} marks stand in the gap, and the high crossing feels held, if not safe.",
+  "season": {
+   "spring": "The snowfields groan, and wet slides have already torn raw paths down the walls of the pass.",
+   "summer": "A little more prey has come up into the pass, picking through the last of the snow.",
+   "autumn": "The melt fades, and the gap grows colder as the light shortens.",
+   "winter": "Heavy snow buries the trail, the meltwater is frozen, and nothing comes up here to hunt."
+  }
+ },
+ "highcrag": {
+  "first": "Dry caves open in the cliffs above the upper river, and wind-scoured meadows fall away below. Horse and bison scent lifts off the grass, and old pride marks linger on the sheltered stone. Loose grit ticks down from the crag now and then, a reminder that the rock is not always still.",
+  "return": "The caves and the river below are as you remember, and the wind still scours the meadows bare.",
+  "held_by_other": "{holderName} marks are on the cave mouths and the cliff paths, and you are not welcome on this height.",
+  "unclaimed": "The high caves hold no living claim, only the ghost of old marks the wind has nearly worn away.",
+  "held_by_you": "The sheltered stone smells of {prideName}, and the height feels like a den you would defend.",
+  "season": {
+   "spring": "The meadows green below the cliffs, and the horse bands come back onto the height.",
+   "summer": "The high grass is brief and bright, and bison graze the open meadows in the thin air.",
+   "autumn": "The wind has a harder edge, and the herds are already drifting lower.",
+   "winter": "Snow lies on the meadows, the hunting is poorer, and the dry caves are worth more than ever."
+  }
+ },
+ "horse_meadows": {
+  "first": "Horses graze the wind-swept meadows above the river, heads down in the grass. Low folds in the ground offer cover to a patient hunter, and the meltwater smells clean. The herd-scent is thick here, warm and close.",
+  "return": "The meadows open out the way you remember, and the horse bands are still moving through the folds of grass.",
+  "held_by_other": "{holderName} marks stand along the meadow's edge, and the easy hunting no longer feels as if it is for you.",
+  "unclaimed": "No pride has claimed these meadows; only the horses have worn paths through the grass.",
+  "held_by_you": "{prideName} has marked the folds and the waters, and the herds here graze on your land.",
+  "season": {
+   "spring": "The grass comes in thick, and the horses are back, young grazing at the edges of the bands.",
+   "summer": "The meadows are loud with flies and full of horses, and the hunting is as good as the Vale gets.",
+   "autumn": "The horses are fattening for the cold, and the grass is wearing thin.",
+   "winter": "The meltwater is frozen, the horses are few, and wolf-scent threads the snow between the folds."
+  }
+ },
+ "upper_greywater": {
+  "first": "The upper river runs fast between stony banks, never still, even in the cold. Hoofprints crowd the shallows, and the water is loud enough to hide your steps. You drink, and the current tugs at your muzzle.",
+  "return": "The river is as loud as you remember, and the same stony banks lead you on toward the crossing below.",
+  "held_by_other": "{holderName} has marked the banks, and even the roar of the water cannot cover the unease of walking claimed ground.",
+  "unclaimed": "The banks carry no pride's mark, only wet stone and the clean smell of fast water.",
+  "held_by_you": "{prideName} marks are on the stones above the flood line, and this stretch of river feels like home water.",
+  "season": {
+   "spring": "The river is swollen with snowmelt, and a trail can vanish overnight.",
+   "summer": "The water drops, and the hoofprints in the shallows are sharp and fresh.",
+   "autumn": "The current is steady, and the banks are firm enough to hunt from.",
+   "winter": "The river still runs, a dark moving vein in the cold, and prey still comes down to drink."
+  }
+ },
+ "greywater_ford": {
+  "first": "The river shallows over a bed of stones, and hoofprints crowd the banks. Horses come here to drink, and the water keeps moving even in winter. Rival scent marks overlap on the stones, old and new, as if this crossing has never really been at peace.",
+  "return": "You know this crossing by the sound of it, and by the muddle of marks that never quite fade from the banks.",
+  "held_by_other": "{holderName} scent is heavy on this bank, and you feel the claim in every step down to the water.",
+  "unclaimed": "For now the banks hold no living claim, only the river and the old, weathered scores of cats who marked here and moved on.",
+  "held_by_you": "{prideName} marks stand on the stones of the crossing, and the ford is yours to watch.",
+  "season": {
+   "spring": "Snowmelt makes the ford loud and high, and the water shoulders over stones that are usually bare.",
+   "summer": "The crossing is shallow and busy with horses, and the stones bake dry between the channels.",
+   "autumn": "The herds still crowd the ford, and the banks are churned to mud.",
+   "winter": "The river still runs, but fewer hooves come down, and wolf-scent sometimes crosses the ice-cold stones."
+  }
+ },
+ "salt_flats": {
+  "first": "Pale crust stretches between sparse tufts of grass, and every track lies sharp on the salt. Fresh water is nowhere to be found, and prey-scent is thin and old. The wind tastes of mineral and dust, and your tongue already feels dry.",
+  "return": "The white ground still shows every pawprint, and it is still a poor place to be thirsty.",
+  "held_by_other": "{holderName} has marked the edge of the crust, a lonely claim on starving ground that still makes you glance over your shoulder.",
+  "unclaimed": "No pride has bothered to mark the salt; the flats are empty of any claim but the wind's.",
+  "held_by_you": "{prideName} marks stand at the edge of the salt, and even this hard ground is yours.",
+  "season": {
+   "spring": "Sparse new grass shows at the edge of the crust, but the flats stay dry.",
+   "summer": "The crust glares in the sun, and what little prey there is keeps to the grass at the margins.",
+   "autumn": "The sparse grass dies back, and the flats smell of dust and nothing else.",
+   "winter": "Snow blows over the salt, and there is no prey-scent left to follow, and no water but the snow itself."
+  }
+ },
+ "bonefield": {
+  "first": "Herd trails cross open grass between the bones of old mammoths, pale and huge in the weather. There is little cover here, and a hunter a long way off would be easy to see. The air is thick with herd-scent, warm and heavy over the grass.",
+  "return": "The bones still stand out of the grass, and you can read the herd paths the way you would a familiar trail.",
+  "held_by_other": "{holderName} scent is laid hard and high on the old bones, and the open grass makes you feel seen.",
+  "unclaimed": "The mammoth bones carry only weather and old, faded marks; no pride holds the grass today.",
+  "held_by_you": "{prideName} has marked the bones and the herd trails, and this open land is yours to hunt.",
+  "season": {
+   "spring": "The herds return, young close among the larger animals, and the grass is loud with hooves.",
+   "summer": "The grassland is thick with prey, and the bones stand in a sea of moving backs.",
+   "autumn": "The hunt has a hurry in it; the herds are thinning, and the cold is not far.",
+   "winter": "The grass is under snow, the herds are thin, and wolf-scent sometimes comes in off the wind."
+  }
+ },
+ "herd_trail": {
+  "first": "Generations of hooves have worn a broad trail through the steppe, packed hard and plain to follow. Herd-scent hangs over it, warm and heavy, and wolf-sign follows the same route, print over print. This is a path prey and hunters have shared for a long time.",
+  "return": "You find the worn trail at once, and the old mix of herd-scent and wolf-sign is still on it.",
+  "held_by_other": "{holderName} marks line the trail, and you walk it feeling unwelcome, even when the herds are close.",
+  "unclaimed": "The trail is worn by hooves, not by pride marks; nobody holds this path today.",
+  "held_by_you": "{prideName} has marked the length of the trail, and the herds that use it walk your ground.",
+  "season": {
+   "spring": "The trail is churned fresh, and the returning herds kick dust into the air.",
+   "summer": "The herds are thick on the path, and the hunting along it is good.",
+   "autumn": "The trail still carries plenty of prey, hurrying as the grass dries.",
+   "winter": "Prey is scarce, the trail is hungry ground, and the wolf-sign looks fresher than the hoofprints."
+  }
+ },
+ "tallgrass": {
+  "first": "Tall grass closes over narrow animal trails, and you hear movement long before you see what made it. Shallow pools stand in the low places, smelling of warm mud and old reeds. The world shrinks to stems and the small sounds inside the grass.",
+  "return": "The grass closes over you again, and you listen before you look, the way this place taught you.",
+  "held_by_other": "{holderName} marks are hidden in the stems, and you brush the scent before you see the marks, which is worse somehow.",
+  "unclaimed": "The tall grass holds no pride's scent, only the green smell of the stems and the still pools.",
+  "held_by_you": "{prideName} has marked the hidden trails, and the grass closes around land that is yours.",
+  "season": {
+   "spring": "The pools fill and the grass comes up fast, hiding everything that walks here.",
+   "summer": "The stems are high and dry at the tips, and the pools shrink in the bright weather.",
+   "autumn": "The grass yellows and rattles, and you can see a little farther than before.",
+   "winter": "The pools are frozen, the grass is flattened under snow, and prey is harder to find."
+  }
+ },
+ "south_range": {
+  "first": "Open grassland rolls toward the dry southern hills, and the game trails are plain in the dust. Prey has passed this way, but wolf tracks cross the same paths, and bear-scent clings to the rocks at the edge of the range. You keep your head up as you walk.",
+  "return": "The grass still leans toward the ash country, and you check the trails for wolf-sign the way you did before.",
+  "held_by_other": "{holderName} has claimed this stretch of grass, but the wolf-sign has not left it, and you do not relax.",
+  "unclaimed": "No pride holds this range; it feels like a border between the herds and the wolf country to the south.",
+  "held_by_you": "{prideName} marks stand on the game trails, and the southern grass is yours, wolf-sign and all.",
+  "season": {
+   "spring": "The grass is fresh, and the herds have come back onto the range.",
+   "summer": "Prey is steady, and the wind off the southern hills is dry and warm.",
+   "autumn": "The grass dries, and the trails are busy with herds on the move.",
+   "winter": "The herds thin, and the wolf-sign on the snow is easy to read and hard to like."
+  }
+ },
+ "split_rock": {
+  "first": "A great cracked boulder rises above the grass, split down its face, and the stone holds the scents of cats from across the Vale. The base is rubbed smooth by long use, as if many paws have come here to leave a mark and move on. It feels like a place to meet, not to hide.",
+  "return": "The split boulder shows itself over the grass from a long way off, and you already know the smell of the stone at its base.",
+  "held_by_other": "{holderName} has marked the old meeting stone, and the place no longer feels as if it belongs to every cat who passes.",
+  "unclaimed": "No pride claims the split stone, though the old marks of many cats still cling to the base.",
+  "held_by_you": "{prideName} marks are on the cracked boulder now, and this old meeting ground is yours.",
+  "season": {
+   "spring": "New grass stands around the stone, and the meeting ground smells of green and warm fur.",
+   "summer": "The grass around the stone is dry and warm, and prey still moves through it.",
+   "autumn": "The wind at the stone has a colder edge, and the grass is going pale.",
+   "winter": "Snow gathers in the crack, and prey is thinner on the surrounding grass."
+  }
+ },
+ "twin_forks": {
+  "first": "Channels of the Greywater meet among low banks and wet grass, braiding and joining with a constant rush. Prey comes down to drink at the joining, and the ground is soft enough to take a deep print. You taste the river on the air long before you see the water.",
+  "return": "You hear the joining of the waters before you reach it, and the wet grass at the banks is as you left it.",
+  "held_by_other": "{holderName} has marked the low banks where the waters meet, and the open drinking ground feels watched.",
+  "unclaimed": "The meeting of the waters carries no pride's mark, only wet grass and the smell of river mud.",
+  "held_by_you": "{prideName} marks stand at the joining of the waters, and the drinking ground is yours.",
+  "season": {
+   "spring": "The water spreads beyond the familiar banks, and the wet grass is a wide, running floodplain.",
+   "summer": "The channels settle back into the old beds, and the hoofprints at the joining are clear.",
+   "autumn": "The water runs lower and darker, and prey still comes to the banks.",
+   "winter": "The river still moves at the forks, and the wet grass stands stiff with frost, but not with ice over the current."
+  }
+ },
+ "reedbank": {
+  "first": "Thick reeds shelter geese and hide the true edge of the marsh, so you are in the wet before you mean to be. The ground is soft underfoot, and the air smells of mud, crushed stems, and bird. Something unseen moves in the reeds, always just out of sight.",
+  "return": "The reeds close around you again, and the soft ground takes your weight the way you remember.",
+  "held_by_other": "{holderName} has marked the drier hummocks, and the reedbed no longer feels like cover, only like someone else's marsh.",
+  "unclaimed": "The reedbed holds no pride's scent, only goose musk and the sour smell of standing water.",
+  "held_by_you": "{prideName} has marked the firm ground among the reeds, and the marsh edge is yours to slip through.",
+  "season": {
+   "spring": "The water rises through the reeds, and the geese are back, loud and plentiful.",
+   "summer": "The marsh hums with biting flies, and the geese are thick in the stems.",
+   "autumn": "The geese are restless, and the reeds begin to brown and rattle.",
+   "winter": "The marsh still gives under your paws, but the geese are gone and the hunting is thin."
+  }
+ },
+ "mistwood": {
+  "first": "Pine roots sink into marsh, and narrow trails disappear into fog between the trunks. Deer-scent drifts with the smell of resin and wet needles, and the light comes down green and thin. It would be easy to lose the path, and easier still to be watched without knowing.",
+  "return": "The fog and the pines close in the way you remember, and you find the hidden trails by smell as much as by sight.",
+  "held_by_other": "{holderName} scent is on the trail-side trees, and the fog no longer feels empty.",
+  "unclaimed": "The pines hold no pride's claim, only fog, resin, and the old damp of the marsh.",
+  "held_by_you": "The hidden trails smell of {prideName}, and the fog keeps your land the way it keeps everything else.",
+  "season": {
+   "spring": "The marsh between the roots is full, and deer move through the new green with wet legs.",
+   "summer": "The wood is close and alive, and deer and geese use the hidden paths.",
+   "autumn": "Needles fall and mute the trails, and the fog comes earlier in the day.",
+   "winter": "Prey is thinner under the pines, and the marsh between the roots is cold but not frozen."
+  }
+ },
+ "fog_paths": {
+  "first": "Narrow tracks weave through pines and wet hollows, and the fog hides the next turn as soon as you take it. Familiar trees look strange when you glance back, and the trail-scents cross and blur. You go slowly, nose to the ground, trying not to wander in a circle.",
+  "return": "You know these paths better now, but the fog still makes the way home look like somewhere else.",
+  "held_by_other": "{holderName} marks appear and vanish in the fog, and you cannot tell how near the claimants walk.",
+  "unclaimed": "No pride has claimed these fogged paths; the trails belong to the mist and to whoever can keep from getting lost.",
+  "held_by_you": "{prideName} marks are a thread you can follow through the fog, leading you through your own wood.",
+  "season": {
+   "spring": "The hollows stand in water, and the fog is thick as fur between the pines.",
+   "summer": "The fog lifts later, but the wet hollows still hide the turns.",
+   "autumn": "Prey thins, the fog comes down early, and the paths are easier to lose.",
+   "winter": "The hunting is poor, and the fog and the dark trees make a cold, confusing maze."
+  }
+ },
+ "west_spur": {
+  "first": "A wooded rise follows the western edge of the Vale, the pines standing on drier ground than the marsh below. Roots hold pockets of dry earth above the damp forest floor, and the air smells more of resin than of mud. There is no water up here, but the walking is firmer.",
+  "return": "The dry rise under the pines is a relief you remember, and you find the firm ground with your paws almost at once.",
+  "held_by_other": "{holderName} has marked the dry pockets under the pines, and the quiet wood no longer feels like a private path.",
+  "unclaimed": "The spur carries no pride's mark, only pine-scent and the dry earth between the roots.",
+  "held_by_you": "{prideName} has claimed the wooded rise, and the dry ground under the pines smells like your own land.",
+  "season": {
+   "spring": "The forest floor is damper than you would like, but the rise still keeps dry beds among the roots.",
+   "summer": "The pines smell sharp in the warmth, and prey still moves along the rise.",
+   "autumn": "Needles lie thick and dry, and the walking is quiet.",
+   "winter": "Prey is thinner, and there is no water but snow in the hollows of the roots."
+  }
+ },
+ "drowned_mere": {
+  "first": "Reeds fringe the wide, still water, and geese call across the shallows. The Mere lies quiet and cold-smelling, a lake the river has given itself to. The shore is soft, and you find yourself watching the surface the way you would watch thin ice, even when the water is open.",
+  "return": "The wide water is where you left it, still and reed-fringed, and you come down to the shore with care.",
+  "held_by_other": "{holderName} has marked the reed fringe, and the open water no longer feels like a wild shore.",
+  "unclaimed": "No pride holds the Mere; the wide water and the reeds belong to the birds and to the ice, when the ice comes.",
+  "held_by_you": "{prideName} marks are on the reed fringe, and this shore of the Mere is yours to watch.",
+  "season": {
+   "spring": "The ice looks solid still, but it smells wet and rotten underneath, and the geese are already coming in.",
+   "summer": "The Mere is open and full of birds, and prey comes down to the shallows to drink.",
+   "autumn": "The geese are fewer, the water is colder, and the hunting along the shore is poorer.",
+   "winter": "The Mere has frozen, and the ice is quieter than water, but you do not trust every stretch of it."
+  }
+ },
+ "mere_shore": {
+  "first": "Reeds grow across old paw-worn trails beside the lake, as if the paths had been used and then left. Open water draws prey close to the shore, and the air smells of birds and wet fur. Since the Breaking, the spring ice along this bank has a bad name.",
+  "return": "The old trails are still under the reeds, and you follow those paths with the lake at your side, watching the ice when there is ice.",
+  "held_by_other": "{holderName} has claimed this shore, and the old abandoned trails now smell of a living pride again, which does not make you less wary.",
+  "unclaimed": "The shore is wild, the old trails holding no fresh pride-scent, only reeds and faded marks that nobody has refreshed.",
+  "held_by_you": "{prideName} has marked the old shore trails, and the lake's edge is yours.",
+  "season": {
+   "spring": "Prey crowds the open water, and the ice along the shore looks whole while smelling of rot.",
+   "summer": "The shore is busy with birds and with animals coming to drink, and the hunting is good.",
+   "autumn": "The reeds brown, and the traffic at the water thins.",
+   "winter": "The lake is frozen out from the bank, and prey is poorer along the quiet ice."
+  }
+ },
+ "island_mere": {
+  "first": "Low islands break the Mere into reed-fringed channels, and geese gather on the islands, noisy and sure of the water. The shallows change with the level of the lake, so a path that looks firm may not be. You wade where you must, testing the bottom as you go.",
+  "return": "You pick your way from island to island the way you did before, still testing each channel before you trust it.",
+  "held_by_other": "{holderName} marks are on the drier islands, and the channels no longer feel like a way through unmarked water.",
+  "unclaimed": "The islands carry no pride's claim, only goose-scent and the shifting smell of the channels.",
+  "held_by_you": "{prideName} has marked the firm islands, and these channels are yours to cross.",
+  "season": {
+   "spring": "The water is high, the ice in the channels is not to be trusted, and the geese are back in force.",
+   "summer": "The channels drop a little, and the islands stand clearer, loud with birds.",
+   "autumn": "The water is lower and colder, and the geese are starting to leave the reeds.",
+   "winter": "The channels freeze, the islands sit in ice, and prey is thin among the stiff reeds."
+  }
+ },
+ "east_saddle": {
+  "first": "An exposed saddle links the heights above the lake with the southern hills, open to the wind. Loose rock shifts under your paws, and steep snowfields hang above the crossing. Meltwater wets the stone, and there is little prey-scent to justify the climb.",
+  "return": "The saddle is as bare and windy as you remember, and you cross it steadily, watching the snowfields and the loose rock alike.",
+  "held_by_other": "{holderName} has marked the top of the saddle, and there is no other way across this height but through that claim.",
+  "unclaimed": "The saddle holds no pride's mark, only wind, grit, and the smell of snow.",
+  "held_by_you": "{prideName} marks stand on the high crossing, and the saddle is yours, wind and all.",
+  "season": {
+   "spring": "New prey has come up onto the saddle, but the snowfields are wet and heavy, and the rock is loose with melt.",
+   "summer": "The crossing is as good as it gets, with a little hunting on the heights and less snow above.",
+   "autumn": "The wind has a bite again, and the prey is already leaving the saddle.",
+   "winter": "The snowfields threaten the saddle, the meltwater is frozen, and nothing is up here to hunt."
+  }
+ },
+ "bears_throat": {
+  "first": "The gorge narrows between cold stone walls, and a heavy bear-scent fills the cut from end to end. Claw marks score the rock beside a den, high and deep, and loose stone has gathered at the foot of the walls. There is little prey here, and whatever left those marks is larger than you.",
+  "return": "The bear-scent hits you at the mouth of the gorge, as it did before, and you go in only as far as you must.",
+  "held_by_other": "{holderName} marks are at the mouth of the Throat, almost lost under the bear-scent, and the claim does not make the gorge feel safer.",
+  "unclaimed": "No pride holds the Throat, and the only claim here is the bear's, rubbed into the stone and the den.",
+  "held_by_you": "{prideName} marks stand at the mouth of the Throat, and the gorge is yours, bear-scent and all.",
+  "season": {
+   "spring": "Meltwater runs down the gorge walls, and the bear-scent is fresh, the den awake again.",
+   "summer": "The cut holds the heat, and the bear-scent hangs thick and close between the stones.",
+   "autumn": "Fresh claw marks score the stone by the den, and the bear-scent is heavy as the cold comes.",
+   "winter": "Snow lies in the cut, and the den is quiet, but the bear-scent has not gone."
+  }
+ },
+ "claw_gorge": {
+  "first": "Narrow ledges run between walls scored by bear claws, and there is little room to turn if something larger comes along the path. Stone dust hangs in the air, and loose rock has fallen into the cut. Prey-scent is thin, and the gorge feels like a passage, not a place to stay.",
+  "return": "You remember how little room there is to pass, and you take the ledges slowly, listening for falling rock and for anything already in the cut.",
+  "held_by_other": "{holderName} scent is on the narrow ledges, and there is no way to keep clear of it.",
+  "unclaimed": "The gorge is unclaimed; the claw-scores on the walls are a bear's, not a pride's.",
+  "held_by_you": "{prideName} has marked the ledges of the gorge, and the narrow passage is yours to watch.",
+  "season": {
+   "spring": "A little melt dampens the ledges, and prey is still scarce in the cut.",
+   "summer": "More prey has come into the gorge, and the stone holds the day's warmth.",
+   "autumn": "The cut grows colder, and the lean hunting returns.",
+   "winter": "The ledges are icy, the wind is loud in the cut, and prey remains scarce."
+  }
+ },
+ "tar_seeps": {
+  "first": "Black pools lie between patches of trampled earth, thick with the smell of trapped prey. The sharp stink of tar catches in your throat, and the ground gives a little under your paws where it looks firm. Carrion has drawn other hunters here already, and the air still holds that scent, along with the smell of what never got out.",
+  "return": "The stink reaches you before the pools do, and you keep to the firm ground you learned to pick out last time.",
+  "held_by_other": "{holderName} has marked the firm ground between the seeps, and even the tar seems to belong to someone else now.",
+  "unclaimed": "No pride holds the seeps, and the black pools wait for anyone, the marks at the edges old and mixed.",
+  "held_by_you": "{prideName} has marked the firm paths between the pools, and this stinking, useful ground is yours.",
+  "season": {
+   "spring": "Meltwater pools over the tar, and the firm ground is harder than ever to pick out.",
+   "summer": "The heat softens the pools, and the stink of tar and carrion is strongest now.",
+   "autumn": "Prey comes down to drink at the edges of the seeps, and some of it never leaves.",
+   "winter": "Frost crusts the pools, and the ground looks firm everywhere, which is when it is least to be trusted."
+  }
+ },
+ "ash_hills": {
+  "first": "Dry slopes rise beyond the grasslands, grey with ash and bare of water. Wolf tracks follow the ridges, and pack marks warn you away from every high stone. Camel trails cross this country when the herds come, but the pack-scent is here in every season.",
+  "return": "The ash still dusts your paws, and the wolf-scent on the ridges is as heavy as you remember.",
+  "held_by_other": "This is {holderName} country, the marks thick on the ridges, and every step feels like a challenge to something that hunts in a pack.",
+  "unclaimed": "The ash hills carry no living claim, only old pack-scent fading on the stones, and the dry wind.",
+  "held_by_you": "{prideName} has marked the dry ridges, and the ash country is yours, though the wolf-trails are not easily forgotten.",
+  "season": {
+   "spring": "Prey is poor on the dry slopes, and the pack-scent is already thick.",
+   "summer": "Camels have come up onto the hills, and the hunting is worth the risk.",
+   "autumn": "The camels are still moving through, though the herds are thinning, and the wolf-sign is close behind.",
+   "winter": "The hills are hungry, the camels are gone, and the pack-scent feels bolder in the cold."
+  }
+ },
+ "wolf_run": {
+  "first": "A hard-worn trail threads through dry wolf country, packed by many paws. Fresh prints overlap the old, and scent marks cover the stones along the way, rank and close together. There is little else to eat here, and no water, and the land feels like a path the pack does not share.",
+  "return": "The run is still scored with wolf-sign, fresh over old, and you set your paws on the trail with the same tight feeling as before.",
+  "held_by_other": "{holderName} holds this run, the marks so thick as to leave no doubt, and you do not stay on the trail longer than you must.",
+  "unclaimed": "The run is empty of a living claim, though old pack-scent still clings to the stones.",
+  "held_by_you": "{prideName} has marked the worn trail, and the run is yours, wolf-prints and all.",
+  "season": {
+   "spring": "The dry trail shows every print, and prey is scarce along it.",
+   "summer": "A little more prey has come onto the run, enough to notice, not enough to make you forget the pack.",
+   "autumn": "The lean hunting returns, and the pack-scent does not thin with it.",
+   "winter": "The run is cold and empty of prey, and the wolf-sign looks freshly worked."
+  }
+ },
+ "camel_ridge": {
+  "first": "Camel trails cross the dry ridge toward the summer grazing, cut deep in the dust. Water is scarce, and wolf-scent reaches up from the neighbouring hills, close enough to keep your ears turning. The ridge feels like a prize in the warm season and a risk in every other.",
+  "return": "You know the camel paths along the ridge, and you smell for wolf-sign coming up from the hills before you do anything else.",
+  "held_by_other": "{holderName} has marked the ridge, and the camel trails no longer feel open to a passing hunter.",
+  "unclaimed": "No pride holds the ridge, and the camel paths are wild, though wolf-scent still laps at the trails from the hills below.",
+  "held_by_you": "{prideName} has marked the dry ridge, and the camel trails, when the herds come, fill on your land.",
+  "season": {
+   "spring": "The ridge is dry and poor, and the camel trails are mostly old.",
+   "summer": "The camels have come, and the ridge is thick with the herds, a rare plenty in a dry land.",
+   "autumn": "Some of the camels remain, and the hunting is still worth the walk, if you watch the hills.",
+   "winter": "The camels are gone, the ridge is starving ground, and there is no water but snow."
+  }
+ }
+}

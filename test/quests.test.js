@@ -91,7 +91,9 @@ test('a trade never adds pride food', () => {
   const help = Q.strike(s, { leaderId: 'bf01', kind: 'help_for_help' });
   assert.strictEqual(s.pride.food, hunting.food);
   assert.strictEqual(help.food, s.pride.food);
-  assert.strictEqual(Q.councilHook().todo.includes('council'), true);
+  const hooked = Q.councilHook(s, help.trade);
+  assert.strictEqual(hooked.agreed, true);
+  assert.strictEqual(hooked.agreement.kind, 'admission_courtesy');
 });
 
 test('seed 8 offers at least one request in the first 10 days, and an old save still loads', () => {

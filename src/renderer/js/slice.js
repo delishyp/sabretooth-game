@@ -521,6 +521,11 @@
     function act(s0, action) {
       const s = clone(s0); const rep = [];
       if (s.over) return { state: s, error: 'over' };
+      const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
+      if (Councils && s.pending && s.pending.council && (action.type === 'choose' || action.type === 'continue')) {
+        Councils.resolve(s, action.choiceId);
+        return { state: s };
+      }
       if (s.phase === 'conversation') {
         const catId = s.conversation && s.conversation.pending && s.conversation.pending.catId;
         const r = C.commit(s, action);
@@ -1021,6 +1026,8 @@
       }
       noteUnloggedMeets(s);
       if (Q) Q.onDay(s);
+      const Territory = typeof require === 'function' ? require('./territory') : (typeof self !== 'undefined' ? self.Territory : null);
+      if (Territory && s.records && s.records.pride && s.records.pride.name && s.map) Territory.noteDeeds(s);
     }
     function finishBond(s) {
       const p = s.pending;

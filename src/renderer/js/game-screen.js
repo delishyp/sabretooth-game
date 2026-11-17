@@ -22,6 +22,9 @@
   const RegionMap = (typeof require === 'function' ? require('./region-map') : (typeof self !== 'undefined' ? self.RegionMap : null));
   const LoreBook = (typeof require === 'function' ? require('./lore-book') : (typeof self !== 'undefined' ? self.LoreBook : null));
   const Deeds = (typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null));
+  const Reputation = (typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null));
+  const Territory = (typeof require === 'function' ? require('./territory') : (typeof self !== 'undefined' ? self.Territory : null));
+  const Councils = (typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null));
   function logClass(line, cat) {
     if (!line || line.kind === 'gap') return 'event-text gap';
     if (line.kind === 'action') return 'event-text action';
@@ -337,6 +340,7 @@
       if (id === 'cats') return t('home.nav.cats');
       if (id === 'map') return t('home.nav.map');
       if (id === 'deeds') return (Deeds && Deeds.copy.screen && Deeds.copy.screen.title) || 'Deeds';
+      if (id === 'reputation') return (Reputation && Reputation.store && 'Reputation') || 'Reputation';
       if (id === 'breeding') return t('home.nav.breeding');
       if (id === 'market') return t('home.nav.market');
       if (id === 'inventory') return t('home.nav.inventory');
@@ -361,7 +365,7 @@
       const expand = $('#home-expand'); if (expand) expand.dataset.name = s.cat.name;
       const den = $('#hotspot-den'); const wild = $('#hotspot-wild');
       den.title = t('home.denTip'); wild.title = t('home.wildTip');
-      const covered = view === 'map' || view === 'lore' || view === 'deeds';
+      const covered = view === 'map' || view === 'lore' || view === 'deeds' || view === 'reputation';
       den.hidden = covered;
       wild.hidden = covered;
       den.classList.toggle('is-current', view === 'den');
@@ -537,6 +541,28 @@
         }
         root.append(grid);
         p.append(root);
+      } else if (view === 'reputation' && Reputation) {
+        const rows = Reputation.view(s, 'player', s.cat && s.cat.name);
+        const titled = rows.filter((row) => row.level >= 3).sort((a, b) => b.level - a.level || Reputation.TIE.indexOf(a.axis) - Reputation.TIE.indexOf(b.axis))[0];
+        const root = el('div', 'reputation-screen');
+        root.append(el('h2', 'home-panel-title', 'Reputation'));
+        root.append(el('p', 'rep-renown', titled ? titled.word : Reputation.unknownLine()));
+        const axes = el('div', 'rep-axes');
+        const names = { mercy: 'Mercy', honour: 'Honour', courage: 'Courage' };
+        for (const row of rows) {
+          const line = el('div', 'axis-row');
+          line.dataset.axis = row.axis;
+          line.append(el('span', 'axis-name', names[row.axis]));
+          const pips = el('span', 'rep-pips');
+          for (let i = 1; i <= 5; i++) pips.append(el('i', 'pip' + (i <= row.level ? ' is-on' : '')));
+          line.append(pips);
+          line.append(el('span', 'axis-word', row.word || ''));
+          axes.append(line);
+        }
+        root.append(axes);
+        const feed = ph('ui.reputation.feed');
+        if (feed) root.append(el('p', 'rep-feed', feed));
+        p.append(root);
       } else if (view === 'lore') {
         const bookCopy = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
         const entries = (Tutorial && s.tutorial && Tutorial.view(s, tutorialFacts()).guide) || [];
@@ -547,7 +573,7 @@
           const block = el('section', 'lore-section');
           block.dataset.section = section.id;
           block.append(el('h3', 'guide-heading', section.title || ph(section.titleKey)));
-          if (!section.entries.length) block.append(el('p', 'home-empty', ph(LoreBook.EMPTY)));
+          if (!section.entries.length) block.append(el('p', 'home-empty', section.empty || ''));
           for (const entry of section.entries) {
             const article = el('article', 'guide-entry');
             if (entry.id) article.dataset.guide = entry.id;
@@ -607,10 +633,14 @@
           card.dataset.known = row.known ? '1' : '0';
           if (!row.known) { card.append(el('h3', '', t(row.unknownKey))); return; }
           card.append(el('h3', '', row.name));
-          if (row.descriptionKey && t.has(row.descriptionKey)) card.append(el('p', 'region-desc', t(row.descriptionKey)));
+          if (row.dangerWord) card.append(el('p', 'region-danger', row.dangerWord));
+          if (row.owner) card.append(el('p', 'region-claim', row.owner));
+          if (row.arrival) card.append(el('p', 'region-arrival', row.arrival));
+          else if (row.descriptionKey && t.has(row.descriptionKey)) card.append(el('p', 'region-desc', t(row.descriptionKey)));
+          if (row.council) card.append(el('p', 'region-desc', row.council));
         };
         for (const node of model.nodes) {
-          const b = el('button', 'region-node' + (node.here ? ' is-here' : ''));
+          const b = el('button', 'region-node' + (node.here ? ' is-here' : '') + (node.holder && node.holder !== 'neutral' ? ' is-' + node.holder : ''));
           b.type = 'button';
           b.style.left = node.left + '%';
           b.style.top = node.top + '%';
@@ -646,10 +676,30 @@
       const dl = el('dl', 'region-facts');
       const fact = (k, v, cls = '') => { dl.append(el('dt', '', t(`game.region.${k}`)), el('dd', cls, v)); };
       fact('prey', t(`game.prey.${W.preyFor(s.region, se)}`));
-      fact('danger', t(`game.danger.${W.danger(s.region, se)}`), `danger-${W.danger(s.region, se)}`);
+      const visitedHere = ((s.map && s.map.visited) || []).indexOf(s.region) >= 0;
+      let dangerBand = W.danger(s.region, se);
+      let dangerLabel = t(`game.danger.${dangerBand}`);
+      if (Territory) {
+        if (!visitedHere) dangerLabel = 'Unknown';
+        else {
+          const lead = Territory.lead(s.map.claims, s.region);
+          const viewer = s.records && s.records.pride && s.records.pride.id;
+          dangerBand = Territory.danger(r, { holder: own.holder, claim: lead.claim }, viewer);
+          dangerLabel = Territory.word(dangerBand);
+        }
+      }
+      fact('danger', dangerLabel, `danger-${dangerBand}`);
       fact('water', t(W.hasWater(s.region, se) ? 'game.water.yes' : 'game.water.no'));
       c.append(dl);
       c.append(el('p', 'region-claim', owner));
+      if (Territory && visitedHere) {
+        const kind = ((s.map.visited || []).filter((id) => id === s.region).length > 1) ? 'return' : 'first';
+        const line = Territory.arrival(s.region, kind);
+        if (line) c.append(el('p', 'region-arrival', line));
+      }
+      if (s.region === 'split_rock' && Councils && s.records && s.records.pride && s.records.pride.name && s.day % 20 === 0) {
+        c.append(btn(ph('ui.council.sit'), { g: 'councilSit' }));
+      }
       const dk = `map.region.${s.region}.description`;   // Saga, docs/map-copy.md
       c.append(el('p', 'region-desc', t.has(dk) ? t(dk) : t('game.region.descTodo')));
     }
@@ -1317,6 +1367,11 @@
       if (d.g === 'goalOpen') { view = 'lore'; render(); return; }
       if (d.g === 'selectCat') { selectedCat = d.cat; view = 'cats'; render(); return; }
       if (d.g === 'deedFilter') { s.deedFilter = d.filter; view = 'deeds'; render(); return; }
+      if (d.g === 'councilSit' && Councils) {
+        const opened = Councils.open(s);
+        if (!opened.error) render();
+        return;
+      }
       if (d.g === 'nav') return showView(d.view);
       if (d.g === 'unavailable') return showView(d.view);
       if (d.g === 'den') return showView('den');

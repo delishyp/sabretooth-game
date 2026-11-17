@@ -474,6 +474,8 @@
         }
         const resolverReceipt = `${s.runId || ''}/encounter/${p.encounterInstanceId}/resolver`;
         p.result = { outcomeId: forecast.success ? 'hyena_driven' : 'hyena_keeps_kill', tier: forecast.tier, stat: forecast.stat, resolverReceipt, yieldHunger: 0, injuryTier: null };
+        const Reputation = typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null);
+        if (Reputation) Reputation.add(s, { axis: 'courage', sign: 1, weightClass: forecast.success ? 'medium' : 'small', deedId: forecast.success ? 'drive_hyena' : 'drive_hyena_fail', receiptKey: resolverReceipt + '/rep', day: s.day });
         if (forecast.injury) proofInjure(s, forecast.injury, p.encounterInstanceId, hooks.injure);
         if (s.worldMemory && !(s.worldMemory.ledger || []).some((row) => row.receiptKey === resolverReceipt)) {
           s.worldMemory.ledger.push({
