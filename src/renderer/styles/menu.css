@@ -129,7 +129,10 @@ button.primary { border-color: var(--accent); }
 .screen[data-screen="creator"].active { display: flex; flex-direction: column; min-height: 0; }
 .creator-scene { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: 0; pointer-events: none; }
 .screen[data-screen="creator"] > :not(.creator-scene) { position: relative; z-index: 1; }
-body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
+body:has(.screen[data-screen="creator"].active) #bg,
+body:has(.screen[data-screen="game"].active) #bg,
+body:has(.screen[data-screen="game"].active) #snow { visibility: hidden; }
+body:has(.screen[data-screen="game"].active) { background: #0b0908; }
 .screen[data-screen="creator"] h2 { font-size: clamp(22px, 4cqh, 54px); margin-bottom: 2px; }
 .creator-sub { font-size: clamp(13px, 2cqh, 22px); margin-bottom: clamp(2px, 0.4cqh, 6px); color: var(--ice); text-shadow: 0 1px 3px #000; }
 .creator-step { font-family: var(--font-title); font-size: clamp(13px, 2cqh, 24px); letter-spacing: clamp(1px, 0.2cqw, 3px); color: var(--accent); margin: 0 0 clamp(2px, 0.5cqh, 16px); }

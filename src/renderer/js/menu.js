@@ -39,12 +39,22 @@
   // and its anchored/flex content reflows into the smaller logical area.
   function scale() {
     const u = Math.min(Math.max(Number(settings.display.uiScale) || 1, 0.5), 2);
-    const w = 1920 / u, h = 1080 / u;
-    const s = Math.min(innerWidth / w, innerHeight / h);
     const stage = $('#stage');
-    stage.style.width = `${w}px`;
-    stage.style.height = `${h}px`;
-    stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+    const game = document.querySelector('.screen[data-screen="game"].active');
+    if (game) {
+      stage.style.width = innerWidth + 'px';
+      stage.style.height = innerHeight + 'px';
+      stage.style.transform = 'translate(-50%, -50%) scale(1)';
+      const px = Math.round(Math.min(28, Math.max(18, innerWidth / 110) * u));
+      document.documentElement.style.fontSize = px + 'px';
+    } else {
+      document.documentElement.style.fontSize = '';
+      const w = 1920 / u, h = 1080 / u;
+      const s = Math.min(innerWidth / w, innerHeight / h);
+      stage.style.width = `${w}px`;
+      stage.style.height = `${h}px`;
+      stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+    }
     fitActive();
   }
   /** Chrome that sticks out is a layout bug. Full-bleed plates are not chrome, and this never zooms or rescales a screen. */
@@ -159,7 +169,7 @@
     applyMotion();
     if (screen === 'root') { renderRoot(); music.play(); }
     if (['starting', 'loading', 'game', 'summary'].includes(screen)) music.fadeOutAndStop();   // §7.5 v1.4.4: creator Start / Continue / Load (keeps playing through the creator)
-    if (screen === 'game') { game.render(); return fitActive(); }
+    if (screen === 'game') { game.render(); scale(); return; }
     if (screen === 'summary') game.renderSummary();
     if (screen === 'newGameSetup') return renderSetup();
     if (screen === 'creator') return renderCreator();
@@ -167,7 +177,7 @@
     if (screen === 'load' || screen === 'loadRunExpanded') renderLoad();
     if (screen === 'slotsFull') renderReplace();
     if (screen === 'credits') startCredits();
-    fitActive();
+    scale();
     if (typeof focusTarget === 'string') focusTarget = $(focusTarget);
     // B9: never land on a removed or disabled control; fall back to the screen's default.
     if (focusTarget && (!focusTarget.isConnected || focusTarget.disabled)) focusTarget = null;
