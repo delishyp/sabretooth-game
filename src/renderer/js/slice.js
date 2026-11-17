@@ -31,6 +31,21 @@
     return { variants: [] };
   }
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  function heirLine() {
+    let hints = null;
+    if (typeof require === 'function') {
+      try { hints = require('../data/events/first-season-v0.6.2.json').uiHints; } catch (e) { hints = null; }
+    }
+    if (!hints && typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/first-season-v0.6.2.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) hints = JSON.parse(xhr.responseText).uiHints;
+      } catch (e) { hints = null; }
+    }
+    return (hints && hints['ui.heir.death']) || '';
+  }
   const clone = (o) => JSON.parse(JSON.stringify(o));
   function noteDir(s, kind, catId, sourceId, day) {
     if (!Directory || !s || !catId) return;
@@ -302,8 +317,7 @@
       s.dead = null;
       s.over = false;
       s.heirHandoff = { from: dead.catId, to: next.id, day: s.day, cause };
-      const text = '[PH] {name} is gone. The pride goes on, and you go on as {heirName}.'
-        .replace('{name}', dead.name).replace('{heirName}', next.name);
+      const text = heirLine().replace('{name}', dead.name).replace('{heirName}', next.name);
       s.pending = {
         eventId: 'heir.death', title: dead.name, handoff: s.heirHandoff,
         beats: [{ kind: 'narration', text }], beatIndex: 0, choices: [], summary: text
@@ -1123,6 +1137,9 @@
         const own = W.ownership(s.map.claims, s.region);
         const faction = factions.includes(own.holder) && !(own.disputedBy && rng() < 0.5) ? own.holder : own.disputedBy || factions[0];
         s.prideRelation[faction] = (s.prideRelation[faction] || 0) + M.patrolRelation;            // separate from any choice (scope §7)
+        if (!Array.isArray(s.records.receipts)) s.records.receipts = [];
+        const patrolKey = `${s.runId || ''}/patrol/${faction}/${s.day}`;
+        if (!s.records.receipts.includes(patrolKey)) s.records.receipts.push(patrolKey);
         rep.push({ k: 'patrol', faction, relation: M.patrolRelation });
         const cast = Object.values(s.npcs).filter((n) => n.faction === faction && (n.stage === 'adult' || n.stage === 'elder'));
         const npc = cast.length ? Rng.pick(rng, cast) : null;

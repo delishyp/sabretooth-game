@@ -8,6 +8,26 @@
   else root.Councils = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
   const PRIDES = ['highcrag', 'bonefield', 'mistwood'];
+  let hintCache = null;
+  function hints() {
+    if (hintCache) return hintCache;
+    if (typeof require === 'function') {
+      try { hintCache = require('../data/events/first-season-v0.6.2.json').uiHints || {}; return hintCache; } catch (e) { /* browser */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/first-season-v0.6.2.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) { hintCache = JSON.parse(xhr.responseText).uiHints || {}; return hintCache; }
+      } catch (e) { /* missing copy */ }
+    }
+    hintCache = {};
+    return hintCache;
+  }
+  function hint(id, vars) {
+    return String(hints()[id] || '').replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null && vars[k] !== '' ? String(vars[k]) : m));
+  }
   const TEMPER = { highcrag: -10, bonefield: -10, mistwood: 10 };
 
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -67,7 +87,7 @@
       agenda: items,
       beats: [{ kind: 'narration', text: (line && line.text) || '' }],
       beatIndex: 0,
-      choices: items.length ? items.map((item) => ({ id: item.id, label: item.label })) : [{ id: 'leave', label: '[PH] Leave the council' }]
+      choices: items.length ? items.map((item) => ({ id: item.id, label: item.label })) : [{ id: 'leave', label: hint('ui.council.leave') }]
     };
     state.phase = 'event';
     return { state, items };
@@ -75,18 +95,19 @@
   function agenda(state, latch) {
     const items = [];
     const names = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
+    const truce = (a, b) => hint('ui.council.agenda.truce', { prideA: names[a] || a, prideB: names[b] || b });
     const held = latch || (state.records && state.records.councilLatch);
     const fight = held && held.reason === 'fight' && held.pair;
     if (fight) {
       const pair = held.pair;
-      items.push({ id: 'fight-' + pair[0] + '-' + pair[1], kind: 'truce', parties: pair, afterBlood: true, label: '[PH] A truce between ' + (names[pair[0]] || pair[0]) + ' and ' + (names[pair[1]] || pair[1]) });
+      items.push({ id: 'fight-' + pair[0] + '-' + pair[1], kind: 'truce', parties: pair, afterBlood: true, label: truce(pair[0], pair[1]) });
     }
     for (let i = 0; i < PRIDES.length; i++) {
       for (let j = i + 1; j < PRIDES.length; j++) {
         const a = PRIDES[i];
         const b = PRIDES[j];
         const value = Math.min(relation(state, a, b), relation(state, b, a));
-        if (value <= -30) items.push({ id: 'feud-' + a + '-' + b, kind: 'truce', parties: [a, b], label: '[PH] A truce between ' + (names[a] || a) + ' and ' + (names[b] || b) });
+        if (value <= -30) items.push({ id: 'feud-' + a + '-' + b, kind: 'truce', parties: [a, b], label: truce(a, b) });
       }
     }
     return items.slice(0, 3);

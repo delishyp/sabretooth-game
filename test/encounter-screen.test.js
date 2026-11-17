@@ -34,11 +34,12 @@ test('hunt hides Cut it off without a partner, and courtship has no HP', () => {
   assert.ok(Screen.readable(alone));
 });
 
-test('move names stay placeholders, and hunt and courtship bars do not', () => {
+test('move names are Saga\'s words, and hunt and courtship bars do not use placeholders', () => {
   for (const id of Screen.FIGHT_MOVES.concat(Screen.COURT_MOVES)) {
-    assert.match(hints['ui.encounter.move.' + id], /^\[PH\]/);
+    const line = hints['ui.encounter.move.' + id];
+    assert.ok(line && !line.includes('[PH]') && !/\d/.test(line), id);
   }
-  assert.match(hints['ui.encounter.tell'], /^\[PH\]/);
+  assert.strictEqual(hints['ui.encounter.tell'], 'It gathers itself.');
   for (let i = 0; i < 4; i++) {
     const hunt = Screen.screen({ kind: 'hunt', band: i });
     assert.strictEqual(hunt.word, words.hunt_escape[i].text);

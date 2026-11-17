@@ -5,10 +5,13 @@ const Unlocks = require('../src/renderer/js/unlocks');
 function save(extra) {
   return Object.assign({
     deathRule: 'permadeath',
+    season: 'summer',
+    region: 'split_rock',
     npcs: {},
     world: {},
-    records: { receipts: [] },
-    map: { visited: ['split_rock'], claims: {} }
+    records: { receipts: [], bonds: {} },
+    map: { visited: ['split_rock'], claims: { split_rock: {} } },
+    cat: { status: 'loner' }
   }, extra || {});
 }
 
@@ -16,62 +19,78 @@ test('home, wilderness, smilodons and lore start open, and the live flag keeps e
   const fresh = save();
   const states = Unlocks.unlockedSystems(fresh);
   for (const id of Unlocks.STARTERS) assert.strictEqual(states[id], 'open', id);
-  for (const id of ['pride', 'den', 'breeding', 'inventory', 'market', 'quests', 'reputation', 'councils']) {
-    assert.strictEqual(states[id], 'locked', id);
-  }
+  for (const id of Unlocks.SECTIONS) assert.strictEqual(states[id], 'locked', id);
+  assert.strictEqual(states.map, undefined);
+  assert.strictEqual(states.deeds, undefined);
   assert.strictEqual(Unlocks.SHOW_ALL, true);
   assert.strictEqual(Unlocks.displayState(fresh, 'pride'), 'open');
-  assert.strictEqual(Unlocks.displayState(fresh, 'market'), 'open');
 });
 
-test('pride, den and breeding move locked to new to open, and seen never re-locks', () => {
-  const s = save();
-  assert.strictEqual(Unlocks.systemState(s, 'pride'), 'locked');
-  s.records.receipts.push('run/scout/highcrag/3');
-  assert.strictEqual(Unlocks.systemState(s, 'pride'), 'new');
-  assert.strictEqual(Unlocks.remember(s, 'pride'), 'open');
-  s.records.receipts = [];
-  assert.strictEqual(Unlocks.systemState(s, 'pride'), 'open');
-  assert.strictEqual(s.unlocks.seen.filter((id) => id === 'pride').length, 1);
+test('pride opens on the first of border scent, patrol, joining or founding', () => {
+  const scent = save();
+  scent.records.receipts.push('run/scout/highcrag/3');
+  assert.strictEqual(Unlocks.systemState(scent, 'pride'), 'new');
 
-  assert.strictEqual(Unlocks.systemState(s, 'den'), 'locked');
-  s.records.pride = { id: 'player', name: 'Ash' };
-  assert.strictEqual(Unlocks.systemState(s, 'den'), 'new');
-  Unlocks.remember(s, 'den');
-  assert.strictEqual(Unlocks.systemState(s, 'den'), 'open');
+  const patrol = save();
+  patrol.records.receipts.push('run/patrol/bonefield/4');
+  assert.strictEqual(Unlocks.systemState(patrol, 'pride'), 'new');
 
-  assert.strictEqual(Unlocks.systemState(s, 'breeding'), 'locked');
-  s.records.matePair = { mateId: 'ln05' };
-  assert.strictEqual(Unlocks.systemState(s, 'breeding'), 'new');
+  const member = save();
+  member.cat = { status: 'member', prideId: 'mistwood' };
+  assert.strictEqual(Unlocks.systemState(member, 'pride'), 'new');
+  assert.strictEqual(Unlocks.systemState(member, 'den'), 'locked');
+
+  const founded = save();
+  founded.records.pride = { id: 'player', name: 'Ash' };
+  assert.strictEqual(Unlocks.systemState(founded, 'pride'), 'new');
+  assert.strictEqual(Unlocks.systemState(founded, 'den'), 'new');
+  assert.strictEqual(Unlocks.systemState(founded, 'councils'), 'new');
 });
 
-test('inventory, market, quests, reputation and councils open on first use', () => {
+test('inventory, market, quests and reputation follow the save, and noteUse does not unlock them', () => {
   const s = save();
-  assert.strictEqual(Unlocks.noteUse(s, 'inventory'), 'new');
-  assert.strictEqual(Unlocks.noteUse(s, 'market'), 'new');
-  Unlocks.remember(s, 'inventory');
-  assert.strictEqual(Unlocks.systemState(s, 'inventory'), 'open');
-  s.unlocks.used = s.unlocks.used.filter((id) => id !== 'inventory');
-  assert.strictEqual(Unlocks.systemState(s, 'inventory'), 'open');
-
+  assert.strictEqual(Unlocks.noteUse(s, 'inventory'), 'locked');
+  assert.strictEqual(Unlocks.noteUse(s, 'market'), 'locked');
+  assert.strictEqual(Unlocks.noteUse(s, 'quests'), 'locked');
   s.world.offers = [{ id: 'ask', state: 'offered' }];
+  assert.strictEqual(Unlocks.systemState(s, 'quests'), 'locked');
+  s.world.requests = [{ id: 'ask', state: 'open' }];
   assert.strictEqual(Unlocks.systemState(s, 'quests'), 'new');
-  s.worldMemory = { reputation: { deeds: [{ deedId: 'share_kill' }] }, facts: [] };
-  assert.strictEqual(Unlocks.systemState(s, 'reputation'), 'new');
-  s.records.deedFacts = { 'council.attended': true };
-  assert.strictEqual(Unlocks.systemState(s, 'councils'), 'new');
+  s.world.carried = { kind: 'herb' };
+  assert.strictEqual(Unlocks.systemState(s, 'inventory'), 'new');
+  s.world.trades = [{ id: 't', kind: 'food_for_passage', state: 'active' }];
   assert.strictEqual(Unlocks.systemState(s, 'market'), 'new');
+  s.records.deedFacts = { 'hunt.success': true };
+  assert.strictEqual(Unlocks.systemState(s, 'reputation'), 'new');
+  Unlocks.remember(s, 'inventory');
+  s.world.carried = null;
+  assert.strictEqual(Unlocks.systemState(s, 'inventory'), 'open');
 });
 
-test('persist records the four starters and does not drop a remembered section', () => {
+test('a locked section or action stays selectable and returns its opens-when line', () => {
   const s = save();
-  s.records.receipts.push('run/scout/bonefield/2');
-  const seen = Unlocks.persist(s);
-  for (const id of Unlocks.STARTERS) assert.ok(seen.indexOf(id) >= 0, id);
-  assert.strictEqual(Unlocks.systemState(s, 'pride'), 'new');
-  Unlocks.remember(s, 'pride');
-  s.records.receipts = [];
-  Unlocks.persist(s);
-  assert.ok(s.unlocks.seen.indexOf('pride') >= 0);
-  assert.strictEqual(Unlocks.systemState(s, 'pride'), 'open');
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'home'), { navigate: true });
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'map'), { navigate: true });
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'deeds'), { navigate: true });
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'cats'), { navigate: true });
+  const pride = Unlocks.selectSection(s, 'pride');
+  assert.strictEqual(pride.navigate, undefined);
+  assert.ok(pride.opensWhen.startsWith('Opens when you catch a border scent'));
+  assert.ok(!/\d/.test(pride.opensWhen));
+  s.records.receipts.push('run/scout/highcrag/2');
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'pride'), { navigate: true });
+  const court = Unlocks.selectSection(s, 'court');
+  assert.ok(court.opensWhen.startsWith('Opens when you and a cat are Bonded'));
+  s.season = 'spring';
+  s.records.bonds.ln05 = { stage: 'close' };
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'court'), { navigate: true });
+  assert.ok(Unlocks.selectSection(s, 'found').opensWhen.startsWith('Opens when you have a mate'));
+  s.records.matePair = { mateId: 'ln05' };
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'found'), { navigate: true });
+  assert.ok(Unlocks.selectSection(s, 'spar').opensWhen.startsWith('Opens when you and a cat know'));
+  s.npcs.ln05 = { id: 'ln05', met: true, stage: 'adult', affinity: 20 };
+  assert.deepStrictEqual(Unlocks.selectSection(s, 'spar'), { navigate: true });
+  assert.strictEqual(Unlocks.toastLine('Pride'), 'New: Pride');
+  assert.strictEqual(Unlocks.unavailableTip().title, 'Greyed sections');
+  assert.ok(!/Unavailable/.test(Unlocks.unavailableTip().body));
 });

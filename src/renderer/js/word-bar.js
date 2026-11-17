@@ -36,6 +36,13 @@
     const raw = loadHints()[id] || '';
     return String(raw).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
   }
+  /** The band caption is the existing word. A blank ui.meter.band must not print digits. */
+  function caption(kind, band) {
+    const custom = label('ui.meter.band').trim();
+    if (custom) return custom;
+    const prefix = kind === 'court' ? 'ui.meter.court.word.' : 'ui.meter.hunt.word.';
+    return label(prefix + band);
+  }
   function mount(parent, meter, labelFn) {
     const spec = describe(meter);
     if (!spec || !parent) return null;
@@ -58,7 +65,7 @@
     }
     const word = doc.createElement('p');
     word.className = 'word-bar-word';
-    word.textContent = say(spec.bandKey, { band: String(spec.band + 1), bands: String(spec.bands) });
+    word.textContent = caption(spec.kind, spec.band);
     if (meter.wordsOnly) {
       box.append(track);
       if (meter.word) {
@@ -84,5 +91,5 @@
     parent.append(box);
     return box;
   }
-  return { KINDS, describe, mount, label };
+  return { KINDS, describe, mount, label, caption };
 });

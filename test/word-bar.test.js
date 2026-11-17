@@ -14,12 +14,13 @@ test('hunt has four bands and courtship has five', () => {
   assert.strictEqual(WordBar.describe({ kind: 'hunt', band: 9 }).band, 3);
 });
 
-test('meter labels are placeholder keys in menu copy', () => {
-  for (const key of ['ui.meter.hunt', 'ui.meter.court', 'ui.meter.band']) {
-    assert.match(hints[key], /^\[PH\]/);
-  }
-  assert.match(hints['ui.meter.band'], /\{band\}/);
-  assert.match(hints['ui.meter.band'], /\{bands\}/);
+test('meter titles are words, and the band caption is the existing word rather than digits', () => {
+  assert.strictEqual(hints['ui.meter.hunt'], 'Hunt');
+  assert.strictEqual(hints['ui.meter.court'], 'Courtship');
+  assert.strictEqual(hints['ui.meter.band'], '');
+  assert.strictEqual(WordBar.caption('hunt', 0), 'Nearly yours');
+  assert.strictEqual(WordBar.caption('court', 4), 'Drawn to you');
+  assert.ok(!/\d/.test(WordBar.caption('hunt', 2)));
 });
 
 test('the player encounter panel is a full-body portrait, not a scene crop', () => {
