@@ -67,6 +67,20 @@ async function prime(page) {
       s.world.carried = { kind: 'trophy' };
       s.phase = 'event';
       s.pending = { questPanels: true, catId: 'bf01', catName: npc.name };
+    } else if (which === 'fight' || which === 'hyena' || which === 'human' || which === 'hunt' || which === 'courtship') {
+      s.phase = 'event';
+      s.pending = {
+        screenKind: which,
+        kind: which,
+        phase: 'chase',
+        partner: false,
+        size: 'medium',
+        band: which === 'courtship' ? 2 : 1,
+        foeName: which === 'human' ? 'Humans' : 'Hyena',
+        art: which === 'fight' ? 'portraits/cats/cat-eec858c7a583cdc6.png' : which === 'courtship' ? 'portraits/cats/cat-46f04e1c79d4e443.png' : undefined,
+        playerHp: 74,
+        foeHp: 61
+      };
     } else if (which === 'lore') {
       s.phase = 'day'; s.pending = null;
       s.worldMemory = s.worldMemory || {};

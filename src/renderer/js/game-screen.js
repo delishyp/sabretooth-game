@@ -17,6 +17,7 @@
   const Tutorial = (typeof require === 'function' ? require('./tutorial') : (typeof self !== 'undefined' ? self.Tutorial : null));
   const SceneLog = (typeof require === 'function' ? require('./scene-log') : (typeof self !== 'undefined' ? self.SceneLog : null));
   const WordBar = (typeof require === 'function' ? require('./word-bar') : (typeof self !== 'undefined' ? self.WordBar : null));
+  const EncounterScreen = (typeof require === 'function' ? require('./encounter-screen') : (typeof self !== 'undefined' ? self.EncounterScreen : null));
   const DirectoryPanel = (typeof require === 'function' ? require('./directory-panel') : (typeof self !== 'undefined' ? self.DirectoryPanel : null));
   const RegionMap = (typeof require === 'function' ? require('./region-map') : (typeof self !== 'undefined' ? self.RegionMap : null));
   const LoreBook = (typeof require === 'function' ? require('./lore-book') : (typeof self !== 'undefined' ? self.LoreBook : null));
@@ -1028,7 +1029,54 @@
       });
       card.append(line);
     }
+    function renderEncounterScreen() {
+      const view = EncounterScreen.screen(s.pending.screen || s.pending);
+      if (!view) return;
+      const box = $('#game-event');
+      box.hidden = false;
+      $('#game-main').classList.toggle('dimmed', true);
+      box.textContent = '';
+      const card = el('div', 'event-card conversation-card encounter-card');
+      card.dataset.kind = view.kind;
+      box.append(card);
+      const panels = el('div', 'encounter-panels');
+      const you = el('figure', 'encounter-panel is-player');
+      const youImg = el('img', 'encounter-body');
+      youImg.src = '../../assets/portraits/cats/' + ((s.cat && s.cat.portraitId) || 'cat-6e2d788dd48ff440') + '.png';
+      youImg.alt = s.cat && s.cat.name || '';
+      you.append(youImg);
+      const foe = el('figure', 'encounter-panel is-foe');
+      if (view.art) {
+        const img = el('img', 'encounter-img encounter-body' + (view.flip ? ' is-flipped' : ''));
+        img.src = '../../assets/' + view.art;
+        img.alt = view.kind;
+        foe.append(img);
+      }
+      panels.append(you, foe);
+      card.append(panels);
+      if (view.bars === 'hp' && FightHp) {
+        FightHp.mount(card, {
+          kind: view.yieldAt ? 'spar' : 'fight',
+          player: { name: s.cat.name, hp: s.pending.playerHp != null ? s.pending.playerHp : 74 },
+          foe: { name: s.pending.foeName || view.kind, hp: s.pending.foeHp != null ? s.pending.foeHp : 61 }
+        });
+      } else if ((view.bars === 'hunt' || view.bars === 'court') && WordBar) {
+        WordBar.mount(card, { kind: view.bars, band: view.band || 0, wordsOnly: true });
+        const word = el('p', 'encounter-word', ph(view.wordKey));
+        word.dataset.word = view.wordKey;
+        card.append(word);
+      }
+      if (view.tell) card.append(el('p', 'encounter-tell', ph('ui.encounter.tell')));
+      const grid = el('div', 'encounter-moves');
+      for (const item of view.moves) {
+        const b = btn(ph(item.labelKey), { g: 'encounterMove', move: item.id });
+        b.dataset.move = item.id;
+        grid.append(b);
+      }
+      card.append(grid);
+    }
     function renderEvent() {
+      if (s.pending && s.pending.screenKind) return renderEncounterScreen();
       if (s.pending && s.pending.questPanels) return renderQuestPanels();
       if (s.phase === 'encounter') return renderEncounter();
       if (s.phase === 'ford') return renderFord();

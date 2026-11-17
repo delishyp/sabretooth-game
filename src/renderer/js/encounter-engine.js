@@ -595,6 +595,27 @@
   function backOff(pairValue) {
     return { pairValue: pairValue || 0, delta: 0, rolled: false };
   }
+  /** Unfinished encounter. Resume replays the same seed, so the result matches. */
+  function pendingEncounter(opts) {
+    const row = opts || {};
+    return {
+      seed: (row.seed || 1) >>> 0,
+      kind: row.kind,
+      policy: policyName(row.policy),
+      turn: row.turn || 0,
+      quick: row.quick !== false,
+      player: row.player || null,
+      opponent: row.opponent || null,
+      spar: row.kind === 'spar' || row.spar === true,
+      action: row.action || null,
+      size: row.size || null,
+      courtship: row.courtship || null,
+      defender: row.defender || null
+    };
+  }
+  function resume(saved) {
+    return resolve(Object.assign({ engine: true }, saved || {}));
+  }
 
-  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, lineFor, mayFlee, defendCounter, evenCap, isHuman, huntSpecial, backOff };
+  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, lineFor, mayFlee, defendCounter, evenCap, isHuman, huntSpecial, backOff, pendingEncounter, resume };
 });

@@ -59,7 +59,8 @@
     const word = doc.createElement('p');
     word.className = 'word-bar-word';
     word.textContent = say(spec.bandKey, { band: String(spec.band + 1), bands: String(spec.bands) });
-    box.append(title, track, word);
+    box.append(title, track);
+    if (!meter.wordsOnly) box.append(word);
     parent.append(box);
     return box;
   }
