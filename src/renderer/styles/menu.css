@@ -251,6 +251,8 @@ body:has(.screen[data-screen="creator"].active) #bg { visibility: hidden; }
 .encounter-moves { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 .encounter-moves button { flex: 1 1 30%; min-height: 44px; font-size: 16px; }
 .encounter-tell, .encounter-word { margin: 0; color: #e7d3b4; font-size: 16px; }
+.word-bar-word.encounter-word { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.encounter-direction { color: #f3d9a0; }
 .region-map-card .region-desc { margin: 0; }
 .home-cats { padding-bottom: 16px; }
 #dock-kept .game-report { margin-top: 8px; max-height: 9.5em; overflow: auto; }

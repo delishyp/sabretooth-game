@@ -1,14 +1,49 @@
 /**
  * Encounter screens. The live odds stay on the existing encounter flow.
  * These screens draw a fight, hyena, human, hunt, or courtship when one is open.
- * Move names and band words are placeholders until Saga writes them.
+ * Move names stay placeholders. Hunt and courtship band words are Saga's.
+ * A courtship direction line sits beside the band word after a move.
  * HP is the only number, and only on a fight.
  * UMD.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.EncounterScreen = factory();
+  else root.EncounterScreen = factory(root);
 })(typeof self !== 'undefined' ? self : this, function () {
+  function loadWords() {
+    if (typeof require === 'function') {
+      try { return require('../data/encounter-bar-words-v1.json'); } catch (e) { /* browser */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/encounter-bar-words-v1.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) return JSON.parse(xhr.responseText);
+      } catch (e) { /* missing file */ }
+    }
+    return { hunt_escape: [], courtship_interest: [], courtship_direction: {} };
+  }
+  const words = loadWords();
+  function bandWord(kind, band) {
+    const list = kind === 'hunt' ? words.hunt_escape : words.courtship_interest;
+    const index = Math.max(0, Math.min((list.length || 1) - 1, Math.round(Number(band) || 0)));
+    return (list[index] && list[index].text) || '';
+  }
+  function directionPool(direction, previousId) {
+    const list = (words.courtship_direction && words.courtship_direction[direction]) || [];
+    const open = previousId ? list.filter((item) => item.id !== previousId) : list.slice();
+    return open.length ? open : list.slice();
+  }
+  /** Pick one direction variant. The same id never comes up twice in a row. */
+  function afterMove(state, direction, rng) {
+    const pool = directionPool(direction, state && state.lastDirectionId);
+    if (!pool.length) return { lastDirectionId: null, direction, directionText: '', directionId: null };
+    const roll = typeof rng === 'function' ? rng() : (typeof rng === 'number' ? rng : 0);
+    const index = Math.min(pool.length - 1, Math.max(0, Math.floor(roll * pool.length)));
+    const pick = pool[index];
+    return { lastDirectionId: pick.id, direction, directionText: pick.text, directionId: pick.id };
+  }
   const FIGHT_MOVES = ['swipe', 'bite', 'pounce', 'defend', 'intimidate', 'flee'];
   const HUMAN_MOVES = ['intimidate', 'flee'];
   const COURT_MOVES = ['groom', 'show_off', 'playful', 'gentle', 'bold', 'gift_prey', 'back_off'];
@@ -75,6 +110,7 @@
         moves: moves.map(move),
         bars: 'hunt',
         band: row.band || 0,
+        word: bandWord('hunt', row.band || 0),
         wordKey: 'ui.meter.hunt.word.' + (row.band || 0),
         tell: false,
         art: row.art || 'encounters/giant-deer.png',
@@ -83,12 +119,25 @@
       };
     }
     if (kind === 'courtship') {
+      const shown = row.direction ? afterMove(
+        { lastDirectionId: row.lastDirectionId || null },
+        row.direction,
+        row.directionId ? 0 : row.roll
+      ) : null;
+      const listed = row.directionId && words.courtship_direction && words.courtship_direction[row.direction]
+        ? words.courtship_direction[row.direction].find((item) => item.id === row.directionId)
+        : null;
+      const line = listed || shown;
       return {
         kind: 'courtship',
         moves: COURT_MOVES.map(move),
         bars: 'court',
         band: row.band || 0,
+        word: bandWord('court', row.band || 0),
         wordKey: 'ui.meter.court.word.' + (row.band || 0),
+        direction: row.direction || null,
+        directionId: line ? line.id || line.directionId : null,
+        directionText: line ? line.text || line.directionText : null,
         tell: false,
         art: row.art || null,
         flip: false,
@@ -103,5 +152,5 @@
     if (view.bars === 'hp') return true;
     return texts.every((text) => !digits(text));
   }
-  return { screen, readable, FIGHT_MOVES, HUMAN_MOVES, COURT_MOVES, HUNT };
+  return { screen, readable, bandWord, afterMove, words, FIGHT_MOVES, HUMAN_MOVES, COURT_MOVES, HUNT };
 });

@@ -1061,10 +1061,14 @@
           foe: { name: s.pending.foeName || view.kind, hp: s.pending.foeHp != null ? s.pending.foeHp : 61 }
         });
       } else if ((view.bars === 'hunt' || view.bars === 'court') && WordBar) {
-        WordBar.mount(card, { kind: view.bars, band: view.band || 0, wordsOnly: true });
-        const word = el('p', 'encounter-word', ph(view.wordKey));
-        word.dataset.word = view.wordKey;
-        card.append(word);
+        WordBar.mount(card, {
+          kind: view.bars,
+          band: view.band || 0,
+          wordsOnly: true,
+          word: view.word,
+          direction: view.directionText,
+          directionId: view.directionId
+        });
       }
       if (view.tell) card.append(el('p', 'encounter-tell', ph('ui.encounter.tell')));
       const grid = el('div', 'encounter-moves');

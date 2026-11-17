@@ -3,6 +3,7 @@ const assert = require('node:assert');
 const Screen = require('../src/renderer/js/encounter-screen');
 const Engine = require('../src/renderer/js/encounter-engine');
 const hints = require('../src/renderer/data/events/first-season-v0.6.2.json').uiHints;
+const words = require('../src/renderer/data/encounter-bar-words-v1.json');
 
 test('a fight shows the six moves and HP, and a human does not', () => {
   const fight = Screen.screen({ kind: 'fight' });
@@ -33,12 +34,41 @@ test('hunt hides Cut it off without a partner, and courtship has no HP', () => {
   assert.ok(Screen.readable(alone));
 });
 
-test('move and band labels are placeholders', () => {
+test('move names stay placeholders, and hunt and courtship bars do not', () => {
   for (const id of Screen.FIGHT_MOVES.concat(Screen.COURT_MOVES)) {
     assert.match(hints['ui.encounter.move.' + id], /^\[PH\]/);
   }
-  for (let i = 0; i < 4; i++) assert.match(hints['ui.meter.hunt.word.' + i], /^\[PH\]/);
-  for (let i = 0; i < 5; i++) assert.match(hints['ui.meter.court.word.' + i], /^\[PH\]/);
+  assert.match(hints['ui.encounter.tell'], /^\[PH\]/);
+  for (let i = 0; i < 4; i++) {
+    const hunt = Screen.screen({ kind: 'hunt', band: i });
+    assert.strictEqual(hunt.word, words.hunt_escape[i].text);
+    assert.strictEqual(hints['ui.meter.hunt.word.' + i], words.hunt_escape[i].text);
+    assert.ok(!hunt.word.includes('[PH]'));
+  }
+  for (let i = 0; i < 5; i++) {
+    const court = Screen.screen({ kind: 'courtship', band: i });
+    assert.strictEqual(court.word, words.courtship_interest[i].text);
+    assert.strictEqual(hints['ui.meter.court.word.' + i], words.courtship_interest[i].text);
+    assert.ok(!court.word.includes('[PH]'));
+    assert.strictEqual(court.directionText, null);
+  }
+});
+
+test('a courtship direction variant never repeats twice in a row', () => {
+  const court = Screen.screen({ kind: 'courtship', band: 3, direction: 'down', directionId: 'dir.down.a' });
+  assert.strictEqual(court.word, 'Warming to you');
+  assert.strictEqual(court.directionText, 'That cost you.');
+  for (const direction of ['up', 'down', 'none']) {
+    let state = { lastDirectionId: null };
+    const seen = [];
+    for (let i = 0; i < 8; i++) {
+      state = Screen.afterMove(state, direction, () => 0);
+      seen.push(state.directionId);
+      assert.ok(words.courtship_direction[direction].some((item) => item.id === state.directionId));
+      assert.ok(!state.directionText.includes('[PH]'));
+    }
+    for (let i = 1; i < seen.length; i++) assert.notStrictEqual(seen[i], seen[i - 1]);
+  }
 });
 
 test('reloading a pending encounter repeats the same result', () => {

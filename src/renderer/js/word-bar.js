@@ -59,8 +59,28 @@
     const word = doc.createElement('p');
     word.className = 'word-bar-word';
     word.textContent = say(spec.bandKey, { band: String(spec.band + 1), bands: String(spec.bands) });
-    box.append(title, track);
-    if (!meter.wordsOnly) box.append(word);
+    if (meter.wordsOnly) {
+      box.append(track);
+      if (meter.word) {
+        word.textContent = '';
+        word.className = 'word-bar-word encounter-word';
+        const band = doc.createElement('span');
+        band.className = 'encounter-band';
+        band.textContent = meter.word;
+        word.append(band);
+        if (meter.direction) {
+          const dir = doc.createElement('span');
+          dir.className = 'encounter-direction';
+          dir.dataset.directionId = meter.directionId || '';
+          dir.textContent = meter.direction;
+          word.append(doc.createTextNode(' '));
+          word.append(dir);
+        }
+        box.append(word);
+      }
+    } else {
+      box.append(title, track, word);
+    }
     parent.append(box);
     return box;
   }
