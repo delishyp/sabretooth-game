@@ -28,9 +28,11 @@ jobs:
           ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe" -OutDir upgrade-evidence
           ./scripts/upgrade-check.ps1 -Step seed -OutDir upgrade-evidence
       - name: Build the 0.1.9 installer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm ci
-          npx electron-builder --win nsis
+          npx electron-builder --win nsis --publish never
       - name: Transitional update (0.1.8 updater args, no /S)
         shell: pwsh
         run: |
