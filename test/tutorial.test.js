@@ -90,6 +90,58 @@ test('goal states follow the spec order and never name an unmet cat', () => {
   assert.strictEqual(Tutorial.goal(base({ day: 3, inWindow: false, seasonOver: false, founded: false, mate: null })).line, 'Stay alive.');
 });
 
+test('the first Rest on day 3 shows after the result beat, on that same day', () => {
+  const state = {};
+  const during = base({ day: 3, inScene: true, flags: { rest: true } });
+  const shownDuring = Tutorial.sync(state, during);
+  assert.strictEqual(shownDuring.card, null);
+  assert.ok(state.tutorial.queue.includes('tip.rest'));
+  const after = base({ day: 3, inScene: false, flags: { rest: true } });
+  const shown = Tutorial.sync(state, after);
+  assert.strictEqual(shown.card && shown.card.id, 'tip.rest');
+  assert.notStrictEqual(state.tutorial.shownTipDay, 3);
+});
+
+test('an action tip and one system tip both show the same day, and a second system tip stays queued', () => {
+  const state = {};
+  const facts = base({ day: 3, flags: { lowNeed: true, injured: true, rest: true } });
+  const ids = [];
+  Tutorial.sync(state, facts);
+  for (let i = 0; i < 6 && state.tutorial.active; i++) {
+    ids.push(state.tutorial.active.id);
+    Tutorial.dismiss(state, facts);
+  }
+  assert.ok(ids.includes('tip.needs'), ids.join(','));
+  assert.ok(ids.includes('tip.rest'), ids.join(','));
+  assert.ok(!ids.includes('tip.injury'), ids.join(','));
+  assert.ok(state.tutorial.queue.includes('tip.injury'));
+  assert.strictEqual(state.tutorial.shownTipDay, 3);
+});
+
+test('Home is not tipped on the opening day screen, and is tipped the first time it is selected after leaving', () => {
+  const state = {};
+  Tutorial.sync(state, base({ day: 3, view: 'home' }));
+  const held = () => state.tutorial.seen.concat(state.tutorial.queue, state.tutorial.active ? [state.tutorial.active.id] : []);
+  assert.ok(!held().includes('tip.place.home'));
+  Tutorial.sync(state, base({ day: 3, view: 'wilderness' }));
+  if (state.tutorial.active) Tutorial.dismiss(state, base({ day: 3, view: 'home' }));
+  Tutorial.sync(state, base({ day: 3, view: 'home' }));
+  assert.ok(held().includes('tip.place.home'), held().join(','));
+});
+
+test('tips do not change the saved game, on or off', () => {
+  const game = { day: 3, seed: 9, region: 'split_rock', needs: { energy: 40, hunger: 80 } };
+  const on = JSON.parse(JSON.stringify(game));
+  const off = JSON.parse(JSON.stringify(game));
+  Tutorial.sync(on, base({ day: 3, enabled: true, flags: { rest: true } }));
+  Tutorial.sync(off, base({ day: 3, enabled: false, flags: { rest: true } }));
+  const strip = (s) => { const copy = JSON.parse(JSON.stringify(s)); delete copy.tutorial; return copy; };
+  assert.deepStrictEqual(strip(on), game);
+  assert.deepStrictEqual(strip(off), game);
+  assert.strictEqual(on.tutorial.active && on.tutorial.active.id, 'tip.rest');
+  assert.strictEqual(off.tutorial.active, null);
+});
+
 test('a places screen with no written tip does not open a blank card', () => {
   const state = {};
   const shown = Tutorial.sync(state, base({ day: 3, view: 'map' }));

@@ -13,7 +13,7 @@ It's taught in play, in the narrator's voice, plain and clear, with no numbers.
 ## 2. Rules for all tutorial content
 1. **Toggle (ANNA-APPROVED):** the New Game setup screen has a "Guided first day and tips" toggle, On by default (the default is PROPOSED). It's stored as `run.tutorial`, menu spec v1.4.5. Runs from before this feature read as Off.
 2. **No effects:** tutorial content never rigs a roll, adds food or resources, locks or hides a choice, or advances time. It's text, highlights and UI only. With the same seed, the game state matches a run with tutorial off.
-3. **Never mid-scene:** a tip waits until the current scene's result beat is done. At most one tip shows per in-game day, and extras queue for the next day. The exception is a tip for a screen the player has just opened (Places, §5.B), which shows right away on that screen.
+3. **Never mid-scene:** a tip waits until the current scene's result beat is done. At most one tip shows per in-game day, and extras queue for the next day. There are two exceptions. A tip for a screen the player has just opened (Places, §5.B) shows right away on that screen. A §5.A action tip shows right after that action's result beat on the same day, and it doesn't count toward the daily cap.
 4. **Once each:** fired tips are saved in `save.tutorial.seen[]`. "Got it" dismisses a tip, and "Turn off tips" ends tips and guidance for this run (`save.tutorial.off`).
 5. **Re-reading:** every seen tip and every goal is listed under a "Guide" heading in Lore.
 6. **Marking tips seen:** a guided step marks a tip seen only if its lines teach everything that tip does. Otherwise the tip still fires later.
@@ -111,3 +111,4 @@ Later systems (pregnancy, cubs, territory management, councils, reputation title
 - v0.1.5 (2026-11-15): Aligned with Director. Guided step 1 is split into 1a (arrival and goal line) and 1b (needs and Health), matching Saga's copy. Breeding, Market and Inventory get no tip until they function.
 - v0.1.6 (2026-11-15): Anna's ruling via Director. The goal line (and its urgent line) shows in every run, including with tips off.
 - v0.1.6a (2026-11-15): Anna approved the plan and Saga's tips-copy-v2, so the status is now ANNA-APPROVED. Flint builds v0.1.7 from this.
+- v0.1.6b: §5.A action tips (Hunt, Rest, Travel, Watch, Scent, Spar, Court, Found, Share) show after that action's result beat on the same day and do not count toward the one-tip-per-day cap. System tips still queue at one per day. Screen tips still show on open.

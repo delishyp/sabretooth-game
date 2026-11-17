@@ -195,10 +195,17 @@
     return { step, beat };
   }
   function placeTip(id) { return String(id || '').indexOf('tip.place.') === 0; }
+  /** §5.A. These show after the result beat on the same day and do not use the daily cap. */
+  const ACTION_TIPS = {
+    'tip.hunt': true, 'tip.rest': true, 'tip.travel': true, 'tip.watch': true, 'tip.scent': true,
+    'tip.spar': true, 'tip.court': true, 'tip.found': true, 'tip.share': true
+  };
+  function actionTip(id) { return !!ACTION_TIPS[id]; }
   function offer(t, id, facts) {
     if (!tipsOn(t) || !id || t.seen.includes(id) || t.queue.includes(id)) return;
     if (t.active && t.active.id === id) return;
     const place = placeTip(id);
+    const action = actionTip(id);
     if (facts.inScene && !place) { t.queue.push(id); return; }
     if (place && t.active && t.active.kind === 'guided') {
       t.pausedGuided = t.active;
@@ -206,13 +213,13 @@
       return;
     }
     if (t.active) { t.queue.push(id); return; }
-    if (!place && t.shownTipDay === facts.day) { t.queue.push(id); return; }
+    if (!place && !action && t.shownTipDay === facts.day) { t.queue.push(id); return; }
     t.active = { kind: 'tip', id };
-    if (!place) t.shownTipDay = facts.day;
+    if (!place && !action) t.shownTipDay = facts.day;
   }
   function showQueued(t, facts) {
     if (t.active || facts.inScene || !tipsOn(t)) return;
-    const next = t.queue.find((id) => !t.seen.includes(id) && (placeTip(id) || t.shownTipDay !== facts.day));
+    const next = t.queue.find((id) => !t.seen.includes(id) && (placeTip(id) || actionTip(id) || t.shownTipDay !== facts.day));
     if (!next) return;
     t.queue = t.queue.filter((id) => id !== next);
     offer(t, next, facts);
