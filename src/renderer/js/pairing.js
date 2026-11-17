@@ -21,6 +21,12 @@
   const FOUND_CLAIM = 60;
   const LEADERS = { highcrag: 'hc01', bonefield: 'bf01', mistwood: 'mw01' };
   const PRIDE_NAMES = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
+  function deedsApi() {
+    if (typeof require === 'function') {
+      try { return require('./deeds'); } catch (e) { /* browser */ }
+    }
+    return typeof self !== 'undefined' ? self.Deeds : null;
+  }
   const GAPS = [
     {
       id: 'mistwood-range-held-land',
@@ -714,6 +720,10 @@
           s.records.fights.push(stored);
           result = stored;
           Skills.grant(s, 'standing', wonNow, `${s.runId || ''}/skill/standing/rival/${npc.id}`);
+          if (wonNow) {
+            const deeds = deedsApi();
+            if (deeds) deeds.note(s, 'fight.win');
+          }
           if (!wonNow) shiftValue(s, npc, -10, `${key}/loss`, deps);
           else lowerPair(s, rival.id, npc.id, -10);
         }
@@ -792,6 +802,10 @@
       if (spendEnergy) s.needs.energy = Math.max(0, s.needs.energy - 5);
       s.records.court[npc.id] = { attempts: attempt, lastDay: day };
       bondOf(s, npc.id).stage = 'courting';
+      if (!accept) {
+        const deeds = deedsApi();
+        if (deeds) deeds.note(s, 'court.refused', 1);
+      }
       if (!accept && !Skills.has(s, 'persistent')) {
         const lossKey = `${askKey}/decline`;
         if (once(s, lossKey)) npc.affinity = Math.max(-100, npc.affinity - 5);
@@ -823,6 +837,12 @@
         foundingDay: null
       };
       npc.mateId = s.cat.catId;
+      const origin = npc.faction;
+      const standing = (s.prideRelation && origin && s.prideRelation[origin]) || 0;
+      if (standing <= -50 && origin && origin !== 'loner') {
+        const deeds = deedsApi();
+        if (deeds) deeds.note(s, 'mate.hostile');
+      }
       if (isPrideMember(npc)) {
         shiftPride(s, npc.faction, 20, `${s.runId || ''}/pride-bond/${npc.faction}/${npc.id}`, deps);
       }
@@ -873,6 +893,11 @@
         { id: `member-${s.runId || 'run'}-${npc.id}`, catId: npc.id, role: 'founder', sex: npc.sex }
       ];
       remember(s, [s.cat.catId, npc.id], 'founded', `You and ${npc.name} founded ${prideName} in ${deps.regionName(s.region)}.`, key, day);
+      const deaths = (s.records.deedFacts && Number(s.records.deedFacts['season.deaths'])) || 0;
+      if (!deaths && day <= seasonDays) {
+        const deeds = deedsApi();
+        if (deeds) deeds.note(s, 'pride.founded_clean');
+      }
       return { npc, event: foundedScene(s, npc, deps) };
     }
 
@@ -1338,6 +1363,10 @@
       }
       formLonerGroups(s);
       s.records.seasonEndShown = true;
+      const deeds = deedsApi();
+      if (deeds && s.records.pride && s.records.deedFacts && s.records.deedFacts['season.nothing'] && !(s.counters && s.counters.starving)) {
+        deeds.note(s, 'season.lean');
+      }
       if (s.day <= seasonDays) s.day = seasonDays + 1;
       else s.day += 1;
       s.over = false;

@@ -733,6 +733,10 @@
       participants: ['player', catId], skill: 'saberStrike', xpOutcome: fought.won ? 10 : 4, xpGranted: false
     });
     const text = fillTokens(LINES[fought.won ? 'spar.win' : 'spar.lose'], { name: npc.name });
+    if (fought.won) {
+      const Deeds = typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null);
+      if (Deeds) Deeds.note(s, 'fight.win');
+    }
     return { event: sceneEvent('lone.spar', 'Play-fight', text, { catId, resultLine: '' }) };
   }
   function adjacentPrides(s, opts) {

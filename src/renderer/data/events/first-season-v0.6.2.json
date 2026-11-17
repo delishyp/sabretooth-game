@@ -1072,6 +1072,7 @@
     "ui.encounter.move.back_off": "[PH] Back off",
     "ui.encounter.tell": "[PH] It gathers itself",
     "ui.encounter.predictable": "[PH] Predictable",
+    "ui.heir.death": "[PH] {name} is gone. The pride goes on, and you go on as {heirName}.",
     "ui.traits.balance.short": "[PH] Your flaws do not cover this yet.",
     "ui.traits.balance.even": "[PH] Your flaws cover this. Nothing is left over.",
     "ui.traits.balance.left": "[PH] Something is left over, and it will be lost.",

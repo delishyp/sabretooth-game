@@ -206,12 +206,14 @@
     const fill = (str) => Slice.fill(str, { catName: s.pending && s.pending.catName ? s.pending.catName : '' });
 
     function start(newRun, mainCat, seed) {
-      run = newRun; s = E.newRun({ mainCat, seed, runId: newRun.runId });
+      run = newRun; s = E.newRun({ mainCat, seed, runId: newRun.runId, deathRule: newRun.difficulty, level: newRun.level });
       if (Tutorial) Tutorial.ensure(s, run.tutorial === true);
       ctx.show('game');   // first autosave after day 1 ends (Flint call: the run record exists already; nothing to save before an action)
     }
     function resume(r, game) {
       run = r; s = E.migrate(game);
+      if (s && !s.deathRule) s.deathRule = r.difficulty || 'permadeath';
+      if (s && !s.level) s.level = r.level || 'standard';
       if (Tutorial) Tutorial.ensure(s, run.tutorial === true);
       ctx.show(s.over ? 'summary' : 'game');
     }
@@ -483,6 +485,7 @@
         player.append(el('span', '', s.cat.name + ' · ' + t('home.you')));
         ul.append(player);
         for (const n of met) {
+          if (s.cat && n.id === s.cat.catId) continue;
           const li = el('li', 'met-cat');
           const mini = el('canvas', 'cat-mini'); mini.id = 'met-' + n.id;
           ctx.portrait({ look: n.look, sex: n.sex, name: n.name, portraitId: n.portraitId }, mini, { frame: 'head' }).catch(() => {});

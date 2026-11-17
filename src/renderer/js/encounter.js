@@ -488,6 +488,8 @@
           return { ok: true, deed: null };
         }
         const deed = payDeed(s, hooks, 'drive_hyena', 'pride_aid', hunter ? [hunter.id] : []);
+        const Deeds = typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null);
+        if (Deeds) Deeds.note(s, 'hyena.clan');
         const asked = p.cast && p.cast.outsiderId ? speak(hunter, 'cache_request', false) : [];
         p.lines = p.lines.concat([narrate(spec.outcomeRendering.resolve_hyena_contest[forecast.tier].text)], speak(hunter, 'driven', false), asked);
         p.nodeId = 'after_drive';

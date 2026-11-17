@@ -31,19 +31,19 @@
     { id: 'first_kill', fact: 'hunt.success', live: true },
     { id: 'big_game', fact: 'hunt.large', live: true },
     { id: 'feast', fact: 'food.plenty', live: true },
-    { id: 'lean_season', fact: 'season.lean', live: false },
+    { id: 'lean_season', fact: 'season.lean', live: true },
     { id: 'first_blood', fact: 'fight.win', live: true },
-    { id: 'hyena_bane', fact: 'hyena.clan', live: false },
+    { id: 'hyena_bane', fact: 'hyena.clan', live: true },
     { id: 'lion_slayer', fact: 'lion.adult', live: false },
     { id: 'read_you', fact: 'fight.defend_pounce', live: false, count: 3 },
     { id: 'bloodless', fact: 'intimidate.alone', live: false },
     { id: 'spear_dancer', fact: 'human.escape_unhurt', live: false },
     { id: 'first_friend', fact: 'standing.warming', live: true },
     { id: 'mated', fact: 'mate.bond', live: true },
-    { id: 'heartbreaker', fact: 'court.refused', live: false, count: 2, also: 'mate.bond' },
-    { id: 'across_lines', fact: 'mate.hostile', live: false },
+    { id: 'heartbreaker', fact: 'court.refused', live: true, count: 2, also: 'mate.bond' },
+    { id: 'across_lines', fact: 'mate.hostile', live: true },
     { id: 'founder', fact: 'pride.founded', live: true },
-    { id: 'loner_king', fact: 'pride.founded_clean', live: false },
+    { id: 'loner_king', fact: 'pride.founded_clean', live: true },
     { id: 'three_banners', fact: 'borders.three', live: false },
     { id: 'holdfast', fact: 'den.held_year', live: false },
     { id: 'expansion', fact: 'regions.six', live: false },
@@ -61,7 +61,7 @@
     { id: 'rare_coat', fact: 'cub.rare', live: false },
     { id: 'errand_cat', fact: 'quest.done', live: true, count: 5 },
     { id: 'storyteller', fact: 'quest.lines', live: true, count: 3 },
-    { id: 'gift_gone_wrong', fact: 'gift.backfire', live: false }
+    { id: 'gift_gone_wrong', fact: 'gift.backfire', live: true }
   ];
   const BY = Object.fromEntries(RULES.map((row) => [row.id, row]));
 
@@ -74,6 +74,11 @@
     if (s.records && s.records.pride && s.records.pride.name) bag['pride.founded'] = true;
     const food = s.pride && s.pride.foodWord;
     if (food === 'Plenty') bag['food.plenty'] = true;
+    if ((s.records && s.records.fights || []).some((row) => row && row.won)) bag['fight.win'] = true;
+    const enc = (s.encounters && s.encounters.log) || [];
+    if (enc.some((row) => row && (row.outcomeId === 'hyena_driven' || row.outcomeId === 'player_takes_kill'))) bag['hyena.clan'] = true;
+    const gifts = (s.world && s.world.gifts) || [];
+    if (gifts.some((row) => row && row.feel === 'disliked')) bag['gift.backfire'] = true;
     const facts = (s.worldMemory && s.worldMemory.facts) || [];
     const lines = new Set(Array.isArray(s.questsDone) ? s.questsDone : []);
     for (const fact of facts) {

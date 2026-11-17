@@ -371,6 +371,10 @@
       w.giftAbs[talk] += Math.abs(delta);
       npc.affinity = clampAffinity((npc.affinity || 0) + delta);
       w.gifts.push({ catId: opts.catId, day: s.day, seasonKey, feel, delta, talk });
+      if (feel === 'disliked') {
+        const Deeds = typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null);
+        if (Deeds) Deeds.note(s, 'gift.backfire');
+      }
       if (item.slot === 'carried') w.carried = null;
       if (s.records && s.records.bonds && s.records.bonds[opts.catId] && s.records.bonds[opts.catId].stage === 'courting' && feel === 'liked') {
         w.courtshipTurn = { catId: opts.catId, day: s.day };
@@ -390,6 +394,10 @@
         s.pride.food = Math.max(0, before - cost);
       }
       if (s.pride.food > before) s.pride.food = before;
+      if (before > 0 && s.pride.food <= 0 && s.records && s.records.pride) {
+        const Deeds = typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null);
+        if (Deeds) Deeds.note(s, 'season.nothing');
+      }
       const trade = {
         id: `${s.runId || 'run'}/trade/${opts.kind}/${leader.faction}/${s.day}`,
         kind: opts.kind, leaderId: leader.id, prideId: leader.faction,

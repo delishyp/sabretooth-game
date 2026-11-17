@@ -143,11 +143,13 @@
       }
       return out;
     }
-    function newRun({ mainCat, seed = Rng.newSeed(), runId = null, level = 'standard' }) {
+    function newRun({ mainCat, seed = Rng.newSeed(), runId = null, level = 'standard', deathRule = 'permadeath' }) {
       const st = R.start;
       const s = {
         saveVersion: R.saveVersion, dataVersion: W.dataVersion, eventsVersion: (events && events.contentVersion) || 0,
-        runId, seed: seed >>> 0, year: st.year, season: st.season, day: 1, phase: 'day', level: Difficulty ? Difficulty.levelOf(level) : 'standard',
+        runId, seed: seed >>> 0, year: st.year, season: st.season, day: 1, phase: 'day',
+        level: Difficulty ? Difficulty.levelOf(level) : 'standard',
+        deathRule: deathRule === 'heir' || deathRule === 'sandbox' ? deathRule : 'permadeath',
         cat: { catId: mainCat.catId, name: mainCat.name, sex: mainCat.sex, lifeStage: mainCat.lifeStage, genes: mainCat.genes, scars: mainCat.scars || [], portraitId: keptPortraitId(mainCat.portraitId), traits: mainCat.traits || [], bloodline: mainCat.bloodline || {}, appearanceText: mainCat.appearanceText || '', appearanceTags: mainCat.appearanceTags || [], birthPride: mainCat.birthPride || null },
         needs: { health: st.health, hunger: st.needs, thirst: st.needs, energy: st.needs },
         injuries: [], counters: { starving: 0, parched: 0 },
@@ -234,7 +236,79 @@
       else if (s.needs.health <= 0) die(s, source);
     }
     const tierRoll = (rng) => { const r = rng() * 100; const sp = H.injuryTierSplit; return r < sp.minor ? 'minor' : r < sp.minor + sp.serious ? 'serious' : 'crippling'; };
-    function die(s, cause) { if (!s.dead) { s.dead = { cause, day: s.day }; } }
+    function die(s, cause) {
+      if (!s.dead) s.dead = { cause, day: s.day };
+      if (Deeds) Deeds.note(s, 'season.deaths', 1);
+    }
+    function heirAge(npc) {
+      if (Number.isInteger(npc.ageSeasons)) return npc.ageSeasons;
+      const stage = npc.lifeStage || npc.stage;
+      if (stage === 'elder') return 40;
+      if (stage === 'adult') return 12;
+      if (stage === 'adolescent') return 4;
+      return 0;
+    }
+    function heirEligible(s, npc) {
+      if (!npc || npc.dead || npc.id === (s.cat && s.cat.catId)) return false;
+      if (heirAge(npc) < 4) return false;
+      const pride = s.records && s.records.pride;
+      const members = (s.records && s.records.members) || [];
+      if (members.some((row) => row.catId === npc.id)) return true;
+      if (pride && (npc.faction === pride.id || npc.prideId === pride.id)) return true;
+      return !!(s.records && s.records.matePair && s.records.matePair.mateId === npc.id);
+    }
+    function rankedHeirs(s) {
+      const heirId = s.records && s.records.pride && s.records.pride.heirId;
+      const mateId = s.records && s.records.matePair && s.records.matePair.mateId;
+      return Object.values(s.npcs || {}).filter((npc) => heirEligible(s, npc)).sort((a, b) => {
+        const named = (b.id === heirId ? 1 : 0) - (a.id === heirId ? 1 : 0);
+        if (named) return named;
+        const blood = (id) => (id === mateId ? 0.5 : 0);
+        const byBlood = blood(b.id) - blood(a.id);
+        if (byBlood) return byBlood;
+        return heirAge(b) - heirAge(a) || String(a.id).localeCompare(String(b.id));
+      });
+    }
+    /** Heir mode: the save continues as the ranked heir. Otherwise the death stands. */
+    function passToHeir(s) {
+      if ((s.deathRule || 'permadeath') !== 'heir' || !s.dead || !s.cat) return false;
+      const next = rankedHeirs(s)[0];
+      if (!next) return false;
+      const dead = s.cat;
+      const cause = s.dead.cause;
+      s.lineage = s.lineage || [];
+      s.lineage.push({ catId: dead.catId, name: dead.name, diedDay: s.day, cause, heirId: next.id });
+      if (!s.worldMemory || typeof s.worldMemory !== 'object') s.worldMemory = { facts: [] };
+      if (!Array.isArray(s.worldMemory.facts)) s.worldMemory.facts = [];
+      s.worldMemory.facts.push({ factId: `death/${dead.catId}/${s.day}`, kind: 'death', name: dead.name, cause, day: s.day });
+      if (!s.npcs[dead.catId]) {
+        s.npcs[dead.catId] = { id: dead.catId, name: dead.name, sex: dead.sex, stage: dead.lifeStage, portraitId: dead.portraitId || null, met: true };
+      }
+      s.npcs[dead.catId].dead = true;
+      s.npcs[dead.catId].diedDay = s.day;
+      next.played = true;
+      s.cat = {
+        catId: next.id, name: next.name, sex: next.sex,
+        lifeStage: next.lifeStage || next.stage || 'adult',
+        ageSeasons: heirAge(next),
+        genes: next.genes || dead.genes, scars: next.scars || [],
+        portraitId: next.portraitId || null,
+        traits: next.traits || [], bloodline: next.bloodline || {},
+        appearanceText: next.appearanceText || '', appearanceTags: next.appearanceTags || []
+      };
+      s.needs.health = (R.start && R.start.health) || 100;
+      s.dead = null;
+      s.over = false;
+      s.heirHandoff = { from: dead.catId, to: next.id, day: s.day, cause };
+      const text = '[PH] {name} is gone. The pride goes on, and you go on as {heirName}.'
+        .replace('{name}', dead.name).replace('{heirName}', next.name);
+      s.pending = {
+        eventId: 'heir.death', title: dead.name, handoff: s.heirHandoff,
+        beats: [{ kind: 'narration', text }], beatIndex: 0, choices: [], summary: text
+      };
+      s.phase = 'event';
+      return true;
+    }
 
     // ---------- actions ----------
     /** Hunt points (formulas §1.2, Standard, no skills/perks/party/mood/weather). */
@@ -681,6 +755,7 @@
           if (!s.records) s.records = {};
           s.records.beatsPlayedDay = s.day;
         }
+        if (s.dead && passToHeir(s)) return { state: s };
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
         else if (settle) endDay(s, [], { action: 'helpCub', rested: false, slotTaken: true });
@@ -918,7 +993,10 @@
       ev = presentDay(s, rep, ev);
       s.report = { day: s.day, region: s.region, lines: rep, action: ctx.action || null };
       noteUnloggedMeets(s);
-      if (s.dead) { s.pending = null; s.phase = 'over'; s.over = true; return; }
+      if (s.dead) {
+        if (!passToHeir(s)) { s.pending = null; s.phase = 'over'; s.over = true; }
+        return;
+      }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;
       const finished = !Pair.enabled && s.day >= R.seasonDays;
       if (!finished && !closing) s.day += 1;
@@ -950,6 +1028,7 @@
         Pair.commitSeason(s);
         s.pending = null;
         s.endsAtWindow = false;
+        if (s.dead && passToHeir(s)) return { state: s };
         s.phase = s.dead ? 'over' : 'day';
         if (s.dead) s.over = true;
         return { state: s };
@@ -965,6 +1044,7 @@
         s.phase = 'event';
         return { state: s };
       }
+      if (s.dead && passToHeir(s)) return { state: s };
       s.pending = null;
       s.phase = s.dead || s.over ? 'over' : 'day';
       if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
@@ -1246,6 +1326,10 @@
     function overnight(s, rep, rested) {
       if (s.dead) return;
       const n = s.needs;
+      if (Deeds && s.records && s.records.pride) {
+        if ((s.pride.food || 0) > 0) s.records.foodSeen = true;
+        if (s.records.foodSeen && (s.pride.food || 0) <= 0) Deeds.note(s, 'season.nothing');
+      }
       const hungerScale = Difficulty ? Difficulty.applied('hunger', s.level) : 1;
       n.hunger = clamp(n.hunger - N.decay.hunger * hungerScale, 0, 100);
       n.thirst = clamp(n.thirst - N.decay.thirst, 0, 100);
