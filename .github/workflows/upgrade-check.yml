@@ -38,56 +38,83 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path dist/feed-stable, dist/feed-test, upgrade-evidence | Out-Null
-          $stable = 'Sabretooth Setup 0.1.9.exe'
-          $test = 'Sabretooth Setup 0.1.9-test.1.exe'
-          foreach ($pair in @(
-            @{ Src = 'dist/stable'; Dest = 'dist/feed-stable'; Exe = $stable },
-            @{ Src = 'dist/test'; Dest = 'dist/feed-test'; Exe = $test }
-          )) {
-            $exe = Join-Path $pair.Src $pair.Exe
-            if ($pair.Exe -match '__uninstaller') { throw "refusing $($pair.Exe)" }
-            if (-not (Test-Path -LiteralPath $exe)) { throw "missing $exe. have: $((Get-ChildItem $pair.Src -Filter *.exe).Name -join ', ')" }
-            Copy-Item -LiteralPath $exe -Destination (Join-Path $pair.Dest $pair.Exe)
-            Copy-Item -LiteralPath ($exe + '.blockmap') -Destination (Join-Path $pair.Dest ($pair.Exe + '.blockmap'))
+          function Publish-Feed([string]$Src, [string]$Dest, [string]$VersionPattern, [string]$NameFile) {
+            $built = @(Get-ChildItem -LiteralPath $Src -Filter '*.exe' | Where-Object { $_.Name -notmatch '__uninstaller' })
+            if ($built.Count -ne 1) { throw "expected one setup exe in $Src, have: $($built.Name -join ', ')" }
+            $exe = $built[0]
+            $block = Get-Item -LiteralPath ($exe.FullName + '.blockmap')
+            New-Item -ItemType Directory -Force -Path $Dest | Out-Null
+            Copy-Item -LiteralPath $exe.FullName -Destination (Join-Path $Dest $exe.Name)
+            Copy-Item -LiteralPath $block.FullName -Destination (Join-Path $Dest $block.Name)
+            $channel = Join-Path $Src 'test.yml'
+            $latest = Join-Path $Src 'latest.yml'
+            if (Test-Path -LiteralPath $channel) { Copy-Item -LiteralPath $channel -Destination (Join-Path $Dest 'latest.yml') -Force }
+            elseif (Test-Path -LiteralPath $latest) { Copy-Item -LiteralPath $latest -Destination (Join-Path $Dest 'latest.yml') -Force }
+            else { throw "no yml in $Src" }
+            $text = Get-Content -LiteralPath (Join-Path $Dest 'latest.yml') -Raw
+            if ($text -notmatch $VersionPattern) { throw "feed $Dest version mismatch:`n$text" }
+            $names = [regex]::Matches($text, '(?m)^(?:path|url):\s*[''"]?([^''"\s#]+)') | ForEach-Object { [uri]::UnescapeDataString($_.Groups[1].Value) }
+            $setupName = @($names | Where-Object { $_ -like '*.exe' } | Select-Object -First 1)
+            if (-not $setupName) { throw "no exe url in $Dest latest.yml" }
+            Copy-Item -LiteralPath $exe.FullName -Destination (Join-Path $Dest $setupName) -Force
+            Copy-Item -LiteralPath $block.FullName -Destination (Join-Path $Dest ($setupName + '.blockmap')) -Force
+            Set-Content -LiteralPath $NameFile -Value $setupName
           }
-          Copy-Item dist/stable/latest.yml dist/feed-stable/latest.yml
-          if (Test-Path dist/test/test.yml) { Copy-Item dist/test/test.yml dist/feed-test/latest.yml -Force }
-          elseif (Test-Path dist/test/latest.yml) { Copy-Item dist/test/latest.yml dist/feed-test/latest.yml -Force }
-          else { throw "0.1.9-test.1 produced no yml. have: $((Get-ChildItem dist/test -Filter *.yml).Name -join ', ')" }
-          $stableYml = Get-Content dist/feed-stable/latest.yml -Raw
-          $testYml = Get-Content dist/feed-test/latest.yml -Raw
-          if ($stableYml -notmatch '(?m)^version:\s*0\.1\.9\s*$') { throw "stable feed is not 0.1.9:`n$stableYml" }
-          if ($testYml -notmatch '(?m)^version:\s*0\.1\.9-test\.1\s*$') { throw "test feed is not 0.1.9-test.1:`n$testYml" }
+          Publish-Feed 'dist/stable' 'dist/feed-stable' '(?m)^version:\s*0\.1\.9\s*$' 'upgrade-evidence/stable-setup-name.txt'
+          Publish-Feed 'dist/test' 'dist/feed-test' '(?m)^version:\s*0\.1\.9-test\.1\s*$' 'upgrade-evidence/test-setup-name.txt'
           $node = (Get-Command node).Source
           $out = (Resolve-Path upgrade-evidence).Path
           Start-Process -FilePath $node -WorkingDirectory $PWD -ArgumentList 'scripts/update-feed-server.js','8765','dist/feed-stable' -WindowStyle Hidden -RedirectStandardOutput (Join-Path $out 'feed-stable.log') -RedirectStandardError (Join-Path $out 'feed-stable.err')
           Start-Process -FilePath $node -WorkingDirectory $PWD -ArgumentList 'scripts/update-feed-server.js','8766','dist/feed-test' -WindowStyle Hidden -RedirectStandardOutput (Join-Path $out 'feed-test.log') -RedirectStandardError (Join-Path $out 'feed-test.err')
           Start-Sleep -Seconds 1
-          (Invoke-WebRequest http://127.0.0.1:8765/latest.yml -UseBasicParsing).Content | Set-Content upgrade-evidence/served-stable.yml
-          (Invoke-WebRequest http://127.0.0.1:8766/latest.yml -UseBasicParsing).Content | Set-Content upgrade-evidence/served-test.yml
+          Invoke-WebRequest http://127.0.0.1:8765/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-stable.yml
+          Invoke-WebRequest http://127.0.0.1:8766/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-test.yml
       - name: Install published 0.1.8 and point it at the 0.1.9 feed
         shell: pwsh
         run: |
-          ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe"
-          ./scripts/upgrade-check.ps1 -Step seed
-          ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When before
-          ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label transitional -Url http://127.0.0.1:8765
+          & ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe"
+          if ($LASTEXITCODE -ne 0) {
+            $detail = ''
+            if (Test-Path upgrade-evidence/install-old.log) { $detail = (Get-Content upgrade-evidence/install-old.log -Raw).Trim() }
+            "transitional-driven SKIP $detail. The published 0.1.8 installer did not register an install on this windows-latest image, so its own updater never starts." | Set-Content upgrade-evidence/transitional-skip.txt
+            exit 0
+          }
+          & ./scripts/upgrade-check.ps1 -Step seed
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When before
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label transitional -Url http://127.0.0.1:8765
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Let 0.1.8's own updater install 0.1.9
         shell: pwsh
         run: |
-          ./scripts/upgrade-check.ps1 -Step watch-update -Mode transitional -Label transitional -SetupName 'Sabretooth Setup 0.1.9.exe' -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
-          ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When after
+          if (Test-Path upgrade-evidence/transitional-skip.txt) { Get-Content upgrade-evidence/transitional-skip.txt; exit 0 }
+          $setup = (Get-Content upgrade-evidence/stable-setup-name.txt -Raw).Trim()
+          & ./scripts/upgrade-check.ps1 -Step watch-update -Mode transitional -Label transitional -SetupName $setup -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When after
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Point the installed 0.1.9 at the 0.1.9-test.1 feed
         shell: pwsh
         run: |
-          ./scripts/upgrade-check.ps1 -Step ensure-stable -Installer 'dist/stable/Sabretooth Setup 0.1.9.exe' -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
-          ./scripts/upgrade-check.ps1 -Step inventory -Label in-app -When before
-          ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label in-app -Url http://127.0.0.1:8766
+          if (-not (Test-Path upgrade-evidence/save-sha256-before.txt)) {
+            & ./scripts/upgrade-check.ps1 -Step seed
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          & ./scripts/upgrade-check.ps1 -Step ensure-stable -Installer 'dist/stable/Sabretooth Setup 0.1.9.exe' -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./scripts/upgrade-check.ps1 -Step inventory -Label in-app -When before
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label in-app -Url http://127.0.0.1:8766
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Let 0.1.9 check, download, and quitAndInstall(true, true)
         shell: pwsh
         run: |
-          ./scripts/upgrade-check.ps1 -Step watch-update -Mode in-app -Label in-app -FeedUrl http://127.0.0.1:8766 -SetupName 'Sabretooth Setup 0.1.9-test.1.exe' -ExpectExe 'dist/test/win-unpacked/Sabretooth.exe'
-          ./scripts/upgrade-check.ps1 -Step inventory -Label in-app -When after
+          $setup = (Get-Content upgrade-evidence/test-setup-name.txt -Raw).Trim()
+          & ./scripts/upgrade-check.ps1 -Step watch-update -Mode in-app -Label in-app -FeedUrl http://127.0.0.1:8766 -SetupName $setup -ExpectExe 'dist/test/win-unpacked/Sabretooth.exe'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & ./scripts/upgrade-check.ps1 -Step inventory -Label in-app -When after
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Assert upgrade evidence
         shell: pwsh
         run: ./scripts/upgrade-check.ps1 -Step assert

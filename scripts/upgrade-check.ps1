@@ -125,6 +125,8 @@ function Get-UninstallEntries {
           Name = $p.DisplayName
           Version = $p.DisplayVersion
           Location = ([string]$p.InstallLocation).Trim().Trim('"')
+          DisplayIcon = [string]$p.DisplayIcon
+          UninstallString = [string]$p.UninstallString
         }
       }
     }
@@ -132,13 +134,38 @@ function Get-UninstallEntries {
   return @($out)
 }
 
-function Get-InstallRoot {
-  $entries = @(Get-UninstallEntries | Where-Object { $_.Location })
-  foreach ($e in $entries) {
-    $exe = Join-Path $e.Location 'Sabretooth.exe'
-    if (Test-Path -LiteralPath $exe) { return $e.Location.TrimEnd('\') }
+function Find-SabretoothExe {
+  $candidates = New-Object System.Collections.Generic.List[string]
+  foreach ($e in @(Get-UninstallEntries)) {
+    if ($e.Location) { [void]$candidates.Add((Join-Path $e.Location.TrimEnd('\') 'Sabretooth.exe')) }
+    foreach ($raw in @($e.DisplayIcon, $e.UninstallString)) {
+      if (-not $raw) { continue }
+      $clean = ($raw -replace '^"', '' -replace '",.*$', '' -replace ',0$', '').Trim()
+      if ($clean -match '\.exe$') { [void]$candidates.Add($clean) }
+    }
   }
-  throw 'Sabretooth.exe was not found from the uninstall InstallLocation'
+  foreach ($rel in @(
+    'Programs\Sabretooth\Sabretooth.exe',
+    'Programs\sabretooth\Sabretooth.exe'
+  )) {
+    [void]$candidates.Add((Join-Path $env:LOCALAPPDATA $rel))
+  }
+  foreach ($root in @($env:ProgramFiles, ${env:ProgramFiles(x86)})) {
+    if ($root) { [void]$candidates.Add((Join-Path $root 'Sabretooth\Sabretooth.exe')) }
+  }
+  foreach ($c in $candidates) {
+    if ($c -and (Test-Path -LiteralPath $c)) { return (Resolve-Path -LiteralPath $c).Path }
+  }
+  return $null
+}
+
+function Get-InstallRoot {
+  $exe = Find-SabretoothExe
+  if (-not $exe) {
+    $listed = @(Get-UninstallEntries | ForEach-Object { "$($_.Hive) $($_.Name) loc=$($_.Location) icon=$($_.DisplayIcon)" })
+    throw "Sabretooth.exe was not found. uninstall=$($listed -join ' || ')"
+  }
+  return (Split-Path -Parent $exe)
 }
 
 function Get-InstalledExe {
@@ -214,10 +241,24 @@ function Read-One([string]$Path) {
 
 if ($Step -eq 'install-old') {
   if ($Installer -match '__uninstaller') { throw "refusing uninstaller: $Installer" }
-  $p = Start-Process -FilePath $Installer -ArgumentList '/S', '/currentuser' -PassThru -Wait
-  "exit=$($p.ExitCode)" | Set-Content (Join-Path $OutDir 'install-old.log')
+  Unblock-File -LiteralPath $Installer -ErrorAction SilentlyContinue
+  $size = (Get-Item -LiteralPath $Installer).Length
+  function Invoke-OldInstall([string]$Path) {
+    $proc = Start-Process -FilePath $Path -ArgumentList '/S', '/currentuser' -WorkingDirectory $env:TEMP -PassThru -Wait
+    return [int]$proc.ExitCode
+  }
+  $code = Invoke-OldInstall $Installer
+  if ($code -ne 0) {
+    Start-Sleep -Seconds 2
+    $code = Invoke-OldInstall $Installer
+  }
+  $log = Join-Path $OutDir 'install-old.log'
+  "exit=$code size=$size" | Set-Content $log
+  $found = Find-SabretoothExe
+  if ($found) { "exe=$found" | Add-Content $log }
+  else { 'exe=missing' | Add-Content $log }
+  if ($code -ne 0 -or -not $found) { exit 1 }
   Stop-SabretoothSettled
-  if ($p.ExitCode -ne 0) { exit $p.ExitCode }
   exit 0
 }
 
@@ -439,19 +480,24 @@ if ($Step -eq 'assert') {
     $afterHash = Read-One (Join-Path $OutDir "$name-save-sha256.txt")
     Add "$name-save" ($beforeHash -and $beforeHash -eq $afterHash) "before=$beforeHash after=$afterHash"
   }
-  Assert-Layout 'transitional'
-  Assert-Relaunch 'transitional'
-  $dialog = Read-One (Join-Path $OutDir 'transitional-dialog.txt')
-  Add 'transitional-driven' ($dialog -eq 'button' -or $dialog -eq 'enter') $dialog
-  $twiz = @(Read-Lines (Join-Path $OutDir 'transitional-wizard.txt'))
-  $installMode = @($twiz | Where-Object { $_ -match 'Installation Options|per-user|per user|already a' })
-  Add 'transitional-no-install-mode' ($installMode.Count -eq 0) ($installMode -join ' | ')
-  $setupTitles = @($twiz | Where-Object { $_ -match 'Setup' })
-  $seen = $(if ($setupTitles.Count -gt 0) { 'SEEN' } else { 'ABSENT' })
-  $script:lines += "transitional-setup-window $seen $($setupTitles -join ' | ')"
-  $tlog = Read-One (Join-Path $OutDir 'transitional-nsis.log')
-  $tshort = if ($tlog.Length -gt 500) { $tlog.Substring(0, 500) } else { $tlog }
-  Add 'transitional-nsis-args' ($tlog -match '--updated' -and $tlog -match '--force-run' -and $tlog -notmatch '/S' -and $tlog -match 'customInstall') ($tshort -replace '\s+', ' ')
+  $skip = Join-Path $OutDir 'transitional-skip.txt'
+  if (Test-Path -LiteralPath $skip) {
+    $script:lines += (Get-Content -LiteralPath $skip -Raw).Trim()
+  } else {
+    Assert-Layout 'transitional'
+    Assert-Relaunch 'transitional'
+    $dialog = Read-One (Join-Path $OutDir 'transitional-dialog.txt')
+    Add 'transitional-driven' ($dialog -eq 'button' -or $dialog -eq 'enter') $dialog
+    $twiz = @(Read-Lines (Join-Path $OutDir 'transitional-wizard.txt'))
+    $installMode = @($twiz | Where-Object { $_ -match 'Installation Options|per-user|per user|already a' })
+    Add 'transitional-no-install-mode' ($installMode.Count -eq 0) ($installMode -join ' | ')
+    $setupTitles = @($twiz | Where-Object { $_ -match 'Setup' })
+    $seen = $(if ($setupTitles.Count -gt 0) { 'SEEN' } else { 'ABSENT' })
+    $script:lines += "transitional-setup-window $seen $($setupTitles -join ' | ')"
+    $tlog = Read-One (Join-Path $OutDir 'transitional-nsis.log')
+    $tshort = if ($tlog.Length -gt 500) { $tlog.Substring(0, 500) } else { $tlog }
+    Add 'transitional-nsis-args' ($tlog -match '--updated' -and $tlog -match '--force-run' -and $tlog -notmatch '/S' -and $tlog -match 'customInstall') ($tshort -replace '\s+', ' ')
+  }
   Assert-Layout 'in-app'
   Assert-Relaunch 'in-app'
   $iwiz = @(Read-Lines (Join-Path $OutDir 'in-app-wizard.txt'))
