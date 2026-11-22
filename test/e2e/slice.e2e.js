@@ -90,13 +90,15 @@ async function step(page, shots) {
   const { app, page } = await launch(ud);
   const shots = {};
   try {
-    await check('New Game is locked to Standard + permadeath (scope IN §1): other cards hidden, no Sandbox panel', async () => {
+    await check('New Game is locked to Standard + permadeath (scope IN §1): Story, Sim, Heir and Sandbox are greyed', async () => {
       assert.deepStrictEqual(await page.evaluate(() => window.__menuDebug.menuLock()), { styles: ['standard'], difficulties: ['permadeath'] });
       await page.mouse.move(2, 2);
       await press(page, 'Enter'); await waitState(page, 'newGameSetup');
       const cards = () => page.evaluate(() => [...document.querySelectorAll('#style-cards .card, #death-cards .card')].map((c) => ({ nav: c.dataset.nav, disabled: c.disabled })));
       assert.deepStrictEqual(await cards(), [
+        { nav: 'style:story', disabled: true },
         { nav: 'style:standard', disabled: false },
+        { nav: 'style:sim', disabled: true },
         { nav: 'death:permadeath', disabled: false },
         { nav: 'death:heir', disabled: true },
         { nav: 'death:sandbox', disabled: true }

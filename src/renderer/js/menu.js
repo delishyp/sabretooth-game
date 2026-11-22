@@ -237,7 +237,7 @@
     }
     return b;
   }
-  /** Slice 1 lock (scope IN §1, slice-rules menuLock): only Standard + Permadeath cards exist; the rest are hidden, not just disabled. */
+  /** Slice 1 lock: Story, Sim, Heir and Sandbox stay on screen, greyed, and cannot be selected. */
   const setupStyles = () => (copy.menuLock ? copy.playStyles.filter((d) => copy.menuLock.styles.includes(d.id)) : copy.playStyles);
   const setupDeaths = () => (copy.menuLock ? copy.difficulties.filter((d) => copy.menuLock.difficulties.includes(d.id)) : copy.difficulties);
   function renderSetup() {
@@ -245,7 +245,8 @@
     const deathTitle = document.querySelector(`${SCREEN} [data-t="newGame.deathRuleRow"]`);
     if (styleTitle) styleTitle.textContent = 'Play style';
     if (deathTitle) deathTitle.textContent = 'When your cat dies';
-    $('#style-cards').replaceChildren(...setupStyles().map((d) => cardButton('style', d, false)));
+    const styleOpen = new Set(setupStyles().map((d) => d.id));
+    $('#style-cards').replaceChildren(...copy.playStyles.map((d) => cardButton('style', d, !styleOpen.has(d.id))));
     const deathOpen = new Set(setupDeaths().map((d) => d.id));
     $('#death-cards').replaceChildren(...copy.difficulties.map((d) => cardButton('death', d, !deathOpen.has(d.id))));
     renderLevelCards();
