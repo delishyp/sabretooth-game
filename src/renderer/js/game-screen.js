@@ -960,16 +960,26 @@
       }
     };
     function renderReport() {
-      const r = $('#game-report'); r.textContent = '';
+      const docked = $('#game-report');
+      if (docked) { docked.hidden = true; docked.textContent = ''; }
+      let card = document.getElementById('day-end');
+      if (!card) {
+        card = el('div', 'day-end');
+        card.id = 'day-end';
+        const host = document.querySelector('.screen[data-screen="game"]');
+        if (host) host.append(card);
+      }
       const beats = E.sceneBeats(s);
       const midBeat = !!(beats && s.phase === 'event' && (s.pending.beatIndex || 0) < beats.length - 1);
-      r.hidden = !s.report || midBeat;
-      if (!s.report || midBeat) return;
-      r.append(el('h3', '', t('game.report.title', { day: s.report.day })));
+      const show = !!(s.report && s.phase === 'day' && !midBeat);
+      card.hidden = !show;
+      card.textContent = '';
+      if (!show) return;
+      card.append(el('h2', 'event-title', t('game.report.title', { day: s.report.day })));
       const ul = el('ul'); for (const l of s.report.lines) { const x = lineText(l); if (x) ul.append(el('li', `rep-${l.k}`, x)); }
       const played = s.records && s.report && s.records.beatsPlayedDay === s.report.day;
       if (!ul.children.length && !played) ul.append(el('li', '', t('game.report.quiet')));
-      r.append(ul);
+      card.append(ul, btn('Continue', { g: 'dismissReport' }, { cls: 'primary' }));
     }
     function renderTalk() {
       const box = $('#game-event'); const view = E.talkView(s);
@@ -1444,6 +1454,7 @@
       const perkOpen = !!document.getElementById('perk-modal');
       let target = null;
       if (perkOpen) target = document.querySelector('#perk-modal [data-g="perkChoose"]');
+      else if (s.phase === 'day' && s.report) target = document.querySelector('[data-g="dismissReport"]');
       else if (evOpen) target = [...$('#game-event').querySelectorAll('[data-g="choose"], [data-g="advanceBeat"], [data-g="sceneChoose"], [data-g="encounterChoose"], [data-g="borderChoose"], [data-g="fordChoose"], [data-g="continue"], [data-g="forced"]')].find((b) => !b.disabled);
       else if (view === 'den') target = $('#game-actions [data-g="rest"]') || $('#game-actions [data-g="forced"]');
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
@@ -1455,6 +1466,7 @@
       if (!game || !s) return;
       let mode = 'home';
       if (sceneOpen()) mode = 'scene';
+      else if (s.phase === 'day' && s.report) mode = 'days-end';
       else if (view !== 'home') mode = 'book';
       else if (!$('#game-actions').hidden) mode = 'choosing';
       game.dataset.mode = mode;
@@ -1702,6 +1714,7 @@
         return;
       }
       if (d.g === 'setRoute') return act({ type: 'setRoute', intent: d.intent });
+      if (d.g === 'dismissReport') return act({ type: 'dismissReport' });
       if (d.g === 'continue') return act({ type: 'continue' });
       if (d.g === 'save') return manualSave();
       if (d.g === 'menu' || d.g === 'summaryMenu') return ctx.leave();

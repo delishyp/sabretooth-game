@@ -554,6 +554,11 @@
     function act(s0, action) {
       const s = clone(s0); const rep = [];
       if (s.over) return { state: s, error: 'over' };
+      if (action.type === 'dismissReport') {
+        if (s.phase !== 'day' || !s.report) return { state: s0, error: 'report' };
+        s.report = null;
+        return { state: s };
+      }
       const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
       if (Councils && s.pending && s.pending.council && (action.type === 'choose' || action.type === 'continue')) {
         Councils.resolve(s, action.choiceId);

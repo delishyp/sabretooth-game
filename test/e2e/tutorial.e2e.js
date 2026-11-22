@@ -72,6 +72,8 @@ async function startRun(page, { tips }) {
           }
           const beat = await firstVisible('#game-event [data-g="advanceBeat"]');
           if (beat) { await beat.click(); continue; }
+          const dayEnd = await firstVisible('[data-g="dismissReport"]');
+          if (dayEnd) { await dayEnd.click(); continue; }
           const choose = await firstVisible('#game-event [data-g="choose"], #game-event [data-g="sceneChoose"], #game-event [data-g="encounterChoose"], #game-event [data-g="continue"]');
           if (choose) { await choose.click(); continue; }
           break;
@@ -90,9 +92,13 @@ async function startRun(page, { tips }) {
       for (let i = 0; i < 6 && await page.locator('#tutorial-card').count(); i++) {
         await page.locator('[data-g="tutorialDismiss"]').click();
       }
+      if (await page.locator('[data-g="dismissReport"]').isVisible()) await page.locator('[data-g="dismissReport"]').click();
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
       if (await page.locator('[data-g="watch"]').isHidden() && await page.locator('[data-g="showMore"]').isVisible()) await page.locator('[data-g="showMore"]').click();
       await page.locator('[data-g="watch"]').click();
       await playOut();
+      if (await page.locator('[data-g="dismissReport"]').isVisible()) await page.locator('[data-g="dismissReport"]').click();
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
       if (await page.locator('[data-g="scent"]').isHidden() && await page.locator('[data-g="showMore"]').isVisible()) await page.locator('[data-g="showMore"]').click();
       await page.locator('[data-g="scent"]').click();
       await playOut();

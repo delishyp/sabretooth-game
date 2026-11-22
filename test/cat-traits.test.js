@@ -189,9 +189,11 @@ test('fight-effect traits stay inside the section 4 bands', () => {
   }
 });
 
-test('the creator trait step comes after personality and before appearance', () => {
+test('Look keeps the appearance text and Ready confirms it', () => {
   const names = require('../src/renderer/data/menu-copy.json').creator.defaultNames;
   let s = Creator.init({ names, rng: () => 0.2 });
+  s = Creator.reduce(s, 'setAppearance', 'A torn ear and a black coat.').state;
+  assert.strictEqual(s.step, 1);
   s = Creator.reduce(s, 'start').state;
   assert.strictEqual(s.step, 2);
   s = Creator.reduce(s, 'start').state;
@@ -201,7 +203,7 @@ test('the creator trait step comes after personality and before appearance', () 
   assert.deepStrictEqual(turned.picks, ['lame_paw', 'iron_jaw']);
   s = Creator.reduce(turned, 'start').state;
   assert.strictEqual(s.step, 4);
-  s = Creator.reduce(s, 'setAppearance', 'A torn ear and a black coat.').state;
+  assert.strictEqual(s.appearanceText, 'A torn ear and a black coat.');
   const started = Creator.reduce({ ...s, focus: 'start' }, 'confirm');
   assert.strictEqual(started.effect.type, 'start');
   assert.ok(started.effect.mainCat.appearanceTags.includes('torn_ear'));

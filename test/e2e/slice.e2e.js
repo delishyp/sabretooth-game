@@ -60,6 +60,9 @@ async function step(page, shots) {
     await b.click(); await idle(page); return 'choose';
   }
   if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'continue'; }
+  if (s.phase === 'day' && s.report && await page.locator('[data-g="dismissReport"]').count()) {
+    await page.locator('[data-g="dismissReport"]').click(); await idle(page); return 'day-end';
+  }
   if (av.forced) { await page.locator('[data-g="forced"]').click(); await idle(page); return 'forced'; }
   if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
   const showStep = async (sel) => {

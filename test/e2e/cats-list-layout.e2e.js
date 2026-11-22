@@ -141,8 +141,13 @@ fs.mkdirSync(SHOTS, { recursive: true });
     console.log('list', tag, JSON.stringify({ size, dock: report.dock, rows: report.rows }));
   }
 
-  const menuBg = await page.evaluate(() => getComputedStyle(document.getElementById('bg')).visibility);
-  assert.strictEqual(menuBg, 'visible');
+  const scene = await page.evaluate(() => {
+    const land = document.querySelector('.home-landscape');
+    const r = land ? land.getBoundingClientRect() : { width: 0, height: 0 };
+    return { w: r.width, h: r.height, W: innerWidth, H: innerHeight, bg: getComputedStyle(document.getElementById('bg')).visibility };
+  });
+  assert.strictEqual(scene.bg, 'hidden', 'menu art stays hidden while the game scene fills the window');
+  assert.ok(scene.w >= scene.W - 2 && scene.h >= scene.H - 2, `scene ${scene.w}x${scene.h} window ${scene.W}x${scene.H}`);
   assert.deepStrictEqual(errors, []);
   await app.close();
   console.log('cats list layout passed', SHOTS);

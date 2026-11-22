@@ -466,6 +466,16 @@
     if (creator.pickReason === 'fight') wrap.append(el('p', 'trait-lock', traitHint('ui.traits.fightLock')));
     return wrap;
   }
+  function reviewPanel() {
+    const wrap = el('div', 'ready-step');
+    wrap.append(el('h3', '', 'Ready'));
+    wrap.append(el('p', 'ready-name', creator.name || ''));
+    wrap.append(el('p', 'ready-look', creator.appearanceText || 'Stand-in art'));
+    const api = window.CatTraits;
+    const names = (creator.picks || []).map((id) => (api && api.copy.traits[id] && api.copy.traits[id].name) || id);
+    if (names.length) wrap.append(el('p', 'ready-traits', names.join(', ')));
+    return wrap;
+  }
   function appearancePanel() {
     const api = window.CatTraits;
     const genes = Creator.genesFor(creator);
@@ -490,10 +500,10 @@
   }
   function buildCreatorPanel() {
     const panel = $('#creator-panel');
-    if (creator.step === 1) panel.replaceChildren(nameRow(), ...Creator.ROWS(creator).slice(1).map(optionRow));
+    if (creator.step === 1) panel.replaceChildren(nameRow(), ...Creator.ROWS(creator).slice(1).map(optionRow), appearancePanel());
     else if (creator.step === 2) panel.replaceChildren(optionRow('preset'), ...Creator.TRAITS.map(sliderRow));
     else if (creator.step === 3) panel.replaceChildren(traitPanel());
-    else panel.replaceChildren(appearancePanel());
+    else panel.replaceChildren(reviewPanel());
     panel.dataset.step = String(creator.step); panel.dataset.rows = panelKey(creator);
     if (creator.step === 1) $('#creator-name').value = creator.name;
   }
@@ -540,7 +550,7 @@
         help.textContent = helpText(id);
       }
     }
-    if (c.step === 4 && window.CatTraits) {
+    if (c.step === 1 && window.CatTraits) {
       const look = window.CatTraits.appearanceOf(c.appearanceText || '', Creator.genesFor(c), c.picks || [], c.droppedTags || []);
       const chips = document.querySelector('.appearance-chips');
       if (chips && chips.dataset.tags !== look.tags.join(',')) {

@@ -113,6 +113,7 @@ function assertLayout(box, { scroll = false } = {}) {
         }
         if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); continue; }
         if (s.phase === 'conversation') { await clickChoice(page, 'leave'); continue; }
+        if (await page.locator('[data-g="dismissReport"]').isVisible()) { await page.locator('[data-g="dismissReport"]').click(); await idle(page); }
         if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
         await page.locator('[data-g="rest"]').click(); await idle(page);
       }
@@ -228,6 +229,7 @@ function assertLayout(box, { scroll = false } = {}) {
         const avail = (await g(page)).available;
         const row = (avail.talk || []).find((t) => t.catId === 'ln05');
         if (row && row.allowed) break;
+        if (await page.locator('[data-g="dismissReport"]').isVisible()) { await page.locator('[data-g="dismissReport"]').click(); await idle(page); }
         if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
         await page.locator('[data-g="rest"]').click();
         await idle(page);
@@ -251,6 +253,8 @@ function assertLayout(box, { scroll = false } = {}) {
       }
       const row = (await g(page)).available.talk.find((t) => t.catId === 'ln05');
       assert.strictEqual(row.allowed, true, `not eligible by day ${(await g(page)).state.day} from ${started}`);
+      if (await page.locator('[data-g="dismissReport"]').isVisible()) await page.locator('[data-g="dismissReport"]').click();
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
       await page.locator('[data-g="talk"][data-cat="ln05"]').click();
       await idle(page);
       await page.waitForFunction(() => document.querySelector('.conversation-card')?.dataset.node === 'followup:quiet_company');
@@ -275,6 +279,7 @@ function assertLayout(box, { scroll = false } = {}) {
         const avail = (await g(page)).available;
         const ready = (avail.talk || []).find((t) => t.catId === 'ln05');
         if (ready && ready.allowed) break;
+        if (await page.locator('[data-g="dismissReport"]').isVisible()) { await page.locator('[data-g="dismissReport"]').click(); await idle(page); }
         if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
         await page.locator('[data-g="rest"]').click();
         await idle(page);
@@ -296,6 +301,8 @@ function assertLayout(box, { scroll = false } = {}) {
           await idle(page);
         }
       }
+      if (await page.locator('[data-g="dismissReport"]').isVisible()) await page.locator('[data-g="dismissReport"]').click();
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
       await page.locator('[data-g="talk"][data-cat="ln05"]').click();
       await idle(page);
       await page.waitForFunction(() => document.querySelector('.conversation-card')?.dataset.node === 'third:confiding');

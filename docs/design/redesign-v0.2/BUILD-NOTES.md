@@ -20,6 +20,14 @@ The spec asks for a fight win-chance function so fights can use the same five od
 
 `--s` is `max(1px, window height / 1080 × UI scale)`. At 720 the unclamped unit would be about 0.67px and an 18u label would draw at 12px. The floor keeps every 18u label at 18px or larger, including map labels. At 720 with UI scale 1.5, story choices go to one column and the narration scrolls.
 
+## Day's end
+
+The day report is its own mode. Continue calls `dismissReport`, clears the report, and saves, so a load does not bring that day back. The dock no longer holds the report.
+
+## Creator steps
+
+The appearance text field is on Look. Ready is the confirm step and reads the text already stored from Look.
+
 ## Creator traits
 
 `den_father` stays in the trait table so the existing 57-row count holds. The creator does not offer it. A third litter now grants `den_mother` for either sex. Sickly Line (`tainted_blood`) is shown as Frail Blood. The appearance text field is still on the Ready step, because that step's focus id is what the creator tests confirm. Look already carries coat, markings, and eyes, and both steps label the picture stand-in art.

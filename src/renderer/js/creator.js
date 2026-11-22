@@ -285,7 +285,7 @@
       const picks = api ? api.ROWS.filter((item) => item.group === group).map((item) => 'pick:' + item.id) : [];
       return ['tab:body', 'tab:mind', 'tab:social', 'tab:lineage', ...picks];
     }
-    if (st.step === 4) return ['appearance'];
+    if (st.step === 4) return [];
     if (st.staticArt) return ['name', 'sex', 'portrait'];
     const eyes = st.rare && st.oddEyes === 'on' ? ['eyeLeft', 'eyeRight'] : ['eyes'];
     return ['name', 'sex', 'coat', 'markings', ...eyes, ...(st.rare ? ['oddEyes'] : [])];
@@ -313,7 +313,7 @@
       if (id === 'next') {
         if (s.step === 1) return goStep(2, 'preset');
         if (s.step === 2) return goStep(3, 'tab:body');
-        if (s.step === 3) return goStep(4, 'appearance');
+        if (s.step === 3) return goStep(4, 'start');
         return out();
       }
       if (id === 'start' && s.step === 4) return out({ type: 'start', mainCat: buildMainCat(s, { names: env.names, rng, newId: env.newId }) });
@@ -356,8 +356,8 @@
       return out();
     }
     if (action === 'setAppearance') {
-      if (s.step !== 4) return out();
-      st = { ...s, appearanceText: String(arg || '').slice(0, 280), focus: 'appearance' };
+      if (s.step !== 1) return out();
+      st = { ...s, appearanceText: String(arg || '').slice(0, 280), focus: 'name' };
       return out();
     }
     if (action === 'dropTag') {
@@ -380,7 +380,7 @@
     if (action === 'start') {
       if (s.step === 1) return goStep(2, 'preset');
       if (s.step === 2) return goStep(3, 'tab:body');
-      if (s.step === 3) return goStep(4, 'appearance');
+      if (s.step === 3) return goStep(4, 'start');
       return confirmButton('start');
     }
 
