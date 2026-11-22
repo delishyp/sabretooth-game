@@ -67,11 +67,11 @@ jobs:
             $text = Get-Content -LiteralPath (Join-Path $Dest 'latest.yml') -Raw
             if ($text -notmatch $VersionPattern) { throw "feed $Dest version mismatch:`n$text" }
             $names = [regex]::Matches($text, '(?m)^(?:path|url):\s*[''"]?([^''"\s#]+)') | ForEach-Object { [uri]::UnescapeDataString($_.Groups[1].Value) }
-            $setupName = @($names | Where-Object { $_ -like '*.exe' } | Select-Object -First 1)
+            $setupName = [string]@($names | Where-Object { $_ -like '*.exe' } | Select-Object -First 1)
             if (-not $setupName) { throw "no exe url in $Dest latest.yml" }
             Copy-Item -LiteralPath $exe.FullName -Destination (Join-Path $Dest $setupName) -Force
             Copy-Item -LiteralPath $block.FullName -Destination (Join-Path $Dest ($setupName + '.blockmap')) -Force
-            Set-Content -LiteralPath $NameFile -Value $setupName
+            Set-Content -LiteralPath $NameFile -Value $setupName -NoNewline
           }
           Publish-Feed 'dist/stable' 'dist/feed-stable' '(?m)^version:\s*0\.1\.9\s*$' 'upgrade-evidence/stable-setup-name.txt'
           Publish-Feed 'dist/test' 'dist/feed-test' '(?m)^version:\s*0\.1\.9-test\.1\s*$' 'upgrade-evidence/test-setup-name.txt'
