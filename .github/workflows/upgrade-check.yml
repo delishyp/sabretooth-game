@@ -26,6 +26,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release download v0.1.8 --repo delishyp/sabretooth-game --pattern Sabretooth-Setup-0.1.8.exe --dir "$env:RUNNER_TEMP"
+      - name: Install 0.1.8 the same way as the passing run
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path upgrade-evidence | Out-Null
+          & ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe"
+          if ($LASTEXITCODE -ne 0) {
+            $detail = ''
+            if (Test-Path upgrade-evidence/install-old.log) { $detail = (Get-Content upgrade-evidence/install-old.log -Raw).Trim() }
+            "transitional-driven SKIP $detail" | Set-Content upgrade-evidence/transitional-skip.txt
+            exit 0
+          }
+          & ./scripts/upgrade-check.ps1 -Step seed
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build 0.1.9 and the unpublished 0.1.9-test.1 feed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,18 +82,10 @@ jobs:
           Start-Sleep -Seconds 1
           Invoke-WebRequest http://127.0.0.1:8765/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-stable.yml
           Invoke-WebRequest http://127.0.0.1:8766/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-test.yml
-      - name: Install published 0.1.8 and point it at the 0.1.9 feed
+      - name: Point the installed 0.1.8 at the 0.1.9 feed
         shell: pwsh
         run: |
-          & ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe"
-          if ($LASTEXITCODE -ne 0) {
-            $detail = ''
-            if (Test-Path upgrade-evidence/install-old.log) { $detail = (Get-Content upgrade-evidence/install-old.log -Raw).Trim() }
-            "transitional-driven SKIP $detail. The published 0.1.8 installer did not register an install on this windows-latest image, so its own updater never starts." | Set-Content upgrade-evidence/transitional-skip.txt
-            exit 0
-          }
-          & ./scripts/upgrade-check.ps1 -Step seed
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Test-Path upgrade-evidence/transitional-skip.txt) { Get-Content upgrade-evidence/transitional-skip.txt; exit 0 }
           & ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When before
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label transitional -Url http://127.0.0.1:8765

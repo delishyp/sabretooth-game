@@ -241,23 +241,25 @@ function Read-One([string]$Path) {
 
 if ($Step -eq 'install-old') {
   if ($Installer -match '__uninstaller') { throw "refusing uninstaller: $Installer" }
-  Unblock-File -LiteralPath $Installer -ErrorAction SilentlyContinue
-  $size = (Get-Item -LiteralPath $Installer).Length
-  function Invoke-OldInstall([string]$Path) {
-    $proc = Start-Process -FilePath $Path -ArgumentList '/S', '/currentuser' -WorkingDirectory $env:TEMP -PassThru -Wait
-    return [int]$proc.ExitCode
-  }
-  $code = Invoke-OldInstall $Installer
-  if ($code -ne 0) {
-    Start-Sleep -Seconds 2
-    $code = Invoke-OldInstall $Installer
-  }
+  Remove-Item Env:\SABRETOOTH_CI_AUTOUPDATE -ErrorAction SilentlyContinue
+  Remove-Item Env:\SABRETOOTH_CI_UPDATE_URL -ErrorAction SilentlyContinue
   $log = Join-Path $OutDir 'install-old.log'
-  "exit=$code size=$size" | Set-Content $log
+  $nodes = @(Get-Process -Name node -ErrorAction SilentlyContinue | ForEach-Object { "$($_.Id) $($_.Path)" })
+  @(
+    'match=run 44187012811 Start-Process -ArgumentList /S,/currentuser -PassThru -Wait'
+    "cwd=$(Get-Location)"
+    'workingDirectory=default'
+    'args=/S /currentuser'
+    "SABRETOOTH_CI_AUTOUPDATE=[$($env:SABRETOOTH_CI_AUTOUPDATE)]"
+    "SABRETOOTH_CI_UPDATE_URL=[$($env:SABRETOOTH_CI_UPDATE_URL)]"
+    "installer=$Installer"
+    "node=[$($nodes -join '; ')]"
+  ) | Set-Content $log
+  $p = Start-Process -FilePath $Installer -ArgumentList '/S', '/currentuser' -PassThru -Wait
+  "exit=$($p.ExitCode)" | Add-Content $log
   $found = Find-SabretoothExe
-  if ($found) { "exe=$found" | Add-Content $log }
-  else { 'exe=missing' | Add-Content $log }
-  if ($code -ne 0 -or -not $found) { exit 1 }
+  if ($found) { "exe=$found" | Add-Content $log } else { 'exe=missing' | Add-Content $log }
+  if ($p.ExitCode -ne 0 -or -not $found) { exit 1 }
   Stop-SabretoothSettled
   exit 0
 }
