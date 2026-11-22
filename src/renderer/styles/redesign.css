@@ -230,12 +230,20 @@
   grid-column: 2 / -1;
   grid-row: 2 / span 3;
   align-self: stretch;
+  min-height: 0;
   background: var(--panel);
   border: 2px solid var(--border);
   border-radius: 10px;
   padding: 12px;
   overflow: auto;
 }
+.screen[data-screen="game"] .home-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+.screen[data-screen="game"] .met-cat { flex: 1 1 240px; max-width: 360px; margin: 0; }
 .screen[data-screen="game"][data-mode="choosing"] .home-dock,
 .screen[data-screen="game"][data-mode="scene"] .home-dock,
 .screen[data-screen="game"][data-mode="days-end"] .home-dock { display: none !important; }
@@ -259,21 +267,33 @@
 .screen[data-screen="game"] .region-name,
 .screen[data-screen="game"] .region-desc { white-space: normal; overflow: visible; max-width: 100%; }
 .screen[data-screen="game"] #game-event {
-  left: calc(var(--safe-l) + 180px);
-  right: calc(100vw - var(--safe-r) + 16px);
-  top: auto;
-  bottom: 12px;
-  width: auto;
-  max-height: 48%;
+  position: absolute !important;
+  left: calc(var(--safe-l) + 180px) !important;
+  right: calc(100vw - var(--safe-r) + 16px) !important;
+  top: 132px !important;
+  bottom: 8px !important;
+  height: auto !important;
+  width: auto !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  align-items: stretch;
+  justify-content: stretch;
 }
 .screen[data-screen="game"] .conversation-card,
 .screen[data-screen="game"] .encounter-card {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 100%;
-  max-height: 46vh;
-  overflow: auto;
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0;
+  overflow: hidden;
   background: var(--panel);
   border: 2px solid var(--border);
   border-radius: 10px;
@@ -310,7 +330,13 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .event-choices { grid-te
   color: var(--bone);
   white-space: normal;
 }
-.screen[data-screen="game"] .event-scroll { overflow: auto; max-height: 22vh; }
+.screen[data-screen="game"] .event-scroll {
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+.screen[data-screen="game"] .event-choices { flex: 0 0 auto; }
 .screen[data-screen="game"] .meter-ends,
 .screen[data-screen="game"] .meter-track,
 .screen[data-screen="game"] .relation-romance { display: none; }
