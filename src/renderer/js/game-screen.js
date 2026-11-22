@@ -1358,25 +1358,30 @@
       }
       card.append(ch);
     }
+    function meetCast(cat, player) {
+      const cast = el('div', 'event-cast' + (player ? ' is-player' : ' is-speaker'));
+      const frame = el('div', 'portrait-frame frame-md is-headshot');
+      frame.append(headshotImg({ portraitId: (cat && cat.portraitId) || (player ? PLAYER_STILL : ''), name: cat && cat.name }));
+      cast.append(frame, el('div', 'event-cast-name', (cat && cat.name) || ''));
+      if (!player) cast.append(el('p', 'speaker-mood', 'Friendly'));
+      return cast;
+    }
     function renderBeats(card, beats, choices) {
       const idx = Math.min(s.pending.beatIndex || 0, beats.length - 1);
       const beat = beats[idx];
       const shown = (typeof Beats !== 'undefined' ? Beats : E.beats).line(beat, E.beatContext(s));
       usePlate('dialogue');
       const npc = headForBeats(s, beats);
-      const heads = el('div', 'dialogue-heads');
-      if (npc) appendSpeakerHead(heads, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
-      const playerCast = el('div', 'event-cast is-player');
-      const pframe = el('div', 'portrait-frame frame-md is-headshot');
-      pframe.append(headshotImg({ portraitId: s.cat.portraitId || PLAYER_STILL, name: s.cat.name }));
-      playerCast.append(pframe, el('div', 'event-cast-name', s.cat.name || ''));
-      heads.append(playerCast);
-      card.append(heads);
+      const row = el('div', 'meet-row');
+      row.append(meetCast(s.cat, true));
+      const mid = el('div', 'meet-mid');
+      const title = card.querySelector('.event-title');
+      if (title) mid.append(title);
       const prose = el('div', 'event-beat scene-log');
       if (SceneLog) SceneLog.append(prose, shown, { catId: s.pending && s.pending.catId, playerId: s.cat && s.cat.catId, playerName: s.cat && s.cat.name, npc: s.pending && s.npcs && s.npcs[s.pending.catId] });
       else prose.append(el('p', logClass(shown, s.cat), speechLine(shown)));
-      card.append(prose);
-      if (s.pending.reply) card.append(el('p', 'event-text say tone-npc', s.pending.reply));
+      mid.append(prose);
+      if (s.pending.reply) mid.append(el('p', 'event-text say tone-npc', s.pending.reply));
       const last = idx >= beats.length - 1;
       const ch = el('div', 'event-choices');
       if (s.phase === 'eventResult') ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
@@ -1386,7 +1391,10 @@
         const kind = s.pending.lone ? 'sceneChoose' : 'choose';
         ch.append(btn(c.id === 'continue' ? t('game.event.continue') : shownCopy(c.label), { g: kind, choice: c.id }));
       }
-      card.append(ch);
+      mid.append(ch);
+      row.append(mid);
+      if (npc) appendSpeakerHead(row, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
+      card.append(row);
     }
     function fightBarSpec() {
       const p = s.pending;

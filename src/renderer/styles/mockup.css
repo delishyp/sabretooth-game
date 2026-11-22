@@ -427,21 +427,43 @@ body:has(.screen[data-screen="load"].active) #bg {
   padding: 0 !important;
 }
 .screen[data-screen="game"] .scene-actor.is-foe.encounter-panel {
-  height: calc(520 * var(--s)) !important;
-  width: auto !important;
-  max-height: none !important;
+  bottom: 40% !important;
+  right: 4% !important;
+  left: auto !important;
+  width: 40% !important;
+  max-width: 40% !important;
+  height: min(46vh, calc(520 * var(--s))) !important;
+  max-height: 46vh !important;
+  overflow: hidden !important;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
   padding: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+}
+.screen[data-screen="game"] .scene-actor.is-player.encounter-panel {
+  bottom: 40% !important;
+  left: max(18%, calc(300 * var(--s))) !important;
+  right: auto !important;
+  width: 34% !important;
+  max-width: 34% !important;
+  height: min(42vh, calc(420 * var(--s))) !important;
+  max-height: 42vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
 }
 .screen[data-screen="game"] .scene-actor.encounter-panel img,
 .screen[data-screen="game"] .scene-actor.encounter-panel canvas {
   width: auto !important;
   height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
   object-fit: contain !important;
+  object-position: center bottom !important;
   display: block !important;
   background: transparent !important;
   border: 0 !important;
@@ -711,17 +733,78 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.enco
 }
 .screen[data-screen="game"] .encounter-card .story-row { grid-column: 1 / -1 !important; width: 100% !important; }
 .portrait-frame:has(img.headshot) canvas { opacity: 0 !important; position: absolute !important; width: 1px !important; height: 1px !important; pointer-events: none !important; }
-#game-event img.headshot {
-  width: 168px !important;
-  height: 168px !important;
+.event-card.has-beats {
+  width: 100% !important;
   max-width: none !important;
-  max-height: none !important;
-  object-fit: cover !important;
-  object-position: 72% 16% !important;
-  display: block !important;
+  max-height: 40vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-beats) {
+  max-height: 46vh !important;
+  overflow: hidden !important;
+  bottom: 8px !important;
+}
+.meet-row {
+  display: grid !important;
+  grid-template-columns: 140px minmax(0, 1fr) 140px !important;
+  gap: 14px !important;
+  align-items: start !important;
+  width: 100% !important;
+  min-height: 0 !important;
+}
+.event-card.has-beats .event-cast {
+  width: 140px !important;
+  max-width: 140px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+.event-card.has-beats .portrait-frame.is-headshot {
+  width: 120px !important;
+  height: 120px !important;
+  min-width: 120px !important;
+  min-height: 120px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  flex: none !important;
   border-radius: 10px !important;
   border: 2px solid #a8834f !important;
   background: #3b2c1e !important;
+}
+.event-card.has-beats .event-cast-name,
+.event-card.has-beats .speaker-mood {
+  position: static !important;
+  width: 100% !important;
+  margin: 0 !important;
+  text-align: center !important;
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+}
+.meet-mid { min-width: 0 !important; display: flex !important; flex-direction: column !important; gap: 8px !important; overflow: auto !important; max-height: 36vh !important; }
+.meet-mid .event-beat { max-height: 12vh !important; overflow: auto !important; }
+.meet-mid .event-choices { width: 100% !important; }
+#game-event .portrait-frame.is-headshot { overflow: hidden !important; position: relative !important; }
+#game-event img.headshot {
+  position: absolute !important;
+  inset: auto !important;
+  top: 0 !important;
+  left: -142% !important;
+  width: 242% !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill !important;
+  object-position: center top !important;
+  display: block !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
 }
 .card.is-unavailable { opacity: 0.72; }
 .card.is-unavailable .soon { display: block; color: #d2c1a5; font-size: 18px; margin-top: 6px; }

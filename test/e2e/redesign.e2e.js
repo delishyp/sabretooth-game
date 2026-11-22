@@ -104,12 +104,55 @@ function probe() {
   try {
     await page.waitForFunction(() => window.__menuDebug);
     const shoot = async (name) => {
+      if (name.startsWith('encounter-')) {
+        await page.waitForFunction(() => {
+          const ready = (el) => el && ((el.naturalWidth || 0) > 0 || (el.width || 0) > 8);
+          return ready(document.querySelector('.scene-actor.is-player canvas, .scene-actor.is-player img'))
+            && ready(document.querySelector('.scene-actor.is-foe canvas, .scene-actor.is-foe img'));
+        }, null, { timeout: 8000 }).catch(() => {});
+      }
+      if (name.startsWith('dialogue-')) {
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 2 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 }).catch(() => {});
+      }
       const file = path.join(out, name + '.png');
       await page.screenshot({ path: file });
       shots.push(file);
       const problems = await page.evaluate(probe);
       assert.deepStrictEqual(problems, [], name + ' ' + problems.join(' | '));
       if (name.startsWith('encounter-')) {
+        const actors = await page.evaluate(() => {
+          const cover = (a, b) => {
+            if (!a || !b || a.width < 1 || a.height < 1) return 0;
+            const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+            const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+            return (x * y) / (a.width * a.height);
+          };
+          const W = innerWidth, H = innerHeight;
+          const nav = document.querySelector('#home-nav');
+          const panel = document.querySelector('#game-event');
+          const navBox = nav ? nav.getBoundingClientRect() : null;
+          const panelBox = panel ? panel.getBoundingClientRect() : null;
+          const out = [];
+          const boxes = {};
+          for (const kind of ['is-player', 'is-foe']) {
+            const el = document.querySelector('.scene-actor.' + kind + ' canvas, .scene-actor.' + kind + ' img');
+            if (!el) { out.push(kind + ' missing'); continue; }
+            const loaded = (el.naturalWidth || 0) > 0 || (el.width || 0) > 8;
+            if (!loaded) out.push(kind + ' unloaded');
+            const r = el.getBoundingClientRect();
+            if (r.width < 40 || r.height < 40) out.push(kind + ' tiny');
+            if (r.top < -2 || r.left < -2 || r.bottom > H + 2 || r.right > W + 2) out.push(kind + ' offscreen');
+            if (cover(r, navBox) > 0.22) out.push(kind + ' under nav');
+            if (cover(r, panelBox) > 0.22) out.push(kind + ' under panel');
+            boxes[kind] = r;
+          }
+          if (boxes['is-player'] && boxes['is-foe'] && cover(boxes['is-player'], boxes['is-foe']) > 0.2) out.push('player under foe');
+          return out;
+        });
+        assert.deepStrictEqual(actors, [], name + ' combatants ' + actors.join(' | '));
         const choiceFit = await page.evaluate(() => {
           if (document.documentElement.dataset.choiceStack !== '1') return [];
           const out = [];
@@ -133,8 +176,35 @@ function probe() {
           const imgs = [...document.querySelectorAll('#game-event img.headshot')];
           return imgs.length >= 2 && imgs.every((img) => img.complete && img.naturalWidth > 0);
         }, null, { timeout: 8000 });
-        const heads = await page.evaluate(() => [...document.querySelectorAll('#game-event img.headshot')].map((img) => img.naturalWidth));
-        assert.ok(heads.length >= 2 && heads.every((n) => n > 0), name + ' headshots ' + heads.join(','));
+        const heads = await page.evaluate(() => {
+          const hits = (a, b) => a.left < b.right - 2 && a.right > b.left + 2 && a.top < b.bottom - 2 && a.bottom > b.top + 2;
+          const panel = document.querySelector('#game-event');
+          const out = [];
+          if (!panel) return ['no panel'];
+          const pr = panel.getBoundingClientRect();
+          if (pr.top < -1) out.push('panel top ' + Math.round(pr.top));
+          const texts = [...document.querySelectorAll('#game-event .event-cast-name, #game-event .speaker-mood, #game-event .event-beat, #game-event .event-title, #game-event .event-choices')];
+          for (const img of document.querySelectorAll('#game-event img.headshot')) {
+            const ir = img.getBoundingClientRect();
+            const frame = img.closest('.portrait-frame');
+            const fr = frame ? frame.getBoundingClientRect() : null;
+            if (!fr || fr.width < 8) { out.push('no frame'); continue; }
+            const clip = getComputedStyle(frame).overflow;
+            const seen = {
+              left: Math.max(ir.left, fr.left), top: Math.max(ir.top, fr.top),
+              right: Math.min(ir.right, fr.right), bottom: Math.min(ir.bottom, fr.bottom)
+            };
+            seen.width = seen.right - seen.left; seen.height = seen.bottom - seen.top;
+            if (clip !== 'hidden' && (ir.left < fr.left - 2 || ir.top < fr.top - 2 || ir.right > fr.right + 2 || ir.bottom > fr.bottom + 2)) out.push('overflow');
+            if (seen.width * seen.height < fr.width * fr.height * 0.9) out.push('crop gap');
+            if (Math.abs(fr.width - fr.height) > 4) out.push('not square');
+            for (const text of texts) {
+              if (hits(seen, text.getBoundingClientRect())) { out.push('hits text'); break; }
+            }
+          }
+          return out;
+        });
+        assert.deepStrictEqual(heads, [], name + ' head layout ' + heads.join(' | '));
       }
       if (name.endsWith('1920x1080-u1')) {
         const layout = await page.evaluate((shot) => {
