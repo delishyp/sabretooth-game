@@ -498,6 +498,67 @@
     if (look.geneNote) wrap.append(el('p', 'appearance-gentle', traitHint(look.geneNote)));
     return wrap;
   }
+  function paintLookChips() {
+    const panel = $('#creator-panel');
+    if (!panel) return;
+    const old = panel.querySelector('.look-chips');
+    if (old) old.remove();
+    if (!creator || creator.step !== 1 || !window.PortraitView) return;
+    const box = el('div', 'look-chips');
+    const label = (text) => { const p = el('div', 'label', text); p.style.fontSize = '18px'; p.style.fontWeight = '700'; return p; };
+    const row = el('div', 'chip-row pic-row');
+    const ids = (creator.portraitIds || []).slice(0, 3);
+    const picName = ['Dark', 'Tawny', 'Pale'];
+    ids.forEach((id, index) => {
+      const b = el('button', 'pic' + (creator.portraitId === id ? ' is-on' : ''));
+      b.type = 'button';
+      const swatch = el('i', '');
+      const file = '../../assets/portraits/cats/' + id + '.png';
+      swatch.style.backgroundImage = `url("${file}")`;
+      b.append(swatch, document.createTextNode(picName[index] || 'Picture'));
+      b.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        creator = Creator.coerceLook({ ...creator, portraitId: id });
+        preview.key = '';
+        applyCreator();
+        renderPreview();
+      });
+      row.append(b);
+    });
+    const sexRow = el('div', 'chip-row');
+    for (const id of ['male', 'female']) {
+      const b = el('button', 'trait-chip' + (creator.sex === id ? ' is-on' : ''), id === 'male' ? 'Male' : 'Female');
+      b.type = 'button';
+      b.addEventListener('click', (ev) => { ev.stopPropagation(); setLook('sex', id); });
+      sexRow.append(b);
+    }
+    const coatRow = el('div', 'chip-row');
+    for (const id of Creator.COATS) {
+      const b = el('button', 'trait-chip' + (creator.coat === id ? ' is-on' : ''), id[0].toUpperCase() + id.slice(1));
+      b.type = 'button';
+      b.addEventListener('click', (ev) => { ev.stopPropagation(); setLook('coat', id); });
+      coatRow.append(b);
+    }
+    const buildRow = el('div', 'chip-row');
+    for (const word of ['Lean', 'Heavy', 'Large', 'Small']) {
+      const on = (creator.appearanceText || '').toLowerCase().includes(word.toLowerCase());
+      const b = el('button', 'trait-chip' + (on ? ' is-on' : ''), word);
+      b.type = 'button';
+      b.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        creatorDispatch('setAppearance', word);
+      });
+      buildRow.append(b);
+    }
+    box.append(label('Picture'), el('p', 'stand-in', 'Stand-in art'), row, label('Sex'), sexRow, label('Coat'), coatRow, label('Build'), buildRow, el('p', 'muted', 'Changes how the story describes your cat.'));
+    panel.append(box);
+  }
+  function setLook(key, value) {
+    let guard = 0;
+    while (creator[key] !== value && guard++ < 8) creator = Creator.reduce(creator, 'click', key).state;
+    applyCreator();
+    renderPreview();
+  }
   function buildCreatorPanel() {
     const panel = $('#creator-panel');
     if (creator.step === 1) panel.replaceChildren(nameRow(), ...Creator.ROWS(creator).slice(1).map(optionRow), appearancePanel());
@@ -517,8 +578,30 @@
   function applyCreator() {
     const c = creator; const sc = $(CSCREEN);
     if (sc.querySelector('#creator-panel').dataset.rows !== panelKey(c)) buildCreatorPanel();
-    const stepName = c.step === 1 ? t('creator.step.look') : c.step === 2 ? t('creator.step.personality') : c.step === 3 ? 'Traits' : 'Ready';
-    $('#creator-step').textContent = t('creator.step.indicator', { n: c.step, total: 4, stepName });
+    const stepNames = ['Look', 'Personality', 'Strengths and flaws', 'Ready'];
+    const stepHost = $('#creator-step');
+    stepHost.textContent = '';
+    stepNames.forEach((name, i) => {
+      const n = i + 1;
+      const bit = document.createElement('span');
+      bit.className = 'step-bit' + (c.step === n ? ' is-on' : '');
+      const pip = document.createElement('span');
+      pip.className = 'step-pip';
+      pip.textContent = c.step > n ? '✓' : String(n);
+      bit.append(pip, document.createTextNode(name));
+      stepHost.append(bit);
+    });
+    paintLookChips();
+    const nameUnder = document.getElementById('creator-portrait-name');
+    if (!nameUnder && document.querySelector('.creator-preview')) {
+      const cap = document.createElement('p');
+      cap.id = 'creator-portrait-name';
+      cap.style.fontSize = '22px';
+      cap.style.margin = '8px 0 0';
+      document.querySelector('.creator-preview').append(cap);
+    }
+    const shownName = document.getElementById('creator-portrait-name');
+    if (shownName) shownName.textContent = Creator.normalizeName(c.name) || t('run.defaultCatName');
     for (const row of $$('#creator-panel .crow')) {
       const id = row.dataset.row; const help = row.querySelector('.crow-help');
       row.classList.toggle('focused', c.focus === id);

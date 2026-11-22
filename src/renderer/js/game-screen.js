@@ -695,6 +695,39 @@
           requests.append(card);
         }
         root.append(requests);
+        const tabs = el('div', 'lore-tabs');
+        const spread = el('div', 'lore-spread');
+        const list = el('div', 'lore-list');
+        const read = el('article', 'lore-read');
+        const blocks = [...root.querySelectorAll('.lore-section')];
+        const showBlock = (block, tab) => {
+          tabs.querySelectorAll('button').forEach((b) => b.classList.toggle('is-on', b === tab));
+          list.textContent = '';
+          const articles = [...block.querySelectorAll('article')];
+          const paint = (article) => {
+            read.textContent = '';
+            read.append(el('h2', '', article.querySelector('h4') ? article.querySelector('h4').textContent : ''));
+            article.querySelectorAll('p').forEach((para) => read.append(el('p', '', para.textContent)));
+          };
+          articles.forEach((article, index) => {
+            const title = article.querySelector('h4') ? article.querySelector('h4').textContent : 'Entry';
+            const b = el('button', index === 0 ? 'is-on' : '', title);
+            b.type = 'button';
+            b.addEventListener('click', () => { list.querySelectorAll('button').forEach((n) => n.classList.toggle('is-on', n === b)); paint(article); });
+            list.append(b);
+          });
+          if (!articles.length) read.textContent = block.querySelector('.home-empty') ? block.querySelector('.home-empty').textContent : '';
+          else paint(articles[0]);
+        };
+        blocks.forEach((block, index) => {
+          const tab = el('button', index === 0 ? 'is-on' : '', block.querySelector('h3') ? block.querySelector('h3').textContent : 'Lore');
+          tab.type = 'button';
+          tab.addEventListener('click', () => showBlock(block, tab));
+          tabs.append(tab);
+        });
+        if (blocks[0]) showBlock(blocks[0], tabs.querySelector('button'));
+        spread.append(list, read);
+        root.append(tabs, spread);
         p.append(root);
       } else if (view === 'map' && RegionMap) {
         const model = RegionMap.build(W, s, { hover: s.region });
@@ -1154,7 +1187,6 @@
       const speaker = spoken && resolveSpeaker(s, spoken);
       if (speaker) appendSpeakerHead(card, speaker, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const panels = encounterPanels(view, s.cat);
-      const row = el('div', 'encounter-panels');
       const you = el('figure', 'encounter-panel is-player');
       paintEncounterCat(you, s.cat, false);
       const art = el('figure', 'encounter-panel is-foe encounter-art');
@@ -1167,8 +1199,11 @@
         if (panels.foe.flip) img.dataset.flip = 'left';
         art.append(img);
       } else art.append(el('p', 'encounter-fallback', panels.foe.fallback || panels.foe.alt || 'Something is here.'));
-      row.append(you, art);
-      card.append(row, btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
+      you.classList.add('scene-actor', 'is-player');
+      art.classList.add('scene-actor', 'is-foe');
+      const host = document.getElementById('game-main');
+      if (host) host.append(you, art);
+      card.append(btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
       if (WordBar && view.meter) WordBar.mount(card, view.meter);
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
@@ -1448,6 +1483,7 @@
       if (Unlocks) Unlocks.persist(s);
       const dock = $('#home-dock');
       if (dock) dock.hidden = view === 'home';
+      document.querySelectorAll('.scene-actor').forEach((node) => node.remove());
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       markMode();
       const evOpen = !$('#game-event').hidden;

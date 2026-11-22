@@ -58,23 +58,27 @@ function probe() {
   }
   const stage = document.getElementById('stage').getBoundingClientRect();
   if (Math.abs(stage.width - W) > 3 || Math.abs(stage.height - H) > 3) problems.push('stage ' + Math.round(stage.width) + 'x' + Math.round(stage.height));
-  const scene = document.querySelector('.screen.active .home-landscape, .screen.active .creator-scene') || document.getElementById('bg');
+  const scene = [...document.querySelectorAll('.screen.active .home-landscape, .screen.active .creator-scene, #bg')].find((el) => {
+    const s = getComputedStyle(el);
+    const b = el.getBoundingClientRect();
+    return s.display !== 'none' && s.visibility !== 'hidden' && b.width > 2 && b.height > 2;
+  });
   if (scene) {
     const r = scene.getBoundingClientRect();
     const vis = getComputedStyle(scene).visibility;
     if (vis === 'hidden' || r.width < W - 2 || r.height < H - 2) problems.push('scene ' + Math.round(r.width) + 'x' + Math.round(r.height));
   }
   const sc = document.querySelector('.screen.active:not([data-screen="game"])');
-  if (sc) {
+  if (sc && /newGameSetup|load|creator/.test(sc.dataset.screen || '')) {
     const r = sc.getBoundingClientRect();
-    const want = Math.min(W, H * 16 / 9);
-    if (Math.abs(r.width - want) > 4) problems.push('safe ' + Math.round(r.width) + ' want ' + Math.round(want));
+    const centred = Math.abs((r.left + r.right) / 2 - W / 2) < 48;
+    if (!centred || r.width > W * 0.96 || r.width < 320) problems.push('panel ' + Math.round(r.width) + ' at ' + Math.round(r.left));
   }
   const panels = [...document.querySelectorAll('.shell-top, .rail, #day-primary, #game-actions, #place-drawer, #game-event, .home-dock, .goal, .tutorial-card, #day-end')].filter((el) => {
     const s = getComputedStyle(el);
     const r = el.getBoundingClientRect();
     return r.width > 8 && r.height > 8 && s.display !== 'none' && s.visibility !== 'hidden' && !el.hidden;
-  }).map((el) => ({ id: el.id || el.className, r: el.getBoundingClientRect() }));
+  }).map((el) => ({ id: el.id || el.className, el, r: el.getBoundingClientRect() }));
   const area = (a, b) => {
     const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
     const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
@@ -83,6 +87,7 @@ function probe() {
   const holds = (a, b) => a.left <= b.left + 1 && a.top <= b.top + 1 && a.right >= b.right - 1 && a.bottom >= b.bottom - 1;
   for (let i = 0; i < panels.length; i++) {
     for (let j = i + 1; j < panels.length; j++) {
+      if (panels[i].el.contains(panels[j].el) || panels[j].el.contains(panels[i].el)) continue;
       if (holds(panels[i].r, panels[j].r) || holds(panels[j].r, panels[i].r)) continue;
       if (area(panels[i].r, panels[j].r) > 16) problems.push('overlap ' + panels[i].id + ' ' + panels[j].id);
     }
@@ -104,6 +109,52 @@ function probe() {
       shots.push(file);
       const problems = await page.evaluate(probe);
       assert.deepStrictEqual(problems, [], name + ' ' + problems.join(' | '));
+      if (name.includes('1920x1080-u1')) {
+        const layout = await page.evaluate((shot) => {
+          const W = innerWidth, H = innerHeight, out = [];
+          const box = (sel) => {
+            const el = document.querySelector(sel);
+            if (!el) return null;
+            const s = getComputedStyle(el);
+            if (s.display === 'none' || s.visibility === 'hidden' || el.hidden) return null;
+            const b = el.getBoundingClientRect();
+            if (b.width < 4 || b.height < 4) return null;
+            return b;
+          };
+          if (shot.startsWith('new-game')) {
+            const panel = box('.screen[data-screen="newGameSetup"]');
+            if (!panel || panel.width > W * 0.92 || panel.width < 500) out.push('panel');
+            const cards = [...document.querySelectorAll('#level-cards .card')];
+            if (cards.length >= 2 && Math.abs(cards[0].getBoundingClientRect().top - cards[1].getBoundingClientRect().top) > 12) out.push('cards wrapped');
+          }
+          if (shot.startsWith('home-')) {
+            const primary = box('#day-primary');
+            const rail = box('#home-nav');
+            if (!primary || primary.right < W * 0.72 || primary.bottom < H - 160) out.push('primary');
+            if (!rail || rail.width > 340 || rail.x > 120) out.push('rail');
+          }
+          if (shot.startsWith('actions-')) {
+            const sheet = box('#game-actions');
+            if (!sheet || sheet.x < W * 0.42) out.push('actions column');
+          }
+          if (shot.startsWith('encounter-')) {
+            const ev = box('#game-event');
+            const actor = box('.scene-actor');
+            if (!ev || ev.y < H * 0.4) out.push('story panel');
+            if (!actor || actor.height < 70) out.push('scene actor');
+          }
+          if (shot.startsWith('dialogue-')) {
+            const ev = box('#game-event');
+            if (!ev || ev.y < H * 0.35) out.push('dialogue panel');
+          }
+          if (shot.startsWith('lore-')) {
+            const dock = box('.home-dock');
+            if (!dock || dock.width < W * 0.45) out.push('book frame');
+          }
+          return out;
+        }, name);
+        assert.deepStrictEqual(layout, [], name + ' mockup layout ' + layout.join(' | '));
+      }
       console.log('PASS', name);
     };
     const fit = async (w, h, u) => {

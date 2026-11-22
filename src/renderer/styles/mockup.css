@@ -1,0 +1,342 @@
+/* Match docs/design/redesign-v0.2/mockups at the safe-area positions.
+   --s is 1px at 1080. Text stays at least 18px. Panels scroll instead of wrapping into new columns. */
+
+body:has(.screen[data-screen="creator"].active) #bg,
+body:has(.screen[data-screen="creator"].active) #bg-canvas,
+body:has(.screen[data-screen="root"].active) #bg,
+body:has(.screen[data-screen="newGameSetup"].active) #bg,
+body:has(.screen[data-screen="load"].active) #bg {
+  visibility: visible !important;
+}
+.creator-scene { display: none !important; }
+
+.screen.active:not([data-screen="game"]) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.screen[data-screen="root"].active {
+  background: transparent !important;
+  width: min(100vw, calc(100vh * 16 / 9)) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  align-items: flex-start !important;
+}
+
+.screen[data-screen="newGameSetup"].active,
+.screen[data-screen="load"].active,
+.screen[data-screen="slotsFull"].active {
+  background: #1c140f !important;
+  border: 2px solid #a8834f !important;
+  border-radius: 10px !important;
+  inset: auto !important;
+  left: 50% !important;
+  top: 24px !important;
+  bottom: auto !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(92vw, 1500px) !important;
+  height: auto !important;
+  max-height: calc(100vh - 48px) !important;
+  overflow: auto !important;
+  padding: 22px 28px 24px !important;
+}
+
+.screen[data-screen="creator"].active {
+  background: #1c140f !important;
+  border: 2px solid #a8834f !important;
+  border-radius: 10px !important;
+  inset: auto !important;
+  left: 50% !important;
+  top: 28px !important;
+  bottom: auto !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(94vw, 1680px) !important;
+  height: auto !important;
+  max-height: calc(100vh - 56px) !important;
+  overflow: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 20px 28px !important;
+}
+
+#level-cards { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 12px !important; width: 100% !important; }
+#style-cards, #death-cards { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 12px !important; width: 100% !important; }
+.cards-row .card { min-width: 0 !important; width: auto !important; max-width: none !important; flex: none !important; }
+
+.screen[data-screen="creator"] .creator-body {
+  display: flex !important;
+  gap: 24px !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+}
+.screen[data-screen="creator"] .creator-preview {
+  flex: 0 0 36% !important;
+  background: #120d09 !important;
+  border: 2px solid #5e4a33 !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px !important;
+}
+.screen[data-screen="creator"] .creator-preview canvas,
+.screen[data-screen="creator"] #creator-canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 52vh !important;
+  object-fit: contain !important;
+}
+.screen[data-screen="creator"] .creator-side { flex: 1 !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; }
+.screen[data-screen="creator"] .creator-actions { margin-top: auto !important; justify-content: flex-end !important; }
+#creator-step { display: flex !important; flex-wrap: wrap !important; gap: 10px 18px !important; align-items: center !important; font-size: 18px !important; }
+#creator-step .step-pip { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #5e4a33; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; }
+#creator-step .is-on .step-pip { background: #e8b450; color: #1e1408; border-color: #e8b450; }
+.look-chips { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.look-chips .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.look-chips .pic-row { display: flex; gap: 10px; overflow: auto; }
+.look-chips .pic { width: 120px; flex: none; text-align: center; font-size: 18px; background: transparent; border: 0; color: #f4ead8; padding: 0; }
+.look-chips .pic i { display: block; height: 84px; border-radius: 8px; border: 2px solid #5e4a33; background: #120d09 center/contain no-repeat; }
+.look-chips .pic.is-on i { border-color: #f0c766; }
+.screen[data-screen="creator"] .trait-chip { display: block; width: 100%; text-align: left; min-height: 48px; border-radius: 10px; border: 2px solid #5e4a33; background: #2a1f17; color: #f4ead8; }
+.screen[data-screen="creator"] .trait-chip.is-on { border-color: #f0c766; background: #3a2a18; }
+
+.screen[data-screen="game"] #game-main {
+  position: absolute !important;
+  left: 50% !important;
+  top: 0 !important;
+  transform: translateX(-50%) !important;
+  width: min(100vw, calc(100vh * 16 / 9)) !important;
+  height: 100% !important;
+  display: block !important;
+  padding: 0 !important;
+  pointer-events: none;
+}
+.screen[data-screen="game"] #game-main > * { pointer-events: auto; }
+.screen[data-screen="game"] #game-main > .home-landscape,
+.screen[data-screen="game"] .home-landscape,
+.scene-actor { pointer-events: none !important; z-index: 0 !important; }
+.scene-actor { z-index: 2 !important; }
+.screen[data-screen="game"] .home-cat {
+  position: absolute !important;
+  left: 36% !important;
+  bottom: 10% !important;
+  top: auto !important;
+  width: auto !important;
+  height: 38% !important;
+  z-index: 2 !important;
+  pointer-events: none;
+}
+
+.screen[data-screen="game"] .shell-top {
+  position: absolute !important;
+  left: 24px !important;
+  right: 24px !important;
+  top: 16px !important;
+  width: auto !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  max-height: 92px !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+.screen[data-screen="game"] .goal {
+  position: absolute !important;
+  left: 50% !important;
+  top: 92px !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  max-width: min(1100px, 70%) !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  white-space: nowrap !important;
+}
+.screen[data-screen="game"] .rail {
+  position: absolute !important;
+  left: 24px !important;
+  top: 150px !important;
+  bottom: auto !important;
+  width: 244px !important;
+  max-height: calc(100% - 170px) !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+.screen[data-mode="home"] #place-drawer {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+.screen[data-mode="home"] .home-dock {
+  position: absolute !important;
+  left: 290px !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 24px !important;
+  width: min(460px, 32vw) !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  background: #1c140f !important;
+  border: 2px solid #a8834f !important;
+  border-radius: 10px !important;
+  padding: 16px !important;
+}
+.screen[data-mode="home"] #day-primary {
+  position: absolute !important;
+  right: 24px !important;
+  left: auto !important;
+  bottom: 24px !important;
+  top: auto !important;
+  width: auto !important;
+  min-width: 280px !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+.screen[data-mode="choosing"] #game-actions {
+  position: absolute !important;
+  right: 24px !important;
+  left: auto !important;
+  top: 150px !important;
+  bottom: 24px !important;
+  width: min(620px, 38vw) !important;
+  max-height: none !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+.screen[data-mode="book"] .home-dock {
+  position: absolute !important;
+  left: 290px !important;
+  right: 24px !important;
+  top: 150px !important;
+  bottom: 24px !important;
+  width: auto !important;
+  background: #1c140f !important;
+  border: 2px solid #a8834f !important;
+}
+.screen[data-mode="home"] .tutorial-card {
+  left: auto !important;
+  right: 24px !important;
+  top: 110px !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: min(300px, 28vw) !important;
+}
+.screen[data-mode="book"] .tutorial-card,
+.screen[data-mode="scene"] .tutorial-card { display: none !important; }
+.lore-book { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.lore-book .lore-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.lore-book .lore-tabs button { min-height: 40px; border-radius: 20px; border: 2px solid #5e4a33; background: #2a1f17; color: #f4ead8; font-size: 18px; }
+.lore-book .lore-tabs button.is-on { border-color: #f0c766; background: #3a2a18; }
+.lore-book .lore-spread { display: flex; gap: 24px; min-height: 0; flex: 1; }
+.lore-book .lore-list { flex: 0 0 280px; overflow: auto; border-right: 1px solid #5e4a33; padding-right: 12px; }
+.lore-book .lore-list button { display: block; width: 100%; text-align: left; background: transparent; border: 0; color: #f4ead8; font-size: 18px; min-height: 36px; }
+.lore-book .lore-list button.is-on { background: #352719; box-shadow: inset 4px 0 0 #e8b450; }
+.lore-book .lore-read { flex: 1; overflow: auto; font-size: 18px; }
+.requests-log .requests-empty,
+.requests-log .requests-hint,
+.requests-log .requests-empty-done { display: none !important; }
+
+.screen[data-mode="scene"] .rail {
+  bottom: 58vh !important;
+  max-height: none !important;
+}
+.screen[data-mode="scene"] #game-event {
+  left: 260px !important;
+}
+.screen[data-screen="game"] #game-event {
+  position: absolute !important;
+  left: 24px !important;
+  right: 24px !important;
+  top: auto !important;
+  bottom: 80px !important;
+  height: 42vh !important;
+  max-height: 42vh !important;
+  width: auto !important;
+  background: transparent !important;
+  display: flex !important;
+  overflow: hidden !important;
+}
+.screen[data-screen="game"] .encounter-card,
+.screen[data-screen="game"] .conversation-card {
+  position: relative !important;
+  inset: auto !important;
+  height: auto !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+.scene-actor {
+  position: absolute;
+  z-index: 2;
+  bottom: 32%;
+  height: 38%;
+  pointer-events: none;
+}
+.scene-actor.is-player { left: 16%; }
+.scene-actor.is-foe { right: 12%; }
+.scene-actor img, .scene-actor canvas { height: 100%; width: auto; max-width: 46vw; object-fit: contain; }
+.screen[data-screen="game"] .event-cast { position: relative !important; flex: 0 0 150px; pointer-events: none; }
+.screen[data-screen="game"] .event-cast button { pointer-events: auto; }
+.screen[data-screen="game"] .event-choices { position: relative; z-index: 2; width: 100%; flex: 0 0 auto !important; }
+.screen[data-screen="game"] #game-event .event-choices button { min-height: 40px !important; padding-top: 4px !important; padding-bottom: 4px !important; }
+.screen[data-screen="game"] .event-scroll { flex: 1 1 auto !important; min-height: 0 !important; max-height: none !important; overflow: auto !important; }
+.screen[data-screen="game"] .dialogue-heads {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+}
+.screen[data-screen="game"] #game-event .dialogue-heads { flex: 0 0 64px !important; height: 64px !important; overflow: hidden !important; }
+.screen[data-screen="game"] #game-event .talk-utility { position: absolute !important; top: 8px !important; left: 200px !important; right: auto !important; z-index: 3; }
+.screen[data-screen="game"] #game-event .event-scroll { flex: 0 1 90px !important; max-height: 90px !important; min-height: 0 !important; overflow: auto !important; }
+.screen[data-screen="game"] .dialogue-heads .portrait-frame,
+.screen[data-screen="game"] .dialogue-heads canvas {
+  width: 88px !important;
+  height: 88px !important;
+  max-height: 88px !important;
+  object-fit: cover !important;
+  border-radius: 10px;
+  border: 2px solid #a8834f;
+  background: #3b2c1e;
+}
+.screen[data-screen="game"] .event-choices {
+  flex: 1 1 40% !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  align-content: center !important;
+}
+.screen[data-screen="game"] .event-scroll { flex: 1 1 36% !important; max-height: none !important; }
+.regard-word {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  margin-left: 8px;
+  border-radius: 16px;
+  border: 2px solid #5e4a33;
+  background: #2a1f17;
+  font-size: 18px;
+}
+.oddsword {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 2px solid #a8834f;
+  background: #2a1f17;
+  font-size: 18px;
+}
