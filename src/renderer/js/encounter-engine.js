@@ -149,6 +149,73 @@
     if (policy === 'allBold') points += (hunt.allBoldSize && hunt.allBoldSize[size]) || hunt.allBold;
     return clamp(points, hunt.clamp[0], hunt.clamp[1]);
   }
+
+  const ODDS_BANDS = ['hopeless', 'bad', 'even', 'good', 'easy'];
+  const HUNT_ODDS = {
+    easy: 'This should be an easy catch.',
+    good: "You'll probably catch it.",
+    even: 'It could go either way.',
+    bad: "It'll probably get away.",
+    hopeless: "You won't catch this one."
+  };
+  const FIGHT_ODDS = {
+    easy: "You'd win this easily.",
+    good: 'You could drive it off.',
+    even: 'This could go either way.',
+    bad: 'This is a bad fight.',
+    hopeless: "You won't win this. Get away."
+  };
+
+  /** Band from a win or catch chance. Cutoffs are the v0.2h table. */
+  function oddsBand(chance) {
+    const n = Number(chance);
+    if (n >= 80) return 'easy';
+    if (n >= 60) return 'good';
+    if (n >= 40) return 'even';
+    if (n >= 20) return 'bad';
+    return 'hopeless';
+  }
+  /**
+   * huntBand is signed steps: Dull Nose is positive (harder), Keen Nose is negative (easier).
+   * The chance number is not changed.
+   */
+  function shiftOddsBand(band, huntBand) {
+    const index = ODDS_BANDS.indexOf(band);
+    const at = index < 0 ? 0 : index;
+    const steps = Number(huntBand) || 0;
+    const next = Math.max(0, Math.min(ODDS_BANDS.length - 1, at - steps));
+    return ODDS_BANDS[next];
+  }
+  function oddsWord(band, kind) {
+    const table = kind === 'hunt' ? HUNT_ODDS : FIGHT_ODDS;
+    return table[band] || table.even;
+  }
+  function huntForecast(chance, huntBand) {
+    const raw = oddsBand(chance);
+    const band = shiftOddsBand(raw, huntBand);
+    return { chance, raw, band, word: oddsWord(band, 'hunt') };
+  }
+  /** Tier-only contests have no chance number. Clean, partial, a clean fail, a fail that injures. */
+  function tierOddsBand(outcome) {
+    if (outcome === 'clean') return 'easy';
+    if (outcome === 'partial') return 'good';
+    if (outcome === 'fail') return 'bad';
+    return 'hopeless';
+  }
+  /**
+   * Even strengths are 50. A stronger cat moves the chance by 100 points per ratio step.
+   * Clamped with the hunt clamp so the same five bands apply. See BUILD-NOTES.md.
+   */
+  function fightWinChance(playerStrength, foeStrength) {
+    const player = Number.isFinite(Number(playerStrength)) ? Number(playerStrength) : 10;
+    const foe = Number.isFinite(Number(foeStrength)) && Number(foeStrength) > 0 ? Number(foeStrength) : 10;
+    return clamp(50 + (player / foe - 1) * 100, config.hunt.clamp[0], config.hunt.clamp[1]);
+  }
+  function fightForecast(playerStrength, foeStrength) {
+    const chance = fightWinChance(playerStrength, foeStrength);
+    const band = oddsBand(chance);
+    return { chance, band, word: oddsWord(band, 'fight') };
+  }
   function relationshipBonus(value, crush) {
     let bonus = 0;
     if (value >= 50) bonus += 10;
@@ -376,6 +443,7 @@
     if (kind === 'hunt') {
       const size = opts.size || 'medium';
       const chance = huntChance(size, opts.style, policy);
+      const forecast = huntForecast(chance, opts.huntBand || 0);
       const roll = rng();
       const ok = roll * 100 < chance;
       const energyBase = policy === 'allBold' ? config.hunt.energy.allBold : config.hunt.energy.steady;
@@ -404,7 +472,7 @@
       if (injury) huntBeats.push(beat(`hunt.injury.${injury}`, who));
       return {
         adapter: 'engine', kind, policy, policyKnown: known, quick, size,
-        chance, roll, ok, energy, injury, injuryRate: injuryP,
+        chance, roll, ok, band: forecast.band, rawBand: forecast.raw, word: forecast.word, energy, injury, injuryRate: injuryP,
         rounds: quick ? 1 : rounds, stamina: quick ? null : stamina,
         beats: huntBeats
       };
@@ -621,5 +689,5 @@
     return resolve(Object.assign({ engine: true }, saved || {}));
   }
 
-  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, lineFor, mayFlee, defendCounter, evenCap, isHuman, huntSpecial, backOff, pendingEncounter, resume };
+  return { config, narration, OUTCOMES, POLICIES, enabled, resolve, huntChance, huntForecast, oddsBand, shiftOddsBand, oddsWord, tierOddsBand, fightWinChance, fightForecast, courtshipChance, relationshipBonus, batch, trialSeed, median, policyFight, policySample, foeOf, telegraphKey, fillLine, lineFor, mayFlee, defendCounter, evenCap, isHuman, huntSpecial, backOff, pendingEncounter, resume };
 });

@@ -81,12 +81,16 @@ test('same seed + same actions = same run (save/load invariant)', () => {
   assert.deepStrictEqual(s, a);
 });
 
-test('hunt chance: formulas §1.2 Standard (base 50 + size + prey + hungry + low health + injury, clamp 5..95)', () => {
-  const s = E.newRun({ mainCat: cat, seed: 1 }); const prey = E.W.preyPoints('split_rock', 'spring');
-  assert.strictEqual(E.huntChance(s, 'small'), Math.min(95, 50 + 5 + prey));
-  assert.strictEqual(E.huntChance(s, 'large'), 50 - 20 + prey);
+test('live hunts use the engine chance; traits shift the band, not the number', () => {
+  const Engine = require('../src/renderer/js/encounter-engine');
+  const s = E.newRun({ mainCat: cat, seed: 1 });
+  assert.strictEqual(E.huntChance(s, 'small'), Engine.huntChance('small', 'standard', 'steady'));
+  assert.strictEqual(E.huntChance(s, 'large'), Engine.huntChance('large', 'standard', 'steady'));
   s.needs.hunger = 10; s.needs.health = 40; s.injuries = [{ tier: 'serious', daysLeft: 5 }];
-  assert.strictEqual(E.huntChance(s, 'large'), Math.max(5, 50 - 20 + prey - 5 - 10 - 15));
+  assert.strictEqual(E.huntChance(s, 'large'), Engine.huntChance('large', 'standard', 'steady'));
+  const forecast = Engine.huntForecast(E.huntChance(s, 'small'), -1);
+  assert.strictEqual(forecast.chance, Engine.huntChance('small', 'standard', 'steady'));
+  assert.notStrictEqual(forecast.band, forecast.raw);
 });
 
 test('hunt: the first Split Rock hunt is the giant deer, and a later hunt still spends Energy 30', () => {

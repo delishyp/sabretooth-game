@@ -13,6 +13,7 @@
 })(typeof self !== 'undefined' ? self : this, function (Rng, WorldMap, Conversation, Personality, WorldMemory, Encounter, Pairing, Skills, Beats, Lone, Followups, Pass2, Motives, Directory, PrideHeader, PrideRules) {
   const CardWords = (typeof require === 'function' ? require('./card-words') : (typeof self !== 'undefined' ? self.CardWords : null));
   const CatTraits = (typeof require === 'function' ? require('./cat-traits') : (typeof self !== 'undefined' ? self.CatTraits : null));
+  const Engine = (typeof require === 'function' ? require('./encounter-engine') : (typeof self !== 'undefined' ? self.EncounterEngine : null));
   const Difficulty = (typeof require === 'function' ? require('./difficulty') : (typeof self !== 'undefined' ? self.Difficulty : null));
   const Deeds = (typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null));
   const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
@@ -327,13 +328,21 @@
     }
 
     // ---------- actions ----------
-    /** Hunt points (formulas §1.2, Standard, no skills/perks/party/mood/weather). */
+    /** Live and headless hunts share encounter-engine huntChance. Traits shift the band, not this number. */
+    function playStyleOf(s) {
+      const style = s && s.playStyle;
+      return style === 'story' || style === 'sim' || style === 'standard' ? style : 'standard';
+    }
+    function huntBandOf(s) {
+      if (!CatTraits || !s || !s.cat) return 0;
+      return CatTraits.modifiers(s.cat).huntBand || 0;
+    }
     function huntChance(s, size) {
-      const inj = worstInjury(s);
-      const preyScale = Difficulty ? Difficulty.applied('prey', s.level) : 1;
-      const pts = H.base + H.size[size] + W.preyPoints(s.region, season(s)) * preyScale + (hungry(s) ? H.hungry : 0)
-        + (s.needs.health < H.lowHealth.below ? H.lowHealth.points : 0) + (inj ? R.injuries[inj].hunt : 0);
-      return clamp(pts, H.clamp[0], H.clamp[1]);
+      return Engine.huntChance(size, playStyleOf(s), 'steady');
+    }
+    function huntRead(s, size) {
+      const chance = huntChance(s, size);
+      return Object.assign({ chance }, Engine.huntForecast(chance, huntBandOf(s)));
     }
     /** What the player can do today. forced: 'rest' (Exhausted) | 'stuck' (tar) | 'lost' (lost trail) | 'travel' (mid 2-day edge). */
     function available(s) {
@@ -345,7 +354,15 @@
       if (s.forced) return { forced: s.forced };
       const blocked = (to) => (s.map.blockedEdges[WorldMap.edgeKey(s.region, to)] || 0) >= s.day;
       return {
-        hunt: { allowed: !tired(s), reason: tired(s) ? 'tired' : null, chance: Object.fromEntries(Object.keys(H.size).map((z) => [z, huntChance(s, z)])) },
+        hunt: (() => {
+          const sizes = Object.keys(H.size);
+          const chance = {}; const band = {}; const word = {};
+          for (const z of sizes) {
+            const read = huntRead(s, z);
+            chance[z] = read.chance; band[z] = read.band; word[z] = read.word;
+          }
+          return { allowed: !tired(s), reason: tired(s) ? 'tired' : null, chance, band, word };
+        })(),
         rest: { allowed: true },
         travel: W.neighbours(s.region).map((to) => ({ to, days: travelDaysFrom(s, to), allowed: !blocked(to), reason: blocked(to) ? 'blocked' : null })),
         talk,
@@ -601,7 +618,8 @@
         const choiceId = action.choiceId;
         const picked = Enc.choose(s, choiceId, {
           hunt: (st, size) => {
-            const p = huntChance(st, size);
+            const read = huntRead(st, size);
+            const p = read.chance;
             const rng = Rng.stream(st.seed, 'hunt', st.day);
             const ok = rng() * 100 < p;
             const ate = ok ? N.eat[size] : 0;
@@ -618,7 +636,7 @@
               if (st.needs.health < 1) st.needs.health = 1;
               if (st.dead) { st.dead = null; st.needs.health = Math.max(1, st.needs.health); }
             }
-            return { ok, chance: p, ate, injuryTier };
+            return { ok, chance: p, band: read.band, word: read.word, ate, injuryTier };
           },
           injure: (st, tier, source) => injure(st, tier, source, []),
           recordDeed: (st, spec) => WM.recordDeed(st, spec)
@@ -913,7 +931,8 @@
       return { state: s, report: s.report };
     }
     function performHunt(s, rep, size, extra) {
-      const p = huntChance(s, size);
+      const read = huntRead(s, size);
+      const p = read.chance;
       const rng = Rng.stream(s.seed, 'hunt', s.day);
       const ok = rng() * 100 < p;
       s.needs.energy = clamp(s.needs.energy - N.energy.hunt, 0, 100);
@@ -924,7 +943,7 @@
       if (Pair.enabled) Pair.noteHunt(s, ok);
       else if (s.records) s.records._huntOk = !!ok;
       if (Pair.enabled && s.records) s.records._huntOk = !!ok;
-      rep.push(Object.assign({ k: 'hunt', size, chance: p, ok, ate: ok ? N.eat[size] : 0 }, extra || {}));
+      rep.push(Object.assign({ k: 'hunt', size, chance: p, band: read.band, word: read.word, ok, ate: ok ? N.eat[size] : 0 }, extra || {}));
       if (ok && Deeds) {
         Deeds.note(s, 'hunt.success');
         if (size === 'large') Deeds.note(s, 'hunt.large');
