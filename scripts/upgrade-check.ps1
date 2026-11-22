@@ -380,8 +380,9 @@ if ($Step -eq 'watch-update') {
     $title = $hwndText[1]
     $isApp = $title -eq 'Sabretooth' -or ($title -like 'Sabretooth*' -and $title -notmatch 'Setup')
     $isConsole = $title -match 'PowerShell|pwsh|Command Prompt|Windows Terminal|GitHub Actions'
-    if ($isConsole) { [SbWin]::Minimize ([IntPtr]::new([long]$hwndText[0])) }
-    if ($isApp) { $appHwnd = [IntPtr]::new([long]$hwndText[0]) }
+    $hwnd = [IntPtr]::new([long]($hwndText[0]))
+    if ($isConsole) { [SbWin]::Minimize($hwnd) }
+    if ($isApp) { $appHwnd = $hwnd }
   }
   if ($appHwnd) { [SbWin]::ForceFront($appHwnd) }
   Start-Sleep -Milliseconds 600
