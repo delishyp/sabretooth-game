@@ -8,10 +8,13 @@ on:
       - package-lock.json
       - src/main/updater.js
       - scripts/upgrade-check.ps1
+      - scripts/update-feed-server.js
+      - scripts/nsis-ci-log.nsh
       - .github/workflows/upgrade-check.yml
 jobs:
   upgrade:
     runs-on: windows-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,52 +25,71 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release download v0.1.8 --repo delishyp/sabretooth-game --pattern Sabretooth-Setup-0.1.8.exe --dir "$env:RUNNER_TEMP"
-      - name: Install 0.1.8 per-user the way Anna has it
-        shell: pwsh
-        run: |
-          ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe" -OutDir upgrade-evidence
-          ./scripts/upgrade-check.ps1 -Step seed -OutDir upgrade-evidence
-      - name: Build the 0.1.9 installer
+      - name: Build 0.1.9 and the unpublished 0.1.9-test.1 feed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm ci
-          npx electron-builder --win nsis --publish never
-      - name: Transitional update (0.1.8 updater args, no /S)
+          npx electron-builder --win nsis --publish never -c.directories.output=dist/stable "-c.nsis.include=scripts/nsis-ci-log.nsh"
+          npx electron-builder --win nsis --publish never -c.directories.output=dist/test "-c.extraMetadata.version=0.1.9-test.1" "-c.nsis.include=scripts/nsis-ci-log.nsh"
+      - name: Serve both feeds on localhost
         shell: pwsh
         run: |
-          $exe = Get-ChildItem dist -Filter '*.exe' | Select-Object -First 1
-          ./scripts/upgrade-check.ps1 -Step run -Installer $exe.FullName -ArgsLine '--updated --force-run' -Label transitional -OutDir upgrade-evidence
-      - name: Reinstall 0.1.8 and run the silent update
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path dist/feed-stable, dist/feed-test, upgrade-evidence | Out-Null
+          $stable = 'Sabretooth Setup 0.1.9.exe'
+          $test = 'Sabretooth Setup 0.1.9-test.1.exe'
+          foreach ($pair in @(
+            @{ Src = 'dist/stable'; Dest = 'dist/feed-stable'; Exe = $stable },
+            @{ Src = 'dist/test'; Dest = 'dist/feed-test'; Exe = $test }
+          )) {
+            $exe = Join-Path $pair.Src $pair.Exe
+            if ($pair.Exe -match '__uninstaller') { throw "refusing $($pair.Exe)" }
+            if (-not (Test-Path -LiteralPath $exe)) { throw "missing $exe. have: $((Get-ChildItem $pair.Src -Filter *.exe).Name -join ', ')" }
+            Copy-Item -LiteralPath $exe -Destination (Join-Path $pair.Dest $pair.Exe)
+            Copy-Item -LiteralPath ($exe + '.blockmap') -Destination (Join-Path $pair.Dest ($pair.Exe + '.blockmap'))
+          }
+          Copy-Item dist/stable/latest.yml dist/feed-stable/latest.yml
+          if (Test-Path dist/test/test.yml) { Copy-Item dist/test/test.yml dist/feed-test/latest.yml -Force }
+          elseif (Test-Path dist/test/latest.yml) { Copy-Item dist/test/latest.yml dist/feed-test/latest.yml -Force }
+          else { throw "0.1.9-test.1 produced no yml. have: $((Get-ChildItem dist/test -Filter *.yml).Name -join ', ')" }
+          $stableYml = Get-Content dist/feed-stable/latest.yml -Raw
+          $testYml = Get-Content dist/feed-test/latest.yml -Raw
+          if ($stableYml -notmatch '(?m)^version:\s*0\.1\.9\s*$') { throw "stable feed is not 0.1.9:`n$stableYml" }
+          if ($testYml -notmatch '(?m)^version:\s*0\.1\.9-test\.1\s*$') { throw "test feed is not 0.1.9-test.1:`n$testYml" }
+          $node = (Get-Command node).Source
+          $out = (Resolve-Path upgrade-evidence).Path
+          Start-Process -FilePath $node -WorkingDirectory $PWD -ArgumentList 'scripts/update-feed-server.js','8765','dist/feed-stable' -WindowStyle Hidden -RedirectStandardOutput (Join-Path $out 'feed-stable.log') -RedirectStandardError (Join-Path $out 'feed-stable.err')
+          Start-Process -FilePath $node -WorkingDirectory $PWD -ArgumentList 'scripts/update-feed-server.js','8766','dist/feed-test' -WindowStyle Hidden -RedirectStandardOutput (Join-Path $out 'feed-test.log') -RedirectStandardError (Join-Path $out 'feed-test.err')
+          Start-Sleep -Seconds 1
+          (Invoke-WebRequest http://127.0.0.1:8765/latest.yml -UseBasicParsing).Content | Set-Content upgrade-evidence/served-stable.yml
+          (Invoke-WebRequest http://127.0.0.1:8766/latest.yml -UseBasicParsing).Content | Set-Content upgrade-evidence/served-test.yml
+      - name: Install published 0.1.8 and point it at the 0.1.9 feed
         shell: pwsh
         run: |
-          Get-Process Sabretooth -ErrorAction SilentlyContinue | Stop-Process -Force
-          ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe" -OutDir upgrade-evidence
-          $exe = Get-ChildItem dist -Filter '*.exe' | Select-Object -First 1
-          ./scripts/upgrade-check.ps1 -Step run -Installer $exe.FullName -ArgsLine '--updated /S --force-run' -Label silent -OutDir upgrade-evidence
-      - name: Assert silent upgrade
+          ./scripts/upgrade-check.ps1 -Step install-old -Installer "$env:RUNNER_TEMP/Sabretooth-Setup-0.1.8.exe"
+          ./scripts/upgrade-check.ps1 -Step seed
+          ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When before
+          ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label transitional -Url http://127.0.0.1:8765
+      - name: Let 0.1.8's own updater install 0.1.9
         shell: pwsh
         run: |
-          $before = Get-Content upgrade-evidence/save-sha256-before.txt
-          $after = Get-Content upgrade-evidence/silent-save-sha256.txt
-          $log = Get-Content upgrade-evidence/silent.log
-          $ver = Get-Content upgrade-evidence/silent-product-version.txt
-          $folders = @(Get-Content upgrade-evidence/silent-folders.txt | Where-Object { $_ })
-          $keys = @(Get-Content upgrade-evidence/silent-uninstall.txt | Where-Object { $_ })
-          $procs = @(Get-Content upgrade-evidence/silent-procs.txt | Where-Object { $_ })
-          $trans = Get-Content upgrade-evidence/transitional.log
-          $lines = @()
-          function Add([string]$name, [bool]$ok, [string]$detail) { $script:lines += "$name $(if ($ok) {'PASS'} else {'FAIL'}) $detail" }
-          Add 'no-wizard' ($log -contains 'NO_WIZARD_PAGE') ($log -join ';')
-          Add 'one-uninstall' ($keys.Count -eq 1) ("count=$($keys.Count)")
-          Add 'one-folder' ($folders.Count -eq 1) ("count=$($folders.Count) $($folders -join ',')")
-          Add 'version-0.1.9' ($ver -like '0.1.9*') $ver
-          Add 'relaunched' ($procs.Count -ge 1) ("pids=$($procs -join ',')")
-          Add 'save-unchanged' ($before -eq $after) "before=$before after=$after"
-          $lines += "transitional $($trans -join ';')"
-          $lines | Set-Content upgrade-evidence/summary.txt
-          Get-Content upgrade-evidence/summary.txt
-          if ($lines -match ' FAIL ') { exit 1 }
+          ./scripts/upgrade-check.ps1 -Step watch-update -Mode transitional -Label transitional -SetupName 'Sabretooth Setup 0.1.9.exe' -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
+          ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When after
+      - name: Point the installed 0.1.9 at the 0.1.9-test.1 feed
+        shell: pwsh
+        run: |
+          ./scripts/upgrade-check.ps1 -Step ensure-stable -Installer 'dist/stable/Sabretooth Setup 0.1.9.exe' -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
+          ./scripts/upgrade-check.ps1 -Step inventory -Label in-app -When before
+          ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label in-app -Url http://127.0.0.1:8766
+      - name: Let 0.1.9 check, download, and quitAndInstall(true, true)
+        shell: pwsh
+        run: |
+          ./scripts/upgrade-check.ps1 -Step watch-update -Mode in-app -Label in-app -FeedUrl http://127.0.0.1:8766 -SetupName 'Sabretooth Setup 0.1.9-test.1.exe' -ExpectExe 'dist/test/win-unpacked/Sabretooth.exe'
+          ./scripts/upgrade-check.ps1 -Step inventory -Label in-app -When after
+      - name: Assert upgrade evidence
+        shell: pwsh
+        run: ./scripts/upgrade-check.ps1 -Step assert
       - uses: actions/upload-artifact@v4
         if: always()
         with:
