@@ -32,6 +32,14 @@ The appearance text field is on Look. Ready is the confirm step and reads the te
 
 `den_father` stays in the trait table so the existing 57-row count holds. The creator does not offer it. A third litter now grants `den_mother` for either sex. Sickly Line (`tainted_blood`) is shown as Frail Blood. The appearance text field is still on the Ready step, because that step's focus id is what the creator tests confirm. Look already carries coat, markings, and eyes, and both steps label the picture stand-in art.
 
+## Encounter scenes
+
+`snowy-plain.png`, `forest-clearing.png`, and `frozen-lake.png` are named in the mockup asset list and are not in the repo. Hunt, fight, and dialogue use a copy of that snow plain shipped as `assets/game/encounter-plain.png` instead of the Home cave. The deer and hyena are the repo files `assets/encounters/giant-deer.png` and `assets/encounters/cave-hyena.png`. The player stands as the same full-body portrait the Home scene paints. The "Entire image" button and the red word bar are not drawn.
+
+## New Game lock
+
+While the slice lock is on, Story and Sim stay on the Play style row, greyed, with the same "Not yet available. It's coming in a later update." line as Heir and Sandbox. Only Balanced and Permadeath can be selected.
+
 ## Hunt chance
 
 Live hunts and the headless engine both call `huntChance` in `encounter-engine.js`. The separate point formula in `slice.js` is no longer used for the chance number. Keen Nose and Dull Nose do not change that number. After the chance is computed, `huntBand` shifts the odds band by one step (Keen Nose easier, Dull Nose harder). The shifted band picks the odds word. The catch roll still uses the unshifted chance, so the published chance number and the band cutoffs stay put. Easy wording is reachable when Keen Nose lifts a good band.

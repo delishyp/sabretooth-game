@@ -1,14 +1,20 @@
 /* Match docs/design/redesign-v0.2/mockups at the safe-area positions.
    --s is 1px at 1080. Text stays at least 18px. Panels scroll instead of wrapping into new columns. */
 
-body:has(.screen[data-screen="creator"].active) #bg,
-body:has(.screen[data-screen="creator"].active) #bg-canvas,
 body:has(.screen[data-screen="root"].active) #bg,
 body:has(.screen[data-screen="newGameSetup"].active) #bg,
 body:has(.screen[data-screen="load"].active) #bg {
   visibility: visible !important;
 }
-.creator-scene { display: none !important; }
+.screen[data-screen="creator"] .creator-scene {
+  display: block !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover !important;
+  z-index: 0 !important;
+}
 
 .screen.active:not([data-screen="game"]) {
   background: transparent !important;
@@ -68,12 +74,15 @@ body:has(.screen[data-screen="load"].active) #bg {
 
 .screen[data-screen="creator"] .creator-body {
   display: flex !important;
+  flex-wrap: nowrap !important;
   gap: 24px !important;
   align-items: stretch !important;
-  min-height: 0 !important;
+  min-height: 280px !important;
 }
 .screen[data-screen="creator"] .creator-preview {
-  flex: 0 0 36% !important;
+  flex: 0 0 38% !important;
+  min-width: 220px !important;
+  align-self: stretch !important;
   background: #120d09 !important;
   border: 2px solid #5e4a33 !important;
   border-radius: 10px !important;
@@ -90,7 +99,13 @@ body:has(.screen[data-screen="load"].active) #bg {
   max-height: 52vh !important;
   object-fit: contain !important;
 }
-.screen[data-screen="creator"] .creator-side { flex: 1 !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; }
+.screen[data-screen="creator"] .creator-side { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; }
+.screen[data-screen="creator"] #creator-step { position: sticky; top: 0; z-index: 2; background: #1c140f; padding-bottom: 8px; }
+.screen[data-screen="creator"] .creator-sub,
+.screen[data-screen="creator"] #creator-levels,
+.screen[data-screen="creator"] #creator-level-flavour { display: none !important; }
+.screen[data-screen="creator"].active { overflow: hidden !important; }
+.screen[data-screen="creator"] .creator-side { overflow: auto !important; max-height: 100% !important; }
 .screen[data-screen="creator"] .creator-actions { margin-top: auto !important; justify-content: flex-end !important; }
 #creator-step { display: flex !important; flex-wrap: wrap !important; gap: 10px 18px !important; align-items: center !important; font-size: 18px !important; }
 #creator-step .step-pip { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #5e4a33; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; }
@@ -175,7 +190,7 @@ body:has(.screen[data-screen="load"].active) #bg {
 }
 .screen[data-mode="home"] .home-dock {
   position: absolute !important;
-  left: 290px !important;
+  left: calc(290 * var(--s)) !important;
   right: auto !important;
   top: auto !important;
   bottom: 24px !important;
@@ -205,8 +220,8 @@ body:has(.screen[data-screen="load"].active) #bg {
   position: absolute !important;
   right: 24px !important;
   left: auto !important;
-  top: 150px !important;
-  bottom: 24px !important;
+  top: calc(112 * var(--s)) !important;
+  bottom: calc(24 * var(--s)) !important;
   width: min(620px, 38vw) !important;
   max-height: none !important;
   grid-column: auto !important;
@@ -214,7 +229,7 @@ body:has(.screen[data-screen="load"].active) #bg {
 }
 .screen[data-mode="book"] .home-dock {
   position: absolute !important;
-  left: 290px !important;
+  left: calc(290 * var(--s)) !important;
   right: 24px !important;
   top: 150px !important;
   bottom: 24px !important;
@@ -225,7 +240,7 @@ body:has(.screen[data-screen="load"].active) #bg {
 .screen[data-mode="home"] .tutorial-card {
   left: auto !important;
   right: 24px !important;
-  top: 110px !important;
+  top: calc(128 * var(--s)) !important;
   bottom: auto !important;
   transform: none !important;
   width: min(300px, 28vw) !important;
@@ -340,3 +355,304 @@ body:has(.screen[data-screen="load"].active) #bg {
   background: #2a1f17;
   font-size: 18px;
 }
+
+/* Scene covers the window. Panels stay inside the centred 16:9 safe box and scale with its height. */
+.screen[data-screen="game"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+  background: transparent !important;
+  overflow: hidden !important;
+}
+.screen[data-screen="game"] > .home-landscape {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: 50% 58% !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.screen[data-screen="game"][data-mode="book"] > .home-landscape,
+.screen[data-screen="game"][data-mode="days-end"] > .home-landscape { filter: brightness(0.5); }
+.screen[data-screen="game"] #game-main {
+  position: absolute !important;
+  left: 50% !important;
+  top: 0 !important;
+  transform: translateX(-50%) !important;
+  width: min(100%, calc(100vh * 16 / 9)) !important;
+  height: 100% !important;
+  z-index: 1 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+.screen[data-screen="game"] .shell-top {
+  left: calc(24 * var(--s)) !important;
+  right: calc(24 * var(--s)) !important;
+  top: calc(16 * var(--s)) !important;
+  height: calc(76 * var(--s)) !important;
+  min-height: calc(76 * var(--s)) !important;
+  max-height: calc(92 * var(--s)) !important;
+}
+.screen[data-screen="game"] .goal {
+  top: calc(100 * var(--s)) !important;
+}
+.screen[data-screen="game"] .rail {
+  left: calc(24 * var(--s)) !important;
+  top: calc(160 * var(--s)) !important;
+  width: calc(244 * var(--s)) !important;
+  bottom: auto !important;
+  max-height: calc(100% - calc(180 * var(--s))) !important;
+  overflow: auto !important;
+}
+.screen[data-mode="scene"] .rail { bottom: auto !important; max-height: calc(100% - calc(180 * var(--s))) !important; }
+.screen[data-mode="scene"] #home-cat { visibility: hidden !important; }
+.scene-actor {
+  position: absolute !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+  bottom: calc(300 * var(--s)) !important;
+}
+.scene-actor.is-player { left: calc(280 * var(--s)) !important; right: auto !important; height: calc(330 * var(--s)) !important; width: auto !important; }
+.scene-actor.is-foe { left: auto !important; right: calc(80 * var(--s)) !important; height: calc(420 * var(--s)) !important; width: auto !important; }
+.screen[data-screen="game"] .scene-actor.is-player.encounter-panel {
+  height: calc(420 * var(--s)) !important;
+  width: auto !important;
+  max-height: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.screen[data-screen="game"] .scene-actor.is-foe.encounter-panel {
+  height: calc(520 * var(--s)) !important;
+  width: auto !important;
+  max-height: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.screen[data-screen="game"] .scene-actor.encounter-panel img,
+.screen[data-screen="game"] .scene-actor.encounter-panel canvas {
+  width: auto !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  display: block !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  aspect-ratio: auto !important;
+}
+.lore-book .lore-section { display: none !important; }
+.screen[data-screen="creator"] #creator-panel { display: flex !important; flex-direction: column !important; }
+.screen[data-screen="creator"] #creator-panel .look-chips { order: -1; }
+.screen[data-screen="game"] #game-event {
+  position: absolute !important;
+  left: calc(290 * var(--s)) !important;
+  right: calc(24 * var(--s)) !important;
+  top: auto !important;
+  bottom: calc(24 * var(--s)) !important;
+  height: auto !important;
+  max-height: 38% !important;
+  width: auto !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  overflow: visible !important;
+  z-index: 8 !important;
+}
+.screen[data-screen="game"] .encounter-card,
+.screen[data-screen="game"] .conversation-card {
+  position: relative !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  height: auto !important;
+  max-height: 38vh !important;
+  width: 100% !important;
+  display: grid !important;
+  align-items: start !important;
+  gap: calc(8 * var(--s)) calc(20 * var(--s)) !important;
+  overflow: auto !important;
+  background: #1c140f !important;
+  border: 2px solid #a8834f !important;
+  border-radius: 10px !important;
+  padding: calc(18 * var(--s)) calc(22 * var(--s)) !important;
+}
+.screen[data-screen="game"] .encounter-card {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+.screen[data-screen="game"] .encounter-card .event-title { grid-column: 1; grid-row: 1; }
+.screen[data-screen="game"] .encounter-card .statel { grid-column: 1; grid-row: 2; }
+.screen[data-screen="game"] .encounter-card .event-scroll { grid-column: 1; grid-row: 3; }
+.screen[data-screen="game"] .encounter-card .oddsword { grid-column: 1; grid-row: 4; }
+.screen[data-screen="game"] .encounter-card .talk-utility { grid-column: 1; grid-row: 5; }
+.screen[data-screen="game"] .encounter-card .event-choices { grid-column: 2; grid-row: 1 / span 5; align-self: center; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) {
+  grid-template-columns: calc(200 * var(--s)) minmax(0, 1fr) minmax(220px, 1.05fr) calc(200 * var(--s)) !important;
+}
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .event-cast:not(.is-player) { grid-column: 1; grid-row: 1 / span 6; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .event-cast.is-player { grid-column: 4; grid-row: 1 / span 6; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .relation-meters { grid-column: 2; grid-row: 1; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .event-scroll { grid-column: 2; grid-row: 2; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .choice-cost { grid-column: 2; grid-row: 3; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .talk-utility { grid-column: 2; grid-row: 4; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .event-choices { grid-column: 3; grid-row: 1 / span 6; align-self: center; }
+.screen[data-screen="game"] #game-event .event-scroll { overflow: auto !important; max-height: 22vh !important; min-height: 0 !important; flex: none !important; }
+.screen[data-screen="game"] .event-choices {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  align-content: center !important;
+  gap: 10px !important;
+  width: auto !important;
+  position: relative !important;
+}
+.screen[data-screen="game"] #game-event .event-choices button {
+  white-space: normal !important;
+  height: auto !important;
+  min-height: calc(56 * var(--s)) !important;
+  text-align: left !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] .event-choices { grid-template-columns: 1fr !important; }
+.screen[data-screen="game"] #game-event .dialogue-heads {
+  display: contents !important;
+  height: auto !important;
+  overflow: visible !important;
+  flex: none !important;
+}
+.screen[data-screen="game"] #game-event .talk-utility { position: relative !important; top: auto !important; left: auto !important; right: auto !important; }
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .event-cast {
+  flex: 0 0 calc(200 * var(--s)) !important;
+  width: calc(200 * var(--s)) !important;
+  max-width: calc(200 * var(--s)) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .portrait-frame,
+.screen[data-screen="game"] .conversation-card:not(.encounter-card) .event-portrait,
+.screen[data-screen="game"] .dialogue-heads canvas {
+  width: calc(180 * var(--s)) !important;
+  height: calc(180 * var(--s)) !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  object-fit: cover !important;
+  border-radius: 10px !important;
+  border: 2px solid #a8834f !important;
+  background-color: #3b2c1e;
+  display: block !important;
+}
+.screen[data-screen="game"][data-mode="book"] .home-dock {
+  position: absolute !important;
+  left: calc(290 * var(--s)) !important;
+  right: calc(24 * var(--s)) !important;
+  top: calc(128 * var(--s)) !important;
+  bottom: calc(12 * var(--s)) !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  align-self: auto !important;
+  background: #1c140f !important;
+  border: 2px solid #a8834f !important;
+  border-radius: 10px !important;
+  overflow: auto !important;
+  z-index: 6 !important;
+}
+.screen[data-screen="game"] #game-event .encounter-card,
+.screen[data-screen="game"] #game-event .conversation-card {
+  max-height: none !important;
+  overflow: visible !important;
+  height: auto !important;
+}
+.screen[data-screen="game"] #game-event .story-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  flex: none !important;
+}
+.screen[data-screen="game"] #game-event .story-copy {
+  flex: 1 1 34% !important;
+  min-width: 0 !important;
+  max-height: 30vh !important;
+  overflow: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.screen[data-screen="game"] #game-event .story-row .event-scroll {
+  flex: 1 1 auto !important;
+  max-height: 16vh !important;
+  overflow: auto !important;
+}
+.screen[data-screen="game"] #game-event .story-row .event-choices {
+  flex: 1 1 40% !important;
+  align-self: center !important;
+  max-height: 30vh !important;
+  overflow: auto !important;
+}
+.screen[data-screen="game"] #game-event .conversation-card:not(.encounter-card) .story-row {
+  display: grid !important;
+  grid-template-columns: 180px minmax(0, 1fr) minmax(260px, 1fr) 180px !important;
+  align-items: center !important;
+}
+.screen[data-screen="game"] #game-event .story-row .event-cast-name {
+  white-space: normal !important;
+  font-size: 20px !important;
+  line-height: 1.15 !important;
+  overflow: visible !important;
+}
+.screen[data-screen="game"] #game-event .story-row > .event-cast {
+  flex: 0 0 180px !important;
+  width: 180px !important;
+  max-width: 180px !important;
+  min-width: 0 !important;
+  position: static !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  z-index: 1 !important;
+}
+.screen[data-screen="game"] #game-event .story-row > .story-copy,
+.screen[data-screen="game"] #game-event .story-row > .event-choices {
+  position: relative !important;
+  z-index: 4 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  pointer-events: auto !important;
+}
+.screen[data-screen="game"] #game-event .story-row button { pointer-events: auto !important; position: relative !important; z-index: 5 !important; }
+.screen[data-screen="game"] #game-event .story-row .portrait-frame,
+.screen[data-screen="game"] #game-event .story-row canvas,
+.screen[data-screen="game"] #game-event .story-row .event-portrait {
+  width: 148px !important;
+  height: 148px !important;
+  max-height: 148px !important;
+}
+.screen[data-screen="game"] #game-event .encounter-card .story-body {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.card.is-unavailable { opacity: 0.72; }
+.card.is-unavailable .soon { display: block; color: #d2c1a5; font-size: 18px; margin-top: 6px; }

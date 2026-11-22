@@ -109,7 +109,7 @@ function probe() {
       shots.push(file);
       const problems = await page.evaluate(probe);
       assert.deepStrictEqual(problems, [], name + ' ' + problems.join(' | '));
-      if (name.includes('1920x1080-u1')) {
+      if (name.endsWith('1920x1080-u1')) {
         const layout = await page.evaluate((shot) => {
           const W = innerWidth, H = innerHeight, out = [];
           const box = (sel) => {

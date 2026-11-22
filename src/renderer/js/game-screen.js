@@ -196,6 +196,11 @@
     frame.className = 'portrait-frame frame-md is-headshot';
     frame.dataset.portraitMode = 'headshot';
     frame.append(cv);
+    if (npc.portraitId) {
+      frame.style.backgroundImage = 'url("../../assets/portraits/cats/' + npc.portraitId + '.png")';
+      frame.style.backgroundSize = 'cover';
+      frame.style.backgroundPosition = '72% 12%';
+    }
     const name = document.createElement('div');
     name.className = 'event-cast-name';
     name.textContent = npc.name || '';
@@ -1020,6 +1025,16 @@
       box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
       if (!show) return;
       box.textContent = '';
+      const pinStyle = (node, prop, value) => {
+        if (!node || !node.style) return;
+        if (typeof node.style.setProperty === 'function') node.style.setProperty(prop, value, 'important');
+        else node.style[prop] = value;
+      };
+      const landTalk = document.getElementById('home-landscape');
+      if (landTalk) {
+        if (!landTalk.dataset.homeSrc) landTalk.dataset.homeSrc = landTalk.getAttribute('src');
+        landTalk.src = '../../assets/game/encounter-plain.png';
+      }
       const card = el('div', 'event-card conversation-card'); card.dataset.node = view.nodeId; card.dataset.cat = view.catId; box.append(card);
       const npc = s.npcs[view.catId];
       const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
@@ -1033,17 +1048,17 @@
       const pframe = el('div', 'portrait-frame frame-md is-headshot');
       pframe.dataset.portraitMode = 'headshot';
       pframe.append(pcv);
+      if (s.cat.portraitId) {
+        pframe.style.backgroundImage = 'url("../../assets/portraits/cats/' + s.cat.portraitId + '.png")';
+        pframe.style.backgroundSize = 'cover';
+        pframe.style.backgroundPosition = '72% 12%';
+      }
       playerCast.append(pframe, el('div', 'event-cast-name', s.cat.name));
       card.append(playerCast);
       const catSpec = { genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId, look: s.cat, stage: s.cat.lifeStage, lifeStage: s.cat.lifeStage };
       ctx.portrait(catSpec, pcv, { frame: 'head', mode: 'headshot', place: 'dialogue' }).catch(() => {});
-      const heads = el('div', 'dialogue-heads');
       const npcCast = card.querySelector('.event-cast:not(.is-player)');
-      if (npcCast) heads.append(npcCast);
-      heads.append(playerCast);
-      card.insertBefore(heads, card.firstChild);
       const meters = relationMeters(view.catId);
-      card.append(meters);
       const regard = meters.querySelector('.regard-word');
       const mood = card.querySelector('.speaker-mood');
       if (regard && mood) mood.textContent = regard.textContent;
@@ -1053,16 +1068,44 @@
       for (const line of view.lines) {
         scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
-      card.append(scroll);
-      card.append(costNote());
+      pinStyle(scroll, 'height', '120px');
+      pinStyle(scroll, 'min-height', '120px');
+      pinStyle(scroll, 'max-height', '120px');
+      pinStyle(scroll, 'overflow', 'auto');
       const ch = el('div', 'event-choices');
       if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.pause ? t('talk.pause') : c.label, { g: 'choose', choice: c.id, node: view.nodeId, instance: view.instanceId }, { disabled: !!c.disabled, title: c.disabled ? 'Not enough Energy, Hunger, or Thirst.' : '' }));
-      card.append(ch);
       const util = el('div', 'talk-utility');
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
-      card.append(util);
-      appendTradeGift(card, npc);
+      const copy = el('div', 'story-copy');
+      copy.append(meters, scroll, costNote());
+      const row = el('div', 'story-row');
+      const pin = (node) => {
+        pinStyle(node, 'width', '180px');
+        pinStyle(node, 'max-width', '180px');
+        pinStyle(node, 'overflow', 'hidden');
+        pinStyle(node, 'position', 'static');
+      };
+      pin(npcCast);
+      pin(playerCast);
+      pinStyle(row, 'display', 'grid');
+      pinStyle(row, 'grid-template-columns', '180px minmax(0, 1fr) minmax(280px, 1fr) 180px');
+      pinStyle(row, 'align-items', 'center');
+      pinStyle(row, 'gap', '12px');
+      pinStyle(row, 'width', '100%');
+      if (npcCast) row.append(npcCast);
+      row.append(copy, ch, playerCast);
+      pinStyle(card, 'position', 'relative');
+      pinStyle(card, 'display', 'block');
+      pinStyle(card, 'width', '100%');
+      pinStyle(card, 'max-width', 'none');
+      pinStyle(util, 'position', 'absolute');
+      pinStyle(util, 'top', '8px');
+      pinStyle(util, 'left', '200px');
+      pinStyle(util, 'right', 'auto');
+      pinStyle(util, 'z-index', '40');
+      card.append(row, util);
+      appendTradeGift(copy, npc);
     }
     function questCopy(id, vars) {
       return E.quests ? E.quests.text(id, vars) : '';
@@ -1203,22 +1246,31 @@
       art.classList.add('scene-actor', 'is-foe');
       const host = document.getElementById('game-main');
       if (host) host.append(you, art);
-      card.append(btn('Entire image', { g: 'inspectEncounter' }, { cls: 'encounter-open-full' }));
-      if (WordBar && view.meter) WordBar.mount(card, view.meter);
+      const land = document.getElementById('home-landscape');
+      if (land) {
+        if (!land.dataset.homeSrc) land.dataset.homeSrc = land.getAttribute('src');
+        land.src = '../../assets/game/encounter-plain.png';
+      }
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
         scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
-      card.append(scroll);
-      card.append(el('p', 'choice-cost oddsword', encounterOddsWord(view)));
+      const odds = el('p', 'choice-cost oddsword', encounterOddsWord(view));
       const ch = el('div', 'event-choices moves');
       if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.label, { g: 'encounterChoose', choice: c.id }, { disabled: !!c.disabled, title: c.reason || '' }));
-      card.append(ch);
       const util = el('div', 'talk-utility');
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
-      card.append(util);
+      const copy = el('div', 'story-copy');
+      const title = card.querySelector('.event-title');
+      const state = card.querySelector('.statel');
+      if (title) copy.append(title);
+      if (state) copy.append(state);
+      copy.append(scroll, odds, util);
+      const row = el('div', 'story-row');
+      row.append(copy, ch);
+      card.append(row);
     }
     function encounterOddsWord(view) {
       if (!Odds) return '';
@@ -1484,6 +1536,8 @@
       const dock = $('#home-dock');
       if (dock) dock.hidden = view === 'home';
       document.querySelectorAll('.scene-actor').forEach((node) => node.remove());
+      const land0 = document.getElementById('home-landscape');
+      if (land0 && land0.dataset.homeSrc && !(s && s.phase === 'encounter')) land0.src = land0.dataset.homeSrc;
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       markMode();
       const evOpen = !$('#game-event').hidden;

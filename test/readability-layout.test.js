@@ -26,9 +26,8 @@ test('the talk log is capped so choices stay on the card', () => {
   assert.match(css, /\.conversation-card \.event-choices \{[^}]*flex:\s*0 0 auto/);
   const screen = fs.readFileSync(path.join(__dirname, '../src/renderer/js/game-screen.js'), 'utf8');
   const talkFn = screen.slice(screen.indexOf('function renderTalk'), screen.indexOf('function renderFord'));
-  const scrollAt = talkFn.indexOf('card.append(scroll)');
-  const choicesAt = talkFn.indexOf('card.append(ch)');
-  assert.ok(scrollAt > 0 && choicesAt > scrollAt, 'choices sit on the card, after the scroll pane');
+  assert.ok(talkFn.includes("el('div', 'story-row')"), 'dialogue uses the bottom story row');
+  assert.ok(talkFn.includes('row.append(copy, ch, playerCast)'), 'choices sit beside the narration');
   assert.ok(!talkFn.includes('scroll.append(ch)'));
 });
 

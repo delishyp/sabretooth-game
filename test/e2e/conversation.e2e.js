@@ -52,16 +52,20 @@ async function layout(page) {
         clipped: b.scrollHeight > b.clientHeight + 2 || b.scrollWidth > b.clientWidth + 2
       };
     });
-    const sr = scroll.getBoundingClientRect();
+    const prose = document.querySelector('.story-copy') || scroll;
+    const sr = prose.getBoundingClientRect();
     const cr = cast.getBoundingClientRect();
     const nr = name.getBoundingClientRect();
     return {
       innerWidth: window.innerWidth, innerHeight: window.innerHeight,
       node: card.dataset.node, cat: card.dataset.cat, name: name.textContent,
       castTop: cr.top, nameTop: nr.top, nameBottom: nr.bottom,
-      scrollTop: sr.top, scrollBottom: sr.bottom, scrollHeight: scroll.scrollHeight, clientHeight: scroll.clientHeight,
+      scrollTop: sr.top, scrollBottom: sr.bottom, scrollLeft: sr.left, scrollRight: sr.right,
+      scrollHeight: scroll.scrollHeight, clientHeight: scroll.clientHeight,
       choicesTop: choices.getBoundingClientRect().top,
+      choicesLeft: choices.getBoundingClientRect().left,
       choicesInScroll: scroll.contains(choices),
+      castW: cr.width, castH: cr.height,
       buttons
     };
   });
@@ -72,10 +76,13 @@ function assertLayout(box, { scroll = false } = {}) {
   assert.ok(box.castTop >= -1 && box.nameTop >= -1, 'speaker scrolled off');
   assert.ok(box.name && box.name.length > 0);
   assert.strictEqual(box.choicesInScroll, false);
-  assert.ok(box.choicesTop >= box.scrollBottom - 2, 'choices overlap the prose scroller');
+  const beside = box.choicesLeft >= box.scrollRight - 8;
+  const below = box.choicesTop >= box.scrollBottom - 2;
+  assert.ok(beside || below, 'choices sit beside or under the narration');
+  assert.ok(box.castW > 40 && box.castH > 40, 'speaker portrait is on screen');
   assert.ok(box.buttons.length >= 1);
   for (const b of box.buttons) {
-    assert.ok(b.top >= box.scrollBottom - 2, b.text);
+    if (!beside) assert.ok(b.top >= box.scrollBottom - 2, b.text);
     assert.ok(b.left >= -1 && b.right <= box.innerWidth + 1, b.text);
     assert.ok(b.bottom <= box.innerHeight + 1, `${b.text} clipped by the window`);
     assert.strictEqual(b.clipped, false, b.text);
