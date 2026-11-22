@@ -1,20 +1,14 @@
 /* Match docs/design/redesign-v0.2/mockups at the safe-area positions.
    --s is 1px at 1080. Text stays at least 18px. Panels scroll instead of wrapping into new columns. */
 
+body:has(.screen[data-screen="creator"].active) #bg,
+body:has(.screen[data-screen="creator"].active) #bg-canvas,
 body:has(.screen[data-screen="root"].active) #bg,
 body:has(.screen[data-screen="newGameSetup"].active) #bg,
 body:has(.screen[data-screen="load"].active) #bg {
   visibility: visible !important;
 }
-.screen[data-screen="creator"] .creator-scene {
-  display: block !important;
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  object-fit: cover !important;
-  z-index: 0 !important;
-}
+.screen[data-screen="creator"] .creator-scene { display: none !important; }
 
 .screen.active:not([data-screen="game"]) {
   background: transparent !important;
@@ -54,15 +48,15 @@ body:has(.screen[data-screen="load"].active) #bg {
   border: 2px solid #a8834f !important;
   border-radius: 10px !important;
   inset: auto !important;
-  left: 50% !important;
   top: 28px !important;
   bottom: auto !important;
   right: auto !important;
-  transform: translateX(-50%) !important;
+  transform: none !important;
   width: min(94vw, 1680px) !important;
+  left: calc((100vw - min(94vw, 1680px)) / 2) !important;
   height: auto !important;
   max-height: calc(100vh - 56px) !important;
-  overflow: auto !important;
+  overflow: visible !important;
   display: flex !important;
   flex-direction: column !important;
   padding: 20px 28px !important;
@@ -557,11 +551,13 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .event-choices { grid-te
 }
 .screen[data-screen="game"][data-mode="book"] .home-dock {
   position: absolute !important;
-  left: calc(290 * var(--s)) !important;
-  right: calc(24 * var(--s)) !important;
-  top: calc(128 * var(--s)) !important;
-  bottom: calc(12 * var(--s)) !important;
-  width: auto !important;
+  left: max(calc(284 * var(--s)), calc((100% - 70%) / 2)) !important;
+  right: auto !important;
+  transform: none !important;
+  top: calc(118 * var(--s)) !important;
+  bottom: calc(8 * var(--s)) !important;
+  width: 70% !important;
+  max-width: none !important;
   height: auto !important;
   max-height: none !important;
   grid-column: auto !important;
@@ -570,9 +566,41 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .event-choices { grid-te
   background: #1c140f !important;
   border: 2px solid #a8834f !important;
   border-radius: 10px !important;
-  overflow: auto !important;
+  overflow: hidden !important;
   z-index: 6 !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
+.screen[data-mode="book"] #home-panel:has(.lore-book) {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+.screen[data-mode="book"] .lore-book { display: flex !important; flex-direction: column !important; min-height: 0 !important; height: 100% !important; }
+.screen[data-mode="book"] .lore-book .lore-spread {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 32%) minmax(0, 1fr) !important;
+  gap: 24px !important;
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+}
+.screen[data-mode="book"] .lore-book .lore-list {
+  min-width: 240px !important;
+  overflow: auto !important;
+  border-right: 1px solid #5e4a33 !important;
+}
+.screen[data-mode="book"] .lore-book .lore-list button {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  color: #f4ead8 !important;
+  font-size: max(18px, calc(20 * var(--s))) !important;
+  min-height: 36px !important;
+}
+.screen[data-mode="book"] .lore-book .lore-read { overflow: auto !important; font-size: max(18px, calc(22 * var(--s))) !important; line-height: 1.4 !important; }
 .screen[data-screen="game"] #game-event .encounter-card,
 .screen[data-screen="game"] #game-event .conversation-card {
   max-height: none !important;
@@ -653,6 +681,47 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .event-choices { grid-te
   align-items: center !important;
   gap: 16px !important;
   width: 100% !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event {
+  max-height: 42% !important;
+  overflow: hidden !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] .encounter-card .story-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 0.9fr) minmax(220px, 1.15fr) !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] .encounter-card .story-row .event-choices,
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .event-choices {
+  grid-template-columns: 1fr !important;
+  width: 100% !important;
+  min-width: 220px !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .event-choices button {
+  width: 100% !important;
+  min-width: 220px !important;
+  line-height: 22px !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-player.encounter-panel,
+html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.encounter-panel {
+  bottom: 46% !important;
+  height: 36vh !important;
+  max-height: 36vh !important;
+}
+.screen[data-screen="game"] .encounter-card .story-row { grid-column: 1 / -1 !important; width: 100% !important; }
+.portrait-frame:has(img.headshot) canvas { opacity: 0 !important; position: absolute !important; width: 1px !important; height: 1px !important; pointer-events: none !important; }
+#game-event img.headshot {
+  width: 168px !important;
+  height: 168px !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: 72% 16% !important;
+  display: block !important;
+  border-radius: 10px !important;
+  border: 2px solid #a8834f !important;
+  background: #3b2c1e !important;
 }
 .card.is-unavailable { opacity: 0.72; }
 .card.is-unavailable .soon { display: block; color: #d2c1a5; font-size: 18px; margin-top: 6px; }

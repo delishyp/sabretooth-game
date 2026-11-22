@@ -109,6 +109,33 @@ function probe() {
       shots.push(file);
       const problems = await page.evaluate(probe);
       assert.deepStrictEqual(problems, [], name + ' ' + problems.join(' | '));
+      if (name.startsWith('encounter-')) {
+        const choiceFit = await page.evaluate(() => {
+          if (document.documentElement.dataset.choiceStack !== '1') return [];
+          const out = [];
+          for (const b of document.querySelectorAll('#game-event .event-choices button')) {
+            const box = b.getBoundingClientRect();
+            if (box.width < 220) out.push('choice narrow ' + Math.round(box.width));
+            const cs = getComputedStyle(b);
+            const parsed = parseFloat(cs.lineHeight);
+            const font = parseFloat(cs.fontSize) || 18;
+            const line = parsed > 8 ? parsed : font * 1.25;
+            const pad = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+            const lines = Math.round((b.scrollHeight - pad) / line);
+            if (lines > 2) out.push('choice wrap ' + lines);
+          }
+          return out;
+        });
+        assert.deepStrictEqual(choiceFit, [], name + ' choices ' + choiceFit.join(' | '));
+      }
+      if (name.startsWith('dialogue-')) {
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 2 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 });
+        const heads = await page.evaluate(() => [...document.querySelectorAll('#game-event img.headshot')].map((img) => img.naturalWidth));
+        assert.ok(heads.length >= 2 && heads.every((n) => n > 0), name + ' headshots ' + heads.join(','));
+      }
       if (name.endsWith('1920x1080-u1')) {
         const layout = await page.evaluate((shot) => {
           const W = innerWidth, H = innerHeight, out = [];
@@ -295,7 +322,7 @@ function probe() {
     await page.evaluate(() => window.__menuDebug.gamePatch({ phase: 'day', encounters: { pending: null } }));
     const npc = await page.evaluate(() => {
       const s = window.__menuDebug.game().state;
-      const id = Object.keys(s.npcs || [])[0];
+      const id = Object.keys(s.npcs || {}).find((key) => s.npcs[key] && s.npcs[key].portraitId);
       return id ? window.__menuDebug.forceMeeting(id) : null;
     });
     if (npc) {

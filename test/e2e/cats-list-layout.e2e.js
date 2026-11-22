@@ -43,15 +43,14 @@ fs.mkdirSync(SHOTS, { recursive: true });
   for (const [w, h, tag] of [[1280, 720, '720'], [1920, 1080, '1080']]) {
     const size = await resize(w, h);
     const scene = await page.evaluate(() => {
-      const img = document.querySelector('.creator-scene');
-      const r = img.getBoundingClientRect();
-      const bg = getComputedStyle(document.getElementById('bg')).visibility;
-      return { src: img.currentSrc, w: r.width, h: r.height, natural: img.naturalWidth, bg };
+      const bg = document.getElementById('bg');
+      const canvas = document.getElementById('bg-canvas');
+      const r = (canvas || bg).getBoundingClientRect();
+      return { w: r.width, h: r.height, vis: getComputedStyle(bg).visibility, canvas: !!(canvas && canvas.width > 0) };
     });
-    assert.ok(scene.src.includes(SCENE), scene.src);
-    assert.ok(scene.natural >= 1600, String(scene.natural));
+    assert.strictEqual(scene.vis, 'visible');
+    assert.strictEqual(scene.canvas, true);
     assert.ok(scene.w >= w - 2 && scene.h >= h - 2, JSON.stringify({ scene, size }));
-    assert.strictEqual(scene.bg, 'hidden');
     await shot(`creator-scene-${tag}.png`);
     console.log('creator', tag, JSON.stringify(size));
   }

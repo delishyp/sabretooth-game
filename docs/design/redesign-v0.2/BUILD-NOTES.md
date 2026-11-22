@@ -34,7 +34,7 @@ The appearance text field is on Look. Ready is the confirm step and reads the te
 
 ## Encounter scenes
 
-`snowy-plain.png`, `forest-clearing.png`, and `frozen-lake.png` are named in the mockup asset list and are not in the repo. Hunt, fight, and dialogue use a copy of that snow plain shipped as `assets/game/encounter-plain.png` instead of the Home cave. The deer and hyena are the repo files `assets/encounters/giant-deer.png` and `assets/encounters/cave-hyena.png`. The player stands as the same full-body portrait the Home scene paints. The "Entire image" button and the red word bar are not drawn.
+Hunt and the hyena fight both use `assets/game/snowy-plain.png`, so the ridge silhouettes are gone. A wolf fight uses `assets/game/forest-clearing.png` (mockup 04). Dialogue uses `assets/game/frozen-lake.png` (mockup 05). The deer and hyena bodies are `assets/encounters/giant-deer.png` and `assets/encounters/cave-hyena.png`. At 720 with UI scale 1.5, encounter choices stack one per row on the right and the narration scrolls, and the cats stand above the panel.
 
 ## New Game lock
 

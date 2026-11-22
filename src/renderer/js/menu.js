@@ -48,7 +48,7 @@
     const unit = Math.max(1, (innerHeight / 1080) * u);
     document.documentElement.style.setProperty('--ui', String(u));
     document.documentElement.style.setProperty('--s', unit + 'px');
-    document.documentElement.dataset.choiceStack = (innerHeight <= 720 && u >= 1.5) ? '1' : '2';
+    document.documentElement.dataset.choiceStack = (innerHeight <= 760 && u >= 1.5) ? '1' : '2';
     fitActive();
   }
   /** Chrome that sticks out is a layout bug. Full-bleed plates are not chrome, and this never zooms or rescales a screen. */

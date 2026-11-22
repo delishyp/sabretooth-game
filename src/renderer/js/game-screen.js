@@ -64,6 +64,27 @@
     return `${name}: ${text}`;
   }
   const PLAYER_STILL = 'cat-6e2d788dd48ff440';
+  const PLATES = {
+    hunt: '../../assets/game/snowy-plain.png',
+    fight: '../../assets/game/snowy-plain.png',
+    dialogue: '../../assets/game/frozen-lake.png',
+    clearing: '../../assets/game/forest-clearing.png'
+  };
+  function usePlate(kind) {
+    const land = typeof document !== 'undefined' ? document.getElementById('home-landscape') : null;
+    if (!land) return;
+    if (!land.dataset.homeSrc) land.dataset.homeSrc = land.getAttribute('src');
+    land.src = PLATES[kind] || PLATES.hunt;
+  }
+  function headshotImg(cat) {
+    const img = document.createElement('img');
+    img.className = 'headshot';
+    img.alt = (cat && cat.name) || '';
+    const id = (cat && cat.portraitId) || '';
+    img.dataset.portraitId = id;
+    if (id) img.src = '../../assets/portraits/cats/' + id + '.png';
+    return img;
+  }
   /** Equal full-body frames. The player already faces right. Animal foes flip to face left. Humans stay unflipped. */
   function encounterPanels(view, player) {
     const id = (player && player.portraitId) || PLAYER_STILL;
@@ -196,11 +217,7 @@
     frame.className = 'portrait-frame frame-md is-headshot';
     frame.dataset.portraitMode = 'headshot';
     frame.append(cv);
-    if (npc.portraitId) {
-      frame.style.backgroundImage = 'url("../../assets/portraits/cats/' + npc.portraitId + '.png")';
-      frame.style.backgroundSize = 'cover';
-      frame.style.backgroundPosition = '72% 12%';
-    }
+    if (npc.portraitId) frame.append(headshotImg(npc));
     const name = document.createElement('div');
     name.className = 'event-cast-name';
     name.textContent = npc.name || '';
@@ -1030,11 +1047,7 @@
         if (typeof node.style.setProperty === 'function') node.style.setProperty(prop, value, 'important');
         else node.style[prop] = value;
       };
-      const landTalk = document.getElementById('home-landscape');
-      if (landTalk) {
-        if (!landTalk.dataset.homeSrc) landTalk.dataset.homeSrc = landTalk.getAttribute('src');
-        landTalk.src = '../../assets/game/encounter-plain.png';
-      }
+      usePlate('dialogue');
       const card = el('div', 'event-card conversation-card'); card.dataset.node = view.nodeId; card.dataset.cat = view.catId; box.append(card);
       const npc = s.npcs[view.catId];
       const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
@@ -1047,12 +1060,7 @@
       pcv.height = 256;
       const pframe = el('div', 'portrait-frame frame-md is-headshot');
       pframe.dataset.portraitMode = 'headshot';
-      pframe.append(pcv);
-      if (s.cat.portraitId) {
-        pframe.style.backgroundImage = 'url("../../assets/portraits/cats/' + s.cat.portraitId + '.png")';
-        pframe.style.backgroundSize = 'cover';
-        pframe.style.backgroundPosition = '72% 12%';
-      }
+      pframe.append(pcv, headshotImg({ portraitId: s.cat.portraitId || PLAYER_STILL, name: s.cat.name }));
       playerCast.append(pframe, el('div', 'event-cast-name', s.cat.name));
       card.append(playerCast);
       const catSpec = { genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId, look: s.cat, stage: s.cat.lifeStage, lifeStage: s.cat.lifeStage };
@@ -1246,11 +1254,7 @@
       art.classList.add('scene-actor', 'is-foe');
       const host = document.getElementById('game-main');
       if (host) host.append(you, art);
-      const land = document.getElementById('home-landscape');
-      if (land) {
-        if (!land.dataset.homeSrc) land.dataset.homeSrc = land.getAttribute('src');
-        land.src = '../../assets/game/encounter-plain.png';
-      }
+      usePlate(/wolf/.test(view.encounterId || '') ? 'clearing' : 'hunt');
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
@@ -1358,8 +1362,16 @@
       const idx = Math.min(s.pending.beatIndex || 0, beats.length - 1);
       const beat = beats[idx];
       const shown = (typeof Beats !== 'undefined' ? Beats : E.beats).line(beat, E.beatContext(s));
+      usePlate('dialogue');
       const npc = headForBeats(s, beats);
-      if (npc) appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
+      const heads = el('div', 'dialogue-heads');
+      if (npc) appendSpeakerHead(heads, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
+      const playerCast = el('div', 'event-cast is-player');
+      const pframe = el('div', 'portrait-frame frame-md is-headshot');
+      pframe.append(headshotImg({ portraitId: s.cat.portraitId || PLAYER_STILL, name: s.cat.name }));
+      playerCast.append(pframe, el('div', 'event-cast-name', s.cat.name || ''));
+      heads.append(playerCast);
+      card.append(heads);
       const prose = el('div', 'event-beat scene-log');
       if (SceneLog) SceneLog.append(prose, shown, { catId: s.pending && s.pending.catId, playerId: s.cat && s.cat.catId, playerName: s.cat && s.cat.name, npc: s.pending && s.npcs && s.npcs[s.pending.catId] });
       else prose.append(el('p', logClass(shown, s.cat), speechLine(shown)));
