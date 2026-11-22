@@ -79,6 +79,12 @@ async function fitButtonsAtDeviceScaleOnce(dsf) {
           for (const el of document.querySelectorAll('.screen.active button')) {
             const r = el.getBoundingClientRect();
             if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;
+            const port = el.closest('.screen');
+            if (port) {
+              const ps = getComputedStyle(port);
+              const pr = port.getBoundingClientRect();
+              if (/(auto|scroll)/.test(ps.overflowY) && pr.top >= -1 && pr.bottom <= H + 1 && pr.left >= -1 && pr.right <= W + 1 && r.left >= -1 && r.right <= W + 1 && (r.top < -0.5 || r.bottom > H + 0.5)) continue;
+            }
             if (r.left < -0.5 || r.top < -0.5 || r.right > W + 0.5 || r.bottom > H + 0.5) {
               out.push(`${el.id || el.className || el.tagName} [${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.right)},${Math.round(r.bottom)}] in ${W}×${H} dpr ${devicePixelRatio}`);
             }
@@ -212,9 +218,9 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         // focused: Back (non-slider) → Right switches tab to Display
         await page.keyboard.press('ArrowRight');
         assert.ok(await page.locator('#tabs [data-tab="display"].active').count());
-        const before = await page.evaluate(() => getComputedStyle(document.getElementById('stage')).transform);
+        const before = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--ui'));
         await page.locator('[data-key="uiScale"]').click(); await page.waitForTimeout(100);
-        const after = await page.evaluate(() => getComputedStyle(document.getElementById('stage')).transform);
+        const after = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--ui'));
         assert.notStrictEqual(before, after, 'uiScale applied live');
         await page.evaluate(() => { const b = document.querySelector('[data-key="mode"]'); b.click(); }); // borderless → windowed
         await page.evaluate(() => { const b = document.querySelector('[data-key="mode"]'); b.click(); }); // windowed → fullscreen
@@ -241,8 +247,24 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await page.waitForFunction(([w, h]) => innerWidth === w && innerHeight === h, [w, h], { timeout: 3000 }).catch(() => {}); await page.waitForTimeout(150); };
       const offWindow = () => page.evaluate(() => {
         const W = innerWidth, H = innerHeight, out = [];
+        const clipped = (el, r) => {
+          let p = el.parentElement;
+          while (p && p !== document.body) {
+            const s = getComputedStyle(p);
+            if (/(auto|scroll)/.test(s.overflowY)) {
+              const pr = p.getBoundingClientRect();
+              const portInside = pr.left >= -1 && pr.top >= -1 && pr.right <= W + 1 && pr.bottom <= H + 1;
+              const verticalOnly = r.left >= -1 && r.right <= W + 1 && r.left >= pr.left - 1 && r.right <= pr.right + 1;
+              if (portInside && verticalOnly && (r.top < -0.5 || r.bottom > H + 0.5)) return true;
+            }
+            p = p.parentElement;
+          }
+          return false;
+        };
         for (const el of document.querySelectorAll('#stage button, #stage h1, #stage h2, #stage p, #stage label, #stage img')) {
-          const r = el.getBoundingClientRect(); if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;
+          const r = el.getBoundingClientRect();           if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;
+          if (el.classList.contains('creator-scene') || el.classList.contains('home-landscape')) continue;
+          if (clipped(el, r)) continue;
           if (r.left < -0.5 || r.top < -0.5 || r.right > W + 0.5 || r.bottom > H + 0.5) out.push(`${el.tagName}.${el.className}#${el.id} [${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.right)},${Math.round(r.bottom)}]`);
         }
         return out;

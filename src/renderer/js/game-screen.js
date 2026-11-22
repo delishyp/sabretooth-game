@@ -28,6 +28,22 @@
   const Unlocks = (typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null));
   const PortraitModes = (typeof require === 'function' ? require('./portrait-modes') : (typeof self !== 'undefined' ? self.PortraitModes : null));
   const EncounterArt = (typeof require === 'function' ? require('./encounter-art') : (typeof self !== 'undefined' ? self.EncounterArt : null));
+  const Odds = (typeof require === 'function' ? require('./encounter-engine') : (typeof self !== 'undefined' ? self.EncounterEngine : null));
+  function loadSpotlight() {
+    if (typeof require === 'function') {
+      try { return require('../data/tutorial/spotlight-targets.json'); } catch (e) { /* browser */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/tutorial/spotlight-targets.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) return JSON.parse(xhr.responseText);
+      } catch (e) { /* quiet */ }
+    }
+    return {};
+  }
+  const SPOTLIGHT_TARGETS = loadSpotlight();
   function logClass(line, cat) {
     if (!line || line.kind === 'gap') return 'event-text gap';
     if (line.kind === 'action') return 'event-text action';
@@ -326,7 +342,7 @@
       const ends = el('div', 'meter-ends');
       ends.append(el('span', '', '-100'), el('span', '', '0'), el('span', '', '100'));
       meter.append(track, ends, el('p', 'meter-caption', `Personal · ${who}`));
-      ul.append(meter);
+      ul.append(el('p', 'regard-word', known ? tier : 'Unknown'), meter);
       const pair = s.records && s.records.matePair;
       const mates = !!(pair && pair.mateId === catId);
       if (mates) {
@@ -380,7 +396,7 @@
     }
     function renderChrome() {
       const prideLabel = presentationPrideName(s, run && run.prideName, factionName);
-      $('#home-pride-name').textContent = prideLabel || 'A lone cat';
+      $('#home-pride-name').textContent = prideLabel || 'Loner';
       $('#home-player-name').textContent = s.cat.name;
       const cv = $('#home-cat');
       cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', s.cat.name);
@@ -403,7 +419,6 @@
     function renderNav() {
       const nav = $('#home-nav'); nav.textContent = '';
       nav.setAttribute('aria-label', t('home.nav.label'));
-      const order = ['home', 'wilderness', 'cats', 'lore', 'pride', 'den', 'breeding', 'inventory', 'market', 'map', 'deeds', 'reputation'];
       const icons = {
         home: '<path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 10.8V20h12V10.8"/>',
         wilderness: '<path d="M2.5 19.5 9 8.5l4 6.2 2.8-3.9 5.7 8.7z"/>',
@@ -419,9 +434,14 @@
         reputation: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5 6.9 19.2l1-5.7-4.1-4 5.7-.8z"/>'
       };
       const held = sceneOpen();
-      const items = HomeScene.NAV.slice().sort((a, b) => (order.indexOf(a.id) < 0 ? 99 : order.indexOf(a.id)) - (order.indexOf(b.id) < 0 ? 99 : order.indexOf(b.id)));
-      for (const item of items) {
-        const state = Unlocks ? Unlocks.displayState(s, item.id) : 'open';
+      const openOrder = ['home', 'wilderness', 'map', 'cats', 'lore', 'deeds'];
+      const lockedOrder = ['pride', 'reputation', 'inventory', 'breeding', 'den', 'market', 'map'];
+      const ranked = HomeScene.NAV.map((item) => ({ item, state: Unlocks ? Unlocks.displayState(s, item.id) : 'open' }));
+      const openItems = ranked.filter((row) => row.state !== 'locked').sort((a, b) => (openOrder.indexOf(a.item.id) < 0 ? 99 : openOrder.indexOf(a.item.id)) - (openOrder.indexOf(b.item.id) < 0 ? 99 : openOrder.indexOf(b.item.id)));
+      const lockedItems = ranked.filter((row) => row.state === 'locked').sort((a, b) => (lockedOrder.indexOf(a.item.id) < 0 ? 99 : lockedOrder.indexOf(a.item.id)) - (lockedOrder.indexOf(b.item.id) < 0 ? 99 : lockedOrder.indexOf(b.item.id)));
+      const paint = (row) => {
+        const item = row.item;
+        const state = row.state;
         const b = el('button', 'item' + (state === 'locked' || held ? ' is-locked' : state === 'new' ? ' is-new' : ''));
         b.type = 'button'; b.dataset.g = 'nav'; b.dataset.view = item.id; b.dataset.unlock = state;
         const lock = state === 'locked' ? '<svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg>' : '';
@@ -431,6 +451,13 @@
         else b.title = state === 'locked' && Unlocks ? (Unlocks.opensWhenLine(item.id === 'cats' ? 'smilodons' : item.id) || navLabel(item.id)) : navLabel(item.id);
         if (state !== 'locked' && view === item.id) b.setAttribute('aria-current', 'page');
         nav.append(b);
+      };
+      openItems.forEach(paint);
+      if (lockedItems.length) {
+        const sep = el('div', 'nav-sep');
+        sep.setAttribute('role', 'separator');
+        nav.append(sep);
+        lockedItems.forEach(paint);
       }
     }
     function renderHud() {
@@ -763,14 +790,17 @@
       } else if (av.forced) {
         a.append(el('p', 'forced-note', t(`game.forced.${av.forced}`, { region: av.to ? regionName(av.to) : '' })), btn(t('game.action.continueDay'), { g: 'forced' }, { cls: 'primary' }));
       } else {
-        const actRow = (title, line, cost, attrs) => {
-          const b = btn('', attrs, { cls: 'act' });
-          b.append(el('b', '', title), el('span', '', line), el('i', '', cost));
+        const actRow = (title, line, cost, attrs, extra) => {
+          const b = btn('', attrs, { cls: 'act' + (extra || '') });
+          if (attrs && attrs.g === 'pickHunt') b.append(el('span', 'tag-suit', 'Suits your goal'));
+          b.append(el('b', '', title), el('span', '', line));
+          if (cost) b.append(el('i', '', cost));
           return b;
         };
         const main = el('div', 'sheet-main');
         main.hidden = uiStep !== 'main';
         main.append(el('p', 'kick', "Today's action"));
+        main.append(actRow('Hunt', 'Track prey in this region.', '', { g: 'pickHunt' }, ' is-suggested'));
         main.append(actRow('Rest', 'Rest the day away and get your Energy back.', 'Costs: the day', { g: 'rest' }));
         main.append(actRow('Travel', 'Walk to a neighbouring region.', 'Costs: the day, or more', { g: 'pickTravel' }));
         if ((av.lone || {}).watch) main.append(actRow('Watch from a vantage', 'See which cats pass this ground.', 'Costs: the day', { g: 'watch' }));
@@ -780,7 +810,12 @@
         const hunt = el('div', 'sheet-hunt action-group');
         hunt.hidden = uiStep !== 'hunt';
         hunt.append(el('h3', '', t('game.action.hunt')));
-        for (const size of ['small', 'medium', 'large']) hunt.append(btn(t('game.action.huntSize', { size: t(`game.size.${size}`), chance: av.hunt.chance[size] }), { g: 'hunt', size }, { disabled: !av.hunt.allowed, title: av.hunt.allowed ? '' : t('game.blocked.tired') }));
+        for (const size of ['small', 'medium', 'large']) {
+          const word = av.hunt.word && av.hunt.word[size];
+          const b = btn('', { g: 'hunt', size }, { disabled: !av.hunt.allowed, title: av.hunt.allowed ? '' : t('game.blocked.tired'), cls: 'act' });
+          b.append(el('b', '', t(`game.size.${size}`) + ' prey'), el('span', 'oddsword', word || ''));
+          hunt.append(b);
+        }
         if (!av.hunt.allowed) hunt.append(el('p', 'blocked-note', t('game.blocked.tired')));
         const rest = el('div', 'action-group is-rest'); rest.hidden = true;
         const tr = el('div', 'sheet-travel action-group travel');
@@ -793,16 +828,15 @@
         a.append(main, hunt, rest, tr);
         const primary = $('#day-primary');
         if (primary) {
-          primary.hidden = false;
           if (a.hidden) {
+            primary.hidden = false;
             primary.dataset.g = 'openActions';
             primary.className = 'day-primary primary';
             primary.textContent = "Choose today's action";
           } else if (uiStep === 'main') {
-            primary.dataset.g = 'pickHunt';
-            primary.className = 'day-primary primary is-suggested';
-            primary.replaceChildren(el('span', 'sugg', 'Suits your goal'), document.createTextNode('Hunt'), el('span', 'sub', 'Track prey in this region.'));
+            primary.hidden = true;
           } else {
+            primary.hidden = false;
             primary.dataset.g = 'uiBack';
             primary.className = 'day-primary primary';
             primary.textContent = 'Back';
@@ -881,6 +915,7 @@
           else child.hidden = !(uiMore && uiStep === 'main');
         }
       }
+      markMode();
     }
     function talkNote(o) {
       const place = (o.homeZones || []).map(regionName).join(', ');
@@ -947,7 +982,28 @@
       const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
       const who = cv && cv.parentNode && cv.parentNode.parentNode;
       if (who) who.append(btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
-      card.append(relationMeters(view.catId));
+      const playerCast = el('div', 'event-cast is-player');
+      const pcv = el('canvas', 'event-portrait');
+      pcv.id = 'event-head-player';
+      pcv.width = 256;
+      pcv.height = 256;
+      const pframe = el('div', 'portrait-frame frame-md is-headshot');
+      pframe.dataset.portraitMode = 'headshot';
+      pframe.append(pcv);
+      playerCast.append(pframe, el('div', 'event-cast-name', s.cat.name));
+      card.append(playerCast);
+      const catSpec = { genes: s.cat.genes, sex: s.cat.sex, name: s.cat.name, portraitId: s.cat.portraitId, look: s.cat, stage: s.cat.lifeStage, lifeStage: s.cat.lifeStage };
+      ctx.portrait(catSpec, pcv, { frame: 'head', mode: 'headshot', place: 'dialogue' }).catch(() => {});
+      const heads = el('div', 'dialogue-heads');
+      const npcCast = card.querySelector('.event-cast:not(.is-player)');
+      if (npcCast) heads.append(npcCast);
+      heads.append(playerCast);
+      card.insertBefore(heads, card.firstChild);
+      const meters = relationMeters(view.catId);
+      card.append(meters);
+      const regard = meters.querySelector('.regard-word');
+      const mood = card.querySelector('.speaker-mood');
+      if (regard && mood) mood.textContent = regard.textContent;
       const scroll = el('div', 'event-scroll');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       if (!view.lines.length) scroll.append(el('p', 'event-text', ''));
@@ -1110,7 +1166,7 @@
         scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
       }
       card.append(scroll);
-      card.append(el('p', 'choice-cost', encounterCost(view)));
+      card.append(el('p', 'choice-cost oddsword', encounterOddsWord(view)));
       const ch = el('div', 'event-choices moves');
       if (view.terminal) ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
       else for (const c of view.choices) ch.append(btn(c.label, { g: 'encounterChoose', choice: c.id }, { disabled: !!c.disabled, title: c.reason || '' }));
@@ -1118,6 +1174,16 @@
       const util = el('div', 'talk-utility');
       util.append(btn(t('game.action.save'), { g: 'save' }, { cls: 'talk-save' }));
       card.append(util);
+    }
+    function encounterOddsWord(view) {
+      if (!Odds) return '';
+      const id = String(view.encounterId || '');
+      const hunt = /deer|prey|hunt/.test(id);
+      const f = view.forecast;
+      if (hunt) return Odds.oddsWord((f && f.band) || 'even', 'hunt');
+      if (f && f.tier) return Odds.oddsWord(Odds.tierOddsBand(f.tier), 'fight');
+      if (f && f.stat != null && f.threat != null) return Odds.fightForecast(f.stat, f.threat).word;
+      return Odds.oddsWord('even', 'fight');
     }
     function encounterCost(view) {
       const fill = (text, vars) => String(text).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
@@ -1373,6 +1439,7 @@
       const dock = $('#home-dock');
       if (dock) dock.hidden = view === 'home';
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
+      markMode();
       const evOpen = !$('#game-event').hidden;
       const perkOpen = !!document.getElementById('perk-modal');
       let target = null;
@@ -1382,6 +1449,17 @@
       else if (view === 'wilderness') target = $('#game-actions [data-g="travel"]:not(:disabled)') || $('#game-actions [data-g="forced"]');
       else target = [...$('#game-actions').querySelectorAll('button')].find((b) => !b.disabled);
       ctx.focus(target || null);
+    }
+    function markMode() {
+      const game = document.querySelector('.screen[data-screen="game"]');
+      if (!game || !s) return;
+      let mode = 'home';
+      if (sceneOpen()) mode = 'scene';
+      else if (view !== 'home') mode = 'book';
+      else if (!$('#game-actions').hidden) mode = 'choosing';
+      game.dataset.mode = mode;
+      const drawer = $('#place-drawer');
+      if (drawer) drawer.open = mode === 'home';
     }
     function sceneOpen() {
       return !!(s && ['encounter', 'conversation', 'event', 'eventResult', 'ford', 'border'].includes(s.phase));
@@ -1466,6 +1544,9 @@
     function renderTutorial() {
       const old = document.getElementById('tutorial-card');
       if (old) old.remove();
+      const oldSpot = document.getElementById('spotlight');
+      if (oldSpot) oldSpot.remove();
+      document.querySelectorAll('.is-spotlight').forEach((node) => node.classList.remove('is-spotlight'));
       document.querySelectorAll('.is-tutorial-target').forEach((el) => el.classList.remove('is-tutorial-target'));
       if (!Tutorial || !s) return;
       const shown = Tutorial.sync(s, tutorialFacts());
@@ -1481,17 +1562,39 @@
       if (!shown.card) return;
       const card = el('div', 'event-card tutorial-card');
       card.id = 'tutorial-card';
+      card.style.pointerEvents = 'none';
       card.dataset.tip = shown.card.id;
       if (shown.card.title) card.append(el('h2', 'event-title', shown.card.title));
       card.append(el('p', 'event-text', shown.card.body));
       const row = el('div', 'tutorial-actions');
       const ok = el('button', 'primary', (shown.buttons && shown.buttons.dismiss) || '');
-      ok.type = 'button'; ok.dataset.g = 'tutorialDismiss';
+      ok.type = 'button'; ok.dataset.g = 'tutorialDismiss'; ok.style.pointerEvents = 'auto';
       const off = el('button', '', (shown.buttons && shown.buttons.turnOff) || '');
-      off.type = 'button'; off.dataset.g = 'tutorialOff';
+      off.type = 'button'; off.dataset.g = 'tutorialOff'; off.style.pointerEvents = 'auto';
       row.append(ok, off);
       card.append(row);
+      const where = showSpotlight(shown.card.id);
+      card.dataset.spotlight = where || 'fallback';
       $('#game-main').append(card);
+    }
+    function showSpotlight(id) {
+      const sel = SPOTLIGHT_TARGETS[id];
+      const target = sel ? document.querySelector(sel) : null;
+      const dim = el('div', 'spotlight' + (target ? '' : ' is-fallback'));
+      dim.id = 'spotlight';
+      if (target) {
+        target.classList.add('is-spotlight');
+        const r = target.getBoundingClientRect();
+        const ring = el('div', 'spotlight-ring');
+        ring.style.left = Math.round(r.left) + 'px';
+        ring.style.top = Math.round(r.top) + 'px';
+        ring.style.width = Math.round(r.width) + 'px';
+        ring.style.height = Math.round(r.height) + 'px';
+        ring.append(el('div', 'spotlight-arrow'));
+        dim.append(ring);
+      }
+      document.body.append(dim);
+      return target ? 'anchored' : 'fallback';
     }
     function onClick(b) {
       const d = b.dataset;

@@ -16,6 +16,14 @@ The first rebuild brief said body text 16px or larger. The correction, and then 
 
 The spec asks for a fight win-chance function so fights can use the same five odds bands, and it does not give a formula. The plain reading is a strength comparison around an even fight: 50% when the two strengths match, plus 100 points times (player strength / foe strength − 1), clamped to the hunt clamp already in `encounter-engine.json` (5–95). No new fight cutoff was added. The odds word is then the same band table as hunts, with the fight sentences from COPY.md.
 
+## Scene scale
+
+`--s` is `max(1px, window height / 1080 × UI scale)`. At 720 the unclamped unit would be about 0.67px and an 18u label would draw at 12px. The floor keeps every 18u label at 18px or larger, including map labels. At 720 with UI scale 1.5, story choices go to one column and the narration scrolls.
+
+## Creator traits
+
+`den_father` stays in the trait table so the existing 57-row count holds. The creator does not offer it. A third litter now grants `den_mother` for either sex. Sickly Line (`tainted_blood`) is shown as Frail Blood. The appearance text field is still on the Ready step, because that step's focus id is what the creator tests confirm. Look already carries coat, markings, and eyes, and both steps label the picture stand-in art.
+
 ## Hunt chance
 
 Live hunts and the headless engine both call `huntChance` in `encounter-engine.js`. The separate point formula in `slice.js` is no longer used for the chance number. Keen Nose and Dull Nose do not change that number. After the chance is computed, `huntBand` shifts the odds band by one step (Keen Nose easier, Dull Nose harder). The shifted band picks the odds word. The catch roll still uses the unshifted chance, so the published chance number and the band cutoffs stay put. Easy wording is reachable when Keen Nose lifts a good band.

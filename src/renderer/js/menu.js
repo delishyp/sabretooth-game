@@ -40,21 +40,15 @@
   function scale() {
     const u = Math.min(Math.max(Number(settings.display.uiScale) || 1, 0.5), 2);
     const stage = $('#stage');
-    const game = document.querySelector('.screen[data-screen="game"].active');
-    if (game) {
-      stage.style.width = innerWidth + 'px';
-      stage.style.height = innerHeight + 'px';
-      stage.style.transform = 'translate(-50%, -50%) scale(1)';
-      const px = Math.round(Math.min(28, Math.max(18, innerWidth / 110) * u));
-      document.documentElement.style.fontSize = px + 'px';
-    } else {
-      document.documentElement.style.fontSize = '';
-      const w = 1920 / u, h = 1080 / u;
-      const s = Math.min(innerWidth / w, innerHeight / h);
-      stage.style.width = `${w}px`;
-      stage.style.height = `${h}px`;
-      stage.style.transform = `translate(-50%, -50%) scale(${s})`;
-    }
+    stage.style.width = innerWidth + 'px';
+    stage.style.height = innerHeight + 'px';
+    stage.style.transform = 'translate(-50%, -50%) scale(1)';
+    const px = Math.round(Math.min(28, Math.max(18, innerWidth / 110) * u));
+    document.documentElement.style.fontSize = px + 'px';
+    const unit = Math.max(1, (innerHeight / 1080) * u);
+    document.documentElement.style.setProperty('--ui', String(u));
+    document.documentElement.style.setProperty('--s', unit + 'px');
+    document.documentElement.dataset.choiceStack = (innerHeight <= 720 && u >= 1.5) ? '1' : '2';
     fitActive();
   }
   /** Chrome that sticks out is a layout bug. Full-bleed plates are not chrome, and this never zooms or rescales a screen. */
@@ -207,7 +201,7 @@
 
   // ---------- labels ----------
   const diffName = (id) => copy.difficulties.find((d) => d.id === id)?.name || id;
-  const styleName = (id) => copy.playStyles.find((d) => d.id === id)?.name || id;
+  const styleName = (id) => (id === 'standard' ? 'Balanced' : (copy.playStyles.find((d) => d.id === id)?.name || id));
   const when = (iso) => new Date(iso).toLocaleString();
   const runLabel = (r) => (r.damaged ? t('run.damagedName') : t('run.label', { catName: r.catName, prideName: r.prideName }));
   function runCard(r, i) {
@@ -234,11 +228,11 @@
   function cardButton(kind, d, unavailable) {
     const b = document.createElement('button'); b.className = 'card'; b.dataset.nav = `${kind}:${d.id}`;
     b.innerHTML = '<span class="name"></span><span class="desc"></span>';
-    b.querySelector('.name').textContent = d.name; b.querySelector('.desc').textContent = d.description;
+    b.querySelector('.name').textContent = d.id === 'standard' ? 'Balanced' : d.name; b.querySelector('.desc').textContent = d.description;
     if (unavailable) {
       b.disabled = true;
       b.classList.add('is-unavailable');
-      const note = document.createElement('span'); note.className = 'soon'; note.textContent = 'Not yet available';
+      const note = document.createElement('span'); note.className = 'soon'; note.textContent = "Not yet available. It's coming in a later update.";
       b.append(note);
     }
     return b;
@@ -247,6 +241,10 @@
   const setupStyles = () => (copy.menuLock ? copy.playStyles.filter((d) => copy.menuLock.styles.includes(d.id)) : copy.playStyles);
   const setupDeaths = () => (copy.menuLock ? copy.difficulties.filter((d) => copy.menuLock.difficulties.includes(d.id)) : copy.difficulties);
   function renderSetup() {
+    const styleTitle = document.querySelector(`${SCREEN} [data-t="newGame.styleRow"]`);
+    const deathTitle = document.querySelector(`${SCREEN} [data-t="newGame.deathRuleRow"]`);
+    if (styleTitle) styleTitle.textContent = 'Play style';
+    if (deathTitle) deathTitle.textContent = 'When your cat dies';
     $('#style-cards').replaceChildren(...setupStyles().map((d) => cardButton('style', d, false)));
     const deathOpen = new Set(setupDeaths().map((d) => d.id));
     $('#death-cards').replaceChildren(...copy.difficulties.map((d) => cardButton('death', d, !deathOpen.has(d.id))));
@@ -291,7 +289,7 @@
     const box = $('#level-cards');
     if (!box || !window.Difficulty) return;
     const title = $('#level-title');
-    if (title && window.Deeds && window.Deeds.copy.creator) title.textContent = window.Deeds.copy.creator.difficultyHeading;
+    if (title) title.textContent = 'Difficulty';
     box.replaceChildren(...window.Difficulty.LEVELS.map((id) => {
       const b = document.createElement('button');
       b.className = 'card'; b.type = 'button'; b.dataset.level = id;
@@ -310,8 +308,12 @@
     $('#sandbox-panel').hidden = !sandbox;
     if (sandbox) { renderSandboxRows(); fitSandboxDescs(); }
     const target = replaceRunId && runs.find((r) => r && r.runId === replaceRunId);
-    const vars = { styleName: styleName(setup.style), deathRuleName: diffName(setup.death) };
-    $('#setup-summary').textContent = target ? t('newGame.summaryReplacing', { ...vars, runLabel: runLabel(target) }) : t('newGame.summary', vars);
+    const styleLabel = setup.style === 'standard' ? 'Balanced' : styleName(setup.style);
+    const difficulty = LEVEL_NAMES[setup.level || 'standard'] || 'Standard';
+    const death = diffName(setup.death);
+    $('#setup-summary').textContent = target
+      ? `You picked ${difficulty} difficulty, the ${styleLabel} play style and ${death}. Replaces ${runLabel(target)}.`
+      : `You picked ${difficulty} difficulty, the ${styleLabel} play style and ${death}. You can't change any of them once the story starts.`;
     const tipCopy = (typeof Tutorial !== 'undefined' && Tutorial.copy && Tutorial.copy.newGame) || {};
     const toggle = $('#tutorial-toggle'); const hint = $('#tutorial-hint');
     if (toggle) toggle.textContent = `${tipCopy.label || ''} · ${t(setup.tutorial ? 'common.on' : 'common.off')}`;
@@ -434,26 +436,33 @@
       tabs.append(b);
     }
     wrap.append(tabs, el('p', 'trait-legend', traitHint('ui.traits.lookTag')));
-    const grid = el('div', 'trait-grid');
-    const detail = el('p', 'trait-detail', '');
-    for (const item of api.ROWS.filter((row) => row.group === creator.tab)) {
+    const cols = el('div', 'trait-cols');
+    const strengthCol = el('div', 'trait-col');
+    const flawCol = el('div', 'trait-col');
+    strengthCol.append(el('h3', '', 'Strengths'));
+    flawCol.append(el('h3', '', 'Flaws'));
+    const reasons = { play: 'Earned in play.', blood: 'Passed down a bloodline.', opposite: 'You already picked the other side of this trait.', positives: 'Three strengths already.', negatives: 'Three flaws already.', fight: 'Two fight strengths already.', points: 'Not enough flaw points yet.' };
+    for (const item of api.ROWS.filter((row) => row.group === creator.tab && row.id !== 'den_father')) {
       const spec = api.copy.traits[item.id] || {};
       const on = (creator.picks || []).includes(item.id);
+      const gate = api.toggle(creator.picks || [], item.id);
       const chip = el('button', 'trait-chip' + (on ? ' is-on' : '') + (item.playOnly ? ' is-play' : '') + (item.effect.tag ? ' has-tag' : ''));
       chip.type = 'button'; chip.dataset.pick = item.id;
-      chip.append(el('span', 'trait-name', spec.name || item.id), el('span', 'trait-hint', spec.hint || ''));
+      const name = item.id === 'tainted_blood' ? 'Frail Blood' : (spec.name || item.id);
+      chip.append(el('span', 'trait-name', name), el('span', 'trait-hint', spec.hint || ''));
+      if (!on && gate && gate.ok === false && reasons[gate.reason]) {
+        chip.title = reasons[gate.reason];
+        chip.append(el('span', 'trait-why', reasons[gate.reason]));
+      }
       chip.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('togglePick', item.id); });
-      if (grid.childElementCount >= 5) chip.classList.add('is-extra');
-      grid.append(chip);
+      (item.kind === '-' ? flawCol : strengthCol).append(chip);
     }
-    const moreTraits = el('button', 'more', 'More ' + (creator.tab || 'body') + ' traits');
-    moreTraits.type = 'button';
-    moreTraits.addEventListener('click', (ev) => { ev.stopPropagation(); grid.classList.toggle('show-all'); });
-    grid.append(moreTraits);
+    cols.append(strengthCol, flawCol);
     const focused = (creator.picks || [])[0];
     const shown = api.copy.traits[focused] || api.copy.traits[(creator.focus || '').replace('pick:', '')] || {};
+    const detail = el('p', 'trait-detail', '');
     detail.textContent = shown.flavour ? shown.name + '. ' + shown.flavour : '';
-    wrap.append(grid, detail);
+    wrap.append(cols, detail);
     if (creator.pickReason === 'fight') wrap.append(el('p', 'trait-lock', traitHint('ui.traits.fightLock')));
     return wrap;
   }
@@ -474,7 +483,7 @@
       chip.addEventListener('click', (ev) => { ev.stopPropagation(); creatorDispatch('dropTag', tag); });
       chips.append(chip);
     }
-    wrap.append(box, chips, el('p', 'appearance-note', traitHint('ui.traits.portraitWins')), el('p', 'appearance-room', traitHint('ui.traits.room')));
+    wrap.append(el('p', 'stand-in', 'Stand-in art'), box, chips, el('p', 'appearance-note', traitHint('ui.traits.portraitWins')), el('p', 'appearance-room', traitHint('ui.traits.room')));
     if (look.colourNote) wrap.append(el('p', 'appearance-gentle', traitHint(look.colourNote)));
     if (look.geneNote) wrap.append(el('p', 'appearance-gentle', traitHint(look.geneNote)));
     return wrap;
@@ -498,7 +507,7 @@
   function applyCreator() {
     const c = creator; const sc = $(CSCREEN);
     if (sc.querySelector('#creator-panel').dataset.rows !== panelKey(c)) buildCreatorPanel();
-    const stepName = c.step === 1 ? t('creator.step.look') : c.step === 2 ? t('creator.step.personality') : c.step === 3 ? 'Traits' : 'Appearance';
+    const stepName = c.step === 1 ? t('creator.step.look') : c.step === 2 ? t('creator.step.personality') : c.step === 3 ? 'Traits' : 'Ready';
     $('#creator-step').textContent = t('creator.step.indicator', { n: c.step, total: 4, stepName });
     for (const row of $$('#creator-panel .crow')) {
       const id = row.dataset.row; const help = row.querySelector('.crow-help');
@@ -553,6 +562,13 @@
     $('#creator-rand-help').textContent = t(c.step === 1 ? 'creator.help.randomize' : 'creator.help.randomizePersonality');
     const hintKey = { keyboard: 'creator.hint.keyboard', controller: 'creator.hint.gamepad', mouse: c.step === 2 ? 'creator.hint.mousePersonality' : 'creator.hint.mouse' }[device()] || 'creator.hint.keyboard';
     $('#creator-hint').textContent = t(hintKey);
+    const preview = document.querySelector('.creator-preview');
+    if (preview && !document.getElementById('stand-in-art')) {
+      const cap = document.createElement('p');
+      cap.id = 'stand-in-art';
+      cap.textContent = 'Stand-in art';
+      preview.append(cap);
+    }
     const nm = Creator.normalizeName(c.name) || t('run.defaultCatName');
     const expand = $('#creator-expand'); if (expand) expand.dataset.name = nm;
     $('#creator-canvas').setAttribute('aria-label', t('creator.preview.alt', { catName: nm, sex: optLabel('sex', c.sex).toLowerCase(),

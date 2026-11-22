@@ -334,7 +334,7 @@
     if (event === 'human-flee-lived') add('spear_marked');
     if (event === 'pride-fight-wound') add('torn_ear');
     if (event === 'elder') add('elder_wisdom');
-    if (event === 'three-litters') add(cat && cat.sex === 'male' ? 'den_father' : 'den_mother');
+    if (event === 'three-litters') add('den_mother');
     if (event === 'parent-title') add('heir_of_legend');
     return traits;
   }

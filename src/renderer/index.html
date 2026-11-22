@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="styles/theme.css">
 <link rel="stylesheet" href="styles/menu.css">
 <link rel="stylesheet" href="styles/game-shell.css">
+<link rel="stylesheet" href="styles/redesign.css">
 </head>
 <!-- All visible text is filled from copy ids via data-t (see js/i18n.js). Credits names are data. -->
 <body>
@@ -32,10 +33,10 @@
        Focus never selects; Enter/Space/A/click selects (js/nav.js setupReduce). -->
   <section class="screen" data-screen="newGameSetup">
     <h2 data-t="newGame.title"></h2>
+    <h3 class="row-title" id="level-title">Difficulty</h3>
+    <div class="cards-row" id="level-cards"></div>
     <h3 class="row-title" data-t="newGame.styleRow"></h3>
     <div class="cards-row" id="style-cards"></div>
-    <h3 class="row-title" id="level-title">The season</h3>
-    <div class="cards-row" id="level-cards"></div>
     <div class="setup-death">
       <div><h3 class="row-title" data-t="newGame.deathRuleRow"></h3><div class="cards-row" id="death-cards"></div></div>
       <div id="sandbox-panel" hidden><h3 id="sandbox-title"></h3><div id="sandbox-rows"></div><p class="note" id="sandbox-note"></p></div>
@@ -219,11 +220,11 @@
 <script src="js/territory.js"></script>
 <script src="js/councils.js"></script>
 <script src="js/unlocks.js"></script>
+<script src="js/encounter-engine.js"></script>
 <script src="js/slice.js"></script>
 <script src="js/scene-log.js"></script>
 <script src="js/word-bar.js"></script>
 <script src="js/encounter-screen.js"></script>
-<script src="js/encounter-engine.js"></script>
 <script src="js/directory-panel.js"></script>
 <script src="js/region-map.js"></script>
 <script src="js/lore-book.js"></script>
