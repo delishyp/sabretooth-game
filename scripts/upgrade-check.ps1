@@ -462,7 +462,7 @@ if ($Step -eq 'assert') {
       $folders = @(Read-Lines (Join-Path $OutDir "$name-$when-folders.txt"))
       $local = @($folders | Where-Object { $_ -like 'local|*' })
       $pf = @($folders | Where-Object { $_ -like 'pf|*' -or $_ -like 'pfx86|*' })
-      Add "$name-$when-one-uninstall" ($keys.Count -eq 1 -and $keys[0] -like 'HKCU|*') "count=$($keys.Count) $($keys -join ' || ')"
+      Add "$name-$when-one-uninstall" ($keys.Count -eq 1 -and $keys[0] -like 'HKCU |*') "count=$($keys.Count) $($keys -join ' || ')"
       Add "$name-$when-one-folder" ($local.Count -eq 1 -and $pf.Count -eq 0) "local=$($local.Count) pf=$($pf.Count) $($folders -join ' || ')"
     }
   }

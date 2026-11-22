@@ -94,6 +94,12 @@ jobs:
         shell: pwsh
         run: |
           if (Test-Path upgrade-evidence/transitional-skip.txt) { Get-Content upgrade-evidence/transitional-skip.txt; exit 0 }
+          # The runner kills processes when a step ends, so the feed has to be started in this step.
+          $node = (Get-Command node).Source
+          $out = (Resolve-Path upgrade-evidence).Path
+          Start-Process -FilePath $node -WorkingDirectory $PWD -ArgumentList 'scripts/update-feed-server.js','8765','dist/feed-stable' -WindowStyle Hidden -RedirectStandardOutput (Join-Path $out 'feed-stable-live.log') -RedirectStandardError (Join-Path $out 'feed-stable-live.err')
+          Start-Sleep -Seconds 1
+          Invoke-WebRequest http://127.0.0.1:8765/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-stable-live.yml | Out-Null
           $setup = (Get-Content upgrade-evidence/stable-setup-name.txt -Raw).Trim()
           & ./scripts/upgrade-check.ps1 -Step watch-update -Mode transitional -Label transitional -SetupName $setup -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -115,6 +121,11 @@ jobs:
       - name: Let 0.1.9 check, download, and quitAndInstall(true, true)
         shell: pwsh
         run: |
+          $node = (Get-Command node).Source
+          $out = (Resolve-Path upgrade-evidence).Path
+          Start-Process -FilePath $node -WorkingDirectory $PWD -ArgumentList 'scripts/update-feed-server.js','8766','dist/feed-test' -WindowStyle Hidden -RedirectStandardOutput (Join-Path $out 'feed-test-live.log') -RedirectStandardError (Join-Path $out 'feed-test-live.err')
+          Start-Sleep -Seconds 1
+          Invoke-WebRequest http://127.0.0.1:8766/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-test-live.yml | Out-Null
           $setup = (Get-Content upgrade-evidence/test-setup-name.txt -Raw).Trim()
           & ./scripts/upgrade-check.ps1 -Step watch-update -Mode in-app -Label in-app -FeedUrl http://127.0.0.1:8766 -SetupName $setup -ExpectExe 'dist/test/win-unpacked/Sabretooth.exe'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
