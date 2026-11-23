@@ -801,7 +801,9 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.convers
   position: relative !important;
   flex: none !important;
   border-radius: 10px !important;
-  border: 2px solid #a8834f !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: inset 0 0 0 2px #a8834f !important;
   background: #3b2c1e !important;
 }
 .event-card.has-beats .event-cast-name,
@@ -836,8 +838,34 @@ html[data-choice-stack="1"] .event-card.has-meet .event-choices { grid-template-
 .event-card.has-meet .relation-romance,
 .event-card.has-meet .relation-faction { font-size: 18px !important; }
 .event-card.has-meet .relation-meters { flex: 0 0 auto; width: 100%; }
+#game-event .portrait-frame.is-headshot {
+  overflow: hidden !important;
+  position: relative !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-sizing: border-box !important;
+  box-shadow: inset 0 0 0 2px #a8834f !important;
+}
+/* Head box x 0.5856 y 0 w 0.4144 h 0.5525, scaled so that square fills the frame. */
 #game-event .event-card.has-beats img.headshot,
-#game-event .event-card.has-meet img.headshot {
+#game-event .event-card.has-meet img.headshot,
+#game-event img.headshot {
+  position: absolute !important;
+  inset: auto !important;
+  top: 0 !important;
+  left: calc(-0.5856 / 0.4144 * 100%) !important;
+  width: calc(100% / 0.4144) !important;
+  height: calc(100% / 0.5525) !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: 79% 28% !important;
+  display: block !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+#game-event .portrait-frame.is-headshot > canvas {
   position: absolute !important;
   inset: 0 !important;
   left: 0 !important;
@@ -846,25 +874,16 @@ html[data-choice-stack="1"] .event-card.has-meet .event-choices { grid-template-
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
+  aspect-ratio: auto !important;
   object-fit: cover !important;
-  object-position: 79% 28% !important;
-}
-#game-event .portrait-frame.is-headshot { overflow: hidden !important; position: relative !important; }
-#game-event img.headshot {
-  position: absolute !important;
-  inset: auto !important;
-  top: 0 !important;
-  left: -142% !important;
-  width: 242% !important;
-  height: auto !important;
-  max-width: none !important;
-  max-height: none !important;
-  object-fit: fill !important;
-  object-position: center top !important;
+  object-position: center center !important;
   display: block !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
+}
+#game-event .portrait-frame.is-headshot:has(> img.headshot) > canvas {
+  opacity: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  pointer-events: none !important;
 }
 .card.is-unavailable { opacity: 0.72; }
 .card.is-unavailable .soon { display: block; color: #d2c1a5; font-size: 18px; margin-top: 6px; }
@@ -934,13 +953,18 @@ html[data-choice-stack="1"] .event-card.has-meet .event-choices { grid-template-
     overflow: visible !important;
   }
   html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-player.encounter-panel,
-  html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.encounter-panel,
+  html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.encounter-panel {
+    bottom: auto !important;
+    top: calc(96 * var(--s)) !important;
+    height: calc(30vh - 96 * var(--s) - 8px) !important;
+    max-height: none !important;
+  }
   .screen[data-screen="game"] .scene-actor.is-player.encounter-panel,
   .screen[data-screen="game"] .scene-actor.is-foe.encounter-panel {
     bottom: auto !important;
-    top: calc(112 * var(--s)) !important;
-    height: 16vh !important;
-    max-height: 120px !important;
+    top: calc(98 * var(--s)) !important;
+    height: calc(34vh - 98 * var(--s) - 8px) !important;
+    max-height: 240px !important;
   }
   .event-card.has-meet .portrait-frame.is-headshot {
     width: 72px !important;

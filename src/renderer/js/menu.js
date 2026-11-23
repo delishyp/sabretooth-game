@@ -78,25 +78,60 @@
   function placeToasts() {
     const box = $('#toasts');
     if (!box) return;
-    const shell = document.querySelector('.shell-top');
-    const hud = document.querySelector('#game-hud');
-    const edge = shell && shell.getBoundingClientRect().height ? shell.getBoundingClientRect().bottom : (hud ? hud.getBoundingClientRect().bottom : 0);
-    box.style.setProperty('top', Math.round(Math.max(8, edge) + 8) + 'px', 'important');
+    const toastEl = box.querySelector('.toast');
+    const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+    const rectOf = (el) => {
+      if (!el || el.hidden) return null;
+      const s = getComputedStyle(el);
+      if (s.display === 'none' || s.visibility === 'hidden') return null;
+      const r = el.getBoundingClientRect();
+      return r.width > 4 && r.height > 4 ? r : null;
+    };
+    const blockers = [];
+    const add = (el) => { const r = rectOf(el); if (r) blockers.push(r); };
+    add(document.querySelector('.shell-top'));
+    add(document.querySelector('#game-hud'));
+    document.querySelectorAll('.home-panel-title, #home-panel h2, #game-event .event-title, #day-primary').forEach(add);
     box.style.setProperty('bottom', 'auto', 'important');
+    box.style.setProperty('z-index', '30', 'important');
     box.style.setProperty('left', '50%', 'important');
     box.style.setProperty('right', 'auto', 'important');
     box.style.setProperty('transform', 'translateX(-50%)', 'important');
-    box.style.setProperty('z-index', '30', 'important');
+    const shell = rectOf(document.querySelector('.shell-top'));
+    let top = shell ? shell.bottom + 8 : 8;
+    const setTop = (value) => box.style.setProperty('top', Math.round(value) + 'px', 'important');
+    setTop(top);
+    if (!toastEl) return;
+    for (let i = 0; i < 8; i++) {
+      const tr = toastEl.getBoundingClientRect();
+      let next = top;
+      for (const b of blockers) if (hits(tr, b)) next = Math.max(next, b.bottom + 8);
+      if (next + tr.height > innerHeight - 8) break;
+      if (Math.abs(next - top) < 1) return;
+      top = next;
+      setTop(top);
+    }
+    const placed = toastEl.getBoundingClientRect();
+    if (!blockers.some((b) => hits(placed, b))) return;
+    box.style.setProperty('left', 'auto', 'important');
+    box.style.setProperty('right', '16px', 'important');
+    box.style.setProperty('transform', 'none', 'important');
+    setTop(shell ? shell.bottom + 8 : 8);
   }
   function clearToasts() {
     const box = $('#toasts');
     if (box) box.replaceChildren();
   }
   function toast(text) {
-    const el = document.createElement('div'); el.className = 'toast'; el.textContent = text;
-    $('#toasts').appendChild(el);
+    const box = $('#toasts');
+    if (!box) return;
+    box.replaceChildren();
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = text;
+    box.appendChild(el);
     placeToasts();
-    setTimeout(() => el.remove(), 5000);
+    setTimeout(() => { if (el.isConnected) el.remove(); }, 5000);
   }
   api.onToast(({ id, vars, text }) => toast(id ? t(id, vars) : text));
 

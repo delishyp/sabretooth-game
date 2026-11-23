@@ -256,7 +256,8 @@ function probe() {
           if (!inside(cr, pr)) out.push('card outside panel');
           const texts = [...document.querySelectorAll('#game-event .event-cast-name, #game-event .speaker-mood, #game-event .event-beat, #game-event .event-title, #game-event .event-choices, #game-event .relation-meters, #game-event .portrait-expand')];
           const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
-          if (!frames.length) out.push('no head');
+          if (frames.length < 2) out.push('no head');
+          if (!document.querySelector('#game-event .event-cast.is-player .portrait-frame.is-headshot')) out.push('no player frame');
           for (const frame of frames) {
             const fr = frame.getBoundingClientRect();
             if (fr.width < 8) { out.push('tiny head'); continue; }
@@ -264,10 +265,16 @@ function probe() {
             if (fr.top < -1 || fr.left < -1 || fr.bottom > H + 2 || fr.right > W + 2) out.push('frame offscreen');
             if (!inside(fr, pr) || !inside(fr, cr)) out.push('frame outside');
             const img = frame.querySelector('img.headshot');
-            if (!img || !img.complete || img.naturalWidth < 1) out.push('head unloaded');
+            const canvas = frame.querySelector('canvas');
+            const shown = img && img.complete && img.naturalWidth > 0 ? img : canvas;
+            if (!shown) { out.push('head unloaded'); continue; }
+            if (shown.tagName === 'IMG' && shown.naturalWidth < 32) out.push('head unloaded');
+            if (shown.tagName === 'CANVAS' && shown.width < 8) out.push('head unloaded');
+            const fit = getComputedStyle(shown).objectFit;
+            if (fit !== 'cover') out.push('not cover');
             const clip = getComputedStyle(frame).overflow;
             if (clip !== 'hidden') out.push('head overflow');
-            const ir = img ? img.getBoundingClientRect() : fr;
+            const ir = shown.getBoundingClientRect();
             const seen = {
               left: Math.max(ir.left, fr.left), top: Math.max(ir.top, fr.top),
               right: Math.min(ir.right, fr.right), bottom: Math.min(ir.bottom, fr.bottom)
@@ -319,7 +326,15 @@ function probe() {
             if (!loaded) out.push(kind + ' unloaded');
             const r = el.getBoundingClientRect();
             if (r.width < 40 || r.height < 40) out.push(kind + ' tiny');
+            if (innerHeight <= 800) {
+              const floor = document.documentElement.dataset.choiceStack === '1' ? 100 : 130;
+              if (r.height < floor) out.push(kind + ' short ' + Math.round(r.height));
+            }
             if (r.top < -2 || r.left < -2 || r.bottom > H + 2 || r.right > W + 2) out.push(kind + ' offscreen');
+            const hud = document.querySelector('#game-hud');
+            const choices = document.querySelector('#game-event .event-choices');
+            if (cover(r, hud && hud.getBoundingClientRect()) > 0.02) out.push(kind + ' on hud');
+            if (cover(r, choices && choices.getBoundingClientRect()) > 0.02) out.push(kind + ' on choices');
             if (cover(r, navBox) > 0.22) out.push(kind + ' under nav');
             if (cover(r, panelBox) > 0.22) out.push(kind + ' under panel');
             boxes[kind] = r;
@@ -509,14 +524,31 @@ function probe() {
         await page.evaluate(() => { const box = document.getElementById('game-actions'); if (box) box.hidden = true; window.__menuDebug.game().render(); });
       }
     }
+    await fit(1280, 720, 1);
+    await page.locator('[data-view="lore"]').click();
+    await page.waitForTimeout(80);
+    await page.locator('[data-view="inventory"]').click();
+    await page.waitForTimeout(40);
     await page.locator('[data-view="market"]').click();
     await page.waitForTimeout(80);
     const toastPlace = await page.evaluate(() => {
-      const hits = (a, b) => a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      const out = [];
+      const toasts = [...document.querySelectorAll('.toast')];
+      if (toasts.length !== 1) out.push('toast count ' + toasts.length);
+      const toast = toasts[0];
+      if (!toast) return out.concat(['missing toast']);
+      if (!/trade offer/.test(toast.textContent || '')) out.push('not newest ' + (toast.textContent || ''));
+      const tr = toast.getBoundingClientRect();
       const hud = document.querySelector('#game-hud');
-      const toast = document.querySelector('.toast');
-      if (!toast || !hud) return ['missing toast'];
-      return hits(toast.getBoundingClientRect(), hud.getBoundingClientRect()) ? ['toast on hud'] : [];
+      const shell = document.querySelector('.shell-top');
+      const title = document.querySelector('.home-panel-title');
+      const action = document.querySelector('#day-primary');
+      if (hud && hits(tr, hud.getBoundingClientRect())) out.push('toast on hud');
+      if (shell && hits(tr, shell.getBoundingClientRect())) out.push('toast on shell');
+      if (title && hits(tr, title.getBoundingClientRect())) out.push('toast on heading');
+      if (action && hits(tr, action.getBoundingClientRect())) out.push('toast on action');
+      return out;
     });
     assert.deepStrictEqual(toastPlace, [], 'market toast ' + toastPlace.join(' | '));
     await page.locator('[data-view="map"]').click();
@@ -617,35 +649,100 @@ function probe() {
       }
     }
     await page.evaluate(() => window.__menuDebug.gamePatch({ phase: 'day', encounters: { pending: null } }));
-    const plain = await page.evaluate(() => {
+    const roster = await page.evaluate(() => {
       const s = window.__menuDebug.game().state;
-      const leaders = { highcrag: 'hc01', bonefield: 'bf01', mistwood: 'mw01' };
-      const id = Object.keys(s.npcs || {}).find((key) => {
-        const n = s.npcs[key];
-        return n && n.portraitId && leaders[n.faction] !== n.id;
-      });
-      if (!id) return null;
-      window.__menuDebug.forceMeeting(id);
+      const want = ['hc02', 'hc03', 'bf02', 'bf03', 'mw02', 'mw03', 'ln02', 'ln05'];
+      const picks = want.filter((id) => s.npcs[id] && !['hc01', 'bf01', 'mw01'].includes(id));
+      s.cat.name = 'Glacierheart';
+      if (s.npcs.hc02) s.npcs.hc02.name = 'Slatemark';
+      window.__menuDebug.forceMeeting('hc02');
       const card = document.querySelector('#game-event .event-card');
       return {
-        id,
-        name: s.npcs[id].name,
+        picks,
         hasBeats: !!(card && card.classList.contains('has-beats')),
-        hasMeet: !!(card && card.classList.contains('has-meet'))
+        hasMeet: !!(card && card.classList.contains('has-meet')),
+        names: [...document.querySelectorAll('#game-event .event-cast-name')].map((el) => el.textContent)
       };
     });
-    assert.ok(plain && plain.hasMeet && !plain.hasBeats, 'plain first meeting ' + JSON.stringify(plain));
+    assert.deepStrictEqual(roster.picks, ['hc02', 'hc03', 'bf02', 'bf03', 'mw02', 'mw03', 'ln02', 'ln05']);
+    assert.ok(roster.hasMeet && !roster.hasBeats, 'plain first meeting ' + JSON.stringify(roster));
+    assert.ok(roster.names.includes('Glacierheart') && roster.names.includes('Slatemark'), roster.names.join(','));
+    const headGaps = () => page.evaluate(() => {
+      const out = [];
+      const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+      if (!document.querySelector('#game-event .event-cast.is-player .portrait-frame.is-headshot')) out.push('no player frame');
+      for (const frame of frames) {
+        const fr = frame.getBoundingClientRect();
+        const img = frame.querySelector('img.headshot');
+        const canvas = frame.querySelector('canvas');
+        const shown = img && img.complete && img.naturalWidth > 0 ? img : canvas;
+        if (!shown) { out.push('head unloaded'); continue; }
+        const ir = shown.getBoundingClientRect();
+        const seenW = Math.max(0, Math.min(ir.right, fr.right) - Math.max(ir.left, fr.left));
+        const seenH = Math.max(0, Math.min(ir.bottom, fr.bottom) - Math.max(ir.top, fr.top));
+        if (seenW * seenH < fr.width * fr.height * 0.9) out.push('crop gap');
+        if (getComputedStyle(shown).objectFit !== 'cover') out.push('not cover');
+      }
+      return out;
+    });
     for (const [w, h] of SIZES) {
       for (const u of SCALES) {
         await fit(w, h, u);
-        await page.evaluate(() => window.__menuDebug.game().render());
+        for (const id of roster.picks) {
+          await page.evaluate((slot) => window.__menuDebug.forceMeeting(slot), id);
+          await page.waitForFunction(() => {
+            const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+            return frames.length >= 2 && frames.every((frame) => {
+              const img = frame.querySelector('img.headshot');
+              const canvas = frame.querySelector('canvas');
+              return (img && img.complete && img.naturalWidth > 0) || (canvas && canvas.width > 8);
+            });
+          }, null, { timeout: 8000 });
+          const gaps = await headGaps();
+          assert.deepStrictEqual(gaps, [], `first-meeting ${id} ${w}x${h} u${u} ` + gaps.join(' | '));
+        }
+        await page.evaluate(() => window.__menuDebug.forceMeeting('hc02'));
         await shoot(`first-meeting-${w}x${h}-u${String(u).replace('.', '')}`);
       }
     }
+    await fit(1280, 720, 1);
+    const assignments = Object.entries(require(path.join(root, 'src/renderer/data/npc-portrait-defaults.json')).assignments);
+    assert.strictEqual(assignments.length, 39);
+    for (const [slot, spec] of assignments) {
+      await page.evaluate(({ slot, portraitId }) => {
+        const s = window.__menuDebug.game().state;
+        const npc = s.npcs[slot];
+        if (portraitId) {
+          s.cat.portraitId = portraitId;
+          npc.portraitId = portraitId;
+        } else npc.portraitId = null;
+        window.__menuDebug.forceMeeting(slot);
+      }, { slot, portraitId: spec.id || null });
+      await page.waitForFunction(() => {
+        const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+        return frames.length >= 1 && frames.every((frame) => {
+          const img = frame.querySelector('img.headshot');
+          const canvas = frame.querySelector('canvas');
+          return (img && img.complete && img.naturalWidth > 0) || (canvas && canvas.width > 8);
+        });
+      }, null, { timeout: 8000 });
+      const gaps = await headGaps();
+      assert.deepStrictEqual(gaps, [], 'portrait ' + slot + ' ' + gaps.join(' | '));
+    }
+    await page.evaluate(() => {
+      const s = window.__menuDebug.game().state;
+      s.cat.portraitId = 'cat-6e2d788dd48ff440';
+      s.npcs.hc02.portraitId = 'cat-6e2d788dd48ff440';
+      window.__menuDebug.forceMeeting('hc02');
+    });
+    await page.waitForFunction(() => [...document.querySelectorAll('#game-event img.headshot')].every((img) => img.complete && img.naturalWidth > 0), null, { timeout: 8000 });
+    const playerStill = await headGaps();
+    assert.deepStrictEqual(playerStill, [], 'player still ' + playerStill.join(' | '));
     const npc = await page.evaluate(() => {
       const s = window.__menuDebug.game().state;
-      const id = Object.keys(s.npcs || {}).find((key) => s.npcs[key] && s.npcs[key].portraitId);
-      return id ? window.__menuDebug.forceMeeting(id) : null;
+      const id = 'hc02';
+      if (!s.npcs[id] || !s.npcs[id].portraitId) return null;
+      return window.__menuDebug.forceMeeting(id);
     });
     if (npc) {
       for (const [w, h] of SIZES) {

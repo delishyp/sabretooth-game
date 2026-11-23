@@ -2,6 +2,7 @@ name: Upgrade check
 # Local feeds only. scripts/build-win-feed.js sets publish to never.
 # Includes the non-leader first-meeting safe area and the gate nits.
 # Choice rows stay fully on screen at 720.
+# Headshots fill the square. One toast. Larger animals at 720.
 on:
   workflow_dispatch:
   push:

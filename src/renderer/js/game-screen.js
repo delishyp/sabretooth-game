@@ -1634,10 +1634,10 @@
       if (sceneOpen()) return;
       const next = HomeScene.selectView(view, id);
       if (next.unavailable) {
-        ctx.toast(t('home.unavailable', { section: navLabel(next.unavailable) }));
         tutorialPulse = { unavailable: true };
         render();
         tutorialPulse = null;
+        ctx.toast(t('home.unavailable', { section: navLabel(next.unavailable) }));
         return;
       }
       view = next.view; render();
@@ -1882,10 +1882,10 @@
         if (Unlocks) {
           const picked = Unlocks.selectSection(s, d.view);
           if (picked.opensWhen) {
-            ctx.toast(picked.opensWhen);
             tutorialPulse = { unavailable: true };
             render();
             tutorialPulse = null;
+            ctx.toast(picked.opensWhen);
             return;
           }
           const key = d.view === 'cats' ? 'smilodons' : d.view;
