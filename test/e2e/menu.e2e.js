@@ -487,12 +487,12 @@ const waitState = (page, state) => page.waitForFunction((s) => window.__menuDebu
         await page.locator('[data-row="sex"] .arrow[data-arrow="-1"]').click();
         assert.notStrictEqual((await model(page)).sex, m.sex);
         await page.locator('[data-row="portrait"]').hover(); m = await model(page); assert.strictEqual(m.focus, 'portrait');
-        assert.strictEqual(await page.locator('#creator-hint').textContent(), 'Click the arrows to change a row, then Next.');
+        assert.strictEqual(await page.locator('#creator-hint').textContent(), 'Click a button to change your cat, then Next.');
         await page.locator('[data-cnav="randomize"]').click(); const r = await model(page);
         assert.notStrictEqual(r.portraitId, m.portraitId);
         await page.locator('#creator-name').click(); await page.keyboard.press('Control+A'); await page.keyboard.type('Mouse Cat');
         await page.locator('[data-cnav="next"]').click(); assert.strictEqual((await model(page)).step, 2);
-        assert.strictEqual(await page.locator('#creator-hint').textContent(), 'Drag a slider or pick a preset, then Start.');   // C5
+        assert.strictEqual(await page.locator('#creator-hint').textContent(), 'Drag a slider or pick a preset, then Next.');   // C5
         await page.locator('[data-row="preset"] .arrow[data-arrow="-1"]').click(); assert.strictEqual((await model(page)).preset, 'guardian');
         const box = await page.locator('[data-row="trait:curiosity"] .track').boundingBox();
         await page.mouse.click(box.x + box.width - 1, box.y + box.height / 2);
