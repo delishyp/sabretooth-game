@@ -926,7 +926,9 @@ html[data-choice-stack="1"] .event-card.has-meet .event-choices { grid-template-
   }
   .screen[data-screen="game"] #game-event .encounter-card .story-copy,
   .screen[data-screen="game"] #game-event .encounter-card .event-scroll,
-  .screen[data-screen="game"] #game-event .encounter-flavor {
+  .screen[data-screen="game"] #game-event .encounter-flavor,
+  .screen[data-screen="game"] #game-event .encounter-card .event-choices,
+  .screen[data-screen="game"] #game-event .encounter-card .story-row .event-choices {
     max-height: none !important;
     height: auto !important;
     overflow: visible !important;
@@ -962,7 +964,29 @@ html[data-choice-stack="1"] .event-card.has-meet .event-choices { grid-template-
     max-height: none !important;
     flex: 0 0 auto !important;
   }
-  html[data-choice-stack="1"] .event-card.has-meet .event-choices {
+  html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .event-card.has-meet .event-choices,
+  html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .event-card.has-beats .event-choices {
+    display: grid !important;
     grid-template-columns: 1fr 1fr !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
   }
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-meet),
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-beats),
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.encounter-card) {
+  top: max(calc(108 * var(--s)), 30vh) !important;
+  bottom: 8px !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: hidden !important;
+  align-items: stretch !important;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .encounter-card .story-row .event-choices,
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .encounter-card .event-choices {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-self: stretch !important;
 }

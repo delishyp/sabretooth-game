@@ -145,6 +145,25 @@ function probe() {
       const file = path.join(out, name + '.png');
       await page.screenshot({ path: file });
       shots.push(file);
+      const choiceInside = async () => page.evaluate(() => {
+        const card = document.querySelector('#game-event .event-card');
+        const box = document.querySelector('#game-event .event-choices');
+        const out = [];
+        if (!card || !box) return ['no choices'];
+        if (box.scrollHeight > box.clientHeight + 1) out.push('choices scroll ' + box.scrollHeight + '>' + box.clientHeight);
+        const cr = card.getBoundingClientRect();
+        const W = innerWidth, H = innerHeight;
+        const inside = (a, b) => a.top >= b.top - 1 && a.left >= b.left - 1 && a.bottom <= b.bottom + 1 && a.right <= b.right + 1;
+        const buttons = [...box.querySelectorAll('button')];
+        if (!buttons.length) out.push('no choice buttons');
+        for (const b of buttons) {
+          const r = b.getBoundingClientRect();
+          if (r.height < 8 || r.width < 8) { out.push('choice tiny'); continue; }
+          if (!inside(r, cr)) out.push('choice outside card');
+          if (r.top < -1 || r.left < -1 || r.bottom > H + 1 || r.right > W + 1) out.push('choice outside viewport');
+        }
+        return out;
+      });
       const problems = await page.evaluate(probe);
       const chrome = await page.evaluate(() => {
         const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
@@ -171,6 +190,10 @@ function probe() {
         return out;
       });
       assert.deepStrictEqual(problems.concat(chrome), [], name + ' ' + problems.concat(chrome).join(' | '));
+      if (/^(first-meeting|dialogue|encounter)-/.test(name)) {
+        const fitted = await choiceInside();
+        assert.deepStrictEqual(fitted, [], name + ' choice fit ' + fitted.join(' | '));
+      }
       if (name.startsWith('map-')) {
         const mapFit = await page.evaluate(() => {
           const ids = [...document.querySelectorAll('.region-node')].map((el) => el.dataset.region).sort();
