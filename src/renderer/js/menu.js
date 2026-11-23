@@ -91,7 +91,7 @@
     const add = (el) => { const r = rectOf(el); if (r) blockers.push(r); };
     add(document.querySelector('.shell-top'));
     add(document.querySelector('#game-hud'));
-    document.querySelectorAll('.home-panel-title, #home-panel h2, #game-event .event-title, #day-primary').forEach(add);
+    document.querySelectorAll('.home-panel-title, #home-panel h2, #game-event .event-title, #day-primary, .lore-tabs, .lore-tabs button').forEach(add);
     box.style.setProperty('bottom', 'auto', 'important');
     box.style.setProperty('z-index', '30', 'important');
     box.style.setProperty('left', '50%', 'important');
@@ -1168,6 +1168,12 @@
       const mode = placeMode === 'headshot' || opts.frame === 'head' || opts.mode === 'headshot' ? 'headshot' : 'full';
       canvas.dataset.portraitMode = mode;
       if (mode === 'headshot' && art) head = art.crop;
+      if (mode === 'headshot' && !cub && typeof HeadCrop !== 'undefined' && HeadCrop.fractionFor) {
+        const sex = (spec && (spec.sex || (spec.look && spec.look.sex))) || 'female';
+        const key = composed ? ('pose-' + (sex === 'male' ? 'male' : 'female')) : (entry.id || (spec && spec.portraitId));
+        const measured = key && HeadCrop.fractionFor(key);
+        if (measured) head = measured;
+      }
       if (mode === 'headshot') PortraitView.blitHead(off, canvas, head);
       else { canvas.width = off.width; canvas.height = off.height; canvas.getContext('2d').drawImage(off, 0, 0); }
       return { ok: true, id: shownId, runtime, stale: false };

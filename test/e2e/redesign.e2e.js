@@ -544,9 +544,14 @@ function probe() {
       const shell = document.querySelector('.shell-top');
       const title = document.querySelector('.home-panel-title');
       const action = document.querySelector('#day-primary');
+      const tabs = document.querySelector('.lore-tabs');
       if (hud && hits(tr, hud.getBoundingClientRect())) out.push('toast on hud');
       if (shell && hits(tr, shell.getBoundingClientRect())) out.push('toast on shell');
       if (title && hits(tr, title.getBoundingClientRect())) out.push('toast on heading');
+      if (tabs && hits(tr, tabs.getBoundingClientRect())) out.push('toast on tabs');
+      for (const tab of document.querySelectorAll('.lore-tabs button')) {
+        if (hits(tr, tab.getBoundingClientRect())) { out.push('toast on tab'); break; }
+      }
       if (action && hits(tr, action.getBoundingClientRect())) out.push('toast on action');
       return out;
     });
@@ -694,8 +699,12 @@ function probe() {
             const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
             return frames.length >= 2 && frames.every((frame) => {
               const img = frame.querySelector('img.headshot');
+              if (img) return img.complete && img.naturalWidth > 0;
               const canvas = frame.querySelector('canvas');
-              return (img && img.complete && img.naturalWidth > 0) || (canvas && canvas.width > 8);
+              if (!canvas || canvas.width < 8) return false;
+              const fr = frame.getBoundingClientRect();
+              const cr = canvas.getBoundingClientRect();
+              return cr.width >= fr.width * 0.9 && cr.height >= fr.height * 0.9;
             });
           }, null, { timeout: 8000 });
           const gaps = await headGaps();
@@ -722,22 +731,38 @@ function probe() {
         const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
         return frames.length >= 1 && frames.every((frame) => {
           const img = frame.querySelector('img.headshot');
+          if (img) return img.complete && img.naturalWidth > 0;
           const canvas = frame.querySelector('canvas');
-          return (img && img.complete && img.naturalWidth > 0) || (canvas && canvas.width > 8);
+          if (!canvas || canvas.width < 8) return false;
+          const fr = frame.getBoundingClientRect();
+          const cr = canvas.getBoundingClientRect();
+          return cr.width >= fr.width * 0.9 && cr.height >= fr.height * 0.9;
         });
       }, null, { timeout: 8000 });
       const gaps = await headGaps();
       assert.deepStrictEqual(gaps, [], 'portrait ' + slot + ' ' + gaps.join(' | '));
+      await shoot('portrait-' + slot + '-1280x720-u1');
     }
-    await page.evaluate(() => {
-      const s = window.__menuDebug.game().state;
-      s.cat.portraitId = 'cat-6e2d788dd48ff440';
-      s.npcs.hc02.portraitId = 'cat-6e2d788dd48ff440';
-      window.__menuDebug.forceMeeting('hc02');
-    });
-    await page.waitForFunction(() => [...document.querySelectorAll('#game-event img.headshot')].every((img) => img.complete && img.naturalWidth > 0), null, { timeout: 8000 });
-    const playerStill = await headGaps();
-    assert.deepStrictEqual(playerStill, [], 'player still ' + playerStill.join(' | '));
+    await fit(1280, 720, 1);
+    const coats = [
+      ['Tan', 'cat-6477d01534355420'],
+      ['Gray', 'cat-2fe9cb1d7fac044f'],
+      ['Brown', 'cat-6e2d788dd48ff440'],
+      ['Black', 'cat-8ac6058de8429d56'],
+      ['Sandy', 'cat-4cd271c4c8628739']
+    ];
+    for (const [coat, portraitId] of coats) {
+      await page.evaluate((id) => {
+        const s = window.__menuDebug.game().state;
+        s.cat.portraitId = id;
+        s.npcs.hc02.portraitId = id;
+        window.__menuDebug.forceMeeting('hc02');
+      }, portraitId);
+      await page.waitForFunction(() => [...document.querySelectorAll('#game-event img.headshot')].every((img) => img.complete && img.naturalWidth > 0), null, { timeout: 8000 });
+      const coatGaps = await headGaps();
+      assert.deepStrictEqual(coatGaps, [], 'player ' + coat + ' ' + coatGaps.join(' | '));
+      await shoot('portrait-coat-' + coat + '-1280x720-u1');
+    }
     const npc = await page.evaluate(() => {
       const s = window.__menuDebug.game().state;
       const id = 'hc02';

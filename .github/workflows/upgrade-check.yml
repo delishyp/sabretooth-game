@@ -3,6 +3,7 @@ name: Upgrade check
 # Includes the non-leader first-meeting safe area and the gate nits.
 # Choice rows stay fully on screen at 720.
 # Headshots fill the square. One toast. Larger animals at 720.
+# Per-still head boxes, ears inside, toast clear of the Lore tabs.
 on:
   workflow_dispatch:
   push:

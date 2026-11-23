@@ -27,6 +27,7 @@
   const Councils = (typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null));
   const Unlocks = (typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null));
   const PortraitModes = (typeof require === 'function' ? require('./portrait-modes') : (typeof self !== 'undefined' ? self.PortraitModes : null));
+  const HeadCrop = (typeof require === 'function' ? require('./head-crop') : (typeof self !== 'undefined' ? self.HeadCrop : null));
   const EncounterArt = (typeof require === 'function' ? require('./encounter-art') : (typeof self !== 'undefined' ? self.EncounterArt : null));
   const Odds = (typeof require === 'function' ? require('./encounter-engine') : (typeof self !== 'undefined' ? self.EncounterEngine : null));
   function loadSpotlight() {
@@ -82,6 +83,7 @@
     img.alt = (cat && cat.name) || '';
     const id = (cat && cat.portraitId) || '';
     img.dataset.portraitId = id;
+    if (id && HeadCrop && HeadCrop.apply) HeadCrop.apply(img, id);
     if (id) img.src = '../../assets/portraits/cats/' + id + '.png';
     return img;
   }
