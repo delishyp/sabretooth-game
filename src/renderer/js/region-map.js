@@ -101,35 +101,86 @@
     return Territory.lead(state.map.claims, id).holder || 'neutral';
   }
   /**
-   * Place name chips in north-to-south rows so no two boxes intersect.
-   * chipW and chipH, when set, are the measured label size.
+   * Spread the known regions across the board from their map coordinates, then
+   * nudge any overlapping labels away from those anchors. chipW and chipH, when
+   * set, are the measured label size. anchorX/anchorY stay the region point.
    */
   function layoutChips(nodes, boardW, boardH, font) {
     const px = Math.max(18, Number(font) || 18);
     const width = Math.max(1, Number(boardW) || 1);
-    const gap = 6;
+    const height = Math.max(1, Number(boardH) || 1);
+    const gap = 8;
     const chips = (nodes || []).filter((n) => n && n.name).map((n) => {
       const text = String(n.name);
       const w = Math.min(width, Math.max(px, Math.ceil(n.chipW || (text.length * px * 0.62 + 28))));
-      const h = Math.max(px, Math.ceil(n.chipH || (px * 1.35 + 12)));
-      return { id: n.id, w, h, ax: Number(n.left) || 0, ay: Number(n.top) || 0, x: 0, y: 0 };
+      const h = Math.min(height, Math.max(px, Math.ceil(n.chipH || (px * 1.35 + 12))));
+      return {
+        id: n.id, w, h,
+        axPct: Number(n.left) || 0,
+        ayPct: Number(n.top) || 0,
+        x: 0, y: 0, anchorX: 0, anchorY: 0
+      };
     });
-    chips.sort((a, b) => a.ay - b.ay || a.ax - b.ax || String(a.id).localeCompare(String(b.id)));
-    let x = 0;
-    let y = 0;
-    let rowH = 0;
-    for (const chip of chips) {
-      if (x > 0 && x + chip.w > width) {
-        y += rowH + gap;
-        x = 0;
-        rowH = 0;
-      }
-      chip.x = x;
-      chip.y = y;
-      x += chip.w + gap;
-      rowH = Math.max(rowH, chip.h);
+    if (!chips.length) return chips;
+    const minX = Math.min(...chips.map((c) => c.axPct));
+    const maxX = Math.max(...chips.map((c) => c.axPct));
+    const minY = Math.min(...chips.map((c) => c.ayPct));
+    const maxY = Math.max(...chips.map((c) => c.ayPct));
+    const spanX = Math.max(1, maxX - minX);
+    const spanY = Math.max(1, maxY - minY);
+    const maxW = Math.max(...chips.map((c) => c.w));
+    const maxH = Math.max(...chips.map((c) => c.h));
+    const padX = Math.max(0, Math.min(maxW / 2, (width - 8) / 2));
+    const padY = Math.max(0, Math.min(maxH / 2, (height - 8) / 2));
+    const clamp = (c) => {
+      c.x = Math.max(0, Math.min(Math.max(0, width - c.w), c.x));
+      c.y = Math.max(0, Math.min(Math.max(0, height - c.h), c.y));
+    };
+    for (const c of chips) {
+      const tx = (c.axPct - minX) / spanX;
+      const ty = (c.ayPct - minY) / spanY;
+      c.anchorX = padX + tx * Math.max(0, width - 2 * padX);
+      c.anchorY = padY + ty * Math.max(0, height - 2 * padY);
+      c.x = c.anchorX - c.w / 2;
+      c.y = c.anchorY - c.h / 2;
+      clamp(c);
     }
-    void boardH;
+    const hits = (a, b) => a.x < b.x + b.w + gap && a.x + a.w + gap > b.x && a.y < b.y + b.h + gap && a.y + a.h + gap > b.y;
+    const nudge = (a, b, axis) => {
+      const before = [a.x, a.y, b.x, b.y];
+      const overlap = axis === 'x'
+        ? Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)
+        : Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      const amount = Math.max(1, overlap + gap);
+      const delta = axis === 'x' ? a.axPct - b.axPct : a.ayPct - b.ayPct;
+      if (Math.abs(delta) < 0.01) return false;
+      if (axis === 'x') {
+        if (delta < 0) { a.x -= amount / 2; b.x += amount / 2; }
+        else { b.x -= amount / 2; a.x += amount / 2; }
+      } else if (delta < 0) { a.y -= amount / 2; b.y += amount / 2; }
+      else { b.y -= amount / 2; a.y += amount / 2; }
+      clamp(a);
+      clamp(b);
+      return a.x !== before[0] || a.y !== before[1] || b.x !== before[2] || b.y !== before[3];
+    };
+    for (let pass = 0; pass < 80; pass++) {
+      let moved = false;
+      for (let i = 0; i < chips.length; i++) {
+        for (let j = i + 1; j < chips.length; j++) {
+          const a = chips[i];
+          const b = chips[j];
+          if (!hits(a, b)) continue;
+          const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+          const oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+          const adx = Math.abs(a.axPct - b.axPct);
+          const ady = Math.abs(a.ayPct - b.ayPct);
+          const first = (oy + (ady < 0.01 ? 1e9 : 0)) <= (ox + (adx < 0.01 ? 1e9 : 0)) ? 'y' : 'x';
+          const second = first === 'x' ? 'y' : 'x';
+          if (nudge(a, b, first) || nudge(a, b, second)) moved = true;
+        }
+      }
+      if (!moved) break;
+    }
     return chips;
   }
   return { LAYOUT, NODE, CARD, intersects, saddleBox, build, cardFor, layoutChips };

@@ -791,8 +791,11 @@
           });
           const chips = RegionMap.layoutChips(measured, w, h, 18);
           const byId = {};
-          let bottom = 0;
-          chips.forEach((chip) => { byId[chip.id] = chip; bottom = Math.max(bottom, chip.y + chip.h); });
+          chips.forEach((chip) => { byId[chip.id] = chip; });
+          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('class', 'region-leaders');
+          svg.setAttribute('width', String(w));
+          svg.setAttribute('height', String(h));
           stage.querySelectorAll('.region-node').forEach((b) => {
             const chip = byId[b.dataset.region];
             if (!chip) return;
@@ -800,8 +803,18 @@
             b.style.top = Math.round(chip.y) + 'px';
             b.style.width = Math.round(chip.w) + 'px';
             b.style.height = Math.round(chip.h) + 'px';
+            const inside = chip.anchorX >= chip.x && chip.anchorX <= chip.x + chip.w && chip.anchorY >= chip.y && chip.anchorY <= chip.y + chip.h;
+            if (inside) return;
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            const nx = Math.max(chip.x, Math.min(chip.anchorX, chip.x + chip.w));
+            const ny = Math.max(chip.y, Math.min(chip.anchorY, chip.y + chip.h));
+            line.setAttribute('x1', String(Math.round(chip.anchorX)));
+            line.setAttribute('y1', String(Math.round(chip.anchorY)));
+            line.setAttribute('x2', String(Math.round(nx)));
+            line.setAttribute('y2', String(Math.round(ny)));
+            svg.append(line);
           });
-          stage.style.minHeight = Math.max(180, Math.ceil(bottom + 8)) + 'px';
+          stage.insertBefore(svg, stage.firstChild);
           return true;
         };
         if (!placeChips()) requestAnimationFrame(placeChips);

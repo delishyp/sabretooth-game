@@ -147,6 +147,35 @@ function probe() {
       shots.push(file);
       const problems = await page.evaluate(probe);
       assert.deepStrictEqual(problems, [], name + ' ' + problems.join(' | '));
+      if (name.startsWith('map-')) {
+        const mapFit = await page.evaluate(() => {
+          const ids = [...document.querySelectorAll('.region-node')].map((el) => el.dataset.region).sort();
+          const layout = window.RegionMap.LAYOUT;
+          const center = (id) => {
+            const el = document.querySelector('.region-node[data-region="' + id + '"]');
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+          };
+          const order = [];
+          const nodes = [...document.querySelectorAll('.region-node')];
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              const a = nodes[i].dataset.region;
+              const b = nodes[j].dataset.region;
+              const ca = center(a);
+              const cb = center(b);
+              const la = layout[a];
+              const lb = layout[b];
+              if (la[0] < lb[0] && !(ca.x < cb.x)) order.push(a + ' not left of ' + b);
+              if (la[1] < lb[1] && !(ca.y < cb.y)) order.push(a + ' not above ' + b);
+            }
+          }
+          return { ids, order };
+        });
+        assert.deepStrictEqual(mapFit.ids, ['bonefield', 'greywater_ford', 'mistwood', 'salt_flats', 'split_rock', 'tallgrass', 'twin_forks'], name + ' regions ' + mapFit.ids.join(','));
+        assert.deepStrictEqual(mapFit.order, [], name + ' order ' + mapFit.order.join(' | '));
+      }
       if (name.startsWith('encounter-')) {
         const actors = await page.evaluate(() => {
           const cover = (a, b) => {
@@ -340,10 +369,6 @@ function probe() {
         await page.evaluate(() => { const box = document.getElementById('game-actions'); if (box) box.hidden = true; window.__menuDebug.game().render(); });
       }
     }
-    await page.evaluate(() => {
-      const ids = Object.keys(window.RegionMap.LAYOUT);
-      window.__menuDebug.gamePatch({ map: { discovered: ids } });
-    });
     await page.locator('[data-view="map"]').click();
     await page.waitForTimeout(150);
     for (const [w, h] of SIZES) {

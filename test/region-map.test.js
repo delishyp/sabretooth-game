@@ -20,26 +20,37 @@ test('the hover card is not a layer on the board, so it cannot cover East Saddle
   }
 });
 
-test('name chips never intersect, including The Split Rock and The Bonefield', () => {
-  const discovered = map.regions.map((r) => r.id);
+test('day-1 labels stay on their map and do not intersect', () => {
+  const WorldMap = require('../src/renderer/js/worldmap');
+  const discovered = WorldMap.create(map).discover([], 'split_rock');
   const state = { region: 'split_rock', map: { discovered, visited: ['split_rock'] } };
   const view = RegionMap.build(map, state, {});
-  const sizes = [[480, 320], [640, 400], [800, 480], [1100, 640], [1600, 900]];
+  assert.deepStrictEqual(view.nodes.map((n) => n.id).sort(), ['bonefield', 'greywater_ford', 'mistwood', 'salt_flats', 'split_rock', 'tallgrass', 'twin_forks']);
+  const sizes = [[420, 280], [560, 360], [640, 400], [800, 480], [1100, 640], [1600, 900]];
   const hit = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  const center = (c) => ({ x: c.x + c.w / 2, y: c.y + c.h / 2 });
   for (const [w, h] of sizes) {
     const chips = RegionMap.layoutChips(view.nodes, w, h, 18);
     assert.strictEqual(chips.length, view.nodes.length, w + 'x' + h);
     for (let i = 0; i < chips.length; i++) {
       const a = chips[i];
       assert.ok(a.w >= 18 && a.h >= 18, a.id);
-      assert.ok(a.x >= -0.01 && a.y >= -0.01 && a.x + a.w <= w + 0.5, a.id + ' ' + w);
+      assert.ok(a.x >= -0.01 && a.y >= -0.01 && a.x + a.w <= w + 0.5 && a.y + a.h <= h + 0.5, a.id + ' ' + w);
       for (let j = i + 1; j < chips.length; j++) {
-        assert.ok(!hit(a, chips[j]), a.id + ' overlaps ' + chips[j].id + ' at ' + w + 'x' + h);
+        const b = chips[j];
+        assert.ok(!hit(a, b), a.id + ' overlaps ' + b.id + ' at ' + w + 'x' + h);
+        const ca = center(a);
+        const cb = center(b);
+        if (a.axPct < b.axPct) assert.ok(ca.x < cb.x, a.id + ' left of ' + b.id);
+        if (a.ayPct < b.ayPct) assert.ok(ca.y < cb.y, a.id + ' above ' + b.id);
       }
     }
-    const split = chips.find((c) => c.id === 'split_rock');
-    const bone = chips.find((c) => c.id === 'bonefield');
-    assert.ok(split && bone && !hit(split, bone));
+    const salt = center(chips.find((c) => c.id === 'salt_flats'));
+    const twin = center(chips.find((c) => c.id === 'twin_forks'));
+    const mist = center(chips.find((c) => c.id === 'mistwood'));
+    const split = center(chips.find((c) => c.id === 'split_rock'));
+    assert.ok(salt.x < twin.x, 'Salt Flats stays left of Twin Forks');
+    assert.ok(mist.y > split.y, 'Mistwood stays below Split Rock');
   }
 });
 
