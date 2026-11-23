@@ -146,7 +146,31 @@ function probe() {
       await page.screenshot({ path: file });
       shots.push(file);
       const problems = await page.evaluate(probe);
-      assert.deepStrictEqual(problems, [], name + ' ' + problems.join(' | '));
+      const chrome = await page.evaluate(() => {
+        const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+        const out = [];
+        const tip = document.getElementById('tutorial-card');
+        if (tip && getComputedStyle(tip).display !== 'none' && !tip.hidden) {
+          const tr = tip.getBoundingClientRect();
+          const spot = document.querySelector('.is-spotlight');
+          if (spot && hits(tr, spot.getBoundingClientRect())) out.push('tip on target');
+          for (const b of document.querySelectorAll('.action')) {
+            const r = b.getBoundingClientRect();
+            const s = getComputedStyle(b);
+            if (s.display === 'none' || s.visibility === 'hidden' || b.hidden || r.width < 4) continue;
+            if (hits(tr, r)) out.push('tip on action');
+          }
+        }
+        const hud = document.querySelector('#game-hud');
+        if (hud) {
+          const hr = hud.getBoundingClientRect();
+          for (const toast of document.querySelectorAll('.toast')) {
+            if (hits(toast.getBoundingClientRect(), hr)) out.push('toast on hud');
+          }
+        }
+        return out;
+      });
+      assert.deepStrictEqual(problems.concat(chrome), [], name + ' ' + problems.concat(chrome).join(' | '));
       if (name.startsWith('map-')) {
         const mapFit = await page.evaluate(() => {
           const ids = [...document.querySelectorAll('.region-node')].map((el) => el.dataset.region).sort();
@@ -175,6 +199,17 @@ function probe() {
         });
         assert.deepStrictEqual(mapFit.ids, ['bonefield', 'greywater_ford', 'mistwood', 'salt_flats', 'split_rock', 'tallgrass', 'twin_forks'], name + ' regions ' + mapFit.ids.join(','));
         assert.deepStrictEqual(mapFit.order, [], name + ' order ' + mapFit.order.join(' | '));
+      }
+      if (name.startsWith('load-')) {
+        const digits = await page.evaluate(() => {
+          const out = [];
+          for (const el of document.querySelectorAll('.screen[data-screen="load"] .run, .screen[data-screen="load"] .saves button')) {
+            const text = (el.innerText || '').trim();
+            if (/\d/.test(text)) out.push(text.slice(0, 80));
+          }
+          return out;
+        });
+        assert.deepStrictEqual(digits, [], name + ' digits ' + digits.join(' | '));
       }
       if (name.startsWith('first-meeting-')) {
         await page.waitForFunction(() => {
@@ -220,6 +255,8 @@ function probe() {
             }
           }
           const choices = [...document.querySelectorAll('#game-event .event-choices button')];
+          const beat = document.querySelector('.event-card.has-meet .event-beat');
+          if (beat && beat.scrollHeight > beat.clientHeight + 1) out.push('greeting scroll');
           if (!choices.length) out.push('no choices');
           for (const b of choices) {
             const box = b.getBoundingClientRect();
@@ -285,6 +322,12 @@ function probe() {
           return out;
         });
         assert.deepStrictEqual(choiceFit, [], name + ' choices ' + choiceFit.join(' | '));
+        const flavor = await page.evaluate(() => {
+          const el = document.querySelector('.encounter-flavor');
+          if (!el) return [];
+          return el.scrollHeight > el.clientHeight + 1 ? ['flavor scroll ' + el.scrollHeight + '>' + el.clientHeight] : [];
+        });
+        assert.deepStrictEqual(flavor, [], name + ' ' + flavor.join(' | '));
       }
       if (name.startsWith('dialogue-')) {
         await page.waitForFunction(() => {
@@ -414,6 +457,19 @@ function probe() {
         await shoot(`spotlight-${w}x${h}-u${String(u).replace('.', '')}`);
       }
     }
+    if (await page.locator('#game-actions').isHidden() && await page.locator('[data-g="openActions"]').count()) {
+      await page.locator('[data-g="openActions"]').click();
+    }
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        if (await page.locator('#game-actions').isHidden() && await page.locator('[data-g="openActions"]').count()) {
+          await page.locator('[data-g="openActions"]').click();
+        }
+        await shoot(`tip-actions-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
     for (let i = 0; i < 8 && await page.locator('[data-g="tutorialDismiss"]').count(); i++) {
       await page.locator('[data-g="tutorialDismiss"]').click();
     }
@@ -430,7 +486,20 @@ function probe() {
         await page.evaluate(() => { const box = document.getElementById('game-actions'); if (box) box.hidden = true; window.__menuDebug.game().render(); });
       }
     }
+    await page.locator('[data-view="market"]').click();
+    await page.waitForTimeout(80);
+    const toastPlace = await page.evaluate(() => {
+      const hits = (a, b) => a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      const hud = document.querySelector('#game-hud');
+      const toast = document.querySelector('.toast');
+      if (!toast || !hud) return ['missing toast'];
+      return hits(toast.getBoundingClientRect(), hud.getBoundingClientRect()) ? ['toast on hud'] : [];
+    });
+    assert.deepStrictEqual(toastPlace, [], 'market toast ' + toastPlace.join(' | '));
     await page.locator('[data-view="map"]').click();
+    await page.waitForTimeout(80);
+    const toastGone = await page.evaluate(() => document.querySelectorAll('.toast').length);
+    assert.strictEqual(toastGone, 0, 'toast stays after leaving the locked section');
     await page.waitForTimeout(150);
     for (const [w, h] of SIZES) {
       for (const u of SCALES) {

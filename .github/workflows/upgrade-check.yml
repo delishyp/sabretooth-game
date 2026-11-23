@@ -1,6 +1,6 @@
 name: Upgrade check
 # Local feeds only. scripts/build-win-feed.js sets publish to never.
-# Includes the non-leader first-meeting safe area.
+# Includes the non-leader first-meeting safe area and the gate nits.
 on:
   workflow_dispatch:
   push:

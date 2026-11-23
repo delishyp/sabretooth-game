@@ -50,6 +50,7 @@
     document.documentElement.style.setProperty('--s', unit + 'px');
     document.documentElement.dataset.choiceStack = (innerHeight <= 760 && u >= 1.5) ? '1' : '2';
     fitActive();
+    placeToasts();
   }
   /** Chrome that sticks out is a layout bug. Full-bleed plates are not chrome, and this never zooms or rescales a screen. */
   function fitActive() {
@@ -74,9 +75,28 @@
   addEventListener('resize', scale);
 
   // ---------- toast ----------
+  function placeToasts() {
+    const box = $('#toasts');
+    if (!box) return;
+    const shell = document.querySelector('.shell-top');
+    const hud = document.querySelector('#game-hud');
+    const edge = shell && shell.getBoundingClientRect().height ? shell.getBoundingClientRect().bottom : (hud ? hud.getBoundingClientRect().bottom : 0);
+    box.style.setProperty('top', Math.round(Math.max(8, edge) + 8) + 'px', 'important');
+    box.style.setProperty('bottom', 'auto', 'important');
+    box.style.setProperty('left', '50%', 'important');
+    box.style.setProperty('right', 'auto', 'important');
+    box.style.setProperty('transform', 'translateX(-50%)', 'important');
+    box.style.setProperty('z-index', '30', 'important');
+  }
+  function clearToasts() {
+    const box = $('#toasts');
+    if (box) box.replaceChildren();
+  }
   function toast(text) {
     const el = document.createElement('div'); el.className = 'toast'; el.textContent = text;
-    $('#toasts').appendChild(el); setTimeout(() => el.remove(), 5000);
+    $('#toasts').appendChild(el);
+    placeToasts();
+    setTimeout(() => el.remove(), 5000);
   }
   api.onToast(({ id, vars, text }) => toast(id ? t(id, vars) : text));
 
@@ -163,7 +183,8 @@
     applyMotion();
     if (screen === 'root') { renderRoot(); music.play(); }
     if (['starting', 'loading', 'game', 'summary'].includes(screen)) music.fadeOutAndStop();   // §7.5 v1.4.4: creator Start / Continue / Load (keeps playing through the creator)
-    if (screen === 'game') { game.render(); scale(); return; }
+    clearToasts();
+    if (screen === 'game') { game.render(); scale(); placeToasts(); return; }
     if (screen === 'summary') game.renderSummary();
     if (screen === 'newGameSetup') return renderSetup();
     if (screen === 'creator') return renderCreator();
@@ -202,21 +223,39 @@
   // ---------- labels ----------
   const diffName = (id) => copy.difficulties.find((d) => d.id === id)?.name || id;
   const styleName = (id) => (id === 'standard' ? 'Balanced' : (copy.playStyles.find((d) => d.id === id)?.name || id));
-  const when = (iso) => new Date(iso).toLocaleString();
+  const GENERATION_WORDS = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'];
+  const generationWord = (n) => {
+    const name = GENERATION_WORDS[Number(n)] || '';
+    return name ? `${name} generation` : 'A later generation';
+  };
+  const playedWords = (iso) => {
+    const then = new Date(iso);
+    const ms = then.getTime();
+    if (!Number.isFinite(ms)) return 'Played a while ago';
+    const now = new Date();
+    const days = (now.getTime() - ms) / 86400000;
+    const sameDay = then.getFullYear() === now.getFullYear() && then.getMonth() === now.getMonth() && then.getDate() === now.getDate();
+    if (sameDay) return days < 1 / 24 ? 'Played just now' : 'Played earlier today';
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    if (then.getFullYear() === yesterday.getFullYear() && then.getMonth() === yesterday.getMonth() && then.getDate() === yesterday.getDate()) return 'Played yesterday';
+    if (days < 6) return 'Played a few days ago';
+    if (days < 14) return 'Played last week';
+    return 'Played a while ago';
+  };
   const runLabel = (r) => (r.damaged ? t('run.damagedName') : t('run.label', { catName: r.catName, prideName: r.prideName }));
   function runCard(r, i) {
     const b = document.createElement('button'); b.className = 'run'; b.dataset.slotIndex = i;
     const name = document.createElement('span'); name.className = 'rname';
     const meta = document.createElement('span'); meta.className = 'rmeta';
-    if (!r) { name.textContent = t('run.emptyName'); meta.textContent = t('run.emptyMeta', { slot: i + 1 }); b.disabled = true; }
-    else if (r.damaged) { name.textContent = t('run.damagedName'); meta.textContent = t('run.damagedMeta', { slot: i + 1 }); b.dataset.runId = r.runId; }
+    if (!r) { name.textContent = t('run.emptyName'); meta.textContent = 'An empty run slot'; b.disabled = true; }
+    else if (r.damaged) { name.textContent = t('run.damagedName'); meta.textContent = 'A damaged run slot'; b.dataset.runId = r.runId; }
     else {
       b.dataset.runId = r.runId;
       name.textContent = runLabel(r);
       // run.modes on its own line, run.sandboxTag after it for Sandbox runs (copy §6 notes). Pre-v1.3 runs = Standard (store).
       const modes = document.createElement('span'); modes.className = 'rmodes';
       modes.textContent = t('run.modes', { styleName: styleName(r.style), deathRuleName: diffName(r.difficulty) }) + (r.difficulty === 'sandbox' ? ` · ${t('run.sandboxTag')}` : '');
-      meta.textContent = t('run.meta', { generation: r.generation, lastPlayed: when(r.lastPlayedAt) });
+      meta.textContent = `${generationWord(r.generation)} · ${playedWords(r.lastPlayedAt)}`;
       b.append(name, modes, meta); return b;
     }
     b.append(name, meta); return b;
@@ -860,7 +899,8 @@
         if (sv.damaged || r.damaged) { b.textContent = t('load.damagedSave'); b.dataset.damaged = '1'; b.addEventListener('click', () => toast(t('toast.saveDamaged'))); }
         else {
           const d = sv.inGameDate || {};
-          b.textContent = t('load.saveEntry', { writtenAt: when(sv.writtenAt), year: d.year, season: t(`season.${d.season}`), day: d.day });
+          const seasonName = d.season ? t(`season.${d.season}`) : '';
+          b.textContent = seasonName ? `A ${seasonName.toLowerCase()} save` : 'A saved day';
           b.addEventListener('click', () => loadSave(r.runId, sv.saveId));
         }
         list.appendChild(b);

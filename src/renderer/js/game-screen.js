@@ -878,7 +878,7 @@
         a.append(el('p', 'forced-note', t(`game.forced.${av.forced}`, { region: av.to ? regionName(av.to) : '' })), btn(t('game.action.continueDay'), { g: 'forced' }, { cls: 'primary' }));
       } else {
         const actRow = (title, line, cost, attrs, extra) => {
-          const b = btn('', attrs, { cls: 'act' + (extra || '') });
+          const b = btn('', attrs, { cls: 'act action' + (extra || '') });
           if (attrs && attrs.g === 'pickHunt') b.append(el('span', 'tag-suit', 'Suits your goal'));
           b.append(el('b', '', title), el('span', '', line));
           if (cost) b.append(el('i', '', cost));
@@ -1287,7 +1287,7 @@
       const host = document.getElementById('game-main');
       if (host) host.append(you, art);
       usePlate(/wolf/.test(view.encounterId || '') ? 'clearing' : 'hunt');
-      const scroll = el('div', 'event-scroll');
+      const scroll = el('div', 'event-scroll encounter-flavor');
       scroll.tabIndex = 0; scroll.dataset.scroll = 'prose'; scroll.setAttribute('role', 'region'); scroll.setAttribute('aria-label', 'Dialogue');
       for (const line of view.lines || []) {
         scroll.append(el('p', logClass(line, s.cat), speechLine(line)));
@@ -1601,6 +1601,7 @@
       const spot = document.querySelector('.is-spotlight');
       keepOnePrimary(spot && spot.tagName === 'BUTTON' ? spot : null);
       markMode();
+      placeTutorial();
       const evOpen = !$('#game-event').hidden;
       const perkOpen = !!document.getElementById('perk-modal');
       let target = null;
@@ -1628,6 +1629,8 @@
       return !!(s && ['encounter', 'conversation', 'event', 'eventResult', 'ford', 'border'].includes(s.phase));
     }
     function showView(id) {
+      const toasts = document.getElementById('toasts');
+      if (toasts) toasts.replaceChildren();
       if (sceneOpen()) return;
       const next = HomeScene.selectView(view, id);
       if (next.unavailable) {
@@ -1740,6 +1743,68 @@
       card.dataset.spotlight = where || 'fallback';
       $('#game-main').append(card);
     }
+    function placeTutorial() {
+      const card = document.getElementById('tutorial-card');
+      if (!card || getComputedStyle(card).display === 'none') return;
+      const target = document.querySelector('.is-spotlight');
+      const shell = document.querySelector('.shell-top');
+      const hud = document.querySelector('#game-hud');
+      const goal = document.querySelector('#goal-strip');
+      const hudBottom = Math.max(
+        shell && shell.getBoundingClientRect().height ? shell.getBoundingClientRect().bottom : 0,
+        hud ? hud.getBoundingClientRect().bottom : 0,
+        goal && goal.getBoundingClientRect().height && getComputedStyle(goal).display !== 'none' ? goal.getBoundingClientRect().bottom : 0,
+        96
+      );
+      const margin = 12;
+      const narrow = window.innerHeight <= 760;
+      const width = Math.max(180, Math.min(narrow ? 260 : 380, window.innerWidth * (narrow ? 0.28 : 0.32)));
+      const pin = (prop, value) => card.style.setProperty(prop, value, 'important');
+      pin('position', 'fixed');
+      pin('transform', 'none');
+      pin('width', width + 'px');
+      pin('right', 'auto');
+      pin('bottom', 'auto');
+      pin('margin', '0');
+      const cr = card.getBoundingClientRect();
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const hits = (a, b) => a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      const blockers = [];
+      const pushBox = (node) => {
+        if (!node) return;
+        const style = getComputedStyle(node);
+        const r = node.getBoundingClientRect();
+        if (r.width > 4 && r.height > 4 && style.display !== 'none' && style.visibility !== 'hidden' && !node.hidden) blockers.push(r);
+      };
+      pushBox(target);
+      document.querySelectorAll('.action, #game-actions, #home-nav, .rail, .shell-top, #goal-strip, #day-primary, .home-dock, #game-event').forEach(pushBox);
+      const rail = document.querySelector('#home-nav');
+      const railRight = rail ? rail.getBoundingClientRect().right : 0;
+      const tr = target ? target.getBoundingClientRect() : null;
+      const spots = [];
+      if (tr && tr.width > 2) {
+        spots.push({ left: tr.left, top: tr.bottom + margin });
+        spots.push({ left: tr.right + margin, top: tr.top });
+        spots.push({ left: tr.left - cr.width - margin, top: tr.top });
+        spots.push({ left: tr.left, top: tr.top - cr.height - margin });
+      }
+      spots.push({ left: railRight + 16, top: hudBottom + margin });
+      spots.push({ left: W - cr.width - 16, top: hudBottom + margin });
+      spots.push({ left: railRight + 16, top: H - cr.height - 16 });
+      let placed = null;
+      for (const spot of spots) {
+        const left = Math.max(railRight + 8, Math.min(spot.left, W - cr.width - 8));
+        const top = Math.max(hudBottom + 8, Math.min(spot.top, H - cr.height - 8));
+        const box = { left, top, right: left + cr.width, bottom: top + cr.height, width: cr.width, height: cr.height };
+        if (blockers.some((b) => hits(box, b))) continue;
+        placed = { left, top };
+        break;
+      }
+      if (!placed) placed = { left: 8, top: Math.min(H - cr.height - 8, hudBottom + 8) };
+      pin('left', Math.round(placed.left) + 'px');
+      pin('top', Math.round(placed.top) + 'px');
+    }
     function keepOnePrimary(spot) {
       const visible = (node) => {
         if (!node || node.hidden) return false;
@@ -1800,6 +1865,7 @@
         if (box) box.hidden = false;
         uiStep = 'main';
         renderActions();
+        placeTutorial();
         return;
       }
       if (d.g === 'pickHunt') { uiStep = 'hunt'; $('#game-actions').hidden = false; renderActions(); return; }

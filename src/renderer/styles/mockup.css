@@ -904,14 +904,65 @@ html[data-choice-stack="1"] .event-card.has-meet .event-choices { grid-template-
   font-size: 18px !important;
 }
 #toasts {
-  top: 12px !important;
+  top: 128px !important;
   bottom: auto !important;
   left: 50% !important;
   right: auto !important;
   transform: translateX(-50%) !important;
-  z-index: 40 !important;
+  z-index: 30 !important;
   width: min(520px, 60vw) !important;
   pointer-events: none !important;
   align-items: center !important;
 }
 .toast { pointer-events: none !important; }
+@media (max-height: 800px) {
+  .screen[data-screen="game"] #game-event:has(.encounter-card) {
+    top: 34vh !important;
+    bottom: 8px !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+  }
+  .screen[data-screen="game"] #game-event .encounter-card .story-copy,
+  .screen[data-screen="game"] #game-event .encounter-card .event-scroll,
+  .screen[data-screen="game"] #game-event .encounter-flavor {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-player.encounter-panel,
+  html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.encounter-panel,
+  .screen[data-screen="game"] .scene-actor.is-player.encounter-panel,
+  .screen[data-screen="game"] .scene-actor.is-foe.encounter-panel {
+    bottom: auto !important;
+    top: calc(112 * var(--s)) !important;
+    height: 16vh !important;
+    max-height: 120px !important;
+  }
+  .event-card.has-meet .portrait-frame.is-headshot {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    min-height: 72px !important;
+    max-width: 72px !important;
+    max-height: 72px !important;
+  }
+  .event-card.has-meet .meter-track,
+  .event-card.has-meet .meter-ends,
+  .event-card.has-meet .personal-meter { display: none !important; }
+  .event-card.has-meet .relation-meters {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    gap: 4px 14px !important;
+    margin: 0 !important;
+  }
+  .event-card.has-meet .event-beat {
+    overflow: visible !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+  }
+  html[data-choice-stack="1"] .event-card.has-meet .event-choices {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
