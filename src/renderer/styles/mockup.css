@@ -486,7 +486,7 @@ body:has(.screen[data-screen="load"].active) #bg {
   background: transparent !important;
   display: flex !important;
   align-items: flex-end !important;
-  overflow: visible !important;
+  overflow: hidden !important;
   z-index: 8 !important;
 }
 .screen[data-screen="game"] .encounter-card,
@@ -624,10 +624,12 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .event-choices { grid-te
 }
 .screen[data-mode="book"] .lore-book .lore-read { overflow: auto !important; font-size: max(18px, calc(22 * var(--s))) !important; line-height: 1.4 !important; }
 .screen[data-screen="game"] #game-event .encounter-card,
-.screen[data-screen="game"] #game-event .conversation-card {
-  max-height: none !important;
-  overflow: visible !important;
+.screen[data-screen="game"] #game-event .conversation-card,
+.screen[data-screen="game"] #game-event > .event-card {
+  max-height: 100% !important;
+  overflow: hidden !important;
   height: auto !important;
+  box-sizing: border-box !important;
 }
 .screen[data-screen="game"] #game-event .story-row {
   display: flex !important;
@@ -733,7 +735,9 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.enco
 }
 .screen[data-screen="game"] .encounter-card .story-row { grid-column: 1 / -1 !important; width: 100% !important; }
 .portrait-frame:has(img.headshot) canvas { opacity: 0 !important; position: absolute !important; width: 1px !important; height: 1px !important; pointer-events: none !important; }
-.screen[data-screen="game"] #game-event:has(.has-beats) {
+.screen[data-screen="game"] #game-event:has(.has-beats),
+.screen[data-screen="game"] #game-event:has(.has-meet),
+.screen[data-screen="game"] #game-event:has(.conversation-card):not(:has(.encounter-card)) {
   top: max(calc(108 * var(--s)), 36vh) !important;
   bottom: 8px !important;
   left: calc(290 * var(--s)) !important;
@@ -743,7 +747,8 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.enco
   overflow: hidden !important;
   align-items: stretch !important;
 }
-.event-card.has-beats {
+.event-card.has-beats,
+.event-card.has-meet {
   width: 100% !important;
   max-width: none !important;
   height: 100% !important;
@@ -754,7 +759,9 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.enco
   box-sizing: border-box !important;
   min-height: 0 !important;
 }
-html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-beats) {
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-beats),
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-meet),
+html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.conversation-card):not(:has(.encounter-card)) {
   top: max(calc(108 * var(--s)), 36vh) !important;
   bottom: 8px !important;
   max-height: none !important;
@@ -771,7 +778,8 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-bea
   max-height: 100% !important;
   overflow: hidden !important;
 }
-.event-card.has-beats .event-cast {
+.event-card.has-beats .event-cast,
+.event-card.has-meet .event-cast {
   width: 100% !important;
   max-width: 140px !important;
   display: flex !important;
@@ -781,7 +789,8 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-bea
   overflow: hidden !important;
   position: relative !important;
 }
-.event-card.has-beats .portrait-frame.is-headshot {
+.event-card.has-beats .portrait-frame.is-headshot,
+.event-card.has-meet .portrait-frame.is-headshot {
   width: 96px !important;
   height: 96px !important;
   min-width: 96px !important;
@@ -796,7 +805,10 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-bea
   background: #3b2c1e !important;
 }
 .event-card.has-beats .event-cast-name,
-.event-card.has-beats .speaker-mood {
+.event-card.has-beats .speaker-mood,
+.event-card.has-meet .event-cast-name,
+.event-card.has-meet .speaker-mood,
+.event-card.has-meet .portrait-expand {
   position: static !important;
   width: 100% !important;
   margin: 0 !important;
@@ -815,8 +827,17 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-bea
 }
 .meet-mid .event-beat { flex: 1 1 auto !important; min-height: 0 !important; max-height: none !important; overflow: auto !important; }
 .meet-mid .event-choices { width: 100% !important; flex: 0 0 auto !important; }
-html[data-choice-stack="1"] .event-card.has-beats .event-choices { grid-template-columns: 1fr !important; }
-#game-event .event-card.has-beats img.headshot {
+html[data-choice-stack="1"] .event-card.has-beats .event-choices,
+html[data-choice-stack="1"] .event-card.has-meet .event-choices { grid-template-columns: 1fr !important; }
+.event-card.has-meet .relation-meters,
+.event-card.has-meet .meter-ends,
+.event-card.has-meet .meter-caption,
+.event-card.has-meet .regard-word,
+.event-card.has-meet .relation-romance,
+.event-card.has-meet .relation-faction { font-size: 18px !important; }
+.event-card.has-meet .relation-meters { flex: 0 0 auto; width: 100%; }
+#game-event .event-card.has-beats img.headshot,
+#game-event .event-card.has-meet img.headshot {
   position: absolute !important;
   inset: 0 !important;
   left: 0 !important;

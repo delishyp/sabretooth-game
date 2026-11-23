@@ -1561,24 +1561,31 @@
       box.textContent = ''; const e = E.eventById(p.eventId);
       const card = el('div', 'event-card'); box.append(card);
       maybeFightBars(card);
-      if (p.catId && s.npcs[p.catId]) {
-        const npc = s.npcs[p.catId];
-        const cv = appendSpeakerHead(card, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
-        const who = cv && cv.parentNode && cv.parentNode.parentNode;
-        if (who) who.append(btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
-        card.append(el('div', 'event-cat', npc.name), relationMeters(npc.id));
+      const npc = p.catId && s.npcs[p.catId];
+      const prose = el('div', 'event-beat');
+      if (s.phase === 'event') prose.append(el('p', 'event-text', fill(p.hostile ? e.hostileText : e.text)));
+      else {
+        prose.append(el('p', 'event-text result', resultText()));
+        if (p.resultLine) prose.append(el('p', 'event-result-line', p.resultLine));
       }
-      card.append(el('h2', 'event-title', e.title));
+      const ch = el('div', 'event-choices');
       if (s.phase === 'event') {
-        card.append(el('p', 'event-text', fill(p.hostile ? e.hostileText : e.text)));
-        const ch = el('div', 'event-choices');
         if (p.hostile) ch.append(btn(t('game.event.flee'), { g: 'choose' }, { cls: 'primary' }));
         else for (const c of e.choices) ch.append(btn(c.id === 'continue' && e.kind === 'region' ? t('game.event.continue') : shownCopy(c.label), { g: 'choose', choice: c.id }));
-        card.append(ch);
+      } else ch.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+      if (npc) {
+        card.classList.add('has-meet');
+        const row = el('div', 'meet-row');
+        row.append(meetCast(s.cat, true));
+        const mid = el('div', 'meet-mid');
+        mid.append(el('h2', 'event-title', e.title), relationMeters(npc.id), prose, ch);
+        row.append(mid);
+        const cv = appendSpeakerHead(row, npc, (spec, canvas, opts) => ctx.portrait(spec, canvas, opts));
+        const who = cv && cv.parentNode && cv.parentNode.parentNode;
+        if (who) who.append(btn(t('portrait.expand'), { g: 'expandCat', source: 'event-head', name: npc.name }, { cls: 'portrait-expand' }));
+        card.append(row);
       } else {
-        card.append(el('p', 'event-text result', resultText()));
-        if (p.resultLine) card.append(el('p', 'event-result-line', p.resultLine));
-        card.append(btn(t('game.event.continue'), { g: 'continue' }, { cls: 'primary' }));
+        card.append(el('h2', 'event-title', e.title), prose, ch);
       }
     }
     function render() {

@@ -176,6 +176,67 @@ function probe() {
         assert.deepStrictEqual(mapFit.ids, ['bonefield', 'greywater_ford', 'mistwood', 'salt_flats', 'split_rock', 'tallgrass', 'twin_forks'], name + ' regions ' + mapFit.ids.join(','));
         assert.deepStrictEqual(mapFit.order, [], name + ' order ' + mapFit.order.join(' | '));
       }
+      if (name.startsWith('first-meeting-')) {
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 1 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 });
+        const meet = await page.evaluate(() => {
+          const hits = (a, b) => a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+          const inside = (inner, outer) => inner.left >= outer.left - 1 && inner.top >= outer.top - 1 && inner.right <= outer.right + 1 && inner.bottom <= outer.bottom + 1;
+          const out = [];
+          const W = innerWidth, H = innerHeight;
+          const card = document.querySelector('#game-event .event-card');
+          const hud = document.querySelector('#game-hud');
+          const panel = document.querySelector('#game-event');
+          if (!card || !panel) return ['no card'];
+          if (card.classList.contains('has-beats') || card.classList.contains('conversation-card')) out.push('not plain');
+          const cr = card.getBoundingClientRect();
+          const pr = panel.getBoundingClientRect();
+          if (cr.top < -1 || cr.left < -1 || cr.bottom > H + 2 || cr.right > W + 2) out.push('card offscreen');
+          if (hud && hits(cr, hud.getBoundingClientRect())) out.push('hits hud');
+          if (!inside(cr, pr)) out.push('card outside panel');
+          const texts = [...document.querySelectorAll('#game-event .event-cast-name, #game-event .speaker-mood, #game-event .event-beat, #game-event .event-title, #game-event .event-choices, #game-event .relation-meters, #game-event .portrait-expand')];
+          const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+          if (!frames.length) out.push('no head');
+          for (const frame of frames) {
+            const fr = frame.getBoundingClientRect();
+            if (fr.width < 8) { out.push('tiny head'); continue; }
+            if (Math.abs(fr.width - fr.height) > 4) out.push('not square');
+            if (fr.top < -1 || fr.left < -1 || fr.bottom > H + 2 || fr.right > W + 2) out.push('frame offscreen');
+            if (!inside(fr, pr) || !inside(fr, cr)) out.push('frame outside');
+            const img = frame.querySelector('img.headshot');
+            if (!img || !img.complete || img.naturalWidth < 1) out.push('head unloaded');
+            const clip = getComputedStyle(frame).overflow;
+            if (clip !== 'hidden') out.push('head overflow');
+            const ir = img ? img.getBoundingClientRect() : fr;
+            const seen = {
+              left: Math.max(ir.left, fr.left), top: Math.max(ir.top, fr.top),
+              right: Math.min(ir.right, fr.right), bottom: Math.min(ir.bottom, fr.bottom)
+            };
+            if ((seen.right - seen.left) * (seen.bottom - seen.top) < fr.width * fr.height * 0.9) out.push('crop gap');
+            for (const text of texts) {
+              if (hits(fr, text.getBoundingClientRect())) { out.push('hits text'); break; }
+            }
+          }
+          const choices = [...document.querySelectorAll('#game-event .event-choices button')];
+          if (!choices.length) out.push('no choices');
+          for (const b of choices) {
+            const box = b.getBoundingClientRect();
+            if (box.width < 220) out.push('choice narrow ' + Math.round(box.width));
+            if (box.top < -1 || box.bottom > H + 2 || box.height < 8) out.push('choice hidden');
+          }
+          for (const el of document.querySelectorAll('#game-event button, #game-event p, #game-event span, #game-event h2, #game-event h3, #game-event div')) {
+            const r = el.getBoundingClientRect();
+            const s = getComputedStyle(el);
+            if (r.width < 2 || r.height < 2 || s.display === 'none' || s.visibility === 'hidden') continue;
+            if (!(el.innerText || '').trim()) continue;
+            if (parseFloat(s.fontSize) < 17.5) out.push('small ' + s.fontSize + ' ' + (el.innerText || '').slice(0, 20));
+          }
+          return out;
+        });
+        assert.deepStrictEqual(meet, [], name + ' ' + meet.join(' | '));
+      }
       if (name.startsWith('encounter-')) {
         const actors = await page.evaluate(() => {
           const cover = (a, b) => {
@@ -464,6 +525,31 @@ function probe() {
       }
     }
     await page.evaluate(() => window.__menuDebug.gamePatch({ phase: 'day', encounters: { pending: null } }));
+    const plain = await page.evaluate(() => {
+      const s = window.__menuDebug.game().state;
+      const leaders = { highcrag: 'hc01', bonefield: 'bf01', mistwood: 'mw01' };
+      const id = Object.keys(s.npcs || {}).find((key) => {
+        const n = s.npcs[key];
+        return n && n.portraitId && leaders[n.faction] !== n.id;
+      });
+      if (!id) return null;
+      window.__menuDebug.forceMeeting(id);
+      const card = document.querySelector('#game-event .event-card');
+      return {
+        id,
+        name: s.npcs[id].name,
+        hasBeats: !!(card && card.classList.contains('has-beats')),
+        hasMeet: !!(card && card.classList.contains('has-meet'))
+      };
+    });
+    assert.ok(plain && plain.hasMeet && !plain.hasBeats, 'plain first meeting ' + JSON.stringify(plain));
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await shoot(`first-meeting-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
     const npc = await page.evaluate(() => {
       const s = window.__menuDebug.game().state;
       const id = Object.keys(s.npcs || {}).find((key) => s.npcs[key] && s.npcs[key].portraitId);
