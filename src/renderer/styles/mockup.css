@@ -734,7 +734,7 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.enco
 .screen[data-screen="game"] .encounter-card .story-row { grid-column: 1 / -1 !important; width: 100% !important; }
 .portrait-frame:has(img.headshot) canvas { opacity: 0 !important; position: absolute !important; width: 1px !important; height: 1px !important; pointer-events: none !important; }
 .screen[data-screen="game"] #game-event:has(.has-beats) {
-  top: calc(108 * var(--s)) !important;
+  top: max(calc(108 * var(--s)), 36vh) !important;
   bottom: 8px !important;
   left: calc(290 * var(--s)) !important;
   right: calc(24 * var(--s)) !important;
@@ -755,7 +755,7 @@ html[data-choice-stack="1"] .screen[data-screen="game"] .scene-actor.is-foe.enco
   min-height: 0 !important;
 }
 html[data-choice-stack="1"] .screen[data-screen="game"] #game-event:has(.has-beats) {
-  top: calc(108 * var(--s)) !important;
+  top: max(calc(108 * var(--s)), 36vh) !important;
   bottom: 8px !important;
   max-height: none !important;
   overflow: hidden !important;

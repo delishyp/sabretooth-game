@@ -782,7 +782,12 @@
             b.style.top = '0px';
             b.style.width = 'auto';
             b.style.height = 'auto';
-            return Object.assign({}, node, { chipW: Math.ceil(b.scrollWidth), chipH: Math.ceil(b.offsetHeight) });
+            const style = getComputedStyle(b);
+            const borderX = (parseFloat(style.borderLeftWidth) || 0) + (parseFloat(style.borderRightWidth) || 0);
+            return Object.assign({}, node, {
+              chipW: Math.ceil(b.scrollWidth + borderX + 2),
+              chipH: Math.ceil(b.offsetHeight)
+            });
           });
           const chips = RegionMap.layoutChips(measured, w, h, 18);
           const byId = {};
