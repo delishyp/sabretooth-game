@@ -456,7 +456,7 @@
         reputation: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5 6.9 19.2l1-5.7-4.1-4 5.7-.8z"/>'
       };
       const held = sceneOpen();
-      const openOrder = ['home', 'wilderness', 'map', 'cats', 'lore', 'deeds'];
+      const openOrder = ['home', 'wilderness', 'map', 'cats', 'lore'];
       const lockedOrder = ['pride', 'reputation', 'inventory', 'breeding', 'den', 'market', 'map'];
       const ranked = HomeScene.NAV.map((item) => ({ item, state: Unlocks ? Unlocks.displayState(s, item.id) : 'open' }));
       const openItems = ranked.filter((row) => row.state !== 'locked').sort((a, b) => (openOrder.indexOf(a.item.id) < 0 ? 99 : openOrder.indexOf(a.item.id)) - (openOrder.indexOf(b.item.id) < 0 ? 99 : openOrder.indexOf(b.item.id)));
@@ -613,33 +613,6 @@
           if (info.bond) box.append(el('p', 'bond-stage', info.bond));
           p.append(box);
         }
-      } else if (view === 'deeds' && Deeds) {
-        const screen = Deeds.copy.screen || {};
-        const earned = s.earnedDeeds || [];
-        const root = el('div', 'deeds-screen');
-        root.append(el('h2', 'home-panel-title', screen.title || 'Deeds'));
-        root.append(el('p', 'deeds-note', screen.header || ''));
-        root.append(el('p', 'deeds-counter', Deeds.counter(earned)));
-        const filters = el('div', 'deeds-filters');
-        const names = (screen.filters) || {};
-        for (const id of ['all', 'earned', 'locked', 'hidden', 'challenge']) {
-          const b = btn(names[id] || id, { g: 'deedFilter', filter: id });
-          if ((s.deedFilter || 'all') === id) b.classList.add('is-on');
-          filters.append(b);
-        }
-        root.append(filters);
-        const grid = el('div', 'deeds-grid');
-        for (const tile of Deeds.grid(earned, s.deedFilter || 'all')) {
-          const card = el('article', 'deed-tile is-' + tile.kind + (tile.earned ? ' is-earned' : ' is-locked'));
-          card.dataset.deed = tile.id;
-          card.append(el('h3', '', tile.name));
-          if (tile.challenge) card.append(el('p', 'deed-challenge', screen.challengeLabel || 'Challenge'));
-          if (tile.flavour) card.append(el('p', '', tile.flavour));
-          else if (tile.hint) card.append(el('p', '', tile.hint));
-          grid.append(card);
-        }
-        root.append(grid);
-        p.append(root);
       } else if (view === 'reputation' && Reputation) {
         const rows = Reputation.view(s, 'player', s.cat && s.cat.name);
         const titled = rows.filter((row) => row.level >= 3).sort((a, b) => b.level - a.level || Reputation.TIE.indexOf(a.axis) - Reputation.TIE.indexOf(b.axis))[0];
@@ -717,6 +690,22 @@
           requests.append(card);
         }
         root.append(requests);
+        if (Deeds && (s.earnedDeeds || []).length) {
+          const deeds = el('section', 'lore-section');
+          deeds.dataset.section = 'deeds';
+          const screen = Deeds.copy.screen || {};
+          deeds.append(el('h3', 'guide-heading', screen.title || 'Deeds'));
+          for (const tile of Deeds.grid(s.earnedDeeds, 'all')) {
+            const article = el('article', 'guide-entry' + (tile.earned ? ' is-earned' : ' is-locked'));
+            article.dataset.deed = tile.id;
+            if (tile.earned) {
+              article.append(el('h4', '', tile.name));
+              if (tile.flavour) article.append(el('p', '', tile.flavour));
+            } else article.append(el('h4', '', 'Not yet earned'));
+            deeds.append(article);
+          }
+          root.append(deeds);
+        }
         const tabs = el('div', 'lore-tabs');
         const spread = el('div', 'lore-spread');
         const list = el('div', 'lore-list');
@@ -774,10 +763,6 @@
         for (const node of model.nodes) {
           const b = el('button', 'region-node' + (node.here ? ' is-here' : '') + (node.holder && node.holder !== 'neutral' ? ' is-' + node.holder : ''));
           b.type = 'button';
-          b.style.left = node.left + '%';
-          b.style.top = node.top + '%';
-          b.style.width = node.width + '%';
-          b.style.height = node.height + '%';
           b.dataset.region = node.id;
           b.textContent = node.name;
           if (node.here) b.setAttribute('aria-current', 'true');
@@ -786,6 +771,35 @@
           b.addEventListener('focus', show);
           stage.append(b);
         }
+        const placeChips = () => {
+          const w = stage.clientWidth;
+          const h = stage.clientHeight;
+          if (w < 8 || h < 8) return false;
+          const measured = model.nodes.map((node) => {
+            const b = stage.querySelector('[data-region="' + node.id + '"]');
+            if (!b) return node;
+            b.style.left = '0px';
+            b.style.top = '0px';
+            b.style.width = 'auto';
+            b.style.height = 'auto';
+            return Object.assign({}, node, { chipW: Math.ceil(b.scrollWidth), chipH: Math.ceil(b.offsetHeight) });
+          });
+          const chips = RegionMap.layoutChips(measured, w, h, 18);
+          const byId = {};
+          let bottom = 0;
+          chips.forEach((chip) => { byId[chip.id] = chip; bottom = Math.max(bottom, chip.y + chip.h); });
+          stage.querySelectorAll('.region-node').forEach((b) => {
+            const chip = byId[b.dataset.region];
+            if (!chip) return;
+            b.style.left = Math.round(chip.x) + 'px';
+            b.style.top = Math.round(chip.y) + 'px';
+            b.style.width = Math.round(chip.w) + 'px';
+            b.style.height = Math.round(chip.h) + 'px';
+          });
+          stage.style.minHeight = Math.max(180, Math.ceil(bottom + 8)) + 'px';
+          return true;
+        };
+        if (!placeChips()) requestAnimationFrame(placeChips);
         paint(model.card);
         body.append(card, stage);
         board.append(body);
@@ -1559,6 +1573,8 @@
       const land0 = document.getElementById('home-landscape');
       if (land0 && land0.dataset.homeSrc && !(s && s.phase === 'encounter')) land0.src = land0.dataset.homeSrc;
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
+      const spot = document.querySelector('.is-spotlight');
+      keepOnePrimary(spot && spot.tagName === 'BUTTON' ? spot : null);
       markMode();
       const evOpen = !$('#game-event').hidden;
       const perkOpen = !!document.getElementById('perk-modal');
@@ -1689,7 +1705,7 @@
       if (shown.card.title) card.append(el('h2', 'event-title', shown.card.title));
       card.append(el('p', 'event-text', shown.card.body));
       const row = el('div', 'tutorial-actions');
-      const ok = el('button', 'primary', (shown.buttons && shown.buttons.dismiss) || '');
+      const ok = el('button', '', (shown.buttons && shown.buttons.dismiss) || '');
       ok.type = 'button'; ok.dataset.g = 'tutorialDismiss'; ok.style.pointerEvents = 'auto';
       const off = el('button', '', (shown.buttons && shown.buttons.turnOff) || '');
       off.type = 'button'; off.dataset.g = 'tutorialOff'; off.style.pointerEvents = 'auto';
@@ -1698,6 +1714,20 @@
       const where = showSpotlight(shown.card.id);
       card.dataset.spotlight = where || 'fallback';
       $('#game-main').append(card);
+    }
+    function keepOnePrimary(spot) {
+      const visible = (node) => {
+        if (!node || node.hidden) return false;
+        const style = getComputedStyle(node);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const box = node.getBoundingClientRect();
+        return box.width > 2 && box.height > 2;
+      };
+      const buttons = [...document.querySelectorAll('button.primary')];
+      let keep = spot && visible(spot) ? spot : null;
+      if (!keep) keep = buttons.find((node) => visible(node) && !node.closest('#tutorial-card')) || null;
+      buttons.forEach((node) => { if (node !== keep) node.classList.remove('primary'); });
+      if (keep) keep.classList.add('primary');
     }
     function showSpotlight(id) {
       const sel = SPOTLIGHT_TARGETS[id];
@@ -1724,7 +1754,7 @@
       if (d.g === 'tutorialOff') { if (Tutorial) Tutorial.turnOff(s, tutorialFacts()); render(); return; }
       if (d.g === 'goalOpen') { if (sceneOpen()) return; view = 'lore'; render(); return; }
       if (d.g === 'selectCat') { selectedCat = d.cat; view = 'cats'; render(); return; }
-      if (d.g === 'deedFilter') { s.deedFilter = d.filter; view = 'deeds'; render(); return; }
+      if (d.g === 'deedFilter') { view = 'lore'; render(); return; }
       if (d.g === 'councilSit' && Councils) {
         const opened = Councils.open(s);
         if (!opened.error) render();

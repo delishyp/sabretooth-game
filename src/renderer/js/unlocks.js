@@ -26,7 +26,7 @@
     { id: 'mark', name: 'Mark' }
   ];
   const SYSTEMS = STARTERS.concat(SECTIONS);
-  const ALWAYS = STARTERS.concat(['map', 'deeds', 'cats']);
+  const ALWAYS = STARTERS.concat(['map', 'cats']);
   /** Locked sections stay on the rail, greyed, and still selectable. */
   const SHOW_ALL = false;
   const HOLD_MIN = 50;

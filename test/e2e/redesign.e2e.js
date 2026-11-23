@@ -56,6 +56,31 @@ function probe() {
     if (el.scrollWidth > el.clientWidth + 3 && (s.overflowX === 'hidden' || s.textOverflow === 'ellipsis')) problems.push('clip ' + (el.innerText || '').slice(0, 24));
     if (problems.length > 12) break;
   }
+  for (const tag of document.querySelectorAll('.region-biome, .region-node, .tutorial-card, .tutorial-card .event-text')) {
+    const s = getComputedStyle(tag);
+    const r = tag.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2 || s.display === 'none' || s.visibility === 'hidden') continue;
+    if (parseFloat(s.fontSize) < 17.5) problems.push('small ' + s.fontSize + ' ' + (tag.innerText || '').slice(0, 24));
+  }
+  const primaries = [...document.querySelectorAll('button.primary')].filter((el) => {
+    const s = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    return !el.hidden && s.display !== 'none' && s.visibility !== 'hidden' && r.width > 2 && r.height > 2;
+  });
+  if (primaries.length > 1) problems.push('primaries ' + primaries.length);
+  const chips = [...document.querySelectorAll('.region-node')].filter((el) => {
+    const s = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    return !el.hidden && s.display !== 'none' && r.width > 2 && r.height > 2;
+  });
+  const hits = (a, b) => a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+  for (let i = 0; i < chips.length; i++) {
+    const a = chips[i].getBoundingClientRect();
+    for (let j = i + 1; j < chips.length; j++) {
+      if (hits(a, chips[j].getBoundingClientRect())) problems.push('map ' + chips[i].textContent.trim() + ' / ' + chips[j].textContent.trim());
+    }
+    if (problems.length > 16) break;
+  }
   const stage = document.getElementById('stage').getBoundingClientRect();
   if (Math.abs(stage.width - W) > 3 || Math.abs(stage.height - H) > 3) problems.push('stage ' + Math.round(stage.width) + 'x' + Math.round(stage.height));
   const scene = [...document.querySelectorAll('.screen.active .home-landscape, .screen.active .creator-scene, #bg')].find((el) => {
@@ -179,10 +204,19 @@ function probe() {
         const heads = await page.evaluate(() => {
           const hits = (a, b) => a.left < b.right - 2 && a.right > b.left + 2 && a.top < b.bottom - 2 && a.bottom > b.top + 2;
           const panel = document.querySelector('#game-event');
+          const hud = document.querySelector('.shell-top');
           const out = [];
           if (!panel) return ['no panel'];
           const pr = panel.getBoundingClientRect();
+          const W = innerWidth, H = innerHeight;
           if (pr.top < -1) out.push('panel top ' + Math.round(pr.top));
+          if (pr.bottom > H + 2) out.push('panel bottom ' + Math.round(pr.bottom));
+          if (hud) {
+            const hr = hud.getBoundingClientRect();
+            const iw = Math.min(pr.right, hr.right) - Math.max(pr.left, hr.left);
+            const ih = Math.min(pr.bottom, hr.bottom) - Math.max(pr.top, hr.top);
+            if (iw > 1 && ih > 1) out.push('hits hud');
+          }
           const texts = [...document.querySelectorAll('#game-event .event-cast-name, #game-event .speaker-mood, #game-event .event-beat, #game-event .event-title, #game-event .event-choices')];
           for (const img of document.querySelectorAll('#game-event img.headshot')) {
             const ir = img.getBoundingClientRect();
@@ -198,6 +232,7 @@ function probe() {
             if (clip !== 'hidden' && (ir.left < fr.left - 2 || ir.top < fr.top - 2 || ir.right > fr.right + 2 || ir.bottom > fr.bottom + 2)) out.push('overflow');
             if (seen.width * seen.height < fr.width * fr.height * 0.9) out.push('crop gap');
             if (Math.abs(fr.width - fr.height) > 4) out.push('not square');
+            if (fr.top < -1 || fr.left < -1 || fr.bottom > H + 2 || fr.right > W + 2) out.push('frame offscreen');
             for (const text of texts) {
               if (hits(seen, text.getBoundingClientRect())) { out.push('hits text'); break; }
             }
@@ -303,6 +338,20 @@ function probe() {
         await page.waitForTimeout(80);
         await shoot(`actions-${tag}`);
         await page.evaluate(() => { const box = document.getElementById('game-actions'); if (box) box.hidden = true; window.__menuDebug.game().render(); });
+      }
+    }
+    await page.evaluate(() => {
+      const ids = Object.keys(window.RegionMap.LAYOUT);
+      window.__menuDebug.gamePatch({ map: { discovered: ids } });
+    });
+    await page.locator('[data-view="map"]').click();
+    await page.waitForTimeout(150);
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await page.waitForTimeout(80);
+        await shoot(`map-${w}x${h}-u${String(u).replace('.', '')}`);
       }
     }
     await page.locator('[data-view="lore"]').click();

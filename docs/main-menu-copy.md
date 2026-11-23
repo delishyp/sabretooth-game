@@ -211,7 +211,7 @@ Decisions on the B12 mismatches:
     "run.emptyMeta": "Run slot {slot}",
     "run.damagedName": "Damaged run",
     "run.damagedMeta": "Run slot {slot}. This run can't be loaded, but it can be deleted.",
-    "run.meta": "Generation {generation} · Last played {lastPlayed} · {saveCount}/3 saves",
+    "run.meta": "Generation {generation} · Last played {lastPlayed}",
     "run.defaultCatName": "Unnamed cat",
     "run.defaultPrideName": "Nameless pride",
     "run.sandboxTag": "No game over",

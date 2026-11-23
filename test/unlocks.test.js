@@ -26,7 +26,7 @@ test('home, wilderness, smilodons and lore start open, and locked sections stay 
   assert.strictEqual(Unlocks.displayState(fresh, 'pride'), 'locked');
   assert.strictEqual(Unlocks.displayState(fresh, 'home'), 'open');
   assert.strictEqual(Unlocks.displayState(fresh, 'map'), 'open');
-  assert.strictEqual(Unlocks.displayState(fresh, 'deeds'), 'open');
+  assert.strictEqual(Unlocks.displayState(fresh, 'deeds'), 'locked');
 });
 
 test('pride opens on the first of border scent, patrol, joining or founding', () => {
@@ -74,7 +74,7 @@ test('a locked section or action stays selectable and returns its opens-when lin
   const s = save();
   assert.deepStrictEqual(Unlocks.selectSection(s, 'home'), { navigate: true });
   assert.deepStrictEqual(Unlocks.selectSection(s, 'map'), { navigate: true });
-  assert.deepStrictEqual(Unlocks.selectSection(s, 'deeds'), { navigate: true });
+  assert.strictEqual(Unlocks.selectSection(s, 'deeds').navigate, undefined);
   assert.deepStrictEqual(Unlocks.selectSection(s, 'cats'), { navigate: true });
   const pride = Unlocks.selectSection(s, 'pride');
   assert.strictEqual(pride.navigate, undefined);

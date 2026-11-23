@@ -15,7 +15,7 @@ test('root menu jpg is the approved Milky Way scene and the old png is untouched
   const png = art.indexOf('background.png');
   assert.ok(jpg !== -1 && png !== -1 && jpg < png);
   const html = fs.readFileSync(path.join(root, 'src/renderer/index.html'), 'utf8');
-  assert.ok(html.includes('assets/menu/background-1920.png'));
+  assert.ok(html.includes('assets/menu/background.jpg'));
   assert.ok(!html.includes('assets/menu/night/work/bg1920.png'));
   assert.ok(html.includes('assets/game/home-landscape.png'));
 });

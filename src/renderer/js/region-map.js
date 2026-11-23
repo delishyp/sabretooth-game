@@ -100,5 +100,37 @@
     if (!Territory || !state.map) return 'neutral';
     return Territory.lead(state.map.claims, id).holder || 'neutral';
   }
-  return { LAYOUT, NODE, CARD, intersects, saddleBox, build, cardFor };
+  /**
+   * Place name chips in north-to-south rows so no two boxes intersect.
+   * chipW and chipH, when set, are the measured label size.
+   */
+  function layoutChips(nodes, boardW, boardH, font) {
+    const px = Math.max(18, Number(font) || 18);
+    const width = Math.max(1, Number(boardW) || 1);
+    const gap = 6;
+    const chips = (nodes || []).filter((n) => n && n.name).map((n) => {
+      const text = String(n.name);
+      const w = Math.min(width, Math.max(px, Math.ceil(n.chipW || (text.length * px * 0.62 + 28))));
+      const h = Math.max(px, Math.ceil(n.chipH || (px * 1.35 + 12)));
+      return { id: n.id, w, h, ax: Number(n.left) || 0, ay: Number(n.top) || 0, x: 0, y: 0 };
+    });
+    chips.sort((a, b) => a.ay - b.ay || a.ax - b.ax || String(a.id).localeCompare(String(b.id)));
+    let x = 0;
+    let y = 0;
+    let rowH = 0;
+    for (const chip of chips) {
+      if (x > 0 && x + chip.w > width) {
+        y += rowH + gap;
+        x = 0;
+        rowH = 0;
+      }
+      chip.x = x;
+      chip.y = y;
+      x += chip.w + gap;
+      rowH = Math.max(rowH, chip.h);
+    }
+    void boardH;
+    return chips;
+  }
+  return { LAYOUT, NODE, CARD, intersects, saddleBox, build, cardFor, layoutChips };
 });

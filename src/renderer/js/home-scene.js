@@ -27,7 +27,6 @@
     { id: 'market', implemented: false },
     { id: 'inventory', implemented: false },
     { id: 'lore', implemented: true },
-    { id: 'deeds', implemented: true },
     { id: 'reputation', implemented: true },
   ];
 

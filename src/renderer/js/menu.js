@@ -216,7 +216,7 @@
       // run.modes on its own line, run.sandboxTag after it for Sandbox runs (copy §6 notes). Pre-v1.3 runs = Standard (store).
       const modes = document.createElement('span'); modes.className = 'rmodes';
       modes.textContent = t('run.modes', { styleName: styleName(r.style), deathRuleName: diffName(r.difficulty) }) + (r.difficulty === 'sandbox' ? ` · ${t('run.sandboxTag')}` : '');
-      meta.textContent = t('run.meta', { generation: r.generation, lastPlayed: when(r.lastPlayedAt), saveCount: r.saves.length });
+      meta.textContent = t('run.meta', { generation: r.generation, lastPlayed: when(r.lastPlayedAt) });
       b.append(name, modes, meta); return b;
     }
     b.append(name, meta); return b;
@@ -509,14 +509,27 @@
     const label = (text) => { const p = el('div', 'label', text); p.style.fontSize = '18px'; p.style.fontWeight = '700'; return p; };
     const row = el('div', 'chip-row pic-row');
     const ids = (creator.portraitIds || []).slice(0, 3);
-    const picName = ['Dark', 'Tawny', 'Pale'];
-    ids.forEach((id, index) => {
+    const pictureCoat = (id) => {
+      const entry = window.PortraitView && portraitReg ? window.PortraitView.entryFor(portraitReg, id) : null;
+      const label = String((entry && entry.sourceLabel) || '').toLowerCase();
+      const paren = label.match(/\(([^)]+)\)/);
+      const blob = paren ? paren[1] : label;
+      let name = 'Brown';
+      if (/black/.test(blob) || /donor/.test(label)) name = 'Black';
+      else if (/gray|grey/.test(blob)) name = 'Gray';
+      else if (/sandy|orange|gold/.test(blob)) name = 'Sandy';
+      else if (/tan|golden|cream|pale|white/.test(blob)) name = 'Tan';
+      else if (/brown/.test(blob)) name = 'Brown';
+      if (name === 'Pale') name = 'Tan';
+      return name;
+    };
+    ids.forEach((id) => {
       const b = el('button', 'pic' + (creator.portraitId === id ? ' is-on' : ''));
       b.type = 'button';
       const swatch = el('i', '');
       const file = '../../assets/portraits/cats/' + id + '.png';
       swatch.style.backgroundImage = `url("${file}")`;
-      b.append(swatch, document.createTextNode(picName[index] || 'Picture'));
+      b.append(swatch, document.createTextNode(pictureCoat(id)));
       b.addEventListener('click', (ev) => {
         ev.stopPropagation();
         creator = Creator.coerceLook({ ...creator, portraitId: id });
