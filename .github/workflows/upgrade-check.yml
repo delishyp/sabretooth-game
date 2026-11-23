@@ -1,4 +1,5 @@
 name: Upgrade check
+# Local feeds only. scripts/build-win-feed.js sets publish to never.
 on:
   workflow_dispatch:
   push:
