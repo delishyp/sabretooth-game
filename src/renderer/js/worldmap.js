@@ -7,6 +7,57 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.WorldMap = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
+  /** Closed map enums. `pool` is a seasonal pool (Tallgrass). */
+  const ENUMS = {
+    water: ['none', 'river', 'lake', 'marsh', 'meltwater', 'pool'],
+    tier: ['safe', 'balanced', 'rich', 'hardship', 'deadly'],
+    holder: ['neutral', 'highcrag', 'bonefield', 'mistwood', 'wolves'],
+    factionKind: ['pride', 'pack'],
+    season: ['spring', 'summer', 'autumn', 'winter']
+  };
+  function loadMapRules() {
+    if (typeof require === 'function') {
+      try { return require('../data/map-rules.json'); } catch (e) { /* browser */ }
+    }
+    return { dangerMode: 'max', dangerCap: 3 };
+  }
+  const mapRules = loadMapRules();
+  function dangerValue(hazards, opts) {
+    const rows = hazards || [];
+    const mode = (opts && opts.mode) || mapRules.dangerMode || 'max';
+    const cap = (opts && opts.cap) || mapRules.dangerCap || 3;
+    const bands = (opts && opts.bands) || [
+      { max: 0, danger: 0 }, { max: 2, danger: 1 }, { max: 10, danger: 2 }, { max: 100, danger: 3 }
+    ];
+    const pcts = rows.map((hazard) => hazard.pct || 0);
+    const peak = pcts.length ? Math.max(...pcts) : 0;
+    const sum = pcts.reduce((total, pct) => total + pct, 0);
+    const raw = mode === 'sum' ? sum : peak + ((opts && opts.featureBonus) || 0);
+    const band = bands.find((row) => raw <= row.max);
+    return Math.min(cap, band ? band.danger : cap);
+  }
+  function validate(data) {
+    const errors = [];
+    const known = (list, value) => list.includes(value);
+    const biomes = new Set((data.biomes || []).map((row) => row.id));
+    const hazards = new Set((data.hazards || []).map((row) => row.id));
+    for (const season of data.seasons || []) if (!known(ENUMS.season, season)) errors.push(`season ${season}`);
+    for (const faction of data.factions || []) if (!known(ENUMS.factionKind, faction.kind)) errors.push(`faction ${faction.id} kind ${faction.kind}`);
+    for (const region of data.regions || []) {
+      if (!known(ENUMS.water, region.water)) errors.push(`${region.id} water ${region.water}`);
+      if (!known(ENUMS.tier, region.tier)) errors.push(`${region.id} tier ${region.tier}`);
+      if (!known(ENUMS.holder, region.startHolder)) errors.push(`${region.id} startHolder ${region.startHolder}`);
+      if (region.disputedBy != null && !known(ENUMS.holder, region.disputedBy)) errors.push(`${region.id} disputedBy ${region.disputedBy}`);
+      if (region.pressureFaction != null && !known(ENUMS.holder, region.pressureFaction)) errors.push(`${region.id} pressureFaction ${region.pressureFaction}`);
+      if (!biomes.has(region.biome)) errors.push(`${region.id} biome ${region.biome}`);
+      for (const season of Object.keys(region.preyBySeason || {})) if (!known(ENUMS.season, season)) errors.push(`${region.id} prey season ${season}`);
+      for (const hazard of region.hazards || []) {
+        if (!hazards.has(hazard.id)) errors.push(`${region.id} hazard ${hazard.id}`);
+        for (const season of hazard.seasons || []) if (!known(ENUMS.season, season)) errors.push(`${region.id} hazard season ${season}`);
+      }
+    }
+    return errors;
+  }
   function create(data) {
     const regions = new Map(data.regions.map((r) => [r.id, r]));
     const biomes = new Map(data.biomes.map((b) => [b.id, b]));
@@ -26,8 +77,13 @@
     const preyPoints = (id, season) => data.preyPoints[preyFor(id, season)];
     /** §6.1: a hazard rolls in `season` when it has no season tag, except thin_ice, which is spring-only unless tagged. */
     const hazardsFor = (id, season) => region(id).hazards.filter((h) => (h.seasons ? h.seasons.includes(season) : h.id !== 'thin_ice' || season === 'spring'));
-    /** §6.4: danger 0–3 from the max daily % of this season's hazards. */
-    const danger = (id, season) => { const max = Math.max(0, ...hazardsFor(id, season).map((h) => h.pct)); return data.dangerBands.find((b) => max <= b.max).danger; };
+    /** Highest hazard plus its feature bonus, or the sum of hazards. Both cap at 3. */
+    const danger = (id, season) => dangerValue(hazardsFor(id, season), {
+      mode: data.dangerMode || mapRules.dangerMode,
+      featureBonus: region(id).featureBonus || 0,
+      bands: data.dangerBands,
+      cap: mapRules.dangerCap
+    });
     /** §8.1: drinkable water this season (frozen water in winter → eat-snow, not free drink). Tar seeps etc. have water `none`. */
     const hasWater = (id, season) => { const r = region(id); return r.water !== 'none' && !(r.freezes && season === 'winter'); };
     const initClaims = () => {
@@ -70,5 +126,5 @@
     return out;
   }
   const edgeKey = (a, b) => [a, b].sort().join('|');
-  return { create, migrateMap, edgeKey };
+  return { create, migrateMap, edgeKey, ENUMS, validate, dangerValue, mapRules };
 });

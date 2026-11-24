@@ -1,0 +1,236 @@
+{
+  "id": "m2.border_policy_review.v1",
+  "status": "DRAFT additive narrative handoff for the existing border scene; no runtime/schema support or balance approval claimed. Council remains deferred.",
+  "purpose": "Produce an actual Highcrag->Bonefield introduction policy through ordinary play, then consume it in the border scene. A neutral numeric stance is not automatically permit, defer or a feud.",
+  "proposalForTundra": "The decision selector below is a proposed deterministic authoring default, not Anna-approved. Confirm/replace it and map policy writes through the sanctioned engine/schema effect. Do not silently treat a narrative proposal as an approved numeric faction rule.",
+  "scope": {
+    "fromPrideId": "highcrag",
+    "toPrideId": "bonefield",
+    "policyKind": "relay_introduction_requests_involving_bonefield",
+    "doesNotCover": [
+      "Unrelated requests to meet Highcrag’s leader",
+      "Bonefield->Highcrag policy",
+      "Border-entry/hunting rights",
+      "War/peace or all-pride hostility",
+      "Player romance, personal affection or pride admission"
+    ]
+  },
+  "normalRoute": [
+    {
+      "step": "request_review",
+      "entry": "At an ordinary legal Highcrag border meeting with unknown policy, add authored request_policy_review choice. Requires current topic explicitly concerns Bonefield; general requests must not be blocked by unrelated faction policy.",
+      "choices": [
+        {
+          "id": "request_policy_review",
+          "label": "“Ask your leader whether you may carry requests involving Bonefield.”",
+          "effect": "Commit one review request, naming player, guard and current Highcrag leader. No policy value yet."
+        },
+        {
+          "id": "withdraw",
+          "label": "“Leave it for now.”",
+          "effect": "No review request or policy write."
+        }
+      ]
+    },
+    {
+      "step": "actual_relay",
+      "entry": "At next eligible day-resolution after hazards, using existing event budget; never interrupt pendingArc. Persist request/latch if occupied, with no forced time skip.",
+      "effect": "Commit the guard’s actual relay to the current living leader, with request-source provenance. This teaches that recipient the petition only, not private player history. If leader unavailable, keep unresolved; no substitute, synthetic relay or invented old policy."
+    },
+    {
+      "step": "review_scene",
+      "entry": "A subsequent eligible border review scene explicitly brings the leader, reporting guard and player together at the legal meeting site. Save these actual attendee IDs; use their current saved names, portraits and all five traits. This is a new on-screen meeting, not a claim that an earlier request already guaranteed an audience.",
+      "effect": "Leader responds on-screen; permit/defer is the leader’s committed ruling, not the player editing faction data."
+    },
+    {
+      "step": "border_consequence",
+      "entry": "After the ruling and its scoped knowledge commit, resume/offer the existing border introduction request for the same Bonefield topic.",
+      "effect": "Permitted offers send_request; deferred offers explanation/withdrawal. Persist selected branch/policy version/source and exact speech/choices before display. No replay cost."
+    }
+  ],
+  "decisionProposal": {
+    "inputs": [
+      "current Highcrag leader’s saved personality",
+      "Highcrag->Bonefield active source event IDs",
+      "what the leader actually knows",
+      "the explicit request topic"
+    ],
+    "priority": [
+      "If a committed unresolved pride-level fight/breach or explicit prior deferral applies AND the leader knows its source, choose defer with that cause. A reverse edge alone, private ln05 history, or numeric dislike without a source cannot supply an accusation.",
+      "Otherwise, proposed authoring default: leader.curiosity >=50 -> permit_relay, leader.curiosity <50 -> defer_relay. This is willingness to hear a petition, not hostility. Both branches are ordinarily reachable across generated leaders without a seeded feud. Freeze the ruling after commitment; no live random draw.",
+      "Tundra may replace the cutoff/selector; all stored outcomes must still cite an actual leader-decision event. Do not let a player-selected tone directly force global policy."
+    ],
+    "noPersonality": "Keep review unresolved and explicitly flag missing character data. Do not use a generic leader or lean-column values.",
+    "noNumericEffects": "No automatic faction/standing/affinity delta. Policy change is the observable directional faction consequence. Thresholds for personal standing remain separate Tundra rules."
+  },
+  "commitContract": {
+    "worldEvent": "Policy ruling event records requestEventId, relayEventId, source leader/guard IDs, from/to pride IDs, policy kind, permit_relay/defer_relay, optional real cause fact IDs, sourceAbsDay and monotonic version.",
+    "policyWrite": "Set ONLY Highcrag->Bonefield policy of this kind, linked to the committed leader decision. Use/map the actual engine policy setter; no new unapproved free-form effect name implied here.",
+    "knowledge": "Leader, reporting guard and player actually present learn the exact ruling through this event. No automatic all-cat/pride-wide publicity. A different guard needs a subsequent actual instruction/relay or the normal explicitly enabled knowledge rule.",
+    "atomicity": "Ruling event + directional policy version + attendee knowledge + receipt + next cursor in one commit. Receipt must include run/request/decision identity; reload or a second witness cannot write it again.",
+    "pendingContinue": "Before ruling, policy stays unknown and request stays pending. After ruling, restore same version, speaker traits, presented lines and choices. No second decision on load.",
+    "precedence": "Superseding policy requires a new explicit ruling with version and cause. Preserve old event/history. An unfinished exchange stays pinned to its displayed source or pauses for an explicit revalidation, not a silent branch swap.",
+    "legacy": "Missing policy/knowledge remains unknown. Never retroactively claim the leader spoke. Normal request/relay/review route can create the first actual ruling."
+  },
+  "checks": [
+    "Ordinary new-game route reaches request -> relay -> actual on-screen ruling -> policy-dependent border choice; no debug setter or seeded hostility.",
+    "Use contrasting SYNTHETIC leader fixtures (not actual ln05 traits) around proposed curiosity49/50 with same source history: both defer and permit reachable; do not claim balancing approved.",
+    "Hold every other input fixed and change only Bonefield->Highcrag: no branch change.",
+    "Permitted ruling produces send_request and audience_offered; deferred ruling produces explanation/withdrawal and audience_deferred, both tied to saved cause/version.",
+    "If leader lacks knowledge of a recorded conflict, leader may not name it. If guard knows policy but not private aid, guard never mentions the aid.",
+    "A deferral due to caution never becomes a historical feud, hostile numeric stance or accusation.",
+    "Different unknown guard does not magically inherit ruling knowledge; an actual order relay must be recorded.",
+    "Save before ruling, after ruling, and mid-border response; exact speaker/trait/line/choice state survives and effects apply once.",
+    "All player exits remain present; asking for a review does not resolve return_quiet, promise an audience, grant passage or duplicate daily costs.",
+    "Missing required traits remains an explicit character gap, not a baseline-only success."
+  ],
+  "personalityCoverage": {
+    "policyRef": "Revision6 personalityCoverage render/action/relationship precedence, applied to EACH CURRENT SPEAKER, not ln05 or the player. All five saved traits mandatory. Store exact variant/action and node for Continue. Context action tables inherited; no new trait mechanics.",
+    "speechLocations": {
+      "unknown_offer": {
+        "speaker": "guard",
+        "focusTrait": "sociability",
+        "context": "opening",
+        "base": "I do not have an instruction about carrying requests involving Bonefield. I can ask.",
+        "high": "I can ask our leader about carrying that request. Stay outside our boundary while it waits.",
+        "low": "I do not have that instruction. I can ask, but wait outside our boundary.",
+        "requires": "current scene and selected branch"
+      },
+      "review_requested": {
+        "speaker": "guard",
+        "focusTrait": "loyalty",
+        "context": "return",
+        "base": "I will ask about that request. I have not promised an answer.",
+        "high": "I will carry that question as you gave it. Do not count it as an answer yet.",
+        "low": "I can ask the question. I am not making a promise about the answer.",
+        "requires": "current scene and selected branch"
+      },
+      "leader_open": {
+        "speaker": "leader",
+        "focusTrait": "boldness",
+        "context": "question",
+        "base": "You asked whether requests involving Bonefield may be carried. I have heard that question.",
+        "high": "I have heard your request. I will give the instruction here, so there is no guessing.",
+        "low": "I have heard the question. Let us be clear about what is being asked before anyone carries a request.",
+        "requires": "actual request and relay event; leader present"
+      },
+      "leader_permit": {
+        "speaker": "leader",
+        "focusTrait": "curiosity",
+        "context": "question",
+        "base": "Requests involving Bonefield may be brought to me. Hearing one is not agreeing to it.",
+        "high": "Bring me those requests. I want to hear what is being asked before deciding.",
+        "low": "You may carry the request to me. Keep it to the matter being asked; hearing it grants nothing.",
+        "requires": "committed permit_relay decision; no claim of peace"
+      },
+      "leader_defer_caution": {
+        "speaker": "leader",
+        "focusTrait": "loyalty",
+        "context": "boundary",
+        "base": "Hold requests involving Bonefield for now. That is a delay, not a declaration of a feud.",
+        "high": "Hold them for now. I will not let an unclear invitation become a promise on my pride’s behalf.",
+        "low": "Hold them for now. I am not binding our pride to an arrangement simply by receiving a petition.",
+        "requires": "committed defer_relay decision without verified conflict cause"
+      },
+      "leader_defer_cause": {
+        "speaker": "leader",
+        "focusTrait": "aggression",
+        "context": "boundary",
+        "base": "That unresolved matter must be dealt with first. Hold those requests for now.",
+        "high": "That matter is not settled. Hold the requests; I will not pretend we have passed it.",
+        "low": "That matter remains unsettled. Let us hold the requests rather than imply it is resolved.",
+        "requires": "committed defer_relay; leader knows actual applicable source event. Attach source-event summary only from verified fact, never authored invented incident."
+      },
+      "guard_permitted": {
+        "speaker": "guard",
+        "focusTrait": "sociability",
+        "context": "return",
+        "base": "The instruction permits me to carry your request. What should I tell our leader?",
+        "high": "I can carry it under that instruction. Tell me what you want our leader to hear.",
+        "low": "I can carry this request. Say plainly what you want me to pass on.",
+        "requires": "guard knows current permit version; player standing gate separately passes"
+      },
+      "guard_deferred_known_aid": {
+        "speaker": "guard",
+        "focusTrait": "aggression",
+        "context": "boundary",
+        "base": "I know about your help to a Bonefield cat, and I have the instruction to wait. You can give your account; I cannot promise an introduction.",
+        "high": "I know about that help. Tell me your account if you want it heard, but do not mistake that for an introduction.",
+        "low": "I know about that help. You may explain it, but the instruction still leaves the request waiting.",
+        "requires": "guard knows current defer version AND actual verified aid event involving Bonefield; aid knowledge is not evidence that the aid caused policy"
+      },
+      "guard_deferred_no_aid": {
+        "speaker": "guard",
+        "focusTrait": "boldness",
+        "context": "boundary",
+        "base": "The instruction is to hold these requests. I am not carrying this one today.",
+        "high": "The instruction is to wait. I will not carry it today.",
+        "low": "I have the instruction to wait. I cannot offer to carry it today.",
+        "requires": "guard knows current defer version; private aid knowledge absent"
+      },
+      "guard_unknown": {
+        "speaker": "guard",
+        "focusTrait": "curiosity",
+        "context": "question",
+        "base": "I do not have an answer about that request.",
+        "high": "I do not have an instruction yet. We can ask what is allowed; I will not guess.",
+        "low": "I have no answer to give. I will not promise one.",
+        "requires": "no known applicable policy; never asserts a secret ruling"
+      },
+      "account_request": {
+        "speaker": "guard",
+        "focusTrait": "curiosity",
+        "context": "question",
+        "base": "Then tell me what happened.",
+        "high": "Tell me what happened, and what you actually saw.",
+        "low": "Give me the account plainly. I will not fill in what you leave out.",
+        "requires": "actual explanation choice; no forced private disclosure"
+      },
+      "verified_disclosure": {
+        "speaker": "guard",
+        "focusTrait": "loyalty",
+        "context": "question",
+        "base": "I have heard your account. The request still waits.",
+        "high": "I have heard it. I will keep your account separate from what the instruction allows.",
+        "low": "I have heard what you chose to tell me. It does not settle the request.",
+        "requires": "actual verified disclosure; learns exact source only, not all private history"
+      },
+      "keep_private": {
+        "speaker": "guard",
+        "focusTrait": "aggression",
+        "context": "boundary",
+        "base": "Then the request remains unanswered.",
+        "high": "Keep it private, then. I will not treat silence as an explanation or as guilt.",
+        "low": "You need not tell me more. The request still has no answer.",
+        "requires": "explicit player keep_private choice"
+      },
+      "relay_accepted": {
+        "speaker": "guard",
+        "focusTrait": "loyalty",
+        "context": "return",
+        "base": "At the border, not inside the den. I will pass that request on.",
+        "high": "At the border. I will carry that request, not promise what the answer will be.",
+        "low": "I can pass on a request to meet at the border. No answer is promised.",
+        "requires": "send_request committed under known permitted policy; audience_offered means relay accepted only"
+      },
+      "withdraw": {
+        "speaker": "guard",
+        "focusTrait": "sociability",
+        "context": "departure",
+        "base": "All right. The request stops here.",
+        "high": "All right. I will leave it there; you need not stay for my sake.",
+        "low": "All right. I will not carry a withdrawn request.",
+        "requires": "player withdrawal only; no policy, standing, cost or promise write"
+      }
+    },
+    "count": 15,
+    "moderate": "Focus31..69 uses the complete base response; data absence is not moderate.",
+    "playerChoices": "Keep player-authored intent and exits; NPC personality shapes the response/instruction and visible behavior, never rewrites the player."
+  },
+  "authoringValidation": {
+    "speechLocations": 15,
+    "fullExtremeUtterances": 30,
+    "sourceStructure": "checked",
+    "runtime": "NOT RUN; producer, actual policy setter and normal-play two-branch proof still require integration."
+  }
+}

@@ -152,13 +152,20 @@
    */
   async function compose(manifest, genes, opts) {
     const { canvas, loadImage } = opts; const warn = opts.warn || console.warn;
-    const [w, h] = manifest.size; canvas.width = w; canvas.height = h;
+    const [fw, fh] = manifest.size;
+    const pixelScale = opts.pixelScale > 0 && opts.pixelScale < 1 ? opts.pixelScale : 1;
+    const w = Math.max(1, Math.round(fw * pixelScale)), h = Math.max(1, Math.round(fh * pixelScale));
+    canvas.width = w; canvas.height = h;
     const mk = opts.createCanvas || ((cw, ch) => (typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(cw, ch)
       : Object.assign(document.createElement('canvas'), { width: cw, height: ch })));
     const path = (f) => (opts.dir ? `${opts.dir}/${f}` : f);
-    const layers = stackOrder(manifest.layers || [], genesToLayers(genes, opts));
+    const skip = new Set(opts.skipIds || []);
+    const only = opts.onlyIds ? new Set(opts.onlyIds) : null;
+    let layers = stackOrder(manifest.layers || [], genesToLayers(genes, opts));
+    layers = layers.filter((l) => (only ? only.has(l.id) : !skip.has(l.id)));
     const imgs = await Promise.all(layers.map((l) => loadImage(path(l.file)).catch((e) => { warn(`compositor: skipping ${l.id} (${l.file}): ${e && e.message || e}`); return null; })));
     const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, w, h);
+    if (opts.underlay) ctx.drawImage(opts.underlay, 0, 0, w, h);
     const drawn = [], skipped = [];
     const cache = opts.tintCache;   // optional Map: `${file}|${tint}|${w}x${h}` → tinted canvas (creator preview redraws < 100 ms)
     layers.forEach((l, i) => {
@@ -175,7 +182,7 @@
       ctx.drawImage(off, 0, 0); drawn.push(l.id);
     });
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    if (manifest.lineart) {
+    if (manifest.lineart && !opts.skipLineart) {
       const img = await loadImage(path(manifest.lineart)).catch((e) => { warn(`compositor: skipping lineart: ${e && e.message || e}`); return null; });
       if (img) { ctx.drawImage(img, 0, 0, w, h); drawn.push('lineart'); } else skipped.push('lineart');
     }

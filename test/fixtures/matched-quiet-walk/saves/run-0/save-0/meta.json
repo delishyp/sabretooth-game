@@ -1,0 +1,71 @@
+{
+  "saveId": "b9d8eed2-2aa1-4b15-a7f5-6471e379926b",
+  "runId": "b5dbe6de-7eb8-48d6-b280-fe752ec35cea",
+  "saveIndex": 0,
+  "writtenAt": "2026-11-07T21:00:56.361Z",
+  "inGameDate": {
+    "year": 1,
+    "season": "spring",
+    "day": 2
+  },
+  "playTimeSec": 0,
+  "saveVersion": 1,
+  "mainCat": {
+    "catId": "cat_f1f26979-bdf9-411b-98dd-096aa94d6fc9",
+    "name": "Quietstone",
+    "sex": "female",
+    "lifeStage": "adult",
+    "genes": {
+      "v": 1,
+      "loci": {
+        "coat": [
+          "greydun",
+          "greydun"
+        ],
+        "dilute": [
+          "D",
+          "D"
+        ],
+        "marking": [
+          "spotted",
+          "spotted"
+        ],
+        "dorsal": [
+          "ds",
+          "ds"
+        ],
+        "intensity": [
+          "I+",
+          "I-"
+        ],
+        "white": [
+          "none",
+          "none"
+        ],
+        "eyes": [
+          "gold",
+          "gold"
+        ],
+        "saber": [
+          "ivory",
+          "ivory"
+        ],
+        "het": [
+          "Het",
+          "Het"
+        ]
+      },
+      "eyeRight": null,
+      "mutations": [],
+      "personality": {
+        "aggression": 50,
+        "sociability": 50,
+        "boldness": 50,
+        "loyalty": 50,
+        "curiosity": 50
+      }
+    },
+    "scars": [],
+    "portraitId": "cat-6e2d788dd48ff440"
+  }
+}

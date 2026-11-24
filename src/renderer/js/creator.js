@@ -20,6 +20,12 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Creator = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
+  function traitsApi() {
+    if (typeof require === 'function') {
+      try { return require('./cat-traits'); } catch (e) { /* browser */ }
+    }
+    return typeof self !== 'undefined' ? self.CatTraits : null;
+  }
   // ---- lifecycle-spec §1.3, §2, §7 ----
   const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
   /** Every run starts on day 1 of spring, Year 1 (lifecycle-spec §1.3, Tundra). The single run-start constant. */
@@ -78,12 +84,21 @@
    */
   function coerceLook(s, rng = Math.random) {
     let st = s;
+    if (st.portraitId != null && (typeof st.portraitId !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(st.portraitId))) st = { ...st, portraitId: null };
+    if (st.staticArt) {
+      const ids = Array.isArray(st.portraitIds) ? st.portraitIds : [];
+      if (!ids.includes(st.portraitId)) st = { ...st, portraitId: ids[0] || null };
+    }
     if (!st.rare && hasRare(st)) st = { ...st, coat: RARE_COATS.includes(st.coat) ? pick(COATS, rng) : st.coat, oddEyes: 'off', eyeRight: null };
     if (!COATS.includes(st.coat) && !(st.rare && RARE_COATS.includes(st.coat))) st = { ...st, coat: pick(COATS, rng) };
     if (st.oddEyes === 'on') { if (!EYES.includes(st.eyeRight) || st.eyeRight === st.eyes) st = { ...st, eyeRight: nextOtherEye(st.eyes) }; }
     else if (st.oddEyes !== 'off' || st.eyeRight !== null) st = { ...st, oddEyes: 'off', eyeRight: null };
     const ids = focusIds(st);
-    if (!ids.includes(st.focus)) st = { ...st, focus: st.focus === 'eyeLeft' || st.focus === 'eyeRight' ? 'eyes' : st.focus === 'eyes' && ids.includes('eyeLeft') ? 'eyeLeft' : ROWS(st)[0] };
+    if (!ids.includes(st.focus)) {
+      const eyeRow = ids.includes('eyes') ? 'eyes' : (ids.includes('portrait') ? 'portrait' : ROWS(st)[0]);
+      const focus = (st.focus === 'eyeLeft' || st.focus === 'eyeRight') ? eyeRow : (st.focus === 'eyes' && ids.includes('eyeLeft') ? 'eyeLeft' : ROWS(st)[0]);
+      st = { ...st, focus: ids.includes(focus) ? focus : ROWS(st)[0] };
+    }
     return st;
   }
 
@@ -144,13 +159,20 @@
   function rollName(nameData, sex, rng = Math.random, avoid) { return randomName(namePool(nameData, sex), rng, avoid); }
   /** Fresh model on opening the creator (§3 defaults: random name, sex 50/50, coat/markings/eyes uniform; traits 50, Balanced). */
   /** On open the look is always common (§3.3–3.5 defaults); §3c rare looks come from the rows or Randomize. */
-  function init({ names, difficulty, sandboxOptions, rng = Math.random } = {}) {
-    return {
+  function init({ names, difficulty, sandboxOptions, rng = Math.random, portraitIds = null } = {}) {
+    const ids = Array.isArray(portraitIds) ? portraitIds.filter((id) => typeof id === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(id)) : [];
+    const base = {
       step: 1, focus: 'name', name: randomName(names, rng), sex: pick(SEXES, rng),
       coat: pick(COATS, rng), markings: pick(MARKINGS, rng), eyes: pick(EYES, rng), oddEyes: 'off', eyeRight: null,
+      portraitId: null,
       rare: rareAllowed(difficulty, sandboxOptions),
-      traits: { ...PRESETS[DEFAULT_PRESET] }, preset: DEFAULT_PRESET, range: rangeFor(difficulty, sandboxOptions), nameError: null
+      traits: { ...PRESETS[DEFAULT_PRESET] }, preset: DEFAULT_PRESET, range: rangeFor(difficulty, sandboxOptions), nameError: null,
+      picks: [], tab: 'body', appearanceText: '', droppedTags: [], birthPride: null,
+      founder: (traitsApi() ? traitsApi().founderBlood(rng) : { bloodline: {}, traits: [] })
     };
+    if (!ids.length) return base;
+    // The opening picture is the first registered production id. Randomize is the explicit control that changes it.
+    return { ...base, staticArt: true, portraitIds: ids, portraitId: ids[0] };
   }
 
   /**
@@ -171,7 +193,12 @@
   function randomizeLook(s, rng = Math.random) {
     let look;
     do { look = rollLook(s.rare, rng); } while (sameLook(look, s));
-    return coerceLook({ ...s, ...look }, rng);
+    let portraitId = s.portraitId;
+    if (s.staticArt && Array.isArray(s.portraitIds) && s.portraitIds.length > 1) {
+      const choices = s.portraitIds.filter((id) => id !== s.portraitId);
+      portraitId = pick(choices, rng);
+    }
+    return coerceLook({ ...s, ...look, portraitId }, rng);
   }
   /** §3b.5: reroll only the five traits from Normal(50, 15), nearest 5, clamped to the range; Preset shows custom. */
   function randomizeTraits(s, rng = Math.random) {
@@ -191,6 +218,13 @@
     return { ...s, traits: { ...s.traits, [trait]: v }, preset: 'custom' };
   }
   function cycleOption(s, row, dir) {
+    if (row === 'portrait') {
+      const list = s.portraitIds || [];
+      if (!list.length) return s;
+      const i = list.indexOf(s.portraitId);
+      const v = list[((i < 0 ? (dir > 0 ? -1 : 0) : i) + dir + list.length) % list.length];
+      return { ...s, portraitId: v };
+    }
     if (row === 'preset') {
       const i = PRESET_IDS.indexOf(s.preset);   // custom → right lands on the first preset, left on the last
       const j = i < 0 ? (dir > 0 ? 0 : PRESET_IDS.length - 1) : (i + dir + PRESET_IDS.length) % PRESET_IDS.length;
@@ -225,10 +259,18 @@
   /** mainCat written on Start (§4.2, §5.2–5.4). Blank name → a random default name. */
   function buildMainCat(s, { names = [], rng = Math.random, newId = defaultId } = {}) {
     const name = normalizeName(s.name) || randomName(names, rng);
+    const genes = genesFor(s);
+    const api = traitsApi();
+    const look = api ? api.appearanceOf(s.appearanceText || '', genes, s.picks || [], s.droppedTags || []) : { text: '', tags: [] };
+    const shown = (s.picks || []).slice();
+    for (const id of ((s.founder && s.founder.traits) || [])) if (!shown.includes(id)) shown.push(id);
     return {
       catId: newId(), name, sex: s.sex,
       ageSeasons: PLAYER_START_AGE, birthSeason: birthSeasonFor(PLAYER_START_AGE, RUN_START), lifeStage: lifeStageFor(PLAYER_START_AGE),
-      genes: genesFor(s), scars: []
+      genes, scars: [],
+      portraitId: typeof s.portraitId === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(s.portraitId) ? s.portraitId : null,
+      traits: shown, bloodline: (s.founder && s.founder.bloodline) || {},
+      appearanceText: look.text, appearanceTags: look.tags, birthPride: s.birthPride || null
     };
   }
 
@@ -237,10 +279,18 @@
   function ROWS(s) {
     const st = typeof s === 'object' ? s : { step: s };
     if (st.step === 2) return ['preset', ...TRAITS.map((k) => `trait:${k}`)];
+    if (st.step === 3) {
+      const group = st.tab || 'body';
+      const api = traitsApi();
+      const picks = api ? api.ROWS.filter((item) => item.group === group).map((item) => 'pick:' + item.id) : [];
+      return ['tab:body', 'tab:mind', 'tab:social', 'tab:lineage', ...picks];
+    }
+    if (st.step === 4) return [];
+    if (st.staticArt) return ['name', 'sex', 'portrait'];
     const eyes = st.rare && st.oddEyes === 'on' ? ['eyeLeft', 'eyeRight'] : ['eyes'];
     return ['name', 'sex', 'coat', 'markings', ...eyes, ...(st.rare ? ['oddEyes'] : [])];
   }
-  const BUTTONS = { 1: ['randomize', 'back', 'next'], 2: ['randomize', 'back', 'start'] };
+  const BUTTONS = { 1: ['randomize', 'back', 'next'], 2: ['randomize', 'back', 'next'], 3: ['back', 'next'], 4: ['back', 'start'] };
   const stepOf = (s) => (typeof s === 'object' ? s.step : s);
   const stops = (s) => [...ROWS(s).map((r) => [r]), BUTTONS[stepOf(s)]];
   const focusIds = (s) => [...ROWS(s), ...BUTTONS[stepOf(s)]];
@@ -254,9 +304,19 @@
     const goStep = (step, focus) => { st = { ...st, step, focus }; return out(); };
     const confirmButton = (id) => {
       if (id === 'randomize') { st = s.step === 1 ? randomizeLook(s, rng) : randomizeTraits(s, rng); return out(); }
-      if (id === 'back') return s.step === 2 ? goStep(1, 'next') : out({ type: 'leave' });
-      if (id === 'next') return goStep(2, 'preset');
-      if (id === 'start') return out({ type: 'start', mainCat: buildMainCat(s, { names: env.names, rng, newId: env.newId }) });
+      if (id === 'back') {
+        if (s.step === 4) return goStep(3, 'next');
+        if (s.step === 3) return goStep(2, 'next');
+        if (s.step === 2) return goStep(1, 'next');
+        return out({ type: 'leave' });
+      }
+      if (id === 'next') {
+        if (s.step === 1) return goStep(2, 'preset');
+        if (s.step === 2) return goStep(3, 'tab:body');
+        if (s.step === 3) return goStep(4, 'start');
+        return out();
+      }
+      if (id === 'start' && s.step === 4) return out({ type: 'start', mainCat: buildMainCat(s, { names: env.names, rng, newId: env.newId }) });
       return out();
     };
 
@@ -266,6 +326,8 @@
       st = { ...s, focus: arg };
       if (arg === 'name') return out();
       if (BUTTONS[s.step].includes(arg)) return confirmButton(arg);
+      if (arg.startsWith('tab:')) return reduce(st, 'setTab', arg.slice(4), env);
+      if (arg.startsWith('pick:')) return reduce({ ...st, focus: arg }, 'togglePick', arg.slice(5), env);
       if (arg.startsWith('trait:')) return out();
       st = cycleOption(st, arg, 1); return out();
     }
@@ -281,8 +343,46 @@
     }
     if (action === 'nameInput') { const r = sanitizeName(arg); st = { ...s, name: r.value, nameError: r.error }; return out(); }
 
-    if (action === 'back') return s.step === 2 ? goStep(1, 'next') : out({ type: 'leave' });
-    if (action === 'start') return s.step === 1 ? goStep(2, 'preset') : confirmButton('start');
+    if (action === 'togglePick') {
+      const api = traitsApi();
+      if (!api || s.step !== 3) return out();
+      const turned = api.toggle(s.picks || [], arg, { freeBlood: s.rare });
+      st = { ...s, picks: turned.picks, focus: 'pick:' + arg, pickReason: turned.reason };
+      return out();
+    }
+    if (action === 'setTab') {
+      if (s.step !== 3 || !['body', 'mind', 'social', 'lineage'].includes(arg)) return out();
+      st = { ...s, tab: arg, focus: 'tab:' + arg };
+      return out();
+    }
+    if (action === 'setAppearance') {
+      if (s.step !== 1) return out();
+      st = { ...s, appearanceText: String(arg || '').slice(0, 280), focus: 'name' };
+      return out();
+    }
+    if (action === 'dropTag') {
+      const dropped = (s.droppedTags || []).concat(arg);
+      st = { ...s, droppedTags: dropped, focus: 'appearance' };
+      return out();
+    }
+    if (action === 'setBirthPride') {
+      const api = traitsApi();
+      const list = api ? api.PRIDES : [];
+      const i = list.indexOf(s.birthPride);
+      st = { ...s, birthPride: list[(i + 1) % list.length] || null };
+      return out();
+    }
+    if (action === 'back') {
+      if (s.step === 4) return goStep(3, 'next');
+      if (s.step === 3) return goStep(2, 'next');
+      return s.step === 2 ? goStep(1, 'next') : out({ type: 'leave' });
+    }
+    if (action === 'start') {
+      if (s.step === 1) return goStep(2, 'preset');
+      if (s.step === 2) return goStep(3, 'tab:body');
+      if (s.step === 3) return goStep(4, 'start');
+      return confirmButton('start');
+    }
 
     const all = stops(s); let si = all.findIndex((x) => x.includes(f));
     if (si < 0) { st = { ...s, focus: ROWS(s)[0] }; return out(); }

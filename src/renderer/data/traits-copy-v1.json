@@ -1,0 +1,6048 @@
+{
+  "_readme": "Trait and appearance copy (Saga), v1, for docs/design/achievements-difficulty-traits-v0.1.md at fe61477 (v0.1.3a). Names, flavour lines and plain effect hints for every §3.2 trait id; NPC reaction hooks in Flint's mixed-block schema; rumour lines for §3.4a (traits rumoured until met), tied to the lore book's existing rumour keys; and §3b appearance-tag extraction lists with first-meeting, repeat-meeting, courtship and rival-taunt lines. Voice: narrator-voice-v1.md; every reaction block follows Anna's approved pass-2 dialogue style (dialogue-pass-2.md): cats talk to you plainly, say what they think of the trait or look, at most one body-language beat, contractions and questions. No digits or number words in prose, no game words in lines the cats speak, no saber colour, no he/she/him/her and no singular they for any cat, no gendered words for the player, nothing a Smilodon couldn't know. Selection everywhere: each list is tried in order, the first matching when wins, and the last entry has no when and is the default. The trait list itself is DRAFT awaiting Anna's sign-off, so this bank follows it and changes with it. Built by build_traits_copy.py, checked by validate_traits_copy.py.",
+  "_source": {
+    "spec": "docs/design/achievements-difficulty-traits-v0.1.md",
+    "commit": "fe61477",
+    "specVersion": "v0.1.3a",
+    "sections": "§3.2 (trait ids), §3.4a (rumours), §3.4b (Tundra's rulings for this copy), §3b.2–3b.7 (appearance tags), §1.5 A31 (rare genes)",
+    "genetics": "docs/genetics-spec.md §1.1, §1.8, §2.5, §3.5",
+    "loreBook": "docs/design/lore-book-v0.1.md §3 and lore-book-copy-v1.json rumour block",
+    "voice": "narrator-voice-v1.md"
+  },
+  "_tokens": {
+    "catId": "Block speaker: the NPC who reacts. The renderer resolves it to that cat's name label and pride tint.",
+    "name": "In reaction beats, the speaking cat (the same cat as {catId}). In rumour lines, the cat the rumour is about (the lore book's subject; bind it to the same cat as {subjectName} if the lore-book renderer expects that token).",
+    "sourceName": "The cat who passed the rumour on (same token as lore-book-copy-v1, map-danger-gossip-v1 and reputation-copy-v1)."
+  },
+  "_schema": {
+    "traits": "Keyed by spec trait id. name = player-facing name; renamedFrom = Tundra's working name where Saga renamed it; flavour = one sentence for the creator picker and cat detail, second person; hint = one plain line, no numbers, for the picker tooltip. reactions = a first-when-wins list of mixed blocks an NPC may say to the player about the player's trait at a first meeting, in courtship or as a rival taunt; the last entry has no when. repeat_meeting = the same kind of list for a repeat meeting. A missing or empty reactions list means nobody remarks on it (see _skippedReactions), and such a trait has no repeat_meeting.",
+    "block": "{speaker:'{catId}', parts:[{beat}|{say}...]}. beat = narration in the narrator colour; {name} in a beat is the speaker. say = the cat's spoken words only, with no quote marks (the renderer adds them). One to three sentences per block.",
+    "when": "Speaker trait bands, as in reputation-copy-v1: aggression, sociability, boldness, loyalty, curiosity, each high (>=70) or low (<=30). Baseline (31–69) gets only the unbanded default. Matches if every key present is true.",
+    "rumours": "trait.<id> = two told lines per trait (pick either; avoid the one played last for this subject). general = shared widely_told, confirmed, debunked and moot templates. See rumours._rules.",
+    "appearance": "Keyed by §3b.2 tag. keywords, phrases, blockers, negations: lowercase extraction lists (see appearance._rules). first_meeting = first-when-wins list (aggression high respects, sociability high asks, default plain); courtship and rival_taunt = a single default line each; repeat_meeting = a first-when-wins list for a repeat meeting."
+  },
+  "_rules": {
+    "remarkBudget": "Spec §3.4b.1 (PROPOSED DEFAULT, Tundra): trait reactions and appearance remarks share one budget. At most one trait-or-appearance remark per conversation, and after the first meeting each cat makes one at most once a season. They can fire in first meetings (traits.reactions, appearance first_meeting), repeat meetings (repeat_meeting), courtship (traits.reactions, appearance courtship) and rival taunts (traits.reactions, appearance rival_taunt). Flavour only: no affinity change of their own (§3b.6).",
+    "linkedTags": "A trait with a linked tag plays its own line or the tag's line, never both, in the same conversation (§3.4b.1). Links from §3.2: giant/large, runt/small, broad_shoulders/heavy, swift/lean, sickly/lean, lame_paw/limp, one_eyed/clouded_eye, chipped_saber/chipped_saber, frost_hardy/heavy, big_eater/heavy, battle_scarred/scarred_body or scarred_face, spear_marked/scarred_body, torn_ear/torn_ear.",
+    "settingFree": "Every trait and look-tag remark can play at any first meeting, repeat meeting, courtship or taunt, anywhere in the Vale and in any season, so no line assumes a scene (a kill nearby, snow, brambles, cubs present, a river or den). Beats describe only the two cats' bodies. validate_traits_copy.py warns on scene words; the allowed exceptions are listed in its SCENE_ALLOW, where the trait itself is about that thing.",
+    "playerTraitKnowledge": "For Flint (§3.4b.3): the player never sees rumours about themselves; the rumours block is only about NPCs. NPCs learn the player's traits as facts. A tag-linked trait (list above) is known on sight at the first meeting. Every other trait, including play-only traits gained later, is known only once that NPC holds the fact through knowsFact gossip (lone-cat-actions §8). Gate every traits.<id> reaction and repeat_meeting line on the speaking NPC knowing the trait; if it doesn't, the line never plays and the budget stays unspent."
+  },
+  "_skippedReactions": {
+    "ids": [
+      "fertile",
+      "small_litters",
+      "long_lived",
+      "short_lived",
+      "tainted_blood"
+    ],
+    "why": "No cat could see or sense these (litter size, lifespan, a hidden blood weakness), so remarks would leak a fact the speaker can't know. They still get names, flavour, hints and rumours."
+  },
+  "_renames": {
+    "iron_jaw": {
+      "from": "Iron Jaw",
+      "to": "Bone-Cracker"
+    },
+    "thin_skinned": {
+      "from": "Thin-Skinned",
+      "to": "Thin Hide"
+    },
+    "sharp_eyes": {
+      "from": "Sharp Eyes",
+      "to": "Far-Seeing"
+    },
+    "frost_hardy": {
+      "from": "Frost-Hardy",
+      "to": "Frost-Furred"
+    },
+    "big_eater": {
+      "from": "Big Eater",
+      "to": "Bottomless"
+    },
+    "fertile": {
+      "from": "Fertile",
+      "to": "Teeming Den"
+    },
+    "small_litters": {
+      "from": "Small Litters",
+      "to": "Thin Litters"
+    },
+    "long_lived": {
+      "from": "Long-Lived",
+      "to": "Slow to Grey"
+    },
+    "short_lived": {
+      "from": "Short-Lived",
+      "to": "Early Frost"
+    },
+    "short_tempered": {
+      "from": "Short-Tempered",
+      "to": "Quick Hackles"
+    },
+    "even_tempered": {
+      "from": "Even-Tempered",
+      "to": "Slow Hackles"
+    },
+    "craven": {
+      "from": "Craven",
+      "to": "Quick to Bolt"
+    },
+    "gullible": {
+      "from": "Gullible",
+      "to": "Open-Eared"
+    },
+    "silver_tongue": {
+      "from": "Silver Tongue",
+      "to": "Honey-Voiced"
+    },
+    "outcast_scent": {
+      "from": "Outcast Scent",
+      "to": "Exile's Scent"
+    },
+    "off_putting": {
+      "from": "Off-Putting",
+      "to": "Sour Musk"
+    },
+    "gossip": {
+      "from": "Gossip",
+      "to": "Wind-Carrier"
+    },
+    "heir_of_legend": {
+      "from": "Heir of Legend",
+      "to": "Storied Blood"
+    },
+    "tainted_blood": {
+      "from": "Tainted Blood",
+      "to": "Sickly Line"
+    },
+    "spear_marked": {
+      "from": "Spear-Marked",
+      "to": "Human-Scarred"
+    },
+    "elder_wisdom": {
+      "from": "Elder Wisdom",
+      "to": "Elder's Wisdom"
+    }
+  },
+  "traits": {
+    "iron_jaw": {
+      "group": "body",
+      "name": "Bone-Cracker",
+      "renamedFrom": "Iron Jaw",
+      "flavour": "Your bite closes like a rockfall and does not open until something breaks.",
+      "hint": "Your bite makes you stronger in a fight. Can't be taken with Chipped Saber.",
+      "reactions": [
+        {
+          "id": "traits.iron_jaw.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} looks at the width of your jaw."
+              },
+              {
+                "say": "A jaw like that splits bone clean through, doesn't it? Remind me never to fight you over a meal."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.iron_jaw.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I've heard about your bite. Is it true you crack bones like they're twigs?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.iron_jaw.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still cracking bones like twigs? Save me the marrow some time."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "broad_shoulders": {
+      "group": "body",
+      "name": "Broad Shoulders",
+      "flavour": "Your forequarters are built like a boulder that learned to walk.",
+      "hint": "Your build makes you stronger in a fight, and you look heavy to other cats. Can't be taken with Runt.",
+      "reactions": [
+        {
+          "id": "traits.broad_shoulders.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} squares up to your chest, a little lower than you."
+              },
+              {
+                "say": "You're built wide, I'll give you that. Doesn't mean I'd back down."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.broad_shoulders.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Do you ever squeeze through anywhere narrow, with shoulders like that?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.broad_shoulders.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} steps aside to give you room."
+              },
+              {
+                "say": "Go on, you'd take up all the space anyway."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "giant": {
+      "group": "body",
+      "name": "Giant",
+      "flavour": "You stand taller than most cats in the Vale, and you feel every stride of it by dusk.",
+      "hint": "Your size cows foes, but you tire sooner.",
+      "reactions": [
+        {
+          "id": "traits.giant.reactions[0]",
+          "when": {
+            "boldness": "low"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} backs up a step, then catches it."
+              },
+              {
+                "say": "You're a lot bigger up close. Sorry, I wasn't ready for that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.giant.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You're huge. Don't you get winded, hauling all that around?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.giant.repeat_meeting[0]",
+          "when": {
+            "boldness": "low"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} keeps a bit more ground between you this time."
+              },
+              {
+                "say": "Don't take it badly. I forget how big you are until you're right here."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.giant.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You again. I could see you coming from a long way off, which is handy, I suppose."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "runt": {
+      "group": "body",
+      "name": "Runt",
+      "flavour": "You were the smallest in the litter and never quite caught up.",
+      "hint": "Foes are harder to cow.",
+      "reactions": [
+        {
+          "id": "traits.runt.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} leans over you, close enough that you feel the breath."
+              },
+              {
+                "say": "You're small to be out here on your own. Does nobody look out for you?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.runt.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You're a little thing, aren't you? I don't mean it badly. Just look after yourself out here."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.runt.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} moves in close beside you, sheltering you."
+              },
+              {
+                "say": "Have you eaten? You look like you need it more than I do."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.runt.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still here, then. I'll be honest, I didn't think a cat your size would last the season."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "swift": {
+      "group": "body",
+      "name": "Swift",
+      "flavour": "Your legs are long and your stride is longer, and the wind is always just behind you.",
+      "hint": "You run and chase for longer.",
+      "reactions": [
+        {
+          "id": "traits.swift.reactions[0]",
+          "when": {
+            "boldness": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you pull up out of a full run and huffs."
+              },
+              {
+                "say": "Show-off. Race me sometime?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.swift.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Every cat says you're fast. If I were a horse, I'd give up before you got close."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.swift.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} startles when you arrive at a run."
+              },
+              {
+                "say": "Do you ever walk anywhere? I barely heard you."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "lame_paw": {
+      "group": "body",
+      "name": "Lame Paw",
+      "flavour": "An old wound in your leg never set right, and every step remembers it.",
+      "hint": "You fight and run a little worse.",
+      "reactions": [
+        {
+          "id": "traits.lame_paw.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sees you favour the bad leg and comes closer."
+              },
+              {
+                "say": "Does it ache much? Lie down and rest it, if you want."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.lame_paw.reactions[1]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s eyes drop to your uneven stride."
+              },
+              {
+                "say": "You step short on that leg. I'd keep that side away from a rival, if I were you."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.lame_paw.reactions[2]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "That leg's seen trouble, hasn't it? I won't ask unless you want to tell me."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.lame_paw.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} slows down before you have to ask."
+              },
+              {
+                "say": "How's the leg? Any easier?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.lame_paw.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still walking on it? Good. I wasn't sure you'd manage the walk out here."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "thick_hide": {
+      "group": "body",
+      "name": "Thick Hide",
+      "flavour": "Your pelt is dense and your skin is tougher still, and claws struggle to find purchase.",
+      "hint": "Blows hurt you less in a fight.",
+      "reactions": [
+        {
+          "id": "traits.thick_hide.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} gives your shaggy flank a long look."
+              },
+              {
+                "say": "Hide like a bear's. I'd break a claw on you before I drew blood, wouldn't I?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.thick_hide.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Do claws even get through that hide? I'd bet they don't."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.thick_hide.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs at an old scratch on you that never went deep."
+              },
+              {
+                "say": "Still nothing gets through that hide, does it?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "thin_skinned": {
+      "group": "body",
+      "name": "Thin Hide",
+      "renamedFrom": "Thin-Skinned",
+      "flavour": "Your coat is fine and your skin finer, and every thorn on the trail finds you.",
+      "hint": "Blows hurt you more in a fight.",
+      "reactions": [
+        {
+          "id": "traits.thin_skinned.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} noses at the nicks along your flank."
+              },
+              {
+                "say": "You bleed easy. I'd be careful who you pick a fight with."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.thin_skinned.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Look at your legs, they're all nicks. Do you bleed at everything?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.thin_skinned.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} noses at a fresh scratch on your leg."
+              },
+              {
+                "say": "More nicks? Honestly, you need to be more careful."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.thin_skinned.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I can smell fresh blood on you again. Was it a fight, or did you just scrape past something sharp?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "hardy": {
+      "group": "body",
+      "name": "Hardy",
+      "flavour": "Wounds that would lay another cat low only slow you down.",
+      "hint": "Your injuries are lighter.",
+      "reactions": [
+        {
+          "id": "traits.hardy.reactions[0]",
+          "when": {
+            "sociability": "low"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} grunts when you walk up."
+              },
+              {
+                "say": "Still on your feet. You're hard to kill, aren't you?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.hardy.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs at an old wound on you, long healed."
+              },
+              {
+                "say": "That should've laid you up for a season. You just walked it off?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.hardy.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Healed up again already? I've never met a cat who mends that fast."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "sickly": {
+      "group": "body",
+      "name": "Sickly",
+      "flavour": "You were born thin in the bone, and wounds dig deeper into you than they should.",
+      "hint": "Your injuries are worse.",
+      "reactions": [
+        {
+          "id": "traits.sickly.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} presses close to share warmth."
+              },
+              {
+                "say": "You're all ribs. Eat something before you go, please?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.sickly.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} catches the smell of old fever on you and leans back."
+              },
+              {
+                "say": "Are you all right? You don't look well."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.sickly.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You still look thin to me. Have you been eating at all?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.sickly.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs at you and flattens both ears."
+              },
+              {
+                "say": "You don't look much better. Is it the fever again?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "keen_nose": {
+      "group": "body",
+      "name": "Keen Nose",
+      "flavour": "You can tell an old horse from a young one by scent alone, long before either sees you.",
+      "hint": "Prey notices you later on the hunt.",
+      "reactions": [
+        {
+          "id": "traits.keen_nose.reactions[0]",
+          "when": {
+            "curiosity": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you lift your nose and read the air."
+              },
+              {
+                "say": "What can you smell that I can't? Teach me."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.keen_nose.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You smelled me before I'd even stepped out, didn't you? I don't love that."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.keen_nose.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} finds you already turned toward the right spot."
+              },
+              {
+                "say": "Smelled me coming again? There's no use hiding from you, is there?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "dull_nose": {
+      "group": "body",
+      "name": "Dull Nose",
+      "flavour": "Your nose tells you the wind is blowing and little else.",
+      "hint": "Prey notices you sooner on the hunt.",
+      "reactions": [
+        {
+          "id": "traits.dull_nose.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} is suddenly right beside you."
+              },
+              {
+                "say": "I've been downwind of you the whole way. You really didn't know?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.dull_nose.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Can you smell anything at all? I've been standing right here."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.dull_nose.repeat_meeting[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} is beside you before you notice."
+              },
+              {
+                "say": "I walked right up to you again! Next time it might not be me."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.dull_nose.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still can't smell a thing, can you? I'll make some noise when I come, then."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "sharp_eyes": {
+      "group": "body",
+      "name": "Far-Seeing",
+      "renamedFrom": "Sharp Eyes",
+      "flavour": "From high ground you read the land beyond the next ridge as easily as the one at your paws.",
+      "hint": "Scouting also shows the danger in neighbouring lands.",
+      "reactions": [
+        {
+          "id": "traits.sharp_eyes.reactions[0]",
+          "when": {
+            "curiosity": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} follows your gaze into the distance and squints."
+              },
+              {
+                "say": "What are you looking at? I can't see a thing out there."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.sharp_eyes.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You keep watching the distance long after the rest of us give up. Tell me if anything comes, would you?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.sharp_eyes.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "What can you see out there today? Anything I should worry about?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "one_eyed": {
+      "group": "body",
+      "name": "One-Eyed",
+      "flavour": "You lost an eye, and the world on that side is only sound and scent now.",
+      "hint": "Scouting shows only the land you stand in.",
+      "reactions": [
+        {
+          "id": "traits.one_eyed.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} circles slowly to your blind side."
+              },
+              {
+                "say": "You can't see me here, can you? A rival would use that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.one_eyed.reactions[1]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} steps round so you can see properly, then sits."
+              },
+              {
+                "say": "There, that's better. I'd rather talk where you can see me."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.one_eyed.reactions[2]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "What happened to the eye? Whatever it was, you came out alive, so it didn't win."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.one_eyed.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} comes in on your good side without being asked."
+              },
+              {
+                "say": "I remembered which side. Is this all right?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.one_eyed.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I'll come in on your good side. I don't like startling cats."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "long_sabers": {
+      "group": "body",
+      "name": "Long Sabers",
+      "flavour": "Your sabers hang well past your chin, and other cats find them hard to look away from.",
+      "hint": "Foes are easier to cow.",
+      "reactions": [
+        {
+          "id": "traits.long_sabers.reactions[0]",
+          "when": {
+            "boldness": "low"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s eyes keep going back to your sabers."
+              },
+              {
+                "say": "Those are very long. You'll keep them to yourself, won't you?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.long_sabers.reactions[1]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} bares a shorter pair and rumbles."
+              },
+              {
+                "say": "Long teeth. Let's see if you know how to use them."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.long_sabers.reactions[2]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "How do you drink with those? Don't you have to tip your whole head?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.long_sabers.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I still can't get used to those sabers. Do they ever catch on anything?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "chipped_saber": {
+      "group": "body",
+      "name": "Chipped Saber",
+      "flavour": "A saber has lost its tip, and the jagged edge is a story you may or may not tell.",
+      "hint": "Foes are harder to cow.",
+      "reactions": [
+        {
+          "id": "traits.chipped_saber.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s lip curls at your broken saber."
+              },
+              {
+                "say": "Something bit back, did it? I hope you won."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.chipped_saber.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Your saber's chipped. Does it hurt when you eat?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.chipped_saber.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you work your jaw, careful of the broken saber."
+              },
+              {
+                "say": "You've got the hang of eating round it now, haven't you?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "frost_hardy": {
+      "group": "body",
+      "name": "Frost-Furred",
+      "renamedFrom": "Frost-Hardy",
+      "flavour": "Your winter coat comes in thick and early, and blizzards only make you sleepy.",
+      "hint": "Winter weather can't injure you.",
+      "reactions": [
+        {
+          "id": "traits.frost_hardy.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} presses into your thick coat."
+              },
+              {
+                "say": "You're so warm. Can I stay here a moment?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.frost_hardy.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Is it true the cold doesn't reach you? I'd give a lot for a coat like that."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.frost_hardy.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "When the cold comes, can I shelter next to you? That coat's better than any cave."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.frost_hardy.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} pushes a nose into your thick coat."
+              },
+              {
+                "say": "The cold still leaves you alone, doesn't it? I'm jealous."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "big_eater": {
+      "group": "body",
+      "name": "Bottomless",
+      "renamedFrom": "Big Eater",
+      "flavour": "You eat until the kill is gone, and then you look around for more.",
+      "hint": "Your share of the pride's food is as big as another whole cat's.",
+      "reactions": [
+        {
+          "id": "traits.big_eater.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} eyes your belly, ears back."
+              },
+              {
+                "say": "Leave some for the rest of us at the next kill. I mean it."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.big_eater.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Where do you put it all? I've seen whole prides eat less than that."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.big_eater.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Hungry as ever, I see. Should I just stay clear of your kills?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "fertile": {
+      "group": "body",
+      "name": "Teeming Den",
+      "renamedFrom": "Fertile",
+      "flavour": "Your line runs strong, and your litters come in big and loud.",
+      "hint": "Your litters tend to be larger.",
+      "reactions": []
+    },
+    "small_litters": {
+      "group": "body",
+      "name": "Thin Litters",
+      "renamedFrom": "Small Litters",
+      "flavour": "Your litters come small, and every cub in them is precious.",
+      "hint": "Your litters tend to be smaller.",
+      "reactions": []
+    },
+    "long_lived": {
+      "group": "body",
+      "name": "Slow to Grey",
+      "renamedFrom": "Long-Lived",
+      "flavour": "Age walks behind you slowly, and you keep your strength later than most.",
+      "hint": "You grow old later.",
+      "reactions": []
+    },
+    "short_lived": {
+      "group": "body",
+      "name": "Early Frost",
+      "renamedFrom": "Short-Lived",
+      "flavour": "Your body knows the cold is coming sooner for you than for the others.",
+      "hint": "You grow old sooner.",
+      "reactions": []
+    },
+    "short_tempered": {
+      "group": "mind",
+      "name": "Quick Hackles",
+      "renamedFrom": "Short-Tempered",
+      "flavour": "Your fur rises before your thoughts do, and you are not sorry about it.",
+      "hint": "You lean aggressive, and a rude remark may make you snap.",
+      "reactions": [
+        {
+          "id": "traits.short_tempered.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sees your hackles go up and rumbles, pleased."
+              },
+              {
+                "say": "You've got a temper. Good, just don't aim it at me."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.short_tempered.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Easy, easy. Nobody's after you. Why are your hackles up?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.short_tempered.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches your fur, ready to step back."
+              },
+              {
+                "say": "Calm today? Good, I didn't want to get snapped at."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "even_tempered": {
+      "group": "mind",
+      "name": "Slow Hackles",
+      "renamedFrom": "Even-Tempered",
+      "flavour": "Insults slide off you like rain off a rock, and you are hard to rattle.",
+      "hint": "A rude remark never starts a scuffle with you.",
+      "reactions": [
+        {
+          "id": "traits.even_tempered.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} snarls right in your face and gets a slow blink back."
+              },
+              {
+                "say": "Nothing gets under your fur, does it? That's annoying."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.even_tempered.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You're calm. It's nice, being around a cat who doesn't bristle at everything."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.even_tempered.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You're still the calmest cat I know. Honestly, it's restful."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "craven": {
+      "group": "mind",
+      "name": "Quick to Bolt",
+      "renamedFrom": "Craven",
+      "flavour": "Your legs know the way out before you have even looked for it.",
+      "hint": "Running is always on offer before anything else, and the Vale notices when you take it.",
+      "reactions": [
+        {
+          "id": "traits.craven.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} catches you glancing for a way out and huffs."
+              },
+              {
+                "say": "Already looking for a way out? I haven't even raised my voice."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.craven.reactions[1]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sinks low to look less like a threat."
+              },
+              {
+                "say": "You don't have to run. Not from me, anyway."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.craven.reactions[2]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You're jumpy, aren't you? I'll keep my distance, if it helps."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.craven.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "It's only me. You can stay, I promise."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.craven.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} catches you eyeing the way out again."
+              },
+              {
+                "say": "Going to bolt this time too? I'd rather you didn't."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "fearless": {
+      "group": "mind",
+      "name": "Fearless",
+      "flavour": "Fear passes over you like a cloud's shadow and moves on.",
+      "hint": "You can't be shaken, but you can't run at the start of a fight.",
+      "reactions": [
+        {
+          "id": "traits.fearless.reactions[0]",
+          "when": {
+            "boldness": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} squares up, and you don't give any ground."
+              },
+              {
+                "say": "You really aren't scared, are you? I like that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.fearless.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} snarls to test you, and you don't flinch."
+              },
+              {
+                "say": "Brave, or just a fool? I can't tell yet."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.fearless.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still not scared of anything? I'm starting to think you mean it."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "reckless": {
+      "group": "mind",
+      "name": "Reckless",
+      "flavour": "When you are winning, the thought of leaving never comes.",
+      "hint": "You won't flee while you are ahead in a fight.",
+      "reactions": [
+        {
+          "id": "traits.reckless.reactions[0]",
+          "when": {
+            "boldness": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs your fresh wounds and chuffs, delighted."
+              },
+              {
+                "say": "You don't know when to quit, do you? I like that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.reckless.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You've got fresh wounds again. You should've walked away from whatever did that, you know."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.reckless.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Another fight you should've walked away from? Don't expect me to lick those for you."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "patient": {
+      "group": "mind",
+      "name": "Patient",
+      "flavour": "You can lie still in the grass until the herd forgets you were ever there.",
+      "hint": "You can wait out a hunt without spooking the prey.",
+      "reactions": [
+        {
+          "id": "traits.patient.reactions[0]",
+          "when": {
+            "boldness": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} fidgets while you sit perfectly still."
+              },
+              {
+                "say": "How can you keep that still? It drives me mad."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.patient.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You wait well. I'd have charged ages ago and lost the lot."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.patient.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still the most patient cat I know? You never get bored, do you?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "restless": {
+      "group": "mind",
+      "name": "Restless",
+      "flavour": "Lying still feels like a trap, and by morning your paws are already moving.",
+      "hint": "After a day of rest, you have to move on.",
+      "reactions": [
+        {
+          "id": "traits.restless.reactions[0]",
+          "when": {
+            "boldness": "low"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you shift from paw to paw again."
+              },
+              {
+                "say": "Will you sit? You're making me nervous."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.restless.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Do you ever lie down? You've been pacing since I got here."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.restless.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still can't keep still, can you? Go on, walk with me, then."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "curious": {
+      "group": "mind",
+      "name": "Curious",
+      "flavour": "Every stone on the trail might have something under it, and you mean to find out.",
+      "hint": "Travel sometimes turns up a useful find, and talks yield more news.",
+      "reactions": [
+        {
+          "id": "traits.curious.reactions[0]",
+          "when": {
+            "curiosity": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you sniff at everything nearby and comes over to look."
+              },
+              {
+                "say": "What have you found? Show me!"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.curious.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Do you poke your nose into everything? I've never seen a cat sniff at so much."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.curious.repeat_meeting[0]",
+          "when": {
+            "curiosity": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "What did you find this time? Come on, show me."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.curious.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} finds you nosing at something again."
+              },
+              {
+                "say": "Still poking at everything. Found anything worth eating?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "cunning": {
+      "group": "mind",
+      "name": "Cunning",
+      "flavour": "You see the feint behind the feint, and other cats find that unsettling.",
+      "hint": "In a fight, you can sometimes tell whether a foe's tell is a trick.",
+      "reactions": [
+        {
+          "id": "traits.cunning.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} feints left, and you don't even twitch."
+              },
+              {
+                "say": "You read that. Too clever by far, aren't you?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.cunning.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You think a lot, don't you? I can almost see you working me out."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.cunning.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "What are you planning today? You've got that look again."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "gullible": {
+      "group": "mind",
+      "name": "Open-Eared",
+      "renamedFrom": "Gullible",
+      "flavour": "You take every word on the wind as true, and sometimes the wind lies.",
+      "hint": "False rumours reach you without a doubt.",
+      "reactions": [
+        {
+          "id": "traits.gullible.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "If I told you snow was warm, would you believe me? Don't answer that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.gullible.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} leans in, ears soft."
+              },
+              {
+                "say": "Not everything you hear is true. Be careful whose word you take."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.gullible.repeat_meeting[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} leans in, a bit too eager."
+              },
+              {
+                "say": "Listen, I've got a story for you. You'll believe every word, won't you?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.gullible.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Heard anything new? Check it with another cat before you believe it, all right?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "proud": {
+      "group": "mind",
+      "name": "Proud",
+      "flavour": "You hold your head high, and lowering it for any cat sticks in your throat.",
+      "hint": "You can't yield or withdraw.",
+      "reactions": [
+        {
+          "id": "traits.proud.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you stand there with your head high."
+              },
+              {
+                "say": "Too proud to bow, are you? That'll get you hurt some day."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.proud.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You won't lower your head for anyone, will you? Even when it costs you?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.proud.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still bowing to nobody? I almost admire it."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "humble": {
+      "group": "mind",
+      "name": "Humble",
+      "flavour": "You know your place in the Vale, and you are not ashamed to show it.",
+      "hint": "Leaders like it when you yield to them.",
+      "reactions": [
+        {
+          "id": "traits.humble.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you dip your head and rumbles approval."
+              },
+              {
+                "say": "You know your place. Good, that saves us trouble."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.humble.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "No swagger on you at all. That's rare out here, you know."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.humble.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still no swagger. I'll admit, it makes you easy to talk to."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "vengeful": {
+      "group": "mind",
+      "name": "Vengeful",
+      "flavour": "You do not forget a wrong, and you do not let it fade.",
+      "hint": "Your grudges never fade, and rivals can sense it.",
+      "reactions": [
+        {
+          "id": "traits.vengeful.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s tail flicks."
+              },
+              {
+                "say": "You don't forget a wrong, do you? I can see it on you."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.vengeful.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Remind me never to cross you. Seriously."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.vengeful.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} keeps a careful distance."
+              },
+              {
+                "say": "Still holding onto it? I thought you might be."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "forgiving": {
+      "group": "mind",
+      "name": "Forgiving",
+      "flavour": "Grudges are heavy, and you set them down where you can.",
+      "hint": "Mending things with a cat who holds a grudge goes better.",
+      "reactions": [
+        {
+          "id": "traits.forgiving.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s ears stay back."
+              },
+              {
+                "say": "You let things go easy, don't you? Soft, but I suppose that could be useful."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.forgiving.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You don't hold grudges, do you? I can't decide if I trust that or worry about you."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.forgiving.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} comes a little closer than before."
+              },
+              {
+                "say": "You're the one who doesn't hold grudges. I've been thinking about that."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "loyal": {
+      "group": "mind",
+      "name": "Loyal",
+      "flavour": "Your given word is as fixed as the Ice Wall.",
+      "hint": "Kept promises count for honour, and breaking an agreement takes more doing.",
+      "reactions": [
+        {
+          "id": "traits.loyal.reactions[0]",
+          "when": {
+            "loyalty": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s ears come forward."
+              },
+              {
+                "say": "You seem like a cat who sticks by others. That counts for more with me than sabers."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.loyal.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You keep your promises. Not many cats do, so I noticed."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.loyal.repeat_meeting[0]",
+          "when": {
+            "loyalty": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You again. Good. I was hoping I'd see you."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.loyal.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} settles down beside you."
+              },
+              {
+                "say": "You don't strike me as a cat who drops friends. I like that."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "grieving": {
+      "group": "mind",
+      "name": "Grieving",
+      "flavour": "Someone is gone, and the Vale is quieter for it.",
+      "hint": "The world feels heavier.",
+      "reactions": [
+        {
+          "id": "traits.grieving.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} lies down beside you, flank to flank."
+              },
+              {
+                "say": "I'm sorry. Stay as long as you need."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.grieving.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You look like you've lost someone. I'm sorry. Do you want to talk, or just sit?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.grieving.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} lies down beside you."
+              },
+              {
+                "say": "Still heavy, isn't it? Stay a while."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.grieving.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still carrying it, aren't you? I won't push."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "silver_tongue": {
+      "group": "social",
+      "name": "Honey-Voiced",
+      "renamedFrom": "Silver Tongue",
+      "flavour": "Your rumble is warm and your words come easy, and strangers lower their hackles.",
+      "hint": "Strangers warm to you quickly.",
+      "reactions": [
+        {
+          "id": "traits.silver_tongue.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} purrs at your greeting."
+              },
+              {
+                "say": "You've got a lovely voice. Stay and talk a while?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.silver_tongue.reactions[1]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s ears flick back at your easy words."
+              },
+              {
+                "say": "Sweet talk. I've heard it before, so you'll have to try harder."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.silver_tongue.reactions[2]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You're good at this, talking to strangers. Where did you learn it?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.silver_tongue.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "It's good to hear your voice again. Go on, tell me something."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tongue_tied": {
+      "group": "social",
+      "name": "Tongue-Tied",
+      "flavour": "Words come slow to you, and they come out wrong when they finally do.",
+      "hint": "Strangers are slow to warm to you.",
+      "reactions": [
+        {
+          "id": "traits.tongue_tied.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} waits while you stumble over your words."
+              },
+              {
+                "say": "Take your time. I'm not going anywhere."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.tongue_tied.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You don't say much, do you? That's all right, I can do the talking."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.tongue_tied.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Take your time. I know you now, so there's no hurry."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "beloved": {
+      "group": "social",
+      "name": "Beloved",
+      "flavour": "Something in your manner makes cats warm to you before you have said a thing.",
+      "hint": "Every cat starts out liking you more.",
+      "reactions": [
+        {
+          "id": "traits.beloved.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} comes straight up, ears forward."
+              },
+              {
+                "say": "I've heard good things about you. Are they true, then?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.beloved.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I don't know what it is about you, but I like you already. Is that strange?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.beloved.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You again! Good. I was hoping you'd come by."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "outcast_scent": {
+      "group": "social",
+      "name": "Exile's Scent",
+      "renamedFrom": "Outcast Scent",
+      "flavour": "You carry the smell of a cat with no pride, and pride cats bristle at it.",
+      "hint": "Pride cats start out liking you less.",
+      "reactions": [
+        {
+          "id": "traits.outcast_scent.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} curls a lip at your scent."
+              },
+              {
+                "say": "You smell of nowhere. I don't trust that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.outcast_scent.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You've been alone a long time, haven't you? I can smell it on you."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.outcast_scent.repeat_meeting[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You still smell of nowhere. Don't expect a welcome from me."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.outcast_scent.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs at you, a little less wary."
+              },
+              {
+                "say": "Still on your own, then? Huh."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "alluring": {
+      "group": "social",
+      "name": "Alluring",
+      "flavour": "Something in your stride and your scent turns heads on the trail.",
+      "hint": "Courtship starts out warmer.",
+      "reactions": [
+        {
+          "id": "traits.alluring.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s ears go forward and stay there."
+              },
+              {
+                "say": "Sorry, I'm staring. You're hard to look away from."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.alluring.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You smell like the thaw. Has anyone ever told you that?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.alluring.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} catches your scent and stops."
+              },
+              {
+                "say": "You again. I'd hoped so, actually."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "off_putting": {
+      "group": "social",
+      "name": "Sour Musk",
+      "renamedFrom": "Off-Putting",
+      "flavour": "Your scent says the wrong thing before you can say anything at all.",
+      "hint": "Courtship starts out colder.",
+      "reactions": [
+        {
+          "id": "traits.off_putting.reactions[0]",
+          "when": {
+            "sociability": "low"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} wrinkles a nose and steps back."
+              },
+              {
+                "say": "Your scent's strong. Too strong, honestly."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.off_putting.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Is that you, or did something die near here? Sorry. That came out rude."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.off_putting.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I'm getting used to the smell. Slowly. Don't take it personally."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "gossip": {
+      "group": "social",
+      "name": "Wind-Carrier",
+      "renamedFrom": "Gossip",
+      "flavour": "News finds you, and you cannot keep it still for long.",
+      "hint": "You pass on more news in a talk, but your own secrets spread faster.",
+      "reactions": [
+        {
+          "id": "traits.gossip.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} settles in, ears forward."
+              },
+              {
+                "say": "Go on, tell me everything you've heard."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.gossip.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You talk a lot. What are you going to say about me after I've gone?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.gossip.repeat_meeting[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "What's new since last time? Don't leave anything out."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.gossip.repeat_meeting[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} glances round before speaking."
+              },
+              {
+                "say": "Keep this between us, if you can manage that."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "born_leader": {
+      "group": "social",
+      "name": "Born Leader",
+      "flavour": "When you speak at a council, cats lean in to hear.",
+      "hint": "At council, your concerns come before the rest.",
+      "reactions": [
+        {
+          "id": "traits.born_leader.reactions[0]",
+          "when": {
+            "loyalty": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} falls in behind you without being asked."
+              },
+              {
+                "say": "You lead like you were made for it. Where to?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.born_leader.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Cats just follow you, don't they? I'd be careful where you take them."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.born_leader.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Well? What are we doing? You always seem to have a plan, so I'm asking."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "lone_heart": {
+      "group": "social",
+      "name": "Lone Heart",
+      "flavour": "Company is a weather you would rather wait out alone.",
+      "hint": "You can only talk with others so long before leaving.",
+      "reactions": [
+        {
+          "id": "traits.lone_heart.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} tilts an ear at you."
+              },
+              {
+                "say": "Not much for company, are you? You can say so."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.lone_heart.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You'd rather be on your own. I can tell. It's fine."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.lone_heart.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still keeping to yourself? I'll be quick, then."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "pride_born": {
+      "group": "lineage",
+      "name": "Pride-Born",
+      "flavour": "You were born to a pride, and its scent is still in your coat.",
+      "hint": "Your birth pride welcomes you, and its rivals don't.",
+      "reactions": [
+        {
+          "id": "traits.pride_born.reactions[0]",
+          "when": {
+            "loyalty": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} catches your birth pride's scent on you and goes still."
+              },
+              {
+                "say": "I know that scent. You haven't forgotten where you came from, have you?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.pride_born.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You smell of a pride, but I can't place which. Where were you born?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.pride_born.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You still carry your birth pride's scent. Do you miss it?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "nameless_stray": {
+      "group": "lineage",
+      "name": "Nameless Stray",
+      "flavour": "No pride raised you, and no pride claims you.",
+      "hint": "Pride leaders take longer to approve of you.",
+      "reactions": [
+        {
+          "id": "traits.nameless_stray.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs you and finds nothing familiar."
+              },
+              {
+                "say": "You don't smell of any pride I know. Why should I listen to a stray?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.nameless_stray.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Where do you come from? Nowhere I know, by your scent."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.nameless_stray.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Still no pride to call yours? Doesn't that get lonely?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "heir_of_legend": {
+      "group": "lineage",
+      "name": "Storied Blood",
+      "renamedFrom": "Heir of Legend",
+      "flavour": "Your parent's name walks the Vale before you, and some of it has rubbed off.",
+      "hint": "You start with some of a parent's renown.",
+      "reactions": [
+        {
+          "id": "traits.heir_of_legend.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} leans in, ears forward."
+              },
+              {
+                "say": "I know your line! You've got big paws to fill, haven't you?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.heir_of_legend.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Your parent was talked about all over the Vale. Cats will be watching you."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.heir_of_legend.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You walk more like your parent every season. Has anyone said?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tainted_blood": {
+      "group": "lineage",
+      "name": "Sickly Line",
+      "renamedFrom": "Tainted Blood",
+      "flavour": "Something in your blood runs thin, and it may show in your cubs even if it doesn't in you.",
+      "hint": "Your cubs may be born sickly, even if you are not.",
+      "reactions": []
+    },
+    "battle_scarred": {
+      "group": "lineage",
+      "name": "Battle-Scarred",
+      "flavour": "You have won fights that should have killed you, and your hide shows every one.",
+      "hint": "Foes are easier to cow.",
+      "reactions": [
+        {
+          "id": "traits.battle_scarred.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} reads the scars on your hide and rumbles."
+              },
+              {
+                "say": "You've had real fights. I can respect that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.battle_scarred.reactions[1]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name}'s ears flatten at your scars."
+              },
+              {
+                "say": "Who did that to you? Did you win, at least?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.battle_scarred.reactions[2]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You've survived a lot, haven't you? Those marks don't come from play-fighting."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.battle_scarred.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} looks you over for new marks."
+              },
+              {
+                "say": "No new scars? Must have been a quiet season."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "spear_marked": {
+      "group": "lineage",
+      "name": "Human-Scarred",
+      "renamedFrom": "Spear-Marked",
+      "flavour": "A human's sharpened stick found you, and you learned to run before another could.",
+      "hint": "Near humans, running is always on offer before anything else, and humans remember you.",
+      "reactions": [
+        {
+          "id": "traits.spear_marked.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs the old wound, and the hackles rise."
+              },
+              {
+                "say": "Humans did that, didn't they? You were lucky."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.spear_marked.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "You got away from humans? How? Most cats don't."
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.spear_marked.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} watches you lift your nose and check the air."
+              },
+              {
+                "say": "Still watching for humans? Good, I would be too."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "torn_ear": {
+      "group": "lineage",
+      "name": "Torn Ear",
+      "flavour": "A pride fight left your ear ragged, and rivals never let you forget it.",
+      "hint": "Only for show, though rivals taunt it.",
+      "reactions": [
+        {
+          "id": "traits.torn_ear.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} looks at your ragged ear, lip curling."
+              },
+              {
+                "say": "Something nearly had you there, didn't it?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.torn_ear.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Your ear's torn. Did that hurt much?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.torn_ear.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "That ear still hears everything, doesn't it? Nothing gets past you."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "elder_wisdom": {
+      "group": "lineage",
+      "name": "Elder's Wisdom",
+      "renamedFrom": "Elder Wisdom",
+      "flavour": "You have seen enough seasons to know which rumours to keep and which to let blow away.",
+      "hint": "You learn more in talks, but your strength is fading.",
+      "reactions": [
+        {
+          "id": "traits.elder_wisdom.reactions[0]",
+          "when": {
+            "aggression": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} looks you over and sniffs."
+              },
+              {
+                "say": "You're old, but you're not stupid. I'll give you that."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.elder_wisdom.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} dips low in greeting."
+              },
+              {
+                "say": "You've seen a lot of winters. Will you tell me what you know?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.elder_wisdom.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "Tell me something the old cats know. I'm listening this time."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "den_mother": {
+      "group": "lineage",
+      "name": "Den Mother",
+      "flavour": "You have raised litter after litter, and your pride's cubs still run to you.",
+      "hint": "Your own pride's cats start out liking you more.",
+      "reactions": [
+        {
+          "id": "traits.den_mother.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} purrs as you come in."
+              },
+              {
+                "say": "You raised most of your pride's cubs, didn't you? I can smell the den on you."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.den_mother.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I hear the cubs still run to you before anyone else. Do you ever get a moment's peace?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.den_mother.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs at the cub scent on your coat."
+              },
+              {
+                "say": "Still smelling of cubs? You never get any rest, do you?"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "den_father": {
+      "group": "lineage",
+      "name": "Den Father",
+      "flavour": "You have raised litter after litter, and your pride's cubs still run to you.",
+      "hint": "Your own pride's cats start out liking you more.",
+      "reactions": [
+        {
+          "id": "traits.den_father.reactions[0]",
+          "when": {
+            "sociability": "high"
+          },
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} purrs as you come in."
+              },
+              {
+                "say": "You raised most of your pride's cubs, didn't you? I can smell the den on you."
+              }
+            ]
+          }
+        },
+        {
+          "id": "traits.den_father.reactions[1]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "say": "I hear the cubs still run to you before anyone else. Do you ever get a moment's peace?"
+              }
+            ]
+          }
+        }
+      ],
+      "repeat_meeting": [
+        {
+          "id": "traits.den_father.repeat_meeting[0]",
+          "block": {
+            "speaker": "{catId}",
+            "parts": [
+              {
+                "beat": "{name} sniffs at the cub scent on your coat."
+              },
+              {
+                "say": "Still smelling of cubs? You never get any rest, do you?"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "rumours": {
+    "_rules": "Spec §3.4a, using lore-book v0.1 §3 and the keys of lore-book-copy-v1.json rumour: a trait rumour is a lore-book rumour of kind trait. told = trait.<id> line for the trait the teller names. false_variant = no new text: a wrong rumour (lore-book §3.3, a teller Disliked or worse toward the subject) plays the told line of the trait's opposite when the trait has one (the Opp. column in §3.2; with several opposites, any of them), and otherwise the told line of any trait the cat doesn't have, exactly as written (§3.4b.2). widely_told, confirmed, debunked and moot are the general templates below, shared by every trait (Director: general, not per trait). At the first meeting each true rumour moves to Learned with confirmed, and each wrong one is struck through (struck_label Not true) with debunked under it; the teller gets spread_false_rumour and the lore book's existing liar_gossip line plays for it. A true rumour about a play-only trait later lost (grieving, short_tempered, craven, sickly, outcast_scent, loyal) is marked stale (stale_label No longer true) and never brands the teller a liar. The confirmed and debunked lines never name the trait, because the struck or confirmed entry above them already shows the rumour text.",
+    "general": {
+      "widely_told": [
+        {
+          "id": "rumours.general.widely_told[0]",
+          "text": "Others say it too about {name}. Still only talk, until you meet {name} yourself."
+        }
+      ],
+      "confirmed": [
+        {
+          "id": "rumours.general.confirmed[0]",
+          "text": "You met {name} yourself: {sourceName} had it right."
+        }
+      ],
+      "debunked": [
+        {
+          "id": "rumours.general.debunked[0]",
+          "text": "Not true. You met {name} yourself. {sourceName} had it wrong."
+        }
+      ],
+      "moot": "Reuse lore-book-copy-v1 rumour._shared.moot (You'll never know now.).",
+      "liar_gossip": "Reuse lore-book-copy-v1 rumour liar_gossip (Word is going round that {sourceName} tells tales about {subjectName}.)."
+    },
+    "trait": {
+      "iron_jaw": [
+        {
+          "id": "rumours.trait.iron_jaw[0]",
+          "text": "{sourceName} says {name} can crack a mammoth bone clean through. That is what they say, anyway."
+        },
+        {
+          "id": "rumours.trait.iron_jaw[1]",
+          "text": "Word at the ford is that {name}'s bite does not let go. {sourceName} swears to it."
+        }
+      ],
+      "broad_shoulders": [
+        {
+          "id": "rumours.trait.broad_shoulders[0]",
+          "text": "{sourceName} says {name} is broad as a bison through the shoulders. They say a lot of things."
+        },
+        {
+          "id": "rumours.trait.broad_shoulders[1]",
+          "text": "By {sourceName}'s telling, {name} shoulders through thornbrush and never feels it."
+        }
+      ],
+      "giant": [
+        {
+          "id": "rumours.trait.giant[0]",
+          "text": "{sourceName} says {name} stands a head above any cat in the Vale. Hard to say if that is true."
+        },
+        {
+          "id": "rumours.trait.giant[1]",
+          "text": "They say {name} is huge, though {sourceName} only saw it from across the river."
+        }
+      ],
+      "runt": [
+        {
+          "id": "rumours.trait.runt[0]",
+          "text": "With a curled lip, {sourceName} says {name} is the smallest grown cat on the trails. That is the talk."
+        },
+        {
+          "id": "rumours.trait.runt[1]",
+          "text": "Word is {name} is a runt, small enough to pass for a cub at a distance. {sourceName} may be unkind."
+        }
+      ],
+      "swift": [
+        {
+          "id": "rumours.trait.swift[0]",
+          "text": "{sourceName} says {name} can run down a horse on the open flats. That is the boast, anyway."
+        },
+        {
+          "id": "rumours.trait.swift[1]",
+          "text": "They say {name} is gone before the grass stops moving. {sourceName} believes it."
+        }
+      ],
+      "lame_paw": [
+        {
+          "id": "rumours.trait.lame_paw[0]",
+          "text": "{sourceName} says {name} walks lame and cannot run far. That is the word, at least."
+        },
+        {
+          "id": "rumours.trait.lame_paw[1]",
+          "text": "Word on the trails is that {name} drags a leg. {sourceName} heard it from another cat."
+        }
+      ],
+      "thick_hide": [
+        {
+          "id": "rumours.trait.thick_hide[0]",
+          "text": "{sourceName} says claws slide off {name}'s hide like rain."
+        },
+        {
+          "id": "rumours.trait.thick_hide[1]",
+          "text": "By {sourceName}'s telling, {name} came out of a fight with barely a mark."
+        }
+      ],
+      "thin_skinned": [
+        {
+          "id": "rumours.trait.thin_skinned[0]",
+          "text": "{sourceName} says {name} bleeds at the touch of a thorn. That is what they say."
+        },
+        {
+          "id": "rumours.trait.thin_skinned[1]",
+          "text": "Word is {name}'s hide tears like wet bark. {sourceName} only heard it, mind."
+        }
+      ],
+      "hardy": [
+        {
+          "id": "rumours.trait.hardy[0]",
+          "text": "{sourceName} says wounds barely slow {name} down. Or so the story goes."
+        },
+        {
+          "id": "rumours.trait.hardy[1]",
+          "text": "They say {name} heals like the Vale does after a flood. {sourceName} is sure of it."
+        }
+      ],
+      "sickly": [
+        {
+          "id": "rumours.trait.sickly[0]",
+          "text": "Quietly, {sourceName} says {name} is sickly and never quite heals. So the talk goes."
+        },
+        {
+          "id": "rumours.trait.sickly[1]",
+          "text": "Word at the ford is that wounds dig deep into {name} and heal slow. {sourceName} only heard it."
+        }
+      ],
+      "keen_nose": [
+        {
+          "id": "rumours.trait.keen_nose[0]",
+          "text": "{sourceName} says {name} can smell a hare under snow."
+        },
+        {
+          "id": "rumours.trait.keen_nose[1]",
+          "text": "By {sourceName}'s telling, {name} can follow a trail that has gone cold."
+        }
+      ],
+      "dull_nose": [
+        {
+          "id": "rumours.trait.dull_nose[0]",
+          "text": "{sourceName} says {name} could walk into a wolf den and never smell it. Probably an exaggeration."
+        },
+        {
+          "id": "rumours.trait.dull_nose[1]",
+          "text": "Word is {name}'s nose is no use at all. {sourceName} huffs about it."
+        }
+      ],
+      "sharp_eyes": [
+        {
+          "id": "rumours.trait.sharp_eyes[0]",
+          "text": "{sourceName} says {name} can spot a wolf pack at the far end of the valley. That is the tale."
+        },
+        {
+          "id": "rumours.trait.sharp_eyes[1]",
+          "text": "They say {name} sees farther than any cat alive. {sourceName} believes it, at least."
+        }
+      ],
+      "one_eyed": [
+        {
+          "id": "rumours.trait.one_eyed[0]",
+          "text": "{sourceName} says {name} has lost an eye. A fight took it, the story goes."
+        },
+        {
+          "id": "rumours.trait.one_eyed[1]",
+          "text": "Word on the trails is that {name} is blind on one side. {sourceName} heard it at the ford."
+        }
+      ],
+      "long_sabers": [
+        {
+          "id": "rumours.trait.long_sabers[0]",
+          "text": "{sourceName} says {name}'s sabers hang nearly to the chest. That is the story, anyway."
+        },
+        {
+          "id": "rumours.trait.long_sabers[1]",
+          "text": "They say {name} has the longest sabers in the Vale. {sourceName} might be stretching it."
+        }
+      ],
+      "chipped_saber": [
+        {
+          "id": "rumours.trait.chipped_saber[0]",
+          "text": "{sourceName} says {name}'s saber is chipped at the tip. What chipped it, the story never agrees."
+        },
+        {
+          "id": "rumours.trait.chipped_saber[1]",
+          "text": "Word is {name} carries a broken saber. {sourceName} only heard it, though."
+        }
+      ],
+      "frost_hardy": [
+        {
+          "id": "rumours.trait.frost_hardy[0]",
+          "text": "{sourceName} says {name} sleeps out in blizzards and wakes up fine. That is what they say."
+        },
+        {
+          "id": "rumours.trait.frost_hardy[1]",
+          "text": "By {sourceName}'s telling, {name} walked through a whiteout as if it were summer."
+        }
+      ],
+      "big_eater": [
+        {
+          "id": "rumours.trait.big_eater[0]",
+          "text": "With envy, or hunger, {sourceName} says {name} eats like a whole pride. That is what they say."
+        },
+        {
+          "id": "rumours.trait.big_eater[1]",
+          "text": "Word is {name} has a hunger that never sleeps. {sourceName} keeps clear at a kill."
+        }
+      ],
+      "fertile": [
+        {
+          "id": "rumours.trait.fertile[0]",
+          "text": "{sourceName} says {name} comes from a line with big litters. Hard to know for sure."
+        },
+        {
+          "id": "rumours.trait.fertile[1]",
+          "text": "They say {name}'s blood is strong for cubs. {sourceName} heard it from an old cat."
+        }
+      ],
+      "small_litters": [
+        {
+          "id": "rumours.trait.small_litters[0]",
+          "text": "{sourceName} says {name}'s line has never had big litters. That is the talk."
+        },
+        {
+          "id": "rumours.trait.small_litters[1]",
+          "text": "Word is {name} comes from a thin line. {sourceName} would not say more."
+        }
+      ],
+      "long_lived": [
+        {
+          "id": "rumours.trait.long_lived[0]",
+          "text": "{sourceName} says {name}'s line stays strong long after others go grey."
+        },
+        {
+          "id": "rumours.trait.long_lived[1]",
+          "text": "By {sourceName}'s telling, {name} will see more winters than most."
+        }
+      ],
+      "short_lived": [
+        {
+          "id": "rumours.trait.short_lived[0]",
+          "text": "{sourceName} says {name}'s line goes grey early. That is the word, anyway."
+        },
+        {
+          "id": "rumours.trait.short_lived[1]",
+          "text": "They say {name} will not see many winters. {sourceName} looked away when saying it."
+        }
+      ],
+      "short_tempered": [
+        {
+          "id": "rumours.trait.short_tempered[0]",
+          "text": "{sourceName} says {name} bristles at a harsh word. They say a lot of things."
+        },
+        {
+          "id": "rumours.trait.short_tempered[1]",
+          "text": "Word on the trails is that {name} is quick to anger. {sourceName} keeps a wide distance."
+        }
+      ],
+      "even_tempered": [
+        {
+          "id": "rumours.trait.even_tempered[0]",
+          "text": "{sourceName} says nothing ruffles {name}'s fur. That is what they say."
+        },
+        {
+          "id": "rumours.trait.even_tempered[1]",
+          "text": "They say {name} is slow to anger. {sourceName} could not get a rise out of {name}, or so the telling goes."
+        }
+      ],
+      "craven": [
+        {
+          "id": "rumours.trait.craven[0]",
+          "text": "With a sneering huff, {sourceName} says {name} bolts at a growl. Or so the story runs."
+        },
+        {
+          "id": "rumours.trait.craven[1]",
+          "text": "Word is {name} runs before a fight can start. {sourceName} might be unkind about it."
+        }
+      ],
+      "fearless": [
+        {
+          "id": "rumours.trait.fearless[0]",
+          "text": "{sourceName} says nothing frightens {name}. Nobody knows if it is true."
+        },
+        {
+          "id": "rumours.trait.fearless[1]",
+          "text": "They say {name} has never backed down from anything. {sourceName} believes it."
+        }
+      ],
+      "reckless": [
+        {
+          "id": "rumours.trait.reckless[0]",
+          "text": "{sourceName} says {name} never knows when to stop. That is the word."
+        },
+        {
+          "id": "rumours.trait.reckless[1]",
+          "text": "By {sourceName}'s telling, {name} fights on long past sense."
+        }
+      ],
+      "patient": [
+        {
+          "id": "rumours.trait.patient[0]",
+          "text": "{sourceName} says {name} can wait in the grass from dawn to dark."
+        },
+        {
+          "id": "rumours.trait.patient[1]",
+          "text": "Word is {name} never rushes a stalk. {sourceName} watched it, or claims to."
+        }
+      ],
+      "restless": [
+        {
+          "id": "rumours.trait.restless[0]",
+          "text": "{sourceName} says {name} never sleeps in the same place for long. That is the tale."
+        },
+        {
+          "id": "rumours.trait.restless[1]",
+          "text": "They say {name} can't lie still. {sourceName} is not sure why."
+        }
+      ],
+      "curious": [
+        {
+          "id": "rumours.trait.curious[0]",
+          "text": "Fondly, {sourceName} says {name} sticks a nose into everything. That is the talk."
+        },
+        {
+          "id": "rumours.trait.curious[1]",
+          "text": "Word is {name} asks too many questions. {sourceName} found it tiring."
+        }
+      ],
+      "cunning": [
+        {
+          "id": "rumours.trait.cunning[0]",
+          "text": "{sourceName} says you cannot fool {name}. That is the rumour."
+        },
+        {
+          "id": "rumours.trait.cunning[1]",
+          "text": "They say {name} sees through every trick. {sourceName} sounds sour about it."
+        }
+      ],
+      "gullible": [
+        {
+          "id": "rumours.trait.gullible[0]",
+          "text": "With a knowing huff, {sourceName} says {name} will believe any tale. So the talk goes."
+        },
+        {
+          "id": "rumours.trait.gullible[1]",
+          "text": "Word is {name} swallows rumours whole. {sourceName} seems pleased about that."
+        }
+      ],
+      "proud": [
+        {
+          "id": "rumours.trait.proud[0]",
+          "text": "{sourceName} says {name} would rather die than lower that head."
+        },
+        {
+          "id": "rumours.trait.proud[1]",
+          "text": "By {sourceName}'s telling, {name} has never yielded to anyone."
+        }
+      ],
+      "humble": [
+        {
+          "id": "rumours.trait.humble[0]",
+          "text": "{sourceName} says {name} bows to any leader without complaint. That is the word."
+        },
+        {
+          "id": "rumours.trait.humble[1]",
+          "text": "They say {name} has no pride to speak of. {sourceName} meant it kindly."
+        }
+      ],
+      "vengeful": [
+        {
+          "id": "rumours.trait.vengeful[0]",
+          "text": "In a whisper, {sourceName} says {name} never forgets a grudge. That is what they say."
+        },
+        {
+          "id": "rumours.trait.vengeful[1]",
+          "text": "Word is {name} never lets a wrong go. {sourceName} is careful not to be the next."
+        }
+      ],
+      "forgiving": [
+        {
+          "id": "rumours.trait.forgiving[0]",
+          "text": "{sourceName} says {name} forgives too easily. That is the talk."
+        },
+        {
+          "id": "rumours.trait.forgiving[1]",
+          "text": "They say {name} holds no grudges at all. {sourceName} found it strange."
+        }
+      ],
+      "loyal": [
+        {
+          "id": "rumours.trait.loyal[0]",
+          "text": "{sourceName} says {name} keeps every promise. That is what they say."
+        },
+        {
+          "id": "rumours.trait.loyal[1]",
+          "text": "Word is {name} would die before breaking a given word. {sourceName} believes it."
+        }
+      ],
+      "grieving": [
+        {
+          "id": "rumours.trait.grieving[0]",
+          "text": "Quietly, {sourceName} says {name} has lost someone close. Or so the story runs."
+        },
+        {
+          "id": "rumours.trait.grieving[1]",
+          "text": "Word is {name} grieves and walks alone. {sourceName} did not ask more."
+        }
+      ],
+      "silver_tongue": [
+        {
+          "id": "rumours.trait.silver_tongue[0]",
+          "text": "{sourceName} says {name} could talk a hyena off a kill."
+        },
+        {
+          "id": "rumours.trait.silver_tongue[1]",
+          "text": "Word is {name}'s voice warms any stranger. {sourceName} heard it in person."
+        }
+      ],
+      "tongue_tied": [
+        {
+          "id": "rumours.trait.tongue_tied[0]",
+          "text": "{sourceName} says {name} can barely speak to a stranger. That is the talk."
+        },
+        {
+          "id": "rumours.trait.tongue_tied[1]",
+          "text": "By {sourceName}'s telling, {name} stumbles over every word."
+        }
+      ],
+      "beloved": [
+        {
+          "id": "rumours.trait.beloved[0]",
+          "text": "{sourceName} says every cat in the Vale speaks well of {name}. That is the word."
+        },
+        {
+          "id": "rumours.trait.beloved[1]",
+          "text": "They say {name} has never made an enemy. {sourceName} sounds almost jealous."
+        }
+      ],
+      "outcast_scent": [
+        {
+          "id": "rumours.trait.outcast_scent[0]",
+          "text": "{sourceName} says {name} was driven out of a pride. That is the rumour."
+        },
+        {
+          "id": "rumours.trait.outcast_scent[1]",
+          "text": "Word is {name} carries no pride's scent at all. {sourceName} wrinkled a nose saying it."
+        }
+      ],
+      "alluring": [
+        {
+          "id": "rumours.trait.alluring[0]",
+          "text": "Wistfully, {sourceName} says {name} turns every head on the trail. That is the talk."
+        },
+        {
+          "id": "rumours.trait.alluring[1]",
+          "text": "Word is {name} could court any cat in the Vale. {sourceName} sounds wistful."
+        }
+      ],
+      "off_putting": [
+        {
+          "id": "rumours.trait.off_putting[0]",
+          "text": "With a wrinkled nose, {sourceName} says {name}'s scent drives cats off. So the talk goes."
+        },
+        {
+          "id": "rumours.trait.off_putting[1]",
+          "text": "By {sourceName}'s telling, {name} is no catch."
+        }
+      ],
+      "gossip": [
+        {
+          "id": "rumours.trait.gossip[0]",
+          "text": "{sourceName} says {name} knows every whisper on the trails. That is the talk."
+        },
+        {
+          "id": "rumours.trait.gossip[1]",
+          "text": "Word is {name} cannot keep a secret. {sourceName} found out too late."
+        }
+      ],
+      "born_leader": [
+        {
+          "id": "rumours.trait.born_leader[0]",
+          "text": "With respect, {sourceName} says {name} was born to lead. That is what they say."
+        },
+        {
+          "id": "rumours.trait.born_leader[1]",
+          "text": "Word is other cats follow {name} without being asked. {sourceName} sounds impressed."
+        }
+      ],
+      "lone_heart": [
+        {
+          "id": "rumours.trait.lone_heart[0]",
+          "text": "{sourceName} says {name} never stays long with anyone. That is what they say."
+        },
+        {
+          "id": "rumours.trait.lone_heart[1]",
+          "text": "They say {name} wanders alone by choice. {sourceName} could not get close."
+        }
+      ],
+      "pride_born": [
+        {
+          "id": "rumours.trait.pride_born[0]",
+          "text": "{sourceName} says {name} was born to a pride and has never forgotten it."
+        },
+        {
+          "id": "rumours.trait.pride_born[1]",
+          "text": "Word is {name} still carries a birth pride's scent. {sourceName} could tell."
+        }
+      ],
+      "nameless_stray": [
+        {
+          "id": "rumours.trait.nameless_stray[0]",
+          "text": "{sourceName} says {name} was never part of any pride. That is the talk."
+        },
+        {
+          "id": "rumours.trait.nameless_stray[1]",
+          "text": "They say {name} came from nowhere. {sourceName} looked uneasy."
+        }
+      ],
+      "heir_of_legend": [
+        {
+          "id": "rumours.trait.heir_of_legend[0]",
+          "text": "With awe, {sourceName} says {name} comes from a famous line. Or so the story runs."
+        },
+        {
+          "id": "rumours.trait.heir_of_legend[1]",
+          "text": "Word is {name}'s parent was known across the Vale. {sourceName} heard the stories."
+        }
+      ],
+      "tainted_blood": [
+        {
+          "id": "rumours.trait.tainted_blood[0]",
+          "text": "Quietly, {sourceName} says sickness runs in {name}'s line. That is the talk."
+        },
+        {
+          "id": "rumours.trait.tainted_blood[1]",
+          "text": "Word is {name}'s cubs come weak. {sourceName} would not say how that is known."
+        }
+      ],
+      "battle_scarred": [
+        {
+          "id": "rumours.trait.battle_scarred[0]",
+          "text": "{sourceName} says {name} has won fights no cat should survive."
+        },
+        {
+          "id": "rumours.trait.battle_scarred[1]",
+          "text": "Word is {name}'s hide is more scar than fur. {sourceName} saw it from afar."
+        }
+      ],
+      "spear_marked": [
+        {
+          "id": "rumours.trait.spear_marked[0]",
+          "text": "{sourceName} says {name} carries a wound from a human's sharpened stick. That is the tale."
+        },
+        {
+          "id": "rumours.trait.spear_marked[1]",
+          "text": "By {sourceName}'s telling, {name} was struck by a human's stick and lived."
+        }
+      ],
+      "torn_ear": [
+        {
+          "id": "rumours.trait.torn_ear[0]",
+          "text": "{sourceName} says {name} has an ear torn ragged in a pride fight."
+        },
+        {
+          "id": "rumours.trait.torn_ear[1]",
+          "text": "Word is {name}'s ear was ripped by a rival. {sourceName} heard it at the ford."
+        }
+      ],
+      "elder_wisdom": [
+        {
+          "id": "rumours.trait.elder_wisdom[0]",
+          "text": "{sourceName} says {name} has seen more winters than most. That is what they say."
+        },
+        {
+          "id": "rumours.trait.elder_wisdom[1]",
+          "text": "Word is {name} knows the old stories of the Vale. {sourceName} listens when {name} talks."
+        }
+      ],
+      "den_mother": [
+        {
+          "id": "rumours.trait.den_mother[0]",
+          "text": "{sourceName} says {name} has raised litter after litter. That is the talk."
+        },
+        {
+          "id": "rumours.trait.den_mother[1]",
+          "text": "They say every cub in {name}'s pride knows that scent. {sourceName} has seen it."
+        }
+      ],
+      "den_father": [
+        {
+          "id": "rumours.trait.den_father[0]",
+          "text": "{sourceName} says {name} has raised litter after litter. That is the talk."
+        },
+        {
+          "id": "rumours.trait.den_father[1]",
+          "text": "They say every cub in {name}'s pride knows that scent. {sourceName} has seen it."
+        }
+      ]
+    }
+  },
+  "appearance": {
+    "_rules": "§3b.3 offline extraction, reviewed and approved by Tundra with two fixes (odd_eyes matches mismatch wording only in eye phrases; bare scar words near a face word tag scarred_face). (a) Lowercase the text, fold curly apostrophes to straight, turn hyphens into spaces, turn sabre/sabres/sabor into saber, and collapse runs of spaces. Every list below is stored already folded the same way. (b) Find every phrase, then every keyword on word boundaries. Size tags (large, small, lean, heavy) have no keywords at all: they match phrases only, never a bare size word, so a small scar or a big heart never tags a size (§3b.3 ruling). (c) Drop a match that sits inside one of that tag's blockers, or inside one of its negations, or that follows a negation cue (no, not, never, without, isn't, wasn't, doesn't, lacks, free of) in the same clause (a clause ends at . , ; : ! ? or the words but / though / except). (d) Overlaps: a longer phrase beats a shorter one, and scarred_face beats scarred_body for the same words. A bare scar word with a face word in its clause is scarred_face (see _faceRule); with no face word it is scarred_body. (e) odd_eyes and unusual_coat only become chips if the cat has the A31 rare genes listed in _geneGate (§3b.3, §3b.4); otherwise drop the chip and show the creator's gentle note. (f) Keep the first four tags in the order they appear in the text (§3b.3 cap), then the player removes any before confirming. Auto tags from traits (§3b.5) are added separately and don't count toward a typed match.",
+    "_negationCues": [
+      "no",
+      "not",
+      "never",
+      "without",
+      "isn't",
+      "isnt",
+      "wasn't",
+      "doesn't",
+      "doesnt",
+      "lacks",
+      "lacking",
+      "free of",
+      "none"
+    ],
+    "_faceRule": {
+      "words": [
+        "face",
+        "faces",
+        "muzzle",
+        "muzzles",
+        "cheek",
+        "cheeks",
+        "brow",
+        "brows",
+        "eye",
+        "eyes"
+      ],
+      "rule": "Tundra review (approved with fixes): a bare scarred_body keyword (scar, scars, scarred and their misspellings) in a clause that also holds one of these face words tags scarred_face, not scarred_body. scarred_body still tags in that clause only if one of its own body phrases (scarred flank, claw marks, and so on) matches too."
+    },
+    "_clauseBreaks": [
+      ".",
+      ",",
+      ";",
+      ":",
+      "!",
+      "?",
+      " but ",
+      " though ",
+      " except "
+    ],
+    "_geneGate": {
+      "rule": "§3b.3 (Tundra, bd2e613): unusual_coat covers leucistic, ash and piebald only, and odd_eyes is true heterochromia only. Both need the genes, never just the text. This gate is NOT the rare-coat achievement: A31 still counts every rare-tier coat, pattern or eye trait in genetics §3.5, melanistic included. Don't reuse one list for the other.",
+      "unusual_coat": {
+        "phenotypes": [
+          "leucistic",
+          "ash",
+          "piebald"
+        ],
+        "loci": {
+          "coat": [
+            "leuc",
+            "melan with leuc (ash)"
+          ],
+          "white": [
+            "piebald"
+          ]
+        },
+        "note": "Expressed phenotype, not carrier. Melanistic is excluded because black is one of the creator's ordinary coats (creator.js, main-menu spec); 'black coat' phrasing is a blocker."
+      },
+      "odd_eyes": {
+        "locus": "het",
+        "genotype": "het/het",
+        "phenotypes": [
+          "heterochromia"
+        ],
+        "note": "Odd eyes show only at het/het (genetics §2.5). Blue eyes don't count."
+      },
+      "noTag": [
+        "melanistic",
+        "dorsal stripe (marking)",
+        "tear lines (marking)",
+        "dark or stained sabers",
+        "blue eyes"
+      ],
+      "a31IsSeparate": "A31 rare_coat: a cub is born showing any rare-tier coat, pattern or eye trait (genetics §3.5, melanistic included)."
+    },
+    "_lineRules": "§3b.6 and §3.4b.1: one trait-or-appearance remark per conversation, and per cat once a season after the first meeting (see _rules.remarkBudget); prefer one at a first meeting. Personality picks the tone (aggression high respects, sociability high asks). No line names a colour, a marking or an eye colour, so nothing can contradict the portrait (§3b.7). No tag, no remark.",
+    "tags": {
+      "scarred_face": {
+        "keywords": [
+          "scarface",
+          "scarfaced"
+        ],
+        "phrases": [
+          "scar faced",
+          "scarred face",
+          "scared face",
+          "scarrd face",
+          "face scar",
+          "face scars",
+          "facial scar",
+          "facial scars",
+          "scar across the face",
+          "scar across its face",
+          "scar across my face",
+          "scar on the face",
+          "scar on its face",
+          "scar over the eye",
+          "scar over one eye",
+          "scar across the eye",
+          "scar through the eye",
+          "scarred eye",
+          "scarred muzzle",
+          "muzzle scar",
+          "scar on the muzzle",
+          "scarred nose",
+          "scar on the nose",
+          "nose scar",
+          "scarred brow",
+          "brow scar",
+          "scarred lip",
+          "split lip",
+          "torn lip",
+          "scarred cheek",
+          "cheek scar",
+          "claw marks on the face",
+          "claw mark across the face",
+          "scratched face",
+          "scarred snout",
+          "snout scar"
+        ],
+        "blockers": [
+          "scared of"
+        ],
+        "negations": [
+          "no scars",
+          "no scar",
+          "unscarred",
+          "scarless",
+          "without a scar",
+          "without scars",
+          "not scarred",
+          "never been scarred",
+          "no face scars",
+          "clean face",
+          "unmarked face",
+          "smooth face",
+          "no marks on the face"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.scarred_face.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} studies the scar across your face."
+                },
+                {
+                  "say": "Something went for your eyes and missed. Good for you."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.scarred_face.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} leans in close to the old mark on your face."
+                },
+                {
+                  "say": "That must have stung. Will you tell me how it happened?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.scarred_face.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "That's quite a scar on your face. Was it a fight?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.scarred_face.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} touches noses with you, right beside the scar."
+                },
+                {
+                  "say": "I like it, you know. It tells me you came back."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.scarred_face.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} bares sabers at your scarred side."
+                },
+                {
+                  "say": "Somebody's already had a go at that face. Want me to finish the job?"
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.scarred_face.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "There's that face. How've you been?"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "scarred_body": {
+        "keywords": [
+          "scarred",
+          "scars",
+          "scar",
+          "scarring",
+          "scarrs",
+          "scarr",
+          "scard",
+          "scarrd",
+          "battlescarred"
+        ],
+        "phrases": [
+          "battle scarred",
+          "battle scars",
+          "battle scar",
+          "scarred flank",
+          "scar on the flank",
+          "scarred side",
+          "scar on the side",
+          "scarred shoulder",
+          "scar on the shoulder",
+          "scarred legs",
+          "scarred leg",
+          "scar on the leg",
+          "scarred back",
+          "scar on the back",
+          "scarred chest",
+          "scar on the chest",
+          "claw marks",
+          "claw mark",
+          "old wounds",
+          "healed wounds",
+          "bite marks",
+          "bite scars",
+          "covered in scars",
+          "full of scars",
+          "spear wound",
+          "spear scar",
+          "stick wound",
+          "scared body",
+          "scared flank",
+          "scared side",
+          "scared all over"
+        ],
+        "blockers": [
+          "scared of",
+          "scared off",
+          "scared away",
+          "scared easily",
+          "scared cat",
+          "scared kitten"
+        ],
+        "negations": [
+          "no scars",
+          "no scar",
+          "unscarred",
+          "scarless",
+          "without a scar",
+          "without scars",
+          "not scarred",
+          "never been scarred",
+          "never scarred",
+          "unmarked",
+          "unblemished",
+          "no marks",
+          "free of scars",
+          "clean coat"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.scarred_body.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} reads the old marks along your flank."
+                },
+                {
+                  "say": "You've been in real fights. And you're still standing."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.scarred_body.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name}'s nose hovers over a long scar on your side."
+                },
+                {
+                  "say": "So many marks. Which of them nearly killed you?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.scarred_body.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You've got scars all over. Is the Vale that hard on you?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.scarred_body.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} grooms slowly along an old scar."
+                },
+                {
+                  "say": "You walked away from all of these. I like that about you."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.scarred_body.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Plenty of cats have bled you already. What's another?"
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.scarred_body.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Still standing, with all those scars? I'm glad. Anything new?"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "torn_ear": {
+        "keywords": [
+          "tornear"
+        ],
+        "phrases": [
+          "torn eared",
+          "ragged eared",
+          "rag eared",
+          "torn ear",
+          "torn ears",
+          "tore ear",
+          "tron ear",
+          "ripped ear",
+          "ripped ears",
+          "ragged ear",
+          "ragged ears",
+          "shredded ear",
+          "split ear",
+          "split ears",
+          "half an ear",
+          "half ear",
+          "missing ear",
+          "lost an ear",
+          "ear torn",
+          "ear ripped",
+          "ear is torn",
+          "ear was torn",
+          "ear split",
+          "tattered ear",
+          "tattered ears",
+          "mangled ear"
+        ],
+        "blockers": [],
+        "negations": [
+          "no torn ear",
+          "ears intact",
+          "ears are intact",
+          "whole ears",
+          "perfect ears",
+          "not torn",
+          "untorn",
+          "no tears in the ears",
+          "ears unmarked"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.torn_ear.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name}'s eyes go to your ragged ear."
+                },
+                {
+                  "say": "Something got close enough to bite. Did it walk away?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.torn_ear.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name}'s own ears tilt at the sight of yours."
+                },
+                {
+                  "say": "Your ear! Can you still hear all right?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.torn_ear.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "That ear's been through something. Do you want to tell me?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.torn_ear.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} grooms gently at the torn edge of your ear."
+                },
+                {
+                  "say": "I like it. I'd know you anywhere."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.torn_ear.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} flicks both whole ears at you, slowly."
+                },
+                {
+                  "say": "Come closer and I'll even out the other ear."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.torn_ear.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "How's the ear? Still hearing everything I say, I bet."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "notched_ear": {
+        "keywords": [
+          "notcheared"
+        ],
+        "phrases": [
+          "notch eared",
+          "nicked ear",
+          "notched ear",
+          "notched ears",
+          "notch in the ear",
+          "notch in one ear",
+          "notch in its ear",
+          "notch in my ear",
+          "nicked ears",
+          "nick in the ear",
+          "nick in one ear",
+          "clipped ear",
+          "bitten ear",
+          "ear notch",
+          "ear notched",
+          "ear nicked",
+          "notched",
+          "noched ear",
+          "notchd ear",
+          "knotched ear",
+          "nothced ear"
+        ],
+        "blockers": [
+          "notched saber",
+          "notched sabre",
+          "notched tooth",
+          "notched fang"
+        ],
+        "negations": [
+          "no notch",
+          "no nick",
+          "ears intact",
+          "ears are intact",
+          "whole ears",
+          "perfect ears",
+          "unnotched"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.notched_ear.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} spots the notch in your ear."
+                },
+                {
+                  "say": "A bite, wasn't it? Not deep enough to stop you."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.notched_ear.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} leans in to sniff the notch in your ear."
+                },
+                {
+                  "say": "Who gave you that little nick?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.notched_ear.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You've got a notch in your ear. Been in a scrap?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.notched_ear.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} touches a nose to the notch in your ear."
+                },
+                {
+                  "say": "I'd find you by this in the dark."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.notched_ear.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Somebody's already marked you. I can do better."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.notched_ear.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} spots the notch in your ear and relaxes."
+                },
+                {
+                  "say": "Oh, it's you. I'd know that ear anywhere."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "chipped_saber": {
+        "keywords": [
+          "chipped",
+          "chiped",
+          "chippped"
+        ],
+        "phrases": [
+          "chipped saber",
+          "chipped sabre",
+          "chipped sabers",
+          "chipped sabres",
+          "chiped saber",
+          "chiped sabre",
+          "chipped fang",
+          "chipped fangs",
+          "chipped tooth",
+          "chipped tusk",
+          "broken saber",
+          "broken sabre",
+          "broken fang",
+          "snapped saber",
+          "snapped sabre",
+          "snapped fang",
+          "cracked saber",
+          "cracked sabre",
+          "cracked fang",
+          "saber is chipped",
+          "sabre is chipped",
+          "saber chipped",
+          "sabre chipped",
+          "broken tip",
+          "missing tip",
+          "short saber",
+          "stub of a saber",
+          "saber broken",
+          "sabre broken",
+          "sabor chipped",
+          "chipped sabor",
+          "chipped sabertooth",
+          "notched saber",
+          "notched sabre",
+          "jagged saber",
+          "jagged sabre"
+        ],
+        "blockers": [
+          "chipped ear"
+        ],
+        "negations": [
+          "no chips",
+          "not chipped",
+          "unchipped",
+          "sabers intact",
+          "sabres intact",
+          "perfect sabers",
+          "perfect sabres",
+          "whole sabers",
+          "whole sabres",
+          "unbroken sabers",
+          "unbroken sabres"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.chipped_saber.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name}'s gaze drops to your jagged saber."
+                },
+                {
+                  "say": "Something bit back. Did it live?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.chipped_saber.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} leans close to your broken saber."
+                },
+                {
+                  "say": "Ouch. Does it ache when you bite down?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.chipped_saber.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Your saber's chipped. Did you hit a rock, or a foe?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.chipped_saber.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} brushes a cheek along your jaw."
+                },
+                {
+                  "say": "I don't mind the broken saber. It makes you look like you've lived."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.chipped_saber.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Go on, bite me with that broken saber. I dare you."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.chipped_saber.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Still biting with that chipped saber? You manage better than I would."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "missing_tooth": {
+        "keywords": [
+          "gaptoothed",
+          "snaggletoothed",
+          "toothless"
+        ],
+        "phrases": [
+          "gap toothed",
+          "snaggle toothed",
+          "missing tooth",
+          "missing teeth",
+          "missing a tooth",
+          "missin tooth",
+          "lost a tooth",
+          "lost teeth",
+          "lost some teeth",
+          "gap in the teeth",
+          "gap in its teeth",
+          "gap in my teeth",
+          "tooth missing",
+          "teeth missing",
+          "broken tooth",
+          "broken teeth",
+          "knocked out tooth",
+          "missing fang",
+          "lost a fang",
+          "missing saber",
+          "missing sabre",
+          "lost a saber",
+          "lost a sabre",
+          "one saber",
+          "one sabre",
+          "only one saber",
+          "only one sabre"
+        ],
+        "blockers": [],
+        "negations": [
+          "no missing teeth",
+          "all its teeth",
+          "all my teeth",
+          "all of its teeth",
+          "full set of teeth",
+          "every tooth",
+          "teeth intact",
+          "perfect teeth"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.missing_tooth.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} notices the gap when you bare your teeth."
+                },
+                {
+                  "say": "Lost a tooth already? You must bite hard."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.missing_tooth.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name}'s head tilts at the gap in your jaw."
+                },
+                {
+                  "say": "What knocked that tooth out? It must have been something big."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.missing_tooth.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You're missing a tooth. Does it bother you when you eat?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.missing_tooth.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} grooms along your jaw."
+                },
+                {
+                  "say": "I don't mind the gap. Honestly, I hadn't even noticed it."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.missing_tooth.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} bares a full set of teeth at you."
+                },
+                {
+                  "say": "Missing a tooth already? Keep talking and you'll lose another."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.missing_tooth.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Still eating fine with that gap? Good."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "limp": {
+        "keywords": [
+          "limp",
+          "limps",
+          "limping",
+          "limped",
+          "limpy",
+          "limpin",
+          "lame",
+          "lameness",
+          "hobble",
+          "hobbles",
+          "hobbling",
+          "hobbled",
+          "hobbel",
+          "gimpy",
+          "gimp",
+          "crippled"
+        ],
+        "phrases": [
+          "bad leg",
+          "bad paw",
+          "bad foot",
+          "game leg",
+          "lame leg",
+          "lame paw",
+          "drags a leg",
+          "drags its leg",
+          "drags one leg",
+          "favours a leg",
+          "favors a leg",
+          "favours one leg",
+          "favors one leg",
+          "walks with a limp",
+          "walks lame",
+          "uneven gait",
+          "uneven stride",
+          "stiff leg",
+          "crooked leg",
+          "twisted leg",
+          "injured leg",
+          "hurt leg",
+          "leg never healed",
+          "badly healed leg"
+        ],
+        "blockers": [
+          "went limp",
+          "limp tail",
+          "limp ears",
+          "limp with relief",
+          "limp from exhaustion"
+        ],
+        "negations": [
+          "no limp",
+          "doesn't limp",
+          "does not limp",
+          "never limps",
+          "not lame",
+          "without a limp",
+          "no longer limps",
+          "sound legs",
+          "strong legs"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.limp.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name}'s eyes follow your uneven stride."
+                },
+                {
+                  "say": "You step short on that leg. A rival would see it straight away."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.limp.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} slows to your pace."
+                },
+                {
+                  "say": "Does it hurt to walk? We can go slow, I don't mind."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.limp.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You've got a limp. Old wound?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.limp.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} walks close at your side, matching your pace."
+                },
+                {
+                  "say": "I don't mind walking slow with you. I like it, actually."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.limp.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Go on, run. I'll walk after you and still catch up."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.limp.repeat_meeting[0]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "How's the leg today? Any better?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.limp.repeat_meeting[1]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} watches your uneven stride."
+                },
+                {
+                  "say": "Still walking on it, I see. Good for you."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "large": {
+        "keywords": [],
+        "phrases": [
+          "big cat",
+          "large cat",
+          "huge cat",
+          "massive cat",
+          "giant of a cat",
+          "bigger than most",
+          "larger than most",
+          "biggest of the litter",
+          "head taller",
+          "stands tall",
+          "towers over",
+          "tall for",
+          "big for",
+          "large for",
+          "big boned",
+          "big bodied",
+          "big build",
+          "large build",
+          "huge build",
+          "massive build",
+          "very big",
+          "very large",
+          "really big",
+          "really large",
+          "built big",
+          "built huge",
+          "hulking cat",
+          "enormous cat",
+          "huge body",
+          "massive body",
+          "large body",
+          "big body",
+          "big cta",
+          "huge cta"
+        ],
+        "blockers": [
+          "big eyes",
+          "big ears",
+          "big heart",
+          "big paws",
+          "big nose",
+          "big appetite",
+          "big dreams",
+          "big voice",
+          "large eyes",
+          "large ears",
+          "large heart",
+          "large scar",
+          "huge scar",
+          "big scar",
+          "big sabers",
+          "big sabres",
+          "large sabers",
+          "large sabres",
+          "huge sabers",
+          "huge sabres",
+          "big family",
+          "big pride",
+          "big litter",
+          "tall grass",
+          "big trouble"
+        ],
+        "negations": [
+          "not large",
+          "not big",
+          "not huge",
+          "not that big",
+          "not very big",
+          "isn't big",
+          "isn't large",
+          "not tall",
+          "average size",
+          "average sized",
+          "normal size",
+          "normal sized",
+          "medium size",
+          "medium sized"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.large.first_meeting[0]",
+            "when": {
+              "boldness": "low"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} takes a step back, then catches it."
+                },
+                {
+                  "say": "Oh. You're bigger than you looked from over there."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.large.first_meeting[1]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} squares up and measures you."
+                },
+                {
+                  "say": "You're big. I've brought down bigger, though."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.large.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You must've eaten well as a cub. Look at the size of you."
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.large.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} leans into your bulk."
+                },
+                {
+                  "say": "Nothing would dare come near me with you around. I'd sleep well."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.large.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "All that size and still so slow. Catch me if you can."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.large.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "I keep forgetting how big you are until you're right here."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "small": {
+        "keywords": [],
+        "phrases": [
+          "small cat",
+          "little cat",
+          "tiny cat",
+          "smol cat",
+          "small body",
+          "tiny body",
+          "small build",
+          "slight build",
+          "small frame",
+          "small framed",
+          "slight frame",
+          "smaller than most",
+          "smallest of the litter",
+          "the runt",
+          "a runt",
+          "runt of the litter",
+          "runt of my litter",
+          "runt of its litter",
+          "small for",
+          "tiny for",
+          "very small",
+          "really small",
+          "very tiny",
+          "small sized",
+          "under sized",
+          "not much bigger than a cub",
+          "small as a cub",
+          "size of a cub",
+          "small cta",
+          "smal cat"
+        ],
+        "blockers": [
+          "small scar",
+          "small scars",
+          "little scar",
+          "tiny scar",
+          "small notch",
+          "little notch",
+          "small nick",
+          "small ears",
+          "small eyes",
+          "little ears",
+          "short saber",
+          "short sabre",
+          "short sabers",
+          "short sabres",
+          "short tail",
+          "short temper",
+          "short tempered",
+          "short fur",
+          "short coat",
+          "little brother",
+          "little sister",
+          "a little",
+          "little bit",
+          "small litter",
+          "small pride"
+        ],
+        "negations": [
+          "not small",
+          "not little",
+          "not tiny",
+          "isn't small",
+          "not short",
+          "average size",
+          "average sized",
+          "normal size",
+          "normal sized",
+          "medium size",
+          "medium sized"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.small.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} looms close over you."
+                },
+                {
+                  "say": "You're a small thing to be walking around alone."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.small.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} crouches to look you in the eye."
+                },
+                {
+                  "say": "Has it been hard out here for you? You look like you could use a meal."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.small.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You're on the small side, aren't you? Mind yourself out here."
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.small.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} curls around you."
+                },
+                {
+                  "say": "You fit right here, you know. Stay a while?"
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.small.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "I've eaten hares bigger than you. Run along."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.small.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Still here, then? Good, I was hoping you'd be all right."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "lean": {
+        "keywords": [],
+        "phrases": [
+          "long legs",
+          "long legged",
+          "built for running",
+          "built for speed",
+          "all legs",
+          "all ribs",
+          "ribs showing",
+          "thin build",
+          "lean build",
+          "slim build",
+          "light build",
+          "lightly built",
+          "lean body",
+          "thin body",
+          "slim body",
+          "slender body",
+          "skinny body",
+          "wiry build",
+          "rangy build",
+          "lanky build",
+          "lean and",
+          "thin as a reed",
+          "skin and bone",
+          "skin and bones",
+          "nothing but bone",
+          "lean cat",
+          "thin cat",
+          "skinny cat",
+          "slim cat",
+          "slender cat",
+          "wiry cat",
+          "rangy cat",
+          "lanky cat",
+          "gaunt cat",
+          "scrawny cat",
+          "skiny cat",
+          "very lean",
+          "very thin",
+          "very skinny"
+        ],
+        "blockers": [
+          "thin ice",
+          "thin air",
+          "thin skin",
+          "thin skinned",
+          "thin blood",
+          "lean season",
+          "lean times",
+          "lean on",
+          "lean against",
+          "leaning",
+          "lean towards",
+          "lean toward",
+          "thin line"
+        ],
+        "negations": [
+          "not lean",
+          "not thin",
+          "not skinny",
+          "not slim",
+          "isn't thin",
+          "isn't skinny",
+          "not bony"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.lean.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} looks over your narrow frame and huffs."
+                },
+                {
+                  "say": "You're thin. I could knock you over without trying."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.lean.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} sniffs at your ribs."
+                },
+                {
+                  "say": "You need to eat more. When did you last have a proper meal?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.lean.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You're built for running, aren't you? All leg."
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.lean.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You move so lightly. I could watch you all day."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.lean.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Another lean winter and the crows will have you. Better eat while you can."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.lean.repeat_meeting[0]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} glances at your ribs."
+                },
+                {
+                  "say": "Have you been eating enough?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.lean.repeat_meeting[1]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Still light on your feet. How do you stay so quick?"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "heavy": {
+        "keywords": [],
+        "phrases": [
+          "broad shoulders",
+          "broad shouldered",
+          "wide shoulders",
+          "thick neck",
+          "thick body",
+          "thick build",
+          "heavy build",
+          "heavy set",
+          "heavily built",
+          "solid build",
+          "powerful build",
+          "stocky build",
+          "burly build",
+          "bulky build",
+          "barrel chested",
+          "broad chested",
+          "deep chested",
+          "thick through the chest",
+          "built like a boulder",
+          "built like a bison",
+          "built like a bear",
+          "heavy cat",
+          "stocky cat",
+          "burly cat",
+          "bulky cat",
+          "heavyset cat",
+          "thickset cat",
+          "chunky cat",
+          "stout cat",
+          "brawny cat",
+          "heavy body",
+          "hevy build",
+          "stockey build",
+          "very heavy",
+          "very stocky",
+          "very burly"
+        ],
+        "blockers": [
+          "heavy forelimbs",
+          "heavy forelegs",
+          "heavy paws",
+          "heavy heart",
+          "heavy step",
+          "heavy eyes",
+          "heavy hearted",
+          "heavy breathing",
+          "heavy snow",
+          "heavy rain",
+          "heavy sabers",
+          "heavy sabres",
+          "muscled forelimbs",
+          "muscular forelimbs"
+        ],
+        "negations": [
+          "not heavy",
+          "not fat",
+          "not stocky",
+          "not bulky",
+          "isn't heavy",
+          "isn't fat",
+          "not burly"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.heavy.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} weighs your bulk and rumbles low."
+                },
+                {
+                  "say": "You're solid. You'd take some moving."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.heavy.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} leans against you, testing."
+                },
+                {
+                  "say": "Like leaning on a boulder! A warm boulder, at least."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.heavy.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You're a solid cat. Eat well, do you?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.heavy.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} settles against you."
+                },
+                {
+                  "say": "You're like a warm boulder to lean on. I could get used to that."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.heavy.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You're heavy. I'll run rings round you until you drop."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.heavy.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Still solid as a boulder, aren't you? Good to see you."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "odd_eyes": {
+        "keywords": [
+          "heterochromia",
+          "heterochromatic",
+          "heterochromic",
+          "hetrochromia",
+          "heterocromia",
+          "heterochromea",
+          "oddeyed"
+        ],
+        "phrases": [
+          "odd eyed",
+          "odd eyes",
+          "odd eye",
+          "mismatched eyes",
+          "mismatched eye",
+          "eyes are mismatched",
+          "eyes mismatched",
+          "mismatched eye colour",
+          "mismatched eye color",
+          "mismatched eye colours",
+          "mismatched eye colors",
+          "eye colours are mismatched",
+          "eye colors are mismatched",
+          "mismatch of eye colour",
+          "mismatch of eye color",
+          "mis matched eyes",
+          "missmatched eyes",
+          "eyes that don't match",
+          "eyes that do not match",
+          "eyes don't match",
+          "eyes do not match",
+          "two coloured eyes",
+          "two colored eyes",
+          "different coloured eyes",
+          "different colored eyes",
+          "different colour eyes",
+          "different color eyes",
+          "eyes of different colours",
+          "eyes of different colors",
+          "each eye a different colour",
+          "each eye a different color",
+          "one eye different",
+          "one eye a different colour",
+          "one eye a different color",
+          "unmatched eyes",
+          "bicoloured eyes",
+          "bicolored eyes"
+        ],
+        "blockers": [],
+        "negations": [
+          "eyes match",
+          "matching eyes",
+          "eyes that match",
+          "same coloured eyes",
+          "same colored eyes",
+          "no odd eyes",
+          "not odd eyed",
+          "both eyes the same"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.odd_eyes.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} squints at your eyes."
+                },
+                {
+                  "say": "Strange eyes. Don't think they'll scare me."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.odd_eyes.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} leans close, looking from eye to eye."
+                },
+                {
+                  "say": "Your eyes don't match! I've never seen that before."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.odd_eyes.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Your eyes aren't the same, are they? It's a bit unsettling, honestly."
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.odd_eyes.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "I like your eyes. I can never decide which to look at."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.odd_eyes.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Even your eyes can't agree with each other. What a mess you are."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.odd_eyes.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Your eyes still throw me, you know. I'll get used to them."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "clouded_eye": {
+        "keywords": [
+          "oneeyed",
+          "halfblind",
+          "cataract",
+          "catarac",
+          "cateract"
+        ],
+        "phrases": [
+          "one eyed",
+          "half blind",
+          "clouded eye",
+          "cloudy eye",
+          "clouded over eye",
+          "milky eye",
+          "milk white eye",
+          "blind eye",
+          "blind in one eye",
+          "blind on one side",
+          "one blind eye",
+          "dead eye",
+          "filmed eye",
+          "film over one eye",
+          "film over the eye",
+          "lost an eye",
+          "lost one eye",
+          "missing eye",
+          "missing an eye",
+          "one eye",
+          "only one eye",
+          "ruined eye",
+          "scarred shut eye",
+          "eye scarred shut",
+          "glazed eye",
+          "clowded eye",
+          "cloudded eye"
+        ],
+        "blockers": [
+          "one eye on",
+          "an eye on",
+          "eye on the",
+          "over one eye",
+          "above one eye",
+          "across one eye",
+          "under one eye",
+          "below one eye",
+          "near one eye",
+          "beside one eye",
+          "around one eye",
+          "through one eye"
+        ],
+        "negations": [
+          "no clouded eye",
+          "clear eyes",
+          "both eyes clear",
+          "sharp eyes",
+          "eyes are clear",
+          "not blind",
+          "keen eyes"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.clouded_eye.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} shifts toward your blind side."
+                },
+                {
+                  "say": "You can't see me here, can you?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.clouded_eye.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} steps round to your good side and sits."
+                },
+                {
+                  "say": "There. Better if you can see me."
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.clouded_eye.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "That eye's clouded over. Can you see anything out of it?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.clouded_eye.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} settles on your blind side, pressed close."
+                },
+                {
+                  "say": "I'll watch this side for you, if you like."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.clouded_eye.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You won't see me coming from that side. Just so you know."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.clouded_eye.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} comes in on your good side."
+                },
+                {
+                  "say": "There, where you can see me. How are you keeping?"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "unusual_coat": {
+        "keywords": [
+          "leucistic",
+          "leucism",
+          "leukistic",
+          "leucistc",
+          "luecistic",
+          "leucystic",
+          "piebald",
+          "pied",
+          "piebold",
+          "pyebald",
+          "piebalds",
+          "piebaldism",
+          "pinto",
+          "skewbald"
+        ],
+        "phrases": [
+          "rare coat",
+          "unusual coat",
+          "strange coat",
+          "odd coat",
+          "unique coat",
+          "uncommon coat",
+          "rare colour",
+          "rare color",
+          "unusual colour",
+          "unusual color",
+          "ash coat",
+          "ashen coat",
+          "ash grey coat",
+          "ash gray coat",
+          "ash coloured coat",
+          "ash colored coat",
+          "silver ash coat",
+          "white coat",
+          "snow white coat",
+          "all white",
+          "pale coat",
+          "ghost pale",
+          "pale as snow",
+          "white patches",
+          "white patch",
+          "patches of white",
+          "white patches on the coat",
+          "white patches on its coat",
+          "white patches on my coat",
+          "patched coat",
+          "patchy coat",
+          "patched with white",
+          "patchwork coat",
+          "splashed with white",
+          "splashes of white",
+          "splotched with white",
+          "white splotches",
+          "blotched with white",
+          "white blotches",
+          "pied coat",
+          "piebald coat",
+          "pie bald"
+        ],
+        "blockers": [
+          "black coat",
+          "black fur",
+          "black pelt",
+          "dark coat",
+          "dark fur",
+          "dark pelt",
+          "all black",
+          "jet black",
+          "coal black",
+          "black as night",
+          "dark as night",
+          "black cat",
+          "melanistic",
+          "melanism",
+          "melanic",
+          "melenistic",
+          "melanstic",
+          "black eyes",
+          "black nose",
+          "white sabers",
+          "white sabres",
+          "black sabers",
+          "black sabres",
+          "black claws",
+          "white claws",
+          "white socks",
+          "white sock",
+          "white blaze",
+          "black spots",
+          "black stripes",
+          "black stripe",
+          "black markings",
+          "dark markings",
+          "dorsal stripe",
+          "stripe down the back",
+          "stripe along the back",
+          "stripe down my back",
+          "stripe down its back",
+          "dark stripe",
+          "tear lines",
+          "tear line",
+          "tear marks",
+          "tear stripes",
+          "tearlines",
+          "white belly",
+          "white chest",
+          "white muzzle"
+        ],
+        "negations": [
+          "normal coat",
+          "ordinary coat",
+          "plain coat",
+          "common coat",
+          "not white",
+          "not leucistic",
+          "not piebald",
+          "nothing unusual",
+          "no white patches",
+          "no patches"
+        ],
+        "first_meeting": [
+          {
+            "id": "appearance.unusual_coat.first_meeting[0]",
+            "when": {
+              "aggression": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} looks your coat over, ears back."
+                },
+                {
+                  "say": "That coat must be hard to hide in. Doesn't the prey see you coming?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.unusual_coat.first_meeting[1]",
+            "when": {
+              "sociability": "high"
+            },
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} sniffs along your coat, curious."
+                },
+                {
+                  "say": "I've never seen a coat like yours! Were your parents like that too?"
+                }
+              ]
+            }
+          },
+          {
+            "id": "appearance.unusual_coat.first_meeting[2]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "You stand out, with that coat. Has anyone told you?"
+                }
+              ]
+            }
+          }
+        ],
+        "courtship": [
+          {
+            "id": "appearance.unusual_coat.courtship[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "beat": "{name} grooms along your shoulder, slowly."
+                },
+                {
+                  "say": "I'd spot you across the whole Vale, and I'd come looking."
+                }
+              ]
+            }
+          }
+        ],
+        "rival_taunt": [
+          {
+            "id": "appearance.unusual_coat.rival_taunt[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Every cat in the Vale can see you coming in that coat. Some hunter you are."
+                }
+              ]
+            }
+          }
+        ],
+        "repeat_meeting": [
+          {
+            "id": "appearance.unusual_coat.repeat_meeting[0]",
+            "block": {
+              "speaker": "{catId}",
+              "parts": [
+                {
+                  "say": "Still no other coat like yours. I'd know it from a long way off."
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "_gaps": [
+    "T56 is one row with two ids, den_mother / den_father. This bank has an entry for each (same text apart from the name). If the engine wants one id with a sex-picked name, merge them and keep nameBySex.",
+    "§3.2 Tag column: by my count 13 traits link to tags (14 links, as battle_scarred has two), not the fifteen in Tundra's room message. Only lame_paw, broad_shoulders and swift are named as auto tags in §3b.5; giant, runt, sickly, one_eyed, chipped_saber, frost_hardy, big_eater, battle_scarred, spear_marked and torn_ear carry a Tag in §3.2 but §3b.5 doesn't say they auto-add it. §3.4b.3 treats all of them as known on sight.",
+    "gullible says false rumours reach you 'without the narrator's doubt line (lore-book rule)', but neither lore-book v0.1 nor lore-book-copy-v1 has a doubt line. I have not written one. If one is added it must play on true and false rumours alike, or it reveals the hidden true flag (lore-book §6.2).",
+    "missing_tooth vs chipped_saber: a missing saber is mapped to missing_tooth. The lineart always draws both sabers (and Ochre has no layers yet, §3b.4), so the remark will show in text only.",
+    "Done: Tundra reviewed the §3b.3 look-tag keyword lists and the gene gate and approved them, with the odd_eyes and face-scar fixes now in.",
+    "Ochre has no scar, ear or saber layers yet, so per §3b.4 those tags show in text only. For NPCs, reactions follow appearance-neutral-v1: play a tag line only when the save and the portrait both have it."
+  ],
+  "_questions": [
+    "@Flint: rumour lines use {name} for the subject, as the lore-book template tokens do. The lore-book rumour kinds use {subjectName}. Bind both to the subject for kind trait."
+  ]
+}

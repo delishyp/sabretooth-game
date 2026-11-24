@@ -1,0 +1,14 @@
+# Redesign style kit (Ochre, v0.2 mockups)
+- Source: `src/style.src.css`, compiled by `build.py` into `style.css`. Sizes are written as `Nu` = N px at 1080 window height, scaled by `--s = 100vh/1080` (so 1440-tall ultrawide is 1.33x).
+- Scene: `.scene` is fixed full-window, `background-size: cover` with a per-screen focal point. Never letterboxed.
+- Safe area: `.safe` is a centred 16:9 box sized to window height. All panels live inside it, so ultrawide only adds scene at the sides.
+- Panels: solid `#1c140f` (no translucency behind text), 2u amber/bone border `#a8834f`, radius 10u, soft drop shadow.
+- Text: bone `#f4ead8` on panel; secondary `#d2c1a5`; disabled `#b3a28a` (still AA). Titles Cinzel 700, UI Alegreya Sans.
+- Type scale at 1080: body 20, labels 18 (floor), card titles 24, headings 30, page titles 40. No text below 18u.
+- Primary: one gold button per screen (`.btn.primary`, `#e8b450` on dark ink). Secondary buttons are panel-coloured with a quiet border.
+- Scene choices (encounter, dialogue) are equal-weight bone-bordered buttons, never gold (UX §1.1).
+- Selected = gold-bright border + check mark. Disabled/locked = dashed border, dim text, plus an "opens when"/why line.
+- Need bars: 150u wide, 16u tall, dark trough with a solid colour fill (Health red, Thirst blue, Hunger amber, Energy green).
+- Spacing grid 8u; standard gap 16u; panel padding 24u; panels sit 24u from the safe-area edges.
+- Copy placeholders not yet covered by Saga render as a cyan dashed `[Saga: …]` pill so they cannot ship by accident.
+- Contrast is checked by `check.py` (every text node vs. its resolved panel background, WCAG AA 4.5:1, 3:1 for ≥24px bold).

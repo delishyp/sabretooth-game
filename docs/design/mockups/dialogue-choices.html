@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Dialogue, choices — UX simplify mockup</title>
+<link rel="stylesheet" href="shell.css"><link rel="stylesheet" href="screens.css"></head>
+<body>
+<div class="corner"><button class="back" type="button"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Back</button></div>
+<header class="top">
+  <div class="who"><div class="avatar"><img src="assets/player-headshot.png" alt=""></div><div><p class="kicker">A lone cat</p><h1>Ravenmark</h1></div></div>
+  <p class="where-when"><b>The Split Rock</b> · Spring · Day 2 · Mating season</p>
+  <div class="needs" aria-label="Needs">
+<div class="need"><span class="lab">Health</span><span class="bar"><i style="width:100%"></i></span></div>
+<div class="need"><span class="lab">Hunger</span><span class="bar"><i style="width:70%"></i></span></div>
+<div class="need"><span class="lab">Thirst</span><span class="bar"><i style="width:62%"></i></span></div>
+<div class="need"><span class="lab">Energy</span><span class="bar"><i style="width:85%"></i></span></div>
+</div>
+  <button class="menu-btn" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+</header>
+<div class="goal"><span class="tag">Goal</span><span class="line">Grow closer to a cat you could take as a mate.</span><span class="guide">Guide</span></div>
+
+<div class="stage dim"><img class="landscape" src="assets/home-landscape.png" alt=""></div>
+<nav class="rail" aria-label="Places">
+<a class="item is-current" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.5 12 4l8.5 7.5"/><path d="M6 10.8V20h12V10.8"/><path d="M10 20v-6h4v6"/></svg><span>Home</span></a>
+<a class="item" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 19.5 9 8.5l4 6.2 2.8-3.9 5.7 8.7z"/><path d="M7.3 11.4 9 12.6l1.6-1.4"/></svg><span>Wilderness</span></a>
+<a class="item" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11c0-2 1.2-4.5 3.2-5.2L7 3.5 10 6c.6-.2 1.3-.3 2-.3s1.4.1 2 .3l3-2.5-1.2 2.3C17.8 6.5 19 9 19 11c0 4-3.1 7-7 7s-7-3-7-7z"/><path d="M10 15.2c.6.6 1.4.6 2 0"/></svg><span>Smilodons</span></a>
+<a class="item" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3-1 6-.8 8 1v12.5c-2-1.6-5-1.8-8-.8z"/><path d="M20 5.5c-3-1-6-.8-8 1v12.5c2-1.6 5-1.8 8-.8z"/></svg><span>Lore</span></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-3 2-5 5-5s5 2 5 5"/><circle cx="10" cy="9" r="2.3"/><path d="M14 19c.4-2.4 2-4 4.2-4 2 0 3.3 1.2 3.8 3"/><circle cx="18.2" cy="11" r="1.8"/></svg><span>Pride</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19.5c0-7 4-12 9-12s9 5 9 12"/><path d="M8 19.5c0-3 1.8-5.2 4-5.2s4 2.2 4 5.2"/><path d="M2 19.5h20"/></svg><span>Den</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/></svg><span>Breeding</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Inventory</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/></svg><span>Market</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3-5 3z"/></svg><span>Quests</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg><span>Reputation</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+<a class="item is-locked" href="#" data-locked="true" title="Select to see what opens it"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="4.5" r="1.3"/><circle cx="19.5" cy="12" r="1.3"/><circle cx="12" cy="19.5" r="1.3"/><circle cx="4.5" cy="12" r="1.3"/></svg><span>Councils</span><svg class="lock" viewBox="0 0 24 24" aria-label="Locked"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></a>
+</nav>
+<main class="main dialogue">
+  <aside class="speaker">
+  <button class="portrait-btn" type="button" title="About this cat"><img src="portraits/sleetbark-head.png" alt=""></button>
+  <h2>Sleetbark</h2>
+  <p class="bond"><span>Friendly</span></p>
+  <button class="drawer-pill" type="button">About this cat</button>
+</aside>
+  <article class="card talk">
+    <p class="kick">The Split Rock</p>
+    <p class="para"><span class="beat">He bares his sabers for a heartbeat, then stretches, heavy forelimbs reaching out as his claws knead the frozen ground.</span> <span class="say">“I'll take my leave. Enjoy your meal. I hope we meet again soon, friend.”</span></p>
+    <div class="pager" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  </article>
+</main>
+<div class="shelf"><button class="drawer-pill" type="button">Earlier in this talk</button></div>
+<section class="choice-stack" aria-label="Your answer">
+  <p class="kick">Your answer</p>
+  <button type="button">“Walk with me a while?”</button>
+  <button type="button">Trade a few words, then go.</button>
+  <button type="button">“I have my own trail.”</button>
+</section>
+
+</body></html>

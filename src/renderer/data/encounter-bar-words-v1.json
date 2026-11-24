@@ -1,0 +1,21 @@
+{
+  "_meta": {"source": "encounters v0.1.4 c6c271c (Tundra, PROPOSED DEFAULT)", "author": "Saga", "rules": "Words only, no numbers. No pronouns for the other cat. Band order is lowest to highest. Direction line shows beside the band word after each courtship move; pick a variant at random, never the same one twice in a row."},
+  "hunt_escape": [
+    {"id": "escape.b0", "band": "under 25%", "text": "Nearly yours"},
+    {"id": "escape.b1", "band": "25-49%", "text": "Within reach"},
+    {"id": "escape.b2", "band": "50-74%", "text": "Slipping away"},
+    {"id": "escape.b3", "band": "75%+", "text": "All but gone"}
+  ],
+  "courtship_interest": [
+    {"id": "interest.b0", "band": "under 20", "text": "Cold to you"},
+    {"id": "interest.b1", "band": "20-39", "text": "Wary of you"},
+    {"id": "interest.b2", "band": "40-59", "text": "Weighing you up"},
+    {"id": "interest.b3", "band": "60-74", "text": "Warming to you"},
+    {"id": "interest.b4", "band": "75+", "text": "Drawn to you"}
+  ],
+  "courtship_direction": {
+    "up": [{"id": "dir.up.a", "text": "That landed."}, {"id": "dir.up.b", "text": "A little closer."}],
+    "down": [{"id": "dir.down.a", "text": "That cost you."}, {"id": "dir.down.b", "text": "A step back."}],
+    "none": [{"id": "dir.none.a", "text": "No change."}, {"id": "dir.none.b", "text": "Neither closer nor further."}]
+  }
+}

@@ -1,0 +1,88 @@
+/* Sabretooth redesign v0.2 style kit (Ochre). Source file: sizes written as Nu = N px at 1080 height,
+   compiled by build.py to calc(N * var(--s)) so every size scales with window height. */
+@font-face{font-family:Cinzel;font-weight:500;src:url(fonts/Cinzel-500.woff2)}
+@font-face{font-family:Cinzel;font-weight:700;src:url(fonts/Cinzel-700.woff2)}
+@font-face{font-family:Alegreya;font-weight:400;src:url(fonts/AlegreyaSans-400.woff2)}
+@font-face{font-family:Alegreya;font-weight:500;src:url(fonts/AlegreyaSans-500.woff2)}
+@font-face{font-family:Alegreya;font-weight:700;src:url(fonts/AlegreyaSans-700.woff2)}
+:root{
+  --s:calc(100vh / 1080);
+  --panel:#1c140f; --panel-2:#2a1f17; --panel-3:#352719;
+  --border:#a8834f; --border-soft:#5e4a33;
+  --bone:#f4ead8; --muted:#d2c1a5; --dim:#b3a28a;
+  --gold:#e8b450; --gold-ink:#1e1408; --gold-hi:#f5cd74;
+  --sel:#f0c766; --ph:#9fd9ec;
+  --r:10u; --gap:16u;
+  --title:"Cinzel",Georgia,serif; --ui:"Alegreya","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100vh;overflow:hidden;background:#000;color:var(--bone);font-family:var(--ui);font-size:20u;line-height:1.35}
+/* scene layer: fills the whole window, cover-scaled around a focal point */
+.scene{position:fixed;inset:0;background-size:cover;background-repeat:no-repeat}
+.scene.dim::after{content:"";position:absolute;inset:0;background:rgba(8,5,3,.55)}
+/* safe area: centred 16:9 box sized to the window height; every panel lives inside it */
+.safe{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw, calc(100vh * 16 / 9))}
+.actor{position:absolute;pointer-events:none;filter:drop-shadow(0 10u 18u rgba(0,0,0,.55))}
+/* panels: solid, warm, bone/amber edge */
+.panel{position:absolute;background:var(--panel);border:2u solid var(--border);border-radius:var(--r);box-shadow:0 8u 28u rgba(0,0,0,.55)}
+h1,h2,h3{font-family:var(--title);font-weight:700;color:var(--bone);letter-spacing:.02em;line-height:1.3}
+h1{font-size:40u} h2{font-size:30u} h3{font-size:24u}
+.label{font-size:18u;color:var(--muted);font-weight:500}
+.muted{color:var(--muted)}
+/* top strip */
+.top{left:24u;right:24u;top:16u;height:76u;display:flex;align-items:center;padding:0 24u;gap:24u}
+.who{display:flex;align-items:baseline;gap:14u;min-width:0}
+.who .name{font-family:var(--title);font-size:28u;font-weight:700}
+.who .pride{font-size:20u;color:var(--muted)}
+.when{position:absolute;left:50%;transform:translateX(-50%);font-size:22u;font-weight:500;white-space:nowrap}
+.needs{margin-left:auto;display:flex;gap:18u;align-items:center}
+.need{width:150u}
+.need .nl{display:flex;justify-content:space-between;font-size:18u;color:var(--muted);line-height:1.1;margin-bottom:6u}
+.bar{height:16u;border-radius:8u;background:#0c0806;border:1.5u solid #6d5a40;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:6u}
+.b-health i{background:#d9655a}.b-thirst i{background:#5fb4e0}.b-hunger i{background:#e3a447}.b-energy i{background:#97c95e}
+.menu-btn{margin-left:10u;height:48u;padding:0 18u;border-radius:8u;border:1.5u solid var(--border-soft);background:var(--panel-2);color:var(--bone);font-size:20u;font-family:var(--ui);display:flex;align-items:center;gap:10u}
+.goal{left:50%;transform:translateX(-50%);top:100u;padding:8u 22u;border-radius:0 0 10u 10u;border-top:none;font-size:20u;white-space:nowrap;max-width:1100u}
+.goal b{color:var(--gold-hi);font-weight:700;margin-right:10u}
+/* rail */
+.rail{left:24u;top:160u;width:244u;padding:10u}
+.ri{display:flex;align-items:center;gap:10u;height:40u;padding:0 10u;border-radius:8u;font-size:20u;font-weight:500;color:var(--bone);position:relative}
+.ri svg{width:24u;height:24u;flex:none}
+.ri.on{background:var(--panel-3);box-shadow:inset 4u 0 0 var(--gold)}
+.ri.lock{color:var(--dim)}
+.ri.focus{outline:2u solid var(--bone);outline-offset:-2u}
+.rail .sep{height:1.5u;background:var(--border-soft);margin:6u 6u}
+.why{position:absolute;left:calc(100% + 18u);top:50%;transform:translateY(-50%);width:330u;background:var(--panel-2);border:2u solid var(--border);border-radius:8u;padding:10u 14u;font-size:19u;color:var(--bone);line-height:1.3;font-weight:400;box-shadow:0 6u 18u rgba(0,0,0,.5)}
+.why::before{content:"";position:absolute;left:-10u;top:50%;margin-top:-9u;border:9u solid transparent;border-left:none;border-right:10u solid var(--border)}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;height:64u;padding:0 34u;border-radius:var(--r);font-family:var(--ui);font-weight:700;font-size:24u;border:2u solid var(--border-soft);background:var(--panel-2);color:var(--bone)}
+.btn.primary{background:var(--gold);border-color:var(--gold-hi);color:var(--gold-ink);box-shadow:0 0 0 3u rgba(232,180,80,.25),0 8u 22u rgba(0,0,0,.5)}
+.btn.big{height:80u;font-size:28u;padding:0 44u}
+/* cards and chips */
+.card{background:var(--panel-2);border:2u solid var(--border-soft);border-radius:var(--r);padding:14u 18u;position:relative}
+.card .t{font-size:24u;font-weight:700;color:var(--bone);line-height:1.2}
+.card .d{font-size:20u;color:var(--muted);margin-top:4u}
+.card.sel{border-color:var(--sel);box-shadow:inset 0 0 0 1.5u var(--sel);background:#3a2a18}
+.card.sel .check{position:absolute;top:12u;right:14u;width:30u;height:30u;border-radius:50%;background:var(--sel);color:var(--gold-ink);font-weight:700;font-size:20u;display:flex;align-items:center;justify-content:center}
+.card.off{background:#211913;border-style:dashed}
+.card.off .t{color:var(--dim)} .card.off .d{color:var(--dim)}
+.tag{display:inline-block;font-size:18u;font-weight:700;color:var(--gold-ink);background:var(--gold);border-radius:6u;padding:2u 10u;vertical-align:middle;line-height:1.3}
+.lockword{display:inline-block;font-size:18u;font-weight:700;color:var(--bone);border:1.5u solid var(--dim);border-radius:6u;padding:1u 9u;margin-left:10u;vertical-align:middle;line-height:1.3}
+.chip{display:inline-flex;align-items:center;height:48u;padding:0 20u;border-radius:24u;border:2u solid var(--border-soft);background:var(--panel-2);font-size:20u;font-weight:500;color:var(--bone)}
+.chip.sel{border-color:var(--sel);background:#3a2a18;color:var(--bone);box-shadow:inset 0 0 0 1.5u var(--sel)}
+.chip.sel::before{content:"✓";color:var(--sel);font-weight:700;margin-right:8u}
+.ph{color:var(--ph);border:1.5u dashed var(--ph);border-radius:6u;padding:0 8u;font-weight:500}
+/* choices (encounter/dialogue): equal weight, no gold */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14u}
+.choice{min-height:84u;display:flex;align-items:center;padding:10u 22u;border-radius:var(--r);background:var(--panel-3);border:2u solid var(--border);font-size:24u;font-weight:700;color:var(--bone);line-height:1.2}
+.choice.quiet{background:var(--panel-2);border-color:var(--border-soft);font-weight:500}
+.story{left:24u;right:24u;bottom:24u;display:flex;gap:28u;padding:24u 28u}
+.toast{left:50%;transform:translateX(-50%);top:112u;padding:12u 26u;font-size:22u;font-weight:700;border-color:var(--gold);display:flex;gap:12u;align-items:center}
+.toast .ok{color:var(--gold-hi)}
+.close{position:absolute;top:18u;right:18u;height:52u;padding:0 18u;border-radius:8u;border:1.5u solid var(--border-soft);background:var(--panel-2);color:var(--bone);font-size:20u;font-weight:700;display:flex;align-items:center;gap:8u}
+
+.odds{display:flex;align-items:center;gap:14u}
+.oddsword{font-size:26u;font-weight:700;color:var(--gold-ink);background:var(--gold-hi);border-radius:8u;padding:4u 16u;line-height:1.25}
+.standin{display:inline-block;margin-left:12u;font-size:18u;font-weight:700;color:#1b1208;background:#d7c4a3;border-radius:6u;padding:1u 10u;vertical-align:middle;letter-spacing:.02em}
+.rail .lockword{padding:1u 7u;flex:none}
+.ri span:nth-of-type(1){min-width:0}

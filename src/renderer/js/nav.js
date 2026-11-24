@@ -8,7 +8,8 @@
  *   Vertical order: style row → death row → panel toggles (if shown) → bottom row, wrapping. Entering a card row focuses its selected card.
  *   Left/Right move within a row; Right on the Sandbox card enters the panel. In the panel Left/Right/Enter/LB/RB cycle values;
  *   Left on a toggle's first value or Esc/B returns to the Sandbox card. Esc/B elsewhere leaves to root.
- * reduce() returns { state, effect } where effect ∈ null | {type:'start', style, difficulty, sandboxOptions?} | {type:'leave'}.
+ * reduce() returns { state, effect } where effect ∈ null | {type:'start', style, difficulty, tutorial, sandboxOptions?} | {type:'leave'}.
+ * The tutorial toggle sits under the Death rule row (and under the Sandbox panel when that panel is open). On by default.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -31,13 +32,13 @@
     const opts = Object.fromEntries(sandboxOptions.map((o) => [o.id, o.default]));
     const style = styles.includes(DEFAULT_STYLE) ? DEFAULT_STYLE : styles[0];
     const death = deaths.includes(DEFAULT_DEATH) ? DEFAULT_DEATH : deaths[0];
-    return { styles: styles.slice(), deaths: deaths.slice(), optionDefs: sandboxOptions, style, death, focus: `style:${style}`, opts };
+    return { styles: styles.slice(), deaths: deaths.slice(), optionDefs: sandboxOptions, style, death, tutorial: true, focus: `style:${style}`, opts };
   }
 
   function cycle(def, cur, dir) { const v = def.values; return v[(v.indexOf(cur) + dir + v.length) % v.length]; }
 
   function startEffect(s) {
-    return { type: 'start', style: s.style, difficulty: s.death, ...(s.death === 'sandbox' ? { sandboxOptions: { ...s.opts } } : {}) };
+    return { type: 'start', style: s.style, difficulty: s.death, tutorial: s.tutorial !== false, ...(s.level ? { level: s.level } : {}), ...(s.death === 'sandbox' ? { sandboxOptions: { ...s.opts } } : {}) };
   }
 
   /** Vertical stops; each is a list of focus ids plus the id to land on when entering it. */
@@ -47,6 +48,7 @@
       { ids: s.deaths.map((x) => `death:${x}`), enter: `death:${s.death}`, row: true }
     ];
     if (s.death === 'sandbox') for (const o of s.optionDefs) list.push({ ids: [`opt:${o.id}`], enter: `opt:${o.id}` });
+    list.push({ ids: ['tutorial'], enter: 'tutorial' });
     list.push({ ids: ['back', 'begin'], enter: 'begin', row: true });
     return list;
   }
@@ -83,6 +85,7 @@
     if (action === 'confirm') {
       if (f.startsWith('style:')) st.style = f.slice(6);
       else if (f.startsWith('death:')) st.death = f.slice(6);
+      else if (f === 'tutorial') { st.tutorial = !s.tutorial; return out(); }
       else if (f === 'begin') return out(startEffect(s));
       else if (f === 'back') return out({ type: 'leave' });
       return out();
@@ -118,7 +121,8 @@
 
   const KEYMAP = { ArrowUp: 'up', w: 'up', W: 'up', ArrowDown: 'down', s: 'down', S: 'down',
     ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right',
-    Enter: 'confirm', ' ': 'confirm', Escape: 'back', Delete: 'delete', q: 'tabPrev', e: 'tabNext' };
+    Enter: 'confirm', ' ': 'confirm', Escape: 'back', Delete: 'delete', q: 'tabPrev', e: 'tabNext',
+    PageUp: 'pageup', PageDown: 'pagedown', Home: 'home', End: 'end' };
 
   return { step, setupInit, setupReduce, DEFAULT_STYLE, DEFAULT_DEATH, createGamepadReader, KEYMAP, PAD_BUTTONS };
 });

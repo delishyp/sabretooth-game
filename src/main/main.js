@@ -8,6 +8,7 @@ const path = require('path');
 const { createSettingsStore } = require('./settings-store');
 const { createSavesStore, SANDBOX_OPTIONS, visibleSandboxOptions } = require('./saves-store');
 const { createMenuHandlers, menuLockFrom } = require('./menu-handlers');
+const { createAchievementsStore } = require('./achievements-store');
 const I18n = require('../renderer/js/i18n');
 const { DEFAULTS: SETTINGS_DEFAULTS } = require('./settings-store');
 
@@ -17,7 +18,7 @@ if (process.env.SABRETOOTH_USERDATA) app.setPath('userData', process.env.SABRETO
 const SHOTS = process.argv.includes('--screenshots');
 // Window/taskbar icon (Anna-approved gold logo): ICO on Windows, PNG on Linux/dev. Both ship via build.files.
 const APP_ICON = path.join(__dirname, '..', '..', 'build', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
-let win, settings, saves, handlers, t, copy;
+let win, settings, saves, achievements, handlers, t, copy;
 let stagedSettings = null;   // B11: live, unsaved settings from the renderer; flushed on close
 
 function log(msg) {
@@ -114,6 +115,12 @@ function registerIpc() {
   ipcMain.handle('game:legacyEnd', (_e, p = {}) => { log(`game:legacyEnd ${JSON.stringify(p)}`); win.webContents.send('legacyEnd', p); return { ok: true }; });
   ipcMain.handle('menu:newLineage', (_e, p = {}) => placeholder('menu:newLineage', p));
   ipcMain.handle('saves:list', () => saves.list());
+  ipcMain.handle('achievements:list', () => achievements.list());
+  ipcMain.handle('achievements:earn', (_e, row = {}) => {
+    const Deeds = require('../renderer/js/deeds');
+    if (!Deeds.allowed(row.id, row.death, row.level || row.difficulty)) return { earned: false, reason: 'gated', rows: achievements.list() };
+    return achievements.earn({ id: row.id, runId: row.runId, difficulty: row.level || row.difficulty || 'standard' });
+  });
   ipcMain.handle('settings:get', () => settings.get());
   ipcMain.handle('settings:set', (_e, { patch } = {}) => { stagedSettings = null; const s = settings.set(patch); applyWindowMode(s.display.mode); return s; });
   ipcMain.handle('settings:stage', (_e, { patch } = {}) => { stagedSettings = patch; if (patch && patch.display) applyWindowMode(patch.display.mode); return true; });
@@ -166,7 +173,7 @@ function loadCopy() {
   // Slice 1 (scope v1.0.1): map model, rules, Saga's offline event library, world slots.
   try {
     const d = (f) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'renderer', 'data', f), 'utf8'));
-    c.gameData = { map: d('map.json'), rules: d('slice-rules.json'), events: d('events/slice-1.json'), slots: d('world-slots.json') };
+    c.gameData = { map: d('map.json'), rules: d('slice-rules.json'), events: d('events/slice-1.json'), slots: d('world-slots.json'), conversation: d('events/recurring-conversation.json'), borderPolicy: d('events/faction-proof-reconciled.json'), encounters: d('events/encounters-v0.2.json'), firstSeason: d('events/first-season-v0.6.2.json'), npcPortraits: d('npc-portrait-defaults.json'), sampleBeats: d('events/sample-beats.json') };
   } catch (e) { log(`slice data unavailable: ${e.message}`); c.gameData = null; }
   c.menuLock = menuLockFrom(c.gameData && c.gameData.rules, process.env);   // renderer shows only the locked cards
   return c;
@@ -176,6 +183,7 @@ app.whenReady().then(() => {
   const ud = app.getPath('userData');
   settings = createSettingsStore(ud);
   saves = createSavesStore(path.join(ud, 'saves'), { log, gameVersion: app.getVersion() });
+  achievements = createAchievementsStore(ud);
   copy = loadCopy(); t = I18n.create(copy.strings);
   handlers = createMenuHandlers({ settings, saves, log, t, checkStoryteller, lock: copy.menuLock });
   if (!copy.menuLock) log('New Game menu lock OFF (SABRETOOTH_MENU_UNLOCK=1)');

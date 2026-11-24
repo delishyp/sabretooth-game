@@ -18,6 +18,11 @@ function validateMainCat(mc, { difficulty, sandboxOptions } = {}) {
   if (!mc.birthSeason || mc.birthSeason.year !== b.year || mc.birthSeason.season !== b.season) fail('birthSeason');
   if (mc.lifeStage !== Creator.lifeStageFor(mc.ageSeasons)) fail('lifeStage');
   if (!Array.isArray(mc.scars) || mc.scars.length) fail('scars');
+  let portraitId = null;
+  if (mc.portraitId != null && mc.portraitId !== '') {
+    if (typeof mc.portraitId !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(mc.portraitId)) fail('portraitId');
+    portraitId = mc.portraitId;
+  }
   const g = mc.genes || {}; const L = g.loci || {};
   const homo = (pair, allowed) => Array.isArray(pair) && pair.length === 2 && pair[0] === pair[1] && allowed.includes(pair[0]);
   if (g.v !== 1) fail('genes.v');
@@ -50,8 +55,8 @@ function validateMainCat(mc, { difficulty, sandboxOptions } = {}) {
   }
   const genes = JSON.parse(JSON.stringify(g));
   return {
-    snapshot: { catId: mc.catId, name, sex: mc.sex, lifeStage: mc.lifeStage, genes, scars: [] },
-    record: { catId: mc.catId, name, sex: mc.sex, ageSeasons: mc.ageSeasons, birthSeason: { ...b }, genes, scars: [] }
+    snapshot: { catId: mc.catId, name, sex: mc.sex, lifeStage: mc.lifeStage, genes, scars: [], portraitId },
+    record: { catId: mc.catId, name, sex: mc.sex, ageSeasons: mc.ageSeasons, birthSeason: { ...b }, genes, scars: [], portraitId }
   };
 }
 module.exports = { validateMainCat };

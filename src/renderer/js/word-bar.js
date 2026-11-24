@@ -1,0 +1,95 @@
+/**
+ * Hunt escape (4 bands) and courtship interest (5 bands). Display only.
+ * Labels come from menu-copy keys. The filled count is the only number, and it stays on the meter.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.WordBar = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  const KINDS = {
+    hunt: { bands: 4, titleKey: 'ui.meter.hunt' },
+    court: { bands: 5, titleKey: 'ui.meter.court' }
+  };
+  function describe(meter) {
+    const kind = meter && KINDS[meter.kind];
+    if (!kind) return null;
+    const band = Math.max(0, Math.min(kind.bands - 1, Math.round(Number(meter.band) || 0)));
+    return { kind: meter.kind, bands: kind.bands, band, titleKey: kind.titleKey, bandKey: 'ui.meter.band' };
+  }
+  let cachedHints = null;
+  function loadHints() {
+    if (cachedHints) return cachedHints;
+    if (typeof require === 'function') {
+      try { cachedHints = require('../data/events/first-season-v0.6.2.json').uiHints || {}; return cachedHints; } catch (e) { /* browser */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/first-season-v0.6.2.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) { cachedHints = JSON.parse(xhr.responseText).uiHints || {}; return cachedHints; }
+      } catch (e) { /* missing hints leave the meter untitled */ }
+    }
+    return {};
+  }
+  function label(id, vars) {
+    const raw = loadHints()[id] || '';
+    return String(raw).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
+  }
+  /** The band caption is the existing word. A blank ui.meter.band must not print digits. */
+  function caption(kind, band) {
+    const custom = label('ui.meter.band').trim();
+    if (custom) return custom;
+    const prefix = kind === 'court' ? 'ui.meter.court.word.' : 'ui.meter.hunt.word.';
+    return label(prefix + band);
+  }
+  function mount(parent, meter, labelFn) {
+    const spec = describe(meter);
+    if (!spec || !parent) return null;
+    const say = labelFn || label;
+    const doc = parent.ownerDocument || document;
+    const box = doc.createElement('div');
+    box.className = 'word-bar is-' + spec.kind;
+    box.dataset.kind = spec.kind;
+    box.dataset.band = String(spec.band);
+    box.dataset.bands = String(spec.bands);
+    const title = doc.createElement('p');
+    title.className = 'word-bar-title';
+    title.textContent = say(spec.titleKey);
+    const track = doc.createElement('div');
+    track.className = 'word-bar-track';
+    for (let i = 0; i < spec.bands; i++) {
+      const seg = doc.createElement('i');
+      if (i <= spec.band) seg.className = 'is-filled';
+      track.append(seg);
+    }
+    const word = doc.createElement('p');
+    word.className = 'word-bar-word';
+    word.textContent = caption(spec.kind, spec.band);
+    if (meter.wordsOnly) {
+      box.append(track);
+      if (meter.word) {
+        word.textContent = '';
+        word.className = 'word-bar-word encounter-word';
+        const band = doc.createElement('span');
+        band.className = 'encounter-band';
+        band.textContent = meter.word;
+        word.append(band);
+        if (meter.direction) {
+          const dir = doc.createElement('span');
+          dir.className = 'encounter-direction';
+          dir.dataset.directionId = meter.directionId || '';
+          dir.textContent = meter.direction;
+          word.append(doc.createTextNode(' '));
+          word.append(dir);
+        }
+        box.append(word);
+      }
+    } else {
+      box.append(title, track, word);
+    }
+    parent.append(box);
+    return box;
+  }
+  return { KINDS, describe, mount, label, caption };
+});

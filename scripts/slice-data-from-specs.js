@@ -60,7 +60,7 @@ function buildMap() {
     $comment: `Generated from docs/design/map-v1.md v${version} by scripts/slice-data-from-specs.js. Values: Tundra. File: Flint. Layout not approved by Anna yet (slice-1 scope note).`,
     dataVersion, specVersion: version, seasons: SEASONS, daysPerSeason: 20,
     preyPoints: { 0: -10, 1: 0, 2: 5, 3: 10 },
-    dangerBands: [{ max: 1, danger: 0 }, { max: 5, danger: 1 }, { max: 10, danger: 2 }, { max: 100, danger: 3 }],
+    dangerBands: [{ max: 0, danger: 0 }, { max: 2, danger: 1 }, { max: 10, danger: 2 }, { max: 100, danger: 3 }],
     biomes, hazards, regions, edges, factions: js.factions, startClaims: js.startClaims, tunables: js.tunables, overlay: js.overlay
   };
 }

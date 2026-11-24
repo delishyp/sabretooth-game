@@ -1,0 +1,16 @@
+{
+  "lastSeen": {
+    "note": "Word keys are Saga's. Day cutoffs are pending Tundra.",
+    "words": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "fewDays": "A few days ago",
+      "thisSeason": "Earlier this season",
+      "lastSeason": "Last season",
+      "longAgo": "Long ago"
+    },
+    "yesterdayThrough": 1,
+    "fewDaysThrough": 4,
+    "seasonDays": 20
+  }
+}
