@@ -80,9 +80,14 @@
         {
           "id": "continue",
           "label": "Continue",
-          "text": "",
+          "text": "Far below, a hare breaks cover and runs. It's much too far down to chase, so you let it go.",
           "summary": "You startled a small animal on the scree.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/wind_scree/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
         }
       ]
     },
@@ -101,9 +106,14 @@
         {
           "id": "continue",
           "label": "Continue",
-          "text": "",
+          "text": "You follow the line of the river with your eyes until it disappears, then turn back down the slope.",
           "summary": "You looked across the Vale from North Pass.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/north_pass/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
         }
       ]
     },
@@ -269,9 +279,14 @@
         {
           "id": "continue",
           "label": "Continue",
-          "text": "",
+          "text": "The stems part, and a grouse whirs up almost under your nose. Your heart's still racing as it flies off.",
           "summary": "You followed a movement through the tall grass.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/tallgrass/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
         }
       ]
     },
@@ -290,9 +305,14 @@
         {
           "id": "continue",
           "label": "Continue",
-          "text": "",
+          "text": "The shape lowers its head to graze. It's a horse, and it isn't coming any closer.",
           "summary": "You surveyed the open southern range.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/south_range/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
         }
       ]
     },
@@ -353,9 +373,14 @@
         {
           "id": "continue",
           "label": "Continue",
-          "text": "",
+          "text": "At last you spot it: a small brown bird on a bent stem. It flies off the moment it sees you looking.",
           "summary": "You listened to an unseen bird in the reeds.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/reedbank/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
         }
       ]
     },
@@ -500,9 +525,14 @@
         {
           "id": "continue",
           "label": "Continue",
-          "text": "",
+          "text": "The stone clatters to a stop somewhere below. Nothing follows it, and after a while you go on.",
           "summary": "You listened to loose stone on East Saddle.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/east_saddle/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
         }
       ]
     },
@@ -605,9 +635,14 @@
         {
           "id": "continue",
           "label": "Continue",
-          "text": "",
+          "text": "You listen for a long while. No wolves come, and you leave the run before any do.",
           "summary": "You noticed fresh scent on the wolf run.",
-          "affinityIntent": "unchanged"
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/wolf_run/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
         }
       ]
     },
@@ -2015,6 +2050,354 @@
       ],
       "hostileText": "{catName} charges before you can say a word. You turn and run, and {catName} chases you off.",
       "hostileSummary": "You fled a hostile Mistwood patrol."
+    },
+    {
+      "id": "slice.region.split_rock.hollow",
+      "kind": "region",
+      "regions": [
+        "split_rock"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A dry hollow",
+      "text": "Behind the boulder, the wind has scooped a dry hollow out of the bank. It's deep enough to curl up in, and no pride has marked it.",
+      "summary": "You found a sheltered hollow at the Split Rock.",
+      "choices": [
+        {
+          "id": "lie_down",
+          "label": "Lie down in it for a moment.",
+          "text": "You curl up in the hollow. The wind goes over your head instead of through your fur.",
+          "summary": "You found a sheltered hollow at the Split Rock.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/split_rock.hollow/lie_down",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        },
+        {
+          "id": "move_on",
+          "label": "Leave it be.",
+          "text": "You take note of the hollow and walk on.",
+          "summary": "You passed a sheltered hollow at the Split Rock.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/split_rock.hollow/move_on",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.greywater_ford.stones",
+      "kind": "region",
+      "regions": [
+        "greywater_ford"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Dry stones",
+      "text": "Most of the stones across the ford are slick with weed. A line of dry ones runs close to the far bank.",
+      "summary": "You found dry stepping stones at the ford.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You test the dry stones with a paw, and they hold your weight.",
+          "summary": "You found dry stepping stones at the ford.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/greywater_ford.stones/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.ice_wall.marks",
+      "kind": "region",
+      "regions": [
+        "ice_wall"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Old marks in the ice",
+      "text": "Somebody has scratched long lines into the ice at shoulder height. They're worn smooth with age, and the cat who made them was bigger than you.",
+      "summary": "You found old claw marks on the Ice Wall.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You stretch up beside them and come up a little short. Whoever made them is long gone.",
+          "summary": "You found old claw marks on the Ice Wall.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/ice_wall.marks/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.mere_shore.frog",
+      "kind": "region",
+      "regions": [
+        "mere_shore"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "At the water's edge",
+      "text": "Something small moves at the edge of the water. When you creep closer, it's a frog, sitting very still on a flat stone.",
+      "summary": "A frog got away from you at the Mere shore.",
+      "choices": [
+        {
+          "id": "pounce",
+          "label": "Pounce.",
+          "text": "The frog is gone before your paws land, and you get a wet face for your trouble.",
+          "summary": "A frog got away from you at the Mere shore.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/mere_shore.frog/pounce",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        },
+        {
+          "id": "watch",
+          "label": "Leave it alone.",
+          "text": "You leave it. After a while it slips into the water without a splash.",
+          "summary": "You watched a frog at the Mere shore.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/mere_shore.frog/watch",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.tar_seeps.bird",
+      "kind": "region",
+      "regions": [
+        "tar_seeps"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Stuck fast",
+      "text": "A bird has landed on the shining tar and can't lift its feet. It flaps hard and goes nowhere.",
+      "summary": "You kept clear of a bird stuck in the tar.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You stay well back on firm ground. By the time you turn away, the bird has gone quiet.",
+          "summary": "You kept clear of a bird stuck in the tar.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/tar_seeps.bird/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.bears_throat.log",
+      "kind": "region",
+      "regions": [
+        "bears_throat"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A torn log",
+      "text": "Something has ripped a rotten log apart and scattered it across the gorge floor. The bark is still damp where it was torn.",
+      "summary": "You found where a bear had torn up a log.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You find bear fur caught on a splinter. It's dry and a few days old, so you keep going.",
+          "summary": "You found where a bear had torn up a log.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/bears_throat.log/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.ash_hills.dust",
+      "kind": "region",
+      "regions": [
+        "ash_hills"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A dust bath",
+      "text": "A shallow dip in the ash has been rolled smooth, and it still smells faintly of wolf.",
+      "summary": "You rolled in the ash and came up grey.",
+      "choices": [
+        {
+          "id": "roll",
+          "label": "Roll in it.",
+          "text": "You roll in the dust and come up grey all over. You sneeze for a while afterwards.",
+          "summary": "You rolled in the ash and came up grey.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/ash_hills.dust/roll",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        },
+        {
+          "id": "go_round",
+          "label": "Go round it.",
+          "text": "You leave the wolves their dust bath and go round.",
+          "summary": "You went round a wolf dust bath.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/ash_hills.dust/go_round",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.island_mere.goose",
+      "kind": "region",
+      "regions": [
+        "island_mere"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "A nesting goose",
+      "text": "A goose is sitting low in the reeds on a little island, and it hisses when you look at it. The water between you is deep and cold.",
+      "summary": "You left a nesting goose alone.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You decide the eggs aren't worth a swim. The goose keeps hissing until you're out of sight.",
+          "summary": "You left a nesting goose alone.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/island_mere.goose/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.highcrag.names",
+      "kind": "region",
+      "regions": [
+        "highcrag"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Names on the wind",
+      "text": "From up among the caves comes an old cat's voice, saying names slowly, without stopping.",
+      "summary": "You heard Highcrag names being recited.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You don't know any of the names. You listen until the voice stops, then move away from the caves.",
+          "summary": "You heard Highcrag names being recited.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/highcrag.names/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.bonefield.ring",
+      "kind": "region",
+      "regions": [
+        "bonefield"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Trampled grass",
+      "text": "Among the bones, a wide ring of grass has been trampled flat. Tufts of cat fur are caught in the stems all round it.",
+      "summary": "You found a trampled fighting ring in the Bonefield.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You sniff the fur. Several cats fought here, and none of them are here now. You don't stay long.",
+          "summary": "You found a trampled fighting ring in the Bonefield.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/bonefield.ring/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.mistwood.den",
+      "kind": "region",
+      "regions": [
+        "mistwood"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "An empty den",
+      "text": "Under a fallen pine you find an old den. The scent inside is stale, as if the cats who lived here left in a hurry long ago.",
+      "summary": "You found an old, empty den in the Mistwood.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "You back out again. Whoever lived here moved on and never came back.",
+          "summary": "You found an old, empty den in the Mistwood.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/mistwood.den/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slice.region.south_range.herd",
+      "kind": "region",
+      "regions": [
+        "south_range"
+      ],
+      "season": "spring",
+      "oncePerRun": true,
+      "title": "Dust on the skyline",
+      "text": "A low cloud of dust moves along the far edge of the range. After a while you hear it: hooves, a lot of them.",
+      "summary": "You watched a herd pass far off on the southern range.",
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Continue",
+          "text": "The herd passes well away from you. When the dust settles, the plain is empty again.",
+          "summary": "You watched a herd pass far off on the southern range.",
+          "affinityIntent": "unchanged",
+          "writes": {
+            "fact": "region_moment/south_range.herd/continue",
+            "kind": "region_moment",
+            "scope": "private"
+          }
+        }
+      ]
     }
   ]
 }

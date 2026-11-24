@@ -71,7 +71,8 @@
       const cues = (source.personalityContract && source.personalityContract.fiveTraitActionCues) || {};
       for (const row of source.personalityContract.speechCoverage || []) {
         speechLocations[row.speechId] = {
-          focusTrait: row.focusTrait, low: row.low, base: row.baseline, high: row.high, context: row.familyId
+          focusTrait: row.focusTrait, low: row.low, base: row.baseline, high: row.high, context: row.familyId,
+          byCat: row.byCat || null
         };
         if (!contextActions[row.familyId]) {
           contextActions[row.familyId] = {};
@@ -195,7 +196,7 @@
       if (!beat || beat.kind === 'narration' || beat.speaker === 'A' || !beat.speechId) {
         return { text: fill(beat && beat.text, vars), gap: null, action: null, variantId: null };
       }
-      const resolved = Speech.resolve(coverage, beat.speechId, npc && npc.personality, vars);
+      const resolved = Speech.resolve(coverage, beat.speechId, npc && npc.personality, vars, npc && npc.id);
       return {
         text: resolved.text || fill(beat.text, vars),
         gap: resolved.gap,

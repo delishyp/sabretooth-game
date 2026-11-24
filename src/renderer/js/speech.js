@@ -56,20 +56,21 @@
     }
     return best ? { trait: best, band: bestBand } : null;
   }
-  function resolve(coverage, path, personality, vars) {
+  function resolve(coverage, path, personality, vars, catId) {
     const row = coverage && coverage.speechLocations && coverage.speechLocations[path];
     if (!row) {
       return { characterization: 'unresolved', variantId: null, actionId: null, text: null, action: null, gap: GAP, path };
     }
+    const byCat = catId && row.byCat && row.byCat[catId];
     if (!complete(personality)) {
       return {
         characterization: 'unresolved', variantId: `${path}#unresolved`, actionId: 'unresolved',
-        text: fill(row.base, vars), action: null, gap: GAP, path, traits: null
+        text: fill(byCat != null ? byCat : row.base, vars), action: null, gap: GAP, path, traits: null
       };
     }
     const focusBand = band(personality[row.focusTrait]);
     const spokenBand = focusBand === 'high' || focusBand === 'low' ? focusBand : 'middle';
-    const text = spokenBand === 'high' ? row.high : spokenBand === 'low' ? row.low : row.base;
+    const text = byCat != null ? byCat : spokenBand === 'high' ? row.high : spokenBand === 'low' ? row.low : row.base;
     const picked = actionPick(personality, row.focusTrait);
     let action; let actionId;
     const neutral = (coverage && coverage.neutral) || NEUTRAL;

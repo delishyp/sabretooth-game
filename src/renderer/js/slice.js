@@ -1343,6 +1343,18 @@
       if (!e) return null; s.usedEvents.push(e.id);
       return bind(e, null, { day: s.day });
     }
+    function rememberChoiceFact(s, writes) {
+      if (!writes || !writes.fact || !s.worldMemory) return;
+      if (!Array.isArray(s.worldMemory.facts)) s.worldMemory.facts = [];
+      if (!s.worldMemory.knowledge) s.worldMemory.knowledge = {};
+      const factId = `${s.runId || ''}/${writes.fact}`;
+      if (s.worldMemory.facts.some((f) => f.factId === factId)) return;
+      s.worldMemory.facts.push({ factId, kind: writes.kind, region: s.region, scope: writes.scope });
+      s.worldMemory.knowledge[factId] = {
+        scope: writes.scope, participantIds: ['player'], witnessIds: [],
+        disclosedTo: [], prideIds: [], learnedAbsDay: s.day
+      };
+    }
     function choose(s, action) {
       if (action.type !== 'choose') return { state: s, error: 'choose' };
       const p = s.pending;
@@ -1354,6 +1366,7 @@
       const e = EV.find((x) => x.id === p.eventId);
       if (p.hostile) { p.choiceId = 'hostile'; log(s, fill(e.hostileSummary, { catName: p.catName })); s.phase = 'eventResult'; return { state: s }; }
       const c = e.choices.find((x) => x.id === action.choiceId); if (!c) return { state: s, error: 'choice' };
+      rememberChoiceFact(s, c.writes);
       p.choiceId = c.id;
       const spoken = fill(c.summary || e.summary, { catName: p.catName });
       p.summary = spoken;

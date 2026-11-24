@@ -248,7 +248,7 @@ function probe() {
           const hud = document.querySelector('#game-hud');
           const panel = document.querySelector('#game-event');
           if (!card || !panel) return ['no card'];
-          if (card.classList.contains('has-beats') || card.classList.contains('conversation-card')) out.push('not plain');
+          if (card.classList.contains('conversation-card') && !card.classList.contains('has-beats') && !card.classList.contains('has-meet')) out.push('not a meeting');
           const cr = card.getBoundingClientRect();
           const pr = panel.getBoundingClientRect();
           if (cr.top < -1 || cr.left < -1 || cr.bottom > H + 2 || cr.right > W + 2) out.push('card offscreen');
@@ -553,9 +553,37 @@ function probe() {
         if (hits(tr, tab.getBoundingClientRect())) { out.push('toast on tab'); break; }
       }
       if (action && hits(tr, action.getBoundingClientRect())) out.push('toast on action');
+      for (const el of document.querySelectorAll('.lore-book, .lore-read, .lore-list, .lore-spread')) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 4 && r.height > 4 && hits(tr, r)) { out.push('toast on lore'); break; }
+      }
       return out;
     });
     assert.deepStrictEqual(toastPlace, [], 'market toast ' + toastPlace.join(' | '));
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.locator('[data-view="lore"]').click();
+        await page.locator('[data-view="market"]').click();
+        await page.waitForTimeout(60);
+        const loreToast = await page.evaluate(() => {
+          const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+          const toast = document.querySelector('.toast');
+          if (!toast) return ['missing toast'];
+          const tr = toast.getBoundingClientRect();
+          const out = [];
+          for (const el of document.querySelectorAll('.lore-book, .lore-read, .lore-list, .lore-tabs, .lore-tabs button, .home-panel-title')) {
+            const r = el.getBoundingClientRect();
+            if (r.width > 4 && r.height > 4 && hits(tr, r)) out.push('toast on lore');
+          }
+          return out;
+        });
+        assert.deepStrictEqual(loreToast, [], `lore toast ${w}x${h} u${u} ` + loreToast.join(' | '));
+        if (u === 1 && ((w === 1280 && h === 720) || (w === 1920 && h === 1080) || (w === 3440 && h === 1440))) {
+          await shoot(`lore-toast-${w}x${h}-u1`);
+        }
+      }
+    }
     await page.locator('[data-view="map"]').click();
     await page.waitForTimeout(80);
     const toastGone = await page.evaluate(() => document.querySelectorAll('.toast').length);
@@ -670,7 +698,7 @@ function probe() {
       };
     });
     assert.deepStrictEqual(roster.picks, ['hc02', 'hc03', 'bf02', 'bf03', 'mw02', 'mw03', 'ln02', 'ln05']);
-    assert.ok(roster.hasMeet && !roster.hasBeats, 'plain first meeting ' + JSON.stringify(roster));
+    assert.ok(roster.hasMeet || roster.hasBeats, 'first meeting ' + JSON.stringify(roster));
     assert.ok(roster.names.includes('Glacierheart') && roster.names.includes('Slatemark'), roster.names.join(','));
     const headGaps = () => page.evaluate(() => {
       const out = [];
@@ -762,6 +790,35 @@ function probe() {
       const coatGaps = await headGaps();
       assert.deepStrictEqual(coatGaps, [], 'player ' + coat + ' ' + coatGaps.join(' | '));
       await shoot('portrait-coat-' + coat + '-1280x720-u1');
+    }
+    for (const [slot, eventId, tag, needle] of [
+      ['hc04', 'slice.meeting.highcrag', 'highcrag', 'give names before anything else'],
+      ['mw07', 'slice.meeting.mistwood', 'mistwood', 'old cat']
+    ]) {
+      for (const [w, h] of [[1280, 720], [1920, 1080], [3440, 1440]]) {
+        await fit(w, h, 1);
+        await page.evaluate(({ slot, eventId }) => {
+          const s = window.__menuDebug.game().state;
+          window.__menuDebug.forceMeeting(slot);
+          s.pending.eventId = eventId;
+          window.__menuDebug.game().render();
+        }, { slot, eventId });
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 1 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 });
+        for (let step = 0; step < 4; step++) {
+          const said = await page.evaluate(() => (document.querySelector('#game-event') || {}).innerText || '');
+          if (said.toLowerCase().includes(needle)) break;
+          const next = page.locator('#game-event [data-g="advanceBeat"]');
+          if (!(await next.count())) break;
+          await next.click();
+          await page.waitForTimeout(80);
+        }
+        const said = await page.evaluate(() => (document.querySelector('#game-event') || {}).innerText || '');
+        assert.ok(said.toLowerCase().includes(needle), tag + ' beats missing: ' + said.slice(0, 400));
+        await shoot(`meeting-beats-${tag}-${w}x${h}-u1`);
+      }
     }
     const npc = await page.evaluate(() => {
       const s = window.__menuDebug.game().state;

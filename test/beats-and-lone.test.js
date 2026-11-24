@@ -45,8 +45,13 @@ test('beats keep order, honour conditions, and fall back when missing or invalid
   assert.deepStrictEqual(bone.beats.map((b) => b.text), voice['slice.meeting.bonefield'].beats.map((b) => b.text));
   assert.deepStrictEqual(bone.choices.map((c) => c.id), ['steady', 'withdraw', 'insult']);
   assert.ok(!JSON.stringify(bone.beats).includes('%'));
-  assert.strictEqual(E.eventById('slice.meeting.highcrag').beats, undefined);
-  assert.strictEqual(E.eventById('slice.meeting.mistwood').beats, undefined);
+  const library = j('events/slice-1.json').events;
+  for (const id of ['slice.meeting.highcrag', 'slice.meeting.mistwood']) {
+    const shown = E.eventById(id);
+    const raw = library.find((row) => row.id === id);
+    assert.ok(Array.isArray(shown.beats) && shown.beats.length, id);
+    assert.deepStrictEqual(shown.beats.flatMap((beat) => beat.parts), raw.parts, id);
+  }
   const repeat = voice['m2.repeat_meeting'].beats;
   const calm = { npc: { id: 'n1', personality: { sociability: 50 }, injuries: [] }, knowsFact: () => false, knowsAny: () => false };
   assert.deepStrictEqual(Beats.visible(repeat, calm).map((b) => b.text).filter((t) => t.includes('You again.') || t.includes('flat stone') || t.includes('heartbeat')).length, 2);

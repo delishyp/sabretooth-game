@@ -94,7 +94,308 @@
             "say": "Oh. You. I was hoping you'd gone somewhere else. What do you want?"
           }
         ],
-        "speaker": "{catId}"
+        "speaker": "{catId}",
+        "byCat": {
+          "bf01": {
+            "speaker": "bf01",
+            "parts": [
+              {
+                "beat": "{catName} doesn't bother getting up."
+              },
+              {
+                "say": "Still alive, stray? Say what you want and be quick about it."
+              }
+            ]
+          },
+          "bf02": {
+            "speaker": "bf02",
+            "parts": [
+              {
+                "say": "I've got a patrol soon. What do you want?"
+              }
+            ]
+          },
+          "bf03": {
+            "speaker": "bf03",
+            "parts": [
+              {
+                "say": "If you're not here to talk about big game, I'm not interested. Are you?"
+              }
+            ]
+          },
+          "bf04": {
+            "speaker": "bf04",
+            "parts": [
+              {
+                "beat": "{catName} keeps an eye on the cubs tussling behind {him}."
+              },
+              {
+                "say": "I'm watching the cubs. What do you want?"
+              }
+            ]
+          },
+          "bf05": {
+            "speaker": "bf05",
+            "parts": [
+              {
+                "say": "You're in my way. Is there something you need?"
+              }
+            ]
+          },
+          "bf06": {
+            "speaker": "bf06",
+            "parts": [
+              {
+                "beat": "{catName} goes still, as if hoping you hadn't spotted {him}."
+              },
+              {
+                "say": "You found me. I was listening to the grass. What is it?"
+              }
+            ]
+          },
+          "bf07": {
+            "speaker": "bf07",
+            "parts": [
+              {
+                "say": "I'm old and I'm tired, and I'm not looking for company. What do you want?"
+              }
+            ]
+          },
+          "hc01": {
+            "speaker": "hc01",
+            "parts": [
+              {
+                "say": "You're still in the Vale, then. I have the crag to see to. Are you stopping, or going on?"
+              }
+            ]
+          },
+          "hc02": {
+            "speaker": "hc02",
+            "parts": [
+              {
+                "beat": "{catName} doesn't stop pacing."
+              },
+              {
+                "say": "I'm in the middle of training. Are you staying, or do I carry on?"
+              }
+            ]
+          },
+          "hc03": {
+            "speaker": "hc03",
+            "parts": [
+              {
+                "beat": "{catName} keeps {his} eyes on the slope."
+              },
+              {
+                "say": "Quiet, there's elk on that slope. Are you staying or going?"
+              }
+            ]
+          },
+          "hc04": {
+            "speaker": "hc04",
+            "parts": [
+              {
+                "say": "Oh. You. I was hoping for a bit of time on my own. What is it?"
+              }
+            ]
+          },
+          "hc05": {
+            "speaker": "hc05",
+            "parts": [
+              {
+                "say": "You walked right across my hare tracks. Again. What do you want?"
+              }
+            ]
+          },
+          "hc06": {
+            "speaker": "hc06",
+            "parts": [
+              {
+                "beat": "{catName} glances towards the dens."
+              },
+              {
+                "say": "Keep your voice down, the cubs are asleep. What did you need?"
+              }
+            ]
+          },
+          "hc07": {
+            "speaker": "hc07",
+            "parts": [
+              {
+                "beat": "{catName} steps across the path."
+              },
+              {
+                "say": "You again. I'm on watch, so make it quick. What do you want?"
+              }
+            ]
+          },
+          "hc08": {
+            "speaker": "hc08",
+            "parts": [
+              {
+                "say": "I was going over the names, and now I've lost my place. What is it?"
+              }
+            ]
+          },
+          "ln01": {
+            "speaker": "ln01",
+            "parts": [
+              {
+                "say": "Back again. I don't need looking after, if that's why you're here. What is it?"
+              }
+            ]
+          },
+          "ln02": {
+            "speaker": "ln02",
+            "parts": [
+              {
+                "beat": "{catName} looks past you down the trail, then back."
+              },
+              {
+                "say": "Oh. It's you. I thought for a moment it was somebody else. What do you want?"
+              }
+            ]
+          },
+          "ln03": {
+            "speaker": "ln03",
+            "parts": [
+              {
+                "beat": "{catName} turns the torn side of {his} face towards you."
+              },
+              {
+                "say": "Look all you like. What do you want this time?"
+              }
+            ]
+          },
+          "ln04": {
+            "speaker": "ln04",
+            "parts": [
+              {
+                "say": "I'm not in the mood for talking. Is it important?"
+              }
+            ]
+          },
+          "ln05": {
+            "speaker": "ln05",
+            "parts": [
+              {
+                "say": "I was just heading off. What is it?"
+              }
+            ]
+          },
+          "ln06": {
+            "speaker": "ln06",
+            "parts": [
+              {
+                "beat": "{catName} lifts {his} head slowly."
+              },
+              {
+                "say": "I'm fine where I am. I don't need help. What brings you?"
+              }
+            ]
+          },
+          "ln07": {
+            "speaker": "ln07",
+            "parts": [
+              {
+                "beat": "{catName} doesn't look up."
+              },
+              {
+                "say": "You again. I said I don't want trouble. What do you want?"
+              }
+            ]
+          },
+          "ln08": {
+            "speaker": "ln08",
+            "parts": [
+              {
+                "beat": "{catName} keeps {his} eyes on the water."
+              },
+              {
+                "say": "I'm looking. Can it wait?"
+              }
+            ]
+          },
+          "ln09": {
+            "speaker": "ln09",
+            "parts": [
+              {
+                "say": "If you're not here with news of Mistwood, I don't have much to say. Do you have any?"
+              }
+            ]
+          },
+          "mw01": {
+            "speaker": "mw01",
+            "parts": [
+              {
+                "beat": "{catName} speaks before you can."
+              },
+              {
+                "say": "Quietly. I've got a lot to see to today. What brings you back?"
+              }
+            ]
+          },
+          "mw02": {
+            "speaker": "mw02",
+            "parts": [
+              {
+                "beat": "{catName} keeps between you and the trees behind {him}."
+              },
+              {
+                "say": "Stay there. My family's close. What do you want?"
+              }
+            ]
+          },
+          "mw03": {
+            "speaker": "mw03",
+            "parts": [
+              {
+                "say": "Don't ask about the leg. Was there something else?"
+              }
+            ]
+          },
+          "mw04": {
+            "speaker": "mw04",
+            "parts": [
+              {
+                "beat": "{catName} steps across the trail so you can't go further."
+              },
+              {
+                "say": "Not that way. What do you want?"
+              }
+            ]
+          },
+          "mw05": {
+            "speaker": "mw05",
+            "parts": [
+              {
+                "say": "You're standing on a trail I'm trying to keep clear. What is it?"
+              }
+            ]
+          },
+          "mw06": {
+            "speaker": "mw06",
+            "parts": [
+              {
+                "beat": "{catName} is quiet today, ears low."
+              },
+              {
+                "say": "Oh. Hello. Sorry, I'm not much company today. Did you want something?"
+              }
+            ]
+          },
+          "mw07": {
+            "speaker": "mw07",
+            "parts": [
+              {
+                "beat": "{catName} sniffs the air in your direction."
+              },
+              {
+                "say": "I know that scent. What is it you want, young cat?"
+              }
+            ]
+          }
+        }
       },
       {
         "kind": "speech",
@@ -115,7 +416,296 @@
             "say": "Well? Are you stopping, or just passing?"
           }
         ],
-        "speaker": "{catId}"
+        "speaker": "{catId}",
+        "byCat": {
+          "bf01": {
+            "speaker": "bf01",
+            "parts": [
+              {
+                "say": "You keep turning up on my field. That takes nerve, I'll give you that. Well, are you staying?"
+              }
+            ]
+          },
+          "bf02": {
+            "speaker": "bf02",
+            "parts": [
+              {
+                "beat": "{catName} looks towards the river before looking at you."
+              },
+              {
+                "say": "You've been down by the ford, haven't you? I can smell it. Are you stopping a while?"
+              }
+            ]
+          },
+          "bf03": {
+            "speaker": "bf03",
+            "parts": [
+              {
+                "say": "You're still catching hares, aren't you? I can tell. Come on, are you walking or not?"
+              }
+            ]
+          },
+          "bf04": {
+            "speaker": "bf04",
+            "parts": [
+              {
+                "say": "You're back. Not many strays come round again. Are you stopping, or just passing?"
+              }
+            ]
+          },
+          "bf05": {
+            "speaker": "bf05",
+            "parts": [
+              {
+                "beat": "{catName} gives you a short nod."
+              },
+              {
+                "say": "You again. You move quieter than most of our lot. Stopping, or passing?"
+              }
+            ]
+          },
+          "bf06": {
+            "speaker": "bf06",
+            "parts": [
+              {
+                "say": "Hello. I heard you coming a long way off. Are you staying, or just passing through?"
+              }
+            ]
+          },
+          "bf07": {
+            "speaker": "bf07",
+            "parts": [
+              {
+                "beat": "{catName} settles {his} old bones onto the grass."
+              },
+              {
+                "say": "You've come back. I didn't think you would. Are you sitting down, or moving on?"
+              }
+            ]
+          },
+          "hc01": {
+            "speaker": "hc01",
+            "parts": [
+              {
+                "beat": "{catName} looks you over without hurrying."
+              },
+              {
+                "say": "Back again. I've a little time before the evening hunt. Do you want to walk?"
+              }
+            ]
+          },
+          "hc02": {
+            "speaker": "hc02",
+            "parts": [
+              {
+                "say": "Oh, it's you. I thought you were somebody come to check on me again. Got time to walk?"
+              }
+            ]
+          },
+          "hc03": {
+            "speaker": "hc03",
+            "parts": [
+              {
+                "say": "You again. Still hunting on your own? Sit a while if you want, but keep low."
+              }
+            ]
+          },
+          "hc04": {
+            "speaker": "hc04",
+            "parts": [
+              {
+                "beat": "{catName} glances back at the caves before answering."
+              },
+              {
+                "say": "You're not from the crag, so you won't ask me where I'm from. Want to walk a bit?"
+              }
+            ]
+          },
+          "hc05": {
+            "speaker": "hc05",
+            "parts": [
+              {
+                "beat": "{catName} looks up from a line of prints in the snow."
+              },
+              {
+                "say": "Hello. Don't step there, I'm reading these. Are you stopping, or just passing?"
+              }
+            ]
+          },
+          "hc06": {
+            "speaker": "hc06",
+            "parts": [
+              {
+                "say": "Hello again. The cubs finally settled, so I have a moment. Do you want to sit?"
+              }
+            ]
+          },
+          "hc07": {
+            "speaker": "hc07",
+            "parts": [
+              {
+                "say": "Back on our border? I'm on watch, but I can talk while I watch. Are you stopping?"
+              }
+            ]
+          },
+          "hc08": {
+            "speaker": "hc08",
+            "parts": [
+              {
+                "beat": "{catName} squints, then nods."
+              },
+              {
+                "say": "Ah, I remember your name. I don't let names slip. Will you sit with me?"
+              }
+            ]
+          },
+          "ln01": {
+            "speaker": "ln01",
+            "parts": [
+              {
+                "beat": "{catName} eases up off the stone."
+              },
+              {
+                "say": "Hello again. It's been quiet out here since you passed. Will you sit, or are you travelling?"
+              }
+            ]
+          },
+          "ln02": {
+            "speaker": "ln02",
+            "parts": [
+              {
+                "say": "You again. No, I'm not waiting for anybody. Well, not really. Do you want to sit?"
+              }
+            ]
+          },
+          "ln03": {
+            "speaker": "ln03",
+            "parts": [
+              {
+                "say": "You keep coming back. Maybe you're more useful than you look. Walking, or not?"
+              }
+            ]
+          },
+          "ln04": {
+            "speaker": "ln04",
+            "parts": [
+              {
+                "beat": "{catName} checks behind you, the way {he} always does."
+              },
+              {
+                "say": "Just you again? Good. Do you want to walk, or just say hello?"
+              }
+            ]
+          },
+          "ln05": {
+            "speaker": "ln05",
+            "parts": [
+              {
+                "beat": "{catName} sniffs your shoulder."
+              },
+              {
+                "say": "You've been somewhere new, I can smell it. Walk with me and tell me where?"
+              }
+            ]
+          },
+          "ln06": {
+            "speaker": "ln06",
+            "parts": [
+              {
+                "say": "Hello, dear. You came back. Will you sit down for a while?"
+              }
+            ]
+          },
+          "ln07": {
+            "speaker": "ln07",
+            "parts": [
+              {
+                "say": "You keep coming back, and I still don't know why. Are you staying?"
+              }
+            ]
+          },
+          "ln08": {
+            "speaker": "ln08",
+            "parts": [
+              {
+                "say": "Hello again. Have you seen any cubs by the water? Do you want to walk the bank with me?"
+              }
+            ]
+          },
+          "ln09": {
+            "speaker": "ln09",
+            "parts": [
+              {
+                "beat": "{catName} sniffs you hopefully."
+              },
+              {
+                "say": "No Mistwood scent on you? Oh well. Are you stopping a while?"
+              }
+            ]
+          },
+          "mw01": {
+            "speaker": "mw01",
+            "parts": [
+              {
+                "say": "You came back to the wood. I wasn't sure you would. Do you have time to walk?"
+              }
+            ]
+          },
+          "mw02": {
+            "speaker": "mw02",
+            "parts": [
+              {
+                "say": "You again. Keep away from the Mere side and we can talk. Are you stopping?"
+              }
+            ]
+          },
+          "mw03": {
+            "speaker": "mw03",
+            "parts": [
+              {
+                "beat": "{catName} shifts {his} weight off {his} bad leg."
+              },
+              {
+                "say": "Back again? I'm about to walk the long trail. Want to come, or just say hello?"
+              }
+            ]
+          },
+          "mw04": {
+            "speaker": "mw04",
+            "parts": [
+              {
+                "say": "You found me again. I'm still not telling you where the dens are. Stopping, or passing?"
+              }
+            ]
+          },
+          "mw05": {
+            "speaker": "mw05",
+            "parts": [
+              {
+                "beat": "{catName} looks up from a row of old pawprints in the mud."
+              },
+              {
+                "say": "Hello. I'm checking the marsh trail. Do you want to walk it with me?"
+              }
+            ]
+          },
+          "mw06": {
+            "speaker": "mw06",
+            "parts": [
+              {
+                "say": "Hello again! It's still so quiet in here. Will you stay a bit?"
+              }
+            ]
+          },
+          "mw07": {
+            "speaker": "mw07",
+            "parts": [
+              {
+                "say": "Ah, it's you. My eyes aren't good, but my nose is. Will you sit, or are you rushing off?"
+              }
+            ]
+          }
+        }
       },
       {
         "kind": "speech",
@@ -133,7 +723,347 @@
             "say": "You came back! I mean, hello. Will you stay a while?"
           }
         ],
-        "speaker": "{catId}"
+        "speaker": "{catId}",
+        "byCat": {
+          "bf01": {
+            "speaker": "bf01",
+            "parts": [
+              {
+                "beat": "{catName} gives you a slow, toothy look."
+              },
+              {
+                "say": "The stray who doesn't run. Come on, walk the field with me and let them all see it."
+              }
+            ]
+          },
+          "bf02": {
+            "speaker": "bf02",
+            "parts": [
+              {
+                "beat": "{catName} trots over, then remembers to look tough."
+              },
+              {
+                "say": "Hey. I mean, oh, it's you. Want to walk? Nobody's watching right now."
+              }
+            ]
+          },
+          "bf03": {
+            "speaker": "bf03",
+            "parts": [
+              {
+                "beat": "{catName} grins at you."
+              },
+              {
+                "say": "There you are! I've been wanting to tell somebody about the herd on the plain. Walk with me?"
+              }
+            ]
+          },
+          "bf04": {
+            "speaker": "bf04",
+            "parts": [
+              {
+                "beat": "{catName} comes over, still watching the cubs."
+              },
+              {
+                "say": "Good, a grown cat to talk to. Will you stay a while? They can wrestle without me."
+              }
+            ]
+          },
+          "bf05": {
+            "speaker": "bf05",
+            "parts": [
+              {
+                "say": "Oh good, it's you. I could use some company that doesn't shout. Will you walk with me?"
+              }
+            ]
+          },
+          "bf06": {
+            "speaker": "bf06",
+            "parts": [
+              {
+                "beat": "{catName}'s ears turn towards you, bright and eager."
+              },
+              {
+                "say": "You came back! Nobody else in the field ever wants to just talk. Will you stay?"
+              }
+            ]
+          },
+          "bf07": {
+            "speaker": "bf07",
+            "parts": [
+              {
+                "beat": "{catName} looks honestly glad to see you."
+              },
+              {
+                "say": "Come here, come here. The young ones don't listen to me any more. Will you sit and talk a while?"
+              }
+            ]
+          },
+          "hc01": {
+            "speaker": "hc01",
+            "parts": [
+              {
+                "beat": "{catName} tips {his} head, almost pleased."
+              },
+              {
+                "say": "I wondered when you'd come by again. Walk with me to the ridge and tell me how the Vale's treating you?"
+              }
+            ]
+          },
+          "hc02": {
+            "speaker": "hc02",
+            "parts": [
+              {
+                "beat": "{catName} bounds down the rocks to you."
+              },
+              {
+                "say": "You're back! Good, somebody to talk to who isn't watching me for mistakes. Walk with me?"
+              }
+            ]
+          },
+          "hc03": {
+            "speaker": "hc03",
+            "parts": [
+              {
+                "beat": "{catName} shifts over to make room on the rock."
+              },
+              {
+                "say": "Come and lie here. You can see the whole herd from this spot. Are you staying a while?"
+              }
+            ]
+          },
+          "hc04": {
+            "speaker": "hc04",
+            "parts": [
+              {
+                "beat": "{catName}'s bobtail twitches up."
+              },
+              {
+                "say": "It's you! You're the only cat round here who doesn't look at me like a puzzle. Will you stay?"
+              }
+            ]
+          },
+          "hc05": {
+            "speaker": "hc05",
+            "parts": [
+              {
+                "beat": "{catName} waves you over with a flick of {his} ear."
+              },
+              {
+                "say": "Come and look at these tracks with me. A hare went by not long ago. Are you staying?"
+              }
+            ]
+          },
+          "hc06": {
+            "speaker": "hc06",
+            "parts": [
+              {
+                "beat": "{catName} comes to meet you, moving softly."
+              },
+              {
+                "say": "I'm glad you came by. It's nice to talk to somebody who isn't chewing my tail. Will you stay a bit?"
+              }
+            ]
+          },
+          "hc07": {
+            "speaker": "hc07",
+            "parts": [
+              {
+                "beat": "{catName} lets {his} guard drop, just a little."
+              },
+              {
+                "say": "You came back. Most strays don't bother. Will you walk the border with me for a while?"
+              }
+            ]
+          },
+          "hc08": {
+            "speaker": "hc08",
+            "parts": [
+              {
+                "beat": "{catName} pats the stone beside {him} with a paw."
+              },
+              {
+                "say": "There you are. Will you sit and tell me your mother's name, if you know it? I like to keep everybody's."
+              }
+            ]
+          },
+          "ln01": {
+            "speaker": "ln01",
+            "parts": [
+              {
+                "beat": "{catName}'s old face creases with pleasure."
+              },
+              {
+                "say": "You came back. Not many do, at my age. Sit with me a while?"
+              }
+            ]
+          },
+          "ln02": {
+            "speaker": "ln02",
+            "parts": [
+              {
+                "beat": "{catName} jumps up."
+              },
+              {
+                "say": "It's you! Good. I've been sitting here talking to myself. Will you stay a while?"
+              }
+            ]
+          },
+          "ln03": {
+            "speaker": "ln03",
+            "parts": [
+              {
+                "beat": "{catName} falls in beside you like an old friend."
+              },
+              {
+                "say": "There you are. Walk with me? I want to hear what you've seen near Bonefield."
+              }
+            ]
+          },
+          "ln04": {
+            "speaker": "ln04",
+            "parts": [
+              {
+                "beat": "{catName} looks pleased, then hides it badly."
+              },
+              {
+                "say": "Oh, it's you. Fine, I'm glad. Will you walk with me a while?"
+              }
+            ]
+          },
+          "ln05": {
+            "speaker": "ln05",
+            "parts": [
+              {
+                "beat": "{catName} bounds up the trail to you."
+              },
+              {
+                "say": "You! I've found a new way round the gorge. Want to see it, or are you busy?"
+              }
+            ]
+          },
+          "ln06": {
+            "speaker": "ln06",
+            "parts": [
+              {
+                "beat": "{catName}'s whole face lights up."
+              },
+              {
+                "say": "Oh, it's you! Come and sit. I've been saving up things to tell you."
+              }
+            ]
+          },
+          "ln07": {
+            "speaker": "ln07",
+            "parts": [
+              {
+                "beat": "{catName} almost smiles."
+              },
+              {
+                "say": "I didn't think anybody would come back after hearing about me. Sit down, if you want."
+              }
+            ]
+          },
+          "ln08": {
+            "speaker": "ln08",
+            "parts": [
+              {
+                "beat": "{catName} hurries up the bank to you."
+              },
+              {
+                "say": "Oh, you came back! Walk the river with me? It's easier with somebody to talk to."
+              }
+            ]
+          },
+          "ln09": {
+            "speaker": "ln09",
+            "parts": [
+              {
+                "beat": "{catName}'s ears go right up."
+              },
+              {
+                "say": "You came back! Have you been anywhere near the fog? Come on, walk with me and tell me."
+              }
+            ]
+          },
+          "mw01": {
+            "speaker": "mw01",
+            "parts": [
+              {
+                "beat": "{catName}'s tired face softens."
+              },
+              {
+                "say": "I'm glad it's you. I could do with talking to somebody who doesn't need anything from me. Will you stay?"
+              }
+            ]
+          },
+          "mw02": {
+            "speaker": "mw02",
+            "parts": [
+              {
+                "beat": "{catName} lets out a breath when {he} sees it's you."
+              },
+              {
+                "say": "Oh, good, it's only you. Walk with me along the high ground? I don't go near the water."
+              }
+            ]
+          },
+          "mw03": {
+            "speaker": "mw03",
+            "parts": [
+              {
+                "beat": "{catName} limps over fast, grinning."
+              },
+              {
+                "say": "You're back! Come on, walk with me. I promise I can keep up."
+              }
+            ]
+          },
+          "mw04": {
+            "speaker": "mw04",
+            "parts": [
+              {
+                "beat": "{catName} comes out of the fog with a small, wry look."
+              },
+              {
+                "say": "Hello, you. I tracked you here, you know. Walk with me, as long as it's away from the dens?"
+              }
+            ]
+          },
+          "mw05": {
+            "speaker": "mw05",
+            "parts": [
+              {
+                "beat": "{catName} brightens."
+              },
+              {
+                "say": "Oh, good timing! Come and learn the safe way through the marsh. Will you walk with me?"
+              }
+            ]
+          },
+          "mw06": {
+            "speaker": "mw06",
+            "parts": [
+              {
+                "beat": "{catName} hurries over, bobtail up."
+              },
+              {
+                "say": "You came back! I was hoping you would. Will you stay and tell me where you've been?"
+              }
+            ]
+          },
+          "mw07": {
+            "speaker": "mw07",
+            "parts": [
+              {
+                "beat": "{catName} turns {his} cloudy eyes towards you and smiles."
+              },
+              {
+                "say": "Come and sit by me. I like a visitor who comes back. Will you stay a while?"
+              }
+            ]
+          }
+        }
       },
       {
         "kind": "speech",
@@ -190,7 +1120,69 @@
             "say": "On your own? Then nobody's going to drag you home if you get hurt out here."
           }
         ],
-        "speaker": "{catId}"
+        "speaker": "{catId}",
+        "byCat": {
+          "bf02": {
+            "speaker": "bf02",
+            "parts": [
+              {
+                "beat": "{catName} sniffs at you and frowns."
+              },
+              {
+                "say": "You smell of the river. Don't hang around the ford, it's not worth the trouble."
+              }
+            ]
+          },
+          "bf03": {
+            "speaker": "bf03",
+            "parts": [
+              {
+                "say": "Another hare-catcher, by the look of you. You wouldn't last long out here on the big game."
+              }
+            ]
+          },
+          "bf04": {
+            "speaker": "bf04",
+            "parts": [
+              {
+                "beat": "{catName} stands between you and the cubs' hollow."
+              },
+              {
+                "say": "Keep away from our cubs. I won't ask nicely if you don't."
+              }
+            ]
+          },
+          "bf05": {
+            "speaker": "bf05",
+            "parts": [
+              {
+                "say": "You walk loudly for a hunter. I'd go hungry, moving like that."
+              }
+            ]
+          },
+          "bf06": {
+            "speaker": "bf06",
+            "parts": [
+              {
+                "beat": "{catName} has been watching you for a while before {he} speaks."
+              },
+              {
+                "say": "I heard you coming a long way off. The others will smell you soon enough."
+              }
+            ]
+          },
+          "bf07": {
+            "speaker": "bf07",
+            "parts": [
+              {
+                "beat": "{catName} looks at you with tired, old eyes."
+              },
+              {
+                "say": "I've seen plenty of strays walk in here. Most of them were smarter about leaving."
+              }
+            ]
+          }
+        }
       },
       {
         "kind": "speech",
@@ -290,6 +1282,199 @@
       {
         "id": "decline",
         "label": "“Sorry, I can't.”"
+      }
+    ]
+  },
+  "slice.meeting.highcrag": {
+    "beats": [
+      {
+        "kind": "narration",
+        "text": "{catName} is standing in the middle of the path, far enough off that you can stop without crowding.",
+        "parts": [
+          {
+            "beat": "{catName} is standing in the middle of the path, far enough off that you can stop without crowding."
+          }
+        ],
+        "speaker": "{catId}"
+      },
+      {
+        "kind": "speech",
+        "text": "That's close enough. On the crag we give our names before we come any nearer. What's yours?",
+        "parts": [
+          {
+            "say": "That's close enough. On the crag we give our names before we come any nearer. What's yours?"
+          }
+        ],
+        "speaker": "{catId}",
+        "byCat": {
+          "hc02": {
+            "speaker": "hc02",
+            "parts": [
+              {
+                "beat": "{catName} squares up, trying to look bigger."
+              },
+              {
+                "say": "Stop there. I'm meant to ask your name before you come any closer. So what is it?"
+              }
+            ]
+          },
+          "hc03": {
+            "speaker": "hc03",
+            "parts": [
+              {
+                "say": "That's far enough, you'll spook the elk. What's your name?"
+              }
+            ]
+          },
+          "hc04": {
+            "speaker": "hc04",
+            "parts": [
+              {
+                "beat": "{catName} hesitates, as if unsure how this part goes."
+              },
+              {
+                "say": "Um, hello. On the crag we're supposed to give names before anything else. What's yours?"
+              }
+            ]
+          },
+          "hc05": {
+            "speaker": "hc05",
+            "parts": [
+              {
+                "beat": "{catName} glances at the prints you've left in the snow."
+              },
+              {
+                "say": "You've been walking through my hare tracks. Before you go any further, what's your name?"
+              }
+            ]
+          },
+          "hc06": {
+            "speaker": "hc06",
+            "parts": [
+              {
+                "say": "Softly, please, there are cubs asleep up there. Will you tell me your name?"
+              }
+            ]
+          },
+          "hc07": {
+            "speaker": "hc07",
+            "parts": [
+              {
+                "beat": "{catName} doesn't move from the middle of the path."
+              },
+              {
+                "say": "Stop there. Nobody comes nearer the caves without a name. What's yours?"
+              }
+            ]
+          },
+          "hc08": {
+            "speaker": "hc08",
+            "parts": [
+              {
+                "beat": "{catName} leans forward, ears pricked."
+              },
+              {
+                "say": "A new cat! Tell me your name, and say it clearly. I'll want to remember it properly."
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "slice.meeting.mistwood": {
+    "beats": [
+      {
+        "kind": "speech",
+        "text": "You're very loud, you know.",
+        "parts": [
+          {
+            "say": "You're very loud, you know."
+          }
+        ],
+        "speaker": "{catId}"
+      },
+      {
+        "kind": "narration",
+        "text": "{catName} is standing by a tree, much closer than you'd thought.",
+        "parts": [
+          {
+            "beat": "{catName} is standing by a tree, much closer than you'd thought."
+          }
+        ],
+        "speaker": "{catId}"
+      },
+      {
+        "kind": "speech",
+        "text": "Sound carries in the fog, and we've had enough trouble. Can you keep it down?",
+        "parts": [
+          {
+            "say": "Sound carries in the fog, and we've had enough trouble. Can you keep it down?"
+          }
+        ],
+        "speaker": "{catId}",
+        "byCat": {
+          "mw02": {
+            "speaker": "mw02",
+            "parts": [
+              {
+                "beat": "{catName} keeps {his} body between you and the trees behind."
+              },
+              {
+                "say": "My family's close by, and noise carries in this fog. Will you keep your voice down?"
+              }
+            ]
+          },
+          "mw03": {
+            "speaker": "mw03",
+            "parts": [
+              {
+                "say": "You'll have every cat in the wood out here, stomping like that. Can you keep it down?"
+              }
+            ]
+          },
+          "mw04": {
+            "speaker": "mw04",
+            "parts": [
+              {
+                "beat": "{catName} glances behind {him}, then back."
+              },
+              {
+                "say": "Quieter. I don't want anybody following the noise to where we live. Will you keep it down?"
+              }
+            ]
+          },
+          "mw05": {
+            "speaker": "mw05",
+            "parts": [
+              {
+                "say": "Careful, that ground's soft and you're very loud. Can you keep it down?"
+              }
+            ]
+          },
+          "mw06": {
+            "speaker": "mw06",
+            "parts": [
+              {
+                "beat": "{catName} sounds almost apologetic."
+              },
+              {
+                "say": "Sorry, I have to ask. The others get upset when there's noise in the fog. Could you keep it down?"
+              }
+            ]
+          },
+          "mw07": {
+            "speaker": "mw07",
+            "parts": [
+              {
+                "beat": "{catName} turns {his} cloudy eyes towards the sound of you."
+              },
+              {
+                "say": "I heard you long before I smelled you, young cat. Can you keep it down for an old cat's sake?"
+              }
+            ]
+          }
+        }
       }
     ]
   }

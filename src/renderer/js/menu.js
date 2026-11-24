@@ -91,7 +91,7 @@
     const add = (el) => { const r = rectOf(el); if (r) blockers.push(r); };
     add(document.querySelector('.shell-top'));
     add(document.querySelector('#game-hud'));
-    document.querySelectorAll('.home-panel-title, #home-panel h2, #game-event .event-title, #day-primary, .lore-tabs, .lore-tabs button').forEach(add);
+    document.querySelectorAll('.home-panel-title, #home-panel h2, #game-event .event-title, #day-primary, .lore-book, .lore-tabs, .lore-tabs button, .lore-read, .lore-list').forEach(add);
     box.style.setProperty('bottom', 'auto', 'important');
     box.style.setProperty('z-index', '30', 'important');
     box.style.setProperty('left', '50%', 'important');
@@ -112,6 +112,24 @@
       setTop(top);
     }
     const placed = toastEl.getBoundingClientRect();
+    const lore = rectOf(document.querySelector('.lore-book'));
+    if (lore && hits(placed, lore)) {
+      const gutter = Math.max(lore.left - 16, innerWidth - lore.right - 16);
+      const onLeft = lore.left - 16 >= innerWidth - lore.right - 16;
+      if (gutter >= 120) {
+        box.style.setProperty('width', Math.floor(gutter - 8) + 'px', 'important');
+        box.style.setProperty('transform', 'none', 'important');
+        if (onLeft) {
+          box.style.setProperty('left', '8px', 'important');
+          box.style.setProperty('right', 'auto', 'important');
+        } else {
+          box.style.setProperty('left', 'auto', 'important');
+          box.style.setProperty('right', '8px', 'important');
+        }
+        setTop(shell ? shell.bottom + 8 : 8);
+        return;
+      }
+    }
     if (!blockers.some((b) => hits(placed, b))) return;
     box.style.setProperty('left', 'auto', 'important');
     box.style.setProperty('right', '16px', 'important');

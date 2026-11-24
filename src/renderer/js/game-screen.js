@@ -203,6 +203,9 @@
         if (who) return who;
       }
     }
+    if (pending.catId && s.npcs && s.npcs[pending.catId] && String(pending.eventId || '').indexOf('slice.meeting.') === 0) {
+      return s.npcs[pending.catId];
+    }
     return null;
   }
   /** Same portrait frame the speech cards already use. */
