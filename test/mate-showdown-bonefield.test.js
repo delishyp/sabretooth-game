@@ -139,6 +139,7 @@ test('a tallgrass Bonefield route mates an unpaired cat and does not use the lea
   assert.ok(started.npcs.bf06.mateId == null);
   assert.strictEqual(started.records.cats.bf06.skills, null);
   let s = started;
+  for (const e of j('events/slice-1.json').events) if (e.kind === 'region') s.usedEvents.push(e.id);
   let target = null;
   const ledger = [];
   function leave(state) {

@@ -107,7 +107,8 @@ function assertLayout(box, { scroll = false } = {}) {
       await page.waitForFunction(() => window.__menuDebug.state().state === 'creator');
       await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter');
       await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
-      for (let i = 0; i < 30; i++) {
+      // The two Split Rock moments take the first free days, so ln05 is later than the old day-1 meeting.
+      for (let i = 0; i < 80; i++) {
         const { state: s } = await g(page);
         if (s.phase === 'event' && s.pending && s.pending.catId === 'ln05') break;
         if (s.phase === 'conversation' && s.conversation.pending && s.conversation.pending.catId === 'ln05') break;
@@ -131,6 +132,12 @@ function assertLayout(box, { scroll = false } = {}) {
 
     let identity;
     await check('greet enters the talk; a double click charges once', async () => {
+      // The moment days push this meeting later, after thirst and hunger have fallen. The talk still has to be affordable.
+      await page.evaluate(() => {
+        const g = window.__menuDebug.game();
+        g.state.needs.hunger = 80; g.state.needs.thirst = 80; g.state.needs.energy = 80;
+        g.render();
+      });
       for (let i = 0; i < 6 && !(await page.locator('#game-event [data-choice="greet"]').count()); i++) {
         const beat = page.locator('#game-event [data-g="advanceBeat"]');
         if (!(await beat.count())) break;

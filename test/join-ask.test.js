@@ -287,6 +287,7 @@ test('FIXTURE: own land skips trespass and shares a kill once a day; other land 
   for (let seed = 1; seed <= 40 && !patrolSeed; seed++) {
     const loner = fresh(seed);
     loner.region = 'highcrag';
+    for (const e of j('events/slice-1.json').events) if (e.kind === 'region' && (e.regions || []).includes('highcrag')) loner.usedEvents.push(e.id);
     const stayed = E.act(loner, { type: 'rest' }).state;
     if (stayed.prideRelation.highcrag === -5) patrolSeed = seed;
   }

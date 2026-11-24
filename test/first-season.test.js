@@ -91,6 +91,8 @@ function dayAction(E, s, targetId) {
 
 function playSeed(E, seed, player) {
   let s = E.newRun({ mainCat: player || cat, seed, runId: `run-${seed}` });
+  // This ladder measures courtship. The region moment has its own tests, so it counts as already shown.
+  for (const e of events.events) if (e.kind === 'region') s.usedEvents.push(e.id);
   const portraits = Object.fromEntries(Object.values(s.npcs).map((n) => [n.id, n.portraitId]));
   const personalities = Object.fromEntries(Object.values(s.npcs).map((n) => [n.id, n.personality]));
   let target = null;

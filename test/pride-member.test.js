@@ -85,6 +85,7 @@ function stepToward(E, s, dest) {
 
 function playPride(E, seed, faction, player) {
   let s = E.newRun({ mainCat: player, seed, runId: `pride-${faction}-${seed}` });
+  for (const e of events.events) if (e.kind === 'region') s.usedEvents.push(e.id);
   const started = {
     ids: Object.keys(s.npcs).slice(),
     sex: Object.fromEntries(Object.values(s.npcs).map((n) => [n.id, n.sex])),

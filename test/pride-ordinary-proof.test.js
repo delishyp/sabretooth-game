@@ -79,6 +79,7 @@ function toward(E, s, dest) {
 function play(E, seed, faction, sex) {
   const player = playerOf(sex);
   let s = E.newRun({ mainCat: player, seed, runId: `proof-${faction}-${seed}-${sex}` });
+  for (const e of events.events) if (e.kind === 'region') s.usedEvents.push(e.id);
   const started = {};
   for (const n of Object.values(s.npcs)) started[n.id] = { sex: n.sex, portrait: n.portraitId, traits: n.personality, name: n.name };
   let target = null; let best = 0; let heldReject = null;

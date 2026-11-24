@@ -143,6 +143,7 @@ test('FIXTURE: an unmated season choice is an intent, and day 21 can change it w
   let s = E.newRun({ mainCat: player, seed: 4, runId: 'route-4' });
   const xp = JSON.parse(JSON.stringify(s.records.playerSkills));
   s.day = 20;
+  for (const e of j('events/slice-1.json').events) if (e.kind === 'region') s.usedEvents.push(e.id);
   s.needs = { health: 100, hunger: 100, thirst: 100, energy: 100 };
   s = E.act(s, { type: 'rest' }).state;
   for (let i = 0; i < 8 && !(s.pending && s.pending.seasonEnd); i++) {

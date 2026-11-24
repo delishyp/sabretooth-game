@@ -1027,7 +1027,10 @@
         if (!s.dead && !s.travel && !ctx.slotTaken && Enc.intercept(s, ctx, W.hazardsFor, rep)) { noteUnloggedMeets(s); return; }
       }
       let ev = ctx.forcedEvent || null;
-      if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep) || (hazardHit ? null : regionMoment(s));
+      // An unshown region moment takes the day ahead of the meeting roll. Hazards, the forced event above,
+      // a scripted encounter (Enc.intercept), slotTaken and travel already had their chance.
+      if (!ev && !s.dead && !s.travel && !ctx.slotTaken && !hazardHit) ev = regionMoment(s);
+      if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep);
       if (s.records) s.records._huntOk = false;
       if (!s.dead && !s.travel) shareKill(s, rep);
       overnight(s, rep, ctx.rested);
@@ -1337,7 +1340,7 @@
       }
       return { state: s, error: 'choice' };
     }
-    /** Saga: one spring moment per region, once per run; shown the first day the cat ends there with no meeting or hazard that day. */
+    /** Saga: one spring moment per region, once per run. It takes the day ahead of a meeting when nothing else has the slot. */
     function regionMoment(s) {
       const e = EV.find((x) => x.kind === 'region' && x.id !== 'slice.region.horse_meadows' && x.regions.includes(s.region) && (!x.season || x.season === season(s)) && !s.usedEvents.includes(x.id));
       if (!e) return null; s.usedEvents.push(e.id);

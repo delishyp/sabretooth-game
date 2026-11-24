@@ -194,6 +194,7 @@ test('trespass −5 to the pride is independent of the patrol choice', () => {
   const results = {};
   for (const intent of ['improve', 'unchanged', 'worsen']) {
     const s = JSON.parse(JSON.stringify(s0)); s.region = region;
+    for (const e of events.events) if (e.kind === 'region') s.usedEvents.push(e.id);
     let r = always.act(s, { type: 'rest' }).state;
     assert.strictEqual(r.prideRelation[faction], -5, 'penalty applied at the meeting');
     assert.strictEqual(r.phase, 'event'); const e = always.eventById(r.pending.eventId);
@@ -211,6 +212,7 @@ test('hostile patrol at relation ≤ −50 shows hostile text, no choice delta',
   const region = always.W.regions.map((r) => r.id).find((id) => always.W.trespassFactions(s.map.claims, id).length === 1);
   const faction = always.W.trespassFactions(s.map.claims, region)[0];
   s.region = region; s.prideRelation[faction] = -45;
+  for (const e of events.events) if (e.kind === 'region') s.usedEvents.push(e.id);
   let r = always.act(s, { type: 'rest' }).state;
   assert.strictEqual(r.prideRelation[faction], -50); assert.strictEqual(r.pending.hostile, true);
   const before = JSON.stringify(r.npcs);

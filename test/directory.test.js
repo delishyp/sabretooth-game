@@ -121,6 +121,7 @@ test('history is appended from meet, talk, share, warn, let-watch, spar, hunt, a
     firstSeason: j('events/first-season-v0.6.2.json')
   });
   const meeting = Meet.newRun({ mainCat: player, seed: 4, runId: 'meet-log' });
+  for (const e of j('events/slice-1.json').events) if (e.kind === 'region') meeting.usedEvents.push(e.id);
   for (const npc of Object.values(meeting.npcs)) npc.homeZones = npc.id === 'ln05' ? [meeting.region] : [];
   const met = Meet.act(meeting, { type: 'rest' }).state;
   assert.ok(kinds(met.directory.cats.ln05).includes('meet'), kinds(met.directory.cats.ln05).join(','));
