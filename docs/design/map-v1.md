@@ -65,7 +65,7 @@ Tunable warmth offsets stack with needs-spec §1.5 season warmth.
 
 **Prey** is 0–3 and feeds hunt points (formulas §1): 0 → −10, 1 → 0, 2 → +5, 3 → +10. `preyBySeason` overrides the base for that season.
 **Risk/reward tier:** `safe` | `balanced` | `rich` | `hardship` | `deadly` (see §7).
-**Water:** `none` | `river` | `lake` | `marsh` | `meltwater`. `freezes: true` → winter drink uses eat-snow (needs §1.3).
+**Water:** `none` | `river` | `lake` | `marsh` | `meltwater` | `pool`. `freezes: true` → winter drink uses eat-snow (needs §1.3).
 **Travel days** on an edge are in §5. Region column `travelHint` is the typical outbound cost to its main neighbours (1 or 2).
 
 ### 4.1 Full region table
@@ -107,7 +107,7 @@ Notes on the table:
 - \* `blue_caves` is low prey but offers den shelter (+Warmth when resting); tier `safe` for shelter value, not hunting.
 - † `greywater_ford` startHolder `highcrag` with `disputedBy: bonefield` (claim contested from day 1).
 - ‡ `west_spur`–`blue_caves` is a long 2-day mountain skirt edge (optional path around Highcrag; listed in both adjacency rows).
-- § `drowned_mere` is neutral; Mistwood has soft influence via adjacent claims, not ownership.
+- § `drowned_mere` is neutral: Neutral (old Mistwood border land).
 - ¶ `camel_ridge` is neutral but wolf-pressured (`pressureFaction: wolves`).
 - Legacy 10 ids are the ones Saga already wrote blurbs for; the other 20 need new blurbs after approval.
 
@@ -227,7 +227,7 @@ Everything is reachable. Longest home-to-home pride trip is about 3 hops.
 | `lost_trail` | Waste the day (no hunt); −10 Energy | pinewood fog |
 
 6.3 Style mult on injury hazards: Story ×0.5, Standard ×1, Sim ×1.5 (play-styles §2.3), same as fight injuries.
-6.4 Region `danger` 0–3 from the lean draft is **derived** for UI as: max daily hazard % band → 0 (<2), 1 (2–5), 2 (6–10), 3 (>10). Flint may show either.
+6.4 Region `danger` 0–3 is **derived** and capped at 3. The default is the single highest hazard, plus a feature bonus when one is set. `sum` adds every hazard percentage instead. The total bands as 0 (none), 1 (up to 2), 2 (up to 10), 3 (above 10). Salt Flats and South Range are danger 2.
 
 ---
 

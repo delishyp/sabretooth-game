@@ -1,0 +1,857 @@
+/** Redesign layout: five window sizes, UI scales 1, 1.25 and 1.5.
+ *  Asserts 18px text, AA contrast, no scene gutters, no clipping, no panel overlap, no placeholders. */
+const { _electron: electron } = require('playwright-core');
+const assert = require('node:assert');
+const fs = require('fs'); const os = require('os'); const path = require('path');
+const root = path.join(__dirname, '..', '..');
+const out = process.env.REDESIGN_SHOTS || '/opt/cursor/artifacts/redesign';
+fs.mkdirSync(out, { recursive: true });
+
+const SIZES = [[1280, 720], [1920, 1080], [2560, 1440], [2560, 1080], [3440, 1440]];
+const SCALES = [1, 1.25, 1.5];
+
+function probe() {
+  const W = innerWidth, H = innerHeight;
+  const problems = [];
+  const text = document.body.innerText || '';
+  if (text.includes('[PH]') || text.includes('[Saga:') || /\{[a-zA-Z]/.test(text)) problems.push('placeholder');
+  const lum = (r, g, b) => {
+    const f = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const parse = (c) => {
+    const m = String(c).match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const p = m[1].split(',').map((n) => Number(n.trim()));
+    return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+  };
+  const bgOf = (el) => {
+    let n = el;
+    while (n && n !== document.documentElement) {
+      const c = parse(getComputedStyle(n).backgroundColor);
+      if (c && c.a >= 0.95) return c;
+      n = n.parentElement;
+    }
+    return null;
+  };
+  const nodes = [...document.querySelectorAll('button, p, span, h1, h2, h3, label, li, a')].filter((el) => {
+    const r = el.getBoundingClientRect();
+    const s = getComputedStyle(el);
+    return r.width > 2 && r.height > 2 && s.visibility !== 'hidden' && s.display !== 'none' && (el.innerText || '').trim();
+  });
+  for (const el of nodes) {
+    const s = getComputedStyle(el);
+    const fs = parseFloat(s.fontSize);
+    if (fs < 17.5) problems.push('small ' + fs.toFixed(1) + ' ' + (el.innerText || '').slice(0, 24));
+    const fg = parse(s.color);
+    const bg = bgOf(el);
+    if (!bg) problems.push('bare ' + (el.innerText || '').slice(0, 24));
+    else if (fg) {
+      const L1 = lum(fg.r, fg.g, fg.b), L2 = lum(bg.r, bg.g, bg.b);
+      const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+      const weight = parseInt(s.fontWeight, 10) || 400;
+      const large = fs >= 24 || (fs >= 18.66 && weight >= 700);
+      if (ratio < (large ? 3 : 4.5) - 0.05) problems.push('contrast ' + ratio.toFixed(2) + ' ' + (el.innerText || '').slice(0, 24));
+    }
+    if (el.scrollWidth > el.clientWidth + 3 && (s.overflowX === 'hidden' || s.textOverflow === 'ellipsis')) problems.push('clip ' + (el.innerText || '').slice(0, 24));
+    if (problems.length > 12) break;
+  }
+  for (const tag of document.querySelectorAll('.region-biome, .region-node, .tutorial-card, .tutorial-card .event-text')) {
+    const s = getComputedStyle(tag);
+    const r = tag.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2 || s.display === 'none' || s.visibility === 'hidden') continue;
+    if (parseFloat(s.fontSize) < 17.5) problems.push('small ' + s.fontSize + ' ' + (tag.innerText || '').slice(0, 24));
+  }
+  const primaries = [...document.querySelectorAll('button.primary')].filter((el) => {
+    const s = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    return !el.hidden && s.display !== 'none' && s.visibility !== 'hidden' && r.width > 2 && r.height > 2;
+  });
+  if (primaries.length > 1) problems.push('primaries ' + primaries.length);
+  const chips = [...document.querySelectorAll('.region-node')].filter((el) => {
+    const s = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    return !el.hidden && s.display !== 'none' && r.width > 2 && r.height > 2;
+  });
+  const hits = (a, b) => a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+  for (let i = 0; i < chips.length; i++) {
+    const a = chips[i].getBoundingClientRect();
+    for (let j = i + 1; j < chips.length; j++) {
+      if (hits(a, chips[j].getBoundingClientRect())) problems.push('map ' + chips[i].textContent.trim() + ' / ' + chips[j].textContent.trim());
+    }
+    if (problems.length > 16) break;
+  }
+  const stage = document.getElementById('stage').getBoundingClientRect();
+  if (Math.abs(stage.width - W) > 3 || Math.abs(stage.height - H) > 3) problems.push('stage ' + Math.round(stage.width) + 'x' + Math.round(stage.height));
+  const scene = [...document.querySelectorAll('.screen.active .home-landscape, .screen.active .creator-scene, #bg')].find((el) => {
+    const s = getComputedStyle(el);
+    const b = el.getBoundingClientRect();
+    return s.display !== 'none' && s.visibility !== 'hidden' && b.width > 2 && b.height > 2;
+  });
+  if (scene) {
+    const r = scene.getBoundingClientRect();
+    const vis = getComputedStyle(scene).visibility;
+    if (vis === 'hidden' || r.width < W - 2 || r.height < H - 2) problems.push('scene ' + Math.round(r.width) + 'x' + Math.round(r.height));
+  }
+  const sc = document.querySelector('.screen.active:not([data-screen="game"])');
+  if (sc && /newGameSetup|load|creator/.test(sc.dataset.screen || '')) {
+    const r = sc.getBoundingClientRect();
+    const centred = Math.abs((r.left + r.right) / 2 - W / 2) < 48;
+    if (!centred || r.width > W * 0.96 || r.width < 320) problems.push('panel ' + Math.round(r.width) + ' at ' + Math.round(r.left));
+  }
+  const panels = [...document.querySelectorAll('.shell-top, .rail, #day-primary, #game-actions, #place-drawer, #game-event, .home-dock, .goal, .tutorial-card, #day-end')].filter((el) => {
+    const s = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    return r.width > 8 && r.height > 8 && s.display !== 'none' && s.visibility !== 'hidden' && !el.hidden;
+  }).map((el) => ({ id: el.id || el.className, el, r: el.getBoundingClientRect() }));
+  const area = (a, b) => {
+    const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+    const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+    return w > 0 && h > 0 ? w * h : 0;
+  };
+  const holds = (a, b) => a.left <= b.left + 1 && a.top <= b.top + 1 && a.right >= b.right - 1 && a.bottom >= b.bottom - 1;
+  for (let i = 0; i < panels.length; i++) {
+    for (let j = i + 1; j < panels.length; j++) {
+      if (panels[i].el.contains(panels[j].el) || panels[j].el.contains(panels[i].el)) continue;
+      if (holds(panels[i].r, panels[j].r) || holds(panels[j].r, panels[i].r)) continue;
+      if (area(panels[i].r, panels[j].r) > 16) problems.push('overlap ' + panels[i].id + ' ' + panels[j].id);
+    }
+  }
+  return problems.slice(0, 16);
+}
+
+(async () => {
+  const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-redesign-'));
+  const app = await electron.launch({ executablePath: require('electron'), args: ['--no-sandbox', root], env: { ...process.env, SABRETOOTH_USERDATA: ud } });
+  const page = await app.firstWindow();
+  const shots = [];
+  let failed = 0;
+  try {
+    await page.waitForFunction(() => window.__menuDebug);
+    const shoot = async (name) => {
+      if (name.startsWith('encounter-')) {
+        await page.waitForFunction(() => {
+          const ready = (el) => el && ((el.naturalWidth || 0) > 0 || (el.width || 0) > 8);
+          return ready(document.querySelector('.scene-actor.is-player canvas, .scene-actor.is-player img'))
+            && ready(document.querySelector('.scene-actor.is-foe canvas, .scene-actor.is-foe img'));
+        }, null, { timeout: 8000 }).catch(() => {});
+      }
+      if (name.startsWith('dialogue-')) {
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 2 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 }).catch(() => {});
+      }
+      const file = path.join(out, name + '.png');
+      await page.screenshot({ path: file });
+      shots.push(file);
+      const choiceInside = async () => page.evaluate(() => {
+        const card = document.querySelector('#game-event .event-card');
+        const box = document.querySelector('#game-event .event-choices');
+        const out = [];
+        if (!card || !box) return ['no choices'];
+        if (box.scrollHeight > box.clientHeight + 1) out.push('choices scroll ' + box.scrollHeight + '>' + box.clientHeight);
+        const cr = card.getBoundingClientRect();
+        const W = innerWidth, H = innerHeight;
+        const inside = (a, b) => a.top >= b.top - 1 && a.left >= b.left - 1 && a.bottom <= b.bottom + 1 && a.right <= b.right + 1;
+        const buttons = [...box.querySelectorAll('button')];
+        if (!buttons.length) out.push('no choice buttons');
+        for (const b of buttons) {
+          const r = b.getBoundingClientRect();
+          if (r.height < 8 || r.width < 8) { out.push('choice tiny'); continue; }
+          if (!inside(r, cr)) out.push('choice outside card');
+          if (r.top < -1 || r.left < -1 || r.bottom > H + 1 || r.right > W + 1) out.push('choice outside viewport');
+        }
+        return out;
+      });
+      const problems = await page.evaluate(probe);
+      const chrome = await page.evaluate(() => {
+        const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+        const out = [];
+        const tip = document.getElementById('tutorial-card');
+        if (tip && getComputedStyle(tip).display !== 'none' && !tip.hidden) {
+          const tr = tip.getBoundingClientRect();
+          const spot = document.querySelector('.is-spotlight');
+          if (spot && hits(tr, spot.getBoundingClientRect())) out.push('tip on target');
+          for (const b of document.querySelectorAll('.action')) {
+            const r = b.getBoundingClientRect();
+            const s = getComputedStyle(b);
+            if (s.display === 'none' || s.visibility === 'hidden' || b.hidden || r.width < 4) continue;
+            if (hits(tr, r)) out.push('tip on action');
+          }
+        }
+        const hud = document.querySelector('#game-hud');
+        if (hud) {
+          const hr = hud.getBoundingClientRect();
+          for (const toast of document.querySelectorAll('.toast')) {
+            if (hits(toast.getBoundingClientRect(), hr)) out.push('toast on hud');
+          }
+        }
+        return out;
+      });
+      assert.deepStrictEqual(problems.concat(chrome), [], name + ' ' + problems.concat(chrome).join(' | '));
+      if (/^(first-meeting|dialogue|encounter)-/.test(name)) {
+        const fitted = await choiceInside();
+        assert.deepStrictEqual(fitted, [], name + ' choice fit ' + fitted.join(' | '));
+      }
+      if (name.startsWith('map-')) {
+        const mapFit = await page.evaluate(() => {
+          const ids = [...document.querySelectorAll('.region-node')].map((el) => el.dataset.region).sort();
+          const layout = window.RegionMap.LAYOUT;
+          const center = (id) => {
+            const el = document.querySelector('.region-node[data-region="' + id + '"]');
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+          };
+          const order = [];
+          const nodes = [...document.querySelectorAll('.region-node')];
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              const a = nodes[i].dataset.region;
+              const b = nodes[j].dataset.region;
+              const ca = center(a);
+              const cb = center(b);
+              const la = layout[a];
+              const lb = layout[b];
+              if (la[0] < lb[0] && !(ca.x < cb.x)) order.push(a + ' not left of ' + b);
+              if (la[1] < lb[1] && !(ca.y < cb.y)) order.push(a + ' not above ' + b);
+            }
+          }
+          return { ids, order };
+        });
+        assert.deepStrictEqual(mapFit.ids, ['bonefield', 'greywater_ford', 'mistwood', 'salt_flats', 'split_rock', 'tallgrass', 'twin_forks'], name + ' regions ' + mapFit.ids.join(','));
+        assert.deepStrictEqual(mapFit.order, [], name + ' order ' + mapFit.order.join(' | '));
+      }
+      if (name.startsWith('load-')) {
+        const digits = await page.evaluate(() => {
+          const out = [];
+          for (const el of document.querySelectorAll('.screen[data-screen="load"] .run, .screen[data-screen="load"] .saves button')) {
+            const text = (el.innerText || '').trim();
+            if (/\d/.test(text)) out.push(text.slice(0, 80));
+          }
+          return out;
+        });
+        assert.deepStrictEqual(digits, [], name + ' digits ' + digits.join(' | '));
+      }
+      if (name.startsWith('first-meeting-')) {
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 1 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 });
+        const meet = await page.evaluate(() => {
+          const hits = (a, b) => a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+          const inside = (inner, outer) => inner.left >= outer.left - 1 && inner.top >= outer.top - 1 && inner.right <= outer.right + 1 && inner.bottom <= outer.bottom + 1;
+          const out = [];
+          const W = innerWidth, H = innerHeight;
+          const card = document.querySelector('#game-event .event-card');
+          const hud = document.querySelector('#game-hud');
+          const panel = document.querySelector('#game-event');
+          if (!card || !panel) return ['no card'];
+          if (card.classList.contains('conversation-card') && !card.classList.contains('has-beats') && !card.classList.contains('has-meet')) out.push('not a meeting');
+          const cr = card.getBoundingClientRect();
+          const pr = panel.getBoundingClientRect();
+          if (cr.top < -1 || cr.left < -1 || cr.bottom > H + 2 || cr.right > W + 2) out.push('card offscreen');
+          if (hud && hits(cr, hud.getBoundingClientRect())) out.push('hits hud');
+          if (!inside(cr, pr)) out.push('card outside panel');
+          const texts = [...document.querySelectorAll('#game-event .event-cast-name, #game-event .speaker-mood, #game-event .event-beat, #game-event .event-title, #game-event .event-choices, #game-event .relation-meters, #game-event .portrait-expand')];
+          const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+          if (frames.length < 2) out.push('no head');
+          if (!document.querySelector('#game-event .event-cast.is-player .portrait-frame.is-headshot')) out.push('no player frame');
+          for (const frame of frames) {
+            const fr = frame.getBoundingClientRect();
+            if (fr.width < 8) { out.push('tiny head'); continue; }
+            if (Math.abs(fr.width - fr.height) > 4) out.push('not square');
+            if (fr.top < -1 || fr.left < -1 || fr.bottom > H + 2 || fr.right > W + 2) out.push('frame offscreen');
+            if (!inside(fr, pr) || !inside(fr, cr)) out.push('frame outside');
+            const img = frame.querySelector('img.headshot');
+            const canvas = frame.querySelector('canvas');
+            const shown = img && img.complete && img.naturalWidth > 0 ? img : canvas;
+            if (!shown) { out.push('head unloaded'); continue; }
+            if (shown.tagName === 'IMG' && shown.naturalWidth < 32) out.push('head unloaded');
+            if (shown.tagName === 'CANVAS' && shown.width < 8) out.push('head unloaded');
+            const fit = getComputedStyle(shown).objectFit;
+            if (fit !== 'cover') out.push('not cover');
+            const clip = getComputedStyle(frame).overflow;
+            if (clip !== 'hidden') out.push('head overflow');
+            const ir = shown.getBoundingClientRect();
+            const seen = {
+              left: Math.max(ir.left, fr.left), top: Math.max(ir.top, fr.top),
+              right: Math.min(ir.right, fr.right), bottom: Math.min(ir.bottom, fr.bottom)
+            };
+            if ((seen.right - seen.left) * (seen.bottom - seen.top) < fr.width * fr.height * 0.9) out.push('crop gap');
+            for (const text of texts) {
+              if (hits(fr, text.getBoundingClientRect())) { out.push('hits text'); break; }
+            }
+          }
+          const choices = [...document.querySelectorAll('#game-event .event-choices button')];
+          const beat = document.querySelector('.event-card.has-meet .event-beat');
+          if (beat && beat.scrollHeight > beat.clientHeight + 1) out.push('greeting scroll');
+          if (!choices.length) out.push('no choices');
+          for (const b of choices) {
+            const box = b.getBoundingClientRect();
+            if (box.width < 220) out.push('choice narrow ' + Math.round(box.width));
+            if (box.top < -1 || box.bottom > H + 2 || box.height < 8) out.push('choice hidden');
+          }
+          for (const el of document.querySelectorAll('#game-event button, #game-event p, #game-event span, #game-event h2, #game-event h3, #game-event div')) {
+            const r = el.getBoundingClientRect();
+            const s = getComputedStyle(el);
+            if (r.width < 2 || r.height < 2 || s.display === 'none' || s.visibility === 'hidden') continue;
+            if (!(el.innerText || '').trim()) continue;
+            if (parseFloat(s.fontSize) < 17.5) out.push('small ' + s.fontSize + ' ' + (el.innerText || '').slice(0, 20));
+          }
+          return out;
+        });
+        assert.deepStrictEqual(meet, [], name + ' ' + meet.join(' | '));
+      }
+      if (name.startsWith('encounter-')) {
+        const actors = await page.evaluate(() => {
+          const cover = (a, b) => {
+            if (!a || !b || a.width < 1 || a.height < 1) return 0;
+            const x = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+            const y = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+            return (x * y) / (a.width * a.height);
+          };
+          const W = innerWidth, H = innerHeight;
+          const nav = document.querySelector('#home-nav');
+          const panel = document.querySelector('#game-event');
+          const navBox = nav ? nav.getBoundingClientRect() : null;
+          const panelBox = panel ? panel.getBoundingClientRect() : null;
+          const out = [];
+          const boxes = {};
+          for (const kind of ['is-player', 'is-foe']) {
+            const el = document.querySelector('.scene-actor.' + kind + ' canvas, .scene-actor.' + kind + ' img');
+            if (!el) { out.push(kind + ' missing'); continue; }
+            const loaded = (el.naturalWidth || 0) > 0 || (el.width || 0) > 8;
+            if (!loaded) out.push(kind + ' unloaded');
+            const r = el.getBoundingClientRect();
+            if (r.width < 40 || r.height < 40) out.push(kind + ' tiny');
+            if (innerHeight <= 800) {
+              const floor = document.documentElement.dataset.choiceStack === '1' ? 100 : 130;
+              if (r.height < floor) out.push(kind + ' short ' + Math.round(r.height));
+            }
+            if (r.top < -2 || r.left < -2 || r.bottom > H + 2 || r.right > W + 2) out.push(kind + ' offscreen');
+            const hud = document.querySelector('#game-hud');
+            const choices = document.querySelector('#game-event .event-choices');
+            if (cover(r, hud && hud.getBoundingClientRect()) > 0.02) out.push(kind + ' on hud');
+            if (cover(r, choices && choices.getBoundingClientRect()) > 0.02) out.push(kind + ' on choices');
+            if (cover(r, navBox) > 0.22) out.push(kind + ' under nav');
+            if (cover(r, panelBox) > 0.22) out.push(kind + ' under panel');
+            boxes[kind] = r;
+          }
+          if (boxes['is-player'] && boxes['is-foe'] && cover(boxes['is-player'], boxes['is-foe']) > 0.2) out.push('player under foe');
+          return out;
+        });
+        assert.deepStrictEqual(actors, [], name + ' combatants ' + actors.join(' | '));
+        const choiceFit = await page.evaluate(() => {
+          if (document.documentElement.dataset.choiceStack !== '1') return [];
+          const out = [];
+          for (const b of document.querySelectorAll('#game-event .event-choices button')) {
+            const box = b.getBoundingClientRect();
+            if (box.width < 220) out.push('choice narrow ' + Math.round(box.width));
+            const cs = getComputedStyle(b);
+            const parsed = parseFloat(cs.lineHeight);
+            const font = parseFloat(cs.fontSize) || 18;
+            const line = parsed > 8 ? parsed : font * 1.25;
+            const pad = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+            const lines = Math.round((b.scrollHeight - pad) / line);
+            if (lines > 2) out.push('choice wrap ' + lines);
+          }
+          return out;
+        });
+        assert.deepStrictEqual(choiceFit, [], name + ' choices ' + choiceFit.join(' | '));
+        const flavor = await page.evaluate(() => {
+          const el = document.querySelector('.encounter-flavor');
+          if (!el) return [];
+          return el.scrollHeight > el.clientHeight + 1 ? ['flavor scroll ' + el.scrollHeight + '>' + el.clientHeight] : [];
+        });
+        assert.deepStrictEqual(flavor, [], name + ' ' + flavor.join(' | '));
+      }
+      if (name.startsWith('dialogue-')) {
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 2 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 });
+        const heads = await page.evaluate(() => {
+          const hits = (a, b) => a.left < b.right - 2 && a.right > b.left + 2 && a.top < b.bottom - 2 && a.bottom > b.top + 2;
+          const panel = document.querySelector('#game-event');
+          const hud = document.querySelector('.shell-top');
+          const out = [];
+          if (!panel) return ['no panel'];
+          const pr = panel.getBoundingClientRect();
+          const W = innerWidth, H = innerHeight;
+          if (pr.top < -1) out.push('panel top ' + Math.round(pr.top));
+          if (pr.bottom > H + 2) out.push('panel bottom ' + Math.round(pr.bottom));
+          if (hud) {
+            const hr = hud.getBoundingClientRect();
+            const iw = Math.min(pr.right, hr.right) - Math.max(pr.left, hr.left);
+            const ih = Math.min(pr.bottom, hr.bottom) - Math.max(pr.top, hr.top);
+            if (iw > 1 && ih > 1) out.push('hits hud');
+          }
+          const texts = [...document.querySelectorAll('#game-event .event-cast-name, #game-event .speaker-mood, #game-event .event-beat, #game-event .event-title, #game-event .event-choices')];
+          for (const img of document.querySelectorAll('#game-event img.headshot')) {
+            const ir = img.getBoundingClientRect();
+            const frame = img.closest('.portrait-frame');
+            const fr = frame ? frame.getBoundingClientRect() : null;
+            if (!fr || fr.width < 8) { out.push('no frame'); continue; }
+            const clip = getComputedStyle(frame).overflow;
+            const seen = {
+              left: Math.max(ir.left, fr.left), top: Math.max(ir.top, fr.top),
+              right: Math.min(ir.right, fr.right), bottom: Math.min(ir.bottom, fr.bottom)
+            };
+            seen.width = seen.right - seen.left; seen.height = seen.bottom - seen.top;
+            if (clip !== 'hidden' && (ir.left < fr.left - 2 || ir.top < fr.top - 2 || ir.right > fr.right + 2 || ir.bottom > fr.bottom + 2)) out.push('overflow');
+            if (seen.width * seen.height < fr.width * fr.height * 0.9) out.push('crop gap');
+            if (Math.abs(fr.width - fr.height) > 4) out.push('not square');
+            if (fr.top < -1 || fr.left < -1 || fr.bottom > H + 2 || fr.right > W + 2) out.push('frame offscreen');
+            for (const text of texts) {
+              if (hits(seen, text.getBoundingClientRect())) { out.push('hits text'); break; }
+            }
+          }
+          return out;
+        });
+        assert.deepStrictEqual(heads, [], name + ' head layout ' + heads.join(' | '));
+      }
+      if (name.endsWith('1920x1080-u1')) {
+        const layout = await page.evaluate((shot) => {
+          const W = innerWidth, H = innerHeight, out = [];
+          const box = (sel) => {
+            const el = document.querySelector(sel);
+            if (!el) return null;
+            const s = getComputedStyle(el);
+            if (s.display === 'none' || s.visibility === 'hidden' || el.hidden) return null;
+            const b = el.getBoundingClientRect();
+            if (b.width < 4 || b.height < 4) return null;
+            return b;
+          };
+          if (shot.startsWith('new-game')) {
+            const panel = box('.screen[data-screen="newGameSetup"]');
+            if (!panel || panel.width > W * 0.92 || panel.width < 500) out.push('panel');
+            const cards = [...document.querySelectorAll('#level-cards .card')];
+            if (cards.length >= 2 && Math.abs(cards[0].getBoundingClientRect().top - cards[1].getBoundingClientRect().top) > 12) out.push('cards wrapped');
+          }
+          if (shot.startsWith('home-')) {
+            const primary = box('#day-primary');
+            const rail = box('#home-nav');
+            if (!primary || primary.right < W * 0.72 || primary.bottom < H - 160) out.push('primary');
+            if (!rail || rail.width > 340 || rail.x > 120) out.push('rail');
+          }
+          if (shot.startsWith('actions-')) {
+            const sheet = box('#game-actions');
+            if (!sheet || sheet.x < W * 0.42) out.push('actions column');
+          }
+          if (shot.startsWith('encounter-')) {
+            const ev = box('#game-event');
+            const actor = box('.scene-actor');
+            if (!ev || ev.y < H * 0.4) out.push('story panel');
+            if (!actor || actor.height < 70) out.push('scene actor');
+          }
+          if (shot.startsWith('dialogue-')) {
+            const ev = box('#game-event');
+            if (!ev || ev.y < H * 0.35) out.push('dialogue panel');
+          }
+          if (shot.startsWith('lore-')) {
+            const dock = box('.home-dock');
+            if (!dock || dock.width < W * 0.45) out.push('book frame');
+          }
+          return out;
+        }, name);
+        assert.deepStrictEqual(layout, [], name + ' mockup layout ' + layout.join(' | '));
+      }
+      console.log('PASS', name);
+    };
+    const fit = async (w, h, u) => {
+      await app.evaluate(({ BrowserWindow }, s) => BrowserWindow.getAllWindows()[0].setContentSize(s.w, s.h), { w, h });
+      await page.waitForTimeout(150);
+      await page.evaluate((v) => window.__menuDebug.setUiScale(v), u);
+      await page.waitForTimeout(120);
+    };
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        const tag = `${w}x${h}-u${String(u).replace('.', '')}`;
+        await page.evaluate(() => window.__menuDebug.show('root'));
+        await fit(w, h, u);
+        await shoot(`menu-${tag}`);
+        await page.evaluate(() => window.__menuDebug.show('newGame'));
+        await page.waitForTimeout(80);
+        await shoot(`new-game-${tag}`);
+      }
+    }
+    await page.evaluate(() => window.__menuDebug.show('newGame'));
+    await page.locator('[data-nav="begin"]').click();
+    await page.waitForFunction(() => window.__menuDebug.state().state === 'creator');
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await shoot(`creator-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    for (const k of ['ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter']) await page.keyboard.press(k);
+    await page.waitForFunction(() => window.__menuDebug.state().state === 'game');
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await shoot(`spotlight-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    if (await page.locator('#game-actions').isHidden() && await page.locator('[data-g="openActions"]').count()) {
+      await page.locator('[data-g="openActions"]').click();
+    }
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        if (await page.locator('#game-actions').isHidden() && await page.locator('[data-g="openActions"]').count()) {
+          await page.locator('[data-g="openActions"]').click();
+        }
+        await shoot(`tip-actions-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    for (let i = 0; i < 8 && await page.locator('[data-g="tutorialDismiss"]').count(); i++) {
+      await page.locator('[data-g="tutorialDismiss"]').click();
+    }
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        const tag = `${w}x${h}-u${String(u).replace('.', '')}`;
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await page.waitForTimeout(80);
+        await shoot(`home-${tag}`);
+        if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
+        await page.waitForTimeout(80);
+        await shoot(`actions-${tag}`);
+        await page.evaluate(() => { const box = document.getElementById('game-actions'); if (box) box.hidden = true; window.__menuDebug.game().render(); });
+      }
+    }
+    await fit(1280, 720, 1);
+    await page.locator('[data-view="lore"]').click();
+    await page.waitForTimeout(80);
+    await page.locator('[data-view="inventory"]').click();
+    await page.waitForTimeout(40);
+    await page.locator('[data-view="market"]').click();
+    await page.waitForTimeout(80);
+    const toastPlace = await page.evaluate(() => {
+      const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+      const out = [];
+      const toasts = [...document.querySelectorAll('.toast')];
+      if (toasts.length !== 1) out.push('toast count ' + toasts.length);
+      const toast = toasts[0];
+      if (!toast) return out.concat(['missing toast']);
+      if (!/trade offer/.test(toast.textContent || '')) out.push('not newest ' + (toast.textContent || ''));
+      const tr = toast.getBoundingClientRect();
+      const hud = document.querySelector('#game-hud');
+      const shell = document.querySelector('.shell-top');
+      const title = document.querySelector('.home-panel-title');
+      const action = document.querySelector('#day-primary');
+      const tabs = document.querySelector('.lore-tabs');
+      if (hud && hits(tr, hud.getBoundingClientRect())) out.push('toast on hud');
+      if (shell && hits(tr, shell.getBoundingClientRect())) out.push('toast on shell');
+      if (title && hits(tr, title.getBoundingClientRect())) out.push('toast on heading');
+      if (tabs && hits(tr, tabs.getBoundingClientRect())) out.push('toast on tabs');
+      for (const tab of document.querySelectorAll('.lore-tabs button')) {
+        if (hits(tr, tab.getBoundingClientRect())) { out.push('toast on tab'); break; }
+      }
+      if (action && hits(tr, action.getBoundingClientRect())) out.push('toast on action');
+      for (const el of document.querySelectorAll('.lore-book, .lore-read, .lore-list, .lore-spread')) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 4 && r.height > 4 && hits(tr, r)) { out.push('toast on lore'); break; }
+      }
+      return out;
+    });
+    assert.deepStrictEqual(toastPlace, [], 'market toast ' + toastPlace.join(' | '));
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.locator('[data-view="lore"]').click();
+        await page.locator('[data-view="market"]').click();
+        await page.waitForTimeout(60);
+        const loreToast = await page.evaluate(() => {
+          const hits = (a, b) => a && b && a.width > 2 && b.width > 2 && a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+          const toast = document.querySelector('.toast');
+          if (!toast) return ['missing toast'];
+          const tr = toast.getBoundingClientRect();
+          const out = [];
+          for (const el of document.querySelectorAll('.lore-book, .lore-read, .lore-list, .lore-tabs, .lore-tabs button, .home-panel-title')) {
+            const r = el.getBoundingClientRect();
+            if (r.width > 4 && r.height > 4 && hits(tr, r)) out.push('toast on lore');
+          }
+          return out;
+        });
+        assert.deepStrictEqual(loreToast, [], `lore toast ${w}x${h} u${u} ` + loreToast.join(' | '));
+        if (u === 1 && ((w === 1280 && h === 720) || (w === 1920 && h === 1080) || (w === 3440 && h === 1440))) {
+          await shoot(`lore-toast-${w}x${h}-u1`);
+        }
+      }
+    }
+    await page.locator('[data-view="map"]').click();
+    await page.waitForTimeout(80);
+    const toastGone = await page.evaluate(() => document.querySelectorAll('.toast').length);
+    assert.strictEqual(toastGone, 0, 'toast stays after leaving the locked section');
+    await page.waitForTimeout(150);
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await page.waitForTimeout(80);
+        await shoot(`map-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    await page.locator('[data-view="lore"]').click();
+    await page.waitForTimeout(150);
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await shoot(`lore-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    await page.locator('[data-view="home"]').click();
+    await page.evaluate(() => window.__menuDebug.gamePatch({
+      phase: 'day',
+      pending: null,
+      report: { day: 1, region: 'split_rock', lines: [{ k: 'rest', energy: 20 }, { k: 'drink' }] }
+    }));
+    for (let i = 0; i < 8 && await page.locator('[data-g="tutorialDismiss"]').count(); i++) {
+      await page.locator('[data-g="tutorialDismiss"]').click();
+    }
+    await page.waitForTimeout(80);
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await shoot(`day-end-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    if (await page.locator('[data-g="dismissReport"]').isVisible()) await page.locator('[data-g="dismissReport"]').click();
+    for (const nose of ['keen_nose', 'dull_nose']) {
+      await page.evaluate((id) => window.__menuDebug.gamePatch({ cat: { traits: [id] } }), nose);
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
+      if (await page.locator('[data-g="hunt"][data-size="small"]').isHidden()) await page.locator('[data-g="pickHunt"]').click();
+      await page.waitForTimeout(80);
+      for (const [w, h] of SIZES) {
+        for (const u of SCALES) {
+          await fit(w, h, u);
+          const tag = nose === 'keen_nose' ? 'hunt-keen' : 'hunt-dull';
+          await shoot(`${tag}-${w}x${h}-u${String(u).replace('.', '')}`);
+        }
+      }
+    }
+    const openEncounter = async (kind) => {
+      await page.evaluate((kind) => {
+        const spec = kind === 'deer'
+          ? { id: 'encounter.giant_deer.v1', asset: 'giant-deer.png', name: 'Giant deer', line: 'A giant deer stands beyond the low cover, its antlers spread wide above its back.' }
+          : { id: 'encounter.cave_hyena.v1', asset: 'cave-hyena.png', name: 'Cave hyena', line: 'A cave hyena stands over a carcass at the forks, mouth open, shoulders hunched high.' };
+        const s = window.__menuDebug.game().state;
+        window.__menuDebug.gamePatch({
+          phase: 'encounter',
+          report: null,
+          encounters: {
+            pending: {
+              encounterId: spec.id,
+              encounterInstanceId: 'e2e',
+              assetId: spec.asset,
+              displayName: spec.name,
+              regionId: s.region,
+              absDay: s.day,
+              nodeId: 'opening',
+              lines: [{ kind: 'narration', text: spec.line }],
+              choices: [],
+              terminal: false,
+              forecast: spec.id.indexOf('hyena') >= 0 ? { tier: 'partial' } : null
+            }
+          }
+        });
+      }, kind);
+      await page.waitForTimeout(80);
+    };
+    await openEncounter('deer');
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await shoot(`encounter-hunt-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    await openEncounter('hyena');
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await page.evaluate(() => window.__menuDebug.game().render());
+        await shoot(`encounter-fight-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    await page.evaluate(() => window.__menuDebug.gamePatch({ phase: 'day', encounters: { pending: null } }));
+    const roster = await page.evaluate(() => {
+      const s = window.__menuDebug.game().state;
+      const want = ['hc02', 'hc03', 'bf02', 'bf03', 'mw02', 'mw03', 'ln02', 'ln05'];
+      const picks = want.filter((id) => s.npcs[id] && !['hc01', 'bf01', 'mw01'].includes(id));
+      s.cat.name = 'Glacierheart';
+      if (s.npcs.hc02) s.npcs.hc02.name = 'Slatemark';
+      window.__menuDebug.forceMeeting('hc02');
+      const card = document.querySelector('#game-event .event-card');
+      return {
+        picks,
+        hasBeats: !!(card && card.classList.contains('has-beats')),
+        hasMeet: !!(card && card.classList.contains('has-meet')),
+        names: [...document.querySelectorAll('#game-event .event-cast-name')].map((el) => el.textContent)
+      };
+    });
+    assert.deepStrictEqual(roster.picks, ['hc02', 'hc03', 'bf02', 'bf03', 'mw02', 'mw03', 'ln02', 'ln05']);
+    assert.ok(roster.hasMeet || roster.hasBeats, 'first meeting ' + JSON.stringify(roster));
+    assert.ok(roster.names.includes('Glacierheart') && roster.names.includes('Slatemark'), roster.names.join(','));
+    const headGaps = () => page.evaluate(() => {
+      const out = [];
+      const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+      if (!document.querySelector('#game-event .event-cast.is-player .portrait-frame.is-headshot')) out.push('no player frame');
+      for (const frame of frames) {
+        const fr = frame.getBoundingClientRect();
+        const img = frame.querySelector('img.headshot');
+        const canvas = frame.querySelector('canvas');
+        const shown = img && img.complete && img.naturalWidth > 0 ? img : canvas;
+        if (!shown) { out.push('head unloaded'); continue; }
+        const ir = shown.getBoundingClientRect();
+        const seenW = Math.max(0, Math.min(ir.right, fr.right) - Math.max(ir.left, fr.left));
+        const seenH = Math.max(0, Math.min(ir.bottom, fr.bottom) - Math.max(ir.top, fr.top));
+        if (seenW * seenH < fr.width * fr.height * 0.9) out.push('crop gap');
+        if (getComputedStyle(shown).objectFit !== 'cover') out.push('not cover');
+      }
+      return out;
+    });
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        for (const id of roster.picks) {
+          await page.evaluate((slot) => window.__menuDebug.forceMeeting(slot), id);
+          await page.waitForFunction(() => {
+            const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+            return frames.length >= 2 && frames.every((frame) => {
+              const img = frame.querySelector('img.headshot');
+              if (img) return img.complete && img.naturalWidth > 0;
+              const canvas = frame.querySelector('canvas');
+              if (!canvas || canvas.width < 8) return false;
+              const fr = frame.getBoundingClientRect();
+              const cr = canvas.getBoundingClientRect();
+              return cr.width >= fr.width * 0.9 && cr.height >= fr.height * 0.9;
+            });
+          }, null, { timeout: 8000 });
+          const gaps = await headGaps();
+          assert.deepStrictEqual(gaps, [], `first-meeting ${id} ${w}x${h} u${u} ` + gaps.join(' | '));
+        }
+        await page.evaluate(() => window.__menuDebug.forceMeeting('hc02'));
+        await shoot(`first-meeting-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    await fit(1280, 720, 1);
+    const assignments = Object.entries(require(path.join(root, 'src/renderer/data/npc-portrait-defaults.json')).assignments);
+    assert.strictEqual(assignments.length, 39);
+    for (const [slot, spec] of assignments) {
+      await page.evaluate(({ slot, portraitId }) => {
+        const s = window.__menuDebug.game().state;
+        const npc = s.npcs[slot];
+        if (portraitId) {
+          s.cat.portraitId = portraitId;
+          npc.portraitId = portraitId;
+        } else npc.portraitId = null;
+        window.__menuDebug.forceMeeting(slot);
+      }, { slot, portraitId: spec.id || null });
+      await page.waitForFunction(() => {
+        const frames = [...document.querySelectorAll('#game-event .portrait-frame.is-headshot')];
+        return frames.length >= 1 && frames.every((frame) => {
+          const img = frame.querySelector('img.headshot');
+          if (img) return img.complete && img.naturalWidth > 0;
+          const canvas = frame.querySelector('canvas');
+          if (!canvas || canvas.width < 8) return false;
+          const fr = frame.getBoundingClientRect();
+          const cr = canvas.getBoundingClientRect();
+          return cr.width >= fr.width * 0.9 && cr.height >= fr.height * 0.9;
+        });
+      }, null, { timeout: 8000 });
+      const gaps = await headGaps();
+      assert.deepStrictEqual(gaps, [], 'portrait ' + slot + ' ' + gaps.join(' | '));
+      await shoot('portrait-' + slot + '-1280x720-u1');
+    }
+    await fit(1280, 720, 1);
+    const coats = [
+      ['Tan', 'cat-6477d01534355420'],
+      ['Gray', 'cat-2fe9cb1d7fac044f'],
+      ['Brown', 'cat-6e2d788dd48ff440'],
+      ['Black', 'cat-8ac6058de8429d56'],
+      ['Sandy', 'cat-4cd271c4c8628739']
+    ];
+    for (const [coat, portraitId] of coats) {
+      await page.evaluate((id) => {
+        const s = window.__menuDebug.game().state;
+        s.cat.portraitId = id;
+        s.npcs.hc02.portraitId = id;
+        window.__menuDebug.forceMeeting('hc02');
+      }, portraitId);
+      await page.waitForFunction(() => [...document.querySelectorAll('#game-event img.headshot')].every((img) => img.complete && img.naturalWidth > 0), null, { timeout: 8000 });
+      const coatGaps = await headGaps();
+      assert.deepStrictEqual(coatGaps, [], 'player ' + coat + ' ' + coatGaps.join(' | '));
+      await shoot('portrait-coat-' + coat + '-1280x720-u1');
+    }
+    for (const [slot, eventId, tag, needle] of [
+      ['hc04', 'slice.meeting.highcrag', 'highcrag', 'give names before anything else'],
+      ['mw07', 'slice.meeting.mistwood', 'mistwood', 'old cat']
+    ]) {
+      for (const [w, h] of [[1280, 720], [1920, 1080], [3440, 1440]]) {
+        await fit(w, h, 1);
+        await page.evaluate(({ slot, eventId }) => {
+          const s = window.__menuDebug.game().state;
+          window.__menuDebug.forceMeeting(slot);
+          s.pending.eventId = eventId;
+          window.__menuDebug.game().render();
+        }, { slot, eventId });
+        await page.waitForFunction(() => {
+          const imgs = [...document.querySelectorAll('#game-event img.headshot')];
+          return imgs.length >= 1 && imgs.every((img) => img.complete && img.naturalWidth > 0);
+        }, null, { timeout: 8000 });
+        for (let step = 0; step < 4; step++) {
+          const said = await page.evaluate(() => (document.querySelector('#game-event') || {}).innerText || '');
+          if (said.toLowerCase().includes(needle)) break;
+          const next = page.locator('#game-event [data-g="advanceBeat"]');
+          if (!(await next.count())) break;
+          await next.click();
+          await page.waitForTimeout(80);
+        }
+        const said = await page.evaluate(() => (document.querySelector('#game-event') || {}).innerText || '');
+        assert.ok(said.toLowerCase().includes(needle), tag + ' beats missing: ' + said.slice(0, 400));
+        await shoot(`meeting-beats-${tag}-${w}x${h}-u1`);
+      }
+    }
+    const npc = await page.evaluate(() => {
+      const s = window.__menuDebug.game().state;
+      const id = 'hc02';
+      if (!s.npcs[id] || !s.npcs[id].portraitId) return null;
+      return window.__menuDebug.forceMeeting(id);
+    });
+    if (npc) {
+      for (const [w, h] of SIZES) {
+        for (const u of SCALES) {
+          await fit(w, h, u);
+          await page.evaluate(() => window.__menuDebug.game().render());
+          await shoot(`dialogue-${w}x${h}-u${String(u).replace('.', '')}`);
+        }
+      }
+    }
+    await page.evaluate(() => window.__menuDebug.show('load'));
+    await page.waitForTimeout(150);
+    for (const [w, h] of SIZES) {
+      for (const u of SCALES) {
+        await fit(w, h, u);
+        await shoot(`load-${w}x${h}-u${String(u).replace('.', '')}`);
+      }
+    }
+    fs.writeFileSync(path.join(out, 'index.txt'), shots.map((f) => path.basename(f)).join('\n') + '\n');
+    console.log('shots', shots.length);
+  } catch (e) {
+    failed = 1;
+    console.error(e);
+    try { await page.screenshot({ path: path.join(out, 'failure.png') }); } catch (err) { /* already closed */ }
+  } finally {
+    await app.close().catch(() => {});
+    fs.rmSync(ud, { recursive: true, force: true });
+  }
+  process.exit(failed);
+})();

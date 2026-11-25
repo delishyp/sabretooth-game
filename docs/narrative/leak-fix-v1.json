@@ -1,0 +1,131 @@
+{
+  "recurring-conversation.json": {
+    "opening": {
+      "aggression": ["{catName} plants their paws square in the trail and waits, sabers resting against their chin.", "{catName} steps half off the trail, leaving you a clear way past."],
+      "sociability": ["{catName} turns toward you with a soft chuff, as if you were expected.", "{catName} hangs back a tail-length, letting you decide whether to come closer."],
+      "boldness": ["{catName} strides straight to a flat stone and settles there, waiting for you to follow.", "{catName} doesn't move until you've stopped, then edges a pace nearer."],
+      "loyalty": ["{catName}'s gaze goes to you and stays there, steady as stone.", "{catName} keeps glancing at the far trail, half ready to be gone."],
+      "curiosity": ["{catName}'s ears swivel forward, reading every twitch of your whiskers.", "{catName} gives you one look and then studies the horizon instead."]
+    },
+    "walking": {
+      "aggression": ["{catName} walks shoulder to shoulder with you, a little too close, testing.", "{catName} drifts a pace to the side so your flanks never brush."],
+      "sociability": ["{catName} keeps right beside you, tail swaying, chattering about nothing much.", "{catName} pads along in silence, a comfortable gap between you."],
+      "boldness": ["{catName} takes the lead without asking and glances back once to see you're still there.", "{catName} matches your pace exactly and lets you choose the way."],
+      "loyalty": ["{catName} keeps to your side even where the path narrows and one of you should drop back.", "{catName} lingers at every scent-mark you pass, as if weighing whether to turn off."],
+      "curiosity": ["{catName} keeps sniffing the air you've just walked through, learning you.", "{catName} watches the trail ahead, ignoring everything but the next step."]
+    },
+    "question": {
+      "aggression": ["{catName}'s tail lashes once before the answer comes out, blunt as a paw-strike.", "{catName} lets you finish, ears soft, before saying anything at all."],
+      "sociability": ["{catName} answers, then tilts their head: your turn.", "{catName} gives the shortest answer possible and looks away."],
+      "boldness": ["{catName} answers at once, without a flicker of doubt.", "{catName} is quiet for a long breath, choosing each word."],
+      "loyalty": ["{catName} answers carefully, like someone who keeps every word they give.", "{catName} answers lightly, as though nothing said today needs to count tomorrow."],
+      "curiosity": ["{catName} leans in, plainly wanting to know why you asked.", "{catName} answers and leaves it at that, uninterested in where the question came from."]
+    },
+    "boundary": {
+      "aggression": ["{catName}'s fur lifts along the spine. The answer is not going to change.", "{catName} lowers their head and steps back, refusing to make it a fight."],
+      "sociability": ["{catName} stays close even now; being fond of you doesn't move the line.", "{catName} pulls away, putting cold air between you."],
+      "boldness": ["{catName} meets your eyes and holds them while saying no.", "{catName} says it to the ground between your paws, but says it all the same."],
+      "loyalty": ["{catName} watches you closely, waiting to see if you'll honour what was said.", "{catName} shrugs it off as if it were only about today."],
+      "curiosity": ["{catName} waits, clearly wanting to hear how you'll answer this.", "{catName} turns their head away. The subject is closed."]
+    },
+    "return": {
+      "aggression": ["{catName} stands squarely in the open, waiting for your answer.", "{catName} steps aside, leaving it entirely up to you."],
+      "sociability": ["{catName} shuffles over, making room on the warm ground beside them.", "{catName} makes a little room, though not all of it."],
+      "boldness": ["{catName} says it plainly and waits, chin up.", "{catName} waits until you've settled before daring to ask."],
+      "loyalty": ["{catName} remembers what you said last time. You can see it in the way they look at you.", "{catName} doesn't mention last time at all, as if each meeting starts fresh."],
+      "curiosity": ["{catName} watches you closely, trying to guess what you'll choose this time.", "{catName} asks once and doesn't press."]
+    },
+    "departure": {
+      "aggression": ["{catName} steps off the trail and lets you pass without a growl.", "{catName} doesn't follow you, not even with their eyes."],
+      "sociability": ["{catName} watches you go until the grass closes behind you.", "{catName} is already turning away before you've said goodbye."],
+      "boldness": ["{catName} turns down their own path without a backward glance.", "{catName} waits until you're a few lengths off before slipping away."],
+      "loyalty": ["{catName} stands where you left them, as if marking the place.", "{catName} melts into the landscape like the meeting never happened."],
+      "curiosity": ["{catName} looks after you a long moment, as if a question is still waiting to be asked.", "{catName} has already lost interest by the time you turn to look."]
+    },
+    "confiding": {
+      "aggression": ["{catName} asks it straight out, almost a challenge.", "{catName} asks softly, giving you every chance to refuse."],
+      "sociability": ["{catName} settles close beside you, fur nearly touching, while asking.", "{catName} asks from a little way off, still keeping their own space."],
+      "boldness": ["{catName} holds your gaze the whole time, unashamed of wanting this.", "{catName} glances away as soon as the words are out."],
+      "loyalty": ["{catName} asks the way a cat asks for something they'd never forget.", "{catName} keeps it light, as if it's only about today."],
+      "curiosity": ["{catName} watches your face for the answer before you give it.", "{catName} doesn't wonder aloud what your answer might mean."]
+    }
+  },
+  "first-season-v0.6.2.json": {
+    "aggression": {
+      "low": "{catName}'s voice stays soft and the sabers stay hidden.",
+      "middle": "{catName} answers evenly.",
+      "high": "{catName}'s jaw tightens around the words, and the tips of the sabers gleam."
+    },
+    "sociability": {
+      "low": "{catName} keeps it short and keeps a cool distance.",
+      "middle": "{catName} faces you while answering.",
+      "high": "{catName} turns fully toward you, warm and close."
+    },
+    "boldness": {
+      "low": "{catName} keeps well back, watchful of a stranger.",
+      "middle": "{catName} stays where they are.",
+      "high": "{catName} answers without giving an inch of ground."
+    },
+    "loyalty": {
+      "low": "{catName}'s eyes flick toward the open land, as if half ready to leave.",
+      "middle": "{catName} stays until the answer is given.",
+      "high": "{catName} won't leave the side of whoever they've chosen."
+    },
+    "curiosity": {
+      "low": "{catName} answers, then looks back at what matters here.",
+      "middle": "{catName} watches your expression.",
+      "high": "{catName} studies you for a long moment before answering."
+    }
+  },
+  "encounters-v0.2.json:allTraitActionCues": {
+    "aggression": {
+      "low": "{catName} speaks with the teeth hidden.",
+      "middle": "{catName} speaks evenly.",
+      "high": "{catName}'s lip curls back from a saber, just for a moment."
+    },
+    "sociability": {
+      "low": "{catName} spares you a glance, then fixes again on the hyena.",
+      "middle": "{catName} looks your way for an answer.",
+      "high": "{catName} turns toward you, glad of the company."
+    },
+    "boldness": {
+      "low": "{catName} keeps well back from the hyena's snapping jaws.",
+      "middle": "{catName} holds ground.",
+      "high": "{catName} stands in the open, daring the hyena to come."
+    },
+    "loyalty": {
+      "low": "{catName} hunches over the kill, ignoring you.",
+      "middle": "{catName} keeps checking the carcass between words.",
+      "high": "{catName} keeps their body between the kill and anything that wants it."
+    },
+    "curiosity": {
+      "low": "{catName} answers and turns straight back to the kill.",
+      "middle": "{catName} glances around once.",
+      "high": "{catName} reads the tracks around the carcass before answering, nose low."
+    }
+  },
+  "encounters-v0.2.json:text": {
+    "The deer turns its head, sweeping the antlers through the space in front of it. Getting close would not mean getting past them. Watching has given you a clearer view, not a guaranteed opening.": "The deer swings its great head, and the antlers sweep the air like a falling branch. You see now how it guards its throat, turning to face every rustle. If there's a way in, it's narrow.",
+    "You keep your body low and work toward the edge of the cover. Beyond it, you would be exposed. The deer is still upright; nothing has been won yet.": "Belly to the ground, you creep to the last of the cover. One more step and you'll be in the open. The deer is still upright, still chewing, and your heart is hammering.",
+    "You leave the deer where it stands. There is no carcass to eat or share.": "You back away and leave the deer standing. Your belly complains all the way back.",
+    "You watch the giant deer from a distance, then let it move on. Seeing it has not made it a successful hunt.": "You watch the giant deer until it fades into the trees. A beast like that would have fed you for days, if you'd dared.",
+    "The wolves keep facing your position. Watching has not made a route through them safe, and you cannot tell from their teeth alone whether they will follow.": "The wolves keep facing you, ears pricked. No way through them looks safe, and there's no telling whether they'll follow if you run.",
+    "The hyena still holds the space around the carcass. You have not driven it away.": "The hyena whoops and stands its ground over the carcass. It isn't going anywhere.",
+    "You leave the carcass within the hyena’s reach. You take no meat and claim no successful aid.": "You turn from the carcass and leave it to the hyena's cackling. There's no meat for you, and no help given.",
+    "You take meat from the Highcrag kill. {hunterName} sees you feed. This was not your hunt.": "You tear a mouthful from the Highcrag kill. {hunterName} sees you do it, and the look says it plainly: this was not your hunt."
+  },
+  "game-screen.js:encounterCost": {
+    "deer": "The search has used your day (Energy −{deerSearchEnergy}). Watching or leaving costs nothing more but brings no food. Going in for the kill costs Energy −{deerCommitEnergy}, and it may fail.",
+    "wolf": "If you withdraw, the wolves may still give chase. A warning from wolves won't change how Highcrag sees you.",
+    "finished": "You've already helped here; more won't earn anything.",
+    "forecast": "Your odds of driving it off look {tier} (fight {stat} against {threat}). {extra} {wound} Backing down earns nothing with Highcrag.",
+    "extraTrue": "It will cost Energy −{extraEnergy} more.",
+    "extraFalse": "It won't cost extra Energy.",
+    "woundTrue": "If you fail, you'll come away with a minor injury.",
+    "woundFalse": "Even if you fail, you won't be hurt."
+  },
+  "first-season-v0.6.2.json:text": {
+    "The request has been refused. That answer does not replace {catName}’s own wishes.": "The answer is no. {catName} looks at you for a long moment, and whatever {catName} feels about it stays unspoken.",
+    "You did not complete a mate bond with {catName} before the window closed. The attempt is not a promise of a later answer.": "The season turned before you and {catName} became mates. What might have been is still unsettled, and tomorrow is another day."
+  }
+}

@@ -1,0 +1,149 @@
+{
+ "version": 1,
+ "source": "ac2665d",
+ "shape": "square (1:1 in pixels)",
+ "normalised": {
+  "x": 0.5856,
+  "y": 0.0,
+  "w": 0.4144,
+  "h": 0.5525
+ },
+ "bySex": {
+  "female": {
+   "adult": {
+    "normalised": {
+     "x": 0.5856,
+     "y": 0.0,
+     "w": 0.4144,
+     "h": 0.5525
+    },
+    "historicalJpg": {
+     "file": "/workspace/sabretooth-art-reference/archive/historical-portraits/1cffd694c43c_1cffd694c43cc74f8ae7faa7d7c6e1d052a48af84469d702de874579c4cacbdb.jpg",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-female/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    }
+   },
+   "cub": {
+    "normalised": {
+     "x": 0.6337,
+     "y": 0.0694,
+     "w": 0.3472,
+     "h": 0.463
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-female-cub/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 730,
+      "y": 60,
+      "w": 400,
+      "h": 400
+     }
+    },
+    "note": "Cub base v1 (Ochre, 2026-11-17). One cub base shared by both sexes. Square; ears 51px from the top, nose 72px and whisker tips 47px from the right, chin and shoulders inside. The adult box (0.5856, 0, 0.4144, 0.5525) also contains the whole cub head but leaves the head smaller and lower in frame."
+   },
+   "adolescent": "use adult",
+   "elder": "use adult"
+  },
+  "male": {
+   "adult": {
+    "normalised": {
+     "x": 0.5856,
+     "y": 0.0,
+     "w": 0.4144,
+     "h": 0.5525
+    },
+    "historicalJpg": {
+     "file": "/workspace/sabretooth-art-reference/archive/historical-portraits/617660c40258_617660c40258ec321d64133393dadc5088a3d9e2096c46231c44a51e16233ffc.jpg",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-male/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 675,
+      "y": 0,
+      "w": 477,
+      "h": 477
+     }
+    }
+   },
+   "cub": {
+    "normalised": {
+     "x": 0.6337,
+     "y": 0.0694,
+     "w": 0.3472,
+     "h": 0.463
+    },
+    "layeredComposite": {
+     "manifest": "assets/portraits/portrait-male-cub/manifest.json",
+     "canvas": [
+      1152,
+      864
+     ],
+     "px": {
+      "x": 730,
+      "y": 60,
+      "w": 400,
+      "h": 400
+     }
+    },
+    "note": "Cub base v1 (Ochre, 2026-11-17). One cub base shared by both sexes. Square; ears 51px from the top, nose 72px and whisker tips 47px from the right, chin and shoulders inside. The adult box (0.5856, 0, 0.4144, 0.5525) also contains the whole cub head but leaves the head smaller and lower in frame."
+   },
+   "adolescent": "use adult",
+   "elder": "use adult"
+  }
+ },
+ "staticIllustrated": {
+  "files": "assets/portraits/cats/cat-*.png (40)",
+  "canvas": [
+   1448,
+   1086
+  ],
+  "px": {
+   "x": 848,
+   "y": 0,
+   "w": 600,
+   "h": 600
+  },
+  "oneBoxFitsAll": true,
+  "perImageBoxes": []
+ },
+ "ageVariants": "cub: own box (bySex.*.cub, cub base v1, /workspace/qa/cub-base). adolescent and elder: none yet, use adult box."
+}

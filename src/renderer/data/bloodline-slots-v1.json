@@ -1,0 +1,179 @@
+{
+  "_readme": "Inheritance-only bloodline slots (Saga) for traits spec §3.5a at commit 0bd80b1. Six of the approved 56 traits are blood-only: giant, long_sabers, frost_hardy, fertile, long_lived, tainted_blood. For each trait, one premade shows it and two carry it, except tainted_blood (nobody shows, two carry, a hidden family flaw). No cat shows more than one inherit-only trait. Slot ids are used because names roll each run (world-gen §3). Shows sit on current pride members so the bloodline is visible in a pride; loners are used as carriers, and as the two tainted_blood carriers. Family links are used only where the docs state them. A second carrier is sometimes in another pride with no claimed kinship, so the trait is not bottled in one roster. Rumours reuse traits-copy-v1.json (two told lines per trait) and are refined to pass-2 style. {name} and {subjectName} bind to the same subject cat. Do not edit or commit this into the sabretooth repo; it is Saga working copy.",
+  "_source": {
+    "spec": "docs/design/achievements-difficulty-traits-v0.1.md",
+    "commit": "0bd80b1",
+    "specVersion": "v0.1.3d",
+    "section": "3.5a",
+    "slots": "src/renderer/data/world-slots.json and docs/world-gen-spec.md §2.1",
+    "lore": ["docs/lore/world-and-prides.md", "docs/lore/loners.md", "docs/lore/loners.json", "docs/lore/slot-table-review.md"],
+    "rumoursFrom": "traits-copy-v1.json",
+    "existingTraitSheet": "No Saga 0-2 mechanical trait sheet was in the repo or on origin/cursor/recurring-conversation-proof-ddae or b9aacb4. loners.json 'traits' are narrative lean words, not the 56-trait ids. Portrait defaults have no size or trait flags."
+  },
+  "_tokens": {
+    "name": "The cat the rumour is about. Same binding as lore-book {subjectName}.",
+    "subjectName": "Lore Book subject token. Bind to the same cat as {name}, as traits-copy-v1.json notes.",
+    "sourceName": "The cat who passed the rumour on."
+  },
+  "_rules": {
+    "showsPerTrait": "1, except tainted_blood: 0",
+    "carriesPerTrait": 2,
+    "maxShownInheritOnlyPerCat": 1,
+    "carriersHidden": "A carrier gets no effect and is not shown as having the trait. The Lore Book only knows carriers as rumours (§3.4a, §3.5a.2).",
+    "taintedBloodRumours": "Vague family talk. Never name the carriers as fact, and never use their slot ids or role names in the told lines.",
+    "founder": "Not assigned here. The player's founder rolls spontaneous 1% to show each trait and a hidden 10% to carry each (§3.5a.6)."
+  },
+  "traits": {
+    "giant": {
+      "id": "giant",
+      "specId": "T3",
+      "name": "Giant",
+      "inheritOnly": true,
+      "shows": "bf01",
+      "carries": ["bf08", "mw03"],
+      "why": {
+        "bf01": "Scarjaw is the only premade the lore calls a heavy tom, and he holds Bonefield by challenge, so he can show Giant.",
+        "bf08": "Scarjaw and bf04's adolescent daughter, so the line can pass or skip in the next generation.",
+        "mw03": "Young Mistwood tom with no size lore, so a hidden carry is safe and moves the bloodline out of Bonefield. No documented kin link."
+      }
+    },
+    "long_sabers": {
+      "id": "long_sabers",
+      "specId": "T15",
+      "name": "Long Sabers",
+      "inheritOnly": true,
+      "shows": "hc03",
+      "carries": ["hc02", "bf03"],
+      "why": {
+        "hc03": "Ashmane's mate and Highcrag's big-game hunter, with throat-bite training; long sabers fit a pride that recites its bloodlines.",
+        "hc02": "Stonebrow, their son, so the blood can pass without a second show.",
+        "bf03": "Bonefield hunter with the same big-game skills and no saber-injury lore. No documented kin link; used to spread the trait."
+      }
+    },
+    "frost_hardy": {
+      "id": "frost_hardy",
+      "specId": "T17",
+      "name": "Frost-Hardy",
+      "inheritOnly": true,
+      "shows": "hc08",
+      "carries": ["ln01", "mw02"],
+      "why": {
+        "hc08": "Highcrag's recitation keeper, lives on the wind-scoured crag, and already holds thickCoat with winter_coat.",
+        "ln01": "Greymantle ranges the Ice Wall and has the vale's highest thick-coat training. A loner, so he carries rather than shows.",
+        "mw02": "Older Mistwood tom with thickCoat, snow_sleeper and den_maker, and he survived the Breaking. No documented kin to hc08."
+      }
+    },
+    "fertile": {
+      "id": "fertile",
+      "specId": "T19",
+      "name": "Fertile",
+      "inheritOnly": true,
+      "shows": "hc06",
+      "carries": ["hc10", "bf04"],
+      "why": {
+        "hc06": "Highcrag nursemaid who already has two cubs and is still young, well inside the fertile window.",
+        "hc10": "Her older cub, so the line can stay hidden and show later.",
+        "bf04": "Scarjaw's mate, also has two cubs and is still breeding age. No documented kin to hc06; used to spread the trait."
+      }
+    },
+    "long_lived": {
+      "id": "long_lived",
+      "specId": "T21",
+      "name": "Long-Lived",
+      "inheritOnly": true,
+      "shows": "mw07",
+      "carries": ["ln06", "bf07"],
+      "why": {
+        "mw07": "Oldest cat in the vale, Mistwood's wise-cat, with hardiness at its cap and the long_life perk.",
+        "ln06": "Lichen has the same long_life perk, but lore calls her too frail to cross the marsh, so she only carries.",
+        "bf07": "Tallgrass's old guard, still on duty after Scarjaw's rise. No documented kin to mw07; used to spread the trait."
+      }
+    },
+    "tainted_blood": {
+      "id": "tainted_blood",
+      "specId": "T51",
+      "name": "Tainted Blood",
+      "inheritOnly": true,
+      "shows": null,
+      "carries": ["ln03", "ln05"],
+      "why": {
+        "ln03": "Torncheek, half-brother of Duskrunner through the hidden Bonefield sire off_bf_sire. Not described as sickly, which fits a hidden carry.",
+        "ln05": "Duskrunner, the other living cub of that hidden sire. The flaw stays in one family, and nobody shows it."
+      }
+    }
+  },
+  "rumours": {
+    "giant": [
+      {
+        "id": "rumours.trait.giant[0]",
+        "text": "{sourceName} says {name} stands a head above any cat in the Vale. Hard to say if that's true.",
+        "refinedFrom": "traits-copy-v1.json (contraction)"
+      },
+      {
+        "id": "rumours.trait.giant[1]",
+        "text": "They say {name} is huge, though {sourceName} only saw it from across the river.",
+        "refinedFrom": "traits-copy-v1.json (unchanged)"
+      }
+    ],
+    "long_sabers": [
+      {
+        "id": "rumours.trait.long_sabers[0]",
+        "text": "{sourceName} says {name}'s sabers hang nearly to the chest. That's the story, anyway.",
+        "refinedFrom": "traits-copy-v1.json (contraction)"
+      },
+      {
+        "id": "rumours.trait.long_sabers[1]",
+        "text": "They say {name} has the longest sabers in the Vale. {sourceName} might be stretching it.",
+        "refinedFrom": "traits-copy-v1.json (unchanged)"
+      }
+    ],
+    "frost_hardy": [
+      {
+        "id": "rumours.trait.frost_hardy[0]",
+        "text": "{sourceName} says {name} sleeps out in blizzards and wakes up fine. That's what they say.",
+        "refinedFrom": "traits-copy-v1.json (contraction)"
+      },
+      {
+        "id": "rumours.trait.frost_hardy[1]",
+        "text": "By {sourceName}'s telling, {name} walked through a whiteout like it was summer.",
+        "refinedFrom": "traits-copy-v1.json (plainer wording)"
+      }
+    ],
+    "fertile": [
+      {
+        "id": "rumours.trait.fertile[0]",
+        "text": "{sourceName} says {name} comes from a line with big litters. Hard to know for sure.",
+        "refinedFrom": "traits-copy-v1.json (unchanged)"
+      },
+      {
+        "id": "rumours.trait.fertile[1]",
+        "text": "They say {name}'s blood is strong for cubs. {sourceName} heard it from an old cat.",
+        "refinedFrom": "traits-copy-v1.json (unchanged)"
+      }
+    ],
+    "long_lived": [
+      {
+        "id": "rumours.trait.long_lived[0]",
+        "text": "{sourceName} says {name}'s line stays strong long after others go grey.",
+        "refinedFrom": "traits-copy-v1.json (unchanged)"
+      },
+      {
+        "id": "rumours.trait.long_lived[1]",
+        "text": "By {sourceName}'s telling, {name} will see more winters than most.",
+        "refinedFrom": "traits-copy-v1.json (unchanged)"
+      }
+    ],
+    "tainted_blood": [
+      {
+        "id": "rumours.trait.tainted_blood[0]",
+        "text": "Quietly, {sourceName} says sickness runs in {name}'s line. That's the talk.",
+        "refinedFrom": "traits-copy-v1.json (contraction)"
+      },
+      {
+        "id": "rumours.trait.tainted_blood[1]",
+        "text": "Word is the cubs in {name}'s family come weak. {sourceName} wouldn't say where that talk started.",
+        "refinedFrom": "traits-copy-v1.json (vaguer family talk, no claim that the subject is a carrier)"
+      }
+    ]
+  }
+}

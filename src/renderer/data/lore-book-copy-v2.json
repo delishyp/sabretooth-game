@@ -1,0 +1,1135 @@
+{
+ "_readme": "Lore Book copy, Saga, v2, pass-2 voice, for lore-book v0.1, councils-v0.1 and world-map-territory v0.1.3 (repo commit 0e93339). Common-knowledge entries are in Saga's order (spec §4.4). Cat names are rolled per run (world-gen §3), so leader entries use {name} resolved from tags.cats; a lore name such as Scarjaw is a role only. tags and source are metadata and keep their ids; every other value is free of digits. New in v2: shared hunting ground, admission courtesy and return-of-trespasser promise and agreement lines, from councils-v0.1 §4; council cadence and 'only the leaders sit' after Anna's 2026-11-10 sign-off; and secret_ln01_silence, secret_ln04_saved_cub, secret_hc02_fallen_cub as learned and rumour lines. Repo specs at 0e93339 had not yet been folded by Tundra when this pass was written.",
+ "_source": {
+  "loreBook": "docs/design/lore-book-v0.1.md",
+  "councils": "docs/design/councils-v0.1.md",
+  "map": "docs/design/world-map-territory-v0.1.md",
+  "commit": "0e93339",
+  "voice": "dialogue-pass-2.md",
+  "from": "lore-book-copy-v1.json"
+ },
+ "_questions": [
+  "Flint / Tundra: templates.learned_proposed and rumour.proposed still have no official fact-type ids in lore-book v0.1. Confirm or rename the keys before wiring.",
+  "Director / Tundra: scimitar cats remain a draft threat in world-and-prides.md §4, and may be cut with no knock-on lore. ck_danger_scimitar stays until that is decided.",
+  "Flint: {name} and {subjectName} both bind to the subject cat. Confirm rumour lines that also use {name} for a second cat (aid, side, spar, pride_aid) keep {name} as the other party in the fact, not the subject."
+ ],
+ "_gaps": [
+  "Official fact-type ids for region visits, meetings, camp and den features, council attendance, agreements, deaths, leader changes and holder changes are still proposed keys only.",
+  "Human camps and hyena dens are learned, not common knowledge (Director ruling, map §10.3). Exact regions are not named in starting knowledge."
+ ],
+ "_pendingSpec": [],
+ "_resolved": [
+  "Anna (2026-11-10), lore-book §3.3: a cat with a grudge lies about 1 time in 4. False variants use the crossed-out mechanism; the rate is never shown.",
+  "Anna (2026-11-10), councils §8.1: a council happens once a season, plus an early one when a feud boils over. ck_custom_councils follows that cadence.",
+  "Anna (2026-11-10), councils §8.2: only pride leaders attend. Loners cannot ask to come, and no copy offers that.",
+  "Anna (2026-11-10), map: a pride holds 3 to 6 regions. Counts stay out of player-facing prose.",
+  "Anna (2026-11-10), reputation: it never fades. Title-loss and rumour-stale lines are about a name no longer fitting, or a fact no longer being true, not about memory fading.",
+  "Anna (2026-11-10), Q9: secrets coming out become reputation moments. learned_proposed and rumour.proposed now include secret_ln01_silence, secret_ln04_saved_cub and secret_hc02_fallen_cub."
+ ],
+ "common_knowledge": [
+  {
+   "id": "ck_vale",
+   "title": "The Vale",
+   "text": "A long valley cut by a glacier that has not finished leaving. The Ice Wall closes the north end. The Greywater runs south from its melt, through grass, pine and marsh, until it slows into the Drowned Mere. Past the Mere the land rises into the Ash Hills, where the wolves are. A cat has no word for the world. To say the Vale is to mean everything.",
+   "tags": {
+    "places": [
+     "ice_wall",
+     "drowned_mere",
+     "ash_hills"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 The valley"
+  },
+  {
+   "id": "ck_greywater",
+   "title": "The Greywater",
+   "text": "The river is born from the melt under the Ice Wall and runs the length of the Vale. Every spring it floods. Horses come down to drink at its crossings, and where horses drink, cats wait.",
+   "tags": {
+    "places": [
+     "upper_greywater",
+     "greywater_ford",
+     "twin_forks"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 The valley; Climate; Prey"
+  },
+  {
+   "id": "ck_ice_wall",
+   "title": "The Ice Wall",
+   "text": "The glacier face at the head of the Vale. Meltwater caves and blue light, and little to eat. No pride holds it. Cats say the first sabretooths came out of it.",
+   "tags": {
+    "places": [
+     "ice_wall"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks and territories"
+  },
+  {
+   "id": "ck_highcrag",
+   "title": "Highcrag",
+   "text": "Cliffs and dry caves above the upper river, with wind-scoured meadows where horses and bison graze. It's the heart of Highcrag Pride, and its dens are the best in the Vale.",
+   "tags": {
+    "places": [
+     "highcrag"
+    ],
+    "prides": [
+     "highcrag"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; §2.1"
+  },
+  {
+   "id": "ck_bonefield",
+   "title": "The Bonefield",
+   "text": "Wide open grassland in the middle of the Vale, littered with the bones of old mammoths. The herds pass through every season. It's Bonefield Pride's ground.",
+   "tags": {
+    "places": [
+     "bonefield"
+    ],
+    "prides": [
+     "bonefield"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; §2.2"
+  },
+  {
+   "id": "ck_mistwood",
+   "title": "The Mistwood",
+   "text": "Pine forest and fog marsh along the shore of the Mere. Narrow trails, deer and geese. Mistwood Pride lives here, and keeps its trails to itself.",
+   "tags": {
+    "places": [
+     "mistwood"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; §2.3"
+  },
+  {
+   "id": "ck_greywater_ford",
+   "title": "Greywater Ford",
+   "text": "A shallow crossing where horses come to drink. Good ambush ground, and often fought over. Highcrag claims it. Bonefield says otherwise.",
+   "tags": {
+    "places": [
+     "greywater_ford"
+    ],
+    "prides": [
+     "highcrag",
+     "bonefield"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; §2.1"
+  },
+  {
+   "id": "ck_split_rock",
+   "title": "The Split Rock",
+   "text": "A cracked boulder, taller than any cat, and an old meeting place. No pride holds it. Scent marks from every pride cross on its stone. When a season ends, the leaders of the prides meet here in council.",
+   "tags": {
+    "places": [
+     "split_rock"
+    ],
+    "prides": [
+     "highcrag",
+     "bonefield",
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; world-map-territory-v0.1.md (v0.1.3 / changelog v0.1.5) §8; councils-v0.1.md §1"
+  },
+  {
+   "id": "ck_drowned_mere",
+   "title": "The Drowned Mere",
+   "text": "The great lake at the foot of the Vale. In winter it freezes. In spring the ice looks solid and will not hold. It was old Mistwood border land, and it is unclaimed now.",
+   "tags": {
+    "places": [
+     "drowned_mere"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; world-map-territory-v0.1.md (v0.1.3 / changelog v0.1.5) §9.1"
+  },
+  {
+   "id": "ck_tar_seeps",
+   "title": "The Tar Seeps",
+   "text": "Black pools that trap the careless. Trapped prey draws every hunter in the Vale, and some do not leave. No pride holds the pools.",
+   "tags": {
+    "places": [
+     "tar_seeps"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks"
+  },
+  {
+   "id": "ck_bears_throat",
+   "title": "The Bear's Throat",
+   "text": "A narrow gorge where a short-faced bear dens. No pride holds it, and no sensible cat lingers there.",
+   "tags": {
+    "places": [
+     "bears_throat"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; Threats"
+  },
+  {
+   "id": "ck_ash_hills",
+   "title": "The Ash Hills",
+   "text": "Dry southern hills past the Mere. Wolf country. Camels graze the slopes in summer, for any cat bold enough to hunt under the wolves' noses.",
+   "tags": {
+    "places": [
+     "ash_hills"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; Prey"
+  },
+  {
+   "id": "ck_far_north",
+   "title": "The cold north",
+   "text": "Below the Ice Wall lie the Frost Tongue, the Blue Caves, the Wind Scree and North Pass. Hard country: ice, scree and wind, little prey, and snow that slides without warning. No pride holds any of it. The Blue Caves at least give shelter.",
+   "tags": {
+    "places": [
+     "frost_tongue",
+     "blue_caves",
+     "wind_scree",
+     "north_pass"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "src/renderer/data/map.json (regions: holders, biome, hazards)"
+  },
+  {
+   "id": "ck_upper_river",
+   "title": "The upper river",
+   "text": "Horse Meadows and Upper Greywater are Highcrag land, high grass and fast water below the crag. Horses crowd the meadows when the snow lets go.",
+   "tags": {
+    "places": [
+     "horse_meadows",
+     "upper_greywater"
+    ],
+    "prides": [
+     "highcrag"
+    ],
+    "cats": []
+   },
+   "source": "src/renderer/data/map.json (regions); world-and-prides.md §2.1 Territory"
+  },
+  {
+   "id": "ck_open_grass",
+   "title": "The open grass",
+   "text": "The Herd Trail and Tallgrass Reach are Bonefield land, where the herds walk. Beyond that land, no pride holds the Salt Flats, dry and hungry country at the tundra's edge, or South Range, where wolves roam.",
+   "tags": {
+    "places": [
+     "herd_trail",
+     "tallgrass",
+     "salt_flats",
+     "south_range"
+    ],
+    "prides": [
+     "bonefield"
+    ],
+    "cats": []
+   },
+   "source": "src/renderer/data/map.json (regions)"
+  },
+  {
+   "id": "ck_marsh_and_shore",
+   "title": "The marsh and the shore",
+   "text": "Reedbank and the Fog Paths are Mistwood land, where the fog hides the trails. Twin Forks, Mere Shore, Island Mere and West Spur belong to no pride. Spring floods the low ground, and the ice by the water is never to be trusted.",
+   "tags": {
+    "places": [
+     "reedbank",
+     "fog_paths",
+     "twin_forks",
+     "mere_shore",
+     "island_mere",
+     "west_spur"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "src/renderer/data/map.json (regions)"
+  },
+  {
+   "id": "ck_south_and_east",
+   "title": "The gorges and the far south",
+   "text": "East Saddle climbs into the mountains past the Mere. Claw Gorge, like the Bear's Throat, has bears. Wolf Run belongs to the wolves. Camel Ridge, out on the far ash edge, has camels in summer and wolves always.",
+   "tags": {
+    "places": [
+     "east_saddle",
+     "claw_gorge",
+     "wolf_run",
+     "camel_ridge"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "src/renderer/data/map.json (regions)"
+  },
+  {
+   "id": "ck_winter",
+   "title": "Winter",
+   "text": "Winters are long and loud with wind. Snow covers the grass for much of the year, and the herds thin out. The wolves grow bold.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Climate; Threats"
+  },
+  {
+   "id": "ck_spring",
+   "title": "Spring",
+   "text": "Spring is short and wet. The river floods, the ice on the Mere turns grey and soft, and the herds come back with calves.",
+   "tags": {
+    "places": [
+     "drowned_mere"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Climate"
+  },
+  {
+   "id": "ck_summer",
+   "title": "Summer",
+   "text": "Summer is brief and bright, with flies thick over the marsh and good hunting everywhere.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Climate"
+  },
+  {
+   "id": "ck_autumn",
+   "title": "Autumn",
+   "text": "Autumn is the hungry hurry. Every hunter fattens for the cold.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Climate"
+  },
+  {
+   "id": "ck_prey_bison",
+   "title": "Bison",
+   "text": "The great prize. Bison are hunted by cats working together, and a kill feeds a pride for days.",
+   "tags": {
+    "places": [
+     "bonefield",
+     "highcrag"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Prey"
+  },
+  {
+   "id": "ck_prey_horses",
+   "title": "Wild horses",
+   "text": "Fast and wary, in bands on the open grass. Best taken by ambush at the river crossings.",
+   "tags": {
+    "places": [
+     "greywater_ford",
+     "horse_meadows"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Prey"
+  },
+  {
+   "id": "ck_prey_sloths",
+   "title": "Ground sloths",
+   "text": "Slow and huge, and dangerous up close. Those claws have killed proud hunters.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Prey"
+  },
+  {
+   "id": "ck_prey_mammoth",
+   "title": "Mammoth calves",
+   "text": "Taken only when a calf strays. The mothers do not forgive, and a mother remembers.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Prey"
+  },
+  {
+   "id": "ck_prey_camels",
+   "title": "Camels",
+   "text": "Found on the dry southern slopes in summer.",
+   "tags": {
+    "places": [
+     "ash_hills",
+     "camel_ridge"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Prey; Landmarks"
+  },
+  {
+   "id": "ck_prey_lean",
+   "title": "Lean-time fare",
+   "text": "When times are lean, a cat takes deer, hares or geese on the Mere, or carrion.",
+   "tags": {
+    "places": [
+     "drowned_mere",
+     "mistwood"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Prey"
+  },
+  {
+   "id": "ck_danger_wolves",
+   "title": "Dire wolves",
+   "text": "The Ash Hills pack. Patient, and bold in winter. The pack steals kills and runs down the weak.",
+   "tags": {
+    "places": [
+     "ash_hills",
+     "wolf_run"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Threats"
+  },
+  {
+   "id": "ck_danger_bears",
+   "title": "Short-faced bears",
+   "text": "Tall, long-legged and always hungry. A bear lives in the Bear's Throat and takes any carcass it smells.",
+   "tags": {
+    "places": [
+     "bears_throat"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Threats"
+  },
+  {
+   "id": "ck_danger_scimitar",
+   "title": "Scimitar cats",
+   "text": "Lanky, long-legged sabretooth kin that hunt in the open and do not speak the pride tongue. Rare visitors from beyond the Ice Wall.",
+   "tags": {
+    "places": [
+     "ice_wall"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Threats (open question §4)"
+  },
+  {
+   "id": "ck_danger_rivals",
+   "title": "Other sabretooths",
+   "text": "Rival prides, loners and challengers. Of everything in the Vale, your own kind is often the most dangerous.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Threats"
+  },
+  {
+   "id": "ck_danger_land",
+   "title": "The land itself",
+   "text": "The Vale can kill without teeth. The Tar Seeps, thin ice, spring floods and the cold all take cats.",
+   "tags": {
+    "places": [
+     "tar_seeps",
+     "drowned_mere"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Threats"
+  },
+  {
+   "id": "ck_danger_ice",
+   "title": "The ice",
+   "text": "Ice that holds in deep winter will not hold in spring. On the Mere it turns grey and soft, and it looks safer than it is. A cat who crosses it then is trusting a life to it.",
+   "tags": {
+    "places": [
+     "drowned_mere",
+     "mere_shore",
+     "island_mere"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Climate; Landmarks; §2.3"
+  },
+  {
+   "id": "ck_danger_far_edges",
+   "title": "Humans and hyenas",
+   "text": "Humans and hyenas roam the far edges of the Vale. Humans walk upright and keep fire, and throw sharpened sticks that wound from far off. No cat can fight humans. Cave hyenas scavenge where the dead lie, and a whole clan will take your kill from under you. Where exactly the camps and dens sit, you learn by going, by scent, or from another cat.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-map-territory-v0.1.md (v0.1.3 / changelog v0.1.5) §10; Director ruling: locations are learned, not known"
+  },
+  {
+   "id": "ck_pride_highcrag",
+   "title": "Highcrag Pride",
+   "text": "\"We were here first. We will be here last.\" Proud, old and traditional. Highcrag counts its bloodlines back through many leaders, and a good hunter waits. To strangers the pride shows cold courtesy: a stranger may pass if the ask is made properly and the trails are kept to.",
+   "tags": {
+    "places": [
+     "highcrag",
+     "horse_meadows",
+     "upper_greywater",
+     "greywater_ford"
+    ],
+    "prides": [
+     "highcrag"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.1"
+  },
+  {
+   "id": "ck_leader_highcrag",
+   "title": "The leader of Highcrag",
+   "text": "{name} leads Highcrag Pride, a queen who has ruled for many winters. A suitor who comes to the crag must prove worth and lineage, and she must agree.",
+   "tags": {
+    "places": [
+     "highcrag"
+    ],
+    "prides": [
+     "highcrag"
+    ],
+    "cats": [
+     "hc01"
+    ]
+   },
+   "source": "world-and-prides.md §2.1 Leader; Toward outsiders"
+  },
+  {
+   "id": "ck_pride_bonefield",
+   "title": "Bonefield Pride",
+   "text": "\"The weak feed the strong. That is the law of the grass.\" Harsh, martial and loud. Bonefield cubs are trained to fight from the moment a cub can walk. Rank is won by challenge and held by scars. The pride hunts the biggest prey in the Vale and takes the most losses doing it. Strangers are met with a show of force, and a stranger who stands ground earns respect.",
+   "tags": {
+    "places": [
+     "bonefield",
+     "herd_trail",
+     "tallgrass"
+    ],
+    "prides": [
+     "bonefield"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.2"
+  },
+  {
+   "id": "ck_leader_bonefield",
+   "title": "The leader of Bonefield",
+   "text": "{name} leads Bonefield Pride, a heavy tom with a torn lip who won his place by challenge and has held it against every challenger since.",
+   "tags": {
+    "places": [
+     "bonefield"
+    ],
+    "prides": [
+     "bonefield"
+    ],
+    "cats": [
+     "bf01"
+    ]
+   },
+   "source": "world-and-prides.md §2.2 Leader"
+  },
+  {
+   "id": "ck_pride_mistwood",
+   "title": "Mistwood Pride",
+   "text": "\"Walk soft. Say little. The fog keeps what it is given.\" Secretive, quiet and always on the move, the pride shifts between hidden dens through the year and never sleeps in a place for long. Other prides call Mistwood the fog cats and claim not to trust that pride. A stranger in the Mistwood is watched, and rarely greeted.",
+   "tags": {
+    "places": [
+     "mistwood",
+     "reedbank",
+     "fog_paths"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.3"
+  },
+  {
+   "id": "ck_leader_mistwood",
+   "title": "The leader of Mistwood",
+   "text": "{name} leads Mistwood Pride, an ageing queen who took the lead after the Breaking because no other cat would.",
+   "tags": {
+    "places": [
+     "mistwood"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": [
+     "mw01"
+    ]
+   },
+   "source": "world-and-prides.md §2.3 Leader"
+  },
+  {
+   "id": "ck_mistwood_now",
+   "title": "Mistwood since the Breaking",
+   "text": "Mistwood is the smallest pride in the Vale now. Many of the Vale's loners were Mistwood cats once. Every pride wonders whether Mistwood will heal, or fade into its own fog.",
+   "tags": {
+    "places": [
+     "mistwood"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.3 Story state"
+  },
+  {
+   "id": "ck_custom_recitation",
+   "title": "The night recitation",
+   "text": "On the longest night, Highcrag recites its bloodlines, back through many leaders. A cat who leaves Highcrag is struck from the recitation, and that name is not spoken on the crag again. To Highcrag, that is worse than death.",
+   "tags": {
+    "places": [
+     "highcrag"
+    ],
+    "prides": [
+     "highcrag"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.1 Temperament; Toward those who leave"
+  },
+  {
+   "id": "ck_custom_highcrag_mates",
+   "title": "Highcrag mates",
+   "text": "Highcrag cats choose mates from within the pride's own lines, with the leader's blessing. By old custom, mating outside the pride is forbidden.",
+   "tags": {
+    "places": [
+     "highcrag"
+    ],
+    "prides": [
+     "highcrag"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.1 Values; §4"
+  },
+  {
+   "id": "ck_custom_crag_guest",
+   "title": "A stranger at the crag",
+   "text": "A stranger who wants to speak with Highcrag climbs to the foot of the crag alone and waits, as custom says a stranger must, until the leader comes down.",
+   "tags": {
+    "places": [
+     "highcrag"
+    ],
+    "prides": [
+     "highcrag"
+    ],
+    "cats": []
+   },
+   "source": "events/join-events.md join.highcrag.ask"
+  },
+  {
+   "id": "ck_custom_law_of_grass",
+   "title": "The law of the grass",
+   "text": "In Bonefield, any adult may challenge for the leadership. The loser leaves the pride, and Bonefield will fight a loser who returns. By the old law, a new leader may kill the cubs of the leader before. Suitors must face a rival from the pride.",
+   "tags": {
+    "places": [
+     "bonefield"
+    ],
+    "prides": [
+     "bonefield"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.2 Values; Toward outsiders; Toward those who leave"
+  },
+  {
+   "id": "ck_custom_ran",
+   "title": "Those who run",
+   "text": "A Bonefield cat who leaves has, in Bonefield's word, run. In the Bonefield the pride says it loudly.",
+   "tags": {
+    "places": [
+     "bonefield"
+    ],
+    "prides": [
+     "bonefield"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.2 Toward those who leave; events/exile-event.md"
+  },
+  {
+   "id": "ck_custom_open_door",
+   "title": "The open door",
+   "text": "Mistwood grieves for a cat who leaves rather than raging, and leaves a door open. There is an exception: the cat the pride blames for stealing from the starving.",
+   "tags": {
+    "places": [
+     "mistwood"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.3 Toward those who leave"
+  },
+  {
+   "id": "ck_custom_mistwood_trust",
+   "title": "Earning the fog's trust",
+   "text": "Those who are patient and gentle may be let into the Mistwood in time. A suitor must win the trust of the whole pride, not only the leader.",
+   "tags": {
+    "places": [
+     "mistwood"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.3 Toward outsiders"
+  },
+  {
+   "id": "ck_custom_councils",
+   "title": "The councils",
+   "text": "When a season ends, the pride leaders meet at the Split Rock to settle fights over land and old feuds, and to renew or end the deals between prides. If a feud boils over, the leaders may meet before the season ends. Only the leaders sit. A deal can be a truce, a border deal, a shared hunting ground or an alliance. A cat who breaks an agreement is spoken of in every pride.",
+   "tags": {
+    "places": [
+     "split_rock"
+    ],
+    "prides": [
+     "highcrag",
+     "bonefield",
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "councils-v0.1.md §1, §4; world-map-territory-v0.1.md (v0.1.3 / changelog v0.1.5) §8"
+  },
+  {
+   "id": "ck_loners",
+   "title": "Loners",
+   "text": "Not every sabretooth lives in a pride. Some left or were driven out. Some survived what a pride did not. Loners keep to the land no pride holds.",
+   "tags": {
+    "places": [],
+    "prides": [],
+    "cats": []
+   },
+   "source": "loners.md How the rules apply; world-and-prides.md §3"
+  },
+  {
+   "id": "ck_wanderings",
+   "title": "Wanderings",
+   "text": "Lone toms sometimes hunt together for a while, in what the prides call a wandering: toms with no land, no den and no cubs, who hunt together because alone a tom is only meat for the wolves. A wandering may challenge a pride for its queens or a strip of border, and then it falls apart. Bonefield calls those bands the hungry ones, and fears a wandering more than it admits. Highcrag pretends a wandering has never come.",
+   "tags": {
+    "places": [],
+    "prides": [
+     "bonefield",
+     "highcrag",
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §3; loners.md Bachelor bands"
+  },
+  {
+   "id": "ck_legend_first_cats",
+   "title": "Out of the ice",
+   "text": "Cats say the first sabretooths came out of the Ice Wall, from the blue light inside the glacier.",
+   "tags": {
+    "places": [
+     "ice_wall"
+    ],
+    "prides": [],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks"
+  },
+  {
+   "id": "ck_legend_breaking",
+   "title": "The Breaking",
+   "text": "Last spring, Mistwood's old leader led the pride across the Drowned Mere to reach the deer on the far shore. The ice gave way. The old leader and others drowned. Some were swept downriver or stranded on the far bank. The hungry season that followed turned the survivors on each other. Every cat in the Vale calls it the Breaking.",
+   "tags": {
+    "places": [
+     "drowned_mere"
+    ],
+    "prides": [
+     "mistwood"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §2.3 Story state"
+  },
+  {
+   "id": "ck_legend_wandering_came",
+   "title": "The season a wandering came",
+   "text": "Every pride has a story about the season a wandering came. Bonefield's leaders have all faced a wandering. Highcrag claims it never has.",
+   "tags": {
+    "places": [],
+    "prides": [
+     "bonefield",
+     "highcrag"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §3"
+  },
+  {
+   "id": "ck_legend_bonefield_bones",
+   "title": "The mammoth bones",
+   "text": "The Bonefield is named for the bones of old mammoths that lie across the grass. Mammoth mothers do not forgive, and a mother remembers.",
+   "tags": {
+    "places": [
+     "bonefield"
+    ],
+    "prides": [
+     "bonefield"
+    ],
+    "cats": []
+   },
+   "source": "world-and-prides.md §1 Landmarks; Prey"
+  }
+ ],
+ "templates": {
+  "_tokens": "{name} and {subjectName} both bind to the subject cat (the other cat in the fact; in Common knowledge, the cat in tags.cats). A lore name such as Scarjaw is a role, so the on-screen name uses the rolled-name token. {pride} = the pride the fact concerns (a founded player pride uses its chosen name). {zoneName} = the region where it happened. {sourceName} = the teller of a rumour.",
+  "how": {
+   "common": "Every cat knows this.",
+   "witnessed": "You saw it yourself.",
+   "visited": "You saw it at {zoneName}.",
+   "met": "You met {name} yourself.",
+   "heard": "{sourceName} told you.",
+   "council": "You heard it at the council at {zoneName}.",
+   "unknown": "You've known this a while."
+  },
+  "learned": {
+   "aid": "You stepped in to help {name} at {zoneName}.",
+   "bring_prey": "{name} asked you to bring prey to feed {pride}, and you promised you would.",
+   "hunt_steal": "A kill was fought over at {zoneName}, and {pride} will not forget it.",
+   "petition": "You asked {name} to carry your case to the leader of {pride}.",
+   "pride_aid": "You walked a lost cub back to {name} of {pride}.",
+   "refused_share": "You kept your kill and warned {name} off it.",
+   "route": "You followed {name}'s trail and learned where {name} was headed: {zoneName}.",
+   "ruling": "{name} gave a ruling for {pride}, and you were there to hear it.",
+   "scent_sign": "You found fresh scent at {zoneName}. {name} has passed this way.",
+   "scout": "You scouted the border of {pride} from {zoneName}.",
+   "seen_by_player": "You saw {name} at {zoneName}.",
+   "side": "You took {name}'s side in a quarrel at {zoneName}.",
+   "spar": "You and {name} play-fought at {zoneName}.",
+   "steal": "You ate from a kill at {zoneName} that was not yours.",
+   "broke_truce": "{pride} broke a truce made at council.",
+   "broke_border_deal": "{pride} broke a border deal over {zoneName}.",
+   "broke_alliance": "{pride} broke an alliance made at council.",
+   "spread_false_rumour": "{name} told a tale that was not true."
+  },
+  "learned_outcome": {
+   "_note": "Per lore-book v0.1 §1.5 the existing entry is updated with the outcome rather than a second entry added.",
+   "bring_prey_kept": "You kept your word and brought prey to {name}.",
+   "bring_prey_broken": "You promised {name} prey, and you did not bring it.",
+   "approach_request_kept": "{name} asked something of you, and you did it.",
+   "approach_request_broken": "{name} asked something of you, and you let it go.",
+   "return_quiet_kept": "You came back to sit quietly with {name}, as you said you would.",
+   "steal_caught": "You were caught at a kill at {zoneName} that was not yours.",
+   "spar_won": "You came out ahead in a play-fight with {name}.",
+   "spar_lost": "{name} got the better of you in a play-fight."
+  },
+  "learned_proposed": {
+   "_note": "lore-book v0.1 §1.2, §1.5 and §3.5 name these events but give them no official fact-type id. Keys are proposals for Tundra and Flint. agreement_shared_hunting, admission courtesy and return of trespasser are from councils-v0.1 §4. secret_* keys are Anna-approved reputation moments (2026-11-10) for ln01, ln04 and hc02; they are never seeded as known.",
+   "region_visited": "You have walked {zoneName} and know it now.",
+   "cat_met": "You met {name} of {pride} at {zoneName}.",
+   "cat_met_loner": "You met {name}, a loner, at {zoneName}.",
+   "feature_human_camp": "You saw the human camp at {zoneName}. You smelled the smoke, and you saw upright hunters with sharpened sticks.",
+   "feature_hyena_den": "You found the hyena den at {zoneName}. You smelled it long before you saw it.",
+   "council_attended": "You stood at the council at {zoneName}.",
+   "agreement_truce": "{pride} agreed a truce at council.",
+   "agreement_border_deal": "{pride} agreed a border deal over {zoneName}.",
+   "agreement_alliance": "{pride} agreed an alliance at council.",
+   "agreement_shared_hunting": "{pride} agreed to share a hunting ground at {zoneName}.",
+   "agreement_admission_courtesy": "{pride} agreed to hear a named cat's admission request at council.",
+   "agreement_return_of_trespasser": "{pride} agreed that a named trespasser would be walked back unharmed.",
+   "agreement_kept": "{pride} kept the agreement to the end.",
+   "agreement_broken": "{pride} broke the agreement.",
+   "cat_death": "{name} is dead.",
+   "leader_change": "{name} leads {pride} now.",
+   "leader_former": "{name} once led {pride}.",
+   "holder_change": "{pride} holds {zoneName} now.",
+   "secret_ln01_silence": "You learned the truth about {name}. {name} was driven out of Highcrag after a cub fell from the high ledge, and went without a word. The fall was not {name}'s doing.",
+   "secret_ln04_saved_cub": "You learned the truth about {name}. When Bonefield's new leader took the pride, {name} was told to bring the old leader's cubs. {name} carried a cub to the Split Rock at night, and that cub lived.",
+   "secret_hc02_fallen_cub": "You learned the truth about {name}. A cub fell from the high ledge in {name}'s care, and {name} let it fall. Another cat was driven out for it.",
+   "region_unheld": "No pride holds {zoneName} now."
+  }
+ },
+ "rumour": {
+  "_rules": "told = the true version, shown unconfirmed. false_variant = what a spiteful teller says instead (lore-book v0.1 §3.3); only kinds with a false_variant can be false. Anna (2026-11-10) signed off the rate: a grudge-holder lies about 1 time in 4. The player never sees the rate. debunked is shown under the struck-through entry and names the teller, and only fires when the rumour was false. A true rumour that has gone out of date is marked stale (No longer true) and never brands its teller a liar (Director ruling). liar_gossip is the gossip line for the teller's spread_false_rumour fact. Kinds left out are private (scent_sign, seen_by_player, route, ruling, petition, refused_share) or promises held only by the player (bring_prey), so the player never hears them second-hand.",
+  "_shared": {
+   "moot": "You'll never know now.",
+   "widely_told_label": "Widely told"
+  },
+  "aid": {
+   "told": "{sourceName} told you {subjectName} stepped in to help {name} at {zoneName}.",
+   "false_variant": "{sourceName} told you {subjectName} turned on {name} at {zoneName}, when {name} needed help.",
+   "widely_told": "Others say it too: {subjectName} helped {name}.",
+   "confirmed": "You saw it yourself: {subjectName} stood by {name}.",
+   "debunked": "Not true. {subjectName} never turned on {name}. {sourceName} lied.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "side": {
+   "told": "{sourceName} told you {subjectName} took {name}'s side in a quarrel at {zoneName}.",
+   "false_variant": "{sourceName} told you {subjectName} slunk away from the quarrel at {zoneName} and left {name} to face it alone.",
+   "widely_told": "Others say it too: {subjectName} sided with {name}.",
+   "confirmed": "You saw it yourself: {subjectName} stood with {name}.",
+   "debunked": "Not true. {subjectName} did not run from that quarrel. {sourceName} lied.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "spar": {
+   "told": "{sourceName} told you {subjectName} and {name} play-fought at {zoneName}.",
+   "false_variant": "{sourceName} told you {subjectName} turned a play-fight with {name} into a real fight, claws out.",
+   "widely_told": "Others say it too: {subjectName} and {name} play at fighting.",
+   "confirmed": "You saw it yourself: it was only play between {subjectName} and {name}.",
+   "debunked": "Not true. {subjectName} and {name} are on good terms. {sourceName} lied.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "pride_aid": {
+   "told": "{sourceName} told you {subjectName} walked a lost cub back to {name}.",
+   "false_variant": "{sourceName} told you {subjectName} tried to lure a cub away from {name}.",
+   "widely_told": "Others say it too: {subjectName} brought a cub home to {name}.",
+   "confirmed": "You saw it yourself: {subjectName} brought the cub home.",
+   "debunked": "Not true. {name} trusts {subjectName} with cubs. {sourceName} lied.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "steal": {
+   "told": "{sourceName} told you {subjectName} stole a meal from a kill at {zoneName}.",
+   "widely_told": "Others say it too: {subjectName} eats from other cats' kills.",
+   "confirmed": "You saw it yourself: {subjectName} ate from a kill that belonged to another.",
+   "debunked": "Not true. {sourceName} told it wrong.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "hunt_steal": {
+   "told": "{sourceName} told you a kill was fought over at {zoneName}, and {pride} was in it.",
+   "widely_told": "Every cat seems to be talking about the kill fought over at {zoneName}.",
+   "confirmed": "You saw it yourself: the quarrel over the kill was real.",
+   "debunked": "Not true. {sourceName} told it wrong.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "broke_truce": {
+   "told": "{sourceName} told you {pride} broke its truce.",
+   "false_variant": "{sourceName} told you {subjectName} led {pride} to break its truce.",
+   "widely_told": "Others say it too: {pride} broke its truce.",
+   "confirmed": "You saw it yourself: {pride} broke the truce.",
+   "debunked": "Not true. {pride} kept the truce. {sourceName} lied about {subjectName}.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "broke_border_deal": {
+   "told": "{sourceName} told you {pride} broke its border deal over {zoneName}.",
+   "false_variant": "{sourceName} told you {subjectName} has been marking {zoneName} in secret, against the deal.",
+   "widely_told": "Others say it too: {pride} went back on the deal over {zoneName}.",
+   "confirmed": "You saw it yourself: {pride} marked {zoneName} again, against the deal.",
+   "debunked": "Not true. {pride} has kept away from {zoneName}. {sourceName} lied about {subjectName}.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "broke_alliance": {
+   "told": "{sourceName} told you {pride} broke its alliance.",
+   "false_variant": "{sourceName} told you {subjectName} has turned {pride} against its allies.",
+   "widely_told": "Others say it too: {pride} broke faith with its allies.",
+   "confirmed": "You saw it yourself: {pride} turned on its allies.",
+   "debunked": "Not true. {pride} still stands by its allies. {sourceName} lied about {subjectName}.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "spread_false_rumour": {
+   "told": "{sourceName} told you {subjectName} tells tales that are not true.",
+   "widely_told": "Others say it too: {subjectName} can't be trusted to tell it straight.",
+   "confirmed": "You saw it yourself: {subjectName}'s tale was false.",
+   "debunked": "Not true. {sourceName} told it wrong.",
+   "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+  },
+  "proposed": {
+   "_note": "Rumour sets for lore-book v0.1 §3.5 events that have no official fact-type id yet (keys match templates.learned_proposed where they exist).",
+   "cat_death": {
+    "told": "{sourceName} told you {subjectName} is dead.",
+    "false_variant": "{sourceName} told you {subjectName} is dead.",
+    "widely_told": "Others say it too: {subjectName} is dead.",
+    "confirmed": "You saw it yourself: {subjectName} is gone.",
+    "debunked": "Not true. You met {subjectName} alive. {sourceName} lied.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "leader_change": {
+    "told": "{sourceName} told you {subjectName} leads {pride} now.",
+    "widely_told": "Others say it too: {subjectName} leads {pride}.",
+    "confirmed": "You saw it yourself: {subjectName} leads {pride}.",
+    "debunked": "Not true. {subjectName} does not lead {pride}. {sourceName} lied.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "holder_change": {
+    "told": "{sourceName} told you {pride} holds {zoneName} now.",
+    "false_variant": "{sourceName} told you {subjectName} has led {pride} onto {zoneName} and claimed it.",
+    "widely_told": "Others say it too: {zoneName} belongs to {pride}.",
+    "confirmed": "You saw it yourself: {pride}'s scent marks {zoneName}.",
+    "debunked": "Not true. {zoneName} is not {pride}'s. {sourceName} lied about {subjectName}.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "feature_human_camp": {
+    "told": "{sourceName} told you humans have made camp at {zoneName}.",
+    "widely_told": "Others say it too: there are humans at {zoneName}.",
+    "confirmed": "You saw it yourself: humans camp at {zoneName}.",
+    "debunked": "Not true. {sourceName} told it wrong.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "feature_hyena_den": {
+    "told": "{sourceName} told you hyenas den at {zoneName}.",
+    "widely_told": "Others say it too: there are hyenas at {zoneName}.",
+    "confirmed": "You saw it yourself: hyenas den at {zoneName}.",
+    "debunked": "Not true. {sourceName} told it wrong.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "agreement": {
+    "told": "{sourceName} told you {pride} made an agreement at council.",
+    "widely_told": "Others say it too: {pride} made an agreement at council.",
+    "confirmed": "You saw it yourself: {pride} is keeping to its agreement.",
+    "debunked": "Not true. {sourceName} told it wrong.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "secret_ln01_silence": {
+    "told": "{sourceName} told you {subjectName} took the blame for a cub that fell from Highcrag's high ledge, and was driven out for it. {subjectName} wasn't the cat who let it fall.",
+    "false_variant": "{sourceName} told you {subjectName} is the cat who let a cub fall from the high ledge.",
+    "widely_told": "Others say it too: {subjectName} took the blame for a cub that fell at Highcrag, and was not the cat who let it fall.",
+    "confirmed": "You learned it yourself: {name} took the blame for a cub that fell from the high ledge, and was not the cat who let it fall.",
+    "debunked": "Not true. {name} was not the cat who let the cub fall. {sourceName} lied.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "secret_ln04_saved_cub": {
+    "told": "{sourceName} told you {subjectName} carried a cub out of Bonefield instead of taking it to the new leader. The cub lived.",
+    "false_variant": "{sourceName} told you {subjectName} handed every cub over when Bonefield's new leader took the pride.",
+    "widely_told": "Others say it too: {subjectName} saved a cub when Bonefield's new leader took the pride, and that cub lived.",
+    "confirmed": "You learned it yourself: {name} carried a cub out of Bonefield to the Split Rock, and that cub lived.",
+    "debunked": "Not true. {name} carried a cub to the Split Rock, and that cub lived. {sourceName} lied.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   },
+   "secret_hc02_fallen_cub": {
+    "told": "{sourceName} told you a cub fell from the high ledge in {subjectName}'s care, and {subjectName} let it fall. Another cat was driven out for it.",
+    "false_variant": "{sourceName} told you {subjectName} was not even there when the cub fell from the high ledge.",
+    "widely_told": "Others say it too: the cub that fell from the high ledge was in {subjectName}'s care, and {subjectName} let it fall.",
+    "confirmed": "You learned it yourself: a cub fell from the high ledge in {name}'s care, and {name} let it fall.",
+    "debunked": "Not true. The cub fell in {name}'s care, and {name} let it fall. {sourceName} lied.",
+    "liar_gossip": "Word is going round that {sourceName} tells tales about {subjectName}."
+   }
+  }
+ },
+ "notes": {
+  "_tokens": "{name} = the cat; {zoneName} = the region; {pride} = the other party; {subjectName} = the other pride's leader, where used. Season and danger are chosen by key, not by token.",
+  "good_hunting": {
+   "spring": "Calves come to {zoneName} in spring. Your hunts there have gone well.",
+   "summer": "Herds gather at {zoneName} in summer.",
+   "autumn": "{zoneName} feeds a hunter well in autumn, before the cold.",
+   "winter": "Even in winter, there is prey to be had at {zoneName}."
+  },
+  "dangerous": {
+   "wolves": "Wolves hunt at {zoneName}.",
+   "bear": "A bear haunts {zoneName}.",
+   "tar": "The tar at {zoneName} takes the careless.",
+   "thin_ice": "The ice at {zoneName} cannot be trusted.",
+   "flood": "{zoneName} floods without warning.",
+   "avalanche": "Snow slides at {zoneName}.",
+   "rockfall": "Stones fall at {zoneName}.",
+   "cold_snap": "The cold at {zoneName} can kill.",
+   "starvation": "Cats go hungry at {zoneName}. Prey is thin there.",
+   "lost_trail": "The fog at {zoneName} turns a cat around.",
+   "humans": "Humans camp at {zoneName}. Sharpened sticks wound from far off, and humans cannot be fought.",
+   "hyenas": "Hyenas den at {zoneName}. A clan will take your kill.",
+   "fled": "You had to run for your life at {zoneName}.",
+   "_generic": "{zoneName} is a dangerous place."
+  },
+  "likes": {
+   "sociability_high": "{name} warms to company and grooming.",
+   "sociability_low": "{name} wants room. Grooming and crowding put {name} off.",
+   "boldness_high": "{name} likes a cat who shows off a little.",
+   "boldness_low": "{name} is put off by swagger and showing off.",
+   "curiosity_high": "{name} warms to play and new things.",
+   "curiosity_low": "{name} has no patience for play.",
+   "aggression_high": "{name} respects a bold approach, and gentleness bores {name}.",
+   "aggression_low": "{name} warms to gentleness and flinches from boldness.",
+   "loyalty_high": "{name} holds fast to friends and pride. Keep your word to {name}.",
+   "loyalty_low": "{name} keeps few loyalties for long."
+  },
+  "promises": {
+   "bring_prey": "You promised {name} prey for {pride}. You haven't brought it yet.",
+   "approach_request": "You told {name} you would do as {name} asked.",
+   "return_quiet": "You told {name} you would come back and sit quietly together.",
+   "truce": "Your pride is at truce with {pride} until the season turns. No fighting, no trespass.",
+   "border_deal_ceded_to_you": "{pride} has given up {zoneName} to your pride for a while.",
+   "border_deal_you_ceded": "Your pride gave up {zoneName} to {pride} for a while. Don't mark it.",
+   "alliance": "Your pride and {pride} are allies. Don't mark {pride}'s land, and stand with {pride} against wanderings.",
+   "shared_hunting_ground": "Your pride and {pride} may both hunt at {zoneName} for now, without it counting as trespass.",
+   "admission_courtesy": "{pride} will hear a named cat's admission request this season, instead of refusing on sight.",
+   "return_of_trespasser": "A named trespasser is to be walked back unharmed, by agreement with {pride}.",
+   "other_truce": "{pride} is at truce with the pride {subjectName} leads.",
+   "other_border_deal": "{pride} has a border deal over {zoneName} with the pride {subjectName} leads.",
+   "other_alliance": "{pride} is allied with the pride {subjectName} leads.",
+   "other_shared_hunting_ground": "{pride} is sharing a hunting ground at {zoneName} with the pride {subjectName} leads."
+  }
+ },
+ "ui": {
+  "new_lore": "New lore",
+  "book_title": "Lore Book",
+  "sections": {
+   "common": "Common knowledge",
+   "learned": "Learned",
+   "rumour": "Rumours",
+   "notes": "Useful notes"
+  },
+  "empty": {
+   "common": "Every cat knows something of the Vale. Your book should never be empty here.",
+   "learned": "You haven't learned anything first-hand yet. Go and see the Vale for yourself.",
+   "rumour": "No cat has told you anything yet. Listen when others talk.",
+   "notes": "Nothing to note yet. Hunt, travel and get to know the Vale's cats."
+  },
+  "filter_no_match": "Nothing you know matches that.",
+  "search_placeholder": "Search your lore",
+  "filters": {
+   "section": "Section",
+   "place": "Place",
+   "cat": "Cat",
+   "pride": "Pride",
+   "any": "Any"
+  },
+  "struck_label": "Not true",
+  "stale_label": "No longer true",
+  "widely_told_label": "Widely told",
+  "unconfirmed_label": "Unconfirmed"
+ }
+}

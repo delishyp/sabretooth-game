@@ -1,0 +1,46 @@
+{
+  "_readme": "Drop-in replacement for faction-proof-reconciled.json fordStory.openingNarration + speechLocations (pin 79348c5). Same keys, speakers, focus traits and meanings. No new facts: nobody says who killed the prey, no fight is promised or happens, nothing is settled.",
+  "openingNarration": "Greywater Ford is loud with snowmelt. Blood-scent hangs over it, sharp and fresh. A carcass has caught against the stones midstream, rolling as the current tugs at it. {highcragCatName} stands on the bank above it, still as rock. {bonefieldCatName} stands chest-deep in the water beside it, braced against the pull. Neither of them looks away from the other. Neither of them gives way.",
+  "speechLocations": {
+    "highcrag_open": {
+      "base": "Leave it. This bank is Highcrag's, and so is what washes onto it.",
+      "high": "Step back from that kill. You're standing on Highcrag ground, and I won't say it twice.",
+      "low": "Please. This is Highcrag ground. Leave it, before this turns into something worse."
+    },
+    "bonefield_answer": {
+      "base": "And let the river have it while we stand here growling? No.",
+      "high": "Growl all you like. I'm getting it out of the water, and I'm not backing off because you told me to.",
+      "low": "It's slipping. Let me get it onto the stones, and then we can argue. Just not with claws."
+    },
+    "aid_bonefield_response": {
+      "base": "Good. Take hold there. Now pull!",
+      "high": "Here, right beside me! Together, on three. There. There it comes.",
+      "low": "Take the far end. That's enough. You don't need to come any closer."
+    },
+    "aid_highcrag_response": {
+      "base": "So it's out of the water. That doesn't make it theirs.",
+      "high": "Don't look so pleased with yourself. Dragging it out doesn't decide who eats it.",
+      "low": "At least the river didn't take it. But who it belongs to is still an open question."
+    },
+    "side_highcrag_response": {
+      "base": "Stand here, then. We're asking them to go. We're not starting anything.",
+      "high": "Good. Shoulder to shoulder. But we hold the ground. We don't charge.",
+      "low": "Stand there if you like. I'm not asking anything more of you than that."
+    },
+    "side_bonefield_response": {
+      "base": "Two of you now. That doesn't change a thing.",
+      "high": "Two voices, same demand. I still haven't said yes.",
+      "low": "I heard you both. That isn't the same as agreeing."
+    },
+    "stay_highcrag_response": {
+      "base": "Stay out of it, then. This is between Highcrag and Bonefield.",
+      "high": "Keep back, but stay. I'd rather have a witness than another set of claws in this.",
+      "low": "Keep back. I can speak for myself."
+    },
+    "stay_bonefield_response": {
+      "base": "Then don't go telling anyone whose side was right.",
+      "high": "You're watching, so watch properly. Hear us both before you decide what you saw here.",
+      "low": "Then leave it to us. I'm not answering your questions."
+    }
+  }
+}

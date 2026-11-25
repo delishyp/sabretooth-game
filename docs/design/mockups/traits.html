@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Creator traits — UX simplify mockup</title>
+<link rel="stylesheet" href="shell.css"><link rel="stylesheet" href="screens.css"></head>
+<body class="creator">
+<div class="stage dim"><img class="landscape" src="assets/home-landscape.png" alt=""></div>
+<div class="corner"><button class="back" type="button"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Back</button></div>
+<header class="top">
+  <div class="who"><div><p class="kicker">New game</p><h1>Your nature</h1></div></div>
+  <div class="steps" aria-label="Creator steps"><span class="done">Look</span><span class="done">Name</span><span class="on">Nature</span><span>Telling</span></div>
+  <button class="menu-btn" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+</header>
+<div class="goal"><span class="tag">Step</span><span class="line">Choose how hard the Vale will be, then spend flaws to take strengths.</span></div>
+
+<main class="main traits">
+  <aside class="who-panel">
+    <div class="panel"><img src="assets/player-fullbody.png" alt=""></div>
+    <p class="nm">Ravenmark</p>
+    <p class="season-word"><span>Standard Vale</span> <button class="linkish" type="button">Change</button></p>
+  </aside>
+  <section class="picker">
+    <div class="tabs" role="tablist"><button class="on" role="tab">Body</button><button role="tab">Mind</button><button role="tab">Social</button><button role="tab">Lineage</button></div>
+    <div class="cards">
+      <button class="tcard is-picked" type="button"><b>Bone-Cracker</b><span>Your bite makes you stronger in a fight.</span><span class="opp">Opposite: Chipped Saber</span></button>
+      <button class="tcard is-picked" type="button"><b>Broad Shoulders</b><span>Your build makes you stronger in a fight, and you look heavy to other cats.</span><span class="opp">Opposite: Runt</span></button>
+      <button class="tcard is-blocked" type="button"><b>Swift</b><span>You run and chase for longer.</span><span class="opp">Opposite: Lame Paw</span></button>
+      <button class="tcard " type="button"><b>Thick Hide</b><span>Blows hurt you less in a fight.</span><span class="opp">Opposite: Thin Hide</span></button>
+      <button class="tcard is-focus" type="button"><b>Keen Nose</b><span>Prey notices you later on the hunt.</span><span class="opp">Opposite: Dull Nose</span></button>
+      <button class="more" type="button">More body traits</button>
+    </div>
+    <p class="detail"><b>Keen Nose.</b> You can tell an old horse from a young one by scent alone, long before either sees you.</p>
+  </section>
+</main>
+<section class="tray" aria-label="Chosen traits">
+  <div class="chips"><span class="chip s">Bone-Cracker</span><span class="chip s">Broad Shoulders</span><span class="chip f">Lame Paw</span><span class="chip f">Sickly</span><span class="chip f">Quick Hackles</span></div>
+  <div class="budget">
+    <div class="pips"><span>Strengths</span><i class="on"></i><i class="on"></i><i></i><span>Flaws</span><i class="on f"></i><i class="on f"></i><i class="on f"></i></div>
+    <div class="bud"><span class="bbar"><i style="width:67%"></i></span><b>Room for more</b></div>
+  </div>
+  <button class="btn suggest" type="button">Suggest for me</button>
+</section>
+<button class="primary" type="button">Next<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+</body></html>

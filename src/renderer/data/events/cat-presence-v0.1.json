@@ -1,0 +1,33 @@
+{
+  "_readme": "Drop-in for src/renderer/data/events/cat-presence-v0.1.json at 3e51292. Same 10 keys, {name} only (fillTokens), no pronouns, no numbers. Condensed from presence-beats-v1.json to one string per key, since there's no trait or activity gate.",
+  "presence.watch.sighting": {
+    "text": "From up here you can see a long way. Something moves below you, and you know that shape. It's {name}."
+  },
+  "presence.watch.doing.home": {
+    "text": "{name} is nosing along the edge of familiar ground, stopping now and then to mark a stone. {name} hasn't noticed you."
+  },
+  "presence.watch.doing.near": {
+    "text": "{name} is crossing the hillside below at a steady trot, head low, clearly going somewhere. {name} hasn't noticed you."
+  },
+  "presence.stone.wind_scree": {
+    "text": "A stone clatters down the scree, then another. A head pops up over the rocks, ears pricked. It's {name}, just as surprised as you are."
+  },
+  "presence.stone.east_saddle": {
+    "text": "Grit trickles down from the saddle, and a loose rock bounces past you. A head comes up over the ridge. It's {name}, just as surprised as you are."
+  },
+  "presence.hunt.open": {
+    "text": "You've barely started eating when you catch a scent. {name} is standing a little way off, eyes on your kill. “That smells good. Any chance you'd share?”"
+  },
+  "presence.hunt.trespass": {
+    "text": "You've barely started eating when {name} steps out of cover, eyes on your kill. “You caught that on our ground. You know that, right?”"
+  },
+  "presence.hunt.warn": {
+    "text": "You hunch over your kill and growl. {name} backs off, but slowly. “Fine. Keep it.”"
+  },
+  "presence.hunt.let_watch": {
+    "text": "You keep eating. {name} waits until there's nothing left but bones, then walks off without a word."
+  },
+  "presence.spar.locked": {
+    "text": "{name} doesn't know you well enough to play-fight yet."
+  }
+}

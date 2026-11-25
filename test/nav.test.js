@@ -21,7 +21,7 @@ const horiz = (from, to, list) => { const d = list.indexOf(to) - list.indexOf(fr
 function keysFor(style, death) {
   const seq = [...horiz('standard', style, STYLES), 'Enter', 'ArrowDown', ...horiz('heir', death, DEATHS), 'Enter', 'ArrowDown'];
   if (death === 'sandbox') seq.push(...Array(DEFS.length).fill('ArrowDown'));   // through the panel toggles
-  seq.push('Enter');                                                             // Begin
+  seq.push('ArrowDown', 'Enter');                                                // past the tutorial toggle, then Begin
   return K(...seq);
 }
 
@@ -33,7 +33,7 @@ test('defaults: Standard + Heir, focus on Style row at Standard, default Sandbox
 });
 test('Begin straight away starts Standard + Heir without sandboxOptions', () => {
   const { effect } = run(K('ArrowUp', 'Enter'));    // Up wraps from Style row to the bottom row (Begin)
-  assert.deepStrictEqual(effect, { type: 'start', style: 'standard', difficulty: 'heir' });
+  assert.deepStrictEqual(effect, { type: 'start', style: 'standard', difficulty: 'heir', tutorial: true });
 });
 test('focus never selects: arrows move focus within and between rows (B1)', () => {
   const { s } = run(K('ArrowLeft', 'ArrowDown', 'ArrowRight'));
@@ -50,13 +50,13 @@ test('entering a row focuses its SELECTED card; rows wrap', () => {
   s = run(K('ArrowRight'), s).s; assert.strictEqual(s.focus, 'style:story');                    // wrap within row
 });
 test('Sandbox panel only when Sandbox is SELECTED; reachable by Down or Right; works with any style', () => {
-  assert.strictEqual(run(K('ArrowDown', 'ArrowRight', 'ArrowDown')).s.focus, 'begin');           // focused only: no panel
+  assert.strictEqual(run(K('ArrowDown', 'ArrowRight', 'ArrowDown')).s.focus, 'tutorial');        // focused only: no panel, next stop is the tips toggle
   const sel = run(K('ArrowDown', 'ArrowRight', 'Enter'));
   assert.strictEqual(run(K('ArrowDown'), sel.s).s.focus, 'opt:needsDrain');
   assert.strictEqual(run(K('ArrowRight'), sel.s).s.focus, 'opt:needsDrain');
   for (const style of STYLES) {
     const { effect } = run(keysFor(style, 'sandbox'));
-    assert.deepStrictEqual(effect, { type: 'start', style, difficulty: 'sandbox', sandboxOptions: DEFAULT_OPTS });
+    assert.deepStrictEqual(effect, { type: 'start', style, difficulty: 'sandbox', tutorial: true, sandboxOptions: DEFAULT_OPTS });
   }
 });
 for (const style of STYLES) for (const death of DEATHS) {
@@ -83,13 +83,13 @@ test('Sandbox toggles: Left/Right/Enter and LB/RB cycle; Left at first value ret
   s = run(['tabPrev'], s).s; assert.strictEqual(s.opts.needsDrain, 'off');
   s = run(['left'], s).s; assert.strictEqual(s.focus, 'death:sandbox');
   s = run(['down', 'tabNext', 'right', 'confirm'], s).s; assert.strictEqual(s.opts.needsDrain, 'off'); // off→low→normal→off
-  const { effect } = run(['down', 'down', 'down', 'down', 'confirm'], s);
+  const { effect } = run(['down', 'down', 'down', 'down', 'down', 'confirm'], s);
   assert.deepStrictEqual(effect.sandboxOptions, { ...DEFAULT_OPTS, needsDrain: 'off' });
 });
 test('deselecting Sandbox hides the panel; focus never strands on a hidden toggle', () => {
   let { s } = run(K('ArrowDown', 'ArrowRight', 'Enter', 'ArrowLeft', 'Enter'));   // select Sandbox then Heir
   assert.strictEqual(s.death, 'heir');
-  s = run(K('ArrowDown'), s).s; assert.strictEqual(s.focus, 'begin');
+  s = run(K('ArrowDown'), s).s; assert.strictEqual(s.focus, 'tutorial');
 });
 test('fresh init after a changed setup is back to defaults (B7)', () => {
   run(keysFor('sim', 'sandbox'));

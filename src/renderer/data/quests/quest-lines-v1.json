@@ -1,0 +1,1244 @@
+{
+ "_readme": "Saga quest lines v1 (DRAFT for Anna). Spec: docs/design/quests-gifts-trade-v0.1.md v0.1.2a at 85b93b1 (§3.9 rulings applied). Blocks use Flint's parts schema. Token rule: {catName} is the speaker of the block it sits in; never use it in a narrator block. Other cats: {questgiverName}, {cubName}, {leaderName}; places: {regionName} (filled from the step's region). Choice labels are per-scene keys (labelKey); a choice's reply block plays before its result. Pronouns are written out only for premade slots whose sex is fixed in world-slots.json. Each step accept is a promise (spec §2.3); decline is free. Fail keys match spec §2.2 fail conditions.",
+ "specCommit": "85b93b1",
+ "specVersion": "v0.1.2a",
+ "_resolved": {
+  "join_threshold": {
+   "q": "What does 'Drawn to you' mean for the join?",
+   "a": "Questgiver's personal value toward you of 75 or more; courtship Interest not used; you need a founded pride and can say no. PROPOSED DEFAULT, sim pending.",
+   "ref": "§3.9.1",
+   "appliedIn": "ql_bf06_somebody_listening.closing.join.when"
+  },
+  "join_no_pride": {
+   "q": "Join conditions met but no pride?",
+   "a": "She stays home; the line still counts as kept.",
+   "ref": "§3.9.6",
+   "appliedIn": "ql_bf06_somebody_listening.closing.stay"
+  },
+  "leaving_rule": {
+   "q": "Which rule covers a pride cat leaving to join you?",
+   "a": "loners §6.4 'After leaving', departure: left, joins as a member; no recruit penalty or bonus; old pride takes only the §3.7 gossip hit.",
+   "ref": "§3.9.3",
+   "appliedIn": "ql_bf06_somebody_listening.closing.join"
+  },
+  "cub_decline": {
+   "q": "Does a declined cub search kill the cub?",
+   "a": "No. Declining is free; her own pride brings her home off-screen. Only an accepted find_cub that fails kills her.",
+   "ref": "§3.9.2",
+   "appliedIn": "ql_hc06_past_the_ledge.steps[1].declineOutcome, .fail.onlyIfAccepted"
+  },
+  "deed_axes": {
+   "q": "Honour for all kept lines, or an axis per line?",
+   "a": "Axis per line for the kept ending: Past the Ledge Mercy, Somebody Listening Honour, The Hyena at the Forks Courage. Steps keep their §6 hooks.",
+   "ref": "§3.9.4",
+   "appliedIn": "lines[].reputationAxis"
+  },
+  "fact_whitelist": {
+   "q": "Are the six new facts whitelisted, and at what scope?",
+   "a": "Yes. wolf_sign_herd_trail private to the player until carried, then pride_known to Bonefield; bf06_credited_wolf_sign pride_known Bonefield; player_reported_wolf_sign witnessed; hyena_driven_twin_forks world; mw03_secret_kept private; mw03_leg_told_mw01 witnessed.",
+   "ref": "§3.9.5",
+   "appliedIn": "steps[].writes, onDeliver, branch.options"
+  },
+  "scout_facts": {
+   "q": "Does a scout write a fact?",
+   "a": "Only when the line authors a whitelisted one. A carry_word step delivers only a fact the player already holds.",
+   "ref": "§3.9.7",
+   "appliedIn": "requiresPlayerKnows on both carry_word steps"
+  },
+  "drive_off_region": {
+   "q": "Where can drive_off happen?",
+   "a": "Any region with a hyena encounter; in v0.1 only Twin Forks.",
+   "ref": "§3.9.8",
+   "appliedIn": "ql_mw03_the_forks.steps[1].region"
+  },
+  "private_branch_fact": {
+   "q": "Is a private branch fact allowed?",
+   "a": "Yes; private is a valid §3.4 scope.",
+   "ref": "§3.9.9",
+   "appliedIn": "ql_mw03_the_forks.branch.options.keep_secret"
+  }
+ },
+ "_questions": [],
+ "lines": [
+  {
+   "id": "ql_hc06_past_the_ledge",
+   "title": "Past the Ledge",
+   "questgiver": "hc06",
+   "motiveSource": "motives-v1.json#hc06 (Keep her cubs safe and the dens peaceful) + #hc10 (Play, explore and find out what's past the dens)",
+   "cast": {
+    "cub": "hc10",
+    "mate": "hc02",
+    "sibling": "hc11"
+   },
+   "reputationAxis": "mercy",
+   "joinEnding": false,
+   "cubDeath": true,
+   "branch": null,
+   "steps": [
+    {
+     "step": 1,
+     "kind": "scout_region",
+     "region": "horse_meadows",
+     "opener": [
+      {
+       "speaker": "hc06",
+       "parts": [
+        {
+         "beat": "{catName} meets you away from the dens, where the cubs can't hear."
+        },
+        {
+         "say": "Can I ask you something? {cubName} talks about nothing but the meadows below the ledge. I can't leave the dens long enough to go and look. Would you spend a day down in {regionName} and tell me what's there?"
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_hc06_past_the_ledge.s1.accept",
+       "label": "“I'll go and look. You'll hear what I find.”",
+       "reply": {
+        "speaker": "hc06",
+        "parts": [
+         {
+          "say": "Thank you. Really. Watch for wolves if it's turning cold. They come down to the meadows in winter."
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_hc06_past_the_ledge.s1.decline",
+       "label": "“I can't promise that right now.”",
+       "reply": {
+        "speaker": "hc06",
+        "parts": [
+         {
+          "say": "That's all right. I'll just keep her close a bit longer."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "success": [
+      {
+       "speaker": "hc06",
+       "parts": [
+        {
+         "beat": "{catName} is up and waiting before you reach the dens."
+        },
+        {
+         "say": "You're back, and you're not hurt. So it's open grass and horses down there? That's what I was afraid of. She'll want to go even more now."
+        }
+       ]
+      }
+     ],
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "hc06",
+        "parts": [
+         {
+          "say": "You said you'd look at the meadows for me, and the season's turned. Never mind. I'll keep her close myself."
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "step": 2,
+     "kind": "find_cub",
+     "region": "horse_meadows",
+     "cub": "hc10",
+     "opener": [
+      {
+       "speaker": "hc06",
+       "parts": [
+        {
+         "beat": "{catName} comes running to you with her ears pinned back."
+        },
+        {
+         "say": "{cubName}'s gone. She was by the ledge this morning, and now I can't find her scent anywhere on the crag. I think she went down to {regionName}. Please, will you look for her?"
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_hc06_past_the_ledge.s2.accept",
+       "label": "“I'll find her. Stay with her brother.”",
+       "reply": {
+        "speaker": "hc06",
+        "parts": [
+         {
+          "say": "Go. Please hurry. She's never spent a night away from me."
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_hc06_past_the_ledge.s2.decline",
+       "label": "“I can't go now. Ask the hunters.”",
+       "reply": {
+        "speaker": "hc06",
+        "parts": [
+         {
+          "say": "The hunters. Fine. I'll find someone who'll go."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "declineOutcome": {
+      "_rule": "Spec §3.9.2: declining is free and the cub does not die. Her own pride brings her home off-screen. Only an accepted find_cub that fails kills her (§3.8). The line ends unkept with no penalty.",
+      "cubDies": false,
+      "promise": null,
+      "writes": [],
+      "nextMeeting": [
+       {
+        "speaker": "hc06",
+        "parts": [
+         {
+          "say": "The hunters brought {cubName} home before dark. She's fine, just muddy and sulking about it."
+         }
+        ]
+       }
+      ]
+     },
+     "success": [
+      {
+       "speaker": "narrator",
+       "parts": [
+        {
+         "beat": "You find {cubName} in the long grass at the bottom of the meadow, wet through and very cross about it."
+        }
+       ]
+      },
+      {
+       "speaker": "hc10",
+       "parts": [
+        {
+         "say": "I wasn't lost! I knew where I was. I just didn't know where the crag was."
+        }
+       ]
+      },
+      {
+       "speaker": "hc06",
+       "parts": [
+        {
+         "beat": "{catName} pulls {cubName} in against her chest and won't let go."
+        },
+        {
+         "say": "You found her. I don't know what I'd have done. Thank you, {playerName}."
+        }
+       ]
+      },
+      {
+       "speaker": "hc02",
+       "parts": [
+        {
+         "say": "That's my daughter you carried up the ledge. I won't forget it."
+        }
+       ]
+      }
+     ],
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "narrator",
+        "parts": [
+         {
+          "beat": "You find {cubName} at the bottom of the meadow, curled in the grass as if she lay down to sleep. She's cold, and she doesn't stir when you nose her. You carry her up to the crag."
+         }
+        ]
+       }
+      ],
+      "onlyIfAccepted": true,
+      "writes": [
+       "cub_lost_hc10",
+       "quest_failed_ql_hc06_past_the_ledge"
+      ],
+      "mourning": {
+       "_note": "Parents' mourning beat (spec §3.8). Only reachable if you accepted this search and the season ended (§3.9.2). Plays at the dens straight after the fail narration. No penalty number; the loss is the cost.",
+       "blocks": [
+        {
+         "speaker": "hc06",
+         "parts": [
+          {
+           "beat": "{catName} sees what you're carrying and goes still."
+          },
+          {
+           "say": "Oh. Put her down here, by the den. Gently. At least she's home."
+          }
+         ]
+        },
+        {
+         "speaker": "hc02",
+         "parts": [
+          {
+           "say": "Where was she? I need to know."
+          }
+         ]
+        }
+       ],
+       "choices": [
+        {
+         "id": "tell_where",
+         "labelKey": "ql_hc06_past_the_ledge.mourn.tell_where",
+         "label": "“At the bottom of the meadows. She was by herself, and it was quiet there.”",
+         "reply": {
+          "speaker": "hc02",
+          "parts": [
+           {
+            "say": "Quiet. All right. I can live with quiet."
+           }
+          ]
+         },
+         "result": "continue"
+        },
+        {
+         "id": "sorry",
+         "labelKey": "ql_hc06_past_the_ledge.mourn.sorry",
+         "label": "“I'm sorry. I looked for her as long as I could.”",
+         "reply": {
+          "speaker": "hc06",
+          "parts": [
+           {
+            "say": "I know you did. I asked you to go, and you went."
+           }
+          ]
+         },
+         "result": "continue"
+        },
+        {
+         "id": "stay",
+         "labelKey": "ql_hc06_past_the_ledge.mourn.stay",
+         "label": "Lie down beside them and say nothing.",
+         "reply": {
+          "speaker": "narrator",
+          "parts": [
+           {
+            "beat": "Nobody asks you to leave. After a while {questgiverName} rests her chin on your shoulder."
+           }
+          ]
+         },
+         "result": "continue"
+        }
+       ],
+       "after": [
+        {
+         "speaker": "hc06",
+         "parts": [
+          {
+           "say": "The keeper of the recitation will say her name on the longest night, with all the others. She won't be forgotten here. That matters on the crag."
+          }
+         ]
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "closing": {
+    "kept": [
+     {
+      "speaker": "hc10",
+      "parts": [
+       {
+        "beat": "{catName} bounces up to you and nearly falls over her own paws."
+       },
+       {
+        "say": "Mother says I can't go past the ledge until I'm bigger. How big did you have to be?"
+       }
+      ]
+     }
+    ],
+    "keptChoices": [
+     {
+      "id": "bigger",
+      "labelKey": "ql_hc06_past_the_ledge.close.bigger",
+      "label": "“Bigger than you. Stay where your mother can see you.”",
+      "reply": {
+       "speaker": "hc06",
+       "parts": [
+        {
+         "say": "Thank you. She listens to you more than she listens to me, apparently."
+        }
+       ]
+      },
+      "result": "end"
+     },
+     {
+      "id": "next_spring",
+      "labelKey": "ql_hc06_past_the_ledge.close.next_spring",
+      "label": "“Ask me again next spring.”",
+      "reply": {
+       "speaker": "hc10",
+       "parts": [
+        {
+         "say": "Next spring? That's forever!"
+        }
+       ]
+      },
+      "result": "end"
+     }
+    ],
+    "writes": [
+     "quest_done_ql_hc06_past_the_ledge"
+    ],
+    "factScope": "witnessed"
+   }
+  },
+  {
+   "id": "ql_bf06_somebody_listening",
+   "title": "Somebody Listening",
+   "questgiver": "bf06",
+   "motiveSource": "motives-v1.json#bf06 (Find a place in a pride that only listens to the loud; she notices what others miss)",
+   "cast": {
+    "leader": "bf01"
+   },
+   "reputationAxis": "honour",
+   "joinEnding": true,
+   "cubDeath": false,
+   "branch": {
+    "atStep": 2,
+    "choiceIn": "delivery",
+    "options": {
+     "credit": {
+      "best": true,
+      "writes": "bf06_credited_wolf_sign",
+      "scope": "pride_known",
+      "prideIds": [
+       "bonefield"
+      ]
+     },
+     "own_name": {
+      "best": false,
+      "writes": "player_reported_wolf_sign",
+      "scope": "witnessed"
+     }
+    }
+   },
+   "proposedFacts": [
+    "wolf_sign_herd_trail",
+    "bf06_credited_wolf_sign",
+    "player_reported_wolf_sign"
+   ],
+   "steps": [
+    {
+     "step": 1,
+     "kind": "scout_region",
+     "region": "herd_trail",
+     "writes": {
+      "fact": "wolf_sign_herd_trail",
+      "scope": "private",
+      "participantIds": [
+       "player"
+      ],
+      "_rule": "§3.9.5/7: private to the player when the scout finds it; scouting is not a public event."
+     },
+     "opener": [
+      {
+       "speaker": "bf06",
+       "parts": [
+        {
+         "beat": "{catName} drops her voice, though nobody from the field is near."
+        },
+        {
+         "say": "There's wolf scent on {regionName}. It's fresh, and there's a lot of it. Nobody in the field listens to me, so I haven't told them. Would you spend a day out there? If you smell it too, then I'm not imagining things."
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_bf06_somebody_listening.s1.accept",
+       "label": "“I'll go and see if you're right.”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Thank you. Keep downwind. They'll smell you before you see them."
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_bf06_somebody_listening.s1.decline",
+       "label": "“Wolves aren't my problem. Tell your leader.”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "He doesn't listen to me. That's the problem."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "success": [
+      {
+       "speaker": "bf06",
+       "parts": [
+        {
+         "beat": "{catName} is waiting where the trail leaves the field."
+        },
+        {
+         "say": "Well? You smelled them, didn't you? So I wasn't imagining it."
+        }
+       ]
+      }
+     ],
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "The season's over and you never went out there. Never mind. I'll keep watching the trail by myself."
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "step": 2,
+     "kind": "carry_word",
+     "target": "bf01",
+     "fact": "wolf_sign_herd_trail",
+     "requiresPlayerKnows": "wolf_sign_herd_trail",
+     "onDeliver": {
+      "fact": "wolf_sign_herd_trail",
+      "scope": "pride_known",
+      "prideIds": [
+       "bonefield"
+      ],
+      "_rule": "§3.9.5: delivering it makes it pride_known to Bonefield."
+     },
+     "opener": [
+      {
+       "speaker": "bf06",
+       "parts": [
+        {
+         "say": "{leaderName} won't listen to me, but he might listen to you. Will you tell him about the wolves on the Herd Trail? Just him, please. If Highcrag or Mistwood hear it before he does, he'll say we look weak."
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_bf06_somebody_listening.s2.accept",
+       "label": "“I'll tell him. Nobody else.”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Good. Don't let him shout you down. He'll try."
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_bf06_somebody_listening.s2.decline",
+       "label": "“Tell him yourself. I'm not getting between you.”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Fair enough. I just hoped I wouldn't be on my own with it."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "delivery": {
+      "speaker": "bf01",
+      "blocks": [
+       {
+        "speaker": "bf01",
+        "parts": [
+         {
+          "beat": "{catName} doesn't get up when you come close."
+         },
+         {
+          "say": "You walked into my field to talk to me? Then talk. What is it?"
+         }
+        ]
+       }
+      ],
+      "choices": [
+       {
+        "id": "credit",
+        "labelKey": "ql_bf06_somebody_listening.deliver.credit",
+        "label": "“There are wolves on the Herd Trail. {questgiverName} found them, and I've smelled them too.”",
+        "reply": {
+         "speaker": "bf01",
+         "parts": [
+          {
+           "say": "{questgiverName}? She sniffs at grass all day. Still, if you smelled them as well, I'll send the hunters the long way round. Now get out of my field."
+          }
+         ]
+        },
+        "result": "branch:credit"
+       },
+       {
+        "id": "own_name",
+        "labelKey": "ql_bf06_somebody_listening.deliver.own_name",
+        "label": "“There are wolves on the Herd Trail. I found them myself.”",
+        "reply": {
+         "speaker": "bf01",
+         "parts": [
+          {
+           "say": "Did you? Then I'll send the hunters the long way round. You're more use than you look."
+          }
+         ]
+        },
+        "result": "branch:own_name"
+       }
+      ]
+     },
+     "success": {
+      "credit": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "beat": "{catName} catches up with you at the edge of the field, out of breath."
+         },
+         {
+          "say": "You told him it was me. He laughed, I heard him. But you said my name in front of the whole field. Nobody's ever done that."
+         }
+        ]
+       }
+      ],
+      "own_name": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "He listened to you. Good, the hunters will be safe. I'd have liked him to know it was me, but I asked you to tell him, not to make a fuss. Thank you."
+         }
+        ]
+       }
+      ]
+     },
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "You never told him. The hunters are still using that trail. I hope nobody gets hurt."
+         }
+        ]
+       }
+      ],
+      "third_pride": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "You told another pride before you told {leaderName}? Now the whole Vale thinks we can't watch our own trail. I trusted you with that."
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "step": 3,
+     "kind": "bring_prey",
+     "preySize": "small",
+     "opener": {
+      "credit": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Will you meet me away from the field? Bring a hare or something, so it looks like we're only sharing a meal. There's something I want to ask you, and I don't want it shouted about."
+         }
+        ]
+       }
+      ],
+      "own_name": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Bring me a small kill sometime? I'd like to eat with somebody who doesn't shout at me while I'm chewing."
+         }
+        ]
+       }
+      ]
+     },
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_bf06_somebody_listening.s3.accept",
+       "label": "“I'll bring something. Where do I find you?”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Wherever you like. I'll find you. I'm good at that."
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_bf06_somebody_listening.s3.decline",
+       "label": "“Not this season. I've got my own mouths to feed.”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Of course. Another time, then."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "success": "see closing",
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "I waited for you a few evenings. It's all right. I'm used to waiting."
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "closing": {
+    "join": {
+     "when": {
+      "branch": "credit",
+      "questgiverValueMin": 75,
+      "usesCourtshipInterest": false,
+      "playerHasPride": true,
+      "_rule": "§3.9.1: 'Drawn to you' = questgiver's personal value toward you of 75 or more (PROPOSED DEFAULT, sim pending). Courtship Interest is not used. You must have founded a pride, and you can still say no."
+     },
+     "blocks": [
+      {
+       "speaker": "bf06",
+       "parts": [
+        {
+         "beat": "{catName} eats a little, then pushes the rest back toward you."
+        },
+        {
+         "say": "Here's what I wanted to ask. You listened to me when my own pride wouldn't. Could I come with you? Live in your pride, I mean. I'd leave Bonefield today."
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "welcome",
+       "labelKey": "ql_bf06_somebody_listening.join.welcome",
+       "label": "“Yes. Come home with me.”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "Just like that? All right. I'm not going back for anything. There's nothing there I'd miss."
+         }
+        ]
+       },
+       "result": "join"
+      },
+      {
+       "id": "not_yet",
+       "labelKey": "ql_bf06_somebody_listening.join.not_yet",
+       "label": "“Not yet. I don't want you leaving on my account.”",
+       "reply": {
+        "speaker": "bf06",
+        "parts": [
+         {
+          "say": "That's a kind way to say no. I'll still be here, listening to the grass."
+         }
+        ]
+       },
+       "result": "end"
+      }
+     ],
+     "afterJoin": [
+      {
+       "speaker": "narrator",
+       "parts": [
+        {
+         "beat": "{questgiverName} walks out of the Bonefield at your side, and nobody tries to stop her."
+        }
+       ]
+      }
+     ],
+     "writes": [
+      "quest_done_ql_bf06_somebody_listening",
+      "left_for_player_bf06"
+     ],
+     "departure": "left",
+     "leavingRule": "loners §6.4 'After leaving', departure: left; joins as a member (my-pride v0.1). No recruit penalty and no extra bonus (§3.9.3).",
+     "oldPrideReaction": {
+      "_note": "Bonefield learns left_for_player_bf06 by gossip; its only hit is the §3.7 gossip hit, sized like seen_with_hostile_faction (§3.9.3). Bonefield calls leaving 'running' (world-and-prides §2.2).",
+      "gossip": "{name} ran off to live in an outsider's pride. Nobody in the Bonefield says her name kindly now.",
+      "leaderOnNextMeeting": [
+       {
+        "speaker": "bf01",
+        "parts": [
+         {
+          "beat": "{catName}'s lip pulls back when he sees you."
+         },
+         {
+          "say": "You took {questgiverName} out of my field. She ran, and she ran to you. Don't expect a welcome here."
+         }
+        ]
+       }
+      ],
+      "oldGuardOnNextMeeting": [
+       {
+        "speaker": "bf07",
+        "parts": [
+         {
+          "say": "{questgiverName} was quiet, but she was ours. The field won't forgive you for taking her, even if I might."
+         }
+        ]
+       }
+      ]
+     }
+    },
+    "stay": {
+     "when": "any other kept ending: own_name branch, her value toward you below 75, you have no pride yet (§3.9.6), or you said no to her joining",
+     "countsAsKept": true,
+     "blocks": [
+      {
+       "speaker": "bf06",
+       "parts": [
+        {
+         "beat": "{catName} settles down beside you to eat."
+        },
+        {
+         "say": "This is nice. Nobody's telling me I'm wrong. I'll go back to the field, it's still home. But I'll come and find you sometimes, if that's all right."
+        }
+       ]
+      }
+     ],
+     "writes": [
+      "quest_done_ql_bf06_somebody_listening"
+     ]
+    }
+   }
+  },
+  {
+   "id": "ql_mw03_the_forks",
+   "title": "The Hyena at the Forks",
+   "questgiver": "mw03",
+   "motiveSource": "motives-v1.json#mw03 (Prove a young, scarred tom is still worth something to a pride that lost its strongest); scar hind_leg_left (world-gen §2.1)",
+   "cast": {
+    "leader": "mw01"
+   },
+   "reputationAxis": "courage",
+   "joinEnding": false,
+   "cubDeath": false,
+   "branch": {
+    "atStep": 3,
+    "choiceIn": "delivery",
+    "options": {
+     "keep_secret": {
+      "best": true,
+      "writes": "mw03_secret_kept",
+      "scope": "private"
+     },
+     "tell_leg": {
+      "best": false,
+      "writes": "mw03_leg_told_mw01",
+      "scope": "witnessed",
+      "witnessIds": [
+       "mw01"
+      ]
+     }
+    }
+   },
+   "proposedFacts": [
+    "hyena_driven_twin_forks",
+    "mw03_secret_kept",
+    "mw03_leg_told_mw01"
+   ],
+   "steps": [
+    {
+     "step": 1,
+     "kind": "scout_region",
+     "region": "twin_forks",
+     "opener": [
+      {
+       "speaker": "mw03",
+       "parts": [
+        {
+         "beat": "{catName} limps up beside you, trying hard not to look like he's limping."
+        },
+        {
+         "say": "There's a hyena hanging around {regionName}, stealing kills. Could you spend a day there and find where it beds down? I'd go myself, but I'd rather not be the slow cat it chases."
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_mw03_the_forks.s1.accept",
+       "label": "“I'll go. Where should I start looking?”",
+       "reply": {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "The reeds where the channels meet. Follow your nose. You really can't miss the smell."
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_mw03_the_forks.s1.decline",
+       "label": "“Not this time. Ask another hunter.”",
+       "reply": {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "There aren't many of us left to ask. I'll manage."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "success": [
+      {
+       "speaker": "mw03",
+       "parts": [
+        {
+         "say": "You found it? Big, smells like old meat? Yes, that's it. I knew you'd find it."
+        }
+       ]
+      }
+     ],
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "The season's gone and you never went to the forks. All right. I'll stop asking you about it."
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "step": 2,
+     "kind": "drive_off",
+     "region": "twin_forks",
+     "writes": {
+      "fact": "hyena_driven_twin_forks",
+      "scope": "world",
+      "_rule": "§3.9.5: a fight is a public event. §3.9.8: Twin Forks is the only v0.1 region with a hyena encounter."
+     },
+     "opener": [
+      {
+       "speaker": "mw03",
+       "parts": [
+        {
+         "beat": "{catName} won't meet your eyes."
+        },
+        {
+         "say": "I should tell you something. I went to the forks before I asked you. The hyena came at me, my leg gave out, and I had to drag myself home through the reeds. Will you drive it off? I can't, and I hate saying that."
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_mw03_the_forks.s2.accept",
+       "label": "“I'll drive it off. You don't have to come.”",
+       "reply": {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "I wasn't going to offer. Well, I was. But I'd only slow you down."
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_mw03_the_forks.s2.decline",
+       "label": "“Leave it. A stolen kill isn't worth getting hurt over.”",
+       "reply": {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "Easy for you to say. Your legs work."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "success": [
+      {
+       "speaker": "mw03",
+       "parts": [
+        {
+         "beat": "{catName}'s ears shoot up."
+        },
+        {
+         "say": "It's gone? You actually ran it off? I'd have given my share of a deer to see that."
+        }
+       ]
+      }
+     ],
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "It's still at the forks. I can smell it on the hunters when they come back with nothing."
+         }
+        ]
+       }
+      ],
+      "fled": [
+       {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "You ran from it too? Then it's not just me. That's almost a comfort."
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "step": 3,
+     "kind": "carry_word",
+     "target": "mw01",
+     "fact": "hyena_driven_twin_forks",
+     "requiresPlayerKnows": "hyena_driven_twin_forks",
+     "opener": [
+      {
+       "speaker": "mw03",
+       "parts": [
+        {
+         "say": "Will you tell {leaderName} the forks are safe again? She'll believe it from you. And please don't tell her about my leg. If she hears that, she'll keep me back at the dens with the elders."
+        }
+       ]
+      }
+     ],
+     "choices": [
+      {
+       "id": "accept",
+       "labelKey": "ql_mw03_the_forks.s3.accept",
+       "label": "“I'll tell her about the forks.”",
+       "reply": {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "Thank you. Just the forks, all right?"
+         }
+        ]
+       },
+       "result": "accept"
+      },
+      {
+       "id": "decline",
+       "labelKey": "ql_mw03_the_forks.s3.decline",
+       "label": "“Tell her yourself. It's your news.”",
+       "reply": {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "It was your fight, not mine. Fine. I'll tell her somebody cleared it."
+         }
+        ]
+       },
+       "result": "decline"
+      }
+     ],
+     "delivery": {
+      "speaker": "mw01",
+      "blocks": [
+       {
+        "speaker": "mw01",
+        "parts": [
+         {
+          "beat": "{catName} lifts her head from her paws as you come in out of the fog."
+         },
+         {
+          "say": "You're not Mistwood. Say what you came to say, and keep your voice down."
+         }
+        ]
+       }
+      ],
+      "choices": [
+       {
+        "id": "keep_secret",
+        "labelKey": "ql_mw03_the_forks.deliver.keep_secret",
+        "label": "“The hyena at Twin Forks is gone. I drove it off.”",
+        "reply": {
+         "speaker": "mw01",
+         "parts": [
+          {
+           "say": "So the talk is true. Then the hunters can use the forks again. Thank you."
+          }
+         ]
+        },
+        "result": "branch:keep_secret"
+       },
+       {
+        "id": "tell_leg",
+        "labelKey": "ql_mw03_the_forks.deliver.tell_leg",
+        "label": "“The hyena at Twin Forks is gone. And {questgiverName}'s leg gave out on him there. You should know.”",
+        "reply": {
+         "speaker": "mw01",
+         "parts": [
+          {
+           "beat": "{catName} closes her eyes for a moment."
+          },
+          {
+           "say": "Thank you for telling me both. I'd rather he was angry with me than lost in the reeds."
+          }
+         ]
+        },
+        "result": "branch:tell_leg"
+       }
+      ]
+     },
+     "success": {
+      "keep_secret": [
+       {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "You kept it to yourself? Thanks. Next time something needs chasing, I'm coming with you, slow leg and all."
+         }
+        ]
+       }
+      ],
+      "tell_leg": [
+       {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "beat": "{catName}'s ears go flat when he sees you."
+         },
+         {
+          "say": "She's put me on watch at the dens. You told her, didn't you? I asked you not to."
+         }
+        ]
+       }
+      ]
+     },
+     "successChoices": {
+      "tell_leg": [
+       {
+        "id": "own_it",
+        "labelKey": "ql_mw03_the_forks.after_tell.own_it",
+        "label": "“I did. She needed to know.”",
+        "reply": {
+         "speaker": "mw03",
+         "parts": [
+          {
+           "say": "Yeah. I know she did. I'm still angry, though. Give me a season."
+          }
+         ]
+        },
+        "result": "end"
+       },
+       {
+        "id": "sorry",
+        "labelKey": "ql_mw03_the_forks.after_tell.sorry",
+        "label": "“I'm sorry. I was worried about you.”",
+        "reply": {
+         "speaker": "mw03",
+         "parts": [
+          {
+           "say": "That's the worst part. Everybody's worried. Give me a season, all right?"
+          }
+         ]
+        },
+        "result": "end"
+       }
+      ]
+     },
+     "fail": {
+      "deadline": [
+       {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "You never told her? The hunters are still going the long way round the forks."
+         }
+        ]
+       }
+      ],
+      "third_pride": [
+       {
+        "speaker": "mw03",
+        "parts": [
+         {
+          "say": "Bonefield heard about the forks before my own leader did? Great. Now they'll want it for themselves."
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "closing": {
+    "kept": [
+     {
+      "speaker": "mw03",
+      "parts": [
+       {
+        "say": "Mistwood's been eating better since the forks opened up. Nobody says it was you and me, but I know. That's enough for now."
+       }
+      ]
+     }
+    ],
+    "writes": [
+     "quest_done_ql_mw03_the_forks"
+    ],
+    "factScope": {
+     "keep_secret": "private",
+     "tell_leg": "witnessed"
+    }
+   }
+  }
+ ]
+}

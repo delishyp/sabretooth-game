@@ -1,0 +1,103 @@
+{
+  "enabled": false,
+  "fight": {
+    "hp": 100,
+    "sparStop": 40,
+    "fleeAt": 30,
+    "randomMin": 0.8,
+    "randomMax": 1.2,
+    "damagePerStrength": 1,
+    "maxRounds": 13,
+    "sensibleStrength": 1.072,
+    "biteDamage": 1.4,
+    "biteStrength": 1.15,
+    "sparInjuryRolls": 0
+  },
+  "proposed": {
+    "note": "Encounters §2.4a/b, proposed, awaiting Director and Anna. On in the sim so the rates can be measured.",
+    "telegraph": true,
+    "repeatPenalty": true,
+    "honest": 0.75,
+    "baseHit": 0.5,
+    "honestBonus": 0.3,
+    "feintPenalty": -0.08,
+    "repeatSecond": -0.1,
+    "repeatFromThird": -0.2,
+    "hitsToWin": 4
+  },
+  "section29": {
+    "enabled": true,
+    "note": "Encounters §2.9, proposed default. Turn it off to keep the earlier fight ending.",
+    "intimidateChance": 0.5,
+    "loneHyenaFleeAt": 30
+  },
+  "hunt": {
+    "base": 50,
+    "prey": { "small": 5, "medium": 0, "large": -20 },
+    "style": { "story": 15, "standard": 0, "sim": -10 },
+    "allBold": 9,
+    "allBoldSize": { "small": 9, "medium": 9, "large": 11 },
+    "clamp": [5, 95],
+    "stamina": 100,
+    "cost": { "small": 16, "medium": 20, "large": 28 },
+    "energy": { "steady": 30, "allBold": 45, "size": { "small": 0.8, "medium": 1, "large": 1.3 } },
+    "injury": { "small": 0.02, "medium": 0.06, "large": 0.15, "failMult": 1.5, "boldMult": 1.5 }
+  },
+  "courtship": {
+    "base": 20,
+    "pair": 0.4,
+    "displayPerM": 3,
+    "clamp": [5, 90],
+    "style": { "story": 10, "standard": 0, "sim": -5 },
+    "readTraits": 0.1,
+    "interestGoal": 100,
+    "interestPerPoint": 8
+  },
+  "bands": {
+    "fightCells": 2000,
+    "fightTolerance": 0.03,
+    "slowFightCells": 20000,
+    "slowFightTolerance": 0.01,
+    "timeoutLimit": 0.03,
+    "huntTolerance": 0.03,
+    "huntSteadyTolerance": 0.02,
+    "wildTolerance": 0.04,
+    "courtshipTolerance": 0.03,
+    "sensibleTolerance": 0.03,
+    "spec": "encounters-v0.1.1",
+    "revision": "65a73c1",
+    "courtshipReadMax": 15,
+    "showdownDiffs": 0,
+    "sparRounds": [5, 6],
+    "rows": [
+      { "id": 1, "name": "fight average", "target": "50/71/90/10" },
+      { "id": 2, "name": "fight sensible", "target": "63 and 16" },
+      { "id": 3, "name": "fight length", "target": "5-6, under 3%" },
+      { "id": 4, "name": "personality bands", "target": "47-53" },
+      { "id": 5, "name": "wild enemies", "target": "98/99, 72/86, 15/25, 16/26, 7/13" },
+      { "id": 6, "name": "flee", "target": "50% at even HP" },
+      { "id": 7, "name": "spar ends at 40 HP", "target": 40 },
+      { "id": 8, "name": "showdown, identical seeds", "target": 0 },
+      { "id": 9, "name": "hunt steady", "target": "55/50/30" },
+      { "id": 10, "name": "hunt bold", "target": "64/59/41" },
+      { "id": 11, "name": "hunt specials", "target": "25% and 35%" },
+      { "id": 12, "name": "courtship average", "target": "35 and 50" },
+      { "id": 13, "name": "courtship traits-read", "target": 15 },
+      { "id": 14, "name": "reload", "target": 0 },
+      { "id": 15, "name": "HP is the only number exposed", "target": "HP" }
+    ]
+  },
+  "batch": {
+    "playerStrength": 10,
+    "fightPolicies": ["average", "sensible", "biteOnly", "fleeAt30"],
+    "huntPolicies": ["steady", "allBold"],
+    "huntSizes": ["small", "medium", "large"],
+    "courtshipPolicies": ["average", "readTraits"],
+    "opponents": [
+      { "id": "matched", "strength": 10 },
+      { "id": "edge10", "strength": 9.09 },
+      { "id": "stronger", "strength": 12.5 }
+    ],
+    "courtship": { "pairValue": 30, "sociability": 50, "curiosity": 80, "style": "standard" }
+  }
+}

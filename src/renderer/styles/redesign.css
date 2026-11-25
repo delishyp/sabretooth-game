@@ -1,0 +1,441 @@
+/* v0.2 shell. Tokens follow docs/design/redesign-v0.2/mockups/src/style.src.css.
+   --s is set in menu.js and never drops below 1px, so an 18u label stays at least 18px. */
+@font-face { font-family: "Cinzel"; src: url("../fonts/Cinzel-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Cinzel"; src: url("../fonts/Cinzel-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Alegreya Sans"; src: url("../fonts/AlegreyaSans-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Alegreya Sans"; src: url("../fonts/AlegreyaSans-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Alegreya Sans"; src: url("../fonts/AlegreyaSans-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+:root {
+  --panel: #1c140f;
+  --panel-2: #2a1f17;
+  --border: #a8834f;
+  --bone: #f4ead8;
+  --muted: #d2c1a5;
+  --gold: #e8b450;
+  --gold-ink: #1e1408;
+}
+
+/* Menu, creator, and Load sit in a centred 16:9 panel. The scene (#bg) fills the window around it. */
+.screen.active:not([data-screen="game"]) {
+  inset: 0 auto 0 50%;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: 100%;
+  max-height: 100%;
+  transform: translateX(-50%);
+  overflow: auto;
+  background: rgba(28, 20, 15, 0.94);
+  border-left: 2px solid var(--border);
+  border-right: 2px solid var(--border);
+  color: var(--bone);
+  font-family: "Alegreya Sans", "Segoe UI", sans-serif;
+}
+.screen.active:not([data-screen="game"]) :is(button, p, span, label, h2, h3, li, a, .desc, .name, .summary, .row-title, .sub, .wt, .soon, .setting, .slot, .crow-help, .creator-hint, .creator-step, .creator-sub) {
+  font-size: max(18px, 1em) !important;
+}
+#logo-text { font-size: min(104px, 11cqh, calc(50cqw / 10)) !important; }
+#version { font-size: 18px; }
+.screen[data-screen="creator"] .creator-scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+}
+.cards-row .card .desc, .cards-row .card .soon, #tutorial-hint, #sandbox-panel .note, #sandbox-rows .opt .desc {
+  font-size: 18px;
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  white-space: normal;
+}
+.screen[data-screen="game"] {
+  --safe-w: min(100vw, calc(100vh * 16 / 9));
+  --safe-l: calc((100vw - var(--safe-w)) / 2);
+  --safe-r: calc(var(--safe-l) + var(--safe-w));
+  font-family: "Alegreya Sans", "Segoe UI", sans-serif;
+  color: var(--bone);
+}
+.screen[data-screen="game"] .home-landscape {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+}
+.screen[data-screen="game"] #game-main {
+  position: absolute;
+  left: var(--safe-l);
+  top: 0;
+  width: var(--safe-w);
+  height: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr) minmax(220px, 300px);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 12px;
+  pointer-events: none;
+}
+.screen[data-screen="game"] #game-main > * { pointer-events: auto; }
+.screen[data-screen="game"] .home-landscape,
+.screen[data-screen="game"] .home-cat,
+.screen[data-screen="game"] .hotspot { grid-column: 1; grid-row: 1; pointer-events: none; }
+.screen[data-screen="game"] .shell-top,
+.screen[data-screen="game"] .goal,
+.screen[data-screen="game"] .rail,
+.screen[data-screen="game"] .action-sheet,
+.screen[data-screen="game"] #day-primary,
+.screen[data-screen="game"] .home-dock {
+  position: relative !important;
+  inset: auto !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  z-index: 6;
+}
+.screen[data-screen="game"] .shell-top {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-height: 72px;
+  flex-wrap: nowrap;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+}
+.screen[data-screen="game"] .goal {
+  grid-column: 2;
+  grid-row: 2;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+}
+.screen[data-screen="game"] .goal .guide,
+.screen[data-screen="game"] .goal .drawer-pill { display: none; }
+.screen[data-screen="game"] .rail {
+  grid-column: 1;
+  grid-row: 2 / span 3;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  overflow: auto;
+}
+.screen[data-screen="game"] .rail .nav-sep {
+  height: 0;
+  margin: 6px 8px;
+  border-top: 1px solid var(--border);
+}
+.screen[data-screen="game"] .where-when,
+.screen[data-screen="game"] .goal-line,
+.screen[data-screen="game"] .nav-label { white-space: normal; overflow: visible; text-overflow: unset; }
+.screen[data-screen="game"] .rail button,
+.screen[data-screen="game"] .nav-label,
+.screen[data-screen="game"] .need,
+.screen[data-screen="game"] .need-label,
+.screen[data-screen="game"] .home-kicker,
+.screen[data-screen="game"] .where-when,
+.screen[data-screen="game"] .goal-line,
+.screen[data-screen="game"] .goal .tag,
+.screen[data-screen="game"] .act,
+.screen[data-screen="game"] .act b,
+.screen[data-screen="game"] .act span,
+.screen[data-screen="game"] .act i,
+.screen[data-screen="game"] .tag-suit,
+.screen[data-screen="game"] .primary,
+.screen[data-screen="game"] .primary .sugg,
+.screen[data-screen="game"] button,
+.screen[data-screen="game"] p,
+.screen[data-screen="game"] li,
+.screen[data-screen="game"] h3 {
+  font-size: 18px;
+}
+.screen[data-screen="game"] .home-player-name,
+.screen[data-screen="game"] .act b,
+.screen[data-screen="game"] .event-title { font-size: 22px; }
+.screen[data-screen="game"] .need { min-width: 0; flex: 0 1 150px; }
+.screen[data-screen="game"] .need-bar { width: 100%; max-width: 150px; height: 16px; min-width: 0; }
+.screen[data-screen="game"] .need-health .need-bar i { background: #d9655a; }
+.screen[data-screen="game"] .need-thirst .need-bar i { background: #5fb4e0; }
+.screen[data-screen="game"] .need-hunger .need-bar i { background: #e3a447; }
+.screen[data-screen="game"] .need-energy .need-bar i { background: #97c95e; }
+.screen[data-screen="game"] .action-sheet {
+  grid-column: 2;
+  grid-row: 4;
+  max-height: 46vh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+.screen[data-screen="game"] .act {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  min-height: 84px;
+  width: 100%;
+  background: var(--panel-2);
+  border: 2px solid var(--border);
+  color: var(--bone);
+}
+.screen[data-screen="game"] .act.is-suggested { border-color: var(--gold); }
+.screen[data-screen="game"] .tag-suit { color: var(--gold); letter-spacing: 0.04em; }
+.screen[data-screen="game"] #day-primary {
+  grid-column: 2;
+  grid-row: 4;
+  justify-self: stretch;
+  background: var(--gold);
+  color: var(--gold-ink);
+  border: 0;
+  border-radius: 10px;
+  min-height: 64px;
+}
+.screen[data-screen="game"][data-mode="choosing"] #day-primary,
+.screen[data-screen="game"][data-mode="scene"] #day-primary,
+.screen[data-screen="game"][data-mode="scene"] #game-actions,
+.screen[data-screen="game"][data-mode="scene"] .goal,
+.screen[data-screen="game"][data-mode="scene"] #place-drawer,
+.screen[data-screen="game"][data-mode="book"] #day-primary,
+.screen[data-screen="game"][data-mode="book"] #game-actions,
+.screen[data-screen="game"][data-mode="book"] .goal,
+.screen[data-screen="game"][data-mode="book"] #place-drawer,
+.screen[data-screen="game"][data-mode="scene"] .tutorial-card,
+.screen[data-screen="game"][data-mode="days-end"] #spotlight,
+.screen[data-screen="game"][data-mode="days-end"] .rail,
+.screen[data-screen="game"][data-mode="days-end"] #day-primary,
+.screen[data-screen="game"][data-mode="days-end"] #game-actions,
+.screen[data-screen="game"][data-mode="days-end"] .home-dock,
+.screen[data-screen="game"][data-mode="days-end"] .goal,
+.screen[data-screen="game"][data-mode="choosing"] #place-drawer,
+.screen[data-screen="game"][data-mode="choosing"] .goal { display: none !important; }
+.screen[data-screen="game"] .home-dock {
+  grid-column: 3;
+  grid-row: 3;
+  align-self: end;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+}
+.screen[data-screen="game"][data-mode="home"] #home-panel,
+.screen[data-screen="game"][data-mode="home"] #dock-locked { display: none !important; }
+.screen[data-screen="game"][data-mode="book"] .home-dock {
+  grid-column: 2 / -1;
+  grid-row: 2 / span 3;
+  align-self: stretch;
+  min-height: 0;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  overflow: auto;
+}
+.screen[data-screen="game"] .home-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+.screen[data-screen="game"] .met-cat { flex: 1 1 240px; max-width: 360px; margin: 0; }
+.screen[data-screen="game"][data-mode="choosing"] .home-dock,
+.screen[data-screen="game"][data-mode="scene"] .home-dock { display: none !important; }
+.screen[data-mode="days-end"] .home-landscape { filter: brightness(0.55); }
+#day-end {
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, 0);
+  width: min(520px, 70vw);
+  max-height: 42vh;
+  overflow: auto;
+  z-index: 8;
+  background: #1c140f;
+  border: 2px solid #a8834f;
+  border-radius: 10px;
+  padding: 16px;
+  color: #f4ead8;
+}
+#day-end[hidden] { display: none !important; }
+#day-end .primary {
+  background: #e8b450;
+  color: #1e1408;
+  border: 0;
+  min-height: 48px;
+  width: 100%;
+  margin-top: 12px;
+}
+.screen[data-screen="game"] #place-drawer {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  color: var(--bone);
+  border-radius: 10px;
+  padding: 12px;
+  overflow: visible;
+}
+.screen[data-screen="game"] #game-region,
+.screen[data-screen="game"] .region-name,
+.screen[data-screen="game"] .region-desc { white-space: normal; overflow: visible; max-width: 100%; }
+.screen[data-screen="game"] #game-event {
+  position: absolute !important;
+  left: calc(var(--safe-l) + 180px) !important;
+  right: calc(100vw - var(--safe-r) + 16px) !important;
+  top: 132px !important;
+  bottom: 8px !important;
+  height: auto !important;
+  width: auto !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  align-items: stretch;
+  justify-content: stretch;
+}
+.screen[data-screen="game"] .conversation-card,
+.screen[data-screen="game"] .encounter-card {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.screen[data-screen="game"] .dialogue-heads,
+.screen[data-screen="game"] .encounter-panels {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+.screen[data-screen="game"] .dialogue-heads .event-cast { width: 120px; flex: 0 0 120px; }
+.screen[data-screen="game"] .dialogue-heads .portrait-frame,
+.screen[data-screen="game"] .dialogue-heads canvas,
+.screen[data-screen="game"] .encounter-panel,
+.screen[data-screen="game"] .encounter-panel img {
+  width: 96px !important;
+  height: 96px !important;
+  max-height: 96px !important;
+  object-fit: cover;
+}
+.screen[data-screen="game"] .event-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+html[data-choice-stack="1"] .screen[data-screen="game"] .event-choices { grid-template-columns: 1fr; }
+.screen[data-screen="game"] .event-choices button {
+  min-height: 48px;
+  background: var(--panel-2);
+  border: 2px solid var(--border);
+  color: var(--bone);
+  white-space: normal;
+}
+.screen[data-screen="game"] .event-scroll {
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+.screen[data-screen="game"] .event-choices { flex: 0 0 auto; }
+.screen[data-screen="game"] .meter-ends,
+.screen[data-screen="game"] .meter-track,
+.screen[data-screen="game"] .relation-romance { display: none; }
+.screen[data-screen="game"] .oddsword,
+.screen[data-screen="game"] .regard-word { color: var(--bone); margin: 0; }
+.screen[data-screen="game"] .trait-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.trait-why { display: block; color: var(--muted); }
+#stand-in-art { margin: 4px 0 0; font-size: 18px; color: var(--muted); }
+#spotlight { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
+.spotlight-ring {
+  position: absolute;
+  border: 3px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  background: transparent;
+}
+.spotlight-arrow {
+  position: absolute;
+  left: 50%;
+  bottom: -16px;
+  margin-left: -8px;
+  border: 8px solid transparent;
+  border-top-color: var(--gold);
+}
+#spotlight.is-fallback { background: rgba(0, 0, 0, 0.55); }
+.tutorial-card[data-spotlight="fallback"] {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 32;
+  width: min(440px, 80vw);
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.screen[data-screen="game"] #game-actions[hidden],
+.screen[data-screen="game"] #day-primary[hidden],
+.screen[data-screen="game"] #game-event[hidden],
+.screen[data-screen="game"] #game-report[hidden] { display: none !important; }
+.screen[data-screen="game"] .tutorial-card,
+.tutorial-card[data-spotlight="anchored"],
+.tutorial-card[data-spotlight="fallback"] {
+  position: fixed !important;
+  left: 50%;
+  top: 64%;
+  transform: translate(-50%, -50%);
+  width: min(420px, 36vw);
+  z-index: 32;
+  pointer-events: none !important;
+  background: #1c140f;
+  border: 2px solid #a8834f;
+  border-radius: 10px;
+  padding: 16px;
+}
+.screen[data-screen="game"] .tutorial-card button { pointer-events: auto !important; }
+.screen[data-mode="days-end"] .tutorial-card {
+  left: 50% !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 12px !important;
+  transform: translateX(-50%) !important;
+  width: min(420px, 70vw) !important;
+}
+.screen[data-mode="choosing"] .tutorial-card,
+.screen[data-mode="scene"] .tutorial-card {
+  left: auto !important;
+  right: max(16px, calc((100vw - min(100vw, 100vh * 16 / 9)) / 2 + 12px)) !important;
+  top: 108px !important;
+  transform: none !important;
+  width: min(300px, 26vw) !important;
+}

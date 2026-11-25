@@ -106,7 +106,7 @@ test('save meta has optional mainCat {catId,name,sex,lifeStage,genes,scars[]}, n
   const st = fresh(); const r = st.createRun({ difficulty: 'heir' });
   assert.strictEqual(st.writeSave(r.runId).mainCat, null);
   const m = st.writeSave(r.runId, { mainCat: { catId: 'c1', name: 'Ashka', sex: 'female', lifeStage: 'adult', genes: { coat: 'x' }, extra: 1 } }).mainCat;
-  assert.deepStrictEqual(m, { catId: 'c1', name: 'Ashka', sex: 'female', lifeStage: 'adult', genes: { coat: 'x' }, scars: [] });
+  assert.deepStrictEqual(m, { catId: 'c1', name: 'Ashka', sex: 'female', lifeStage: 'adult', genes: { coat: 'x' }, scars: [], portraitId: null });
   assert.strictEqual(normalizeMainCat('nope'), null);
   assert.deepStrictEqual(st.findRun(r.runId).saves.find((s) => s.mainCat).mainCat, m);
 });

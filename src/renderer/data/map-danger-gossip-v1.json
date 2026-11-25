@@ -1,0 +1,2477 @@
+{
+  "_readme": "Map danger warnings, feature discovery, territory-change gossip and Territory notices (Saga), v1. Rules from docs/design/world-map-territory-v0.1.md at 769cbed (v0.1.5: four danger levels, single highest hazard, never the sum). Hazard ids from map-v1 and map.json, plus humans and hyenas from map section 10. Claim words from my-pride v0.1.2 and cat-directory-copy-v1.json. Voice: narrator-voice-v1.md, second person present for narrator lines, no digits or number words, no game words, no saber colour, no pronouns for a single other cat. Director: common knowledge says only that humans and hyenas roam the far edges; this bank must not name a camp or den location until the player knows it. Selection: each list is tried in order, the first matching when wins, and the last entry has no when and is the default. At least three variants per key. Does not repeat region-arrivals-v1 landscape or lore-book-copy-v1 encyclopedia lines.",
+  "_source": {
+    "spec": "docs/design/world-map-territory-v0.1.md",
+    "commit": "769cbed",
+    "specVersion": "v0.1.5",
+    "map": "src/renderer/data/map.json",
+    "mapV1": "docs/design/map-v1.md"
+  },
+  "_tokens": {
+    "zoneName": "The region, display name.",
+    "sourceName": "The cat who told the player about a feature.",
+    "holderName": "The pride (or pack) that holds, or has just taken, the region.",
+    "loserName": "The pride that lost the region.",
+    "prideName": "The player's pride.",
+    "rivalName": "The challenging pride, on contested (and lost-to) lines. Same token as the My Pride header.",
+    "name": "A known cat, usually the leader who took or marked the ground. Only on leaderKnown lines."
+  },
+  "_schema": {
+    "when": "First match wins; the last entry in a list has no when and is the default. Matches if every key present is true. hazard is a known hazard id (humans, hyenas, or a map-v1 id). change is taken, claimed, lost, wild or contested. side is player_gained, player_lost or player_contested. sociability is the teller's band (high / low; baseline is the unbanded default). leaderKnown is true only when {name} can be filled. claim is strong, held, slipping, contested, lost or lost_unclaimed, and contested wins.",
+    "danger": "unknown, then levels safe 0, uneasy 1, dangerous 2, deadly 3. Each has a short tooltip and a travel list. Travel is tried in hazard order, then the default.",
+    "features": "human_camp and hyena_den, each with visit, scent, gossip and repeat. Gossip requires {sourceName} and {zoneName}.",
+    "territory_gossip": "Every line is kind holder_change. Player-pride news is selected by side, then other-pride news, then the default.",
+    "notices": "patrol_due and scent_fading, each with the approved short label and a when.claim list."
+  },
+  "_gaps": [
+    "No dedicated lines for a band-held stretch (map-v1, bandHeld). Ordinary taken, claimed, lost, wild or contested lines can still play if the names fill.",
+    "No dedicated lines for a dire-wolf holder change. Wolves are a static holder in v1, so this should not come up; {holderName} will still read if it ever does.",
+    "No council-flavoured cession lines for a border deal. A deal that changes a holder can use taken, lost or claimed as written.",
+    "No extra travel variants for danger raised only by trespass or by a band's range, with no known land or beast hazard. The level default covers those.",
+    "Patrol-due is written for strong, held, slipping and contested, which are the words used on held Territory lines. There is no patrol-due line for Lost.",
+    "Tundra ccdba1c: contested gossip keeps {rivalName}; {loserName} is for taken and lost only. Patrol-due never shows on Lost ground; that ground just reads Lost, since winning it back is a Mark.",
+    "Flint: travel gets the known hazard that set the level (ties go to map.json order); a known camp or den arrives as a separate feature key. Flint passes catId and fills {name}; leaderKnown stays the when gate for {name} lines."
+  ],
+  "_questions": [
+    "Ochre: tooltips are short panel lines; travel, features, notices and the default territory lines are ordinary upright narrator colour. Territory gossip with a teller can sit in the npc colour, with {sourceName} only in the feature-gossip beats, which are narrator-framed."
+  ],
+  "danger": {
+    "_note": "Labels from map territory 3.2 (Saga's words). Danger is the band of the region's single highest known daily hazard, plus known trespass, band range, or a known camp or den, clamped to the four levels. Unknown is shown when the player has no such facts. Tooltips sit on the region panel before travel. Travel lines play when the cat goes in. Hazard variants fire only if that hazard is already known; pass the known hazard that set the band, or walk this list in order (first when match wins). Default travel never names humans, hyenas, a camp or a den.",
+    "unknown": {
+      "label": "Unknown",
+      "tooltip": "You don't know this ground.",
+      "travel": [
+        {
+          "variants": [
+            {
+              "id": "danger.unknown.travel[0].a",
+              "text": "You walk into {zoneName} without knowing what waits there."
+            },
+            {
+              "id": "danger.unknown.travel[0].b",
+              "text": "The ground ahead is unfamiliar, and you have no warning to go by."
+            },
+            {
+              "id": "danger.unknown.travel[0].c",
+              "text": "You enter {zoneName} in the dark, as far as danger goes. Keep your ears up."
+            }
+          ]
+        }
+      ]
+    },
+    "levels": {
+      "safe": {
+        "level": 0,
+        "label": "Safe",
+        "tooltip": "Quiet ground.",
+        "travel": [
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[0].a",
+                "text": "Upright walkers have used {zoneName}, though the land still feels easy. You keep downwind of any smoke."
+              },
+              {
+                "id": "danger.levels.safe.travel[0].b",
+                "text": "There has been fire-scent at {zoneName}, the kind humans leave. The walking is quiet now, but you do not forget it."
+              },
+              {
+                "id": "danger.levels.safe.travel[0].c",
+                "text": "Humans have passed this ground. Nothing stirs as you enter, and still you watch the open approaches."
+              }
+            ],
+            "when": {
+              "hazard": "humans"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[1].a",
+                "text": "Hyenas have used {zoneName}, though the land still feels easy. You keep a nose out for their den-smell and for your own meal."
+              },
+              {
+                "id": "danger.levels.safe.travel[1].b",
+                "text": "There is an old scavenger-scent at {zoneName}. The walking is quiet now, but a clan has been here."
+              },
+              {
+                "id": "danger.levels.safe.travel[1].c",
+                "text": "Hyenas have passed this ground. Nothing presses you as you enter, and still you would not leave a meal unwatched."
+              }
+            ],
+            "when": {
+              "hazard": "hyenas"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[2].a",
+                "text": "A bear has used {zoneName}, though the walking still feels easy. You keep that heavy scent in mind and go on."
+              },
+              {
+                "id": "danger.levels.safe.travel[2].b",
+                "text": "There is old bear-scent at {zoneName}. The land lies quiet now, but you do not forget what left it."
+              },
+              {
+                "id": "danger.levels.safe.travel[2].c",
+                "text": "A short-faced bear has passed this ground. Nothing stirs as you enter, and still you glance at the rocks."
+              }
+            ],
+            "when": {
+              "hazard": "bear"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[3].a",
+                "text": "Wolves have run {zoneName}, though the land still feels easy. You keep their scent in mind and go on."
+              },
+              {
+                "id": "danger.levels.safe.travel[3].b",
+                "text": "There is old pack-scent at {zoneName}. The walking is quiet now, but a pack has used this ground."
+              },
+              {
+                "id": "danger.levels.safe.travel[3].c",
+                "text": "Wolf-sign crosses this ground. Nothing presses you as you enter, and still you would not leave a meal lying."
+              }
+            ],
+            "when": {
+              "hazard": "wolves"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[4].a",
+                "text": "Snow hangs above the trail into {zoneName}, but the slope is quiet today. You still set your paws softly."
+              },
+              {
+                "id": "danger.levels.safe.travel[4].b",
+                "text": "The high snow at {zoneName} has a waiting look, though the walking feels easy. You do not shout here."
+              },
+              {
+                "id": "danger.levels.safe.travel[4].c",
+                "text": "You enter {zoneName} under snow that has stayed put. It may not always, so you keep your steps light."
+              }
+            ],
+            "when": {
+              "hazard": "avalanche"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[5].a",
+                "text": "Ice lies along {zoneName}, and today it feels sound enough. You still test it before you trust it."
+              },
+              {
+                "id": "danger.levels.safe.travel[5].b",
+                "text": "The water at {zoneName} has a skin of ice. The walking is easy on the bank, and you keep off the grey stretches."
+              },
+              {
+                "id": "danger.levels.safe.travel[5].c",
+                "text": "You enter {zoneName} beside ice that looks willing to hold. Looks are not enough, so you go around where you can."
+              }
+            ],
+            "when": {
+              "hazard": "thin_ice"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[6].a",
+                "text": "The faint black stink of tar is on the air at {zoneName}, though the path underfoot feels firm. You still watch where you set your paws."
+              },
+              {
+                "id": "danger.levels.safe.travel[6].b",
+                "text": "Tar has seeped at {zoneName}, away from the line you are walking. The ground feels easy, and you keep to what looks dry."
+              },
+              {
+                "id": "danger.levels.safe.travel[6].c",
+                "text": "You enter {zoneName} with tar in mind. The walking is quiet if you pick your path, and you pick it with care."
+              }
+            ],
+            "when": {
+              "hazard": "tar"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[7].a",
+                "text": "Loose stone lies under the walls at {zoneName}, though nothing is falling now. You still keep an ear on the rock."
+              },
+              {
+                "id": "danger.levels.safe.travel[7].b",
+                "text": "The cliffs at {zoneName} have shed stone before. The walking feels easy, and you do not linger at the foot of them."
+              },
+              {
+                "id": "danger.levels.safe.travel[7].c",
+                "text": "You enter {zoneName} under quiet rock. A little dust in the air is enough to make you choose the wider path."
+              }
+            ],
+            "when": {
+              "hazard": "rockfall"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[8].a",
+                "text": "The water at {zoneName} is louder than usual, though the banks still hold. You keep to the higher ground as you come in."
+              },
+              {
+                "id": "danger.levels.safe.travel[8].b",
+                "text": "Melt-scent and wet earth hang at {zoneName}. The walking is easy on the rise, and you do not trust the lowest path."
+              },
+              {
+                "id": "danger.levels.safe.travel[8].c",
+                "text": "You enter {zoneName} with rising water in mind. Nothing has spilled over yet, and you choose the upper trail anyway."
+              }
+            ],
+            "when": {
+              "hazard": "flood"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[9].a",
+                "text": "A harder cold is in the air at {zoneName}, though you can walk it well enough. You keep moving so it does not settle in."
+              },
+              {
+                "id": "danger.levels.safe.travel[9].b",
+                "text": "The wind at {zoneName} has a metallic bite. The ground feels easy, and you would still rather not sleep in the open here."
+              },
+              {
+                "id": "danger.levels.safe.travel[9].c",
+                "text": "You enter {zoneName} in a sharpening cold. Nothing else warns you, so you listen to that."
+              }
+            ],
+            "when": {
+              "hazard": "cold_snap"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[10].a",
+                "text": "Prey-scent is thin at {zoneName}, though the walking feels easy. You will not grow fat here, and you do not expect to."
+              },
+              {
+                "id": "danger.levels.safe.travel[10].b",
+                "text": "The ground at {zoneName} is poor in food-smell. Nothing else troubles you, so hunger is the thing to watch."
+              },
+              {
+                "id": "danger.levels.safe.travel[10].c",
+                "text": "You enter {zoneName} on hungry ground that is otherwise quiet. Hunt if you must, and do not spend yourself on empty trails."
+              }
+            ],
+            "when": {
+              "hazard": "starvation"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[11].a",
+                "text": "The trails at {zoneName} wander and cross, though you can still read them today. You keep a landmark in mind."
+              },
+              {
+                "id": "danger.levels.safe.travel[11].b",
+                "text": "A little fog blurs the paths at {zoneName}. The walking feels easy, and you still glance back the way you came."
+              },
+              {
+                "id": "danger.levels.safe.travel[11].c",
+                "text": "You enter {zoneName} on ground that likes to turn a cat around. Nothing worse waits, so long as you keep your bearings."
+              }
+            ],
+            "when": {
+              "hazard": "lost_trail"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.safe.travel[12].a",
+                "text": "You walk into {zoneName}, and the land lies easy under your paws."
+              },
+              {
+                "id": "danger.levels.safe.travel[12].b",
+                "text": "Nothing here sets your fur on end. The walking is quiet."
+              },
+              {
+                "id": "danger.levels.safe.travel[12].c",
+                "text": "The air at {zoneName} carries no warning. You go on without hurrying."
+              }
+            ]
+          }
+        ]
+      },
+      "uneasy": {
+        "level": 1,
+        "label": "Uneasy",
+        "tooltip": "Something here wants watching.",
+        "travel": [
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[0].a",
+                "text": "You enter {zoneName} with the scent of fire in mind. Humans keep to this ground, and their sticks wound from far off."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[0].b",
+                "text": "Upright walkers roam {zoneName}. You come in low, watching for smoke and for shapes that do not move like beasts."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[0].c",
+                "text": "There are humans on this ground. No cat can fight them, so you walk it carefully and keep a way out."
+              }
+            ],
+            "when": {
+              "hazard": "humans"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[1].a",
+                "text": "You enter {zoneName} with hyena-scent in mind. A clan dens on this ground, and they will take a meal if they can."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[1].b",
+                "text": "Scavenger tracks cross {zoneName}. You come in watching the downwind side, where a hyena clan likes to wait."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[1].c",
+                "text": "Hyenas keep to this ground. You walk it with your meal in mind, and you do not settle with meat in the open."
+              }
+            ],
+            "when": {
+              "hazard": "hyenas"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[2].a",
+                "text": "You enter {zoneName} with bear-scent in mind. Something that large does not need to hurry."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[2].b",
+                "text": "A short-faced bear uses this ground. You come in quietly and keep a way out of the rocks."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[2].c",
+                "text": "Bear-scent clings to {zoneName}. You walk it with your head up, and you do not linger in the narrow places."
+              }
+            ],
+            "when": {
+              "hazard": "bear"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[3].a",
+                "text": "You enter {zoneName} with wolf-scent in mind. A pack hunts this ground, and you keep your ears on the downwind side."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[3].b",
+                "text": "Pack-sign crosses the trail into {zoneName}. You come in watching, and you do not linger over a meal."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[3].c",
+                "text": "Wolves use this ground. You walk it carefully and keep a catch close, if you are carrying meat."
+              }
+            ],
+            "when": {
+              "hazard": "wolves"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[4].a",
+                "text": "Snow hangs heavy above the trail into {zoneName}. You cross it without a wasted sound."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[4].b",
+                "text": "The slope above {zoneName} has a waiting look. You go in lightly, ready to move if the snow answers."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[4].c",
+                "text": "You enter {zoneName} with an ear on the high snow. A wrong sound could bring it down."
+              }
+            ],
+            "when": {
+              "hazard": "avalanche"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[5].a",
+                "text": "Ice stretches across {zoneName}, and you do not trust the colour of it. You test each step, or you keep to the bank."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[5].b",
+                "text": "You enter {zoneName} knowing the ice can lie. What holds at the edge may not hold farther out."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[5].c",
+                "text": "The ice at {zoneName} wants watching. You go in with a path back to solid ground already chosen."
+              }
+            ],
+            "when": {
+              "hazard": "thin_ice"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[6].a",
+                "text": "The black stink of tar catches in your throat as you enter {zoneName}. You keep to the ground that does not give."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[6].b",
+                "text": "You walk into {zoneName} knowing the seeps take the careless. Every paw is placed on purpose."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[6].c",
+                "text": "Tar waits at {zoneName} under ground that looks firm. You go in slowly and you do not trot."
+              }
+            ],
+            "when": {
+              "hazard": "tar"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[7].a",
+                "text": "Loose stone ticks somewhere above as you enter {zoneName}. You keep out from under the steepest walls."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[7].b",
+                "text": "The rock at {zoneName} is not to be trusted. You go in watching the slopes, ready to leap clear."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[7].c",
+                "text": "Fresh stone-dust hangs in the air at {zoneName}. You do not pause beneath a cracked face."
+              }
+            ],
+            "when": {
+              "hazard": "rockfall"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[8].a",
+                "text": "The water at {zoneName} is up, and the lowest trails look doubtful. You come in along the higher bank."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[8].b",
+                "text": "You enter {zoneName} knowing the river can spread without warning. You keep a dry path in mind."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[8].c",
+                "text": "Churned mud and melt-scent meet you at {zoneName}. You do not take the easy, low line."
+              }
+            ],
+            "when": {
+              "hazard": "flood"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[9].a",
+                "text": "The cold at {zoneName} has a bite that stings the nose. You come in already thinking of shelter."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[9].b",
+                "text": "You enter {zoneName} knowing a bitter cold can close on this ground. You do not linger in the wind."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[9].c",
+                "text": "A hard, dry cold is settling at {zoneName}. You keep moving, and you keep an eye out for a den or a lee."
+              }
+            ],
+            "when": {
+              "hazard": "cold_snap"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[10].a",
+                "text": "Prey-scent is thin and old at {zoneName}. You come in knowing a cat can go hungry here."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[10].b",
+                "text": "You enter {zoneName} on starving ground. The land is not trying to kill you quickly, only to send you on with an empty belly."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[10].c",
+                "text": "There is little to eat at {zoneName}. You watch your strength, and you do not stay if the trails stay empty."
+              }
+            ],
+            "when": {
+              "hazard": "starvation"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[11].a",
+                "text": "The trails at {zoneName} cross until the scents blur. You come in already marking the way out."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[11].b",
+                "text": "Fog hangs over {zoneName}, and the paths are easy to lose. You go in slowly and you do not trust a familiar-looking turn."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[11].c",
+                "text": "You enter {zoneName} knowing the ground can turn you around. You keep the wind, or a tree, or a stone, and you hold to it."
+              }
+            ],
+            "when": {
+              "hazard": "lost_trail"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.uneasy.travel[12].a",
+                "text": "You enter {zoneName} with your ears up. Something here wants watching."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[12].b",
+                "text": "The ground ahead is not at ease, and you keep your head high as you walk in."
+              },
+              {
+                "id": "danger.levels.uneasy.travel[12].c",
+                "text": "A tightness comes into the air at {zoneName}. You do not settle yet."
+              }
+            ]
+          }
+        ]
+      },
+      "dangerous": {
+        "level": 2,
+        "label": "Dangerous",
+        "tooltip": "This ground can hurt you.",
+        "travel": [
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[0].a",
+                "text": "You walk into {zoneName} knowing humans camp on this ground. Their fire-scent is a warning, and their sticks reach farther than a leap."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[0].b",
+                "text": "Upright walkers hold a camp at {zoneName}. You cannot fight them, so you go in ready to leave, and you keep to cover."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[0].c",
+                "text": "Smoke and a strange upright scent hang about {zoneName}. This is human ground, and it can hurt you from far off."
+              }
+            ],
+            "when": {
+              "hazard": "humans"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[1].a",
+                "text": "You walk into {zoneName} knowing hyenas den here. Their stink is a warning, and a whole clan will take a meal from under you."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[1].b",
+                "text": "A hyena den lies at {zoneName}. You go in ready to move, and you would not eat in the open if you can help it."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[1].c",
+                "text": "The scavenger-scent is heavy at {zoneName}. This is hyena ground, and it can cost you a meal or worse."
+              }
+            ],
+            "when": {
+              "hazard": "hyenas"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[2].a",
+                "text": "You walk into {zoneName} knowing a short-faced bear haunts this ground. You go in ready to move, and you do not look for a fight."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[2].b",
+                "text": "The heavy musky scent at {zoneName} is unmistakable. A bear uses this place, and this ground can hurt you."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[2].c",
+                "text": "A bear is on this ground. You keep to the wider approaches and you do not settle."
+              }
+            ],
+            "when": {
+              "hazard": "bear"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[3].a",
+                "text": "You walk into {zoneName} knowing a pack hunts here. Wolf-scent is heavy, and this ground can cost you a meal, or your hide."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[3].b",
+                "text": "The trail into {zoneName} is scored with pack-sign. You go in ready to move, and you do not hunt as if you were alone in the world."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[3].c",
+                "text": "Wolves hold a claim on this ground in all but name. You keep your head up as you enter {zoneName}."
+              }
+            ],
+            "when": {
+              "hazard": "wolves"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[4].a",
+                "text": "The snow above {zoneName} looks ready to run. You go in fast and light, and you do not pause under the hanging slope."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[4].b",
+                "text": "You walk into {zoneName} knowing the high snow can take a cat. Every step is placed as if the slope were listening."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[4].c",
+                "text": "A heavy, waiting quiet sits under the snow at {zoneName}. You do not linger beneath it."
+              }
+            ],
+            "when": {
+              "hazard": "avalanche"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[5].a",
+                "text": "The ice at {zoneName} cannot be trusted. You walk the bank if you can, and you do not hurry across the pale stretches."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[5].b",
+                "text": "You walk into {zoneName} knowing the ice has taken cats. Every step is a question, and you listen for the hollow answer."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[5].c",
+                "text": "Grey, soft-looking ice lies at {zoneName}. You do not give it your weight unless there is no other way."
+              }
+            ],
+            "when": {
+              "hazard": "thin_ice"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[6].a",
+                "text": "The stink of tar is strong at {zoneName}, and the ground gives in places that look sound. You pick each step as if it mattered, because it does."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[6].b",
+                "text": "You walk into {zoneName} knowing the seeps can hold a cat. There is prey-scent too, and that is how they catch the hungry."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[6].c",
+                "text": "Black pools wait at {zoneName}. You keep to the firm paths, and you do not reach for anything that is already sinking."
+              }
+            ],
+            "when": {
+              "hazard": "tar"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[7].a",
+                "text": "The walls at {zoneName} shed stone without warning. You go through fast and you do not rest at the foot of them."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[7].b",
+                "text": "You walk into {zoneName} knowing the rock can come down. Every open stretch under a cliff is a place to leave, not to linger."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[7].c",
+                "text": "Loose scree and raw scars on the stone mark {zoneName} as ground that hurts from above. You keep moving."
+              }
+            ],
+            "when": {
+              "hazard": "rockfall"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[8].a",
+                "text": "The water at {zoneName} has already taken the low ground. You go in along whatever rise is left, and you do not dawdle in the wet."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[8].b",
+                "text": "You walk into {zoneName} knowing a flood can pin a cat. The river is not in its bed, and you treat every crossing as a risk."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[8].c",
+                "text": "Melt and mud have remade the trails at {zoneName}. You keep to high ground, or you turn back."
+              }
+            ],
+            "when": {
+              "hazard": "flood"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[9].a",
+                "text": "The cold at {zoneName} can kill a still cat. You go in, you keep moving, and you look for shelter before you look for prey."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[9].b",
+                "text": "You walk into {zoneName} with the air burning in your chest. This ground can hurt you without using teeth."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[9].c",
+                "text": "A bitter snap has hold of {zoneName}. You do not hunt at leisure here, and you do not rest in the open."
+              }
+            ],
+            "when": {
+              "hazard": "cold_snap"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[10].a",
+                "text": "There is almost no food-smell at {zoneName}, only old bones. You go in knowing this ground can weaken you, and a weak cat is easy prey."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[10].b",
+                "text": "You walk into {zoneName} on starving ground. If you hunt here, you may spend more than you catch."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[10].c",
+                "text": "The land at {zoneName} is bare. Hunger is the danger, and it will catch any cat who lingers too long."
+              }
+            ],
+            "when": {
+              "hazard": "starvation"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[11].a",
+                "text": "The fog at {zoneName} swallows trails. You go in with a way out already chosen, and you do not chase a scent off the path."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[11].b",
+                "text": "You walk into {zoneName} knowing a cat can lose the day here. The paths lie, and you keep close to what you can still smell clearly."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[11].c",
+                "text": "Trails braid and fade at {zoneName}. Getting lost on this ground is not a small thing, so you keep your head."
+              }
+            ],
+            "when": {
+              "hazard": "lost_trail"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.dangerous.travel[12].a",
+                "text": "You walk into {zoneName} knowing this ground can hurt you, and you watch every approach."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[12].b",
+                "text": "The land here does not forgive a careless step. You go in ready to move."
+              },
+              {
+                "id": "danger.levels.dangerous.travel[12].c",
+                "text": "Your fur tightens as you enter {zoneName}. This is dangerous ground."
+              }
+            ]
+          }
+        ]
+      },
+      "deadly": {
+        "level": 3,
+        "label": "Deadly",
+        "tooltip": "Cats die on this ground.",
+        "travel": [
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[0].a",
+                "text": "You step into {zoneName} as if every open stretch could throw a stick. Humans keep a camp here, and cats die on this kind of ground."
+              },
+              {
+                "id": "danger.levels.deadly.travel[0].b",
+                "text": "Fire-scent and upright tracks mark {zoneName} as human country. No cat can fight what lives here. You go in only as far as you must."
+              },
+              {
+                "id": "danger.levels.deadly.travel[0].c",
+                "text": "This is deadly ground: humans camp at {zoneName}, and their sharpened sticks wound from far off. You do not linger in the open."
+              }
+            ],
+            "when": {
+              "hazard": "humans"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[1].a",
+                "text": "You step into {zoneName} as a cat steps toward a clan's den-ground. Hyenas keep this place, and they will not give way for you."
+              },
+              {
+                "id": "danger.levels.deadly.travel[1].b",
+                "text": "The den-smell at {zoneName} is thick enough to taste. A hyena clan holds this ground, and cats have come off it the worse."
+              },
+              {
+                "id": "danger.levels.deadly.travel[1].c",
+                "text": "This is deadly ground: hyenas den at {zoneName}, and a clan will take your meal, or turn on you if you stay."
+              }
+            ],
+            "when": {
+              "hazard": "hyenas"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[2].a",
+                "text": "You step into {zoneName} as if the bear already knows. This is its ground, and cats die here."
+              },
+              {
+                "id": "danger.levels.deadly.travel[2].b",
+                "text": "Bear-scent fills {zoneName} from end to end. You go in only as far as you must, and you keep a clear path out."
+              },
+              {
+                "id": "danger.levels.deadly.travel[2].c",
+                "text": "A short-faced bear holds this place. You do not wander, and you do not compete with it for a meal."
+              }
+            ],
+            "when": {
+              "hazard": "bear"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[3].a",
+                "text": "You step into {zoneName} as a cat steps into pack country. The wolf-scent is thick, and cats do not linger here."
+              },
+              {
+                "id": "danger.levels.deadly.travel[3].b",
+                "text": "A pack hunts {zoneName} as if it were their run. You go in only as far as you must, and you keep a way out."
+              },
+              {
+                "id": "danger.levels.deadly.travel[3].c",
+                "text": "This is deadly ground: wolves own the trails at {zoneName}, and they will not share them."
+              }
+            ],
+            "when": {
+              "hazard": "wolves"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[4].a",
+                "text": "The snow above {zoneName} looks as if it has already chosen a cat. You cross only if you must, and you do not speak."
+              },
+              {
+                "id": "danger.levels.deadly.travel[4].b",
+                "text": "You step into {zoneName} under a slope that can bury you. This ground has taken cats, and it will take more."
+              },
+              {
+                "id": "danger.levels.deadly.travel[4].c",
+                "text": "There is no safe sound under the hanging snow at {zoneName}. You go through, or you do not go."
+              }
+            ],
+            "when": {
+              "hazard": "avalanche"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[5].a",
+                "text": "The ice at {zoneName} is a killing thing. You keep off it if there is any other path, and you do not trust a clear stretch."
+              },
+              {
+                "id": "danger.levels.deadly.travel[5].b",
+                "text": "You step toward {zoneName} as cats did before the Breaking, and you remember how that ended. The ice here lies."
+              },
+              {
+                "id": "danger.levels.deadly.travel[5].c",
+                "text": "This ground has swallowed cats under the ice. You go around {zoneName}'s water, or you go very carefully indeed."
+              }
+            ],
+            "when": {
+              "hazard": "thin_ice"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[6].a",
+                "text": "The tar at {zoneName} is a mouth in the ground. You go in only along the paths you trust, and you trust very little."
+              },
+              {
+                "id": "danger.levels.deadly.travel[6].b",
+                "text": "You step into {zoneName} as a cat steps around a trap. The seeps have taken hunters, and the stink of that is still here."
+              },
+              {
+                "id": "danger.levels.deadly.travel[6].c",
+                "text": "This is deadly ground: the tar at {zoneName} does not let go, and a wrong paw will cost you."
+              }
+            ],
+            "when": {
+              "hazard": "tar"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[7].a",
+                "text": "The stone at {zoneName} wants to come down. You cross the cut only if you must, and you do not look up for long."
+              },
+              {
+                "id": "danger.levels.deadly.travel[7].b",
+                "text": "You step into {zoneName} under walls that have killed. A wrong sound, a wrong pause, and the rock answers."
+              },
+              {
+                "id": "danger.levels.deadly.travel[7].c",
+                "text": "This is deadly ground: the cliffs at {zoneName} throw stone, and there is little room to be out of the way."
+              }
+            ],
+            "when": {
+              "hazard": "rockfall"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[8].a",
+                "text": "The water at {zoneName} is a wide, moving thing, and the old paths are gone. You go in only if the high ground still holds."
+              },
+              {
+                "id": "danger.levels.deadly.travel[8].b",
+                "text": "You step toward {zoneName} as if the river were hunting. A flood like this has drowned cats, and it will not make an exception for you."
+              },
+              {
+                "id": "danger.levels.deadly.travel[8].c",
+                "text": "This is deadly ground: the flood at {zoneName} cuts off a retreat, and the current does not care who you are."
+              }
+            ],
+            "when": {
+              "hazard": "flood"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[9].a",
+                "text": "The cold at {zoneName} is a killing cold. You step in only if you have a way to get out of the wind, or you do not stay."
+              },
+              {
+                "id": "danger.levels.deadly.travel[9].b",
+                "text": "You enter {zoneName} as if the air itself were the hunter. Cats have stiffened on this kind of ground."
+              },
+              {
+                "id": "danger.levels.deadly.travel[9].c",
+                "text": "This is deadly ground: the cold at {zoneName} does not ease, and a night in the open may be enough."
+              }
+            ],
+            "when": {
+              "hazard": "cold_snap"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[10].a",
+                "text": "There is nothing to eat at {zoneName}. You step onto starving ground that has already pulled cats down, and you do not plan to camp on it."
+              },
+              {
+                "id": "danger.levels.deadly.travel[10].b",
+                "text": "You enter {zoneName} as a cat enters a place that cannot feed you. Stay long, and the hunger will do the rest."
+              },
+              {
+                "id": "danger.levels.deadly.travel[10].c",
+                "text": "This is deadly ground, not for teeth but for want. {zoneName} will not keep you, and it will not let you stay strong."
+              }
+            ],
+            "when": {
+              "hazard": "starvation"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[11].a",
+                "text": "The fog at {zoneName} is a trap of paths. You step in only if you can feel the way back, and you do not leave the line you trust."
+              },
+              {
+                "id": "danger.levels.deadly.travel[11].b",
+                "text": "You enter {zoneName} as a cat enters a place that swallows directions. Cats who wander here do not always wander out."
+              },
+              {
+                "id": "danger.levels.deadly.travel[11].c",
+                "text": "This is deadly ground if you lose the trail. {zoneName} will not show you home, and you must keep the path yourself."
+              }
+            ],
+            "when": {
+              "hazard": "lost_trail"
+            }
+          },
+          {
+            "variants": [
+              {
+                "id": "danger.levels.deadly.travel[12].a",
+                "text": "You step into {zoneName} as a cat steps toward a killing place, slow and ready."
+              },
+              {
+                "id": "danger.levels.deadly.travel[12].b",
+                "text": "This ground has taken cats before. You do not wander on it."
+              },
+              {
+                "id": "danger.levels.deadly.travel[12].c",
+                "text": "Every scent at {zoneName} says the same thing: be ready, or do not come."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "features": {
+    "_note": "The player learns a feature by visiting, by scent, or from gossip (map 10.3; Director: exact camps and dens are not common knowledge). These are discovery and return beats, not Lore Book entries and not region arrivals. Gossip is narrator framing of what {sourceName} told the player, and it always names {zoneName}. Repeat visits assume the feature is already known. Neither feature moves, and neither can be claimed away.",
+    "human_camp": {
+      "visit": {
+        "variants": [
+          {
+            "id": "features.human_camp.visit.a",
+            "text": "Smoke hangs over {zoneName} in a way no grass fire does. Upright figures move at the edge of a camp, and sharpened sticks lean waiting. This is a human camp, and no cat can fight what lives here."
+          },
+          {
+            "id": "features.human_camp.visit.b",
+            "text": "You come upon a human camp at {zoneName}: fire, strange upright scent, and sticks honed to bite from far off. The ground around it is trodden in a way no pride would tread. You do not walk closer."
+          },
+          {
+            "id": "features.human_camp.visit.c",
+            "text": "At {zoneName} you find what the far-edge stories meant. Humans keep a camp here, with fire and piled sticks, and their scent is nothing like a beast's. You watch from cover, and you leave yourself a way out."
+          }
+        ]
+      },
+      "scent": {
+        "variants": [
+          {
+            "id": "features.human_camp.scent.a",
+            "text": "A sharp fire-scent is on the ground at {zoneName}, mixed with a smell no beast leaves. Upright walkers have been here, and the smell of a camp clings to the earth."
+          },
+          {
+            "id": "features.human_camp.scent.b",
+            "text": "You read the earth at {zoneName} and come up with smoke, strange hides, and the dry smell of honed wood. Humans have made a camp on this ground."
+          },
+          {
+            "id": "features.human_camp.scent.c",
+            "text": "The scent at {zoneName} is fire and upright walkers, thick enough to be a living place, not a passing trail. There is a human camp here, or just off the next rise."
+          }
+        ]
+      },
+      "gossip": {
+        "variants": [
+          {
+            "id": "features.human_camp.gossip.a",
+            "text": "{sourceName} talks of fire and upright walkers at {zoneName}, and of sticks that wound from far off. A human camp, {sourceName} calls it, and says no cat should go in close."
+          },
+          {
+            "id": "features.human_camp.gossip.b",
+            "text": "{sourceName} came in from the far edges with a tight look, and said humans have made a camp at {zoneName}. They keep fire there, and they throw sharpened sticks."
+          },
+          {
+            "id": "features.human_camp.gossip.c",
+            "text": "{sourceName} warns you off {zoneName}. Upright walkers have settled there, {sourceName} says, with smoke by day and a camp that does not move."
+          }
+        ]
+      },
+      "repeat": {
+        "variants": [
+          {
+            "id": "features.human_camp.repeat.a",
+            "text": "The human camp is still at {zoneName}. Smoke still stains the air, and the upright walkers still keep to their ground."
+          },
+          {
+            "id": "features.human_camp.repeat.b",
+            "text": "You come back to {zoneName} and find the camp where it was. The fire-scent has not left, and neither have they."
+          },
+          {
+            "id": "features.human_camp.repeat.c",
+            "text": "The camp at {zoneName} has not moved. Humans still walk upright among their sticks and their fire, and you give them the same wide space as before."
+          }
+        ]
+      }
+    },
+    "hyena_den": {
+      "visit": {
+        "variants": [
+          {
+            "id": "features.hyena_den.visit.a",
+            "text": "The stink of many scavengers thickens into a den-smell at {zoneName}. Tracks overlap, and old bones lie cracked where a clan has fed. Hyenas keep this place, and they will take a meal if they can."
+          },
+          {
+            "id": "features.hyena_den.visit.b",
+            "text": "You find a hyena den at {zoneName}. The ground is packed by many paws, rank and sour, and the clan-scent is heavy enough to taste. You do not bring a meal any closer than you must."
+          },
+          {
+            "id": "features.hyena_den.visit.c",
+            "text": "At {zoneName} the scavenger-scent gathers at a den. Hyenas have worn this ground bare around it, and a whole clan could rise out of that stink. You keep your meal, if you are carrying a catch, and you keep moving."
+          }
+        ]
+      },
+      "scent": {
+        "variants": [
+          {
+            "id": "features.hyena_den.scent.a",
+            "text": "A thick den-smell of hyenas is soaked into the earth at {zoneName}. This is not a passing track. A clan lives on this ground."
+          },
+          {
+            "id": "features.hyena_den.scent.b",
+            "text": "You read the earth at {zoneName} and come up with sour scavenger-scent, layered thick, and the greasy smell of old bones. Hyenas have a den here."
+          },
+          {
+            "id": "features.hyena_den.scent.c",
+            "text": "The scent at {zoneName} is a hyena clan at home: many overlapping trails, musk, and cracked marrow. Their den is close."
+          }
+        ]
+      },
+      "gossip": {
+        "variants": [
+          {
+            "id": "features.hyena_den.gossip.a",
+            "text": "{sourceName} says hyenas have a den at {zoneName}, a sour place packed with tracks, and that a clan will take a meal from under you if you hunt there."
+          },
+          {
+            "id": "features.hyena_den.gossip.b",
+            "text": "{sourceName} came back from {zoneName} still shaking the stink out of {sourceName}'s coat, and said a hyena clan dens there."
+          },
+          {
+            "id": "features.hyena_den.gossip.c",
+            "text": "{sourceName} warns you that {zoneName} is hyena ground now. Their den is there, {sourceName} says, and they do not share a meal."
+          }
+        ]
+      },
+      "repeat": {
+        "variants": [
+          {
+            "id": "features.hyena_den.repeat.a",
+            "text": "The den-smell is still heavy at {zoneName}. The hyena clan has not left."
+          },
+          {
+            "id": "features.hyena_den.repeat.b",
+            "text": "You come back to {zoneName} and find the den where it was. The tracks are fresh, and the stink has not faded."
+          },
+          {
+            "id": "features.hyena_den.repeat.c",
+            "text": "The hyenas still keep their den at {zoneName}. You give it the same space as before, and you do not eat in the open here."
+          }
+        ]
+      }
+    }
+  },
+  "territory_gossip": {
+    "_note": "Spoken (or narrator-framed) news when a region changes hands, is claimed from the wild, is lost, goes wild, or becomes contested. Every entry is kind holder_change, matching the shared fact-kind list. sociability is the teller's band; baseline is the unbanded default for that change and side. side is set only for news about the player's pride. leaderKnown lines use {name} as a known leader or the cat who marked the ground, and must not fire without one. For contested news, {holderName} is the current holder and {rivalName} is the challenging pride (the same token as the My Pride contested header). {loserName} is the pride that lost the ground. {prideName} is the player's pride.",
+    "lines": [
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[0].a",
+            "text": "Have you heard? {name} has led {holderName} onto {zoneName}, and {loserName} has had to give way."
+          },
+          {
+            "id": "territory_gossip.lines[0].b",
+            "text": "{name} has pushed {loserName} off {zoneName}. It's {prideName} ground now, and {name} will want that known."
+          },
+          {
+            "id": "territory_gossip.lines[0].c",
+            "text": "Word is {name} took {zoneName} for {prideName}. {loserName} left marks behind."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_gained",
+          "sociability": "high",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[1].a",
+            "text": "Your marks are on {zoneName}! {prideName} holds it now, and {loserName} has had to give way. That's a fine thing to smell on your own ground."
+          },
+          {
+            "id": "territory_gossip.lines[1].b",
+            "text": "Have you heard the talk? {zoneName} is yours. {prideName} has driven {loserName} off, and the Vale is already repeating it."
+          },
+          {
+            "id": "territory_gossip.lines[1].c",
+            "text": "Come and listen: {zoneName} has changed paws. {loserName} is out, and {prideName} holds it. You should be pleased, and I think you are."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_gained",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[2].a",
+            "text": "{name} took {zoneName} for {prideName}. {loserName} is off it."
+          },
+          {
+            "id": "territory_gossip.lines[2].b",
+            "text": "{zoneName} is yours. {name} saw to that, and {loserName} is gone from it."
+          },
+          {
+            "id": "territory_gossip.lines[2].c",
+            "text": "{prideName} holds {zoneName} now. {name} led that, from what I hear."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_gained",
+          "sociability": "low",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[3].a",
+            "text": "{zoneName} is yours. {loserName} is off it."
+          },
+          {
+            "id": "territory_gossip.lines[3].b",
+            "text": "{prideName} took {zoneName} from {loserName}. That's the news."
+          },
+          {
+            "id": "territory_gossip.lines[3].c",
+            "text": "{loserName} lost {zoneName}. It's {prideName} ground."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_gained",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[4].a",
+            "text": "{prideName} holds {zoneName} now. {loserName} has been pushed off."
+          },
+          {
+            "id": "territory_gossip.lines[4].b",
+            "text": "{zoneName} has changed paws. It's {prideName}'s, taken from {loserName}."
+          },
+          {
+            "id": "territory_gossip.lines[4].c",
+            "text": "Word is {prideName} drove {loserName} off {zoneName}. The marks will say the same if you go and smell them."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_gained"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[5].a",
+            "text": "I hate to bring this news, but {name} has led {holderName} onto {zoneName}, and {prideName} has lost it."
+          },
+          {
+            "id": "territory_gossip.lines[5].b",
+            "text": "Have you heard? I wish the news were kinder. {name} took {zoneName} for {holderName}. Your marks won't hold there now."
+          },
+          {
+            "id": "territory_gossip.lines[5].c",
+            "text": "Come sit. {zoneName} is gone from {prideName}. {name} and {holderName} have it, and I thought you should hear it from a mouth you know."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_lost",
+          "sociability": "high",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[6].a",
+            "text": "I hate to bring this news, but {holderName} has taken {zoneName} from {prideName}. Your scent won't hold there now."
+          },
+          {
+            "id": "territory_gossip.lines[6].b",
+            "text": "Have you heard? I wish this were a kinder kind of talk. {zoneName} is lost to {holderName}, and {prideName} is off it."
+          },
+          {
+            "id": "territory_gossip.lines[6].c",
+            "text": "You'll want to know, even if you don't want to hear it: {holderName} has pushed {prideName} off {zoneName}."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_lost",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[7].a",
+            "text": "{name} took {zoneName} for {holderName}. Your ground is gone."
+          },
+          {
+            "id": "territory_gossip.lines[7].b",
+            "text": "{zoneName} is lost to you. {name} and {holderName} have it."
+          },
+          {
+            "id": "territory_gossip.lines[7].c",
+            "text": "{prideName} lost {zoneName} to {holderName}. {name} led that."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_lost",
+          "sociability": "low",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[8].a",
+            "text": "{holderName} took {zoneName}. Your ground is gone."
+          },
+          {
+            "id": "territory_gossip.lines[8].b",
+            "text": "{zoneName} is lost to {holderName}. Your ground is gone. That's all."
+          },
+          {
+            "id": "territory_gossip.lines[8].c",
+            "text": "{prideName} lost {zoneName}. {holderName} holds it."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_lost",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[9].a",
+            "text": "{holderName} holds {zoneName} now. {prideName} has been pushed off."
+          },
+          {
+            "id": "territory_gossip.lines[9].b",
+            "text": "{zoneName} has changed paws. It's {holderName}'s, taken from {prideName}."
+          },
+          {
+            "id": "territory_gossip.lines[9].c",
+            "text": "Word is {holderName} drove {prideName} off {zoneName}."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "side": "player_lost"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[10].a",
+            "text": "Have you heard? {name} has led {holderName} onto {zoneName}, and {loserName} has been pushed right off it."
+          },
+          {
+            "id": "territory_gossip.lines[10].b",
+            "text": "{name} took {zoneName} for {holderName}, from under {loserName}'s nose. That's the talk, and I thought you'd want it."
+          },
+          {
+            "id": "territory_gossip.lines[10].c",
+            "text": "Word is flying: {name} and {holderName} have {zoneName} now, and {loserName} is the pride that had to walk away."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "sociability": "high",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[11].a",
+            "text": "Have you heard? {holderName} has driven {loserName} off {zoneName}. It's {holderName} ground now, and every cat will be talking about it."
+          },
+          {
+            "id": "territory_gossip.lines[11].b",
+            "text": "You'll never guess the news from {zoneName}: {loserName} is out, and {holderName} holds it. I heard it and came straight to tell you."
+          },
+          {
+            "id": "territory_gossip.lines[11].c",
+            "text": "Come and listen. {zoneName} has changed paws. {holderName} took it from {loserName}, and the marks are already being walked."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[12].a",
+            "text": "{name} took {zoneName} for {holderName}. {loserName} is off it."
+          },
+          {
+            "id": "territory_gossip.lines[12].b",
+            "text": "{holderName} holds {zoneName}. {name} led that. {loserName} lost it."
+          },
+          {
+            "id": "territory_gossip.lines[12].c",
+            "text": "{zoneName} changed paws. {name}'s pride, {holderName}, has it."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "sociability": "low",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[13].a",
+            "text": "{holderName} took {zoneName} from {loserName}. That's all."
+          },
+          {
+            "id": "territory_gossip.lines[13].b",
+            "text": "{holderName} holds {zoneName} now. {loserName} is off it."
+          },
+          {
+            "id": "territory_gossip.lines[13].c",
+            "text": "{zoneName} changed paws. {holderName} has it. {loserName} doesn't."
+          }
+        ],
+        "when": {
+          "change": "taken",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[14].a",
+            "text": "{holderName} holds {zoneName} now. {loserName} has been pushed off."
+          },
+          {
+            "id": "territory_gossip.lines[14].b",
+            "text": "{zoneName} has changed paws. It's {holderName}'s, taken from {loserName}."
+          },
+          {
+            "id": "territory_gossip.lines[14].c",
+            "text": "Word is {holderName} drove {loserName} off {zoneName}. The scent marks will say the same."
+          }
+        ],
+        "when": {
+          "change": "taken"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[15].a",
+            "text": "Have you heard? {name} has marked {zoneName} for {prideName}. Wild ground, and now it's yours."
+          },
+          {
+            "id": "territory_gossip.lines[15].b",
+            "text": "{name} has claimed {zoneName} for you. There was no pride on it, and there is now: {prideName}."
+          },
+          {
+            "id": "territory_gossip.lines[15].c",
+            "text": "Come and smell the news: {name} has set {prideName}'s marks on {zoneName}, and the wild has given way."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "side": "player_gained",
+          "sociability": "high",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[16].a",
+            "text": "Your marks are on {zoneName}! {prideName} has claimed it, and the ground is yours. That's a proud thing to hear."
+          },
+          {
+            "id": "territory_gossip.lines[16].b",
+            "text": "Have you heard? {zoneName} was wild, and now it isn't. {prideName} has taken it, and I thought you'd want someone to say so out loud."
+          },
+          {
+            "id": "territory_gossip.lines[16].c",
+            "text": "Listen: {prideName} has claimed {zoneName}. Fresh marks, empty of any other pride, and the land is yours."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "side": "player_gained",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[17].a",
+            "text": "{name} claimed {zoneName} for {prideName}. It was wild. It isn't."
+          },
+          {
+            "id": "territory_gossip.lines[17].b",
+            "text": "{zoneName} is yours. {name} marked it."
+          },
+          {
+            "id": "territory_gossip.lines[17].c",
+            "text": "{prideName} has {zoneName}. {name} saw to the marks."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "side": "player_gained",
+          "sociability": "low",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[18].a",
+            "text": "{zoneName} is yours. It was wild. It isn't."
+          },
+          {
+            "id": "territory_gossip.lines[18].b",
+            "text": "{prideName} claimed {zoneName}. That's the news."
+          },
+          {
+            "id": "territory_gossip.lines[18].c",
+            "text": "{zoneName} has marks on it now. {prideName}'s."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "side": "player_gained",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[19].a",
+            "text": "{prideName} has claimed {zoneName}. It was wild, and it is held now."
+          },
+          {
+            "id": "territory_gossip.lines[19].b",
+            "text": "{zoneName} is {prideName}'s. No pride held it, and now yours does."
+          },
+          {
+            "id": "territory_gossip.lines[19].c",
+            "text": "Word is {prideName} has marked {zoneName} and means to keep it."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "side": "player_gained"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[20].a",
+            "text": "Have you heard? {name} has marked {zoneName} for {holderName}. It was wild ground, and now it isn't."
+          },
+          {
+            "id": "territory_gossip.lines[20].b",
+            "text": "{name} has claimed {zoneName} for {holderName}. No pride held it, and {name} has changed that."
+          },
+          {
+            "id": "territory_gossip.lines[20].c",
+            "text": "Come and listen: {name} set {holderName}'s marks on {zoneName}, and the wild has given way to a pride."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "sociability": "high",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[21].a",
+            "text": "Have you heard? {holderName} has claimed {zoneName}. It was wild, and now a pride holds it, and everyone will have an opinion."
+          },
+          {
+            "id": "territory_gossip.lines[21].b",
+            "text": "You'll want this: {zoneName} isn't empty any more. {holderName} has marked it, and the wild has given way."
+          },
+          {
+            "id": "territory_gossip.lines[21].c",
+            "text": "Listen. {holderName} has taken {zoneName} for its own. Fresh marks, and no other pride was on it to argue."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[22].a",
+            "text": "{name} claimed {zoneName} for {holderName}. It was wild."
+          },
+          {
+            "id": "territory_gossip.lines[22].b",
+            "text": "{holderName} has {zoneName}. {name} marked it."
+          },
+          {
+            "id": "territory_gossip.lines[22].c",
+            "text": "{zoneName} is held now. {name}'s pride, {holderName}."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "sociability": "low",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[23].a",
+            "text": "{holderName} claimed {zoneName}. It was wild. It isn't."
+          },
+          {
+            "id": "territory_gossip.lines[23].b",
+            "text": "{zoneName} has a pride now. {holderName}."
+          },
+          {
+            "id": "territory_gossip.lines[23].c",
+            "text": "{holderName} marked {zoneName}. That's the news."
+          }
+        ],
+        "when": {
+          "change": "claimed",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[24].a",
+            "text": "{holderName} has claimed {zoneName}. It was wild, and it is held now."
+          },
+          {
+            "id": "territory_gossip.lines[24].b",
+            "text": "{zoneName} is {holderName}'s. No pride held it, and now a pride does."
+          },
+          {
+            "id": "territory_gossip.lines[24].c",
+            "text": "Word is {holderName} has marked {zoneName} and means to keep it."
+          }
+        ],
+        "when": {
+          "change": "claimed"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[25].a",
+            "text": "I hate to bring this, but {prideName} has lost {zoneName}. {name} and {holderName} are the ones standing on it now."
+          },
+          {
+            "id": "territory_gossip.lines[25].b",
+            "text": "Have you heard? {zoneName} has slipped from {prideName}. {name} took it for {holderName}, and I thought you should hear it kindly."
+          },
+          {
+            "id": "territory_gossip.lines[25].c",
+            "text": "You'll want a friend for this: {prideName} no longer holds {zoneName}. {name} has it for {holderName}."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "side": "player_lost",
+          "sociability": "high",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[26].a",
+            "text": "I hate to bring this news, but {prideName} has lost {zoneName}. {holderName} stands on it now, and I wished it were otherwise."
+          },
+          {
+            "id": "territory_gossip.lines[26].b",
+            "text": "Have you heard? I am sorry for it. {zoneName} is no longer {prideName}'s. {holderName} has moved in."
+          },
+          {
+            "id": "territory_gossip.lines[26].c",
+            "text": "You'll want to know from someone who will say it plainly and kindly: {prideName} has lost {zoneName} to {holderName}."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "side": "player_lost",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[27].a",
+            "text": "{prideName} lost {zoneName}. {name} has it for {holderName}."
+          },
+          {
+            "id": "territory_gossip.lines[27].b",
+            "text": "{zoneName} is gone from you. {name} and {holderName} hold it."
+          },
+          {
+            "id": "territory_gossip.lines[27].c",
+            "text": "You lost {zoneName}. {name} took it."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "side": "player_lost",
+          "sociability": "low",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[28].a",
+            "text": "{prideName} lost {zoneName}. {holderName} has it."
+          },
+          {
+            "id": "territory_gossip.lines[28].b",
+            "text": "{zoneName} is gone from you. That's the news."
+          },
+          {
+            "id": "territory_gossip.lines[28].c",
+            "text": "You lost {zoneName} to {holderName}."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "side": "player_lost",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[29].a",
+            "text": "{prideName} has lost {zoneName}. {holderName} holds it now."
+          },
+          {
+            "id": "territory_gossip.lines[29].b",
+            "text": "{zoneName} is no longer {prideName}'s. Word is {holderName} has it."
+          },
+          {
+            "id": "territory_gossip.lines[29].c",
+            "text": "Word is {prideName} lost {zoneName}, and {holderName} is the pride that gained it."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "side": "player_lost"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[30].a",
+            "text": "Have you heard? {loserName} has lost {zoneName}, and {name} is the cat who took it for {holderName}."
+          },
+          {
+            "id": "territory_gossip.lines[30].b",
+            "text": "{loserName} couldn't hold {zoneName}. {name} saw to that, and {holderName} has the ground now. That's the talk."
+          },
+          {
+            "id": "territory_gossip.lines[30].c",
+            "text": "Come and listen: {zoneName} has gone from {loserName}, and {name} is being named for it all over the Vale."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "sociability": "high",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[31].a",
+            "text": "Have you heard? {loserName} has lost {zoneName}. {holderName} has it now, and I doubt {loserName} will take that quietly."
+          },
+          {
+            "id": "territory_gossip.lines[31].b",
+            "text": "You'll want this: {zoneName} has slipped from {loserName}'s paws. {holderName} is the pride standing there instead."
+          },
+          {
+            "id": "territory_gossip.lines[31].c",
+            "text": "Listen. {loserName} couldn't hold {zoneName}. It's gone from that pride, and {holderName} is the name on the marks now."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[32].a",
+            "text": "{loserName} lost {zoneName}. {name} took it for {holderName}."
+          },
+          {
+            "id": "territory_gossip.lines[32].b",
+            "text": "{zoneName} is gone from {loserName}. {name} has it."
+          },
+          {
+            "id": "territory_gossip.lines[32].c",
+            "text": "{loserName} couldn't hold {zoneName}. {name} could."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "sociability": "low",
+          "leaderKnown": true
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[33].a",
+            "text": "{loserName} lost {zoneName}. {holderName} has it."
+          },
+          {
+            "id": "territory_gossip.lines[33].b",
+            "text": "{zoneName} is gone from {loserName}. That's the news."
+          },
+          {
+            "id": "territory_gossip.lines[33].c",
+            "text": "{loserName} couldn't hold {zoneName}."
+          }
+        ],
+        "when": {
+          "change": "lost",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[34].a",
+            "text": "{loserName} has lost {zoneName}. {holderName} holds it now."
+          },
+          {
+            "id": "territory_gossip.lines[34].b",
+            "text": "{zoneName} is no longer {loserName}'s. Word is {holderName} has it."
+          },
+          {
+            "id": "territory_gossip.lines[34].c",
+            "text": "Word is {loserName} lost {zoneName}, and {holderName} is the pride that gained it."
+          }
+        ],
+        "when": {
+          "change": "lost"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[35].a",
+            "text": "I hate to bring this, but {zoneName} has gone wild again. {prideName}'s scent is off it, and no pride has stepped in."
+          },
+          {
+            "id": "territory_gossip.lines[35].b",
+            "text": "Have you heard? {zoneName} isn't anyone's now. {prideName} has left it, or been left by it, and the wild has come back."
+          },
+          {
+            "id": "territory_gossip.lines[35].c",
+            "text": "You'll want a friend for this: {zoneName} has gone wild again. {prideName} no longer holds it, and nothing else has claimed it."
+          }
+        ],
+        "when": {
+          "change": "wild",
+          "side": "player_lost",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[36].a",
+            "text": "{zoneName} has gone wild. Your marks are off it."
+          },
+          {
+            "id": "territory_gossip.lines[36].b",
+            "text": "{prideName} lost {zoneName}. No pride holds it."
+          },
+          {
+            "id": "territory_gossip.lines[36].c",
+            "text": "{zoneName} is wild again, and it was yours. That's the news."
+          }
+        ],
+        "when": {
+          "change": "wild",
+          "side": "player_lost",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[37].a",
+            "text": "{zoneName} has gone wild again. {prideName} no longer holds it."
+          },
+          {
+            "id": "territory_gossip.lines[37].b",
+            "text": "No pride holds {zoneName} now. {prideName}'s claim has gone off it."
+          },
+          {
+            "id": "territory_gossip.lines[37].c",
+            "text": "Word is {zoneName} is wild again, and {prideName} is the pride that lost it."
+          }
+        ],
+        "when": {
+          "change": "wild",
+          "side": "player_lost"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[38].a",
+            "text": "Have you heard? {zoneName} has gone wild again. {loserName} couldn't keep it, and no other pride has stepped in yet."
+          },
+          {
+            "id": "territory_gossip.lines[38].b",
+            "text": "You'll want this: {zoneName} isn't anyone's now. {loserName} is off it, and the wild has come back in."
+          },
+          {
+            "id": "territory_gossip.lines[38].c",
+            "text": "Listen. {loserName} has left {zoneName}, or been left by it. The marks are fading, and the ground has gone wild."
+          }
+        ],
+        "when": {
+          "change": "wild",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[39].a",
+            "text": "{zoneName} has gone wild. {loserName} is off it."
+          },
+          {
+            "id": "territory_gossip.lines[39].b",
+            "text": "No pride holds {zoneName}. {loserName} lost it."
+          },
+          {
+            "id": "territory_gossip.lines[39].c",
+            "text": "{zoneName} is wild again. That's the news."
+          }
+        ],
+        "when": {
+          "change": "wild",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[40].a",
+            "text": "{zoneName} has gone wild again. {loserName} no longer holds it."
+          },
+          {
+            "id": "territory_gossip.lines[40].b",
+            "text": "No pride holds {zoneName} now. {loserName}'s claim has gone off it."
+          },
+          {
+            "id": "territory_gossip.lines[40].c",
+            "text": "Word is {zoneName} is wild again, and {loserName} is the pride that lost it."
+          }
+        ],
+        "when": {
+          "change": "wild"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[41].a",
+            "text": "Have you heard? {zoneName} is being fought over, and it's your ground being pressed. {rivalName} is pushing in on {prideName}."
+          },
+          {
+            "id": "territory_gossip.lines[41].b",
+            "text": "I thought you should hear it from me: {zoneName} is contested now. {prideName} still stands there, but {rivalName} is not giving way."
+          },
+          {
+            "id": "territory_gossip.lines[41].c",
+            "text": "Come and listen, because this matters to you. {rivalName} is contesting {zoneName}, and {prideName} will have to hold it or lose it."
+          }
+        ],
+        "when": {
+          "change": "contested",
+          "side": "player_contested",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[42].a",
+            "text": "{zoneName} is contested. {rivalName} is pushing you."
+          },
+          {
+            "id": "territory_gossip.lines[42].b",
+            "text": "{rivalName} is on {zoneName}. Your ground isn't settled."
+          },
+          {
+            "id": "territory_gossip.lines[42].c",
+            "text": "{prideName} still holds {zoneName}. {rivalName} is arguing it. That's the news."
+          }
+        ],
+        "when": {
+          "change": "contested",
+          "side": "player_contested",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[43].a",
+            "text": "{zoneName} is contested by {rivalName}. {prideName} still holds it, for now."
+          },
+          {
+            "id": "territory_gossip.lines[43].b",
+            "text": "{prideName} still stands at {zoneName}, but {rivalName} is contesting it."
+          },
+          {
+            "id": "territory_gossip.lines[43].c",
+            "text": "Word is {zoneName} is being fought over. {prideName} is the holder, and {rivalName} is the pride pushing in."
+          }
+        ],
+        "when": {
+          "change": "contested",
+          "side": "player_contested"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[44].a",
+            "text": "Have you heard? {zoneName} is being fought over. {holderName} still stands there, but {rivalName} is pushing in, and it will not stay quiet."
+          },
+          {
+            "id": "territory_gossip.lines[44].b",
+            "text": "You'll want this: {zoneName} is contested now. {holderName} hasn't given it up, and {rivalName} hasn't given up either."
+          },
+          {
+            "id": "territory_gossip.lines[44].c",
+            "text": "Listen. {holderName} and {rivalName} are on {zoneName} together. That's contested ground, and someone will have to yield."
+          }
+        ],
+        "when": {
+          "change": "contested",
+          "sociability": "high"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[45].a",
+            "text": "{zoneName} is contested. {holderName} still holds it. {rivalName} is pushing."
+          },
+          {
+            "id": "territory_gossip.lines[45].b",
+            "text": "{rivalName} is on {zoneName}. {holderName} hasn't left."
+          },
+          {
+            "id": "territory_gossip.lines[45].c",
+            "text": "{zoneName} isn't settled. {holderName} wants it, and so does {rivalName}."
+          }
+        ],
+        "when": {
+          "change": "contested",
+          "sociability": "low"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[46].a",
+            "text": "{zoneName} is contested by {rivalName}. {holderName} still holds it, for now."
+          },
+          {
+            "id": "territory_gossip.lines[46].b",
+            "text": "{holderName} still stands at {zoneName}, but {rivalName} is contesting it."
+          },
+          {
+            "id": "territory_gossip.lines[46].c",
+            "text": "Word is {zoneName} is being fought over. {holderName} is the holder, and {rivalName} is the pride pushing in."
+          }
+        ],
+        "when": {
+          "change": "contested"
+        },
+        "kind": "holder_change"
+      },
+      {
+        "variants": [
+          {
+            "id": "territory_gossip.lines[47].a",
+            "text": "Word is the holder of {zoneName} has changed."
+          },
+          {
+            "id": "territory_gossip.lines[47].b",
+            "text": "{zoneName} does not belong to the same pride it did."
+          },
+          {
+            "id": "territory_gossip.lines[47].c",
+            "text": "The marks at {zoneName} are not the marks that were there."
+          }
+        ],
+        "kind": "holder_change"
+      }
+    ]
+  },
+  "notices": {
+    "_note": "Longer narration for the My Pride Territory notices. Short labels match the approved header words in cat-directory copy: Patrol due, and Your scent is fading. Contested wins over every other claim word, so those variants sit first. Tokens follow the header: {zoneName}, {rivalName}, {prideName}.",
+    "patrol_due": {
+      "label": "Patrol due",
+      "lines": [
+        {
+          "variants": [
+            {
+              "id": "notices.patrol_due.lines[0].a",
+              "text": "{zoneName} is contested by {rivalName}, and a patrol is due. This is not ground to leave unwalked."
+            },
+            {
+              "id": "notices.patrol_due.lines[0].b",
+              "text": "A patrol is due at {zoneName}, and {rivalName} is already contesting it. Walk it, or the other marks will settle in."
+            },
+            {
+              "id": "notices.patrol_due.lines[0].c",
+              "text": "{zoneName} is being pressed by {rivalName}. No cat from {prideName} has patrolled it this season, and that will show."
+            }
+          ],
+          "when": {
+            "claim": "contested"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.patrol_due.lines[1].a",
+              "text": "Your scent is fading at {zoneName}, and a patrol is due. Walk it, or the claim will slip further."
+            },
+            {
+              "id": "notices.patrol_due.lines[1].b",
+              "text": "A patrol is due at {zoneName}. The marks are already thinning, and the ground will not wait."
+            },
+            {
+              "id": "notices.patrol_due.lines[1].c",
+              "text": "{zoneName} is slipping, and no cat has patrolled it this season. The scent needs renewing if it is to stay yours."
+            }
+          ],
+          "when": {
+            "claim": "slipping"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.patrol_due.lines[2].a",
+              "text": "{zoneName} is firmly yours, but a patrol is due. The marks will not hold by themselves through the season."
+            },
+            {
+              "id": "notices.patrol_due.lines[2].b",
+              "text": "A patrol is due at {zoneName}. The ground is firmly yours for now, and a walk will keep it that way."
+            },
+            {
+              "id": "notices.patrol_due.lines[2].c",
+              "text": "No cat from {prideName} has patrolled {zoneName} this season. It is still firmly yours, but the scent will not stay fresh on its own."
+            }
+          ],
+          "when": {
+            "claim": "strong"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.patrol_due.lines[3].a",
+              "text": "{zoneName} is yours, and a patrol is due. The scent needs renewing."
+            },
+            {
+              "id": "notices.patrol_due.lines[3].b",
+              "text": "A patrol is due at {zoneName}. Walk it, and the ground will stay yours."
+            },
+            {
+              "id": "notices.patrol_due.lines[3].c",
+              "text": "No cat from {prideName} has patrolled {zoneName} this season. It is still yours, but it wants walking."
+            }
+          ],
+          "when": {
+            "claim": "held"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.patrol_due.lines[4].a",
+              "text": "A patrol is due at {zoneName}."
+            },
+            {
+              "id": "notices.patrol_due.lines[4].b",
+              "text": "No cat from {prideName} has patrolled {zoneName} this season. The marks want walking."
+            },
+            {
+              "id": "notices.patrol_due.lines[4].c",
+              "text": "{zoneName} has gone unpatrolled this season. The scent will not keep without a walk."
+            }
+          ]
+        }
+      ]
+    },
+    "scent_fading": {
+      "label": "Your scent is fading",
+      "lines": [
+        {
+          "variants": [
+            {
+              "id": "notices.scent_fading.lines[0].a",
+              "text": "Your scent is fading at {zoneName}, and {rivalName} is already contesting it. The other marks are waiting to settle."
+            },
+            {
+              "id": "notices.scent_fading.lines[0].b",
+              "text": "{zoneName} is contested by {rivalName}, and your scent is fading there. This is how ground begins to go."
+            },
+            {
+              "id": "notices.scent_fading.lines[0].c",
+              "text": "The marks of {prideName} are thinning at {zoneName}, and {rivalName} is pressing into the gaps."
+            }
+          ],
+          "when": {
+            "claim": "contested"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.scent_fading.lines[1].a",
+              "text": "Your scent has faded at {zoneName}. This ground is lost to {rivalName}."
+            },
+            {
+              "id": "notices.scent_fading.lines[1].b",
+              "text": "{zoneName} is lost to {rivalName}. What was your scent there is only a memory on the stones."
+            },
+            {
+              "id": "notices.scent_fading.lines[1].c",
+              "text": "The marks of {prideName} have gone from {zoneName}. It is lost to {rivalName} now."
+            }
+          ],
+          "when": {
+            "claim": "lost"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.scent_fading.lines[2].a",
+              "text": "Your scent has faded at {zoneName}. The ground has gone wild again."
+            },
+            {
+              "id": "notices.scent_fading.lines[2].b",
+              "text": "{zoneName} has gone wild again. What was your scent there has worn off, and no other pride has taken it."
+            },
+            {
+              "id": "notices.scent_fading.lines[2].c",
+              "text": "The marks of {prideName} have gone from {zoneName}, and the land belongs to no pride again."
+            }
+          ],
+          "when": {
+            "claim": "lost_unclaimed"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.scent_fading.lines[3].a",
+              "text": "Your scent is fading at {zoneName}. The claim is slipping."
+            },
+            {
+              "id": "notices.scent_fading.lines[3].b",
+              "text": "{zoneName} is slipping. The marks of {prideName} are thinning, and the ground does not smell as if it is firmly yours."
+            },
+            {
+              "id": "notices.scent_fading.lines[3].c",
+              "text": "The scent at {zoneName} is fading. Walk it, or it will not stay yours for long."
+            }
+          ],
+          "when": {
+            "claim": "slipping"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.scent_fading.lines[4].a",
+              "text": "The marks at {zoneName} are still strong, but they are thinning at the edges. Your scent is beginning to fade."
+            },
+            {
+              "id": "notices.scent_fading.lines[4].b",
+              "text": "{zoneName} is firmly yours, and even so the scent is starting to fade. A walk would keep it that way."
+            },
+            {
+              "id": "notices.scent_fading.lines[4].c",
+              "text": "Your scent is fading a little at {zoneName}, though the ground is still firmly yours. It is an early warning, not a loss."
+            }
+          ],
+          "when": {
+            "claim": "strong"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.scent_fading.lines[5].a",
+              "text": "Your scent is fading at {zoneName}. It is still yours, for now."
+            },
+            {
+              "id": "notices.scent_fading.lines[5].b",
+              "text": "{zoneName} is yours, but the marks are thinning. The scent will not keep if it is left."
+            },
+            {
+              "id": "notices.scent_fading.lines[5].c",
+              "text": "The marks of {prideName} are fading at {zoneName}. The ground is still yours, and it will not stay so on memory alone."
+            }
+          ],
+          "when": {
+            "claim": "held"
+          }
+        },
+        {
+          "variants": [
+            {
+              "id": "notices.scent_fading.lines[6].a",
+              "text": "Your scent is fading at {zoneName}."
+            },
+            {
+              "id": "notices.scent_fading.lines[6].b",
+              "text": "The marks at {zoneName} are thinning. The ground does not smell as clearly of {prideName} as it did."
+            },
+            {
+              "id": "notices.scent_fading.lines[6].c",
+              "text": "Your scent is fading from {zoneName}, and the land will not keep a memory of you without fresh marks."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

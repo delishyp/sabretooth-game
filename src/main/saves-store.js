@@ -12,6 +12,7 @@ const crypto = require('crypto');
 const RUN_SLOTS = 2;
 const SAVES_PER_RUN = 3;
 const DIFFICULTIES = ['permadeath', 'heir', 'sandbox'];   // Death rule (spec v1.3 keeps the `difficulty` key)
+const LEVELS = ['gentle', 'standard', 'harsh', 'ice_age'];   // §2 difficulty, separate from the death rule
 const STYLES = ['story', 'standard', 'sim'];
 const DEFAULT_STYLE = 'standard';
 const SANDBOX_OPTIONS = Object.freeze({
@@ -48,6 +49,7 @@ function normalizeMainCat(c) {
   if (!c || typeof c !== 'object') return null;
   const out = Object.fromEntries(MAIN_CAT_FIELDS.map((k) => [k, c[k] === undefined ? null : c[k]]));
   out.scars = Array.isArray(c.scars) ? c.scars : [];
+  out.portraitId = typeof c.portraitId === 'string' && /^[a-z0-9][a-z0-9-]*$/.test(c.portraitId) ? c.portraitId : null;
   return out;
 }
 
@@ -82,6 +84,7 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
       run = readJson(path.join(runDir(i), 'run.json'));
       if (!run.runId || !DIFFICULTIES.includes(run.difficulty)) throw new Error('invalid run record');
       if (run.style === undefined) run.style = DEFAULT_STYLE;           // pre-v1.3 runs are Standard
+      if (!LEVELS.includes(run.level)) run.level = 'standard';         // old saves have no difficulty level
       if (!STYLES.includes(run.style)) throw new Error(`invalid style ${run.style}`);
       run = { ...run, slotIndex: i, damaged: false };
     } catch (e) {
@@ -117,9 +120,10 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
      * Create a run. Uses the first free slot, or replaces `replaceRunId` (deleting it and all its saves).
      * Throws if no slot is free and no replacement was given.
      */
-    createRun({ style = DEFAULT_STYLE, difficulty, sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride', playerCat = null } = {}) {
+    createRun({ style = DEFAULT_STYLE, difficulty, level = 'standard', sandboxOptions, replaceRunId, storytellerMode = 'offline', catName = 'Unnamed cat', prideName = 'Nameless pride', playerCat = null, tutorial = false } = {}) {
       if (!STYLES.includes(style)) throw new Error(`invalid style ${style}`);
       if (!DIFFICULTIES.includes(difficulty)) throw new Error(`invalid difficulty ${difficulty}`);
+      if (!LEVELS.includes(level)) throw new Error(`invalid level ${level}`);
       let slotIndex;
       if (replaceRunId) {
         const old = findRun(replaceRunId); if (!old) throw new Error('run to replace not found');
@@ -129,13 +133,25 @@ function createSavesStore(dir, { log = () => {}, gameVersion = '0.1.0', now = ()
       }
       const t = now().toISOString();
       const run = {
-        runId: crypto.randomUUID(), slotIndex, catName, prideName, style, difficulty,
+        runId: crypto.randomUUID(), slotIndex, catName, prideName, style, difficulty, level,
         sandboxOptions: difficulty === 'sandbox' ? normalizeSandboxOptions(sandboxOptions) : null,
         storytellerMode, generation: 1, createdAt: t, lastPlayedAt: t, gameVersion,
+        tutorial: tutorial === true,
         playerCat   // cat-creator-spec v0.2 §5.2: full Cat record of the player cat (ageSeasons, birthSeason; lifeStage derived), or null
       };
       writeJson(path.join(runDir(slotIndex), 'run.json'), run);
       return { ...run, saves: [] };
+    },
+    /** §2.1: only a sandbox run may change difficulty after the game has started. */
+    setLevel(runId, level) {
+      if (!LEVELS.includes(level)) throw new Error(`invalid level ${level}`);
+      const run = findRun(runId);
+      if (!run || run.damaged) throw new Error('run not found');
+      if (run.difficulty !== 'sandbox') throw new Error('level locked');
+      const rec = readJson(path.join(runDir(run.slotIndex), 'run.json'));
+      rec.level = level;
+      writeJson(path.join(runDir(run.slotIndex), 'run.json'), rec);
+      return level;
     },
     /**
      * Write a manual save. Without `overwriteSaveIndex`, uses the first free index and throws SaveCapError

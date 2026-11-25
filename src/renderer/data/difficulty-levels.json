@@ -1,0 +1,40 @@
+{
+  "levels": ["gentle", "standard", "harsh", "ice_age"],
+  "foe": {
+    "note": "Approved in §2.4. lone covers rival cats and lone foes. group covers hyena clans and wolf packs.",
+    "live": true,
+    "lone": { "gentle": 0.9, "standard": 1, "harsh": 1, "ice_age": 1 },
+    "lion": { "gentle": 0.9, "standard": 1, "harsh": 1.05, "ice_age": 1.1 },
+    "group": { "gentle": 0.9, "standard": 1, "harsh": 1.1, "ice_age": 1.15 }
+  },
+  "prey": {
+    "note": "candidate, sim pending. Not applied.",
+    "live": false,
+    "gentle": 1.25,
+    "standard": 1,
+    "harsh": 0.85,
+    "ice_age": 0.7
+  },
+  "hunger": {
+    "note": "candidate, sim pending. Not applied.",
+    "live": false,
+    "gentle": 0.8,
+    "standard": 1,
+    "harsh": 1.15,
+    "ice_age": 1.3
+  },
+  "reputation": {
+    "note": "candidate, sim pending. Not applied.",
+    "live": false,
+    "gentle": 0.5,
+    "standard": 1,
+    "harsh": 1.25,
+    "ice_age": 1.5
+  },
+  "forgiveness": {
+    "gentle": { "refuseOnce": true, "injuryLighter": true },
+    "standard": {},
+    "harsh": {},
+    "ice_age": { "stack": true, "noRefusal": true }
+  }
+}

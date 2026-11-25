@@ -211,7 +211,7 @@ Decisions on the B12 mismatches:
     "run.emptyMeta": "Run slot {slot}",
     "run.damagedName": "Damaged run",
     "run.damagedMeta": "Run slot {slot}. This run can't be loaded, but it can be deleted.",
-    "run.meta": "Generation {generation} · Last played {lastPlayed} · {saveCount}/3 saves",
+    "run.meta": "Generation {generation} · Last played {lastPlayed}",
     "run.defaultCatName": "Unnamed cat",
     "run.defaultPrideName": "Nameless pride",
     "run.sandboxTag": "No game over",
@@ -393,7 +393,9 @@ Decisions:
 
     "creator.help.name": "What the valley will call you.",
     "creator.help.nameGamepad": "Press A for another name.",
-    "creator.help.sex": "Your coat, markings and eyes stay the same.",
+    "creator.help.sex": "Either sex can use every picture.",
+    "creator.row.portrait": "Picture",
+    "creator.help.portrait": "One of the supplied pictures. Coat and eyes do not choose it.",
     "creator.help.coat": "The colour of your fur.",
     "creator.help.markings": "The pattern over your coat, if any.",
     "creator.help.eyes": "The first thing your rivals will see.",
@@ -438,7 +440,7 @@ Decisions:
     "creator.name.reroll": "Randomize name",
 
     "creator.randomize": "Randomize",
-    "creator.help.randomize": "New coat, markings and eyes. Your name, sex and personality stay.",
+    "creator.help.randomize": "A new picture. Your name, sex and personality stay.",
     "creator.help.randomizePersonality": "Rerolls personality only. Your look and name stay.",
     "creator.next": "Next",
     "creator.start": "Start",
@@ -485,8 +487,8 @@ Decisions:
 
     "creator.hint.keyboard": "Up/Down: row · Left/Right: change · Enter: select · Esc: back",
     "creator.hint.gamepad": "D-pad: row and change · A: select · A on Name: new name · B: back",
-    "creator.hint.mouse": "Click the arrows to change a row, then Next.",
-    "creator.hint.mousePersonality": "Drag a slider or pick a preset, then Start.",
+    "creator.hint.mouse": "Click a button to change your cat, then Next.",
+    "creator.hint.mousePersonality": "Drag a slider or pick a preset, then Next.",
 
     "creator.preview.alt": "Portrait of {catName}, a {sex} sabrecat with a {coat} coat, {markings}, and {eyes} eyes.",
     "creator.preview.markings.none": "no markings",

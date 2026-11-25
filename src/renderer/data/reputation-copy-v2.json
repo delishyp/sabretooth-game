@@ -1,0 +1,2841 @@
+{
+ "_readme": "Reputation copy (Saga), v2, pass-2 voice. Aligned to docs/design/reputation-v0.1.md v0.1.2 and councils-v0.1.md at repo commit 0e93339. Finalises the §7 display ladder (L3 titles exact; L4/L5 adopted as defined; L1–L2 unchanged from v1), the §7.4 epithets (exact, including challenge_won), directory and meeting-card strings (E9), stranger-greeting variants (E1, L2+ only), and gossip for title gained, title lost ('once called…'), and pole flip. Tundra's settled rulings: Q3 plain sum; Q4 retreats count only when an ally is left behind; Q5 land taken or lost feeds only the land_taker epithet; councils Honour affects belief, not who may speak. Anna (2026-11-10) signed off the four specs: reputation never fades; secrets coming out are reputation moments (see secrets); a pride holds 3 to 6 regions; a grudge-holder lies 1 time in 4; councils are once a season plus emergencies; only pride leaders attend. Selection, tokens and bans are unchanged from v1. Does not invent mechanics, cats, or lore, and does not invent epithets beyond §7.4.",
+ "_source": {
+  "spec": "docs/design/reputation-v0.1.md",
+  "councils": "docs/design/councils-v0.1.md",
+  "commit": "0e93339",
+  "specVersion": "v0.1.2",
+  "voice": "dialogue-pass-2.md",
+  "hooks": "§7–§9, E1, E2, E9; councils-v0.1 §5.2 settles E4/Q6",
+  "from": "reputation-copy-v1.json"
+ },
+ "_tokens": {
+  "name": "The run name of the cat the line is about (world-gen §3). On directory, meeting-card, epithet and gossip lines, that is the subject cat. On greeting lines, that is the player.",
+  "sourceName": "The cat who told the player the gossip (same token as map-danger-gossip-v1). Used on gossip lines.",
+  "teller": "Alias for the gossip teller, whitelisted and not used in the lines. Bind this to the same cat as {sourceName} if an older hook expected it.",
+  "prideName": "The pride the line is about. On pride_words and the My Pride unknown line, that is the pride being described. On challenge_won, that is the pride's name as stored on the feat fact at the time of the win, including a founded pride.",
+  "subjectName": "the subject cat on secret-reveal and gossip lines; same binding as {name} in those lines"
+ },
+ "_schema": {
+  "when": "First match wins; the last entry in a list has no when and is the default. Matches if every key present is true. axis is mercy, courage or honour. pole is positive or negative (signed, as in the spec). level is the exact known level L2, L3, L4 or L5 (not a minimum; greetings are E1 L2+ only). sociability, aggression, boldness and loyalty are the teller's or greeter's trait band (high / low; baseline is the unbanded default). Trait hooks appear only where E1 or E2 states a like or dislike. Trait keys in this bank are listed in the order sociability, aggression, boldness, loyalty, so an NPC who matches two high traits takes the earlier hook. prideKnown is true only when {prideName} can be filled on a challenge_won line (the observer knows the place of that win).",
+  "words": "Lookup by axis, pole, level (L1–L5). L1–L2 are words only. L3 is the title, exact from §7. L4/L5 are the §7 strings, adopted as defined. Directory word lines use this table for every known axis at L1 or higher. The meeting card shows one title: the highest-level axis (ties go Courage, then Mercy, then Honour; see _rules). At L3+ the title line is this table's string for that axis. At L4+ the meeting card prefers this L4/L5 string, then an epithet, then an L3 title (priority is an engine rule).",
+  "pride_words": "The same ladder with {prideName} as the subject, per §8.1. L3 uses '{prideName} the Merciful' (and '{prideName} Oathbreaker', no 'the'), which the spec does not spell out; see _questions.",
+  "epithets": "Exact §7.4 strings, keyed by featId. challenge_won is a first-when-wins list: the {prideName} form when prideKnown is true, then a general no-place default with no when (see _rules).",
+  "directory": "E9 field label and the unknown string, plus the same unknown for a meeting card with nothing known. Word lines and the title line are looked up from words (and pride_words for a pride).",
+  "my_pride": "§8.3 header hook: one Reputation line in words. The known line is pride_words for the founded pride's highest axis. unknown is an adaptation of E9, because the spec does not give a pride unknown string; see _questions.",
+  "greetings": "NPC speech to the player at a stranger first-meeting (E1). Selected by the player's highest known axis at L2+, with trait bands from E1/E2. Ties use the settled §7.3 order (Courage, then Mercy, then Honour; see _rules). The last entry is the default when nothing is known.",
+  "gossip": "title_gained, title_lost and pole_flip. Each is a first-when-wins list, per axis and pole, with teller sociability high, then low, then unbanded, then a final default. title_lost uses 'once called…'. pole.pole is the pole the talk has turned TO, and the lines do not award the opposite title.",
+  "secrets": "Anna (2026-11-10): when a secret comes out it becomes a reputation moment, never seeded as known (§9.1). Lookup is by secret id (ln01_silence, ln04_saved_cub, hc02_fallen_cub). slot is the subject cat. learned is the first-hand Lore Book / moment line. gossip, widely_told, confirmed, false_variant and debunked follow the Lore Book rumour pattern. {name} and {subjectName} are the subject cat. Role names are never used."
+ },
+ "_rules": {
+  "tie_order": "When two or more known axes are at the same level, titles (meeting card, §7.3) and stranger greetings (E1) both use Courage, then Mercy, then Honour. Settled by Tundra and Flint. Tundra: Courage is the axis a stranger most likely heard of. Titles and greetings share this order. This is an engine selection rule, not copy; the bank does not encode the tie.",
+  "challenge_won": "Tundra, PROPOSED DEFAULT. The feat fact stores the pride's name as it was at the time of the win; {prideName} binds to that stored name. The player's own (founded) pride counts like any other pride, so it uses the same {prideName} form. If the place is unknown to the observer, use the last entry, the general no-place line. If the observer knows several wins, show the most recent one they know (engine selection, not copy). The earlier by-pride nicknames (Crag-Taker / Field-Taker / Mist-Taker) are replaced by this form."
+ },
+ "_gaps": [
+  "No L1 greeting hook: E1 is L2+ only. An L1-only player uses the default stranger greeting.",
+  "No greeting variants for trait bands E1/E2 do not mention (low sociability, low boldness, low loyalty, and low aggression except vs Cruel). High aggression vs Cruel is 0 (doesn't mind) and is not banded.",
+  "Ambient deed templates rep.ambient.{axis}.{pole}.{class} (§9.2) are not in this bank.",
+  "E4 Faithless L3+ council distrust lines, E5 Cruel L3+ danger text, and E7 trespass patrol variants are text-only hooks not in this bank. Councils-v0.1 §5.2 now settles E4: Honour changes how likely a leader is to be believed, not who may speak. The distrust, danger and patrol lines still need a later copy pass."
+ ],
+ "_questions": [
+  "Flint: E1 greetings are L2+ only. This bank has no L1 greeting. Confirm an L1-only known axis uses the default (nothing known) greeting, not a special L1 line.",
+  "Flint: E1 is stranger first-meetings (slice.meeting.*, the first stored pair value, cats-come-to-you). Confirm these lines do not replace repeat-meeting greetings.",
+  "Flint: when.level on greetings is the exact known level (L2, L3, L4 or L5), not a minimum. Confirm you pass the exact level of the single highest known axis (ties: Courage, then Mercy, then Honour).",
+  "Flint: walk each list in order (first when match wins). Trait hooks are listed sociability, then aggression, then boldness, then loyalty, so an NPC who is high in two matching traits takes the earlier hook.",
+  "Flint: {name} on greeting lines is the player's run name (reputation §7.1). On directory, epithet and gossip lines, {name} is the subject cat. {sourceName} is the gossip teller. {teller} is whitelisted and unused; bind it to the same cat if an older hook expected it.",
+  "Flint / Tundra: pride_words follow §8.1. The L3 pride title form is still not specified. This bank keeps '{prideName} the Merciful' and '{prideName} Oathbreaker' (no 'the') as the closest reading of 'the same words'. Confirm or supply a pride title form.",
+  "Flint / Tundra: §8.3 says My Pride's summary header gets one Reputation line in words. This bank provides my_pride.unknown ('Nothing said of {prideName} yet') as an adaptation of E9, and says the known line is pride_words for the highest axis. Confirm the unknown string and that the header uses pride_words.",
+  "Flint: meeting-card priority (an L4+ axis title, then an epithet, then an L3 title) is an engine rule. L4/L5 title strings in §7 do not include {name} ('Renowned for mercy'). Confirm they are shown as-is, or say if {name} should be prefixed.",
+  "Flint: the directory field label is 'Reputation' per E9. That word is otherwise banned in player-facing prose; it is stored here as a UI label only.",
+  "Flint: secrets (ln01_silence, ln04_saved_cub, hc02_fallen_cub) are in the secrets bank. Anna ruled they become reputation moments when they come out, and they are never seeded as known (§9.1). Confirm the hook: first-when-wins is not used here; look up by secret id. {name} is the subject cat. Role names (the lore names for these slots) must not appear on screen.",
+  "Flint: M6, should a clean steal stay private (the owner is currently in participants on success)? This is reputation Q8, still open.",
+  "Saga note for Flint: title-lost lines use the number word 'once' only inside the required phrase 'once called' (§7.3). The validator allows that phrase and no other 'once'."
+ ],
+ "words": {
+  "mercy": {
+   "positive": {
+    "L1": "Said to be gentle",
+    "L2": "Known as merciful",
+    "L3": "{name} the Merciful",
+    "L4": "Renowned for mercy",
+    "L5": "Sung of for mercy"
+   },
+   "negative": {
+    "L1": "Whispered to be cruel",
+    "L2": "Known as cruel",
+    "L3": "{name} the Cruel",
+    "L4": "Feared for cruelty",
+    "L5": "A name to frighten cubs"
+   }
+  },
+  "courage": {
+   "positive": {
+    "L1": "Said to have nerve",
+    "L2": "Known as brave",
+    "L3": "{name} the Brave",
+    "L4": "Renowned for courage",
+    "L5": "Sung of for courage"
+   },
+   "negative": {
+    "L1": "Whispered to be a coward",
+    "L2": "Known as a coward",
+    "L3": "{name} the Craven",
+    "L4": "Scorned as a coward",
+    "L5": "A byword for cowardice"
+   }
+  },
+  "honour": {
+   "positive": {
+    "L1": "Said to keep a given word",
+    "L2": "Known as true to a given word",
+    "L3": "{name} the True",
+    "L4": "Renowned as true",
+    "L5": "Sung of as true"
+   },
+   "negative": {
+    "L1": "Whispered to break a given word",
+    "L2": "Known as faithless",
+    "L3": "{name} Oathbreaker",
+    "L4": "Known everywhere as faithless",
+    "L5": "A byword for betrayal"
+   }
+  }
+ },
+ "pride_words": {
+  "mercy": {
+   "positive": {
+    "L1": "{prideName} is said to be gentle",
+    "L2": "{prideName} is known as merciful",
+    "L3": "{prideName} the Merciful",
+    "L4": "{prideName} is renowned for mercy",
+    "L5": "{prideName} is sung of for mercy"
+   },
+   "negative": {
+    "L1": "{prideName} is whispered to be cruel",
+    "L2": "{prideName} is known as cruel",
+    "L3": "{prideName} the Cruel",
+    "L4": "{prideName} is feared for cruelty",
+    "L5": "{prideName} is a name to frighten cubs"
+   }
+  },
+  "courage": {
+   "positive": {
+    "L1": "{prideName} is said to have nerve",
+    "L2": "{prideName} is known as brave",
+    "L3": "{prideName} the Brave",
+    "L4": "{prideName} is renowned for courage",
+    "L5": "{prideName} is sung of for courage"
+   },
+   "negative": {
+    "L1": "{prideName} is whispered to be a coward",
+    "L2": "{prideName} is known as a coward",
+    "L3": "{prideName} the Craven",
+    "L4": "{prideName} is scorned as a coward",
+    "L5": "{prideName} is a byword for cowardice"
+   }
+  },
+  "honour": {
+   "positive": {
+    "L1": "{prideName} is said to keep a given word",
+    "L2": "{prideName} is known as true to a given word",
+    "L3": "{prideName} the True",
+    "L4": "{prideName} is renowned as true",
+    "L5": "{prideName} is sung of as true"
+   },
+   "negative": {
+    "L1": "{prideName} is whispered to break a given word",
+    "L2": "{prideName} is known as faithless",
+    "L3": "{prideName} Oathbreaker",
+    "L4": "{prideName} is known everywhere as faithless",
+    "L5": "{prideName} is a byword for betrayal"
+   }
+  }
+ },
+ "epithets": {
+  "hyena_bane": "{name} Hyena-Bane",
+  "cub_guide": "{name} Cub-Guide",
+  "kill_thief": "{name} Kill-Thief",
+  "rival_breaker": "{name} Rival-Breaker",
+  "mammoth_bane": "{name} Mammoth-Bane",
+  "land_taker": "{name} Land-Taker",
+  "challenge_won": [
+   {
+    "variants": [
+     {
+      "id": "epithets.challenge_won[0].a",
+      "text": "{name} who took {prideName}"
+     }
+    ],
+    "when": {
+     "prideKnown": true
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "epithets.challenge_won[1].a",
+      "text": "{name} who won the challenge"
+     }
+    ]
+   }
+  ]
+ },
+ "directory": {
+  "field_label": "Reputation",
+  "unknown": "Nothing said of them yet",
+  "meeting_card_unknown": "Nothing said of them yet"
+ },
+ "my_pride": {
+  "field_label": "Reputation",
+  "unknown": "Nothing said of {prideName} yet"
+ },
+ "greetings": [
+  {
+   "variants": [
+    {
+     "id": "greetings[0].a",
+     "text": "You're the cat the songs keep for mercy. I've wanted to say that to your face. Come, sit if you like."
+    },
+    {
+     "id": "greetings[0].b",
+     "text": "Cats sing of your mercy all over the Vale. Sit, if you're staying. I'd like to hear you talk."
+    },
+    {
+     "id": "greetings[0].c",
+     "text": "I never thought I'd meet the cat the songs keep for mercy. You're welcome here."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L5",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[1].a",
+     "text": "Cats sing of you for mercy. I didn't think that name would cross my path."
+    },
+    {
+     "id": "greetings[1].b",
+     "text": "Sung of for mercy. That's a name that lasts past a season. I greet you with care."
+    },
+    {
+     "id": "greetings[1].c",
+     "text": "The songs have reached even here. You're the cat sung of for mercy."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L5"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[2].a",
+     "text": "You're renowned for mercy, and now you're here. Come, stay a while if you want."
+    },
+    {
+     "id": "greetings[2].b",
+     "text": "I've wanted to meet the cat renowned for mercy. Come, share the shade."
+    },
+    {
+     "id": "greetings[2].c",
+     "text": "Your mercy is spoken of a long way from here. I'm glad to greet you."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L4",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[3].a",
+     "text": "You're renowned for mercy. That name arrives long before your scent does."
+    },
+    {
+     "id": "greetings[3].b",
+     "text": "Cats far from here speak of your mercy. I didn't think I'd meet you on this trail."
+    },
+    {
+     "id": "greetings[3].c",
+     "text": "Renowned for mercy. That's what the Vale says of you, and I won't forget it."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L4"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[4].a",
+     "text": "The Merciful. I hoped the trails would bring you this way. Come, sit with me."
+    },
+    {
+     "id": "greetings[4].b",
+     "text": "So you're the Merciful. The hungry have a friend, and I'm glad of it."
+    },
+    {
+     "id": "greetings[4].c",
+     "text": "Cats call you the Merciful. Walk with me, if you will."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L3",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[5].a",
+     "text": "Cats call you the Merciful. The trails already knew you."
+    },
+    {
+     "id": "greetings[5].b",
+     "text": "The Merciful. That's the name that walks ahead of you now. Speak, if you will."
+    },
+    {
+     "id": "greetings[5].c",
+     "text": "I've heard the name the Vale has given you: the Merciful. Here you are."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L3"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[6].a",
+     "text": "Cats speak well of your kindness. Come, walk with me a while."
+    },
+    {
+     "id": "greetings[6].b",
+     "text": "You've got a gentle name on the trails. I'm glad our paths have crossed."
+    },
+    {
+     "id": "greetings[6].c",
+     "text": "Word of your mercy arrived before you did. Stay, and eat if you will."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L2",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[7].a",
+     "text": "Cats say you're merciful. We'll see if the talk is true."
+    },
+    {
+     "id": "greetings[7].b",
+     "text": "Your name comes with talk of kindness. Speak, then."
+    },
+    {
+     "id": "greetings[7].c",
+     "text": "I've heard you don't turn from the hungry. You may sit, if you wish."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "positive",
+    "level": "L2"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[8].a",
+     "text": "A name to frighten cubs. I won't pretend I'm glad to meet you. Go."
+    },
+    {
+     "id": "greetings[8].b",
+     "text": "Cubs are hushed with your name. I've got no welcome for a name like that."
+    },
+    {
+     "id": "greetings[8].c",
+     "text": "The Vale uses your name to frighten cubs. I won't share meat or talk with you."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L5",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[9].a",
+     "text": "A name to frighten cubs has come up this trail. I won't fight, and I won't stay."
+    },
+    {
+     "id": "greetings[9].b",
+     "text": "I've got young to think of. A name used to frighten cubs isn't a name I greet in peace."
+    },
+    {
+     "id": "greetings[9].c",
+     "text": "Stand off. I've heard the name used to frighten cubs, and I want to be far from it."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L5",
+    "aggression": "low"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[10].a",
+     "text": "Yours is a name used to frighten cubs. I greet you, and I won't come close."
+    },
+    {
+     "id": "greetings[10].b",
+     "text": "A name to frighten cubs. That's what the Vale has made of you. I'm watching."
+    },
+    {
+     "id": "greetings[10].c",
+     "text": "Young cubs are hushed with your name. I'll hear you, and I won't come near."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L5"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[11].a",
+     "text": "Feared for cruelty. I won't dress that up as a kind greeting. Go your way."
+    },
+    {
+     "id": "greetings[11].b",
+     "text": "Your cruelty is spoken of a long way from here, and I want none of it. Keep moving."
+    },
+    {
+     "id": "greetings[11].c",
+     "text": "A name feared for cruelty has no welcome from me. Say it quickly, and leave."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L4",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[12].a",
+     "text": "You're feared for cruelty. I won't bar your path, and I won't share it. Stand off."
+    },
+    {
+     "id": "greetings[12].b",
+     "text": "That name, feared for cruelty, is enough. I've got no fight in me, and I won't wait to be harmed."
+    },
+    {
+     "id": "greetings[12].c",
+     "text": "Keep your distance. I've heard how far your cruelty reaches, and I want to be out of it."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L4",
+    "aggression": "low"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[13].a",
+     "text": "You're feared for cruelty. I won't waste a greeting on warmth I don't feel."
+    },
+    {
+     "id": "greetings[13].b",
+     "text": "Feared for cruelty. The talk is old, and it has travelled. I hear you, and I keep my ground."
+    },
+    {
+     "id": "greetings[13].c",
+     "text": "Your cruelty is a name cats carry with care. I'll listen, and I'll watch."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L4"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[14].a",
+     "text": "The Cruel. I've got no greeting for that name but this: say your piece and leave."
+    },
+    {
+     "id": "greetings[14].b",
+     "text": "I hoped the talk was only wind. It wasn't. I won't walk with the Cruel."
+    },
+    {
+     "id": "greetings[14].c",
+     "text": "Your name hurts to say. The Cruel. Don't look for friendship here."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L3",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[15].a",
+     "text": "The Cruel. I won't fight you, and I won't stay to be hurt. Leave me be."
+    },
+    {
+     "id": "greetings[15].b",
+     "text": "I've got no taste for blood. The Cruel isn't a guest I wanted."
+    },
+    {
+     "id": "greetings[15].c",
+     "text": "Stay back. I know the name cats have given you, and I want no part of it."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L3",
+    "aggression": "low"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[16].a",
+     "text": "Cats call you the Cruel. I won't pretend I haven't heard it."
+    },
+    {
+     "id": "greetings[16].b",
+     "text": "The Cruel. That name walks ahead of you, and cats step off the trail."
+    },
+    {
+     "id": "greetings[16].c",
+     "text": "So you're the Cruel. Speak, if you mean to, and keep your distance."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L3"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[17].a",
+     "text": "Known as cruel. I've got no warmth for that name. Say what you came to say, and go."
+    },
+    {
+     "id": "greetings[17].b",
+     "text": "Cats talk of the harm you do. I won't share a trail with you longer than I must."
+    },
+    {
+     "id": "greetings[17].c",
+     "text": "Your name sits badly with me. Cats call you cruel, and I listen."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L2",
+    "sociability": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[18].a",
+     "text": "You're known as cruel. I want no fight, and I want no part of the harm you do. Stay back."
+    },
+    {
+     "id": "greetings[18].b",
+     "text": "Hard names follow you. I'm not a fighting cat, and I won't stand in your way, or at your side."
+    },
+    {
+     "id": "greetings[18].c",
+     "text": "Keep your claws from the weak, if you can. I've heard enough of the harm tied to your name."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L2",
+    "aggression": "low"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[19].a",
+     "text": "Cats say you're cruel. I'll watch you, and I'll keep clear."
+    },
+    {
+     "id": "greetings[19].b",
+     "text": "You're known as cruel. Speak, but don't come closer than you must."
+    },
+    {
+     "id": "greetings[19].c",
+     "text": "Word of your hardness arrived before you. I hear you. I don't trust the talk yet, and I don't ignore it."
+    }
+   ],
+   "when": {
+    "axis": "mercy",
+    "pole": "negative",
+    "level": "L2"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[20].a",
+     "text": "Sung of for courage. I greet a name like that with my teeth showing, in respect, not in fear."
+    },
+    {
+     "id": "greetings[20].b",
+     "text": "The songs keep you for courage. Stand, then. I'll hear you, and I won't look small."
+    },
+    {
+     "id": "greetings[20].c",
+     "text": "Sung of for courage. Good. A name that heavy shouldn't be met with a lowered head."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L5",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[21].a",
+     "text": "You're the cat the songs keep for courage. I've wanted to say that to your face. Come, walk if you like."
+    },
+    {
+     "id": "greetings[21].b",
+     "text": "Cats sing of your courage all over the Vale. Stay, if you're staying. I'd walk a trail with a name like that."
+    },
+    {
+     "id": "greetings[21].c",
+     "text": "I never thought I'd meet the cat the songs keep for courage. You're welcome here."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L5",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[22].a",
+     "text": "Cats sing of you for courage. I didn't think that name would cross my path."
+    },
+    {
+     "id": "greetings[22].b",
+     "text": "Sung of for courage. That's a name that lasts past a season. I greet you with care."
+    },
+    {
+     "id": "greetings[22].c",
+     "text": "The songs have reached even here. You're the cat sung of for courage."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L5"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[23].a",
+     "text": "Renowned for courage. I won't waste that name on soft talk. Stand, and say what you came for."
+    },
+    {
+     "id": "greetings[23].b",
+     "text": "A name renowned for courage is a name I meet with my head up. What do you want of me?"
+    },
+    {
+     "id": "greetings[23].c",
+     "text": "You're renowned for courage. I like that. I won't look away, and I don't ask you to."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L4",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[24].a",
+     "text": "Renowned for courage, and now you're here. I've wanted this meeting. Walk with me."
+    },
+    {
+     "id": "greetings[24].b",
+     "text": "The Vale speaks of your courage a long way from here. Come, sit. I'd like to hear it from you."
+    },
+    {
+     "id": "greetings[24].c",
+     "text": "A name renowned for courage is a name I greet with an open trail. Stay a while."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L4",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[25].a",
+     "text": "You're renowned for courage. That name arrives long before your scent does."
+    },
+    {
+     "id": "greetings[25].b",
+     "text": "Cats far from here speak of your courage. I didn't think I'd meet you on this trail."
+    },
+    {
+     "id": "greetings[25].c",
+     "text": "Renowned for courage. That's what the Vale says of you, and I won't forget it."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L4"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[26].a",
+     "text": "The Brave. A name I can respect. Stand where I can see you, and speak plainly."
+    },
+    {
+     "id": "greetings[26].b",
+     "text": "So you're the Brave. I've been wanting to test a name like that. What do you want?"
+    },
+    {
+     "id": "greetings[26].c",
+     "text": "Cats call you the Brave. Good. I don't lower my head for anyone."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L3",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[27].a",
+     "text": "The Brave. That's a name I've wanted to meet. Come, walk with me."
+    },
+    {
+     "id": "greetings[27].b",
+     "text": "Cats call you the Brave, and I'm glad of it. There's room on this trail for that kind of nerve."
+    },
+    {
+     "id": "greetings[27].c",
+     "text": "So you're the Brave. I've a liking for cats who stand. Stay, and talk."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L3",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[28].a",
+     "text": "Cats call you the Brave. The trails already knew you."
+    },
+    {
+     "id": "greetings[28].b",
+     "text": "The Brave. That's the name that walks ahead of you now. Speak, if you will."
+    },
+    {
+     "id": "greetings[28].c",
+     "text": "I've heard the name the Vale has given you: the Brave. Here you are."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L3"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[29].a",
+     "text": "Known as brave. I like a cat who stands. Speak, and we'll see what you're made of."
+    },
+    {
+     "id": "greetings[29].b",
+     "text": "Cats say you've got a spine. I respect that. Come closer; I won't shy from you."
+    },
+    {
+     "id": "greetings[29].c",
+     "text": "A brave name is a name I'll share a trail with. What do you want?"
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L2",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[30].a",
+     "text": "You're known as brave. That sits well with me. Come, tell me what you've faced."
+    },
+    {
+     "id": "greetings[30].b",
+     "text": "Cats say you stand your ground. So do I. I'm glad to meet you."
+    },
+    {
+     "id": "greetings[30].c",
+     "text": "A name for nerve already follows you. Walk with me; I'd like to hear how you earned it."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L2",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[31].a",
+     "text": "Cats say you're brave. We'll see if the talk is earned."
+    },
+    {
+     "id": "greetings[31].b",
+     "text": "You're known as brave. That's not nothing, in this Vale. Speak, then."
+    },
+    {
+     "id": "greetings[31].c",
+     "text": "Word of your nerve arrived before you. I hear it. I haven't judged it yet."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "positive",
+    "level": "L2"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[32].a",
+     "text": "A byword for cowardice. I won't stand near a name the Vale uses as a warning."
+    },
+    {
+     "id": "greetings[32].b",
+     "text": "The Vale has made a byword of your running. I've no use for you, and no soft greeting."
+    },
+    {
+     "id": "greetings[32].c",
+     "text": "A byword for cowardice has no place in a fight I mean to win. Go."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L5",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[33].a",
+     "text": "A byword for cowardice. I won't wait for a name like that to find its nerve."
+    },
+    {
+     "id": "greetings[33].b",
+     "text": "The Vale uses your name for running. I won't share a trail I expect to hold."
+    },
+    {
+     "id": "greetings[33].c",
+     "text": "A byword for cowardice isn't a name I hoped to meet. Keep your distance."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L5",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[34].a",
+     "text": "Yours is a byword for cowardice. I greet you, and I won't count on you."
+    },
+    {
+     "id": "greetings[34].b",
+     "text": "A byword for cowardice. That's what the Vale has made of you. I've heard it."
+    },
+    {
+     "id": "greetings[34].c",
+     "text": "Cats use your name when speaking of running. I'll hear you, and I won't lean on you."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L5"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[35].a",
+     "text": "Scorned as a coward. I won't hunt beside that name, and I won't hide my scorn."
+    },
+    {
+     "id": "greetings[35].b",
+     "text": "A name scorned as a coward has no place at my shoulder. Say it and leave."
+    },
+    {
+     "id": "greetings[35].c",
+     "text": "You're scorned as a coward. I've no greeting but that, and no use for you in a fight."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L4",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[36].a",
+     "text": "Scorned as a coward. I won't follow a name the Vale already holds cheap."
+    },
+    {
+     "id": "greetings[36].b",
+     "text": "Your running is spoken of a long way from here, and I want none of it. Keep off this trail."
+    },
+    {
+     "id": "greetings[36].c",
+     "text": "A name scorned as a coward isn't a name I wait for. Speak, and go your way."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L4",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[37].a",
+     "text": "You're scorned as a coward. The talk is old and it has travelled. I hear you, and I keep my ground."
+    },
+    {
+     "id": "greetings[37].b",
+     "text": "Scorned as a coward. That's what the Vale says of you, and I won't forget it."
+    },
+    {
+     "id": "greetings[37].c",
+     "text": "Your name is scorned as a coward. I greet you, and I won't lean on you."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L4"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[38].a",
+     "text": "The Craven. I've no respect for that name. Speak, and don't look to me for cover."
+    },
+    {
+     "id": "greetings[38].b",
+     "text": "Cats call you the Craven. Stay out of my way when there's trouble. I won't carry you."
+    },
+    {
+     "id": "greetings[38].c",
+     "text": "The Craven. A poor name to bring to a meeting. Say what you want, and go."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L3",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[39].a",
+     "text": "The Craven. I won't walk behind a name like that, or wait for you to stand."
+    },
+    {
+     "id": "greetings[39].b",
+     "text": "Cats call you the Craven, and I've no liking for it. Keep your running off my trail."
+    },
+    {
+     "id": "greetings[39].c",
+     "text": "So you're the Craven. I wanted a braver meeting than this. Say your piece."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L3",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[40].a",
+     "text": "Cats call you the Craven. I won't pretend I haven't heard it."
+    },
+    {
+     "id": "greetings[40].b",
+     "text": "The Craven. That name walks ahead of you, and cats don't look for you when danger comes."
+    },
+    {
+     "id": "greetings[40].c",
+     "text": "So you're the Craven. Speak, if you mean to."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L3"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[41].a",
+     "text": "Known as a coward. I've little use for a cat who won't stand. Say it and go."
+    },
+    {
+     "id": "greetings[41].b",
+     "text": "Cats say you run. I don't share a hunt with that kind of name. What do you want?"
+    },
+    {
+     "id": "greetings[41].c",
+     "text": "A coward's name follows you. I won't pretend respect I don't feel."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L2",
+    "aggression": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[42].a",
+     "text": "You're known as a coward. That sits badly with me. I won't follow where you won't stand."
+    },
+    {
+     "id": "greetings[42].b",
+     "text": "Cats say you leave others to face the danger. I've no liking for that name."
+    },
+    {
+     "id": "greetings[42].c",
+     "text": "A name for running already follows you. Keep off my trail if you can't hold it."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L2",
+    "boldness": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[43].a",
+     "text": "Cats say you're a coward. I've heard the talk. I haven't put my weight on it yet."
+    },
+    {
+     "id": "greetings[43].b",
+     "text": "You're known as a coward. Speak, if you still will."
+    },
+    {
+     "id": "greetings[43].c",
+     "text": "Word of your running arrived before you. I hear it. I'll watch what you do."
+    }
+   ],
+   "when": {
+    "axis": "courage",
+    "pole": "negative",
+    "level": "L2"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[44].a",
+     "text": "You're the cat the songs keep as true. I've wanted to say that to your face. Come, sit if you like."
+    },
+    {
+     "id": "greetings[44].b",
+     "text": "The Vale sings of you as true. Stay, if you're staying. A name like that is worth a kept word."
+    },
+    {
+     "id": "greetings[44].c",
+     "text": "I never thought I'd meet the cat the songs keep as true. You're welcome here."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L5",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[45].a",
+     "text": "Cats sing of you as true. I didn't think that name would cross my path."
+    },
+    {
+     "id": "greetings[45].b",
+     "text": "Sung of as true. That's a name that lasts past a season. I greet you with care."
+    },
+    {
+     "id": "greetings[45].c",
+     "text": "The songs have reached even here. You're the cat sung of as true."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L5"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[46].a",
+     "text": "Renowned as true, and now you're here. I've wanted this meeting. Your word would be enough."
+    },
+    {
+     "id": "greetings[46].b",
+     "text": "The Vale speaks of you as true, a long way from here. Come, sit. I can believe a name like that."
+    },
+    {
+     "id": "greetings[46].c",
+     "text": "A name renowned as true is a name I greet with an open trail. Stay a while."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L4",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[47].a",
+     "text": "You're renowned as true. That name arrives long before your scent does."
+    },
+    {
+     "id": "greetings[47].b",
+     "text": "Cats far from here speak of you as true. I didn't think I'd meet you on this trail."
+    },
+    {
+     "id": "greetings[47].c",
+     "text": "Renowned as true. That's what the Vale says of you, and I won't forget it."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L4"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[48].a",
+     "text": "The True. That's a name I've wanted to meet. I'll keep my word with you."
+    },
+    {
+     "id": "greetings[48].b",
+     "text": "Cats call you the True, and I'm glad of it. There's room on this trail for a kept promise."
+    },
+    {
+     "id": "greetings[48].c",
+     "text": "So you're the True. I've a liking for cats who stand by a given word. Stay, and talk."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L3",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[49].a",
+     "text": "Cats call you the True. The trails already knew you."
+    },
+    {
+     "id": "greetings[49].b",
+     "text": "The True. That's the name that walks ahead of you now. Speak, if you will."
+    },
+    {
+     "id": "greetings[49].c",
+     "text": "I've heard the name the Vale has given you: the True. Here you are."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L3"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[50].a",
+     "text": "Known as true to a given word. That sits well with me. I'll keep mine if you keep yours."
+    },
+    {
+     "id": "greetings[50].b",
+     "text": "Cats say you hold to what you promise. I like that. Come, speak plainly."
+    },
+    {
+     "id": "greetings[50].c",
+     "text": "A true name already follows you. I'm glad to meet a cat I can believe."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L2",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[51].a",
+     "text": "Cats say you keep a given word. We'll see if the talk is earned."
+    },
+    {
+     "id": "greetings[51].b",
+     "text": "You're known as true to a given word. That's not nothing, in this Vale. Speak, then."
+    },
+    {
+     "id": "greetings[51].c",
+     "text": "Word of your kept promises arrived before you. I hear it. I haven't judged it yet."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "positive",
+    "level": "L2"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[52].a",
+     "text": "A byword for betrayal. I won't stand near a name the Vale uses as a warning."
+    },
+    {
+     "id": "greetings[52].b",
+     "text": "The Vale has made a byword of your broken word. I've no trust for you, and no soft greeting."
+    },
+    {
+     "id": "greetings[52].c",
+     "text": "A byword for betrayal has no place in any promise I mean to keep. Go."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L5",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[53].a",
+     "text": "Yours is a byword for betrayal. I greet you, and I won't count on your word."
+    },
+    {
+     "id": "greetings[53].b",
+     "text": "A byword for betrayal. That's what the Vale has made of you. I've heard it."
+    },
+    {
+     "id": "greetings[53].c",
+     "text": "Cats use your name when speaking of a broken word. I'll hear you, and I won't trust it yet."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L5"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[54].a",
+     "text": "Known everywhere as faithless. I won't make a promise with a name the whole Vale doubts."
+    },
+    {
+     "id": "greetings[54].b",
+     "text": "Your broken word is spoken of a long way from here, and I want none of it. Don't offer me yours."
+    },
+    {
+     "id": "greetings[54].c",
+     "text": "A name known everywhere as faithless isn't a name I wait to believe. Speak, and go your way."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L4",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[55].a",
+     "text": "You're known everywhere as faithless. The talk is old and it has travelled. I hear you, and I keep my word close."
+    },
+    {
+     "id": "greetings[55].b",
+     "text": "Known everywhere as faithless. That's what the Vale says of you, and I won't forget it."
+    },
+    {
+     "id": "greetings[55].c",
+     "text": "Your name is known everywhere as faithless. I greet you, and I won't lean on your word."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L4"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[56].a",
+     "text": "Oathbreaker. I won't bind my word to that name, and I won't believe yours."
+    },
+    {
+     "id": "greetings[56].b",
+     "text": "Cats call you Oathbreaker, and I've no liking for it. Don't offer me a promise."
+    },
+    {
+     "id": "greetings[56].c",
+     "text": "So you're Oathbreaker. I wanted a truer meeting than this. Say your piece, and don't swear it."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L3",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[57].a",
+     "text": "Cats call you Oathbreaker. I won't pretend I haven't heard it."
+    },
+    {
+     "id": "greetings[57].b",
+     "text": "Oathbreaker. That name walks ahead of you, and cats don't take your word lightly."
+    },
+    {
+     "id": "greetings[57].c",
+     "text": "So you're Oathbreaker. Speak, if you mean to, and don't ask me to trust it."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L3"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[58].a",
+     "text": "Known as faithless. I won't put my word in your mouth, and I won't take yours on trust."
+    },
+    {
+     "id": "greetings[58].b",
+     "text": "Cats say you break a given word. That sits badly with me. Say what you want, and don't offer a promise."
+    },
+    {
+     "id": "greetings[58].c",
+     "text": "A faithless name already follows you. I've no liking for it, and no trust to spare."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L2",
+    "loyalty": "high"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[59].a",
+     "text": "Cats say you're faithless. I've heard the talk. I haven't put my weight on it yet."
+    },
+    {
+     "id": "greetings[59].b",
+     "text": "You're known as faithless. Speak, if you still will, and don't ask me to trust it yet."
+    },
+    {
+     "id": "greetings[59].c",
+     "text": "Word of your broken promises arrived before you. I hear it. I'll watch what you do."
+    }
+   ],
+   "when": {
+    "axis": "honour",
+    "pole": "negative",
+    "level": "L2"
+   }
+  },
+  {
+   "variants": [
+    {
+     "id": "greetings[60].a",
+     "text": "You're a stranger here. Speak, if you mean to."
+    },
+    {
+     "id": "greetings[60].b",
+     "text": "The wind hasn't brought your name. Who are you?"
+    },
+    {
+     "id": "greetings[60].c",
+     "text": "I don't know you. Keep your claws in, and we'll talk."
+    }
+   ]
+  }
+ ],
+ "gossip": {
+  "title_gained": [
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[0].a",
+      "text": "{sourceName} sounds glad of it. Cats have started calling {name} the Merciful."
+     },
+     {
+      "id": "gossip.title_gained[0].b",
+      "text": "{sourceName} almost purrs telling you. The Vale has a new name for {name}: the Merciful."
+     },
+     {
+      "id": "gossip.title_gained[0].c",
+      "text": "{sourceName} says the hungry will sleep easier now. Cats call {name} the Merciful."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[1].a",
+      "text": "{sourceName} says it and looks away. Cats call {name} the Merciful now."
+     },
+     {
+      "id": "gossip.title_gained[1].b",
+      "text": "{sourceName} doesn't linger on it. {name} the Merciful. That's all you get."
+     },
+     {
+      "id": "gossip.title_gained[1].c",
+      "text": "{sourceName} mutters the news and stops. {name} the Merciful."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[2].a",
+      "text": "{sourceName} told you cats have started calling {name} the Merciful."
+     },
+     {
+      "id": "gossip.title_gained[2].b",
+      "text": "{sourceName} says the name on the trails is {name} the Merciful now."
+     },
+     {
+      "id": "gossip.title_gained[2].c",
+      "text": "{sourceName} says the Vale has begun to call {name} the Merciful."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[3].a",
+      "text": "{sourceName} tells it with a shiver. Cats have started calling {name} the Cruel."
+     },
+     {
+      "id": "gossip.title_gained[3].b",
+      "text": "{sourceName} is full of the news, and not glad of it. The Vale has a new name for {name}: the Cruel."
+     },
+     {
+      "id": "gossip.title_gained[3].c",
+      "text": "{sourceName} says cats step off the trail now. Cats have begun to call {name} the Cruel."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[4].a",
+      "text": "{sourceName} says it and looks away. Cats call {name} the Cruel now."
+     },
+     {
+      "id": "gossip.title_gained[4].b",
+      "text": "{sourceName} doesn't linger on it. {name} the Cruel. That's all you get."
+     },
+     {
+      "id": "gossip.title_gained[4].c",
+      "text": "{sourceName} mutters the news and stops. {name} the Cruel."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[5].a",
+      "text": "{sourceName} told you cats have started calling {name} the Cruel."
+     },
+     {
+      "id": "gossip.title_gained[5].b",
+      "text": "{sourceName} says the name on the trails is {name} the Cruel now."
+     },
+     {
+      "id": "gossip.title_gained[5].c",
+      "text": "{sourceName} says the Vale has begun to call {name} the Cruel."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[6].a",
+      "text": "{sourceName} sounds glad of it. Cats have started calling {name} the Brave."
+     },
+     {
+      "id": "gossip.title_gained[6].b",
+      "text": "{sourceName} almost purrs telling you. The Vale has a new name for {name}: the Brave."
+     },
+     {
+      "id": "gossip.title_gained[6].c",
+      "text": "{sourceName} says the trails will be steadier for it. Cats call {name} the Brave now."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[7].a",
+      "text": "{sourceName} says it and looks away. Cats call {name} the Brave now."
+     },
+     {
+      "id": "gossip.title_gained[7].b",
+      "text": "{sourceName} doesn't linger on it. {name} the Brave. That's all you get."
+     },
+     {
+      "id": "gossip.title_gained[7].c",
+      "text": "{sourceName} mutters the news and stops. {name} the Brave."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[8].a",
+      "text": "{sourceName} told you cats have started calling {name} the Brave."
+     },
+     {
+      "id": "gossip.title_gained[8].b",
+      "text": "{sourceName} says the name on the trails is {name} the Brave now."
+     },
+     {
+      "id": "gossip.title_gained[8].c",
+      "text": "{sourceName} says the Vale has begun to call {name} the Brave."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[9].a",
+      "text": "{sourceName} tells it with a curled lip. Cats have started calling {name} the Craven."
+     },
+     {
+      "id": "gossip.title_gained[9].b",
+      "text": "{sourceName} is full of the news, and not kind with it. The Vale has a new name for {name}: the Craven."
+     },
+     {
+      "id": "gossip.title_gained[9].c",
+      "text": "{sourceName} says cats won't look for {name} when danger comes. Cats have begun to call {name} the Craven."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[10].a",
+      "text": "{sourceName} says it and looks away. Cats call {name} the Craven now."
+     },
+     {
+      "id": "gossip.title_gained[10].b",
+      "text": "{sourceName} doesn't linger on it. {name} the Craven. That's all you get."
+     },
+     {
+      "id": "gossip.title_gained[10].c",
+      "text": "{sourceName} mutters the news and stops. {name} the Craven."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[11].a",
+      "text": "{sourceName} told you cats have started calling {name} the Craven."
+     },
+     {
+      "id": "gossip.title_gained[11].b",
+      "text": "{sourceName} says the name on the trails is {name} the Craven now."
+     },
+     {
+      "id": "gossip.title_gained[11].c",
+      "text": "{sourceName} says the Vale has begun to call {name} the Craven."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[12].a",
+      "text": "{sourceName} sounds glad of it. Cats have started calling {name} the True."
+     },
+     {
+      "id": "gossip.title_gained[12].b",
+      "text": "{sourceName} almost purrs telling you. The Vale has a new name for {name}: the True."
+     },
+     {
+      "id": "gossip.title_gained[12].c",
+      "text": "{sourceName} says a kept word is worth this. Cats call {name} the True now."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[13].a",
+      "text": "{sourceName} says it and looks away. Cats call {name} the True now."
+     },
+     {
+      "id": "gossip.title_gained[13].b",
+      "text": "{sourceName} doesn't linger on it. {name} the True. That's all you get."
+     },
+     {
+      "id": "gossip.title_gained[13].c",
+      "text": "{sourceName} mutters the news and stops. {name} the True."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[14].a",
+      "text": "{sourceName} told you cats have started calling {name} the True."
+     },
+     {
+      "id": "gossip.title_gained[14].b",
+      "text": "{sourceName} says the name on the trails is {name} the True now."
+     },
+     {
+      "id": "gossip.title_gained[14].c",
+      "text": "{sourceName} says the Vale has begun to call {name} the True."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[15].a",
+      "text": "{sourceName} tells it with a tight mouth. Cats have started calling {name} Oathbreaker."
+     },
+     {
+      "id": "gossip.title_gained[15].b",
+      "text": "{sourceName} is full of the news, and not glad of it. The Vale has a new name for {name}: Oathbreaker."
+     },
+     {
+      "id": "gossip.title_gained[15].c",
+      "text": "{sourceName} says cats won't take that word on trust now. Cats have begun to call {name} Oathbreaker."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[16].a",
+      "text": "{sourceName} says it and looks away. Cats call {name} Oathbreaker now."
+     },
+     {
+      "id": "gossip.title_gained[16].b",
+      "text": "{sourceName} doesn't linger on it. {name} Oathbreaker. That's all you get."
+     },
+     {
+      "id": "gossip.title_gained[16].c",
+      "text": "{sourceName} mutters the news and stops. {name} Oathbreaker."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[17].a",
+      "text": "{sourceName} told you cats have started calling {name} Oathbreaker."
+     },
+     {
+      "id": "gossip.title_gained[17].b",
+      "text": "{sourceName} says the name on the trails is {name} Oathbreaker now."
+     },
+     {
+      "id": "gossip.title_gained[17].c",
+      "text": "{sourceName} says the Vale has begun to call {name} Oathbreaker."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_gained[18].a",
+      "text": "{sourceName} told you cats have started calling {name} by a name that now walks the trails."
+     },
+     {
+      "id": "gossip.title_gained[18].b",
+      "text": "{sourceName} says {name} carries a name on the trails that wasn't said before."
+     },
+     {
+      "id": "gossip.title_gained[18].c",
+      "text": "{sourceName} says the Vale has begun to call {name} by a name worth repeating."
+     }
+    ]
+   }
+  ],
+  "title_lost": [
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[0].a",
+      "text": "{sourceName} says it sadly. Cats once called {name} the Merciful, and that name doesn't fit {name} now."
+     },
+     {
+      "id": "gossip.title_lost[0].b",
+      "text": "{sourceName} takes a moment over it. {name} was once called the Merciful, and isn't called that now."
+     },
+     {
+      "id": "gossip.title_lost[0].c",
+      "text": "{sourceName} tells you cats no longer call {name} the Merciful. Cats once called {name} the Merciful."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[1].a",
+      "text": "{sourceName} says it shortly. Cats once called {name} the Merciful. Not now."
+     },
+     {
+      "id": "gossip.title_lost[1].b",
+      "text": "{sourceName} gives you the loss and nothing more. {name} was once called the Merciful."
+     },
+     {
+      "id": "gossip.title_lost[1].c",
+      "text": "{sourceName} mutters it and stops. Cats once called {name} the Merciful."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[2].a",
+      "text": "{sourceName} says cats once called {name} the Merciful, and don't say it now."
+     },
+     {
+      "id": "gossip.title_lost[2].b",
+      "text": "{sourceName} says {name} was once called the Merciful. The name doesn't fit any longer."
+     },
+     {
+      "id": "gossip.title_lost[2].c",
+      "text": "{sourceName} told you cats no longer call {name} the Merciful. Cats once called {name} the Merciful."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[3].a",
+      "text": "{sourceName} says it with relief. Cats once called {name} the Cruel, and that name doesn't fit {name} now."
+     },
+     {
+      "id": "gossip.title_lost[3].b",
+      "text": "{sourceName} takes a moment over it. {name} was once called the Cruel, and isn't called that now."
+     },
+     {
+      "id": "gossip.title_lost[3].c",
+      "text": "{sourceName} tells you cats no longer call {name} the Cruel. Cats once called {name} the Cruel."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[4].a",
+      "text": "{sourceName} says it shortly. Cats once called {name} the Cruel. Not now."
+     },
+     {
+      "id": "gossip.title_lost[4].b",
+      "text": "{sourceName} gives you the loss and nothing more. {name} was once called the Cruel."
+     },
+     {
+      "id": "gossip.title_lost[4].c",
+      "text": "{sourceName} mutters it and stops. Cats once called {name} the Cruel."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[5].a",
+      "text": "{sourceName} says cats once called {name} the Cruel, and don't say it now."
+     },
+     {
+      "id": "gossip.title_lost[5].b",
+      "text": "{sourceName} says {name} was once called the Cruel. The name doesn't fit any longer."
+     },
+     {
+      "id": "gossip.title_lost[5].c",
+      "text": "{sourceName} told you cats no longer call {name} the Cruel. Cats once called {name} the Cruel."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[6].a",
+      "text": "{sourceName} says it sadly. Cats once called {name} the Brave, and that name doesn't fit {name} now."
+     },
+     {
+      "id": "gossip.title_lost[6].b",
+      "text": "{sourceName} takes a moment over it. {name} was once called the Brave, and isn't called that now."
+     },
+     {
+      "id": "gossip.title_lost[6].c",
+      "text": "{sourceName} tells you cats no longer call {name} the Brave. Cats once called {name} the Brave."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[7].a",
+      "text": "{sourceName} says it shortly. Cats once called {name} the Brave. Not now."
+     },
+     {
+      "id": "gossip.title_lost[7].b",
+      "text": "{sourceName} gives you the loss and nothing more. {name} was once called the Brave."
+     },
+     {
+      "id": "gossip.title_lost[7].c",
+      "text": "{sourceName} mutters it and stops. Cats once called {name} the Brave."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[8].a",
+      "text": "{sourceName} says cats once called {name} the Brave, and don't say it now."
+     },
+     {
+      "id": "gossip.title_lost[8].b",
+      "text": "{sourceName} says {name} was once called the Brave. The name doesn't fit any longer."
+     },
+     {
+      "id": "gossip.title_lost[8].c",
+      "text": "{sourceName} told you cats no longer call {name} the Brave. Cats once called {name} the Brave."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[9].a",
+      "text": "{sourceName} says it with raised ears. Cats once called {name} the Craven, and that name doesn't fit {name} now."
+     },
+     {
+      "id": "gossip.title_lost[9].b",
+      "text": "{sourceName} takes a moment over it. {name} was once called the Craven, and isn't called that now."
+     },
+     {
+      "id": "gossip.title_lost[9].c",
+      "text": "{sourceName} tells you cats no longer call {name} the Craven. Cats once called {name} the Craven."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[10].a",
+      "text": "{sourceName} says it shortly. Cats once called {name} the Craven. Not now."
+     },
+     {
+      "id": "gossip.title_lost[10].b",
+      "text": "{sourceName} gives you the loss and nothing more. {name} was once called the Craven."
+     },
+     {
+      "id": "gossip.title_lost[10].c",
+      "text": "{sourceName} mutters it and stops. Cats once called {name} the Craven."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[11].a",
+      "text": "{sourceName} says cats once called {name} the Craven, and don't say it now."
+     },
+     {
+      "id": "gossip.title_lost[11].b",
+      "text": "{sourceName} says {name} was once called the Craven. The name doesn't fit any longer."
+     },
+     {
+      "id": "gossip.title_lost[11].c",
+      "text": "{sourceName} told you cats no longer call {name} the Craven. Cats once called {name} the Craven."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[12].a",
+      "text": "{sourceName} says it sadly. Cats once called {name} the True, and that name doesn't fit {name} now."
+     },
+     {
+      "id": "gossip.title_lost[12].b",
+      "text": "{sourceName} takes a moment over it. {name} was once called the True, and isn't called that now."
+     },
+     {
+      "id": "gossip.title_lost[12].c",
+      "text": "{sourceName} tells you cats no longer call {name} the True. Cats once called {name} the True."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[13].a",
+      "text": "{sourceName} says it shortly. Cats once called {name} the True. Not now."
+     },
+     {
+      "id": "gossip.title_lost[13].b",
+      "text": "{sourceName} gives you the loss and nothing more. {name} was once called the True."
+     },
+     {
+      "id": "gossip.title_lost[13].c",
+      "text": "{sourceName} mutters it and stops. Cats once called {name} the True."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[14].a",
+      "text": "{sourceName} says cats once called {name} the True, and don't say it now."
+     },
+     {
+      "id": "gossip.title_lost[14].b",
+      "text": "{sourceName} says {name} was once called the True. The name doesn't fit any longer."
+     },
+     {
+      "id": "gossip.title_lost[14].c",
+      "text": "{sourceName} told you cats no longer call {name} the True. Cats once called {name} the True."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[15].a",
+      "text": "{sourceName} says it with raised ears. Cats once called {name} Oathbreaker, and that name doesn't fit {name} now."
+     },
+     {
+      "id": "gossip.title_lost[15].b",
+      "text": "{sourceName} takes a moment over it. {name} was once called Oathbreaker, and isn't called that now."
+     },
+     {
+      "id": "gossip.title_lost[15].c",
+      "text": "{sourceName} tells you cats no longer call {name} Oathbreaker. Cats once called {name} Oathbreaker."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[16].a",
+      "text": "{sourceName} says it shortly. Cats once called {name} Oathbreaker. Not now."
+     },
+     {
+      "id": "gossip.title_lost[16].b",
+      "text": "{sourceName} gives you the loss and nothing more. {name} was once called Oathbreaker."
+     },
+     {
+      "id": "gossip.title_lost[16].c",
+      "text": "{sourceName} mutters it and stops. Cats once called {name} Oathbreaker."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[17].a",
+      "text": "{sourceName} says cats once called {name} Oathbreaker, and don't say it now."
+     },
+     {
+      "id": "gossip.title_lost[17].b",
+      "text": "{sourceName} says {name} was once called Oathbreaker. The name doesn't fit any longer."
+     },
+     {
+      "id": "gossip.title_lost[17].c",
+      "text": "{sourceName} told you cats no longer call {name} Oathbreaker. Cats once called {name} Oathbreaker."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.title_lost[18].a",
+      "text": "{sourceName} says cats once called {name} by a name that no longer fits."
+     },
+     {
+      "id": "gossip.title_lost[18].b",
+      "text": "{sourceName} says {name} was once called by a name that no longer fits."
+     },
+     {
+      "id": "gossip.title_lost[18].c",
+      "text": "{sourceName} told you a name once called for {name} no longer fits."
+     }
+    ]
+   }
+  ],
+  "pole_flip": [
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[0].a",
+      "text": "{sourceName} leans in. The talk about {name} has turned. Cats who spoke of harm speak of kindness now."
+     },
+     {
+      "id": "gossip.pole_flip[0].b",
+      "text": "{sourceName} is full of the telling. Cruelty isn't the word for {name} any longer. The talk has gone the other way."
+     },
+     {
+      "id": "gossip.pole_flip[0].c",
+      "text": "{sourceName} tells you the talk of {name}'s hardness has turned, and kinder talk has taken its place."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[1].a",
+      "text": "{sourceName} says it shortly. The talk about {name} has turned toward kindness."
+     },
+     {
+      "id": "gossip.pole_flip[1].b",
+      "text": "{sourceName} gives you the change and nothing more. Cruelty is no longer the word for {name}."
+     },
+     {
+      "id": "gossip.pole_flip[1].c",
+      "text": "{sourceName} mutters it and stops. The talk of {name} has gone the other way."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[2].a",
+      "text": "{sourceName} says the talk about {name} has turned. Cats who spoke of harm speak of kindness now."
+     },
+     {
+      "id": "gossip.pole_flip[2].b",
+      "text": "{sourceName} says cruelty isn't the word for {name} any longer."
+     },
+     {
+      "id": "gossip.pole_flip[2].c",
+      "text": "{sourceName} told you the talk of {name} has gone the other way, from harm toward kindness."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[3].a",
+      "text": "{sourceName} leans in. The talk about {name} has turned. Cats who spoke of mercy speak of harm now."
+     },
+     {
+      "id": "gossip.pole_flip[3].b",
+      "text": "{sourceName} is full of the telling. Mercy isn't the word for {name} any longer. The talk has gone the other way."
+     },
+     {
+      "id": "gossip.pole_flip[3].c",
+      "text": "{sourceName} warns you: the talk of {name}'s kindness has turned, and harder talk has taken its place."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[4].a",
+      "text": "{sourceName} says it shortly. The talk about {name} has turned toward harm."
+     },
+     {
+      "id": "gossip.pole_flip[4].b",
+      "text": "{sourceName} gives you the change and nothing more. Mercy is no longer the word for {name}."
+     },
+     {
+      "id": "gossip.pole_flip[4].c",
+      "text": "{sourceName} mutters it and stops. The talk of {name} has gone the other way."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[5].a",
+      "text": "{sourceName} says the talk about {name} has turned. Cats who spoke of mercy speak of harm now."
+     },
+     {
+      "id": "gossip.pole_flip[5].b",
+      "text": "{sourceName} says mercy isn't the word for {name} any longer."
+     },
+     {
+      "id": "gossip.pole_flip[5].c",
+      "text": "{sourceName} told you the talk of {name} has gone the other way, from kindness toward harm."
+     }
+    ],
+    "when": {
+     "axis": "mercy",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[6].a",
+      "text": "{sourceName} leans in. The talk about {name} has turned. Cats who spoke of running speak of nerve now."
+     },
+     {
+      "id": "gossip.pole_flip[6].b",
+      "text": "{sourceName} is full of the telling. Cowardice isn't the word for {name} any longer. The talk has gone the other way."
+     },
+     {
+      "id": "gossip.pole_flip[6].c",
+      "text": "{sourceName} tells you the talk of {name}'s running has turned, and talk of nerve has taken its place."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[7].a",
+      "text": "{sourceName} says it shortly. The talk about {name} has turned toward nerve."
+     },
+     {
+      "id": "gossip.pole_flip[7].b",
+      "text": "{sourceName} gives you the change and nothing more. Cowardice is no longer the word for {name}."
+     },
+     {
+      "id": "gossip.pole_flip[7].c",
+      "text": "{sourceName} mutters it and stops. The talk of {name} has gone the other way."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[8].a",
+      "text": "{sourceName} says the talk about {name} has turned. Cats who spoke of running speak of nerve now."
+     },
+     {
+      "id": "gossip.pole_flip[8].b",
+      "text": "{sourceName} says cowardice isn't the word for {name} any longer."
+     },
+     {
+      "id": "gossip.pole_flip[8].c",
+      "text": "{sourceName} told you the talk of {name} has gone the other way, from running toward nerve."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[9].a",
+      "text": "{sourceName} leans in. The talk about {name} has turned. Cats who spoke of nerve speak of running now."
+     },
+     {
+      "id": "gossip.pole_flip[9].b",
+      "text": "{sourceName} is full of the telling. Courage isn't the word for {name} any longer. The talk has gone the other way."
+     },
+     {
+      "id": "gossip.pole_flip[9].c",
+      "text": "{sourceName} warns you: the talk of {name}'s bravery has turned, and talk of running has taken its place."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[10].a",
+      "text": "{sourceName} says it shortly. The talk about {name} has turned toward running."
+     },
+     {
+      "id": "gossip.pole_flip[10].b",
+      "text": "{sourceName} gives you the change and nothing more. Courage is no longer the word for {name}."
+     },
+     {
+      "id": "gossip.pole_flip[10].c",
+      "text": "{sourceName} mutters it and stops. The talk of {name} has gone the other way."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[11].a",
+      "text": "{sourceName} says the talk about {name} has turned. Cats who spoke of nerve speak of running now."
+     },
+     {
+      "id": "gossip.pole_flip[11].b",
+      "text": "{sourceName} says courage isn't the word for {name} any longer."
+     },
+     {
+      "id": "gossip.pole_flip[11].c",
+      "text": "{sourceName} told you the talk of {name} has gone the other way, from nerve toward running."
+     }
+    ],
+    "when": {
+     "axis": "courage",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[12].a",
+      "text": "{sourceName} leans in. The talk about {name} has turned. Cats who spoke of a broken word speak of a kept word now."
+     },
+     {
+      "id": "gossip.pole_flip[12].b",
+      "text": "{sourceName} is full of the telling. A faithless name isn't the word for {name} any longer. The talk has gone the other way."
+     },
+     {
+      "id": "gossip.pole_flip[12].c",
+      "text": "{sourceName} tells you the talk of {name}'s betrayal has turned, and talk of a kept word has taken its place."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[13].a",
+      "text": "{sourceName} says it shortly. The talk about {name} has turned toward a kept word."
+     },
+     {
+      "id": "gossip.pole_flip[13].b",
+      "text": "{sourceName} gives you the change and nothing more. A faithless name is no longer the word for {name}."
+     },
+     {
+      "id": "gossip.pole_flip[13].c",
+      "text": "{sourceName} mutters it and stops. The talk of {name} has gone the other way."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[14].a",
+      "text": "{sourceName} says the talk about {name} has turned. Cats who spoke of a broken word speak of a kept word now."
+     },
+     {
+      "id": "gossip.pole_flip[14].b",
+      "text": "{sourceName} says a faithless name isn't the word for {name} any longer."
+     },
+     {
+      "id": "gossip.pole_flip[14].c",
+      "text": "{sourceName} told you the talk of {name} has gone the other way, from a broken word toward a kept word."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "positive"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[15].a",
+      "text": "{sourceName} leans in. The talk about {name} has turned. Cats who spoke of a kept word speak of a broken word now."
+     },
+     {
+      "id": "gossip.pole_flip[15].b",
+      "text": "{sourceName} is full of the telling. A true name isn't the word for {name} any longer. The talk has gone the other way."
+     },
+     {
+      "id": "gossip.pole_flip[15].c",
+      "text": "{sourceName} warns you: the talk of {name}'s kept word has turned, and talk of betrayal has taken its place."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative",
+     "sociability": "high"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[16].a",
+      "text": "{sourceName} says it shortly. The talk about {name} has turned toward a broken word."
+     },
+     {
+      "id": "gossip.pole_flip[16].b",
+      "text": "{sourceName} gives you the change and nothing more. A true name is no longer the word for {name}."
+     },
+     {
+      "id": "gossip.pole_flip[16].c",
+      "text": "{sourceName} mutters it and stops. The talk of {name} has gone the other way."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative",
+     "sociability": "low"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[17].a",
+      "text": "{sourceName} says the talk about {name} has turned. Cats who spoke of a kept word speak of a broken word now."
+     },
+     {
+      "id": "gossip.pole_flip[17].b",
+      "text": "{sourceName} says a true name isn't the word for {name} any longer."
+     },
+     {
+      "id": "gossip.pole_flip[17].c",
+      "text": "{sourceName} told you the talk of {name} has gone the other way, from a kept word toward betrayal."
+     }
+    ],
+    "when": {
+     "axis": "honour",
+     "pole": "negative"
+    }
+   },
+   {
+    "variants": [
+     {
+      "id": "gossip.pole_flip[18].a",
+      "text": "{sourceName} says the talk about {name} has turned the other way."
+     },
+     {
+      "id": "gossip.pole_flip[18].b",
+      "text": "{sourceName} says what cats say of {name} has turned."
+     },
+     {
+      "id": "gossip.pole_flip[18].c",
+      "text": "{sourceName} told you the talk of {name} has gone the other way."
+     }
+    ]
+   }
+  ]
+ },
+ "secrets": {
+  "_note": "Anna (2026-11-10): secrets coming out become reputation moments. Never seeded as known (reputation §9.1). Grounded in loners.md Secret/hook for ln01, ln04 and hc02. Role names are not used on screen.",
+  "ln01_silence": {
+   "slot": "ln01",
+   "fact": "silence",
+   "learned": "You learned the truth about {name}. {name} was driven out of Highcrag after a cub fell from the high ledge, and went without a word. The fall was not {name}'s doing.",
+   "gossip": {
+    "variants": [
+     {
+      "id": "secrets.ln01_silence.gossip.a",
+      "text": "{sourceName} told you {subjectName} took the blame for a cub that fell from Highcrag's high ledge, and was driven out for it. {subjectName} wasn't the cat who let it fall."
+     },
+     {
+      "id": "secrets.ln01_silence.gossip.b",
+      "text": "{sourceName} says {subjectName} went into exile without a word, after a cub fell from the high ledge. The pride was told it was {subjectName}'s fault. It wasn't."
+     },
+     {
+      "id": "secrets.ln01_silence.gossip.c",
+      "text": "{sourceName} told you the cub that fell from the high ledge wasn't on {subjectName}'s paws. {subjectName} kept silent and took the exile anyway."
+     }
+    ]
+   },
+   "widely_told": {
+    "variants": [
+     {
+      "id": "secrets.ln01_silence.widely_told.a",
+      "text": "Others say it too: {subjectName} took the blame for a cub that fell at Highcrag, and was not the cat who let it fall."
+     },
+     {
+      "id": "secrets.ln01_silence.widely_told.b",
+      "text": "The talk is spreading. {subjectName} went without a word, and the fall from the high ledge was not {subjectName}'s doing."
+     },
+     {
+      "id": "secrets.ln01_silence.widely_told.c",
+      "text": "Cats are saying it all over: {subjectName} kept silent about the cub that fell, and paid for it."
+     }
+    ]
+   },
+   "confirmed": {
+    "id": "secrets.ln01_silence.confirmed",
+    "text": "You learned it yourself: {name} took the blame for a cub that fell from the high ledge, and was not the cat who let it fall."
+   },
+   "false_variant": {
+    "id": "secrets.ln01_silence.false_variant",
+    "text": "{sourceName} told you {subjectName} is the cat who let a cub fall from the high ledge."
+   },
+   "debunked": {
+    "id": "secrets.ln01_silence.debunked",
+    "text": "Not true. {name} was not the cat who let the cub fall. {sourceName} lied."
+   }
+  },
+  "ln04_saved_cub": {
+   "slot": "ln04",
+   "fact": "saved_cub",
+   "learned": "You learned the truth about {name}. When Bonefield's new leader took the pride, {name} was told to bring the old leader's cubs. {name} carried a cub to the Split Rock at night, and that cub lived.",
+   "gossip": {
+    "variants": [
+     {
+      "id": "secrets.ln04_saved_cub.gossip.a",
+      "text": "{sourceName} told you {subjectName} carried a cub out of Bonefield instead of taking it to the new leader. The cub lived."
+     },
+     {
+      "id": "secrets.ln04_saved_cub.gossip.b",
+      "text": "{sourceName} says {subjectName} didn't leave Bonefield over noise. {subjectName} saved a cub and took it to the Split Rock at night."
+     },
+     {
+      "id": "secrets.ln04_saved_cub.gossip.c",
+      "text": "{sourceName} told you {subjectName} was ordered to bring the old leader's cubs, and carried a cub away instead. That cub walks Highcrag now."
+     }
+    ]
+   },
+   "widely_told": {
+    "variants": [
+     {
+      "id": "secrets.ln04_saved_cub.widely_told.a",
+      "text": "Others say it too: {subjectName} saved a cub when Bonefield's new leader took the pride, and that cub lived."
+     },
+     {
+      "id": "secrets.ln04_saved_cub.widely_told.b",
+      "text": "The talk is spreading. {subjectName} carried a cub to the Split Rock at night, instead of handing it over."
+     },
+     {
+      "id": "secrets.ln04_saved_cub.widely_told.c",
+      "text": "Cats are saying it all over: the cub {subjectName} carried out of Bonefield is alive, and lives in Highcrag."
+     }
+    ]
+   },
+   "confirmed": {
+    "id": "secrets.ln04_saved_cub.confirmed",
+    "text": "You learned it yourself: {name} carried a cub out of Bonefield to the Split Rock, and that cub lived."
+   },
+   "false_variant": {
+    "id": "secrets.ln04_saved_cub.false_variant",
+    "text": "{sourceName} told you {subjectName} handed every cub over when Bonefield's new leader took the pride."
+   },
+   "debunked": {
+    "id": "secrets.ln04_saved_cub.debunked",
+    "text": "Not true. {name} carried a cub to the Split Rock, and that cub lived. {sourceName} lied."
+   }
+  },
+  "hc02_fallen_cub": {
+   "slot": "hc02",
+   "fact": "fallen_cub",
+   "learned": "You learned the truth about {name}. A cub fell from the high ledge in {name}'s care, and {name} let it fall. Another cat was driven out for it.",
+   "gossip": {
+    "variants": [
+     {
+      "id": "secrets.hc02_fallen_cub.gossip.a",
+      "text": "{sourceName} told you a cub fell from the high ledge in {subjectName}'s care, and {subjectName} let it fall. Another cat was driven out for it."
+     },
+     {
+      "id": "secrets.hc02_fallen_cub.gossip.b",
+      "text": "{sourceName} says the cub that fell at Highcrag was in {subjectName}'s care. {subjectName} let it fall, and the pride was told otherwise."
+     },
+     {
+      "id": "secrets.hc02_fallen_cub.gossip.c",
+      "text": "{sourceName} told you {subjectName} is the one who let the cub fall from the high ledge. Someone else took the blame."
+     }
+    ]
+   },
+   "widely_told": {
+    "variants": [
+     {
+      "id": "secrets.hc02_fallen_cub.widely_told.a",
+      "text": "Others say it too: the cub that fell from the high ledge was in {subjectName}'s care, and {subjectName} let it fall."
+     },
+     {
+      "id": "secrets.hc02_fallen_cub.widely_told.b",
+      "text": "The talk is spreading. {subjectName} let a cub fall, and another cat paid for it."
+     },
+     {
+      "id": "secrets.hc02_fallen_cub.widely_told.c",
+      "text": "Cats are saying it all over: the fall from the high ledge was {subjectName}'s doing."
+     }
+    ]
+   },
+   "confirmed": {
+    "id": "secrets.hc02_fallen_cub.confirmed",
+    "text": "You learned it yourself: a cub fell from the high ledge in {name}'s care, and {name} let it fall."
+   },
+   "false_variant": {
+    "id": "secrets.hc02_fallen_cub.false_variant",
+    "text": "{sourceName} told you {subjectName} was not even there when the cub fell from the high ledge."
+   },
+   "debunked": {
+    "id": "secrets.hc02_fallen_cub.debunked",
+    "text": "Not true. The cub fell in {name}'s care, and {name} let it fall. {sourceName} lied."
+   }
+  }
+ },
+ "_pendingSpec": [],
+ "_resolved": [
+  "Q3: a plain sum, with no extra weight for acting against type (Tundra, 2026-11-10).",
+  "Q4: a retreat counts only when you leave an ally behind (Tundra, 2026-11-10).",
+  "Q5: land taken or lost counts toward no axis and only feeds the land_taker epithet (Tundra, 2026-11-10).",
+  "Q6 / councils: Honour affects whether leaders believe you, not who gets to speak (councils-v0.1 §5.2).",
+  "Anna (2026-11-10), reputation: it never fades. It sticks for life. No copy says a name or deed is fading or forgotten. Titles may still be lost through opposing deeds (§7.3).",
+  "Anna (2026-11-10), Q9: secrets coming out become reputation moments. Copy is in secrets (ln01 silence, ln04 saved cub, hc02 fallen cub), never seeded as known (§9.1).",
+  "Anna (2026-11-10), map: a pride holds 3 to 6 regions. Counts stay out of player-facing prose.",
+  "Anna (2026-11-10), lore-book §3.3: a cat with a grudge lies about 1 time in 4. False variants stay behind the crossed-out mechanism; the rate is never shown.",
+  "Anna (2026-11-10), councils: a council happens once a season, plus an early one when a feud boils over.",
+  "Anna (2026-11-10), councils: only pride leaders attend. Loners cannot ask to come, and no copy offers that."
+ ]
+}

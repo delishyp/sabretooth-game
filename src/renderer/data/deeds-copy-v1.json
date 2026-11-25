@@ -1,0 +1,458 @@
+{
+  "_readme": "Deeds copy (Saga), v1, for docs/design/achievements-difficulty-traits-v0.1.md at 9def719 (v0.1.3c, ANNA-APPROVED except the §3.2 trait list). Names, locked hints and earned flavour for every §1.5 deed id (34: 18 visible, 9 hidden, 7 hard), with §1.6 trigger clarifications folded in, plus Deeds-screen and creator-picker chrome (Director's Body / Mind / Social / Lineage tabs and the flaw-vs-strength tally). Voice: narrator-voice-v1.md. No digits or number words in prose (the counter may use {earned} / {total}); exact counts stay in the §1.5 table only. No iron or metal or spear, no modern or game words in deed lines, no saber colour, no he/she/him/her and no singular they for any cat, no gendered words (including king and grandsire). Hidden deeds show lockedName ??? and a vague lockedHint until earned, then name and flavour. Flavour is one sentence, second person, past tense. Locked hints for visible and hard deeds say what to do, in words, without counts. Built by build_deeds_copy.py, checked by validate_deeds_copy.py. Draft until Anna signs the names off through Director. Nothing here is committed.",
+  "_source": {
+    "spec": "docs/design/achievements-difficulty-traits-v0.1.md",
+    "commit": "9def719",
+    "specVersion": "v0.1.3c",
+    "sections": "§1.2–1.5 (deeds), §1.6 (trigger clarifications), §2.5 (difficulty flavour), §3.1–3.2 and Director's creator-tab ruling (Body, Mind, Social, Lineage; flaws-against-strengths tally)",
+    "voice": "narrator-voice-v1.md",
+    "mockup": "/workspace/qa/ui-declutter-mockup/achievements.html and creator-traits.html",
+    "epithets": "hyena_bane name follows reputation-copy-v1.json epithet Hyena-Bane; oathbreaker follows Honour's L3 name Oathbreaker"
+  },
+  "_tokens": {
+    "earned": "How many deeds this profile has earned. Only in screen.counter.",
+    "total": "How many deeds there are in all (34). Only in screen.counter."
+  },
+  "_schema": {
+    "deeds": "Keyed by spec id. kind = visible | hidden | hard, taken from the §1.5 table. name = player-facing name, shown on earned tiles and on locked visible or hard tiles. renamedFrom = Tundra's working title where Saga renamed it. lockedName = ??? for hidden, else the same as name. lockedHint = a plain line on a locked tile (vague for hidden). flavour = one earned sentence, second person, past tense.",
+    "screen": "Deeds-screen chrome, plus traitTabs (Body, Mind, Social, Lineage) and tallyLabel, which the creator picker also uses.",
+    "creator": "The rest of the creator-picker chrome, including final §2.5 difficulty flavour. Trait names, hints and flavour stay in traits-copy-v1.json."
+  },
+  "_renames": {
+    "first_kill": {
+      "from": "First Kill",
+      "to": "Blooded"
+    },
+    "big_game": {
+      "from": "Big Game",
+      "to": "Large Prey"
+    },
+    "first_blood": {
+      "from": "First Blood",
+      "to": "Fought and Won"
+    },
+    "hyena_bane": {
+      "from": "Hyena Bane",
+      "to": "Hyena-Bane"
+    },
+    "lion_slayer": {
+      "from": "Lion Slayer",
+      "to": "Lion-Bane"
+    },
+    "read_you": {
+      "from": "Read You",
+      "to": "Read the Pounce"
+    },
+    "spear_dancer": {
+      "from": "Spear Dancer",
+      "to": "Left Unmarked"
+    },
+    "first_friend": {
+      "from": "First Friend",
+      "to": "Warming to You"
+    },
+    "mated": {
+      "from": "Mated",
+      "to": "A Mate"
+    },
+    "heartbreaker": {
+      "from": "Heartbreaker",
+      "to": "Turned Away"
+    },
+    "across_lines": {
+      "from": "Across Lines",
+      "to": "Across the Feud"
+    },
+    "loner_king": {
+      "from": "Loner King",
+      "to": "Lone Founding"
+    },
+    "three_banners": {
+      "from": "Three Banners",
+      "to": "All Borders"
+    },
+    "expansion": {
+      "from": "Expansion",
+      "to": "A Wide Claim"
+    },
+    "first_council": {
+      "from": "First Council",
+      "to": "Sat at Council"
+    },
+    "peacemaker": {
+      "from": "Peacemaker",
+      "to": "Agreements Kept"
+    },
+    "grand_council": {
+      "from": "Grand Council",
+      "to": "Against Every Pride"
+    },
+    "titled": {
+      "from": "Titled",
+      "to": "A Name Spoken"
+    },
+    "legend": {
+      "from": "Legend",
+      "to": "Legend of the Vale"
+    },
+    "two_faces": {
+      "from": "Two Faces",
+      "to": "A Forked Name"
+    },
+    "first_litter": {
+      "from": "First Litter",
+      "to": "A Litter Born"
+    },
+    "grandsire": {
+      "from": "Grandsire",
+      "to": "Elder of the Line"
+    },
+    "dynasty": {
+      "from": "Dynasty",
+      "to": "A Lasting Line"
+    },
+    "rare_coat": {
+      "from": "Rare Coat",
+      "to": "An Uncommon Cub"
+    },
+    "errand_cat": {
+      "from": "Errand Cat",
+      "to": "Asks Kept"
+    },
+    "storyteller": {
+      "from": "Storyteller",
+      "to": "Every Long Ask"
+    },
+    "gift_gone_wrong": {
+      "from": "Gift Gone Wrong",
+      "to": "A Gift Turned"
+    }
+  },
+  "screen": {
+    "title": "Deeds",
+    "counter": "{earned} / {total}",
+    "hiddenLabel": "???",
+    "sandboxNote": "A sandbox run earns none.",
+    "persistenceNote": "Deeds stay with you, even if a save is gone.",
+    "header": "Deeds stay with you, even if a save is gone. A sandbox run earns none.",
+    "challengeLabel": "Challenge",
+    "challengeNote": "Challenges need Standard or harsher, and permadeath or heir.",
+    "filters": {
+      "all": "All",
+      "earned": "Earned",
+      "locked": "Locked",
+      "hidden": "Hidden",
+      "challenge": "Challenge"
+    },
+    "rumourNote": "On a cat you have met, traits show as confirmed. On a cat you have only heard of, traits show as rumours, and a wrong rumour is struck through.",
+    "rumourChipConfirmed": "Confirmed",
+    "rumourChipRumour": "Rumour",
+    "rumourChipWrong": "Not so",
+    "traitTabs": {
+      "body": "Body",
+      "mind": "Mind",
+      "social": "Social",
+      "lineage": "Lineage"
+    },
+    "tallyLabel": "Flaws against strengths"
+  },
+  "creator": {
+    "pageKicker": "A new start",
+    "pageTitle": "Your nature",
+    "pageLede": "Choose how hard the Vale will be, then take flaws to cover strengths.",
+    "difficultyHeading": "The season",
+    "difficulty": {
+      "gentle": "The ice has stepped back, and the herds are thick.",
+      "standard": "The Vale as it is.",
+      "harsh": "A long winter. The herds run thin.",
+      "ice_age": "The ice comes south, and only the hard survive. A rival stays as hungry as you are, but packs, clans and lions grow bolder."
+    },
+    "traitHeading": "Strengths and flaws",
+    "tallyLabel": "Flaws against strengths",
+    "tallyStrengths": "Strengths",
+    "tallyFlaws": "Flaws",
+    "tallyCovered": "Your flaws cover your strengths. Nothing is left over.",
+    "tallyShort": "Your flaws do not yet cover your strengths.",
+    "tallyOver": "Your flaws more than cover your strengths. The rest will be lost.",
+    "tallyEmpty": "You have taken no strengths and no flaws.",
+    "fightLimit": "You already carry as many fight strengths as you may. No more may be added.",
+    "lookMarkLegend": "A gold mark means this also touches how you look.",
+    "playOnlyLegend": "Some natures can only be earned in play, and cannot be chosen here.",
+    "appearanceHeading": "Your look",
+    "appearanceOptional": "optional — a short telling",
+    "appearanceRoom": "There is room enough still.",
+    "appearanceRoomFull": "There is no more room.",
+    "portraitWins": "The portrait always wins: coat, markings and eye colour come from the look you chose, not from this telling."
+  },
+  "deeds": {
+    "first_kill": {
+      "kind": "visible",
+      "name": "Blooded",
+      "renamedFrom": "First Kill",
+      "lockedName": "Blooded",
+      "lockedHint": "Make a successful hunt.",
+      "flavour": "You brought prey down, and the kill was yours."
+    },
+    "big_game": {
+      "kind": "visible",
+      "name": "Large Prey",
+      "renamedFrom": "Big Game",
+      "lockedName": "Large Prey",
+      "lockedHint": "Kill large prey.",
+      "flavour": "You brought down large prey."
+    },
+    "feast": {
+      "kind": "visible",
+      "name": "Feast",
+      "lockedName": "Feast",
+      "lockedHint": "Bring your pride's food to Plenty.",
+      "flavour": "Your pride's food reached Plenty."
+    },
+    "lean_season": {
+      "kind": "hidden",
+      "name": "Lean Season",
+      "lockedName": "???",
+      "lockedHint": "A hard season can still end with the pride on its feet.",
+      "flavour": "The pride's food ran out, and you still brought every cat through to the turn of the season."
+    },
+    "first_blood": {
+      "kind": "visible",
+      "name": "Fought and Won",
+      "renamedFrom": "First Blood",
+      "lockedName": "Fought and Won",
+      "lockedHint": "Win a fight.",
+      "flavour": "You won a fight, and walked away the better of it."
+    },
+    "hyena_bane": {
+      "kind": "visible",
+      "name": "Hyena-Bane",
+      "renamedFrom": "Hyena Bane",
+      "lockedName": "Hyena-Bane",
+      "lockedHint": "Drive off or beat a hyena clan.",
+      "flavour": "You drove off, or beat, a hyena clan."
+    },
+    "lion_slayer": {
+      "kind": "hard",
+      "name": "Lion-Bane",
+      "renamedFrom": "Lion Slayer",
+      "lockedName": "Lion-Bane",
+      "lockedHint": "Beat a lion.",
+      "flavour": "You beat a lion, and lived."
+    },
+    "read_you": {
+      "kind": "hidden",
+      "name": "Read the Pounce",
+      "renamedFrom": "Read You",
+      "lockedName": "???",
+      "lockedHint": "You may learn to wait for a leap.",
+      "flavour": "You met a shown Pounce with Defend, again and again, and you won."
+    },
+    "bloodless": {
+      "kind": "visible",
+      "name": "Bloodless",
+      "lockedName": "Bloodless",
+      "lockedHint": "End a clash by Intimidate alone.",
+      "flavour": "You ended a clash by Intimidate alone."
+    },
+    "spear_dancer": {
+      "kind": "hidden",
+      "name": "Left Unmarked",
+      "renamedFrom": "Spear Dancer",
+      "lockedName": "???",
+      "lockedHint": "You may yet walk away unmarked.",
+      "flavour": "You slipped the humans and took no wound."
+    },
+    "first_friend": {
+      "kind": "visible",
+      "name": "Warming to You",
+      "renamedFrom": "First Friend",
+      "lockedName": "Warming to You",
+      "lockedHint": "Have a cat reach Warming to you.",
+      "flavour": "A cat reached Warming to you."
+    },
+    "mated": {
+      "kind": "visible",
+      "name": "A Mate",
+      "renamedFrom": "Mated",
+      "lockedName": "A Mate",
+      "lockedHint": "Form a mate bond.",
+      "flavour": "You formed a mate bond."
+    },
+    "heartbreaker": {
+      "kind": "hidden",
+      "name": "Turned Away",
+      "renamedFrom": "Heartbreaker",
+      "lockedName": "???",
+      "lockedHint": "A mate bond may come after you have been turned away.",
+      "flavour": "You were turned away, and turned away again, and then you formed a mate bond."
+    },
+    "across_lines": {
+      "kind": "hidden",
+      "name": "Across the Feud",
+      "renamedFrom": "Across Lines",
+      "lockedName": "???",
+      "lockedHint": "A mate bond may cross a feud.",
+      "flavour": "You formed a mate bond with a cat from a pride that stood against yours."
+    },
+    "founder": {
+      "kind": "visible",
+      "name": "Founder",
+      "lockedName": "Founder",
+      "lockedHint": "Found a pride of your own.",
+      "flavour": "You founded a pride of your own."
+    },
+    "loner_king": {
+      "kind": "hard",
+      "name": "Lone Founding",
+      "renamedFrom": "Loner King",
+      "lockedName": "Lone Founding",
+      "lockedHint": "As a loner, found a pride within a season, without losing yourself or any cat at your side.",
+      "flavour": "As a loner, you founded a pride within a season, and every cat at your side lived through it."
+    },
+    "three_banners": {
+      "kind": "visible",
+      "name": "All Borders",
+      "renamedFrom": "Three Banners",
+      "lockedName": "All Borders",
+      "lockedHint": "Hold land that borders every pride at once.",
+      "flavour": "You held land that bordered every pride at once."
+    },
+    "holdfast": {
+      "kind": "visible",
+      "name": "Holdfast",
+      "lockedName": "Holdfast",
+      "lockedHint": "Hold your core den through a long unbroken run of seasons, without losing it.",
+      "flavour": "You held your core den through a long unbroken run of seasons, and never lost it."
+    },
+    "expansion": {
+      "kind": "hard",
+      "name": "A Wide Claim",
+      "renamedFrom": "Expansion",
+      "lockedName": "A Wide Claim",
+      "lockedHint": "Hold a wide claim.",
+      "flavour": "You held a wide claim, region after region."
+    },
+    "first_council": {
+      "kind": "visible",
+      "name": "Sat at Council",
+      "renamedFrom": "First Council",
+      "lockedName": "Sat at Council",
+      "lockedHint": "Sit at a council.",
+      "flavour": "You sat at a council."
+    },
+    "peacemaker": {
+      "kind": "visible",
+      "name": "Agreements Kept",
+      "renamedFrom": "Peacemaker",
+      "lockedName": "Agreements Kept",
+      "lockedHint": "Keep several agreements until the end.",
+      "flavour": "You kept several agreements until the end."
+    },
+    "grand_council": {
+      "kind": "hard",
+      "name": "Against Every Pride",
+      "renamedFrom": "Grand Council",
+      "lockedName": "Against Every Pride",
+      "lockedHint": "Carry a matter against every pride at the same council.",
+      "flavour": "At the same council, you carried a matter against every pride."
+    },
+    "oathbreaker": {
+      "kind": "hidden",
+      "name": "Oathbreaker",
+      "lockedName": "???",
+      "lockedHint": "A given word can be broken.",
+      "flavour": "You broke an agreement."
+    },
+    "titled": {
+      "kind": "visible",
+      "name": "A Name Spoken",
+      "renamedFrom": "Titled",
+      "lockedName": "A Name Spoken",
+      "lockedHint": "Earn a name that begins with your own.",
+      "flavour": "The Vale spoke a name that began with your own."
+    },
+    "legend": {
+      "kind": "hard",
+      "name": "Legend of the Vale",
+      "renamedFrom": "Legend",
+      "lockedName": "Legend of the Vale",
+      "lockedHint": "Reach the highest word, fair or dark, on Courage, Mercy or Honour.",
+      "flavour": "The Vale has no higher name for a cat than the one it gave you."
+    },
+    "two_faces": {
+      "kind": "hidden",
+      "name": "A Forked Name",
+      "renamedFrom": "Two Faces",
+      "lockedName": "???",
+      "lockedHint": "Cats may not agree on a name for you.",
+      "flavour": "You held a good name, and a bad name besides."
+    },
+    "first_litter": {
+      "kind": "visible",
+      "name": "A Litter Born",
+      "renamedFrom": "First Litter",
+      "lockedName": "A Litter Born",
+      "lockedHint": "See cubs of yours born.",
+      "flavour": "Cubs of yours were born."
+    },
+    "full_den": {
+      "kind": "hard",
+      "name": "Full Den",
+      "lockedName": "Full Den",
+      "lockedHint": "Raise a large litter to adulthood.",
+      "flavour": "You raised a large litter all the way to adulthood."
+    },
+    "grandsire": {
+      "kind": "visible",
+      "name": "Elder of the Line",
+      "renamedFrom": "Grandsire",
+      "lockedName": "Elder of the Line",
+      "lockedHint": "See a grandcub born.",
+      "flavour": "You saw a grandcub born."
+    },
+    "dynasty": {
+      "kind": "hard",
+      "name": "A Lasting Line",
+      "renamedFrom": "Dynasty",
+      "lockedName": "A Lasting Line",
+      "lockedHint": "Continue as an heir born to a grandcub.",
+      "flavour": "You lived on as an heir, born to a grandcub."
+    },
+    "rare_coat": {
+      "kind": "hidden",
+      "name": "An Uncommon Cub",
+      "renamedFrom": "Rare Coat",
+      "lockedName": "???",
+      "lockedHint": "A cub may be born unlike the rest.",
+      "flavour": "A cub of yours was born with a rare coat, a rare pattern, or uncommon eyes."
+    },
+    "errand_cat": {
+      "kind": "visible",
+      "name": "Asks Kept",
+      "renamedFrom": "Errand Cat",
+      "lockedName": "Asks Kept",
+      "lockedHint": "Finish several asks.",
+      "flavour": "You finished several asks."
+    },
+    "storyteller": {
+      "kind": "visible",
+      "name": "Every Long Ask",
+      "renamedFrom": "Storyteller",
+      "lockedName": "Every Long Ask",
+      "lockedHint": "Finish every long trail of asks.",
+      "flavour": "You finished every long trail of asks."
+    },
+    "gift_gone_wrong": {
+      "kind": "hidden",
+      "name": "A Gift Turned",
+      "renamedFrom": "Gift Gone Wrong",
+      "lockedName": "???",
+      "lockedHint": "Not every gift is welcome.",
+      "flavour": "You gave a gift, and it went badly."
+    }
+  },
+  "_gaps": [
+    "Director ruled hidden tiles show ??? plus their vague lockedHint, and counted deeds show a pip progress bar instead of a number (Ochre)."
+  ],
+  "_questions": []
+}

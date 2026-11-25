@@ -68,8 +68,8 @@ test('menu:newGame with mainCat (v1.4): run takes the cat name + full playerCat;
   assert.strictEqual(res.ok, true); assert.strictEqual(saves.findRun(a.runId), null); assert.ok(saves.findRun(b.runId));
   const run = saves.findRun(res.run.runId);
   assert.strictEqual(run.catName, 'Rook');
-  assert.deepStrictEqual(run.playerCat, { catId: 'cat_1', name: 'Rook', sex: cat.sex, ageSeasons: 12, birthSeason: { year: -2, season: 'spring' }, genes: cat.genes, scars: [] });
-  assert.deepStrictEqual(res.mainCat, { catId: 'cat_1', name: 'Rook', sex: cat.sex, lifeStage: 'adult', genes: cat.genes, scars: [] });
+  assert.deepStrictEqual(run.playerCat, { catId: 'cat_1', name: 'Rook', sex: cat.sex, ageSeasons: 12, birthSeason: { year: -2, season: 'spring' }, genes: cat.genes, scars: [], portraitId: null });
+  assert.deepStrictEqual(res.mainCat, { catId: 'cat_1', name: 'Rook', sex: cat.sex, lifeStage: 'adult', genes: cat.genes, scars: [], portraitId: null });
 });
 test('slice 1: game:save auto → slot 0, manual → slot 1 (overwritten); loadSave returns the game state', async () => {
   const { h, saves } = setup();
@@ -81,6 +81,7 @@ test('slice 1: game:save auto → slot 0, manual → slot 1 (overwritten); loadS
   assert.strictEqual(saves.findRun(runId).saves.length, 2);
   const l = h.loadSave({ runId, saveId: m.save.saveId });
   assert.strictEqual(l.ok, true); assert.strictEqual(l.game.day, 5); assert.strictEqual(l.run.runId, runId);
+  assert.strictEqual(l.run.prideName, t('run.defaultPrideName'));
   assert.deepStrictEqual(saves.findSave(runId, m.save.saveId).inGameDate, { year: 1, season: 'spring', day: 5 });
   assert.deepStrictEqual(h.saveGame({ runId, kind: 'auto', game: null }), { ok: false, errorId: 'toast.saveFailed' });
 });

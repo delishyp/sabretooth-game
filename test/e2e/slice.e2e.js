@@ -29,17 +29,54 @@ const gameJson = (ud, run, save) => JSON.parse(fs.readFileSync(path.join(ud, 'sa
 /** One step of a simple survival policy, by clicking the real buttons. Returns what it did. */
 async function step(page, shots) {
   const { state: s, available: av } = await g(page);
+  if (s.phase === 'encounter') {
+    const leave = page.locator('#game-event [data-choice="leave"], #game-event [data-choice="give_ground"], #game-event [data-choice="retreat"], #game-event [data-choice="yield_kill"], #game-event [data-choice="finish"], #game-event [data-g="continue"]');
+    await leave.first().click(); await idle(page); return 'encounter';
+  }
+  if (s.phase === 'ford') {
+    const stay = page.locator('#game-event [data-choice="stay_out"]');
+    if (await stay.count()) { await stay.click(); await idle(page); return 'ford'; }
+    await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'ford-continue';
+  }
+  if (s.phase === 'border') {
+    const cont = page.locator('#game-event [data-g="continue"]');
+    if (await cont.count()) { await cont.click(); await idle(page); return 'border-continue'; }
+    const leave = page.locator('#game-event [data-choice="withdraw"], #game-event [data-choice="leave_request"]');
+    if (await leave.count()) { await leave.first().click(); await idle(page); return 'border-leave'; }
+    await page.locator('#game-event button').first().click(); await idle(page); return 'border';
+  }
+  if (s.phase === 'conversation') {
+    const cont = page.locator('#game-event [data-g="continue"]');
+    if (await cont.count()) { await cont.click(); await idle(page); return 'talk-continue'; }
+    const leave = page.locator('#game-event [data-choice="leave"], #game-event [data-choice="pause"]');
+    if (await leave.count()) { await leave.first().click(); await idle(page); return 'talk-leave'; }
+    await page.locator('#game-event [data-g="choose"]').first().click(); await idle(page); return 'talk-choice';
+  }
   if (s.phase === 'event') {
     if (!shots.event && s.pending.catId) { await page.waitForTimeout(400); await shot(page, '04-event'); shots.event = true; }
-    const b = page.locator('#game-event [data-g="choose"]').first(); await b.click(); await idle(page); return 'choose';
+    const beat = page.locator('#game-event [data-g="advanceBeat"]');
+    if (await beat.count()) { await beat.first().click(); await idle(page); return 'advanceBeat'; }
+    const b = page.locator('#game-event [data-g="choose"], #game-event [data-g="sceneChoose"]').first();
+    await b.click(); await idle(page); return 'choose';
   }
   if (s.phase === 'eventResult') { await page.locator('#game-event [data-g="continue"]').click(); await idle(page); return 'continue'; }
+  if (s.phase === 'day' && s.report && await page.locator('[data-g="dismissReport"]').count()) {
+    await page.locator('[data-g="dismissReport"]').click(); await idle(page); return 'day-end';
+  }
   if (av.forced) { await page.locator('[data-g="forced"]').click(); await idle(page); return 'forced'; }
+  if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
+  const showStep = async (sel) => {
+    if (await page.locator(sel).first().isVisible()) return;
+    if (sel.includes('hunt') && await page.locator('[data-g="pickHunt"]').isVisible()) await page.locator('[data-g="pickHunt"]').click();
+    if (sel.includes('travel') && await page.locator('[data-g="pickTravel"]').isVisible()) await page.locator('[data-g="pickTravel"]').click();
+  };
   if (s.needs.thirst < 50 && !W.hasWater(s.region, 'spring')) {
     const to = av.travel.find((o) => o.allowed && W.hasWater(o.to, 'spring') && o.days === 1) || av.travel.find((o) => o.allowed);
+    await showStep(`[data-g="travel"][data-to="${to.to}"]`);
     await page.locator(`[data-g="travel"][data-to="${to.to}"]`).click(); await idle(page); return `travel ${to.to}`;
   }
   if (s.needs.hunger < 65 && av.hunt.allowed) {
+    await showStep('[data-g="hunt"][data-size="small"]');
     await page.locator('[data-g="hunt"][data-size="small"]').click(); await idle(page);
     if (!shots.hunt) { await shot(page, '03-hunt-result'); shots.hunt = true; }
     return 'hunt';
@@ -53,12 +90,19 @@ async function step(page, shots) {
   const { app, page } = await launch(ud);
   const shots = {};
   try {
-    await check('New Game is locked to Standard + permadeath (scope IN §1): other cards hidden, no Sandbox panel', async () => {
+    await check('New Game is locked to Standard + permadeath (scope IN §1): Story, Sim, Heir and Sandbox are greyed', async () => {
       assert.deepStrictEqual(await page.evaluate(() => window.__menuDebug.menuLock()), { styles: ['standard'], difficulties: ['permadeath'] });
       await page.mouse.move(2, 2);
       await press(page, 'Enter'); await waitState(page, 'newGameSetup');
-      const cards = () => page.evaluate(() => [...document.querySelectorAll('#style-cards .card, #death-cards .card')].map((c) => c.dataset.nav));
-      assert.deepStrictEqual(await cards(), ['style:standard', 'death:permadeath']);
+      const cards = () => page.evaluate(() => [...document.querySelectorAll('#style-cards .card, #death-cards .card')].map((c) => ({ nav: c.dataset.nav, disabled: c.disabled })));
+      assert.deepStrictEqual(await cards(), [
+        { nav: 'style:story', disabled: true },
+        { nav: 'style:standard', disabled: false },
+        { nav: 'style:sim', disabled: true },
+        { nav: 'death:permadeath', disabled: false },
+        { nav: 'death:heir', disabled: true },
+        { nav: 'death:sandbox', disabled: true }
+      ]);
       let s = (await st(page)).setup; assert.deepStrictEqual([s.style, s.death], ['standard', 'permadeath']);
       await press(page, 'ArrowLeft', 'Enter', 'ArrowRight', 'Enter', 'ArrowDown', 'ArrowLeft', 'Enter', 'ArrowRight', 'Enter', 'ArrowUp');
       s = (await st(page)).setup; assert.deepStrictEqual([s.style, s.death, s.focus], ['standard', 'permadeath', 'style:standard']);
@@ -71,11 +115,12 @@ async function step(page, shots) {
       await press(page, 'ArrowUp', 'Enter'); await waitState(page, 'creator');
       await page.waitForFunction(() => window.__menuDebug.creator().preview.rendered, null, { timeout: 5000 }).catch(() => {});
       await shot(page, '01-creator');
-      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
+      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
       assert.strictEqual((await st(page)).state, 'game');
       const { state: s } = await g(page);
       assert.deepStrictEqual([s.day, s.region, s.seed, s.needs], [1, 'split_rock', SEED, { health: 100, hunger: 80, thirst: 80, energy: 80 }]);
-      assert.match(await page.locator('#game-day').textContent(), /day 1 of 20/);
+      assert.match(await page.locator('#game-day').textContent(), /Spring · Day 1 · Mating season/);
+      assert.ok(!(await page.locator('#game-day').textContent()).includes('of 20'));
       assert.strictEqual(await page.locator('.region-name').textContent(), W.region('split_rock').name);
       assert.strictEqual(await page.locator('.region-desc').textContent(), COPY['map.region.split_rock.description']);   // Saga, docs/map-copy.md
       assert.ok(!(await page.locator('#stage').textContent()).includes('[PH]'), 'no placeholder text on screen');
@@ -92,7 +137,8 @@ async function step(page, shots) {
       while ((await g(page)).state.day < 6) await step(page, shots);
       while ((await g(page)).state.phase !== 'day') await step(page, shots);
       assert.ok(gameJson(ud, 0, 0).day >= 6, 'autosave each day');
-      await page.locator('[data-g="save"]').click(); await page.waitForTimeout(300);
+      if (await page.locator('.home-tools [data-g="save"]').isHidden()) await page.locator('[data-g="openMenu"]').click();
+      await page.locator('.home-tools [data-g="save"]').click(); await page.waitForTimeout(300);
       before = (await g(page)).state;
       assert.deepStrictEqual(gameJson(ud, 0, 1), before);
       await press(page, 'Escape'); await waitState(page, 'root');
@@ -100,24 +146,35 @@ async function step(page, shots) {
       await press(page, 'Enter'); await waitState(page, 'game');
       assert.deepStrictEqual((await g(page)).state, before);
     });
-    await check('play on to the day-20 summary (regions, cats met, best affinity)', async () => {
-      for (let i = 0; i < 200 && (await st(page)).state === 'game'; i++) await step(page, shots);
-      await waitState(page, 'summary');
-      assert.strictEqual((await st(page)).state, 'summary');
-      const { summary } = await g(page);
-      assert.strictEqual(summary.survived, true, `seed ${SEED} died: ${JSON.stringify(summary)}`);
-      assert.strictEqual(summary.daysSurvived, 20);
-      const txt = await page.locator('#summary-body').textContent();
-      assert.match(txt, /20 of 20/); for (const r of summary.regionsVisited) assert.ok(txt.includes(W.region(r).name), r);
-      await shot(page, '05-summary');
-      assert.strictEqual(gameJson(ud, 0, 0).over, true);
-      assert.ok(shots.hunt, 'hunt shot'); console.log(`    seed ${SEED}: ${summary.regionsVisited.length} regions, ${summary.catsMet.length} cats met, best ${JSON.stringify(summary.bestAffinity)}, event shot ${!!shots.event}`);
+    await check('day 20 closes the mating window and day 21 continues', async () => {
+      for (let i = 0; i < 260 && (await st(page)).state === 'game'; i++) {
+        const s = (await g(page)).state;
+        if (s.day >= 21 && s.phase === 'day' && s.records && s.records.seasonEndShown) break;
+        await step(page, shots);
+      }
+      assert.strictEqual((await st(page)).state, 'game');
+      const { state: s, summary } = await g(page);
+      assert.strictEqual(s.over, false);
+      assert.strictEqual(s.dead, null);
+      assert.ok(s.day >= 21, `day ${s.day}`);
+      assert.strictEqual(s.records.seasonEndShown, true);
+      assert.strictEqual(s.year, 1);
+      assert.strictEqual(s.records.yearLengthDays, null);
+      const dayText = await page.locator('#game-day').textContent();
+      assert.match(dayText, /Day 21/);
+      assert.ok(!dayText.includes('Mating season'));
+      assert.ok(!dayText.includes('of 20'));
+      assert.strictEqual(summary.survived, true);
+      await shot(page, '05-day-21');
+      assert.strictEqual(gameJson(ud, 0, 0).over, false);
+      assert.ok(shots.hunt, 'hunt shot');
+      console.log(`    seed ${SEED}: day ${s.day}, ${summary.regionsVisited.length} regions, ${summary.catsMet.length} cats met`);
     });
     await check('death path: starvation kills, death summary shows the cause; Continue reopens the summary', async () => {
       await press(page, 'Escape'); await waitState(page, 'root');
       await page.evaluate(() => document.querySelector('[data-action="newGame"]').click()); await waitState(page, 'newGameSetup');
       await page.mouse.move(2, 2); await press(page, 'ArrowUp', 'Enter'); await waitState(page, 'creator');
-      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
+      await press(page, 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter', 'ArrowUp', 'Enter'); await waitState(page, 'game');
       // Director fix: singular day counts ("1 day", never "1 days") on the travel buttons and the injury chip
       await page.evaluate(() => window.__menuDebug.gamePatch({ injuries: [{ tier: 'minor', daysLeft: 1, source: 'e2e' }, { tier: 'serious', daysLeft: 2, source: 'e2e' }] }));
       assert.strictEqual(await page.locator('.chip-minor').textContent(), 'Minor injury · 1 day remaining');
@@ -126,6 +183,7 @@ async function step(page, shots) {
       assert.ok(!/\b1 days\b/.test(await page.locator('#stage').textContent()), 'no "1 days" on screen');
       await shot(page, '07-one-day-travel-and-injury');
       await page.evaluate(() => window.__menuDebug.gamePatch({ needs: { health: 10, hunger: 0, thirst: 100, energy: 100 }, counters: { starving: 2, parched: 0 } }));
+      if (await page.locator('#game-actions').isHidden()) await page.locator('[data-g="openActions"]').click();
       await page.locator('[data-g="rest"]').click(); await waitState(page, 'summary');
       const { summary, state: s } = await g(page);
       assert.deepStrictEqual([summary.survived, summary.cause, s.dead.day], [false, 'starvation', 1]);

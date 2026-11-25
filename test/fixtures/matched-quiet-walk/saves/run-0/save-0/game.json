@@ -1,0 +1,2425 @@
+{
+  "saveVersion": 1,
+  "dataVersion": 1,
+  "eventsVersion": 1,
+  "runId": "b5dbe6de-7eb8-48d6-b280-fe752ec35cea",
+  "seed": 11,
+  "year": 1,
+  "season": "spring",
+  "day": 2,
+  "phase": "conversation",
+  "cat": {
+    "catId": "cat_f1f26979-bdf9-411b-98dd-096aa94d6fc9",
+    "name": "Quietstone",
+    "sex": "female",
+    "lifeStage": "adult",
+    "genes": {
+      "v": 1,
+      "loci": {
+        "coat": [
+          "greydun",
+          "greydun"
+        ],
+        "dilute": [
+          "D",
+          "D"
+        ],
+        "marking": [
+          "spotted",
+          "spotted"
+        ],
+        "dorsal": [
+          "ds",
+          "ds"
+        ],
+        "intensity": [
+          "I+",
+          "I-"
+        ],
+        "white": [
+          "none",
+          "none"
+        ],
+        "eyes": [
+          "gold",
+          "gold"
+        ],
+        "saber": [
+          "ivory",
+          "ivory"
+        ],
+        "het": [
+          "Het",
+          "Het"
+        ]
+      },
+      "eyeRight": null,
+      "mutations": [],
+      "personality": {
+        "aggression": 50,
+        "sociability": 50,
+        "boldness": 50,
+        "loyalty": 50,
+        "curiosity": 50
+      }
+    },
+    "scars": [],
+    "portraitId": "cat-6e2d788dd48ff440"
+  },
+  "needs": {
+    "health": 100,
+    "hunger": 66,
+    "thirst": 59,
+    "energy": 97
+  },
+  "injuries": [],
+  "counters": {
+    "starving": 0,
+    "parched": 0
+  },
+  "region": "split_rock",
+  "travel": null,
+  "forced": null,
+  "map": {
+    "dataVersion": 1,
+    "claims": {
+      "ice_wall": {},
+      "frost_tongue": {},
+      "blue_caves": {},
+      "wind_scree": {},
+      "north_pass": {},
+      "highcrag": {
+        "highcrag": 80
+      },
+      "horse_meadows": {
+        "highcrag": 70
+      },
+      "upper_greywater": {
+        "highcrag": 65
+      },
+      "greywater_ford": {
+        "highcrag": 55,
+        "bonefield": 45
+      },
+      "salt_flats": {},
+      "bonefield": {
+        "bonefield": 80
+      },
+      "herd_trail": {
+        "bonefield": 70
+      },
+      "tallgrass": {
+        "bonefield": 65
+      },
+      "south_range": {},
+      "split_rock": {},
+      "twin_forks": {},
+      "reedbank": {
+        "mistwood": 65
+      },
+      "mistwood": {
+        "mistwood": 80
+      },
+      "fog_paths": {
+        "mistwood": 70
+      },
+      "west_spur": {},
+      "drowned_mere": {},
+      "mere_shore": {},
+      "island_mere": {},
+      "east_saddle": {},
+      "bears_throat": {},
+      "claw_gorge": {},
+      "tar_seeps": {},
+      "ash_hills": {
+        "wolves": 75
+      },
+      "wolf_run": {
+        "wolves": 70
+      },
+      "camel_ridge": {}
+    },
+    "discovered": [
+      "split_rock",
+      "greywater_ford",
+      "salt_flats",
+      "bonefield",
+      "tallgrass",
+      "mistwood",
+      "twin_forks"
+    ],
+    "visited": [
+      "split_rock"
+    ],
+    "blockedEdges": {},
+    "flood": null
+  },
+  "prideRelation": {
+    "highcrag": 0,
+    "bonefield": 0,
+    "mistwood": 0
+  },
+  "npcs": {
+    "hc01": {
+      "id": "hc01",
+      "name": "Tarndawn",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "gray",
+        "markings": "faintstripe",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 45,
+        "sociability": 42,
+        "boldness": 36,
+        "loyalty": 31,
+        "curiosity": 51
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 66
+    },
+    "hc02": {
+      "id": "hc02",
+      "name": "Winterstorm",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "tan",
+        "markings": "none",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 50,
+        "sociability": 40,
+        "boldness": 47,
+        "loyalty": 37,
+        "curiosity": 43
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "hc03",
+        "dam": "hc01",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 67
+    },
+    "hc03": {
+      "id": "hc03",
+      "name": "Ermine",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "sandy",
+        "markings": "none",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 61,
+        "sociability": 25,
+        "boldness": 62,
+        "loyalty": 31,
+        "curiosity": 34
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 66
+    },
+    "hc04": {
+      "id": "hc04",
+      "name": "Moonbark",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "brown",
+        "markings": "spotted",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 27,
+        "sociability": 61,
+        "boldness": 31,
+        "loyalty": 61,
+        "curiosity": 64
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 72
+    },
+    "hc05": {
+      "id": "hc05",
+      "name": "Harewhisper",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "brown",
+        "markings": "none",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 29,
+        "sociability": 37,
+        "boldness": 74,
+        "loyalty": 38,
+        "curiosity": 44
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 68
+    },
+    "hc06": {
+      "id": "hc06",
+      "name": "Hareleap",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "gray",
+        "markings": "spotted",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 56,
+        "sociability": 59,
+        "boldness": 18,
+        "loyalty": 32,
+        "curiosity": 62
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 66
+    },
+    "hc07": {
+      "id": "hc07",
+      "name": "Goldfall",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "brown",
+        "markings": "none",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 57,
+        "sociability": 81,
+        "boldness": 74,
+        "loyalty": 64,
+        "curiosity": 43
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 73
+    },
+    "hc08": {
+      "id": "hc08",
+      "name": "Summerpelt",
+      "sex": "female",
+      "stage": "elder",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "tan",
+        "markings": "faintstripe",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 41,
+        "sociability": 54,
+        "boldness": 60,
+        "loyalty": 82,
+        "curiosity": 35
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 76
+    },
+    "hc09": {
+      "id": "hc09",
+      "name": "Brightwake",
+      "sex": "male",
+      "stage": "adolescent",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "sandy",
+        "markings": "spotted",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 69,
+        "sociability": 28,
+        "boldness": 55,
+        "loyalty": 28,
+        "curiosity": 27
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "hc03",
+        "dam": "hc01",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 66
+    },
+    "hc10": {
+      "id": "hc10",
+      "name": "Gorsesky",
+      "sex": "female",
+      "stage": "cub",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "brown",
+        "markings": "none",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 62,
+        "sociability": 41,
+        "boldness": 29,
+        "loyalty": 32,
+        "curiosity": 57
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "hc02",
+        "dam": "hc06",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 66
+    },
+    "hc11": {
+      "id": "hc11",
+      "name": "Thawblaze",
+      "sex": "male",
+      "stage": "cub",
+      "faction": "highcrag",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "black",
+        "markings": "spotted",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 45,
+        "sociability": 56,
+        "boldness": 20,
+        "loyalty": 30,
+        "curiosity": 50
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "hc02",
+        "dam": "hc06",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 66
+    },
+    "bf01": {
+      "id": "bf01",
+      "name": "Bitterbrow",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "gray",
+        "markings": "none",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 82,
+        "sociability": 58,
+        "boldness": 48,
+        "loyalty": 54,
+        "curiosity": 63
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 71
+    },
+    "bf02": {
+      "id": "bf02",
+      "name": "Cloudfrost",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "tan",
+        "markings": "none",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 27,
+        "sociability": 54,
+        "boldness": 31,
+        "loyalty": 43,
+        "curiosity": 32
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 69
+    },
+    "bf03": {
+      "id": "bf03",
+      "name": "Rimeridge",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "tan",
+        "markings": "spotted",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 26,
+        "sociability": 42,
+        "boldness": 49,
+        "loyalty": 36,
+        "curiosity": 38
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 67
+    },
+    "bf04": {
+      "id": "bf04",
+      "name": "Briarshade",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "tan",
+        "markings": "faintstripe",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 45,
+        "sociability": 48,
+        "boldness": 48,
+        "loyalty": 35,
+        "curiosity": 37
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 67
+    },
+    "bf05": {
+      "id": "bf05",
+      "name": "Sungale",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "brown",
+        "markings": "faintstripe",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 57,
+        "sociability": 48,
+        "boldness": 58,
+        "loyalty": 50,
+        "curiosity": 83
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 70
+    },
+    "bf06": {
+      "id": "bf06",
+      "name": "Sleetrain",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "black",
+        "markings": "faintstripe",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 66,
+        "sociability": 44,
+        "boldness": 62,
+        "loyalty": 26,
+        "curiosity": 48
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 65
+    },
+    "bf07": {
+      "id": "bf07",
+      "name": "Hornstorm",
+      "sex": "male",
+      "stage": "elder",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "black",
+        "markings": "faintstripe",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 20,
+        "sociability": 18,
+        "boldness": 55,
+        "loyalty": 32,
+        "curiosity": 55
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 66
+    },
+    "bf08": {
+      "id": "bf08",
+      "name": "Brookstep",
+      "sex": "female",
+      "stage": "adolescent",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "brown",
+        "markings": "spotted",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 68,
+        "sociability": 47,
+        "boldness": 32,
+        "loyalty": 38,
+        "curiosity": 51
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "bf01",
+        "dam": "bf04",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 68
+    },
+    "bf09": {
+      "id": "bf09",
+      "name": "Wolfdrift",
+      "sex": "male",
+      "stage": "cub",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "black",
+        "markings": "spotted",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 56,
+        "sociability": 59,
+        "boldness": 55,
+        "loyalty": 35,
+        "curiosity": 60
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "bf01",
+        "dam": "bf04",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 67
+    },
+    "bf10": {
+      "id": "bf10",
+      "name": "Moondawn",
+      "sex": "female",
+      "stage": "cub",
+      "faction": "bonefield",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "gray",
+        "markings": "spotted",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 40,
+        "sociability": 44,
+        "boldness": 67,
+        "loyalty": 43,
+        "curiosity": 70
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "off",
+        "dam": "bf05",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 69
+    },
+    "mw01": {
+      "id": "mw01",
+      "name": "Moonleap",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "tan",
+        "markings": "faintstripe",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 15,
+        "sociability": 35,
+        "boldness": 36,
+        "loyalty": 60,
+        "curiosity": 39
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 72
+    },
+    "mw02": {
+      "id": "mw02",
+      "name": "Bramblemark",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "sandy",
+        "markings": "none",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 58,
+        "sociability": 46,
+        "boldness": 55,
+        "loyalty": 40,
+        "curiosity": 34
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 68
+    },
+    "mw03": {
+      "id": "mw03",
+      "name": "Ridgetooth",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "tan",
+        "markings": "faintstripe",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 58,
+        "sociability": 61,
+        "boldness": 56,
+        "loyalty": 61,
+        "curiosity": 39
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 72
+    },
+    "mw04": {
+      "id": "mw04",
+      "name": "Alderlight",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "tan",
+        "markings": "spotted",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 22,
+        "sociability": 75,
+        "boldness": 47,
+        "loyalty": 65,
+        "curiosity": 49
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 73
+    },
+    "mw05": {
+      "id": "mw05",
+      "name": "Rivercloud",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "brown",
+        "markings": "faintstripe",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 57,
+        "sociability": 31,
+        "boldness": 58,
+        "loyalty": 59,
+        "curiosity": 52
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 72
+    },
+    "mw06": {
+      "id": "mw06",
+      "name": "Quieteye",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "brown",
+        "markings": "faintstripe",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 31,
+        "sociability": 46,
+        "boldness": 44,
+        "loyalty": 41,
+        "curiosity": 50
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 68
+    },
+    "mw07": {
+      "id": "mw07",
+      "name": "Brightfall",
+      "sex": "female",
+      "stage": "elder",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "gray",
+        "markings": "none",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 61,
+        "sociability": 77,
+        "boldness": 47,
+        "loyalty": 66,
+        "curiosity": 66
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 73
+    },
+    "mw08": {
+      "id": "mw08",
+      "name": "Scartusk",
+      "sex": "male",
+      "stage": "adolescent",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "male",
+        "coat": "tan",
+        "markings": "faintstripe",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 36,
+        "sociability": 37,
+        "boldness": 38,
+        "loyalty": 73,
+        "curiosity": 60
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "off_longshadow",
+        "dam": "mw01",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 75
+    },
+    "mw09": {
+      "id": "mw09",
+      "name": "Stillbloom",
+      "sex": "female",
+      "stage": "cub",
+      "faction": "mistwood",
+      "homeZones": [],
+      "look": {
+        "sex": "female",
+        "coat": "black",
+        "markings": "faintstripe",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 31,
+        "sociability": 71,
+        "boldness": 52,
+        "loyalty": 41,
+        "curiosity": 53
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "mw02",
+        "dam": "mw04",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": 68
+    },
+    "ln01": {
+      "id": "ln01",
+      "name": "Coppermist",
+      "sex": "male",
+      "stage": "elder",
+      "faction": "loner",
+      "homeZones": [
+        "split_rock",
+        "ice_wall"
+      ],
+      "look": {
+        "sex": "male",
+        "coat": "gray",
+        "markings": "faintstripe",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 43,
+        "sociability": 59,
+        "boldness": 62,
+        "loyalty": 37,
+        "curiosity": 54
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    },
+    "ln02": {
+      "id": "ln02",
+      "name": "Sunleap",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "loner",
+      "homeZones": [
+        "greywater_ford",
+        "split_rock"
+      ],
+      "look": {
+        "sex": "female",
+        "coat": "sandy",
+        "markings": "faintstripe",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 71,
+        "sociability": 79,
+        "boldness": 72,
+        "loyalty": 60,
+        "curiosity": 53
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "off",
+        "dam": "hc07",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    },
+    "ln03": {
+      "id": "ln03",
+      "name": "Brookpelt",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "loner",
+      "homeZones": [
+        "tar_seeps",
+        "bears_throat"
+      ],
+      "look": {
+        "sex": "male",
+        "coat": "black",
+        "markings": "faintstripe",
+        "eyes": "green"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 62,
+        "sociability": 49,
+        "boldness": 60,
+        "loyalty": 56,
+        "curiosity": 52
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "off_bf_sire",
+        "dam": "off",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    },
+    "ln04": {
+      "id": "ln04",
+      "name": "Gorsecloud",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "loner",
+      "homeZones": [
+        "bears_throat",
+        "split_rock"
+      ],
+      "look": {
+        "sex": "female",
+        "coat": "tan",
+        "markings": "spotted",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 59,
+        "sociability": 57,
+        "boldness": 62,
+        "loyalty": 33,
+        "curiosity": 33
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    },
+    "ln05": {
+      "id": "ln05",
+      "name": "Coppergale",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "loner",
+      "homeZones": [
+        "ice_wall",
+        "split_rock"
+      ],
+      "look": {
+        "sex": "male",
+        "coat": "gray",
+        "markings": "none",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": true,
+      "improvedDay": null,
+      "portraitId": "cat-6e2d788dd48ff440",
+      "personality": {
+        "aggression": 22,
+        "sociability": 35,
+        "boldness": 43,
+        "loyalty": 71,
+        "curiosity": 69
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "off_bf_sire",
+        "dam": "off",
+        "narrativeLeanIgnored": [
+          30,
+          75,
+          55,
+          35,
+          75
+        ]
+      },
+      "personalityGap": null,
+      "portraitAssignment": "presentation-proof-v1",
+      "portraitGap": null,
+      "prideLoyalty": null
+    },
+    "ln06": {
+      "id": "ln06",
+      "name": "Riverstorm",
+      "sex": "female",
+      "stage": "elder",
+      "faction": "loner",
+      "homeZones": [
+        "tar_seeps",
+        "drowned_mere"
+      ],
+      "look": {
+        "sex": "female",
+        "coat": "sandy",
+        "markings": "spotted",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 47,
+        "sociability": 53,
+        "boldness": 74,
+        "loyalty": 54,
+        "curiosity": 76
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    },
+    "ln07": {
+      "id": "ln07",
+      "name": "Snowrain",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "loner",
+      "homeZones": [
+        "ash_hills",
+        "bears_throat"
+      ],
+      "look": {
+        "sex": "male",
+        "coat": "gray",
+        "markings": "none",
+        "eyes": "amber"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 80,
+        "sociability": 70,
+        "boldness": 37,
+        "loyalty": 47,
+        "curiosity": 63
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    },
+    "ln08": {
+      "id": "ln08",
+      "name": "Skypelt",
+      "sex": "female",
+      "stage": "adult",
+      "faction": "loner",
+      "homeZones": [
+        "drowned_mere"
+      ],
+      "look": {
+        "sex": "female",
+        "coat": "gray",
+        "markings": "faintstripe",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 45,
+        "sociability": 41,
+        "boldness": 42,
+        "loyalty": 64,
+        "curiosity": 34
+      },
+      "personalitySource": {
+        "method": "world-gen-5.1-founder",
+        "stream": "personality"
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    },
+    "ln09": {
+      "id": "ln09",
+      "name": "Antlergale",
+      "sex": "male",
+      "stage": "adult",
+      "faction": "loner",
+      "homeZones": [
+        "drowned_mere",
+        "split_rock"
+      ],
+      "look": {
+        "sex": "male",
+        "coat": "sandy",
+        "markings": "spotted",
+        "eyes": "gold"
+      },
+      "affinity": 0,
+      "met": false,
+      "improvedDay": null,
+      "portraitId": null,
+      "personality": {
+        "aggression": 60,
+        "sociability": 35,
+        "boldness": 62,
+        "loyalty": 60,
+        "curiosity": 80
+      },
+      "personalitySource": {
+        "method": "world-gen-5.2-kin",
+        "stream": "personality",
+        "sire": "off_longshadow",
+        "dam": "off",
+        "narrativeLeanIgnored": null
+      },
+      "personalityGap": null,
+      "portraitGap": {
+        "status": "no-approved-assignment",
+        "portraitId": null,
+        "note": "No approved slot-to-portrait map. Registry order is not an assignment."
+      },
+      "prideLoyalty": null
+    }
+  },
+  "usedEvents": [],
+  "pending": null,
+  "report": {
+    "day": 1,
+    "region": "split_rock",
+    "lines": [
+      {
+        "k": "rest",
+        "energy": 40
+      },
+      {
+        "k": "meetLoner",
+        "catId": "ln05"
+      }
+    ]
+  },
+  "log": [],
+  "dead": null,
+  "over": false,
+  "conversation": {
+    "schema": 1,
+    "slotDay": 2,
+    "sequence": 2,
+    "ledger": [
+      {
+        "key": "ln05|ln05:1|opening|company|commit",
+        "effect": "commit",
+        "runId": "b5dbe6de-7eb8-48d6-b280-fe752ec35cea",
+        "catId": "ln05",
+        "instanceId": "ln05:1",
+        "nodeId": "opening",
+        "choiceId": "company",
+        "outcome": null,
+        "affinityApplied": 0,
+        "promiseApplied": 0,
+        "promiseKey": null,
+        "promiseFactId": null,
+        "greetFolded": false,
+        "greetDeltaApplied": 0,
+        "costApplied": true,
+        "needs": {
+          "energy": 3,
+          "hunger": 2,
+          "thirst": 1
+        },
+        "absDelta": 0,
+        "day": 2,
+        "sequence": 1
+      },
+      {
+        "key": "ln05|ln05:1|company|quiet|commit",
+        "effect": "commit",
+        "runId": "b5dbe6de-7eb8-48d6-b280-fe752ec35cea",
+        "catId": "ln05",
+        "instanceId": "ln05:1",
+        "nodeId": "company",
+        "choiceId": "quiet",
+        "outcome": null,
+        "affinityApplied": 0,
+        "promiseApplied": 0,
+        "promiseKey": null,
+        "promiseFactId": null,
+        "greetFolded": false,
+        "greetDeltaApplied": 0,
+        "costApplied": false,
+        "needs": null,
+        "absDelta": 0,
+        "day": 2,
+        "sequence": 2
+      }
+    ],
+    "pending": {
+      "catId": "ln05",
+      "arcId": "m2.repeat_meeting.conversation",
+      "revision": 6,
+      "instanceId": "ln05:1",
+      "nodeId": "quiet_walk",
+      "stage": "intro",
+      "choicePath": [
+        "company",
+        "quiet"
+      ],
+      "cast": {
+        "A": "cat_f1f26979-bdf9-411b-98dd-096aa94d6fc9",
+        "B": "ln05"
+      },
+      "presentedChoiceIds": [
+        "return_quiet",
+        "no_promise",
+        "pause"
+      ],
+      "startedDay": 2,
+      "slotCharged": true,
+      "absDelta": 0,
+      "transcript": [
+        {
+          "kind": "say",
+          "speaker": "Coppergale",
+          "text": "“Just me.” The answer comes with a little less tension."
+        },
+        {
+          "kind": "action",
+          "text": "Coppergale leaves a clear path past them rather than blocking you."
+        },
+        {
+          "kind": "say",
+          "speaker": "Coppergale",
+          "text": "“Are you passing through, or did you want company?”",
+          "variantId": "/nodes/opening#middle"
+        },
+        {
+          "kind": "narration",
+          "text": "Coppergale makes room beside the trail."
+        },
+        {
+          "kind": "action",
+          "text": "Coppergale shifts aside to leave you room to choose your pace."
+        },
+        {
+          "kind": "say",
+          "speaker": "Coppergale",
+          "text": "“We can walk. Quietly, for a little while.”",
+          "variantId": "/nodes/company#middle"
+        }
+      ],
+      "fromGreet": true,
+      "greetFolded": true,
+      "dayResolved": true,
+      "showingTerminal": false,
+      "terminal": null,
+      "paused": false,
+      "presentation": {
+        "nodeId": "quiet_walk",
+        "lines": [
+          {
+            "kind": "narration",
+            "text": "For a stretch, there is only grass brushing your legs and the sound of paws. Coppergale slows when you slow."
+          },
+          {
+            "kind": "action",
+            "text": "Coppergale shifts aside to leave you room to choose your pace."
+          },
+          {
+            "kind": "say",
+            "speaker": "Coppergale",
+            "text": "“This is all right.”",
+            "variantId": "/nodes/quiet_walk#middle"
+          }
+        ],
+        "variantIds": [
+          "/nodes/quiet_walk#middle"
+        ],
+        "characterization": "traits",
+        "traits": {
+          "aggression": 22,
+          "sociability": 35,
+          "boldness": 43,
+          "loyalty": 71,
+          "curiosity": 69
+        },
+        "choiceIds": [
+          "return_quiet",
+          "no_promise",
+          "pause"
+        ]
+      }
+    },
+    "cats": {
+      "ln05": {
+        "arcId": null,
+        "revision": null,
+        "initialOutcome": null,
+        "initialDay": null,
+        "initialInstanceId": null,
+        "initialChoicePath": [],
+        "followupOutcome": null,
+        "followupDay": null,
+        "thirdOutcome": null,
+        "thirdDay": null,
+        "lastConversationDay": 2,
+        "lastInitiatedDay": 2,
+        "cooldownUntilDay": 4,
+        "nextInstance": 2,
+        "facts": [],
+        "activeByTopic": {},
+        "log": []
+      }
+    }
+  },
+  "personalityRoll": {
+    "stream": "personality",
+    "orderNote": "founders, hidden founders, then kin in world-gen §2.1 order",
+    "ln05": "kin"
+  },
+  "worldMemory": {
+    "schema": 1,
+    "ledger": [
+      {
+        "receiptKey": "ln05|ln05:1|opening|company|commit",
+        "sourceType": "conversation_outcome",
+        "recordKind": "catToPlayer",
+        "actor": "ln05",
+        "target": "player",
+        "delta": 0,
+        "factId": null,
+        "knowledgeScope": "private",
+        "absDay": 2
+      },
+      {
+        "receiptKey": "ln05|ln05:1|company|quiet|commit",
+        "sourceType": "conversation_outcome",
+        "recordKind": "catToPlayer",
+        "actor": "ln05",
+        "target": "player",
+        "delta": 0,
+        "factId": null,
+        "knowledgeScope": "private",
+        "absDay": 2
+      }
+    ],
+    "facts": [],
+    "knowledge": {},
+    "conflicts": [],
+    "catToPlayer": {
+      "hc01->player": {
+        "from": "hc01",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc02->player": {
+        "from": "hc02",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc03->player": {
+        "from": "hc03",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc04->player": {
+        "from": "hc04",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc05->player": {
+        "from": "hc05",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc06->player": {
+        "from": "hc06",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc07->player": {
+        "from": "hc07",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc08->player": {
+        "from": "hc08",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc09->player": {
+        "from": "hc09",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc10->player": {
+        "from": "hc10",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "hc11->player": {
+        "from": "hc11",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf01->player": {
+        "from": "bf01",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf02->player": {
+        "from": "bf02",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf03->player": {
+        "from": "bf03",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf04->player": {
+        "from": "bf04",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf05->player": {
+        "from": "bf05",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf06->player": {
+        "from": "bf06",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf07->player": {
+        "from": "bf07",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf08->player": {
+        "from": "bf08",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf09->player": {
+        "from": "bf09",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bf10->player": {
+        "from": "bf10",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw01->player": {
+        "from": "mw01",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw02->player": {
+        "from": "mw02",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw03->player": {
+        "from": "mw03",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw04->player": {
+        "from": "mw04",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw05->player": {
+        "from": "mw05",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw06->player": {
+        "from": "mw06",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw07->player": {
+        "from": "mw07",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw08->player": {
+        "from": "mw08",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mw09->player": {
+        "from": "mw09",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln01->player": {
+        "from": "ln01",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln02->player": {
+        "from": "ln02",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln03->player": {
+        "from": "ln03",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln04->player": {
+        "from": "ln04",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln05->player": {
+        "from": "ln05",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [
+          {
+            "receiptKey": "ln05|ln05:1|opening|company|commit",
+            "delta": 0,
+            "sourceType": "conversation_outcome",
+            "factId": null
+          },
+          {
+            "receiptKey": "ln05|ln05:1|company|quiet|commit",
+            "delta": 0,
+            "sourceType": "conversation_outcome",
+            "factId": null
+          }
+        ],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln06->player": {
+        "from": "ln06",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln07->player": {
+        "from": "ln07",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln08->player": {
+        "from": "ln08",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "ln09->player": {
+        "from": "ln09",
+        "to": "player",
+        "recordKind": "catToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "npc.affinity",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      }
+    },
+    "prideToPlayer": {
+      "highcrag->player": {
+        "from": "highcrag",
+        "to": "player",
+        "recordKind": "prideToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bonefield->player": {
+        "from": "bonefield",
+        "to": "player",
+        "recordKind": "prideToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mistwood->player": {
+        "from": "mistwood",
+        "to": "player",
+        "recordKind": "prideToPlayer",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      }
+    },
+    "prideToPride": {
+      "highcrag->bonefield": {
+        "from": "highcrag",
+        "to": "bonefield",
+        "recordKind": "prideToPride",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "highcrag->mistwood": {
+        "from": "highcrag",
+        "to": "mistwood",
+        "recordKind": "prideToPride",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bonefield->highcrag": {
+        "from": "bonefield",
+        "to": "highcrag",
+        "recordKind": "prideToPride",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "bonefield->mistwood": {
+        "from": "bonefield",
+        "to": "mistwood",
+        "recordKind": "prideToPride",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mistwood->highcrag": {
+        "from": "mistwood",
+        "to": "highcrag",
+        "recordKind": "prideToPride",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      },
+      "mistwood->bonefield": {
+        "from": "mistwood",
+        "to": "bonefield",
+        "recordKind": "prideToPride",
+        "value": 0,
+        "legacy": 0,
+        "legacySource": "prideRelation",
+        "causes": [],
+        "mapping": "identity",
+        "clampLoss": null
+      }
+    },
+    "policy": {
+      "highcrag->bonefield": {
+        "status": "unmapped",
+        "source": "unreconciled",
+        "kind": "relay_introduction_requests_involving_bonefield",
+        "version": 0,
+        "permits": null,
+        "defers": null
+      }
+    },
+    "councils": [],
+    "agreements": [],
+    "romance": {},
+    "spillover": {
+      "apply": true,
+      "rankBypassesKnowledge": false,
+      "pendingClarification": null
+    }
+  }
+}

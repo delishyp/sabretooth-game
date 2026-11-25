@@ -1,0 +1,707 @@
+{
+  "_readme": "Saga UI copy v1 for Flint, Ochre and Tundra. Player-facing text only. Nothing here is built, merged, tagged or pushed in the game repo. Voice: plain and clear, second person, one or two short sentences, contractions, no numbers or number words, no em dashes, no lists of three, no slogans. Opens-when lines start 'Opens when you' or 'Opens after you'.",
+  "source": {
+    "placeholdersCommit": "3afe9da",
+    "placeholdersFile": "src/renderer/data/events/first-season-v0.6.2.json uiHints",
+    "placeholdersCount": 57,
+    "placeholdersNote": "57 [PH] keys in uiHints at 3afe9da. ui.council.agenda.truce is not in uiHints; it is hardcoded in councils.js and is included beside those 57. The UI groups 1–5 tip c4daae4 had 13 [PH] keys; 7 of those were Lore headings and fallbacks later dropped from uiHints when lore-book-copy-v2 was wired. Those 7 are under placeholdersC4daae4 only.",
+    "pr2TipWas": "ac2665d; current PR 2 tip is 3afe9da (unlock states exist, SHOW_ALL still true, no new copy keys for greyed lines or the New toast).",
+    "uxSpec": "docs/design/ux-simplification-v0.1.md",
+    "uxVersion": "v0.1.3",
+    "uxCommit": "7fea4cb",
+    "uxNote": "v0.1.3a (a06f206) only adds Director approval of the choice-screen exception and a 14px minimum for map region names. Triggers are unchanged.",
+    "mockupNotes": "/workspace/qa/ux-simplify-mockup/NOTES.md",
+    "tipsSource": "/workspace/saga-narrative-voice/tutorial/tips-copy-v2.json"
+  },
+  "voice": "narrator, second person, pass-2, plain and clear, contractions, no numbers or number words, no em dashes, no lists of three, no slogans",
+  "placeholders": {
+    "ui.meter.hunt": {
+      "text": "Hunt",
+      "where": "Title of the hunt word-bar on encounter panels",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1039; used by src/renderer/js/word-bar.js:10"
+    },
+    "ui.meter.court": {
+      "text": "Courtship",
+      "where": "Title of the courtship word-bar on encounter panels",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1040; used by src/renderer/js/word-bar.js:11"
+    },
+    "ui.meter.band": {
+      "text": "",
+      "where": "Caption under the hunt or courtship bar. Leave blank.",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1041; rendered in src/renderer/js/word-bar.js:61",
+      "notes": "The old template {band}/{bands} would print digits, against Anna's no-numbers rule and UX §1.4 / §4C. Band words already exist on this tip as ui.meter.hunt.word.* and ui.meter.court.word.*. Do not interpolate this key as a numeric caption."
+    },
+    "ui.encounter.move.swipe": {
+      "text": "Swipe",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1051"
+    },
+    "ui.encounter.move.bite": {
+      "text": "Bite",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1052"
+    },
+    "ui.encounter.move.pounce": {
+      "text": "Pounce",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1053"
+    },
+    "ui.encounter.move.defend": {
+      "text": "Defend",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1054"
+    },
+    "ui.encounter.move.intimidate": {
+      "text": "Intimidate",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1055"
+    },
+    "ui.encounter.move.flee": {
+      "text": "Flee",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1056"
+    },
+    "ui.encounter.move.creep": {
+      "text": "Creep",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1057"
+    },
+    "ui.encounter.move.rush": {
+      "text": "Rush in",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1058"
+    },
+    "ui.encounter.move.freeze": {
+      "text": "Freeze",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1059"
+    },
+    "ui.encounter.move.run": {
+      "text": "Run it down",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1060"
+    },
+    "ui.encounter.move.sprint": {
+      "text": "Sprint",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1061"
+    },
+    "ui.encounter.move.cut_off": {
+      "text": "Cut it off",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1062"
+    },
+    "ui.encounter.move.throat": {
+      "text": "Throat bite",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1063"
+    },
+    "ui.encounter.move.drag": {
+      "text": "Drag down",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1064"
+    },
+    "ui.encounter.move.hamstring": {
+      "text": "Hamstring",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1065"
+    },
+    "ui.encounter.move.groom": {
+      "text": "Groom",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1066"
+    },
+    "ui.encounter.move.show_off": {
+      "text": "Show off",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1067"
+    },
+    "ui.encounter.move.playful": {
+      "text": "Playful",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1068"
+    },
+    "ui.encounter.move.gentle": {
+      "text": "Gentle",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1069"
+    },
+    "ui.encounter.move.bold": {
+      "text": "Bold",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1070"
+    },
+    "ui.encounter.move.gift_prey": {
+      "text": "Gift prey",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1071"
+    },
+    "ui.encounter.move.back_off": {
+      "text": "Back off",
+      "where": "Encounter move button. Equal weight with the other moves; no gold primary (UX §1.1 v0.1.3).",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1072"
+    },
+    "ui.encounter.tell": {
+      "text": "It gathers itself.",
+      "where": "Fallback telegraph line on the encounter panel, shown in bold",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1073",
+      "notes": "Prefer the authored tell from encounter-narration when one exists. This is only the fallback."
+    },
+    "ui.encounter.predictable": {
+      "text": "Predictable",
+      "where": "Short mark when a tell is already known",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1074"
+    },
+    "ui.heir.death": {
+      "text": "{name} is gone. The pride goes on, and you go on as {heirName}.",
+      "where": "Continue-as-heir death beat",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1075; also hardcoded in src/renderer/js/slice.js:305"
+    },
+    "ui.traits.balance.short": {
+      "text": "Your flaws don't cover this yet.",
+      "where": "Trait picker budget line when flaws do not yet cover the taken strengths",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1076"
+    },
+    "ui.traits.balance.even": {
+      "text": "Your flaws cover this. Nothing is left over.",
+      "where": "Trait picker budget line when flaws exactly cover the taken strengths",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1077"
+    },
+    "ui.traits.balance.left": {
+      "text": "Something is left over, and it will be lost.",
+      "where": "Trait picker budget line when something remains unused",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1078"
+    },
+    "ui.traits.fightLock": {
+      "text": "You've taken all the fight strengths you're allowed.",
+      "where": "Trait picker lock when no more fight strengths may be added",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1079",
+      "notes": "Rewritten so the line has no number word. The old placeholder said 'two'."
+    },
+    "ui.traits.lookTag": {
+      "text": "This touches how you look.",
+      "where": "Tag on a trait that affects appearance",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1080"
+    },
+    "ui.traits.portraitWins": {
+      "text": "Your portrait keeps the look you chose. This only changes how the story describes you.",
+      "where": "Note when appearance text disagrees with the portrait",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1081"
+    },
+    "ui.traits.colourNote": {
+      "text": "The portrait keeps the coat you chose.",
+      "where": "Note that coat colour stays on the portrait",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1082"
+    },
+    "ui.traits.geneNote": {
+      "text": "That look is not in this cat's blood.",
+      "where": "Note when a described look is not in the rolled genes",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1083"
+    },
+    "ui.traits.room": {
+      "text": "Room for more",
+      "where": "Trait picker budget bar word when there is still room (spec also names the full state as 'Full')",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1084; UX §4D"
+    },
+    "ui.traits.tag.scarred_face": {
+      "text": "Scarred face",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1085"
+    },
+    "ui.traits.tag.scarred_body": {
+      "text": "Scarred body",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1086"
+    },
+    "ui.traits.tag.torn_ear": {
+      "text": "Torn ear",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1087"
+    },
+    "ui.traits.tag.notched_ear": {
+      "text": "Notched ear",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1088"
+    },
+    "ui.traits.tag.chipped_saber": {
+      "text": "Chipped saber",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1089"
+    },
+    "ui.traits.tag.missing_tooth": {
+      "text": "Missing tooth",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1090"
+    },
+    "ui.traits.tag.limp": {
+      "text": "Limp",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1091"
+    },
+    "ui.traits.tag.large": {
+      "text": "Large",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1092"
+    },
+    "ui.traits.tag.small": {
+      "text": "Small",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1093"
+    },
+    "ui.traits.tag.lean": {
+      "text": "Lean",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1094"
+    },
+    "ui.traits.tag.heavy": {
+      "text": "Heavy",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1095"
+    },
+    "ui.traits.tag.odd_eyes": {
+      "text": "Odd eyes",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1096"
+    },
+    "ui.traits.tag.clouded_eye": {
+      "text": "Clouded eye",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1097"
+    },
+    "ui.traits.tag.unusual_coat": {
+      "text": "Unusual coat",
+      "where": "Appearance tag chip on the creator telling step",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1098"
+    },
+    "ui.directory.choose": {
+      "text": "Choose a cat from the list to read about them.",
+      "where": "Empty state of the Smilodons detail panel when no cat is selected",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1099; src/renderer/js/directory-panel.js:10"
+    },
+    "ui.directory.detail": {
+      "text": "About this cat",
+      "where": "Title of the Smilodons cat detail / portrait drawer",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1100; UX §4B"
+    },
+    "ui.pride.empty": {
+      "text": "You don't have a pride yet. Found a pride on Unclaimed land, or join a pride.",
+      "where": "Empty Pride row when the player has not founded a pride",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1101; src/renderer/js/directory-panel.js:19"
+    },
+    "ui.reputation.feed": {
+      "text": "Deeds can earn you a name. Once you have one, it stays with you.",
+      "where": "Reputation screen explainer",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1102; used in src/renderer/js/game-screen.js",
+      "notes": "Rewritten so it does not list Mercy, Courage and Honour in a row of three. Those axis names still stand in reputation-copy-v2."
+    },
+    "ui.council.sit": {
+      "text": "Sit with the leaders",
+      "where": "Button to sit at a council",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1103"
+    },
+    "ui.council.leave": {
+      "text": "Leave the council",
+      "where": "Button to leave a council, including the empty-agenda fallback",
+      "source": "3afe9da:src/renderer/data/events/first-season-v0.6.2.json:1104; also hardcoded in src/renderer/js/councils.js:70"
+    },
+    "ui.council.agenda.truce": {
+      "text": "A truce between {prideA} and {prideB}",
+      "where": "Council agenda choice when a truce is on the table",
+      "source": "3afe9da:src/renderer/js/councils.js:82 and :89 (hardcoded, not in uiHints)",
+      "notes": "Not present as a uiHints key. Flint should look this up instead of building the sentence in councils.js."
+    }
+  },
+  "placeholdersC4daae4": {
+    "ui.lore.common": {
+      "text": "Common knowledge",
+      "where": "Lore Book section heading",
+      "source": "c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1045; Anna-approved heading in tips-copy-v2 and lore-book-copy-v2",
+      "notes": "Dropped from uiHints by ac2665d/3afe9da, where lore-book-copy-v2 supplies the heading."
+    },
+    "ui.lore.learned": {
+      "text": "Learned",
+      "where": "Lore Book section heading",
+      "source": "c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1046",
+      "notes": "Same as above."
+    },
+    "ui.lore.rumours": {
+      "text": "Rumours",
+      "where": "Lore Book section heading",
+      "source": "c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1047",
+      "notes": "Same as above."
+    },
+    "ui.lore.notes": {
+      "text": "Useful notes",
+      "where": "Lore Book section heading",
+      "source": "c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1048",
+      "notes": "Same as above."
+    },
+    "ui.lore.empty": {
+      "text": "There's nothing written here yet. It will fill as you travel and listen.",
+      "where": "Shared empty line for a Lore Book section on the UI groups 1–5 branch",
+      "source": "c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1049; src/renderer/js/lore-book.js:14",
+      "notes": "On the PR 2 tip, lore-book-copy-v2 already has a separate empty line per section. Prefer those when that book is wired."
+    },
+    "ui.lore.learnedLine": {
+      "text": "Something you've learned.",
+      "where": "Fallback body for a Learned entry when the real fact line is not wired",
+      "source": "c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1050",
+      "notes": "c4daae4 currently uses this key for every learned fact. Prefer lore-book-copy-v2 templates."
+    },
+    "ui.lore.rumour": {
+      "text": "A rumour you've heard. It may be false.",
+      "where": "Fallback body for a Rumours entry when the real rumour line is not wired",
+      "source": "c4daae4:src/renderer/data/events/first-season-v0.6.2.json:1051",
+      "notes": "Same wiring note as ui.lore.learnedLine."
+    }
+  },
+  "opensWhen": {
+    "place.pride.opensWhen": {
+      "text": "Opens when you catch a border scent, meet a patrol, join a pride or Found one.",
+      "where": "Shown when a greyed Pride rail item is selected",
+      "source": "UX v0.1.4 §2, 7fea4cb:docs/design/ux-simplification-v0.1.md (Pride row)",
+      "notes": "unlocks.js at 3afe9da only treats a scout/border-scent receipt as eligible, and does not yet check patrol, joining or founding."
+    },
+    "place.den.opensWhen": {
+      "text": "Opens after you Found a pride.",
+      "where": "Shown when a greyed Den rail item is selected",
+      "source": "UX v0.1.4 §2 (Den)"
+    },
+    "place.breeding.opensWhen": {
+      "text": "Opens when you take a mate.",
+      "where": "Shown when a greyed Breeding rail item is selected",
+      "source": "UX v0.1.4 §2 (Breeding); example line in §1.6"
+    },
+    "place.inventory.opensWhen": {
+      "text": "Opens when you gain an item.",
+      "where": "Shown when a greyed Inventory rail item is selected",
+      "source": "UX v0.1.4 §2 (Inventory)",
+      "notes": "unlocks.js currently flags this on first use of the section, not on gaining an item."
+    },
+    "place.market.opensWhen": {
+      "text": "Opens when you get a trade offer.",
+      "where": "Shown when a greyed Market rail item is selected",
+      "source": "UX v0.1.4 §2 (Market / trade); UI label is Market",
+      "notes": "unlocks.js currently flags this on first use of the section, not on a trade offer."
+    },
+    "place.quests.opensWhen": {
+      "text": "Opens when you accept a request.",
+      "where": "Shown when a greyed Quests rail item is selected",
+      "source": "UX v0.1.4 §2 (Quests)"
+    },
+    "place.reputation.opensWhen": {
+      "text": "Opens after you earn a deed.",
+      "where": "Shown when a greyed Reputation rail item is selected",
+      "source": "UX v0.1.4 §2 (Reputation)"
+    },
+    "place.councils.opensWhen": {
+      "text": "Opens when you're invited to a council, or after you lead a pride.",
+      "where": "Shown when a greyed Councils rail item is selected",
+      "source": "UX v0.1.4 §2 (Councils)"
+    },
+    "place.deeds.opensWhen": {
+      "text": "Opens after you earn an achievement.",
+      "where": "If Achievements (Deeds) is shown greyed. §2 says it lives in Lore, and the New toast teaches it.",
+      "source": "UX v0.1.4 §2 (Achievements (Deeds))",
+      "notes": "Not a Places rail item in Ochre's 12-section rail or in unlocks.js SYSTEMS. Confirm it stays inside Lore."
+    },
+    "action.court.opensWhen": {
+      "text": "Opens when you and a cat are Bonded, during the mating season. For a pride cat, you must also Ask the leader.",
+      "where": "Greyed Court row under More actions",
+      "source": "UX v0.1.3 §3.2; trigger from the approved tip.court / court hints, not restated in §3",
+      "notes": "Ask the leader is the existing UI action name."
+    },
+    "action.found.opensWhen": {
+      "text": "Opens when you have a mate and stand on Unclaimed land.",
+      "where": "Greyed Found row under More actions, when Found is locked",
+      "source": "UX v0.1.3 §3 (Court/Found when they're open); trigger from the approved tip.found and found.noMate / found.notWild hints"
+    },
+    "action.spar.opensWhen": {
+      "text": "Opens when you and a cat know each other well enough.",
+      "where": "Greyed Spar row under More actions",
+      "source": "Ochre mockup §3.2 locked list; trigger from approved tip.spar and presence.spar.locked",
+      "notes": "§3 does not itself name Spar. The approved tip already says Spar opens when a cat knows you well enough. The live presence line is '{name} doesn't know you well enough to play-fight yet.'"
+    },
+    "action.askjoin.opensWhen": {
+      "text": "Opens once you've met this pride's leader. Stand on their land to ask.",
+      "where": "Focused locked Ask to join",
+      "source": "UX v0.1.5 (66eaeb7) item 2"
+    },
+    "action.locked.label": {
+      "text": "Locked",
+      "where": "After a locked action's name under More actions",
+      "source": "UX v0.1.5 item 4"
+    }
+  },
+  "toast": {
+    "toast.newSection": {
+      "text": "New: {section}",
+      "where": "Short toast when a Places section unlocks, with a dot on the rail until it is opened",
+      "source": "UX v0.1.4 §2, 'An unlock shows a short \"New: {section}\" toast'"
+    }
+  },
+  "tips": {
+    "tip.place.unavailable": {
+      "id": "tip.place.unavailable",
+      "title": "Greyed sections",
+      "trigger": "The first time a player selects a greyed Places section",
+      "body": "Greyed sections open as the story moves on. Select a greyed section to see what opens it.",
+      "where": "First-use tip when a greyed Places section is selected",
+      "source": "Rewrite of /workspace/saga-narrative-voice/tutorial/tips-copy-v2.json (tip.place.unavailable); UX v0.1.4 §2"
+    },
+    "guide.tip.place.unavailable": {
+      "id": "guide.tip.place.unavailable",
+      "of": "tip.place.unavailable",
+      "title": "Greyed sections",
+      "body": "When a Places section is greyed, it isn't open yet. It will open as the story moves on, and selecting it says what opens it.",
+      "where": "Guide entry for tip.place.unavailable",
+      "source": "Rewrite of tips-copy-v2.json guide.tip.place.unavailable; UX v0.1.4 §2"
+    }
+  },
+  "mockups": {
+    "action.hunt.line": {
+      "text": "Track prey in this region.",
+      "where": "Hunt one-liner under Choose today's action / Suits your goal",
+      "source": "NOTES.md item 1, Tundra's §3.3 example; den-actions.html, den-more-actions.html",
+      "notesLabel": "Hunt"
+    },
+    "action.rest.line": {
+      "text": "Rest the day away and get your Energy back.",
+      "where": "Rest one-liner in the action panel",
+      "source": "NOTES.md item 1; aligned with tip.rest (Energy), den-actions.html",
+      "notesLabel": "Rest"
+    },
+    "action.travel.line": {
+      "text": "Walk to a neighbouring region.",
+      "where": "Travel one-liner in the action panel",
+      "source": "NOTES.md item 1; den-actions.html",
+      "notesLabel": "Travel"
+    },
+    "action.watch.line": {
+      "text": "See which cats pass this ground, and what they're doing.",
+      "where": "Watch from a vantage one-liner in the action panel",
+      "source": "NOTES.md item 1, adapted from tip.watch; den-actions.html uses the official action name Watch from a vantage",
+      "notesLabel": "Watch from a vantage"
+    },
+    "action.scent.line": {
+      "text": "See who has been on this ground.",
+      "where": "Scent sign one-liner",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Scent sign"
+    },
+    "action.cost.day": {
+      "text": "Costs: the day",
+      "where": "Cost word on a same-day action (Hunt, Rest, Watch, and the like)",
+      "source": "NOTES.md item 2; den-actions.html",
+      "notesLabel": "Costs: the day"
+    },
+    "action.cost.dayOrMore": {
+      "text": "Costs: the day, or more",
+      "where": "Cost word on Travel, when a trail may take more than the day",
+      "source": "NOTES.md item 2; den-actions.html",
+      "notesLabel": "Costs: the day, or more"
+    },
+    "den.situation": {
+      "text": "Your pride is resting in the shade of The Split Rock.",
+      "where": "Den situation line on den-later, once a pride is founded",
+      "source": "NOTES.md item 6; den-later.html. Place name taken from the built tutorial card, The Split Rock.",
+      "notesLabel": "Den situation line"
+    },
+    "encounter.health.hurt": {
+      "text": "Hurt",
+      "where": "Health word above the encounter bar (Fine / Hurt / Badly hurt)",
+      "source": "NOTES.md item 8; UX §1.4 and §4C; encounter.html",
+      "notesLabel": "Encounter health words: Hurt"
+    },
+    "encounter.state.circling": {
+      "text": "{foe} is circling. You're winded.",
+      "where": "Example encounter state line above the telegraph",
+      "source": "NOTES.md item 8; UX §4C example (It's circling. You're winded.). encounter.html had He's circling.",
+      "notesLabel": "Encounter state line",
+      "notes": "{foe} is the named cat, or 'The wolf' / 'The hyena' style for animals. Never It next to a named cat."
+    },
+    "map.prey.good": {
+      "text": "Good",
+      "where": "Prey word in the Map region drawer (Low / Fair / Good)",
+      "source": "NOTES.md item 9; UX §1.4; map.html",
+      "notesLabel": "Map: Prey Good"
+    },
+    "map.water.river": {
+      "text": "River",
+      "where": "Water word in the Map region drawer",
+      "source": "NOTES.md item 9; map.html",
+      "notesLabel": "Map: Water River"
+    },
+    "creator.seasonSummary": {
+      "text": "Standard Vale",
+      "where": "One-line season / style summary under the creator portrait, with Change",
+      "source": "NOTES.md item 10; traits.html",
+      "notesLabel": "Creator: Standard Vale"
+    },
+    "label.todaysAction": {
+      "text": "Today's action",
+      "where": "Action panel kicker",
+      "source": "NOTES.md item 11, coined UI labels",
+      "notesLabel": "Today's action"
+    },
+    "label.suitsYourGoal": {
+      "text": "Suits your goal",
+      "where": "Mark on the recommended action in the primary slot",
+      "source": "NOTES.md item 11",
+      "notesLabel": "Suits your goal"
+    },
+    "label.moreActions": {
+      "text": "More actions",
+      "where": "Expander for the rest of the day's actions, including greyed locked actions",
+      "source": "NOTES.md item 11; UX §3.1",
+      "notesLabel": "More actions"
+    },
+    "label.yourAnswer": {
+      "text": "Your answer",
+      "where": "Kicker above dialogue choices (no gold primary on this screen)",
+      "source": "NOTES.md item 11; dialogue-choices",
+      "notesLabel": "Your answer"
+    },
+    "label.earlierInThisTalk": {
+      "text": "Earlier in this talk",
+      "where": "Drawer for earlier dialogue lines",
+      "source": "NOTES.md item 11; UX §4B",
+      "notesLabel": "Earlier in this talk"
+    },
+    "label.roundLog": {
+      "text": "Round log",
+      "where": "Closed drawer for the encounter round log",
+      "source": "NOTES.md item 11; UX §4C",
+      "notesLabel": "Round log"
+    },
+    "label.moreMoves": {
+      "text": "More moves",
+      "where": "Expander for extra encounter moves beyond the three shown plus Run",
+      "source": "NOTES.md item 11; encounter.html",
+      "notesLabel": "More moves"
+    },
+    "label.moreBodyTraits": {
+      "text": "More body traits",
+      "where": "Expander after the first five Body trait cards",
+      "source": "NOTES.md item 11; traits.html",
+      "notesLabel": "More body traits"
+    },
+    "label.opposite": {
+      "text": "Opposite:",
+      "where": "Prefix on a trait card before the name of its opposite",
+      "source": "NOTES.md item 11; UX §4D",
+      "notesLabel": "Opposite:"
+    },
+    "label.taken": {
+      "text": "Taken",
+      "where": "Mark on a trait card already chosen",
+      "source": "NOTES.md item 11",
+      "notesLabel": "Taken"
+    },
+    "label.youHaveItsOpposite": {
+      "text": "You have its opposite",
+      "where": "Mark on a trait card whose opposite is already chosen",
+      "source": "NOTES.md item 11",
+      "notesLabel": "You have its opposite"
+    },
+    "label.showPrides": {
+      "text": "Show: Prides",
+      "where": "Map layer control, closed, with Prides on by default",
+      "source": "NOTES.md item 11; UX §4E",
+      "notesLabel": "Show: Prides"
+    },
+    "label.whatCatsAreSaying": {
+      "text": "What cats are saying",
+      "where": "Map drawer for gossip",
+      "source": "NOTES.md item 11; map.html",
+      "notesLabel": "What cats are saying"
+    },
+    "label.todaysReport": {
+      "text": "Today's report",
+      "where": "Drawer for the day report",
+      "source": "NOTES.md item 11",
+      "notesLabel": "Today's report"
+    },
+    "dayWords.springNew": {
+      "text": "{season} · Day {n}",
+      "where": "Season-day in words in the top bar, at the start of spring",
+      "source": "NOTES.md item 11, 'Spring, the first day' style day words",
+      "notesLabel": "Spring, the first day style day words",
+      "notes": "UX v0.1.5 (66eaeb7): label, number allowed. Add ' · Mating season' while the window is open."
+    },
+    "ui.traits.full": {
+      "text": "Full",
+      "where": "Trait picker budget bar word when there is no room left, beside Room for more",
+      "source": "UX §4D, named with Room for more; not a [PH] key, included so the pair is complete",
+      "notesLabel": "Full"
+    },
+    "action.spar.line": {
+      "text": "Wrestle with a cat who knows you well.",
+      "where": "Spar one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Spar"
+    },
+    "action.court.line": {
+      "text": "Win over a Bonded cat.",
+      "where": "Court one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Court"
+    },
+    "action.found.line": {
+      "text": "Start your pride here.",
+      "where": "Found one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Found"
+    },
+    "action.askjoin.line": {
+      "text": "Ask this pride to take you in.",
+      "where": "Ask to join one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Ask to join"
+    },
+    "action.patrol.line": {
+      "text": "Walk your borders and watch for trouble.",
+      "where": "Patrol one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Patrol"
+    },
+    "action.mark.line": {
+      "text": "Leave your scent so others know this land is held.",
+      "where": "Mark one-liner in the action panel",
+      "source": "UX v0.1.4 (e7b291f) §3 action names",
+      "notesLabel": "Mark"
+    },
+    "dialogue.mood.friendly": {
+      "text": "Friendly",
+      "where": "Mood word under the portrait on dialogue / event, beside the Bond word",
+      "source": "NOTES.md item 7; dialogue.html, dialogue-choices.html",
+      "notesLabel": "Mood word: Friendly",
+      "notes": "Tundra v0.1.4: use Friendly, not Easy."
+    }
+  },
+  "mockupAliases": {
+    "action.spar.opensWhen": "See opensWhen.action.spar.opensWhen (NOTES.md item 3, Spar).",
+    "action.court.opensWhen": "See opensWhen.action.court.opensWhen (NOTES.md item 3, Court).",
+    "place.pride.opensWhen": "See opensWhen.place.pride.opensWhen (NOTES.md item 4).",
+    "place.den.opensWhen": "See opensWhen.place.den.opensWhen (NOTES.md item 4).",
+    "place.breeding.opensWhen": "See opensWhen.place.breeding.opensWhen (NOTES.md item 4).",
+    "place.inventory.opensWhen": "See opensWhen.place.inventory.opensWhen (NOTES.md item 4).",
+    "place.market.opensWhen": "See opensWhen.place.market.opensWhen (NOTES.md item 4).",
+    "place.quests.opensWhen": "See opensWhen.place.quests.opensWhen (NOTES.md item 4).",
+    "place.reputation.opensWhen": "See opensWhen.place.reputation.opensWhen (NOTES.md item 4).",
+    "place.councils.opensWhen": "See opensWhen.place.councils.opensWhen (NOTES.md item 4).",
+    "tip.place.unavailable": "See tips.tip.place.unavailable (NOTES.md item 5). The mockup's short stand-in was 'Sections open as your story moves on.'",
+    "toast.newSection": "See toast.toast.newSection. Text is New: {section}."
+  },
+  "openQuestions": [],
+  "selfCheck": {
+    "passed": true,
+    "placeholderCountUiHints": 57,
+    "digitOrDashViolations": [],
+    "numberWordHits": [],
+    "missingGreyedSections": [],
+    "missingGreyedActions": [],
+    "unavailableAvoidsWord": true
+  },
+  "rulingsApplied": "Tundra UX v0.1.4 (e7b291f): spec unlock triggers stand; Map is Wilderness and Deeds stay in Lore; Drink and Scout the border removed; official action names used; mood word Friendly; greyed items selectable. UX v0.1.5 (66eaeb7): top bar '{Season} · Day {n}', Ask to join after meeting the leader, threat named in state lines, locked actions show name plus Locked."
+}

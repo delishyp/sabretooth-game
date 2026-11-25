@@ -26,8 +26,9 @@ test('locked setup model: one style, one death rule, no Sandbox panel, Begin sta
   for (const a of ['left', 'right', 'confirm', 'down', 'left', 'right', 'confirm']) s = Nav.setupReduce(s, a).state;
   assert.deepStrictEqual([s.style, s.death], ['standard', 'permadeath']);
   for (const id of ['style:story', 'style:sim', 'death:heir', 'death:sandbox']) { s = Nav.setupReduce(s, 'click', id).state; assert.deepStrictEqual([s.style, s.death], ['standard', 'permadeath'], id); }
-  s = Nav.setupReduce(s, 'down').state; assert.strictEqual(s.focus, 'begin', 'no sandbox option stops');
-  assert.deepStrictEqual(Nav.setupReduce(s, 'confirm').effect, { type: 'start', style: 'standard', difficulty: 'permadeath' });
+  s = Nav.setupReduce(s, 'down').state; assert.strictEqual(s.focus, 'tutorial', 'no sandbox option stops');
+  s = Nav.setupReduce(s, 'down').state; assert.strictEqual(s.focus, 'begin');
+  assert.deepStrictEqual(Nav.setupReduce(s, 'confirm').effect, { type: 'start', style: 'standard', difficulty: 'permadeath', tutorial: true });
 });
 test('main rejects any New Game outside the lock (no run created); Standard + permadeath still starts', async () => {
   const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-lock-'));
