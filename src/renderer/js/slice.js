@@ -17,6 +17,7 @@
   const Difficulty = (typeof require === 'function' ? require('./difficulty') : (typeof self !== 'undefined' ? self.Difficulty : null));
   const Deeds = (typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null));
   const Payoffs = (typeof require === 'function' ? require('./payoffs') : (typeof self !== 'undefined' ? self.Payoffs : null));
+  const StorytellerPrompt = (typeof require === 'function' ? require('./storyteller-prompt') : (typeof self !== 'undefined' ? self.StorytellerPrompt : null));
   function loadPass6() {
     if (typeof require === 'function') {
       try { return require('../data/events/pass-6-tracker-4647955.json'); } catch (e) { /* browser */ }
@@ -1033,6 +1034,7 @@
       if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep);
       if (s.records) s.records._huntOk = false;
       if (!s.dead && !s.travel) shareKill(s, rep);
+      if (!s.dead && !s.travel) teachMateDenFacts(s, ctx);
       overnight(s, rep, ctx.rested);
       if (Pair.enabled && !s.dead && !s.travel && s.records) {
         const own = W.ownership(s.map.claims, s.region);
@@ -1357,6 +1359,36 @@
         scope: writes.scope, participantIds: ['player'], witnessIds: [],
         disclosedTo: [], prideIds: [], learnedAbsDay: s.day
       };
+    }
+    /** A rest day, or a day spent at the pride den, with the mate in that same place. */
+    function mateSharesDen(s, ctx) {
+      const mateId = s.records && s.records.matePair && s.records.matePair.mateId;
+      const mate = mateId && s.npcs && s.npcs[mateId];
+      if (!mate || mate.dead) return null;
+      const denId = s.records.pride && s.records.pride.denRegionId;
+      const homes = mate.homeZones || [];
+      const atDen = !!(denId && s.region === denId);
+      const resting = !!(ctx && ctx.rested);
+      if (!resting && !atDen) return null;
+      const member = (s.records.members || []).some((row) => row.catId === mate.id);
+      const together = homes.includes(s.region) || mate.lastRegion === s.region || (atDen && member);
+      return together ? mate : null;
+    }
+    function isRegionMomentId(s, factId) {
+      let path = String(factId || '');
+      const runId = s.runId || '';
+      if (runId && path.indexOf(runId + '/') === 0) path = path.slice(runId.length + 1);
+      return path.indexOf('region_moment/') === 0;
+    }
+    /** The mate learns the player's region facts. Other cats still learn only when told. */
+    function teachMateDenFacts(s, ctx) {
+      const mate = mateSharesDen(s, ctx);
+      if (!mate || !s.worldMemory || !s.worldMemory.knowledge) return;
+      for (const factId of Object.keys(s.worldMemory.knowledge)) {
+        if (!isRegionMomentId(s, factId)) continue;
+        if (!WM.knowsFact(s, 'player', factId) || WM.knowsFact(s, mate.id, factId)) continue;
+        WM.disclose(s, { factId, toId: mate.id, sourceEventId: 'den.share' });
+      }
     }
     function choose(s, action) {
       if (action.type !== 'choose') return { state: s, error: 'choose' };
@@ -1785,12 +1817,15 @@
       const npc = s.pending && s.pending.catId ? s.npcs[s.pending.catId] : null;
       let regionName = s.region;
       try { regionName = W.region(s.region).name; } catch (e) { regionName = s.region; }
+      const narration = StorytellerPrompt ? StorytellerPrompt.playerNarration(s, npc) : { ownFacts: [], knownFactIds: [] };
       return {
         player: Object.assign({}, s.cat, { injuries: s.injuries || [] }),
         npc, injured: !!(s.injuries && s.injuries.length),
         vars: Object.assign({ regionName }, Q ? Q.tokens(s) : {}),
         knowsFact: (id, factId) => WM.knowsFact(s, id, factId),
-        knowsAny: (id) => Object.keys((s.worldMemory && s.worldMemory.knowledge) || {}).some((factId) => WM.knowsFact(s, id, factId))
+        knowsAny: (id) => Object.keys((s.worldMemory && s.worldMemory.knowledge) || {}).some((factId) => WM.knowsFact(s, id, factId)),
+        playerNarration: { ownFacts: narration.ownFacts },
+        knownFactIds: narration.knownFactIds
       };
     }
     function asideBeat(s, p) {

@@ -1,4 +1,4 @@
-// Season-1 depth batch 1: byCat speech, region-moment facts, and dropped gossip.
+// Season-1 depth batch 1: byCat speech, region-moment facts, and gossip for both listeners.
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
@@ -89,8 +89,14 @@ test('an old save with no region-moment facts still loads', () => {
   assert.ok(!loaded.worldMemory.facts || !loaded.worldMemory.facts.some((fact) => String(fact.factId).includes('region_moment')));
 });
 
-test('a region-moment fact with no gossip phrase is dropped', () => {
+test('every region-moment fact has a gossip phrase for both listeners', () => {
   const factId = 'depth-batch/region_moment/split_rock.hollow/lie_down';
-  assert.strictEqual(Pass2.gossipPhrase(factId, 'depth-batch', {}), null);
-  assert.strictEqual(Pass2.gossipPhrase(factId, 'depth-batch', { listenerParticipated: true }), null);
+  assert.match(Pass2.gossipPhrase(factId, 'depth-batch', {}) || '', /Split Rock/);
+  assert.match(Pass2.gossipPhrase(factId, 'depth-batch', { listenerParticipated: true }) || '', /^You found that dry hollow/);
+  const ids = new Set(j('events/slice-1.json').events.flatMap((e) => (e.choices || []).filter((c) => c.writes && c.writes.kind === 'region_moment').map((c) => c.writes.fact)));
+  assert.strictEqual(ids.size, 22);
+  for (const id of ids) {
+    assert.ok(Pass2.gossipPhrase(`depth-batch/${id}`, 'depth-batch', {}), id);
+    assert.ok(Pass2.gossipPhrase(`depth-batch/${id}`, 'depth-batch', { listenerParticipated: true }), id + '.knows');
+  }
 });

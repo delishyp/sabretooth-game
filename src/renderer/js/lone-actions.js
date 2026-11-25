@@ -182,6 +182,25 @@
     const knowledge = s.worldMemory && s.worldMemory.knowledge || {};
     return Object.keys(knowledge).filter((id) => knowsFact(catId, id)).sort();
   }
+  /** Newest fact this cat has not heard. A later write on the same day wins a tie. */
+  function newestUnknown(s, ids) {
+    const knowledge = (s.worldMemory && s.worldMemory.knowledge) || {};
+    const want = new Set(ids);
+    let best = null;
+    let bestDay = -Infinity;
+    for (const id of Object.keys(knowledge)) {
+      if (!want.has(id)) continue;
+      const day = knowledge[id] && Number.isFinite(knowledge[id].learnedAbsDay) ? knowledge[id].learnedAbsDay : -Infinity;
+      if (best == null || day >= bestDay) { best = id; bestDay = day; }
+    }
+    return best;
+  }
+  function regionMomentFact(s, factId) {
+    let path = String(factId || '');
+    const runId = s && s.runId;
+    if (runId && path.indexOf(runId + '/') === 0) path = path.slice(runId.length + 1);
+    return path.indexOf('region_moment/') === 0;
+  }
 
   function inZone(npc, s, opts) {
     if ((npc.homeZones || []).includes(s.region)) return true;
@@ -515,11 +534,15 @@
     }
     const knows = opts.knowsFact || (() => false);
     const playerFacts = picked ? knownFacts(s, 'player', knows).filter((id) => !facts.includes(id)) : [];
+    const rumorFactId = playerFacts.length ? newestUnknown(s, playerFacts) : null;
     const choices = [];
     if (picked) {
       choices.push({ id: 'listen', label: 'Hear the cat out, but don\'t promise anything.' });
       if (kind === 'loyal') choices.push({ id: 'accept_request', label: '“All right. I won\'t tell anyone.”' });
-      if (playerFacts.length) choices.push({ id: 'rumor_spread', label: 'Pass on some news you\'ve heard.' });
+      if (rumorFactId) {
+        const own = regionMomentFact(s, rumorFactId) ? Pass2.shareOwnLabel() : '';
+        choices.push({ id: 'rumor_spread', label: own || 'Pass on some news you\'ve heard.' });
+      }
       choices.push({ id: 'leave', label: 'Nod and go on your way.' });
     }
     return {
@@ -527,7 +550,7 @@
         lone: true, eventId: 'lone.approach', title: 'A cat comes to you', heading: 'A cat comes to you',
         catId: picked ? picked.id : null, catName: picked ? picked.name : null,
         beats, beatIndex: 0, day: s.day, facts, opener: kind, choices,
-        rumorFactId: playerFacts[0] || null,
+        rumorFactId: rumorFactId || null,
         ...(gossipSourceId ? { gossipSourceId } : {})
       }
     };

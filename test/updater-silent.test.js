@@ -7,7 +7,7 @@ const { nsisInstallerArgs, ciAutoInstallRequested, feedUrlFromAppUpdateYml } = r
 
 test('nsis one-click upgrade keeps the same per-user app id', () => {
   const nsis = pkg.build.nsis;
-  assert.strictEqual(pkg.version, '0.1.10');
+  assert.strictEqual(pkg.version, '0.1.11');
   assert.strictEqual(pkg.build.appId, 'com.annakremer.sabretooth');
   assert.strictEqual(pkg.build.productName, 'Sabretooth');
   assert.strictEqual(pkg.productName, 'Sabretooth');

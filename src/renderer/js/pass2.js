@@ -578,5 +578,9 @@
     if (typeof line !== 'string' || !line) return null;
     return line.split('{pride}').join(pride || '');
   }
-  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, choiceLabel, choiceReply, replyLog, presentChoice, validateChoices, leaderMeeting, appearance, arrival, fill, lines, replies, gossipPhrase, gossipLineFor, scoutStanding };
+  function shareOwnLabel() {
+    const text = PASS4['choice.share.own'];
+    return typeof text === 'string' && text ? text : '';
+  }
+  return { BIOMES, ARRIVE, DRINK, REPAIR, SCOUT, meadow, opener, openingBeats, reply, choices, choiceLabel, choiceReply, replyLog, presentChoice, validateChoices, leaderMeeting, appearance, arrival, fill, lines, replies, gossipPhrase, gossipLineFor, scoutStanding, shareOwnLabel };
 });
