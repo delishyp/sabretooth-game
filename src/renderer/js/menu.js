@@ -51,6 +51,8 @@
     document.documentElement.dataset.choiceStack = (innerHeight <= 760 && u >= 1.5) ? '1' : '2';
     fitActive();
     placeToasts();
+    const focused = document.querySelector('.focused');
+    if (focused) revealFocused(focused);
   }
   /** Chrome that sticks out is a layout bug. Full-bleed plates are not chrome, and this never zooms or rescales a screen. */
   function fitActive() {
@@ -190,12 +192,30 @@
     if (!el) return;
     el.classList.add('focused');
     el.focus({ preventScroll: true });
-    const box = el.closest && el.closest('.bond-choices');
-    if (!box) return;
-    const er = el.getBoundingClientRect();
-    const br = box.getBoundingClientRect();
-    if (er.top < br.top) box.scrollTop -= br.top - er.top;
-    else if (er.bottom > br.bottom) box.scrollTop += er.bottom - br.bottom;
+    revealFocused(el);
+  }
+  // Keyboard focus uses preventScroll. A choice below the fold still has to move into the scrollport.
+  function revealFocused(el) {
+    const boxes = [];
+    const bond = el.closest && el.closest('.bond-choices');
+    if (bond) boxes.push(bond);
+    const event = el.closest && el.closest('#game-event');
+    if (event) {
+      let box = el.parentElement;
+      while (box) {
+        boxes.push(box);
+        if (box === event) break;
+        box = box.parentElement;
+      }
+    }
+    for (const box of boxes) {
+      const style = getComputedStyle(box);
+      if (!/(auto|scroll)/.test(style.overflowY) || box.scrollHeight <= box.clientHeight + 1) continue;
+      const er = el.getBoundingClientRect();
+      const br = box.getBoundingClientRect();
+      if (er.top < br.top) box.scrollTop -= br.top - er.top;
+      else if (er.bottom > br.bottom) box.scrollTop += er.bottom - br.bottom;
+    }
   }
   const current = () => $('.focused') || null;
   function scrollProse(a) {

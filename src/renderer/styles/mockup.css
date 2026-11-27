@@ -1040,8 +1040,67 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .encounter-c
   -webkit-mask-image: none !important;
   mask-image: none !important;
 }
-.screen[data-screen="game"] #game-event:has(.is-council) {
-  overflow: auto !important;
+/* Below 720p the council card is taller than the event box. The box scrolls; 720p and above keep their layout. */
+@media (max-height: 719px) {
+  .screen[data-screen="game"] #game-event:has(.is-council) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  .screen[data-screen="game"] #game-event:has(.is-council) > .event-card.is-council,
+  .screen[data-screen="game"] #game-event .event-card.is-council .meet-row,
+  .screen[data-screen="game"] #game-event .event-card.is-council .meet-mid,
+  .screen[data-screen="game"] #game-event .event-card.is-council .event-choices,
+  .screen[data-screen="game"] #game-event .event-card.is-council .event-beat {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    flex: 0 0 auto !important;
+  }
+  .screen[data-screen="game"] .shell-top {
+    gap: 8px !important;
+  }
+  .screen[data-screen="game"] .home-brand,
+  .screen[data-screen="game"] .where-when,
+  .screen[data-screen="game"] .needs,
+  .screen[data-screen="game"] .home-player-name {
+    min-width: 0 !important;
+  }
+  .screen[data-screen="game"] .home-brand,
+  .screen[data-screen="game"] .where-when {
+    flex: 0 1 auto !important;
+  }
+  .screen[data-screen="game"] .home-player-name,
+  .screen[data-screen="game"] .where-when {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .screen[data-screen="game"] .needs {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+  .screen[data-screen="game"] .hud-needs {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    grid-template-columns: none !important;
+  }
+  .screen[data-screen="game"] .hud-needs .need {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    overflow: hidden !important;
+  }
+  .screen[data-screen="game"] .hud-needs .need-bar {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  .screen[data-screen="game"] .home-tools {
+    flex: 0 0 auto !important;
+    margin-left: 12px !important;
+  }
 }
 @media (max-height: 520px) {
   .event-card.is-council .event-text,
