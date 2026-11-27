@@ -1199,7 +1199,7 @@
     "ui.directory.detail": "About this cat",
     "ui.pride.empty": "You don't have a pride yet. Found a pride on Unclaimed land, or join a pride.",
     "ui.reputation.feed": "Deeds can earn you a name. Once you have one, it stays with you.",
-    "ui.council.locked": "The leaders have already sat. They meet again when the season turns.",
+    "ui.council.locked": "Opens next season. The leaders already met this season.",
     "ui.council.sit": "Sit with the leaders",
     "ui.council.leave": "Leave the council",
     "ui.council.agenda.truce": "A truce between {prideA} and {prideB}",

@@ -55,6 +55,34 @@ async function assertFonts(page, label) {
   for (const row of seen) assert.ok(row.size >= 16, label + ' ' + row.size + ' ' + row.text);
   return seen;
 }
+async function choiceLayout(page, label) {
+  const report = await page.evaluate(() => {
+    const prompt = [...document.querySelectorAll('.event-card.is-council p')].find((el) => /Will you take a side/.test(el.innerText || ''));
+    if (prompt) prompt.scrollIntoView({ block: 'center' });
+    const box = prompt ? prompt.getBoundingClientRect() : null;
+    const clipped = !prompt || prompt.scrollHeight > prompt.clientHeight + 2 || !box || box.top < -1 || box.bottom > innerHeight + 1 || box.height < 16;
+    const splits = [];
+    for (const button of document.querySelectorAll('.event-card.is-council .event-choices button')) {
+      const source = [...button.childNodes].find((node) => node.nodeType === 3);
+      const words = (button.innerText || '').split(/\s+/).filter(Boolean);
+      if (!source) { splits.push(button.innerText || ''); continue; }
+      let index = 0;
+      for (const word of words) {
+        const start = source.textContent.indexOf(word, index);
+        if (start < 0) continue;
+        const range = document.createRange();
+        range.setStart(source, start);
+        range.setEnd(source, start + word.length);
+        if (range.getClientRects().length > 1) splits.push(word);
+        index = start + word.length;
+      }
+    }
+    return { prompt: prompt ? prompt.innerText : '', clipped, splits };
+  });
+  assert.ok(/Will you take a side/.test(report.prompt), label + ' prompt ' + report.prompt);
+  assert.ok(!report.clipped, label + ' prompt clipped');
+  assert.deepStrictEqual(report.splits, [], label + ' mid-word ' + report.splits.join(', '));
+}
 
 (async () => {
   const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-council-'));
@@ -74,7 +102,23 @@ async function assertFonts(page, label) {
     await page.waitForFunction(() => document.querySelector('.screen.active').dataset.screen === 'settings');
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => document.querySelector('.screen.active').dataset.screen === 'game');
+    await page.evaluate(() => {
+      const game = window.__menuDebug.game();
+      game.state.records.lastCouncilSeason = 0;
+      game.render();
+    });
     await page.locator('[data-g="nav"][data-view="councils"]').click();
+    const status = page.locator('.council-line');
+    const statusText = await status.innerText();
+    assert.strictEqual(statusText, 'Opens next season. The leaders already met this season.');
+    assert.ok(!/ready to sit/.test(statusText));
+    const statusSize = await status.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    assert.ok(statusSize >= 18, 'council status ' + statusSize);
+    await page.evaluate(() => {
+      const game = window.__menuDebug.game();
+      delete game.state.records.lastCouncilSeason;
+      game.render();
+    });
     await page.locator('.council-screen [data-g="leaderCouncil"]').click();
     await idle(page);
     await page.waitForSelector('.event-card.is-council');
@@ -93,10 +137,16 @@ async function assertFonts(page, label) {
       await page.locator('#game-event [data-g="advanceBeat"]').first().click();
       await idle(page);
     }
+    await choiceLayout(page, '720');
     await size(app, 853, 480);
     await assertFonts(page, '853-choices');
+    await choiceLayout(page, '853');
+    await size(app, 2560, 1080);
+    await assertFonts(page, 'ultrawide-choices');
+    await choiceLayout(page, 'ultrawide');
     await size(app, 1920, 1080);
     await assertFonts(page, '1080-choices');
+    await choiceLayout(page, '1080');
     await page.locator('#game-event [data-choice="stay_out"]').click();
     await idle(page);
     await assertFonts(page, '1080-result');

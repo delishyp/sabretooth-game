@@ -9,6 +9,7 @@ name: Upgrade check
 # Council scenes v2a: the line follows the applied change.
 # A council is once a season, and the early feud council can still sit.
 # Retry the Windows upgrade check after a runner failed to start PowerShell.
+# Council lock line and the small choice card.
 on:
   workflow_dispatch:
   push:
