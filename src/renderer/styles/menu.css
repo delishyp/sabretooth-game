@@ -181,7 +181,7 @@ body:has(.screen[data-screen="game"].active) { background: #0b0908; }
 .screen[data-screen="settings"].active,
 .screen[data-screen="load"].active,
 .screen[data-screen="slotsFull"].active { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-/* Slice 1 home scene. Landscape is assets/game/home-landscape.png (1280×720, 16:9). UI sits on top. */
+/* Slice 1 home scene. Landscape is the WebP master (16:9). The 1440 file is used up to 1440px tall. UI sits on top. */
 .screen[data-screen="game"] { padding: 0; color: #f3e6d0; }
 #game-main { position: absolute; inset: 0; }
 #game-main.dimmed .home-landscape, #game-main.dimmed .home-cat { filter: brightness(.45); }

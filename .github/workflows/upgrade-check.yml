@@ -6,10 +6,11 @@ name: Upgrade check
 # Per-still head boxes, ears inside, toast clear of the Lore book.
 # Silent in-app step is 0.1.11 to 0.1.11-test.1.
 # Region-moment gossip, the newest unknown fact, and mate den learning.
+# Home and menu backgrounds are the WebP masters.
 on:
   workflow_dispatch:
   push:
-    branches: [cursor/s1-gossip-region-0111]
+    branches: [cursor/bg-masters-swap]
     paths:
       - package.json
       - package-lock.json

@@ -5,8 +5,8 @@
  * Paths are relative to src/renderer/index.html.
  */
 const ART = {
-  // background.jpg is the approved Milky Way scene. background.png is the older illustration and stays on disk, unused while jpg is present.
-  background: ['../../assets/menu/background.jpg', '../../assets/menu/background.png', '../../assets/menu/background.webp'],
+  // background.webp is the approved Milky Way scene. background.png is the older illustration and stays on disk, unused while webp is present.
+  background: ['../../assets/menu/background.webp', '../../assets/menu/background.png'],
   logo: ['../../assets/menu/logo.png']
 };
 
