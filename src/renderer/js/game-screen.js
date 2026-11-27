@@ -71,10 +71,13 @@
     dialogue: '../../assets/game/frozen-lake.png',
     clearing: '../../assets/game/forest-clearing.png'
   };
+  function homeLandscapeFile() {
+    const tall = typeof window !== 'undefined' && window.innerHeight > 1440;
+    return tall ? '../../assets/game/home-landscape.webp' : '../../assets/game/home-landscape-1440.webp';
+  }
   function usePlate(kind) {
     const land = typeof document !== 'undefined' ? document.getElementById('home-landscape') : null;
     if (!land) return;
-    if (!land.dataset.homeSrc) land.dataset.homeSrc = land.getAttribute('src');
     land.src = PLATES[kind] || PLATES.hunt;
   }
   function headshotImg(cat) {
@@ -1646,7 +1649,7 @@
       if (dock) dock.hidden = view === 'home';
       document.querySelectorAll('.scene-actor').forEach((node) => node.remove());
       const land0 = document.getElementById('home-landscape');
-      if (land0 && land0.dataset.homeSrc && !(s && s.phase === 'encounter')) land0.src = land0.dataset.homeSrc;
+      if (land0 && !(s && s.phase === 'encounter')) land0.src = homeLandscapeFile();
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       const spot = document.querySelector('.is-spotlight');
       keepOnePrimary(spot && spot.tagName === 'BUTTON' ? spot : null);

@@ -8,12 +8,12 @@ name: Upgrade check
 # Pride councils: stance and walk-out share a lifetime pool.
 # Council scenes v2a: the line follows the applied change.
 # A council is once a season, and the early feud council can still sit.
-# Retry the Windows upgrade check after a runner failed to start PowerShell.
 # Council lock line and the small choice card.
+# Home and menu backgrounds are the WebP masters.
 on:
   workflow_dispatch:
   push:
-    branches: [cursor/s1-councils-0112]
+    branches: [cursor/s1-councils-bg-0112]
     paths:
       - package.json
       - package-lock.json
