@@ -1819,6 +1819,8 @@
       pin('right', 'auto');
       pin('bottom', 'auto');
       pin('margin', '0');
+      pin('max-height', Math.max(120, window.innerHeight - hudBottom - 16) + 'px');
+      pin('overflow', 'auto');
       const cr = card.getBoundingClientRect();
       const W = window.innerWidth;
       const H = window.innerHeight;
@@ -1854,7 +1856,7 @@
         placed = { left, top };
         break;
       }
-      if (!placed) placed = { left: 8, top: Math.min(H - cr.height - 8, hudBottom + 8) };
+      if (!placed) placed = { left: Math.max(8, railRight + 8), top: Math.max(hudBottom + 8, Math.min(H - cr.height - 8, hudBottom + 8)) };
       pin('left', Math.round(placed.left) + 'px');
       pin('top', Math.round(placed.top) + 'px');
     }

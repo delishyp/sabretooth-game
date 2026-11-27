@@ -1122,3 +1122,87 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .encounter-c
     font-size: 16px !important;
   }
 }
+
+/* Dialogue cards hug their text. Choices sit directly under the line, and a long line scrolls inside the text box. */
+.screen[data-screen="game"] #game-event:has(.has-beats):not(:has(.encounter-card)),
+.screen[data-screen="game"] #game-event:has(.has-meet):not(:has(.encounter-card)),
+.screen[data-screen="game"] #game-event:has(.is-council) {
+  top: auto !important;
+  height: auto !important;
+  max-height: calc(100vh - 108px) !important;
+  align-items: flex-end !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+.screen[data-screen="game"] #game-event:has(.has-beats):not(:has(.encounter-card)) > .event-card,
+.screen[data-screen="game"] #game-event:has(.has-meet):not(:has(.encounter-card)) > .event-card,
+.screen[data-screen="game"] #game-event:has(.is-council) > .event-card {
+  height: auto !important;
+  max-height: none !important;
+  flex: 0 1 auto !important;
+}
+.event-card.has-beats .meet-row,
+.event-card.has-meet .meet-row,
+.event-card.is-council .meet-row {
+  flex: 0 1 auto !important;
+  height: auto !important;
+  max-height: none !important;
+  align-items: start !important;
+}
+.event-card.has-beats .meet-mid,
+.event-card.has-meet .meet-mid,
+.event-card.is-council .meet-mid {
+  height: auto !important;
+  max-height: none !important;
+  justify-content: flex-start !important;
+}
+.event-card.has-beats .meet-mid .event-beat,
+.event-card.has-meet .meet-mid .event-beat,
+.event-card.is-council .meet-mid .event-beat,
+.event-card.is-council .event-beat.scene-log {
+  flex: 0 1 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: min(28vh, 220px) !important;
+  overflow: auto !important;
+}
+.event-card.has-beats .event-choices,
+.event-card.has-meet .event-choices,
+.event-card.is-council .event-choices,
+.screen[data-screen="game"] #game-event:has(.is-council) .event-choices {
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: min(42vh, 320px) !important;
+  align-content: start !important;
+  align-self: stretch !important;
+  justify-content: flex-start !important;
+  overflow: auto !important;
+}
+.event-card.has-beats .event-choices button,
+.event-card.has-meet .event-choices button,
+.event-card.is-council .event-choices button {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Focus stays inside the control. A positive outline-offset draws a second box outside the border. */
+button.focused,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary.focused,
+summary:focus-visible,
+[role="tab"].focused,
+[role="tab"]:focus-visible,
+.hotspot.focused span,
+.hotspot:focus-visible span,
+.hotspot.is-current span,
+.crow.focused,
+.crow-ctl .name-dice:focus-visible,
+.conversation-card .event-scroll.focused,
+.conversation-card .event-scroll:focus-visible {
+  outline: 2px solid #fff8ea !important;
+  outline-offset: -4px !important;
+}

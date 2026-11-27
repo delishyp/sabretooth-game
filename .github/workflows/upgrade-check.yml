@@ -11,10 +11,11 @@ name: Upgrade check
 # Council lock line and the small choice card.
 # Home and menu backgrounds are the WebP masters.
 # Short windows scroll council choices, and Menu stays clear of the need bars.
+# Focus rings sit inside the control. Dialogue cards hug their text.
 on:
   workflow_dispatch:
   push:
-    branches: [cursor/s1-councils-bg-0112]
+    branches: [cursor/ui-overflow-0112]
     paths:
       - package.json
       - package-lock.json
