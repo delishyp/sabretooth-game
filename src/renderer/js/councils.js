@@ -68,11 +68,40 @@
     const id = state.records && state.records.pride && state.records.pride.id;
     return (parties || []).some((party) => party === 'player' || (id && party === id));
   }
-  function open(state) {
+  function seasonMarked(value) {
+    return typeof value === 'number' && Number.isFinite(value);
+  }
+  function councilAvailable(state) {
+    if (!state || !state.records || !seasonMarked(state.records.lastCouncilSeason)) return true;
+    return state.records.lastCouncilSeason !== seasonOf(state.day);
+  }
+  function earlyAvailable(state) {
+    if (!state || !state.records || !seasonMarked(state.records.lastEarlySeason)) return true;
+    return state.records.lastEarlySeason !== seasonOf(state.day);
+  }
+  function councilButton(state) {
+    const book = scenes();
+    const base = (book.ui && book.ui.goToCouncil && book.ui.goToCouncil.label) || 'Go to the council';
+    const lockedWord = hint('ui.action.locked') || 'Locked';
+    if (!mayAttend(state)) return { locked: true, label: base, note: '', reason: 'loner' };
+    if (!councilAvailable(state)) {
+      const note = hint('ui.council.locked') || 'The leaders have already sat. They meet again when the season turns.';
+      return { locked: true, label: base + ' · ' + lockedWord, note, reason: 'season' };
+    }
+    return { locked: false, label: base, note: '', reason: null };
+  }
+  function open(state, opts) {
+    opts = opts || {};
     if (!mayAttend(state)) return { error: 'loner' };
+    if (!state.records) state.records = {};
     const season = seasonOf(state.day);
-    if (state.records.lastCouncilSeason === season) return { error: 'already' };
-    state.records.lastCouncilSeason = season;
+    const early = !!opts.early;
+    if (early) {
+      if (!earlyAvailable(state)) return { error: 'already' };
+      state.records.lastEarlySeason = season;
+    }
+    if (!early && !councilAvailable(state)) return { error: 'already' };
+    if (councilAvailable(state)) state.records.lastCouncilSeason = season;
     const heldLatch = state.records.councilLatch || null;
     state.records.councilLatch = null;
     const Deeds = typeof require === 'function' ? require('./deeds') : (typeof self !== 'undefined' ? self.Deeds : null);
@@ -85,7 +114,7 @@
       title: (line && line.title) || 'Council',
       council: true,
       agenda: items,
-      beats: [{ kind: 'narration', text: (line && line.text) || '' }],
+      beats: [{ kind: 'narration', text: fill((line && line.text) || '', bindings(state)) }],
       beatIndex: 0,
       choices: items.length ? items.map((item) => ({ id: item.id, label: item.label })) : [{ id: 'leave', label: hint('ui.council.leave') }]
     };
@@ -258,7 +287,12 @@
   function applyPooled(state, prideId, requested, receiptKey, sourceType) {
     ensure(state);
     if (state.councils.applied.indexOf(receiptKey) >= 0 || ledger(state).some((row) => row.receiptKey === receiptKey)) {
-      return { applied: 0, duplicate: true, receipt: false, lifetimeDelta: state.councils[prideId].lifetimeDelta };
+      const name = PRIDE_NAME[prideId] || prideId;
+      const outcomes = scenes().standingOutcomes || {};
+      const zone = (state.region && PRIDE_NAME[state.region]) || 'the Split Rock';
+      const line = fill((outcomes.capped || {}).narration, { pride: name, zoneName: zone });
+      if (line) noteLore(state, receiptKey + '/capped', line);
+      return { applied: 0, duplicate: true, receipt: false, capped: true, lifetimeDelta: state.councils[prideId].lifetimeDelta, line, delta: 0 };
     }
     state.councils.applied.push(receiptKey);
     const asked = clamp(Number(requested) || 0, -PER_COUNCIL, PER_COUNCIL);
@@ -307,35 +341,47 @@
     for (const id of seated) results[id] = applyPooled(state, id, asked[id] || 0, councilId + '/stance/' + id, 'council_stance');
     return { results, seated, walked: false };
   }
-  function spoken(state, path, slot) {
+  function spoken(state, path, slot, extra) {
     const data = scenes();
     const Speech = speechApi();
     const row = data.speechLocations && data.speechLocations[path];
     const npc = state.npcs && state.npcs[slot];
-    const vars = { name: npc && npc.name || '', catName: npc && npc.name || '', playerName: state.cat && state.cat.name || '' };
+    const vars = Object.assign({}, bindings(state), extra || {}, {
+      name: (npc && npc.name) || '',
+      catName: (npc && npc.name) || '',
+      playerName: (state.cat && state.cat.name) || ''
+    });
     if (!row) return { text: '', beat: '' };
     const resolved = Speech ? Speech.resolve(data, path, npc && npc.personality, vars, null) : { text: row.base };
     const focus = row.focusTrait;
     const band = Speech && npc && npc.personality ? Speech.band(npc.personality[focus]) : null;
     const key = band === 'high' || band === 'low' ? band : 'base';
     const beat = row.beat && (row.beat[key] || row.beat.base) || '';
-    return { text: resolved.text || row.base || '', beat: fill(beat, vars), band: key };
+    return { text: fill(resolved.text || row.base || '', vars), beat: fill(beat, vars), band: key };
   }
   function bindings(state) {
+    const player = (state.cat && state.cat.name) || '';
+    const leaderA = (state.npcs && state.npcs.hc01 && state.npcs.hc01.name) || 'Highcrag';
+    const leaderB = (state.npcs && state.npcs.bf01 && state.npcs.bf01.name) || 'Bonefield';
+    const leaderC = (state.npcs && state.npcs.mw01 && state.npcs.mw01.name) || 'Mistwood';
     return {
       zoneName: 'the Split Rock',
+      pride: 'Highcrag',
       prideA: 'Highcrag', prideB: 'Bonefield', thirdPride: 'Mistwood',
-      leaderA: state.npcs && state.npcs.hc01 && state.npcs.hc01.name || 'Highcrag',
-      leaderB: state.npcs && state.npcs.bf01 && state.npcs.bf01.name || 'Bonefield',
-      name: state.cat && state.cat.name || '',
-      playerName: state.cat && state.cat.name || '',
+      wrongedPride: 'Highcrag', breakerPride: 'Bonefield',
+      leaderName: leaderA, leaderA, leaderB, name: leaderC,
+      playerName: player, catName: player,
+      petitionerName: player || leaderA, trespasserName: player || leaderB,
       kindLabel: 'border deal',
       stanceWord: 'neutral',
-      seasonName: state.season || 'spring'
+      seasonName: (state.season || 'spring')
     };
   }
   function openScene(state) {
     if (!mayAttend(state)) return { error: 'loner' };
+    if (!state.records) state.records = {};
+    if (!councilAvailable(state)) return { error: 'already' };
+    state.records.lastCouncilSeason = seasonOf(state.day);
     ensure(state);
     const data = scenes();
     const off = data.offlineFallback || {};
@@ -343,6 +389,7 @@
     const beats = [];
     for (const step of off.start || []) {
       if (step.kind === 'narration' && step.text) beats.push({ kind: 'narration', text: fill(step.text, vars) });
+      else if (step.kind === 'choice' && step.prompt) beats.push({ kind: 'narration', text: fill(step.prompt, vars) });
       else if (step.speechPath) {
         const line = spoken(state, step.speechPath, step.slot);
         if (line.beat) beats.push({ kind: 'narration', text: line.beat });
@@ -390,6 +437,9 @@
         const prideId = standingPride(text);
         const row = prideId && outcome.results[prideId];
         if (row && row.line) text = row.line;
+        if (row && row.applied === 0 && /is warmer toward you|is cooler toward you/.test(text)) {
+          text = fill((scenes().standingOutcomes.capped || {}).narration, { pride: PRIDE_NAME[prideId] || prideId });
+        }
         if (text) beats.push({ kind: 'narration', text });
       } else if (step.speechPath) {
         const line = spoken(state, step.speechPath, step.slot);
@@ -443,7 +493,7 @@
   }
   function latch(state, spec) {
     if (!state.records) state.records = {};
-    if (state.records.lastCouncilSeason === seasonOf(state.day)) return null;
+    if (!earlyAvailable(state)) return null;
     state.records.councilLatch = { reason: spec.reason, pair: spec.pair || null, day: state.day || 1 };
     return state.records.councilLatch;
   }
@@ -489,18 +539,21 @@
     scan(state);
     if (!state.records || !state.records.councilLatch) return null;
     if (state.pendingArc) return null;
-    if (state.records.lastCouncilSeason === seasonOf(state.day)) return null;
+    if (!earlyAvailable(state)) return null;
     if (!mayAttend(state)) {
-      state.records.lastCouncilSeason = seasonOf(state.day);
+      const season = seasonOf(state.day);
+      state.records.lastEarlySeason = season;
+      if (councilAvailable(state)) state.records.lastCouncilSeason = season;
       state.records.councilLatch = null;
       return { seated: false, state };
     }
-    return open(state);
+    return open(state, { early: true });
   }
   return {
     PRIDES, CANDIDATE, HOSTILE, RECOGNISE_ABOVE, acceptChance, seasonOf, mayAttend, recognised,
     open, agenda, strike, keep, breach, resolve, agreements, relation, shift,
     scan, noteFight, offerEarly, latch,
-    PER_COUNCIL, LIFETIME, WALK, scenes, ensure, applyPooled, applyChoice, spoken, openScene, bindings
+    PER_COUNCIL, LIFETIME, WALK, scenes, ensure, applyPooled, applyChoice, spoken, openScene, bindings,
+    councilAvailable, councilButton
   };
 });

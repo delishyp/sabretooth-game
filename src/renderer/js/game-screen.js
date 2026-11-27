@@ -488,6 +488,32 @@
         nav.append(sep);
         lockedItems.forEach(paint);
       }
+      nav.querySelectorAll('button[aria-disabled="true"]').forEach((button) => {
+        const showTip = () => placeLockTip(button);
+        button.addEventListener('mouseenter', showTip);
+        button.addEventListener('focus', showTip);
+        button.addEventListener('mouseleave', hideLockTip);
+        button.addEventListener('blur', hideLockTip);
+      });
+    }
+    function placeLockTip(button) {
+      let tip = document.getElementById('nav-lock-tip');
+      if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'nav-lock-tip';
+        tip.className = 'nav-lock-tip';
+        tip.hidden = true;
+        document.body.append(tip);
+      }
+      const box = button.getBoundingClientRect();
+      tip.textContent = 'Finish this first';
+      tip.hidden = false;
+      tip.style.left = Math.round(box.right + 8) + 'px';
+      tip.style.top = Math.round(box.top) + 'px';
+    }
+    function hideLockTip() {
+      const tip = document.getElementById('nav-lock-tip');
+      if (tip) tip.hidden = true;
     }
     function renderHud() {
       const h = $('#game-hud'); h.textContent = '';
@@ -648,8 +674,13 @@
         screen.append(el('h2', 'home-panel-title', 'Councils'));
         const seated = Councils.mayAttend(s);
         screen.append(el('p', 'council-line', seated ? 'The leaders are ready to sit.' : 'You are not seated at a council.'));
-        const label = (book.ui && book.ui.goToCouncil && book.ui.goToCouncil.label) || 'Go to the council';
-        screen.append(btn(label, { g: 'leaderCouncil' }, { disabled: !seated }));
+        const offer = Councils.councilButton ? Councils.councilButton(s) : { locked: !seated, label: (book.ui && book.ui.goToCouncil && book.ui.goToCouncil.label) || 'Go to the council', note: '' };
+        const go = btn(offer.label, { g: 'leaderCouncil' }, { disabled: offer.reason === 'loner' });
+        if (offer.locked && offer.reason === 'season') {
+          go.classList.add('is-locked-action');
+          go.title = offer.note || '';
+          screen.append(go, el('p', 'opens-when', offer.note || ''));
+        } else screen.append(go);
         p.append(screen);
       } else if (view === 'lore') {
         const bookCopy = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
@@ -1868,8 +1899,19 @@
         return;
       }
       if (d.g === 'leaderCouncil' && Councils) {
+        const offer = Councils.councilButton ? Councils.councilButton(s) : null;
+        if (offer && offer.locked) {
+          if (offer.note) ctx.toast(offer.note);
+          return;
+        }
         const opened = Councils.openScene(s);
         if (!opened.error) render();
+        return;
+      }
+      if (d.g === 'settings') {
+        const menu = $('#game-menu');
+        if (menu) menu.hidden = true;
+        if (ctx.openSettings) ctx.openSettings();
         return;
       }
       if (d.g === 'openMenu') {

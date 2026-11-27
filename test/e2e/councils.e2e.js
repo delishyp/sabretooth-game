@@ -69,16 +69,32 @@ async function assertFonts(page, label) {
       game.render();
     });
     await size(app, 1280, 720);
+    await page.locator('[data-g="openMenu"]').click();
+    await page.locator('#game-menu [data-g="settings"]').click();
+    await page.waitForFunction(() => document.querySelector('.screen.active').dataset.screen === 'settings');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.querySelector('.screen.active').dataset.screen === 'game');
     await page.locator('[data-g="nav"][data-view="councils"]').click();
     await page.locator('.council-screen [data-g="leaderCouncil"]').click();
     await idle(page);
     await page.waitForSelector('.event-card.is-council');
+    const lockedNav = page.locator('#home-nav button[aria-disabled="true"]').first();
+    await lockedNav.hover();
+    const tip = page.locator('#nav-lock-tip');
+    await tip.waitFor({ state: 'visible' });
+    const hovered = await tip.boundingBox();
+    assert.ok(hovered && hovered.x >= 0 && hovered.y >= 0 && hovered.width > 0, 'lock tip is on screen');
+    assert.match(await tip.innerText(), /Finish this first/);
+    await lockedNav.focus();
+    assert.match(await tip.innerText(), /Finish this first/);
     await assertFonts(page, '720-open');
     for (let i = 0; i < 24 && !(await page.locator('#game-event [data-choice="stay_out"]').count()); i++) {
       await assertFonts(page, '720-beat');
       await page.locator('#game-event [data-g="advanceBeat"]').first().click();
       await idle(page);
     }
+    await size(app, 853, 480);
+    await assertFonts(page, '853-choices');
     await size(app, 1920, 1080);
     await assertFonts(page, '1080-choices');
     await page.locator('#game-event [data-choice="stay_out"]').click();
