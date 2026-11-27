@@ -28,6 +28,7 @@
     { id: 'inventory', implemented: false },
     { id: 'lore', implemented: true },
     { id: 'reputation', implemented: true },
+    { id: 'councils', implemented: true },
   ];
 
   function navItem(id) {

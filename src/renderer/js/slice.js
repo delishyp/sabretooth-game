@@ -194,6 +194,8 @@
       if (PrideRules) PrideRules.migrate(s);
       const Unlocks = typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null);
       if (Unlocks) Unlocks.persist(s);
+      const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
+      if (Councils && Councils.ensure) Councils.ensure(s);
       return s;
     }
     function bondDeps(s, rep) {
@@ -561,8 +563,8 @@
         return { state: s };
       }
       const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
-      if (Councils && s.pending && s.pending.council && (action.type === 'choose' || action.type === 'continue')) {
-        Councils.resolve(s, action.choiceId);
+      if (Councils && s.pending && s.pending.council && (action.type === 'choose' || action.type === 'continue' || (action.type === 'advanceBeat' && s.pending.resolved))) {
+        Councils.resolve(s, action.type === 'advanceBeat' ? 'continue' : action.choiceId);
         return { state: s };
       }
       if (s.phase === 'conversation') {
@@ -1562,6 +1564,8 @@
       if (PrideHeader) PrideHeader.migrateFood(s);
       if (PrideRules) PrideRules.migrate(s);
       if (Q) Q.ensure(s);
+      const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
+      if (Councils && Councils.ensure) Councils.ensure(s);
       s.saveVersion = R.saveVersion;
       return s;
     }

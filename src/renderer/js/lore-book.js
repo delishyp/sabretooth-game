@@ -67,6 +67,13 @@
     });
     return state.directory.lore;
   }
+  function councilZone(state) {
+    if (state && state._regionName && state.region) {
+      const named = state._regionName(state.region);
+      if (named) return named;
+    }
+    return 'the Split Rock';
+  }
   function catName(state, id) {
     const npc = id && state && state.npcs && state.npcs[id];
     return (npc && npc.name) || '';
@@ -123,7 +130,10 @@
     });
     ((s.world && s.world.agreements) || []).forEach((row) => {
       if (row.state !== 'active') return;
-      notes.push({ id: row.id, title: row.kind, body: fill(LEARNED['agreement_' + row.kind] || HOW.unknown || '', vars), how: HOW.council || '' });
+      notes.push({ id: row.id, title: row.kind, body: fill(LEARNED['agreement_' + row.kind] || HOW.unknown || '', vars), how: fill(HOW.council || '', { zoneName: councilZone(s) }) });
+    });
+    ((s.councils && s.councils.lore) || []).forEach((row) => {
+      if (row && row.body) notes.push({ id: row.id, title: 'Council', body: row.body, how: fill(HOW.council || '', { zoneName: councilZone(s) }) });
     });
     const heading = guide && guide.heading;
     return [
