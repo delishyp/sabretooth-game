@@ -10,6 +10,7 @@ name: Upgrade check
 # A council is once a season, and the early feud council can still sit.
 # Council lock line and the small choice card.
 # Home and menu backgrounds are the WebP masters.
+# Short windows scroll council choices, and Menu stays clear of the need bars.
 on:
   workflow_dispatch:
   push:

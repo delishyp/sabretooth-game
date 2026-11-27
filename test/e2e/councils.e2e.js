@@ -83,6 +83,59 @@ async function choiceLayout(page, label) {
   assert.ok(!report.clipped, label + ' prompt clipped');
   assert.deepStrictEqual(report.splits, [], label + ' mid-word ' + report.splits.join(', '));
 }
+async function menuClearsNeeds(page) {
+  const gap = await page.evaluate(() => {
+    const menu = document.querySelector('[data-g="openMenu"]').getBoundingClientRect();
+    const bars = [...document.querySelectorAll('#game-hud .need, #game-hud .need-bar, #game-hud .need-label')].map((el) => el.getBoundingClientRect());
+    const right = Math.max(...bars.map((bar) => bar.right));
+    const overlap = bars.some((bar) => menu.left < bar.right - 1 && menu.right > bar.left + 1 && menu.top < bar.bottom - 1 && menu.bottom > bar.top + 1);
+    return { gap: menu.left - right, overlap, bars: bars.length };
+  });
+  assert.ok(gap.bars >= 4, 'need bars ' + gap.bars);
+  assert.ok(!gap.overlap, 'menu overlaps a need bar');
+  assert.ok(gap.gap >= 8, 'menu clearance ' + gap.gap);
+}
+async function choicesReachable(page) {
+  const count = await page.locator('.event-card.is-council .event-choices button').count();
+  assert.ok(count >= 4, 'choices ' + count);
+  const before = await page.evaluate(() => {
+    const event = document.getElementById('game-event');
+    const box = event.getBoundingClientRect();
+    const hidden = [...document.querySelectorAll('.event-card.is-council .event-choices button')].filter((button) => {
+      const r = button.getBoundingClientRect();
+      return r.top < box.top - 1 || r.bottom > box.bottom + 1 || r.bottom > innerHeight + 1;
+    }).length;
+    return { hidden, scrolls: event.scrollHeight > event.clientHeight + 1 };
+  });
+  assert.ok(before.hidden > 0, 'a choice starts below the fold');
+  assert.ok(before.scrolls, 'event area scrolls');
+  const seen = new Set();
+  for (let step = 0; step < count; step++) {
+    await page.keyboard.press('ArrowDown');
+    const hit = await page.evaluate(() => {
+      const button = document.activeElement;
+      const choices = [...document.querySelectorAll('.event-card.is-council .event-choices button')];
+      if (!choices.includes(button)) return { choice: '' };
+      const box = button.getBoundingClientRect();
+      const event = document.getElementById('game-event');
+      const view = event.getBoundingClientRect();
+      const x = box.left + Math.min(24, box.width / 2);
+      const y = box.top + box.height / 2;
+      const top = document.elementFromPoint(x, y);
+      return {
+        choice: button.dataset.choice,
+        inView: box.top >= view.top - 1 && box.bottom <= view.bottom + 1 && box.bottom <= innerHeight + 1,
+        hit: !!(top && (top === button || button.contains(top)))
+      };
+    });
+    assert.ok(hit.choice, 'choice focused');
+    assert.ok(hit.inView, hit.choice + ' in view');
+    assert.ok(hit.hit, hit.choice + ' clickable');
+    await page.locator('.event-card.is-council .event-choices button.focused').click({ trial: true });
+    seen.add(hit.choice);
+  }
+  assert.strictEqual(seen.size, count, 'reached ' + [...seen].join(', '));
+}
 
 (async () => {
   const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-council-'));
@@ -139,8 +192,11 @@ async function choiceLayout(page, label) {
     }
     await choiceLayout(page, '720');
     await size(app, 853, 480);
+    await page.waitForTimeout(100);
     await assertFonts(page, '853-choices');
     await choiceLayout(page, '853');
+    await menuClearsNeeds(page);
+    await choicesReachable(page);
     await size(app, 2560, 1080);
     await assertFonts(page, 'ultrawide-choices');
     await choiceLayout(page, 'ultrawide');
