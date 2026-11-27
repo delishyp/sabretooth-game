@@ -12,6 +12,7 @@ name: Upgrade check
 # Home and menu backgrounds are the WebP masters.
 # Short windows scroll council choices, and Menu stays clear of the need bars.
 # Focus rings sit inside the control. Dialogue cards hug their text.
+# The nav lock tip is #nav-lock-tip, not a button ::after.
 on:
   workflow_dispatch:
   push:
