@@ -58,6 +58,8 @@ test('walk-out at -9 is clamped to -10 and the receipt shows -1; at the cap ther
   assert.strictEqual(left.results.mistwood.applied, 0);
   assert.strictEqual(left.results.mistwood.receipt, false);
   assert.ok(!s.worldMemory.ledger.some((row) => row.receiptKey.endsWith('/walk/mistwood')));
+  assert.match(left.results.highcrag.line, /Highcrag is cooler toward you/);
+  assert.match(left.results.mistwood.line, /Mistwood has made up its mind about you/);
   assert.ok(s.councils.lore.some((row) => row.body === 'Mistwood has made up its mind about you.'));
   const book = LoreBook.book(s, { heading: 'Guide', entries: [] });
   const notes = book.find((section) => section.id === 'notes').entries.map((row) => row.body).join('\n');
@@ -100,7 +102,7 @@ test('old saves gain empty council records, and a leader line follows the focus 
   assert.deepStrictEqual(loaded.councils.lore, []);
   loaded.npcs.hc01.personality = { aggression: 50, sociability: 50, boldness: 50, loyalty: 90, curiosity: 50 };
   const high = Councils.spoken(loaded, 'council.opening.hc01', 'hc01');
-  assert.ok(high.text.includes('as we should'));
+  assert.ok(high.text.includes('as Highcrag always has'));
   loaded.npcs.hc01.personality.loyalty = 50;
   const mid = Councils.spoken(loaded, 'council.opening.hc01', 'hc01');
   assert.ok(mid.text.includes('We can speak in order'));
@@ -108,4 +110,84 @@ test('old saves gain empty council records, and a leader line follows the focus 
   const seatedRun = Councils.openScene(loaded);
   assert.strictEqual(seatedRun.state.pending.eventId, 'council.offline.complete');
   assert.strictEqual(seatedRun.state.pending.choices[seatedRun.state.pending.choices.length - 1].id, 'leave');
+});
+
+function middling(s) {
+  const personality = { aggression: 50, sociability: 50, boldness: 50, loyalty: 50, curiosity: 50 };
+  for (const id of ['hc01', 'bf01', 'mw01']) s.npcs[id].personality = Object.assign({}, personality);
+}
+
+test('offline speak_for_b has Bonefield accept, Highcrag refuse, and reversed standing', () => {
+  const book = JSON.parse(fs.readFileSync(path.join(D, 'events/council-scenes-v2.json'), 'utf8'));
+  const offered = book.offlineFallback.start.find((step) => step.kind === 'choice').options.map((opt) => opt.id);
+  for (const id of offered) assert.ok(book.offlineFallback.branches[id], id + ' has a branch');
+  assert.ok(!book.standingOutcomes.capped.outcome, 'capped has no receipt outcome');
+  const s = run();
+  middling(s);
+  Councils.openScene(s);
+  assert.ok(s.pending.choices.some((row) => row.id === 'speak_for_b'));
+  const done = Councils.resolve(s, 'speak_for_b');
+  const text = s.pending.beats.map((beat) => beat.text).join('\n');
+  assert.ok(text.includes('Bonefield agrees'));
+  assert.ok(text.includes("That deal doesn't suit Highcrag"));
+  assert.ok(text.includes('Bonefield is warmer toward you.'));
+  assert.ok(text.includes('Highcrag is cooler toward you.'));
+  assert.ok(text.includes("Mistwood's feeling toward you is unchanged."));
+  assert.ok(!text.includes('Would you be my mate'));
+  assert.strictEqual(done.outcome.results.bonefield.applied, 2);
+  assert.strictEqual(done.outcome.results.highcrag.applied, -2);
+  assert.strictEqual(done.outcome.results.mistwood.applied, 0);
+  assert.strictEqual(s.councils.bonefield.lifetimeDelta, 2);
+  assert.strictEqual(s.councils.highcrag.lifetimeDelta, -2);
+  assert.strictEqual(s.prideRelation.bonefield, 2);
+  assert.strictEqual(s.prideRelation.highcrag, -2);
+  assert.strictEqual(s.prideRelation.mistwood, 0);
+  assert.strictEqual(s.worldMemory.ledger.filter((row) => row.sourceType === 'council_stance').length, 2);
+  assert.strictEqual(s.phase, 'event');
+  const before = s.prideRelation.bonefield;
+  Councils.resolve(s, 'continue');
+  assert.strictEqual(s.prideRelation.bonefield, before);
+  assert.strictEqual(s.phase, 'event');
+});
+
+test('a clamp that still changes standing uses the cooler line and a receipt', () => {
+  const s = run();
+  Councils.ensure(s);
+  s.councils.highcrag.lifetimeDelta = -9;
+  s.prideRelation.highcrag = -9;
+  const row = Councils.applyPooled(s, 'highcrag', -2, 'run/cap/partial', 'council_walk_out');
+  assert.strictEqual(row.applied, -1);
+  assert.strictEqual(row.receipt, true);
+  assert.strictEqual(row.line, 'Highcrag is cooler toward you.');
+  assert.strictEqual(s.councils.highcrag.lifetimeDelta, -10);
+  const receipt = s.worldMemory.ledger.find((entry) => entry.receiptKey === 'run/cap/partial');
+  assert.strictEqual(receipt.delta, -1);
+  assert.ok(!s.councils.lore.some((entry) => entry.body === 'Highcrag has made up its mind about you.'));
+});
+
+test('a zero applied change says the pride has made up its mind and writes no receipt', () => {
+  const s = run();
+  middling(s);
+  Councils.ensure(s);
+  s.councils.mistwood.lifetimeDelta = -10;
+  s.prideRelation.mistwood = -10;
+  Councils.openScene(s);
+  Councils.resolve(s, 'leave');
+  const text = s.pending.beats.map((beat) => beat.text).join('\n');
+  assert.ok(text.includes('Mistwood has made up its mind about you.'));
+  assert.ok(!text.includes('Mistwood is cooler toward you.'));
+  assert.ok(text.includes('Highcrag is cooler toward you.'));
+  assert.ok(text.includes('Bonefield is cooler toward you.'));
+  assert.ok(!s.worldMemory.ledger.some((row) => row.receiptKey.endsWith('/walk/mistwood')));
+  const book = LoreBook.book(s, { heading: 'Guide', entries: [] });
+  const notes = book.find((section) => section.id === 'notes').entries.map((row) => row.body).join('\n');
+  assert.ok(notes.includes('Mistwood has made up its mind about you.'));
+  const row = Councils.applyPooled(s, 'bonefield', 2, 'run/cap/zero', 'council_stance');
+  s.councils.bonefield.lifetimeDelta = 10;
+  const capped = Councils.applyPooled(s, 'bonefield', 2, 'run/cap/zero-b', 'council_stance');
+  assert.strictEqual(row.applied, 2);
+  assert.strictEqual(capped.applied, 0);
+  assert.strictEqual(capped.receipt, false);
+  assert.strictEqual(capped.line, 'Bonefield has made up its mind about you.');
+  assert.ok(!s.worldMemory.ledger.some((entry) => entry.receiptKey === 'run/cap/zero-b'));
 });

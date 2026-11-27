@@ -6,6 +6,7 @@ name: Upgrade check
 # Per-still head boxes, ears inside, toast clear of the Lore book.
 # Silent in-app step is 0.1.12 to 0.1.12-test.1.
 # Pride councils: stance and walk-out share a lifetime pool.
+# Council scenes v2a: the line follows the applied change.
 on:
   workflow_dispatch:
   push:
