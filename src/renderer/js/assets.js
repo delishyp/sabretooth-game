@@ -1,12 +1,12 @@
 /**
  * Art slots. Swap art by dropping a file in place; no code change needed.
- *   Background: assets/menu/background.(png|jpg|webp)  — first one found wins; none → CSS gradient (theme.css --bg-fallback)
+ *   Background: assets/menu/background.webp — missing file → CSS gradient (theme.css --bg-fallback)
  *   Logo:       assets/menu/logo.png                   — missing → text title
  * Paths are relative to src/renderer/index.html.
  */
 const ART = {
-  // background.webp is the approved Milky Way scene. background.png is the older illustration and stays on disk, unused while webp is present.
-  background: ['../../assets/menu/background.webp', '../../assets/menu/background.png'],
+  // background.webp is the approved Milky Way scene.
+  background: ['../../assets/menu/background.webp'],
   logo: ['../../assets/menu/logo.png']
 };
 
