@@ -5,7 +5,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-const specs = ['menu.e2e.js', 'slice.e2e.js', 'conversation.e2e.js', 'tutorial.e2e.js', 'cats-list-layout.e2e.js', 'overlay-hold.e2e.js', 'wide-home.e2e.js', 'redesign.e2e.js'];
+const specs = ['menu.e2e.js', 'slice.e2e.js', 'conversation.e2e.js', 'tutorial.e2e.js', 'cats-list-layout.e2e.js', 'overlay-hold.e2e.js', 'wide-home.e2e.js', 'redesign.e2e.js', 'councils.e2e.js'];
 
 function runSpec(file) {
   return new Promise((resolve) => {

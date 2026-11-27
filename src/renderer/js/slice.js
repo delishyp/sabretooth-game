@@ -194,6 +194,8 @@
       if (PrideRules) PrideRules.migrate(s);
       const Unlocks = typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null);
       if (Unlocks) Unlocks.persist(s);
+      const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
+      if (Councils && Councils.ensure) Councils.ensure(s);
       return s;
     }
     function bondDeps(s, rep) {
@@ -1562,6 +1564,8 @@
       if (PrideHeader) PrideHeader.migrateFood(s);
       if (PrideRules) PrideRules.migrate(s);
       if (Q) Q.ensure(s);
+      const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
+      if (Councils && Councils.ensure) Councils.ensure(s);
       s.saveVersion = R.saveVersion;
       return s;
     }

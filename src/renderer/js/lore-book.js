@@ -125,6 +125,9 @@
       if (row.state !== 'active') return;
       notes.push({ id: row.id, title: row.kind, body: fill(LEARNED['agreement_' + row.kind] || HOW.unknown || '', vars), how: HOW.council || '' });
     });
+    ((s.councils && s.councils.lore) || []).forEach((row) => {
+      if (row && row.body) notes.push({ id: row.id, title: 'Council', body: row.body, how: HOW.council || '' });
+    });
     const heading = guide && guide.heading;
     return [
       { id: 'common', title: sections.common || '', entries: common, empty: empty.common || '' },

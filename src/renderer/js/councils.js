@@ -186,6 +186,7 @@
     return { state, agreement: row, fact };
   }
   function resolve(state, choiceId) {
+    if (state.pending && state.pending.leaderCouncil) return finishLeader(state, choiceId);
     const item = (state.pending && state.pending.agenda || []).find((row) => row.id === choiceId);
     let result = { state, agreed: false };
     if (item && !recognised(state)) result = { state, agreed: false, reason: 'unrecognised' };
@@ -193,6 +194,203 @@
     if (state.pending) state.pending = null;
     state.phase = 'day';
     return result;
+  }
+  const PER_COUNCIL = 2;
+  const LIFETIME = 10;
+  const WALK = 2;
+  const PRIDE_NAME = { highcrag: 'Highcrag', bonefield: 'Bonefield', mistwood: 'Mistwood' };
+  let bookCache = null;
+  function scenes() {
+    if (bookCache) return bookCache;
+    if (typeof require === 'function') {
+      try { bookCache = require('../data/events/council-scenes-v2.json'); return bookCache; } catch (e) { /* browser */ }
+    }
+    if (typeof XMLHttpRequest !== 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'data/events/council-scenes-v2.json', false);
+        xhr.send();
+        if (xhr.status === 200 || xhr.status === 0) { bookCache = JSON.parse(xhr.responseText); return bookCache; }
+      } catch (e) { /* missing copy */ }
+    }
+    bookCache = {};
+    return bookCache;
+  }
+  function fill(text, vars) {
+    return String(text || '').replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null && vars[k] !== '' ? String(vars[k]) : m));
+  }
+  function speechApi() {
+    return typeof require === 'function' ? require('./speech') : (typeof self !== 'undefined' ? self.Speech : null);
+  }
+  function ensure(state) {
+    if (!state.councils || typeof state.councils !== 'object' || Array.isArray(state.councils)) state.councils = {};
+    for (const id of PRIDES) {
+      const n = state.councils[id] && state.councils[id].lifetimeDelta;
+      state.councils[id] = { lifetimeDelta: Number.isFinite(n) ? n : 0 };
+    }
+    if (!Array.isArray(state.councils.lore)) state.councils.lore = [];
+    if (!Array.isArray(state.councils.applied)) state.councils.applied = [];
+    return state.councils;
+  }
+  function ledger(state) {
+    if (!state.worldMemory) state.worldMemory = {};
+    if (!Array.isArray(state.worldMemory.ledger)) state.worldMemory.ledger = [];
+    if (!Array.isArray(state.worldMemory.facts)) state.worldMemory.facts = [];
+    return state.worldMemory.ledger;
+  }
+  function addStanding(state, prideId, delta) {
+    if (!delta) return;
+    state.prideRelation = state.prideRelation || {};
+    state.prideRelation[prideId] = clamp((state.prideRelation[prideId] || 0) + delta, -100, 100);
+    const bag = state.worldMemory && state.worldMemory.prideToPlayer;
+    const rec = bag && bag[prideId + '->player'];
+    if (rec) rec.value = state.prideRelation[prideId];
+  }
+  function noteLore(state, id, body) {
+    ensure(state);
+    if (!state.councils.lore.some((row) => row.id === id)) state.councils.lore.push({ id, body });
+  }
+  /**
+   * Stance and walk-out share one ±10 pool per pride.
+   * A shift that would cross the cap is cut to the remaining room.
+   * At the cap the change is 0 and no receipt is written.
+   */
+  function applyPooled(state, prideId, requested, receiptKey, sourceType) {
+    ensure(state);
+    if (state.councils.applied.indexOf(receiptKey) >= 0 || ledger(state).some((row) => row.receiptKey === receiptKey)) {
+      return { applied: 0, duplicate: true, receipt: false, lifetimeDelta: state.councils[prideId].lifetimeDelta };
+    }
+    state.councils.applied.push(receiptKey);
+    const asked = clamp(Number(requested) || 0, -PER_COUNCIL, PER_COUNCIL);
+    const before = state.councils[prideId].lifetimeDelta;
+    const next = clamp(before + asked, -LIFETIME, LIFETIME);
+    const applied = next - before;
+    const name = PRIDE_NAME[prideId] || prideId;
+    const outcomes = scenes().standingOutcomes || {};
+    const zone = (state.region && PRIDE_NAME[state.region]) || 'the Split Rock';
+    if (applied === 0) {
+      const capped = asked !== 0;
+      const line = fill((capped ? outcomes.capped : outcomes.unchanged).narration, { pride: name, zoneName: zone });
+      if (capped) noteLore(state, receiptKey + '/capped', line);
+      return { applied: 0, receipt: false, capped, lifetimeDelta: before, line, delta: 0 };
+    }
+    state.councils[prideId].lifetimeDelta = next;
+    addStanding(state, prideId, applied);
+    ledger(state).push({
+      receiptKey, sourceType: sourceType || 'council_stance', recordKind: 'prideToPlayer',
+      actor: prideId, target: 'player', delta: applied, absDay: state.day || 1
+    });
+    const which = applied > 0 ? outcomes.warmer : outcomes.cooler;
+    const line = fill(which.narration, { pride: name });
+    noteLore(state, receiptKey + '/lore', fill(which.lore, { pride: name, zoneName: zone }));
+    return { applied, receipt: true, capped: false, lifetimeDelta: next, line, delta: applied };
+  }
+  function stanceAsked(choiceId, prideA, prideB) {
+    const asked = {};
+    for (const id of PRIDES) asked[id] = 0;
+    if (choiceId === 'speak_for_a') { asked[prideA] = PER_COUNCIL; asked[prideB] = -PER_COUNCIL; }
+    else if (choiceId === 'speak_for_b') { asked[prideB] = PER_COUNCIL; asked[prideA] = -PER_COUNCIL; }
+    return asked;
+  }
+  function applyChoice(state, choiceId, opts) {
+    opts = opts || {};
+    const seated = (opts.seated || PRIDES).slice();
+    const prideA = opts.prideA || 'highcrag';
+    const prideB = opts.prideB || 'bonefield';
+    const councilId = opts.councilId || ((state.runId || 'run') + '/council/' + seasonOf(state.day));
+    const results = {};
+    if (choiceId === 'leave') {
+      for (const id of seated) results[id] = applyPooled(state, id, -WALK, councilId + '/walk/' + id, 'council_walk_out');
+      return { results, seated, walked: true };
+    }
+    const asked = stanceAsked(choiceId, prideA, prideB);
+    for (const id of seated) results[id] = applyPooled(state, id, asked[id] || 0, councilId + '/stance/' + id, 'council_stance');
+    return { results, seated, walked: false };
+  }
+  function spoken(state, path, slot) {
+    const data = scenes();
+    const Speech = speechApi();
+    const row = data.speechLocations && data.speechLocations[path];
+    const npc = state.npcs && state.npcs[slot];
+    const vars = { name: npc && npc.name || '', catName: npc && npc.name || '', playerName: state.cat && state.cat.name || '' };
+    if (!row) return { text: '', beat: '' };
+    const resolved = Speech ? Speech.resolve(data, path, npc && npc.personality, vars, null) : { text: row.base };
+    const focus = row.focusTrait;
+    const band = Speech && npc && npc.personality ? Speech.band(npc.personality[focus]) : null;
+    const key = band === 'high' || band === 'low' ? band : 'base';
+    const beat = row.beat && (row.beat[key] || row.beat.base) || '';
+    return { text: resolved.text || row.base || '', beat: fill(beat, vars), band: key };
+  }
+  function bindings(state) {
+    return {
+      zoneName: 'the Split Rock',
+      prideA: 'Highcrag', prideB: 'Bonefield', thirdPride: 'Mistwood',
+      leaderA: state.npcs && state.npcs.hc01 && state.npcs.hc01.name || 'Highcrag',
+      leaderB: state.npcs && state.npcs.bf01 && state.npcs.bf01.name || 'Bonefield',
+      name: state.cat && state.cat.name || '',
+      playerName: state.cat && state.cat.name || '',
+      kindLabel: 'a border deal',
+      stanceWord: 'neutral',
+      seasonName: state.season || 'spring'
+    };
+  }
+  function openScene(state) {
+    if (!mayAttend(state)) return { error: 'loner' };
+    ensure(state);
+    const data = scenes();
+    const off = data.offlineFallback || {};
+    const vars = bindings(state);
+    const beats = [];
+    for (const step of off.start || []) {
+      if (step.kind === 'narration' && step.text) beats.push({ kind: 'narration', text: fill(step.text, vars) });
+      else if (step.speechPath) {
+        const line = spoken(state, step.speechPath, step.slot);
+        if (line.beat) beats.push({ kind: 'narration', text: line.beat });
+        if (line.text) beats.push({ kind: 'speech', speakerId: step.slot, speaker: (state.npcs[step.slot] && state.npcs[step.slot].name) || '', text: line.text });
+      }
+    }
+    if (!beats.length) beats.push({ kind: 'narration', text: fill((off.start && off.start[0] && off.start[0].text) || 'The leaders are seated.', vars) });
+    const set = data.choiceSets && data.choiceSets.ai_ai_recognised;
+    const choices = ((set && set.options) || []).map((opt) => ({ id: opt.id, label: fill(opt.label, vars) }));
+    state.pending = {
+      eventId: off.id || 'council.offline.complete',
+      title: 'Council',
+      council: true,
+      leaderCouncil: true,
+      beats, beatIndex: 0, choices,
+      seated: PRIDES.slice(),
+      prideA: 'highcrag',
+      prideB: 'bonefield'
+    };
+    state.phase = 'event';
+    return { state };
+  }
+  function finishLeader(state, choiceId) {
+    const pending = state.pending;
+    if (!pending) return { state };
+    if (pending.resolved || choiceId === 'continue' || choiceId == null) {
+      state.pending = null;
+      state.phase = 'day';
+      return { state, closed: true };
+    }
+    const outcome = applyChoice(state, choiceId, {
+      seated: pending.seated,
+      prideA: pending.prideA,
+      prideB: pending.prideB,
+      councilId: (state.runId || 'run') + '/council/' + seasonOf(state.day)
+    });
+    const vars = bindings(state);
+    const lines = [];
+    if (outcome.walked) lines.push(fill((scenes().standingOutcomes.walkOut || {}).narration, vars));
+    for (const id of outcome.seated) if (outcome.results[id] && outcome.results[id].line) lines.push(outcome.results[id].line);
+    pending.beats = lines.map((text) => ({ kind: 'narration', text }));
+    pending.beatIndex = 0;
+    pending.choices = [];
+    pending.summary = '';
+    pending.choiceId = choiceId;
+    pending.resolved = true;
+    state.phase = 'eventResult';
+    return { state, outcome };
   }
   function latch(state, spec) {
     if (!state.records) state.records = {};
@@ -253,6 +451,7 @@
   return {
     PRIDES, CANDIDATE, HOSTILE, RECOGNISE_ABOVE, acceptChance, seasonOf, mayAttend, recognised,
     open, agenda, strike, keep, breach, resolve, agreements, relation, shift,
-    scan, noteFight, offerEarly, latch
+    scan, noteFight, offerEarly, latch,
+    PER_COUNCIL, LIFETIME, WALK, scenes, ensure, applyPooled, applyChoice, spoken, openScene, bindings
   };
 });

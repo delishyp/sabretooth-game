@@ -325,7 +325,7 @@
     function resultText() {
       const p = s.pending; if (!p) return '';
       if (p.bond) return p.summary || (p.lines && p.lines[0] && p.lines[0].text) || 'bond';
-      const e = E.eventById(p.eventId); if (p.hostile) return '';
+      const e = E.eventById(p.eventId); if (p.hostile || !e) return '';
       if (p.eventId === 'slice.meeting.loner' && p.choiceId === 'greet' && p.catId && E.lonerGreetText) return E.lonerGreetText(s.npcs[p.catId]);
       const c = e.choices.find((x) => x.id === p.choiceId); return c && c.text ? fill(c.text) : '';
     }
@@ -409,6 +409,7 @@
       if (id === 'map') return t('home.nav.map');
       if (id === 'deeds') return (Deeds && Deeds.copy.screen && Deeds.copy.screen.title) || 'Deeds';
       if (id === 'reputation') return (Reputation && Reputation.store && 'Reputation') || 'Reputation';
+      if (id === 'councils') return 'Councils';
       if (id === 'breeding') return t('home.nav.breeding');
       if (id === 'market') return t('home.nav.market');
       if (id === 'inventory') return t('home.nav.inventory');
@@ -458,11 +459,12 @@
         market: '<path d="M4 9h13l-3-3"/><path d="M20 15H7l3 3"/>',
         map: '<path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"/>',
         deeds: '<path d="M7 4h10v16l-5-3-5 3z"/>',
-        reputation: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5 6.9 19.2l1-5.7-4.1-4 5.7-.8z"/>'
+        reputation: '<path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5 6.9 19.2l1-5.7-4.1-4 5.7-.8z"/>',
+        councils: '<path d="M5 16c0-2 1.4-3.5 3.2-3.5S11.4 14 11.4 16"/><circle cx="8.2" cy="9.2" r="1.6"/><path d="M12.6 16c0-2 1.4-3.5 3.2-3.5S19 14 19 16"/><circle cx="15.8" cy="9.2" r="1.6"/>'
       };
       const held = sceneOpen();
-      const openOrder = ['home', 'wilderness', 'map', 'cats', 'lore'];
-      const lockedOrder = ['pride', 'reputation', 'inventory', 'breeding', 'den', 'market', 'map'];
+      const openOrder = ['home', 'wilderness', 'map', 'cats', 'lore', 'councils'];
+      const lockedOrder = ['pride', 'reputation', 'inventory', 'breeding', 'den', 'market', 'map', 'councils'];
       const ranked = HomeScene.NAV.map((item) => ({ item, state: Unlocks ? Unlocks.displayState(s, item.id) : 'open' }));
       const openItems = ranked.filter((row) => row.state !== 'locked').sort((a, b) => (openOrder.indexOf(a.item.id) < 0 ? 99 : openOrder.indexOf(a.item.id)) - (openOrder.indexOf(b.item.id) < 0 ? 99 : openOrder.indexOf(b.item.id)));
       const lockedItems = ranked.filter((row) => row.state === 'locked').sort((a, b) => (lockedOrder.indexOf(a.item.id) < 0 ? 99 : lockedOrder.indexOf(a.item.id)) - (lockedOrder.indexOf(b.item.id) < 0 ? 99 : lockedOrder.indexOf(b.item.id)));
@@ -640,6 +642,15 @@
         const feed = ph('ui.reputation.feed');
         if (feed) root.append(el('p', 'rep-feed', feed));
         p.append(root);
+      } else if (view === 'councils' && Councils) {
+        const screen = el('div', 'council-screen');
+        const book = Councils.scenes();
+        screen.append(el('h2', 'home-panel-title', 'Councils'));
+        const seated = Councils.mayAttend(s);
+        screen.append(el('p', 'council-line', seated ? 'The leaders are ready to sit.' : 'You are not seated at a council.'));
+        const label = (book.ui && book.ui.goToCouncil && book.ui.goToCouncil.label) || 'Go to the council';
+        screen.append(btn(label, { g: 'leaderCouncil' }, { disabled: !seated }));
+        p.append(screen);
       } else if (view === 'lore') {
         const bookCopy = Tutorial && Tutorial.copy && Tutorial.copy.loreBook;
         const entries = (Tutorial && s.tutorial && Tutorial.view(s, tutorialFacts()).guide) || [];
@@ -1531,7 +1542,7 @@
         const box = $('#game-event'); const p = p0;
         box.hidden = false; $('#game-main').classList.toggle('dimmed', true);
         box.textContent = '';
-        const card = el('div', 'event-card has-beats');
+        const card = el('div', 'event-card has-beats' + (p.leaderCouncil ? ' is-council' : ''));
         card.dataset.event = p.eventId || '';
         box.append(card);
         maybeFightBars(card);
@@ -1564,7 +1575,7 @@
       box.hidden = !show; $('#game-main').classList.toggle('dimmed', show);
       if (!show) return;
       box.textContent = ''; const e = E.eventById(p.eventId);
-      const card = el('div', 'event-card'); box.append(card);
+      const card = el('div', 'event-card' + (p && p.leaderCouncil ? ' is-council' : '')); box.append(card);
       maybeFightBars(card);
       const npc = p.catId && s.npcs[p.catId];
       const prose = el('div', 'event-beat');
@@ -1852,6 +1863,11 @@
       if (d.g === 'deedFilter') { view = 'lore'; render(); return; }
       if (d.g === 'councilSit' && Councils) {
         const opened = Councils.open(s);
+        if (!opened.error) render();
+        return;
+      }
+      if (d.g === 'leaderCouncil' && Councils) {
+        const opened = Councils.openScene(s);
         if (!opened.error) render();
         return;
       }

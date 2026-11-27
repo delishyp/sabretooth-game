@@ -1009,3 +1009,11 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .encounter-c
   overflow: visible !important;
   align-self: stretch !important;
 }
+.event-card.is-council .event-text,
+.event-card.is-council p,
+.event-card.is-council .event-choices button,
+.council-screen,
+.council-screen p,
+.council-screen button {
+  font-size: 18px !important;
+}
