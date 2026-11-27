@@ -761,6 +761,7 @@
         summary: family.results[which].summary,
         cast: { B: npc, C: rival, rival, pride: npc.faction },
         day, showPortrait: true,
+        choices: won ? null : [],
         next: won ? matesScene(s, npc, deps) : null
       });
       event.rivalId = rival.id;

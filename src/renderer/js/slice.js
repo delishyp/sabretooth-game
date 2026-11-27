@@ -1036,7 +1036,15 @@
       if (!ev && !s.dead && !s.travel && !ctx.slotTaken) ev = rollMeeting(s, rep);
       if (s.records) s.records._huntOk = false;
       if (!s.dead && !s.travel) shareKill(s, rep);
-      if (!s.dead && !s.travel) teachMateDenFacts(s, ctx);
+      if (!s.dead && !s.travel) teachMateDenFacts(s, ctx, rep);
+      if (StorytellerPrompt && !s.dead && !s.travel && s.records) {
+        if (!Array.isArray(s.records.regionCallbacksSaid)) s.records.regionCallbacksSaid = [];
+        for (const row of StorytellerPrompt.regionCallbackLines(s)) {
+          if (s.records.regionCallbacksSaid.includes(row.factId)) continue;
+          s.records.regionCallbacksSaid.push(row.factId);
+          rep.push({ k: 'regionCallback', text: row.line });
+        }
+      }
       overnight(s, rep, ctx.rested);
       if (Pair.enabled && !s.dead && !s.travel && s.records) {
         const own = W.ownership(s.map.claims, s.region);
@@ -1383,13 +1391,20 @@
       return path.indexOf('region_moment/') === 0;
     }
     /** The mate learns the player's region facts. Other cats still learn only when told. */
-    function teachMateDenFacts(s, ctx) {
+    function teachMateDenFacts(s, ctx, rep) {
       const mate = mateSharesDen(s, ctx);
       if (!mate || !s.worldMemory || !s.worldMemory.knowledge) return;
       for (const factId of Object.keys(s.worldMemory.knowledge)) {
         if (!isRegionMomentId(s, factId)) continue;
         if (!WM.knowsFact(s, 'player', factId) || WM.knowsFact(s, mate.id, factId)) continue;
         WM.disclose(s, { factId, toId: mate.id, sourceEventId: 'den.share' });
+      }
+      if (!StorytellerPrompt || !s.records) return;
+      if (!Array.isArray(s.records.mateRegionSaid)) s.records.mateRegionSaid = [];
+      for (const row of StorytellerPrompt.mateRegionLines(s)) {
+        if (s.records.mateRegionSaid.includes(row.factId)) continue;
+        s.records.mateRegionSaid.push(row.factId);
+        if (rep) rep.push({ k: 'mateRegion', text: row.line });
       }
     }
     function choose(s, action) {

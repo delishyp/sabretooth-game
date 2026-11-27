@@ -735,6 +735,12 @@
             {
               "kind": "narration",
               "text": "You lost the challenge."
+            },
+            {
+              "kind": "line",
+              "text": "“You lost. Are you all right? Go and rest.”",
+              "speaker": "B",
+              "speechId": "m2.mate_rival|results.lost.beats.2"
             }
           ],
           "summary": "You lost the challenge against {rivalName}.",
@@ -1395,7 +1401,12 @@
         "focusTrait": "curiosity",
         "low": "Well? What do you want?",
         "baseline": "What are you asking of the pride?",
-        "high": "You've come to me together. What is it you want?"
+        "high": "You've come to me together. What is it you want?",
+        "byCat": {
+          "hc01": "You've come to ask me something. Say it plainly.",
+          "bf01": "You want something from me. What is it?",
+          "mw01": "What is it you need from Mistwood?"
+        }
       },
       {
         "speechId": "m2.leader_approval|results.approved.beats.0",
@@ -1405,7 +1416,12 @@
         "focusTrait": "loyalty",
         "low": "All right. The pride accepts it.",
         "baseline": "Yes. The pride will accept you as mates.",
-        "high": "Yes. You have the pride's blessing, both of you."
+        "high": "Yes. You have the pride's blessing, both of you.",
+        "byCat": {
+          "hc01": "Yes. The crag accepts you as mates. Keep our law.",
+          "bf01": "Yes. Take your mate, and don't make me regret it.",
+          "mw01": "Yes. Mistwood will be glad of it. We could use some good news."
+        }
       },
       {
         "speechId": "m2.leader_approval|results.refused.beats.0",
@@ -1415,7 +1431,12 @@
         "focusTrait": "aggression",
         "low": "I'm sorry. I can't give you that this season.",
         "baseline": "No. Not this season, so don't ask me again.",
-        "high": "No. And don't ask me again this season."
+        "high": "No. And don't ask me again this season.",
+        "byCat": {
+          "hc01": "No. Not this season. I won't change my mind, so don't ask again.",
+          "bf01": "No. Not this season, and I don't want to hear it again.",
+          "mw01": "No. Not this season. I'm sorry, but asking again won't change it."
+        }
       },
       {
         "speechId": "m2.mate_rival|beats.1",
@@ -1425,7 +1446,40 @@
         "focusTrait": "aggression",
         "low": "I'm sorry, but I'm courting {catName} too. I have to challenge you.",
         "baseline": "You're courting {catName}? So am I. Let's settle this.",
-        "high": "You think you can court {catName}? Prove it. Come on."
+        "high": "You think you can court {catName}? Prove it. Come on.",
+        "byCat": {
+          "hc01": "You're courting {catName}? So am I. I'm not stepping aside for you.",
+          "hc02": "{catName}? I've had my eye on that cat longer than you. Let's settle it.",
+          "hc03": "I'm courting {catName} too. Let's do this properly, no tricks.",
+          "hc04": "Wait. You're courting {catName}? So am I, and I'm not backing down this time.",
+          "hc05": "I've seen you watching {catName}. I'm courting that cat too. Come on, then.",
+          "hc06": "I don't like fighting, but I'm courting {catName} too. Let's settle it and be done.",
+          "hc07": "You're courting {catName}? So am I. We'll settle it by the law, right here.",
+          "hc08": "Don't look so surprised. Old as I am, I'm courting {catName} too. Let's settle it.",
+          "bf01": "You're courting {catName}? On my field? Then you'll have to go through me.",
+          "bf02": "{catName}'s worth fighting for, and I'm courting that cat too. Let's go.",
+          "bf03": "I'm courting {catName}. You'll have to take me down if you want a chance.",
+          "bf04": "I'm courting {catName} too. Bonefield settles this the usual way.",
+          "bf05": "I'm courting {catName} as well. Let's keep this clean, no noise.",
+          "bf06": "I've noticed how you look at {catName}. I'm courting that cat too. Let's settle it.",
+          "bf07": "I've backed away from a fight before and regretted it. I'm courting {catName}, so not today.",
+          "mw01": "I didn't expect this, but I'm courting {catName} too. We'll settle it.",
+          "mw02": "I'm courting {catName} too. I won't step aside without a fight.",
+          "mw03": "You're courting {catName}? So am I. Scars or not, I'll fight you for it.",
+          "mw04": "I'm courting {catName} too. I don't trust you near that cat, so let's settle it.",
+          "mw05": "I'm courting {catName} too. Let's settle it here, on the trail.",
+          "mw06": "Oh, you're courting {catName}? So am I. I suppose we'd better settle it.",
+          "mw07": "I can't see you well, but I know why you're here. I'm courting {catName} too.",
+          "ln01": "I'm courting {catName} too. I've lost enough. I won't lose this without a fight.",
+          "ln02": "I'm courting {catName} too. I'm tired of waiting for things, so let's settle it.",
+          "ln03": "Courting {catName}? So am I. Let's see what you've got.",
+          "ln04": "I'm courting {catName} too. Let's settle it quietly and quickly.",
+          "ln05": "I'm courting {catName}, and I don't wait around. Let's settle it now.",
+          "ln06": "I'm old, not finished. I'm courting {catName} too, so let's settle it.",
+          "ln07": "I'm courting {catName}. I don't want trouble, but I won't step aside.",
+          "ln08": "I'm courting {catName} too. I'm not letting anybody else slip away from me.",
+          "ln09": "I'm courting {catName} too. I've run from too much already. Not this."
+        }
       },
       {
         "speechId": "m2.mate_rival|results.won.beats.1",
@@ -1435,7 +1489,40 @@
         "focusTrait": "boldness",
         "low": "All right, you win. It's still up to {catName}, though.",
         "baseline": "Fine. You won. But {catName} still gets to choose.",
-        "high": "Fine, you won fair. {catName} still chooses, not you."
+        "high": "Fine, you won fair. {catName} still chooses, not you.",
+        "byCat": {
+          "hc01": "Enough. You won. {catName} can choose, and I'll abide by it.",
+          "hc02": "Fine, you beat me. Don't get used to it. {catName} still decides.",
+          "hc03": "You won. Fair's fair. It's {catName}'s choice now.",
+          "hc04": "All right, you won. I should've known. {catName} still gets a say, though.",
+          "hc05": "You won. I didn't see that coming, and I see most things. {catName} decides now.",
+          "hc06": "That's enough. You won. Let {catName} choose, and let's have no more of this.",
+          "hc07": "You won, and I'll keep to that. {catName} chooses.",
+          "hc08": "You won, and I'm too old to sulk about it. {catName} still chooses.",
+          "bf01": "You won. Don't think I'll forget it. {catName} chooses now.",
+          "bf02": "You won. I mean it, you won. {catName} still chooses.",
+          "bf03": "You won. Wasn't expecting that. {catName} gets to choose, though.",
+          "bf04": "You won, so I'll back off. {catName} still decides.",
+          "bf05": "Clean win. I'll give you that. {catName} chooses now.",
+          "bf06": "You won. I noticed that too. {catName} still has the say.",
+          "bf07": "You won fairly. At least I didn't back away. {catName} chooses.",
+          "mw01": "You won. I can live with that. {catName} chooses.",
+          "mw02": "You won. If {catName} picks you, look after that cat.",
+          "mw03": "You won. I'll get over it. {catName} still chooses.",
+          "mw04": "You won. I still don't trust you, but {catName} can choose.",
+          "mw05": "You won. All right. {catName} gets to choose.",
+          "mw06": "You won! I mean, I lost, but it's fine. {catName} still chooses.",
+          "mw07": "You won. I felt it before I saw it. {catName} chooses now.",
+          "ln01": "You won. I've lost worse, and with less grace. {catName} chooses.",
+          "ln02": "You won. Fine. {catName} still gets to choose.",
+          "ln03": "You won. For now. {catName} chooses, not you.",
+          "ln04": "You won. Good, it's over. {catName} decides.",
+          "ln05": "You won. Fair enough. {catName} chooses, and I'll be on my way.",
+          "ln06": "You won. I'd rather not talk about it. {catName} still chooses.",
+          "ln07": "You won. I'll leave it there. {catName} chooses.",
+          "ln08": "You won. I'll go back to the river. {catName} chooses.",
+          "ln09": "You won. At least I didn't run. {catName} still chooses."
+        }
       },
       {
         "speechId": "m2.mates_confirmed|beats.1",
@@ -1445,7 +1532,40 @@
         "focusTrait": "loyalty",
         "low": "So we're mates now. I'm choosing this, you know.",
         "baseline": "So we're mates now. You and me.",
-        "high": "Mates, then. I'm staying right beside you."
+        "high": "Mates, then. I'm staying right beside you.",
+        "byCat": {
+          "hc01": "So we're mates. The crag will have to get used to it, and so will I.",
+          "hc02": "Mates, then. Don't tell anyone I'm smiling.",
+          "hc03": "We're mates now. Good. I'm not much for speeches, so that's all you get.",
+          "hc04": "You picked me? Really? Then we're mates, and I'm still getting used to saying it.",
+          "hc05": "Mates. I knew I'd catch you sooner or later.",
+          "hc06": "So we're mates. Come and rest by me when the day's done, will you?",
+          "hc07": "We're mates now. I don't say much, but I won't forget this.",
+          "hc08": "Mates, at my age. I'll keep your name close, with all the others I carry.",
+          "bf01": "So you're my mate. Walk beside me, not behind me.",
+          "bf02": "Mates. I wasn't sure I'd ever say that and mean it.",
+          "bf03": "We're mates now. I'd better bring down something big to mark it.",
+          "bf04": "So we're mates. I'll be honest, I didn't expect this. I'm glad, though.",
+          "bf05": "Mates, then. Good. Quiet and steady suits me fine.",
+          "bf06": "You noticed me when most don't. So, mates? I like the sound of that.",
+          "bf07": "Mates. I thought those days were behind me. Seems I was wrong.",
+          "mw01": "We're mates now. It's been a long time since I let myself have something good.",
+          "mw02": "Mates. I'll look out for you. It's what I do.",
+          "mw03": "You'd have me for a mate, even with these scars? Then we're mates.",
+          "mw04": "We're mates now. I don't trust easily, so don't make me sorry.",
+          "mw05": "Mates. Good. There's an old trail I've been wanting to show you.",
+          "mw06": "We're mates! Sorry, I'm just happy. We're mates.",
+          "mw07": "So we're mates. I can't see you well, but I know your step now.",
+          "ln01": "Mates. I didn't think anyone would choose an old exile. Thank you.",
+          "ln02": "So you came. You actually came. We're mates now.",
+          "ln03": "We're mates now. Fine. Stay out of my way and we'll do well.",
+          "ln04": "Mates. Quiet ones, I hope. I've had enough noise for a lifetime.",
+          "ln05": "Mates, then. You'll have to keep up. I don't stay put long.",
+          "ln06": "Mates. Well. I'll take the warm side of the den, if you don't mind.",
+          "ln07": "We're mates. I won't ask you for much. Just don't ask me about before.",
+          "ln08": "Mates. Sit by the river with me sometimes, will you?",
+          "ln09": "We're mates now. Maybe with you beside me, I can face Mistwood again."
+        }
       },
       {
         "speechId": "m2.pride_founded|beats.1",
@@ -1455,7 +1575,40 @@
         "focusTrait": "curiosity",
         "low": "Our own pride, then. {newPrideName}.",
         "baseline": "Our own pride. {newPrideName}. I like the sound of that.",
-        "high": "{newPrideName}. Our own pride! I want to see every bit of this place."
+        "high": "{newPrideName}. Our own pride! I want to see every bit of this place.",
+        "byCat": {
+          "hc01": "{newPrideName}. A new line, and we're the start of it.",
+          "hc02": "{newPrideName}. Nobody gets to say I didn't earn this.",
+          "hc03": "Our own pride. Now we'd better find somewhere with good hunting.",
+          "hc04": "{newPrideName}. A pride I actually fit in. I like it.",
+          "hc05": "Our own pride. I'll hunt for it. You'll see.",
+          "hc06": "{newPrideName}. Let's keep it peaceful, all right?",
+          "hc07": "Our own pride. Then it needs a law, and I'll keep it.",
+          "hc08": "{newPrideName}. I'll start learning its names today.",
+          "bf01": "{newPrideName}. Ours. Let anyone come and try to take it.",
+          "bf02": "Our own pride. I didn't have to fight anyone for a place in it. Strange.",
+          "bf03": "{newPrideName}. It'll be known for its hunters, you mark me.",
+          "bf04": "Our own pride. Let's make it strong.",
+          "bf05": "{newPrideName}. No shouting in this pride. That's my rule.",
+          "bf06": "{newPrideName}. And in this pride, everybody gets heard.",
+          "bf07": "Our own pride. I never thought I'd see a new pride start. I'm glad it's ours.",
+          "mw01": "{newPrideName}. I've held a broken pride. I hope this is easier to hold.",
+          "mw02": "Our own pride. I'll keep it safe. That much I know how to do.",
+          "mw03": "{newPrideName}. Nobody here knew me before the scars. I like that.",
+          "mw04": "Our own pride. Small and hidden suits me fine.",
+          "mw05": "{newPrideName}. Every pride needs its trails. I'll start learning ours.",
+          "mw06": "{newPrideName}! I hope it's a pride that laughs a lot.",
+          "mw07": "Our own pride. I'm old for this, but I wouldn't miss it.",
+          "ln01": "{newPrideName}. Somewhere nobody judges me for what happened on the crag. Thank you.",
+          "ln02": "Our own pride. Somewhere I belong, at last.",
+          "ln03": "{newPrideName}. Good. Nobody's taking this off us.",
+          "ln04": "{newPrideName}. Quiet, I hope. Please.",
+          "ln05": "Our own pride. Don't expect me to sit at the den all day, though.",
+          "ln06": "Our own pride. Well, nobody has to carry me home now. I'm already here.",
+          "ln07": "{newPrideName}. I'll do my share. Don't expect speeches.",
+          "ln08": "Our own pride. Can it be somewhere near the river?",
+          "ln09": "{newPrideName}. I'll miss Mistwood some days, but this pride is ours."
+        }
       },
       {
         "speechId": "m2.loner_group|results.meet.beats.1",
@@ -1465,7 +1618,18 @@
         "focusTrait": "curiosity",
         "low": "What do you want with us?",
         "baseline": "You're on our trail. What do you want?",
-        "high": "Where have you come from? I'd like to hear."
+        "high": "Where have you come from? I'd like to hear.",
+        "byCat": {
+          "ln01": "You've been following us. Why?",
+          "ln02": "You're on our trail. Are you looking for somebody?",
+          "ln03": "Why are you on our trail? Talk.",
+          "ln04": "Easy. You're on our trail. What do you want?",
+          "ln05": "Following us? We're heading out. What do you want?",
+          "ln06": "Somebody's behind us. Oh, it's you. What do you want?",
+          "ln07": "You've been on our trail. What do you want?",
+          "ln08": "You're following us. Have you come from the river?",
+          "ln09": "You're on our trail. You're not from Mistwood, are you?"
+        }
       },
       {
         "speechId": "m2.loner_group|results.join.beats.0",
@@ -1495,7 +1659,12 @@
         "focusTrait": "loyalty",
         "low": "All right. You can stay with us.",
         "baseline": "You can stay. Come on, walk with us.",
-        "high": "You're with us now. Welcome to {originPrideName}."
+        "high": "You're with us now. Welcome to {originPrideName}.",
+        "byCat": {
+          "hc01": "You can stay. Learn our law and keep it.",
+          "bf01": "Fine. You can stay. Pull your weight.",
+          "mw01": "Stay. Mistwood could use another cat. Come on."
+        }
       },
       {
         "speechId": "m2.pride_admission|results.refused.beats.0",
@@ -1505,7 +1674,55 @@
         "focusTrait": "aggression",
         "low": "I'm sorry. There's no place for you here right now.",
         "baseline": "No. There's no place for you here.",
-        "high": "No. You're not joining us."
+        "high": "No. You're not joining us.",
+        "byCat": {
+          "hc01": "No. The crag has no place for you.",
+          "bf01": "No. Bonefield doesn't take strays. Go on.",
+          "mw01": "No. I'm sorry. We can't take you in."
+        }
+      },
+      {
+        "speechId": "m2.mate_rival|results.lost.beats.2",
+        "familyId": "m2.mate_rival",
+        "location": "results.lost.beats.2",
+        "speakerSlot": "B",
+        "focusTrait": "sociability",
+        "low": "You lost. Go and rest.",
+        "baseline": "You lost. Are you all right? Go and rest.",
+        "high": "Oh, you lost. Come here. Are you all right?",
+        "byCat": {
+          "hc01": "You fought for me. I won't forget that.",
+          "hc02": "It happens to all of us. You should go and rest.",
+          "hc03": "That was a fair fight. You just came off worse. Rest up.",
+          "hc04": "Are you all right? Don't answer that. Just go and rest.",
+          "hc05": "You lost, but you didn't run. I noticed.",
+          "hc06": "I hate seeing cats fight over me. Are you all right?",
+          "hc07": "You lost fairly. That counts for something with me.",
+          "hc08": "Well, you gave me more excitement than I'm used to. Go and rest.",
+          "bf01": "On this field, that's how it goes. Get up when you can.",
+          "bf02": "You stood up to it. Go on, rest.",
+          "bf03": "Not your day. You'll heal.",
+          "bf04": "I won't pretend that didn't matter here. Are you hurt?",
+          "bf05": "You fought clean and lost. I'd still rather that than a dirty win.",
+          "bf06": "I saw you try. I always see.",
+          "bf07": "I've lost fights too. You'll get up again.",
+          "mw01": "That's hard to watch. Go and rest, will you?",
+          "mw02": "Keep your head down for a bit, will you? You need to heal.",
+          "mw03": "Believe me, that isn't the end of you.",
+          "mw04": "You look shaken. Go somewhere quiet and rest.",
+          "mw05": "Go and rest. I'll find you later and we'll talk.",
+          "mw06": "Oh, are you all right? I'm sorry. I'm so sorry.",
+          "mw07": "I heard how it went for you. Rest now.",
+          "ln01": "You lost, but you kept your dignity. I liked seeing that.",
+          "ln02": "You lost. I don't know what to say. I'm sorry.",
+          "ln03": "Shame. You'd better go and heal.",
+          "ln04": "Come away from the noise. You need rest.",
+          "ln05": "Shake it off. You can walk with me a while.",
+          "ln06": "Oh, dear. Are you hurt? Go and lie down somewhere warm.",
+          "ln07": "Don't dwell on it, you hear me? I won't.",
+          "ln08": "You look worn out. Go and drink, and rest a while.",
+          "ln09": "You lost, but you stayed and fought. That matters to me."
+        }
       }
     ],
     "fiveTraitActionCues": {

@@ -1092,6 +1092,7 @@
         case 'drink': return (s.report && E.arrivalText(s.report.region, 'drink')) || t('game.report.drink');
         case 'tarEscaped': case 'starving': case 'parched': case 'stuck': case 'lost': return t(`game.report.${l.k}`);
         case 'watch': return 'You watched the land from a vantage.';
+        case 'regionCallback': case 'mateRegion': return l.text || '';
         case 'scout': return l.text;
         default: return null;                              // meetLoner: the event itself is the report
       }

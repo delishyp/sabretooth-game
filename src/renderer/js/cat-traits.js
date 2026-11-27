@@ -501,14 +501,13 @@
     if (row.scene !== 'first' && budget.seasonByCat[seasonKey]) return { line: null, budget, affinity: 0 };
     const name = row.speakerName || '';
     let line = null;
-    if (row.mode !== 'offline') {
-      for (const id of row.knownTraits || []) {
-        const spec = copy.traits[id];
-        if (!spec) continue;
-        const list = row.scene === 'repeat' ? spec.repeat_meeting : spec.reactions;
-        line = pickLine(list, row.personality, name);
-        if (line) break;
-      }
+    // Trait reactions play in every storyteller mode, including offline.
+    for (const id of row.knownTraits || []) {
+      const spec = copy.traits[id];
+      if (!spec) continue;
+      const list = row.scene === 'repeat' ? spec.repeat_meeting : spec.reactions;
+      line = pickLine(list, row.personality, name);
+      if (line) break;
     }
     if (!line) {
       for (const tag of row.tags || []) {
