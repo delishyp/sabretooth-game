@@ -360,7 +360,17 @@ body:has(.screen[data-screen="load"].active) #bg {
   background: transparent !important;
   overflow: hidden !important;
 }
-.screen[data-screen="game"] > .home-landscape {
+.screen[data-screen="game"] > .home-scene {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.screen[data-screen="game"] > .home-landscape,
+.screen[data-screen="game"] > .home-scene .home-landscape {
   position: absolute !important;
   left: 0 !important;
   top: 0 !important;
@@ -376,7 +386,9 @@ body:has(.screen[data-screen="load"].active) #bg {
   pointer-events: none !important;
 }
 .screen[data-screen="game"][data-mode="book"] > .home-landscape,
-.screen[data-screen="game"][data-mode="days-end"] > .home-landscape { filter: brightness(0.5); }
+.screen[data-screen="game"][data-mode="book"] > .home-scene .home-landscape,
+.screen[data-screen="game"][data-mode="days-end"] > .home-landscape,
+.screen[data-screen="game"][data-mode="days-end"] > .home-scene .home-landscape { filter: brightness(0.5); }
 .screen[data-screen="game"] #game-main {
   position: absolute !important;
   left: 50% !important;

@@ -53,8 +53,9 @@ test('every background path referenced in the renderer is packaged', () => {
       if (background) found.add(rel);
     }
   }
-  assert.ok(found.has('assets/game/home-landscape.png'));
-  assert.ok(found.has('assets/menu/background.jpg'));
+  assert.ok(found.has('assets/game/home-landscape.webp'));
+  assert.ok(found.has('assets/game/home-landscape-1440.webp'));
+  assert.ok(found.has('assets/menu/background.webp'));
   assert.ok(!found.has('assets/menu/night/work/bg1920.png'));
   for (const rel of found) {
     assert.ok(ships(rel), rel);
