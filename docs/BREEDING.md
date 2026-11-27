@@ -18,6 +18,16 @@ Personality is the parents' average plus a small random swing. Aptitude is rolle
 
 A version 1 save becomes version 2. `genes.v` is rewritten to 2. `birthAbsDay` counts back from the current season. Older saves still load.
 
+## Play
+
+The day tick in `slice.js` calls `Breeding.onDay`. A mated pair conceives on the first spring day they are together, if the pride is at or under capacity. Birth is 20 days later. Ages advance at each season boundary. The overcrowding warning uses Saga's `overcrowded` lines. AI prides tick on that same season boundary: a litter is conceived only when it still fits, and a female with no unrelated mate at home can pair across prides. The male moves.
+
+The Breeding screen shows the pregnancy, the cubs, and the warning. Story, Standard, and Sim all use these hooks. The spoken lines are the offline pack in `breeding-lines-v0.1b.json`.
+
+`litter_lost` plays before the heir handoff or `player_no_heir`. `story_retire` is its own card and does not use a death line.
+
+`Breeding.simulate` runs this engine for seeded worlds and prints the DELTA-v0.1f figures.
+
 ## Lines
 
 `Breeding.momentLines` fills Saga's lines. `{needsWord}` is the worst need that is critical or empty, in the order worn, thirsty, hungry, tired, cold, and otherwise well enough. `{regionWord}` may be omitted. A sentence never starts with a token. `litter_lost` plays before the normal heir or permadeath flow. `story_retire` is its own hook and does not use a death line. Online, local, and offline paths are the nested keys in the line pack, including `offlineFallback`.

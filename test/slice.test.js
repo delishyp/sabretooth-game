@@ -142,8 +142,11 @@ test('injury: second injury of the same tier raises it to serious; serious block
 
 test('death: starvation from day 3 at empty hunger kills, summary records the cause', () => {
   const s = E.newRun({ mainCat: cat, seed: 8 }); s.needs = { health: 10, hunger: 0, thirst: 100, energy: 100 }; s.counters.starving = 2;
-  const r = E.act(s, { type: 'rest' }).state;
-  assert.ok(r.over); assert.strictEqual(r.dead.cause, 'starvation');
+  let r = E.act(s, { type: 'rest' }).state;
+  assert.strictEqual(r.pending.eventId, 'breeding.player_no_heir');
+  assert.strictEqual(r.dead.cause, 'starvation');
+  for (let i = 0; i < 6 && !r.over; i++) r = E.act(r, { type: r.phase === 'eventResult' ? 'continue' : 'advanceBeat' }).state;
+  assert.ok(r.over);
   const sum = E.summary(r); assert.strictEqual(sum.survived, false); assert.strictEqual(sum.daysSurvived, 1);
   assert.strictEqual(E.act(r, { type: 'rest' }).error, 'over');
 });

@@ -23,7 +23,7 @@
     { id: 'wilderness', implemented: true },
     { id: 'cats', implemented: true },
     { id: 'map', implemented: true },
-    { id: 'breeding', implemented: false },
+    { id: 'breeding', implemented: true },
     { id: 'market', implemented: false },
     { id: 'inventory', implemented: false },
     { id: 'lore', implemented: true },

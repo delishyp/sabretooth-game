@@ -178,3 +178,58 @@ print(med(sizes), round(warns, 3), med(wild_sizes), y10('highcrag'), y10('bonefi
   assert.ok(mw >= 7 && mw <= 14, 'mw ' + mw);
   assert.ok(peak <= 30, 'peak ' + peak);
 });
+
+test('an old save ages hc09 and mw08 back to 7 and the tiger marking has a layer', () => {
+  const cat = { id: 'hc09', ageSeasons: 8, birthAbsDay: Breeding.seasonStart(50) - 160, stage: 'adult', genes: { v: 1, loci: {} } };
+  Breeding.migrateCat(cat, 50, 'premade');
+  assert.strictEqual(cat.ageSeasons, 7);
+  assert.strictEqual(cat.birthAbsDay, Breeding.seasonStart(50) - 140);
+  assert.strictEqual(cat.stage, 'adolescent');
+  assert.strictEqual(Breeding.markingEntry('tiger').layer, 'tiger');
+  assert.strictEqual(Breeding.markingDrawn('tiger', () => false).label, 'Tiger');
+});
+
+test('a founded pair conceives in spring, gives birth in summer, and warns when over capacity', () => {
+  const state = {
+    day: 1, seed: 3, dead: null,
+    cat: { catId: 'c1', name: 'Ash', sex: 'female', ageSeasons: 12, lifeStage: 'adult', genes: { v: 2, personality: { sociability: 50 } } },
+    npcs: { birch: { id: 'birch', name: 'Birch', sex: 'male', ageSeasons: 12, lifeStage: 'adult', met: true, faction: 'pride-1', genes: { v: 2, personality: { sociability: 40 } } } },
+    records: { pride: { id: 'pride-1', name: 'Ash' }, matePair: { mateId: 'birch', bondedDay: 1 }, members: [{ catId: 'birch' }] },
+    map: { claims: { split: { 'pride-1': 60 } } },
+    needs: { health: 80, hunger: 80, thirst: 80, energy: 80 }
+  };
+  const known = Breeding.onDay(state);
+  assert.strictEqual(known.eventId, 'breeding.pregnancy_known');
+  assert.match(known.beats[0].text, /a few cubs|a cub|several cubs|many cubs/);
+  assert.ok(state.cat.pregnancy.dueAbsDay === state.cat.pregnancy.conceivedAbsDay + 20);
+  state.day = state.cat.pregnancy.dueAbsDay;
+  const born = Breeding.onDay(state);
+  assert.strictEqual(born.eventId, 'breeding.litter_born');
+  assert.ok(Breeding.view(state).cubs.length >= 1);
+  state.day = 41;
+  for (let i = 0; i < 12; i++) state.npcs['extra' + i] = { id: 'extra' + i, faction: 'pride-1', ageSeasons: 10, dead: false };
+  const warning = Breeding.onDay(state);
+  assert.strictEqual(warning.eventId, 'breeding.overcrowded');
+  assert.match(warning.beats[0].text, /press/);
+  const lostState = JSON.parse(JSON.stringify(state));
+  lostState.cat.pregnancy = { conceivedAbsDay: 1, dueAbsDay: 21, litterSize: 2, litterWord: 'a few cubs' };
+  lostState.dead = { cause: 'starvation' };
+  const lost = Breeding.litterLostEvent(lostState);
+  const ending = Breeding.noHeirEvent(lostState);
+  assert.match(lost.beats[0].text, /cubs you were carrying are lost/);
+  assert.match(ending.beats[0].text, /no heir/);
+  const retired = Breeding.retireEvent(state, 'Pebble');
+  assert.ok(!/no heir/.test(retired.beats.map((beat) => beat.text).join(' ')));
+  for (const style of ['story', 'standard', 'sim']) {
+    const again = {
+      day: 81, seed: 4, dead: null,
+      cat: { catId: 'c1', name: 'Ash', sex: 'female', ageSeasons: 13, lifeStage: 'adult', genes: { v: 2, personality: {} } },
+      npcs: { birch: { id: 'birch', name: 'Birch', sex: 'male', ageSeasons: 13, lifeStage: 'adult', faction: 'pride-1', genes: { v: 2, personality: {} } } },
+      records: { style, pride: { id: 'pride-1', name: 'Ash' }, matePair: { mateId: 'birch', bondedDay: 1 }, members: [{ catId: 'birch' }] },
+      map: { claims: { split: { 'pride-1': 60 } } },
+      needs: {}
+    };
+    const card = Breeding.onDay(again);
+    assert.ok(card && card.eventId === 'breeding.pregnancy_known', style);
+  }
+});

@@ -12,6 +12,7 @@ name: Upgrade check
 # Council lock line and the small choice card.
 # Short windows scroll council choices, and Menu stays clear of the need bars.
 # Retry the in-app step after the installed exe was missing on the runner.
+# Breeding is on the day tick: conception, birth, cubs, and overcrowding.
 on:
   workflow_dispatch:
   push:

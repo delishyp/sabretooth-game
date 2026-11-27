@@ -25,6 +25,7 @@
   const Reputation = (typeof require === 'function' ? require('./reputation') : (typeof self !== 'undefined' ? self.Reputation : null));
   const Territory = (typeof require === 'function' ? require('./territory') : (typeof self !== 'undefined' ? self.Territory : null));
   const Councils = (typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null));
+  const Breeding = (typeof require === 'function' ? require('./breeding') : (typeof self !== 'undefined' ? self.Breeding : null));
   const Unlocks = (typeof require === 'function' ? require('./unlocks') : (typeof self !== 'undefined' ? self.Unlocks : null));
   const PortraitModes = (typeof require === 'function' ? require('./portrait-modes') : (typeof self !== 'undefined' ? self.PortraitModes : null));
   const HeadCrop = (typeof require === 'function' ? require('./head-crop') : (typeof self !== 'undefined' ? self.HeadCrop : null));
@@ -611,6 +612,28 @@
         row(t('creator.row.sex'), s.cat.sex === 'female' ? t('creator.sex.female') : t('creator.sex.male'));
         for (const [id, rel] of Object.entries(s.prideRelation || {})) row(`Faction · ${factionName(id)} → you`, signed(rel));
         p.append(dl);
+      } else if (view === 'breeding' && Breeding) {
+        const info = Breeding.view(s);
+        const screen = el('div', 'breeding-screen');
+        screen.append(el('h2', 'home-panel-title', t('home.nav.breeding')));
+        if (!(s.records && s.records.pride && s.records.pride.name)) {
+          screen.append(el('p', '', 'Found a pride, and the den can hold cubs.'));
+        } else if (info.pregnant) {
+          for (const line of info.lines.pregnancy) screen.append(el('p', 'breeding-status', line));
+          screen.append(el('p', '', 'The cubs are due in summer.'));
+        } else screen.append(el('p', 'breeding-status', 'No cubs are on the way.'));
+        if (info.warning) for (const line of info.lines.warning) screen.append(el('p', 'breeding-warning', line));
+        screen.append(el('p', '', 'The pride is ' + info.members + ', and this ground holds ' + info.capacity + '.'));
+        const list = el('ul', 'breeding-cubs');
+        for (const cub of info.cubs) {
+          const row = el('li', '');
+          row.append(btn(cub.name, { g: 'selectCat', cat: cub.id }, { cls: 'met-name' }));
+          row.append(el('span', '', ' · ' + (cub.lifeStage || 'cub') + ', ' + cub.ageSeasons + ' seasons'));
+          list.append(row);
+        }
+        screen.append(list);
+        if (!info.cubs.length) screen.append(el('p', 'home-empty', 'No cubs yet.'));
+        p.append(screen);
       } else if (view === 'cats') {
         p.append(el('h2', 'home-panel-title', t('home.nav.cats')));
         const met = Object.values(s.npcs || {}).filter((n) => n.met);

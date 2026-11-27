@@ -3,8 +3,8 @@
  * Authoring text is the v0.6.2 handoff. Scene ids, saved-trait speech, and revision-6
  * conversation memories stay in place. Archived voice examples are not runtime facts.
  *
- * Later roadmap (pregnancy, cubs, litter size, overcrowding, skill training, year length)
- * is not implemented. Saves keep stable ids and nulls for unknown skills, history, and territory.
+ * Pregnancy, cubs, and overcrowding live in breeding.js and run from the day tick.
+ * Saves keep stable ids and nulls for unknown skills, history, and territory.
  * Same-sex pairing is not banned here; season-2 pregnancy design is a separate question.
  *
  * Reversible defaults, not extra balance: compat term is 0; a pride cat's accepted courtship

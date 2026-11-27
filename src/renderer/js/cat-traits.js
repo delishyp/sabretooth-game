@@ -277,13 +277,10 @@
   }
   function breedCub(sire, dam, rng) {
     const passed = inheritTraits(sire, dam, rng);
-    const personality = {};
-    for (const key of ['aggression', 'sociability', 'boldness', 'loyalty', 'curiosity']) {
-      const left = key === 'aggression' ? aggressionFor(sire) : ((sire.genes && sire.genes.personality && sire.genes.personality[key]) || 50);
-      const right = key === 'aggression' ? aggressionFor(dam) : ((dam.genes && dam.genes.personality && dam.genes.personality[key]) || 50);
-      const noise = (rng() + rng() + rng() - 1.5) * (8 / 1.5);
-      personality[key] = Math.max(0, Math.min(100, Math.round(left / 2 + right / 2 + noise)));
-    }
+    const Breeding = typeof require === 'function' ? require('./breeding') : (typeof self !== 'undefined' ? self.Breeding : null);
+    const personality = Breeding
+      ? Breeding.inheritPersonality((sire.genes && sire.genes.personality) || {}, (dam.genes && dam.genes.personality) || {}, rng)
+      : {};
     const loci = {};
     const leftL = (sire.genes && sire.genes.loci) || {};
     const rightL = (dam.genes && dam.genes.loci) || {};
@@ -293,7 +290,7 @@
       if (!Array.isArray(a) || !Array.isArray(b)) continue;
       loci[key] = [a[rng() < 0.5 ? 0 : Math.min(1, a.length - 1)], b[rng() < 0.5 ? 0 : Math.min(1, b.length - 1)]];
     }
-    return { traits: passed.traits, bloodline: passed.bloodline, genes: { v: 1, loci, personality } };
+    return { traits: passed.traits, bloodline: passed.bloodline, genes: { v: 2, loci, personality } };
   }
   function seedBloodlines(npcs) {
     const book = slots.traits || {};
