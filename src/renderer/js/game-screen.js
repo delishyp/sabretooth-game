@@ -673,8 +673,11 @@
         const book = Councils.scenes();
         screen.append(el('h2', 'home-panel-title', 'Councils'));
         const seated = Councils.mayAttend(s);
-        screen.append(el('p', 'council-line', seated ? 'The leaders are ready to sit.' : 'You are not seated at a council.'));
-        const offer = Councils.councilButton ? Councils.councilButton(s) : { locked: !seated, label: (book.ui && book.ui.goToCouncil && book.ui.goToCouncil.label) || 'Go to the council', note: '' };
+        const offer = Councils.councilButton ? Councils.councilButton(s) : { locked: !seated, label: (book.ui && book.ui.goToCouncil && book.ui.goToCouncil.label) || 'Go to the council', note: '', reason: seated ? null : 'loner' };
+        const status = !seated
+          ? 'You are not seated at a council.'
+          : (offer.reason === 'season' ? offer.note : 'The leaders are ready to sit.');
+        screen.append(el('p', 'council-line', status));
         const go = btn(offer.label, { g: 'leaderCouncil' }, { disabled: offer.reason === 'loner' });
         if (offer.locked && offer.reason === 'season') {
           go.classList.add('is-locked-action');

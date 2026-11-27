@@ -85,7 +85,7 @@
     const lockedWord = hint('ui.action.locked') || 'Locked';
     if (!mayAttend(state)) return { locked: true, label: base, note: '', reason: 'loner' };
     if (!councilAvailable(state)) {
-      const note = hint('ui.council.locked') || 'The leaders have already sat. They meet again when the season turns.';
+      const note = hint('ui.council.locked') || 'Opens next season. The leaders already met this season.';
       return { locked: true, label: base + ' · ' + lockedWord, note, reason: 'season' };
     }
     return { locked: false, label: base, note: '', reason: null };

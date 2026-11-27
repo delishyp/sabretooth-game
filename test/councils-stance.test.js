@@ -225,7 +225,8 @@ test('one council a season stays locked after save and reload, and a feud can st
   const button = Councils.councilButton(loaded);
   assert.strictEqual(button.locked, true);
   assert.match(button.label, /Go to the council · Locked/);
-  assert.match(button.note, /already sat/);
+  assert.strictEqual(button.note, 'Opens next season. The leaders already met this season.');
+  assert.doesNotMatch(button.note, /ready to sit/);
   loaded.records.councilLatch = { reason: 'hostile', pair: ['highcrag', 'bonefield'], day: loaded.day };
   const early = Councils.offerEarly(loaded);
   assert.strictEqual(early.error, undefined);

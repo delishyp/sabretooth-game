@@ -1014,6 +1014,40 @@ html[data-choice-stack="1"] .screen[data-screen="game"] #game-event .encounter-c
 .event-card.is-council .event-choices button,
 .council-screen,
 .council-screen p,
-.council-screen button {
+.council-screen button,
+.screen[data-screen="game"] .council-screen .council-line {
   font-size: 18px !important;
+}
+.event-card.is-council .event-choices {
+  grid-template-columns: 1fr !important;
+}
+.event-card.is-council .event-choices button {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+  white-space: normal !important;
+}
+.event-card.is-council .meet-mid {
+  overflow: visible !important;
+  max-height: none !important;
+}
+.event-card.is-council .event-beat,
+.event-card.is-council .scene-log {
+  overflow: visible !important;
+  max-height: none !important;
+  flex: 0 0 auto !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+.screen[data-screen="game"] #game-event:has(.is-council) {
+  overflow: auto !important;
+}
+@media (max-height: 520px) {
+  .event-card.is-council .event-text,
+  .event-card.is-council .event-beat,
+  .event-card.is-council .event-beat p,
+  .event-card.is-council .event-choices button {
+    font-size: 16px !important;
+  }
 }
