@@ -8,6 +8,7 @@ name: Upgrade check
 # Pride councils: stance and walk-out share a lifetime pool.
 # Council scenes v2a: the line follows the applied change.
 # A council is once a season, and the early feud council can still sit.
+# Retry the Windows upgrade check after a runner failed to start PowerShell.
 on:
   workflow_dispatch:
   push:
