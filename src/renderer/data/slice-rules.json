@@ -1,6 +1,6 @@
 {
   "$comment": "Slice 1 'first season as a loner' rules (docs/design/slice-1-scope.md v1.0). Values copied from Tundra's specs, Standard style only: needs-spec v0.1 §1/§2/§7, formulas-spec v0.2.4 §1, map-v1 v1.0.1 §6/§8, loners-spec §2.3–2.4. File: Flint.",
-  "saveVersion": 1,
+  "saveVersion": 2,
   "seasonDays": 20,
   "start": {
     "region": "split_rock",

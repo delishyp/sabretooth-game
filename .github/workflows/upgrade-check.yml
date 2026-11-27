@@ -13,7 +13,7 @@ name: Upgrade check
 on:
   workflow_dispatch:
   push:
-    branches: [cursor/s1-content-0113]
+    branches: [cursor/s1-breeding-0114]
     paths:
       - package.json
       - package-lock.json

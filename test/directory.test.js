@@ -42,8 +42,8 @@ function assertNoProse(state) {
 
 test('a new run copies ageSeasons and starts an empty directory bag', () => {
   const s = fresh();
-  assert.strictEqual(rules.saveVersion, 1);
-  assert.strictEqual(s.saveVersion, 1);
+  assert.strictEqual(rules.saveVersion, 2);
+  assert.strictEqual(s.saveVersion, 2);
   assert.deepStrictEqual(s.directory.favorites, []);
   assert.strictEqual(s.npcs.hc01.ageSeasons, 36);
   assert.strictEqual(s.npcs.hc11.ageSeasons, 0);
@@ -69,7 +69,7 @@ test('a v1 save with no directory loads, keeps saveVersion 1, and does not inven
   legacy.records.departure = { catId: 'hc02', from: 'highcrag', day: 4 };
   legacy.saveVersion = 1;
   const loaded = E.migrate(JSON.parse(JSON.stringify(legacy)));
-  assert.strictEqual(loaded.saveVersion, 1);
+  assert.strictEqual(loaded.saveVersion, 2);
   assert.strictEqual(loaded.npcs.hc01.ageSeasons, 36);
   assert.strictEqual(loaded.npcs.hc11.ageSeasons, 0);
   assert.strictEqual(loaded.directory.cats.ln05.meetCount, 1);
@@ -85,7 +85,7 @@ test('a v1 save with no directory loads, keeps saveVersion 1, and does not inven
   const again = E.migrate(JSON.parse(JSON.stringify(loaded)));
   assert.strictEqual(again.directory.cats.ln04.history.filter((item) => item.kind === 'death').length, 1);
   assert.strictEqual(again.directory.cats.hc02.history.filter((item) => item.kind === 'departure').length, 1);
-  assert.throws(() => E.migrate({ ...fresh(), saveVersion: 2 }), /newer/);
+  assert.throws(() => E.migrate({ ...fresh(), saveVersion: 3 }), /newer/);
   assertNoProse(again);
 });
 

@@ -121,7 +121,7 @@ test('tunables are the provisional §11.3a defaults and unlisted outcomes are no
   assert.strictEqual(rules.conversation.outcomeDelta.third_distance, 0);
   assert.strictEqual(rules.conversation.outcomeDelta.third_neutral_stay, 0);
   assert.strictEqual(rules.conversation.outcomeDelta.third_neutral_go, 0);
-  assert.strictEqual(rules.saveVersion, 1);
+  assert.strictEqual(rules.saveVersion, 2);
   assert.strictEqual(rules.seasonDays, 20);
 });
 
@@ -210,7 +210,7 @@ test('quiet company without a promise and a boundary dismissal are different lat
   assert.deepStrictEqual(ident(qDone.npcs.ln05), ident(fresh().npcs.ln05));
   assert.deepStrictEqual(ident(pDone.npcs.ln05), ident(fresh().npcs.ln05));
   assert.strictEqual(qDone.cat.portraitId, 'cat-6e2d788dd48ff440');
-  assert.deepStrictEqual(qDone.cat.genes, { coat: 'D/D' });
+  assert.deepStrictEqual(qDone.cat.genes, { coat: 'D/D', v: 2 });
 });
 
 test('return_quiet is the only quiet promise; a free Leave keeps it pending; a later non-leave keeps it once inside the cap', () => {
@@ -473,7 +473,7 @@ test('old saves gain an empty conversation and still end on day 20; a newer conv
   const m = E.migrate(legacy);
   assert.strictEqual(m.conversation.schema, 1);
   assert.strictEqual(m.conversation.pending, null);
-  assert.strictEqual(m.saveVersion, 1);
+  assert.strictEqual(m.saveVersion, 2);
   assert.strictEqual(m.day, 1);
   const newer = E.newRun({ mainCat: cat, seed: 2 });
   newer.conversation.schema = 99;
@@ -504,7 +504,7 @@ test('a full season with the arc loaded still ends at day 20 and does not invent
   assert.strictEqual(s.over, true);
   assert.ok(s.day <= 20);
   assert.strictEqual(E.summary(s).seasonDays, 20);
-  assert.strictEqual(s.saveVersion, 1);
+  assert.strictEqual(s.saveVersion, 2);
 });
 
 test('an opening reply is refused in full when Energy, Hunger, or Thirst cannot pay, and a reload keeps that refusal', () => {

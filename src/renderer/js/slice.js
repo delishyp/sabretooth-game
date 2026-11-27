@@ -196,6 +196,8 @@
       if (Unlocks) Unlocks.persist(s);
       const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
       if (Councils && Councils.ensure) Councils.ensure(s);
+      const Breeding = typeof require === 'function' ? require('./breeding') : (typeof self !== 'undefined' ? self.Breeding : null);
+      if (Breeding && Breeding.migrateSave) Breeding.migrateSave(s);
       return s;
     }
     function bondDeps(s, rep) {
@@ -1581,6 +1583,8 @@
       if (Q) Q.ensure(s);
       const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
       if (Councils && Councils.ensure) Councils.ensure(s);
+      const Breeding = typeof require === 'function' ? require('./breeding') : (typeof self !== 'undefined' ? self.Breeding : null);
+      if (Breeding && Breeding.migrateSave) Breeding.migrateSave(s);
       s.saveVersion = R.saveVersion;
       return s;
     }

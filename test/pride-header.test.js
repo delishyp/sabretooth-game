@@ -24,12 +24,12 @@ test('a new run and a v1 save both carry a pooled pride food store', () => {
   const s = fresh();
   assert.strictEqual(s.pride.food, 0);
   assert.deepStrictEqual(s.pride.roles, {});
-  assert.strictEqual(s.saveVersion, 1);
+  assert.strictEqual(s.saveVersion, 2);
   const legacy = fresh();
   delete legacy.pride;
   legacy.saveVersion = 1;
   const loaded = E.migrate(JSON.parse(JSON.stringify(legacy)));
-  assert.strictEqual(loaded.saveVersion, 1);
+  assert.strictEqual(loaded.saveVersion, 2);
   assert.strictEqual(loaded.pride.food, 0);
   const kept = fresh();
   kept.pride.food = 40;
