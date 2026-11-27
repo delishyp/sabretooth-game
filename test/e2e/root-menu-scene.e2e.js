@@ -8,14 +8,13 @@ const crypto = require('crypto');
 const fs = require('fs'); const os = require('os'); const path = require('path');
 const root = path.join(__dirname, '..', '..');
 const SHOTS = process.env.MENU_SHOTS || '/opt/cursor/artifacts/root-menu-milky-way';
-const APPROVED = 'e6b3f85f5bfcdcb5c03e9358bf0f05c0ce55e2b88850d134684e93cb0eb5a9ad';
-const SUPERSEDED = '615d44a0cee5993ffa486ddb48c63db8a967bf64a060bec624e2cef663025205';
+const APPROVED = '201a889c29a7a24c4b28074fff99c5f9a16ab03e633ed9d8978274d7bc4e415f';
 fs.mkdirSync(SHOTS, { recursive: true });
 const sha = (rel) => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, rel))).digest('hex');
 
 (async () => {
-  assert.strictEqual(sha('assets/menu/background.jpg'), APPROVED);
-  assert.strictEqual(sha('assets/menu/background.png'), SUPERSEDED);
+  assert.strictEqual(sha('assets/menu/background.webp'), APPROVED);
+  assert.ok(!fs.existsSync(path.join(root, 'assets/menu/background.png')));
   const ud = fs.mkdtempSync(path.join(os.tmpdir(), 'sabre-menu-'));
   const app = await electron.launch({
     executablePath: require('electron'),
@@ -34,8 +33,7 @@ const sha = (rel) => crypto.createHash('sha256').update(fs.readFileSync(path.joi
   const sample = async () => page.evaluate(async () => {
     const canvas = document.getElementById('bg-canvas');
     const load = async (src) => { const img = new Image(); img.src = src; await img.decode(); return img; };
-    const approved = await load('../../assets/menu/background.jpg');
-    const old = await load('../../assets/menu/background.png');
+    const approved = await load('../../assets/menu/background.webp');
     const fx = 0.72, fy = 0.55;
     const mapped = (img) => {
       const k = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
@@ -51,9 +49,8 @@ const sha = (rel) => crypto.createHash('sha256').update(fs.readFileSync(path.joi
     return {
       shown,
       approved: mapped(approved),
-      old: mapped(old),
       creator: document.querySelector('.creator-scene').getAttribute('src'),
-      den: document.getElementById('home-landscape').getAttribute('src'),
+      den: document.getElementById('home-landscape').currentSrc || document.getElementById('home-landscape').getAttribute('src'),
       screen: window.__menuDebug.state().state
     };
   });
@@ -62,11 +59,10 @@ const sha = (rel) => crypto.createHash('sha256').update(fs.readFileSync(path.joi
     await page.waitForTimeout(200);
     const info = await sample();
     assert.strictEqual(info.screen, 'root');
-    assert.ok(info.creator.includes('assets/menu/background.jpg'));
-    assert.ok(info.den.includes('assets/game/home-landscape.png'));
+    assert.ok(info.creator.includes('assets/menu/background.webp'));
+    assert.ok(info.den.includes(h <= 1440 ? 'home-landscape-1440.webp' : 'home-landscape.webp'));
     const dist = (a, b) => a.reduce((sum, v, i) => sum + Math.abs(v - b[i]), 0);
     assert.ok(dist(info.shown, info.approved) < 40, JSON.stringify({ shown: info.shown, approved: info.approved }));
-    assert.ok(dist(info.shown, info.approved) < dist(info.shown, info.old), JSON.stringify({ shown: info.shown, old: info.old }));
     await page.screenshot({ path: path.join(SHOTS, `root-menu-${tag}.png`) });
     console.log('root menu', tag, info.shown.join(','));
   }

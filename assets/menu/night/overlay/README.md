@@ -3,7 +3,7 @@
 Self-contained, no dependencies: `shooting-stars.js` (+ optional `shooting-stars.css`).
 It adds ONE transparent full-screen `<canvas>` (`position:fixed; pointer-events:none`) and draws an
 occasional meteor streak in the sky. The background stays the single swappable file
-`assets/menu/background.png`; nothing is baked into it.
+`assets/menu/background.webp`; nothing is baked into it.
 
 ## Wire it into the Electron main-menu renderer
 ```html

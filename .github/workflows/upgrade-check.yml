@@ -8,11 +8,13 @@ name: Upgrade check
 # Season-one story depth: region callbacks, mate lines, rival loss.
 # Council scenes v2a: the line follows the applied change.
 # A council is once a season, and the early feud council can still sit.
-# Retry the Windows upgrade check after a runner failed to start PowerShell.
 # Council lock line and the small choice card.
+# Home and menu backgrounds are the WebP masters.
 # Short windows scroll council choices, and Menu stays clear of the need bars.
 # Retry the in-app step after the installed exe was missing on the runner.
 # Breeding is on the day tick: conception, birth, cubs, and overcrowding.
+# Focus rings sit inside the control. Dialogue cards hug their text.
+# The nav lock tip is #nav-lock-tip, not a button ::after.
 on:
   workflow_dispatch:
   push:

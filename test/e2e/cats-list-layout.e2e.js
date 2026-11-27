@@ -12,7 +12,6 @@ function shotDir() {
   catch (e) { return fs.mkdtempSync(path.join(os.tmpdir(), 'cats-list-')); }
 }
 const SHOTS = shotDir();
-const SCENE = 'assets/menu/background-1920.png';
 const defaults = require(path.join(root, 'src/renderer/data/npc-portrait-defaults.json'));
 const CATS = ['hc01', 'hc05', 'ln05'].map((slot) => ({ slot, id: defaults.assignments[slot].id }));
 fs.mkdirSync(SHOTS, { recursive: true });

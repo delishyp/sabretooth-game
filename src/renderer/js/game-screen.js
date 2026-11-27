@@ -72,10 +72,13 @@
     dialogue: '../../assets/game/frozen-lake.png',
     clearing: '../../assets/game/forest-clearing.png'
   };
+  function homeLandscapeFile() {
+    const tall = typeof window !== 'undefined' && window.innerHeight > 1440;
+    return tall ? '../../assets/game/home-landscape.webp' : '../../assets/game/home-landscape-1440.webp';
+  }
   function usePlate(kind) {
     const land = typeof document !== 'undefined' ? document.getElementById('home-landscape') : null;
     if (!land) return;
-    if (!land.dataset.homeSrc) land.dataset.homeSrc = land.getAttribute('src');
     land.src = PLATES[kind] || PLATES.hunt;
   }
   function headshotImg(cat) {
@@ -1670,7 +1673,7 @@
       if (dock) dock.hidden = view === 'home';
       document.querySelectorAll('.scene-actor').forEach((node) => node.remove());
       const land0 = document.getElementById('home-landscape');
-      if (land0 && land0.dataset.homeSrc && !(s && s.phase === 'encounter')) land0.src = land0.dataset.homeSrc;
+      if (land0 && !(s && s.phase === 'encounter')) land0.src = homeLandscapeFile();
       renderChrome(); renderNav(); renderHud(); renderTutorial(); renderPanel(); renderRegion(); renderActions(); renderReport(); renderEvent(); renderPerkModal();
       const spot = document.querySelector('.is-spotlight');
       keepOnePrimary(spot && spot.tagName === 'BUTTON' ? spot : null);
@@ -1840,6 +1843,8 @@
       pin('right', 'auto');
       pin('bottom', 'auto');
       pin('margin', '0');
+      pin('max-height', Math.max(120, window.innerHeight - hudBottom - 16) + 'px');
+      pin('overflow', 'auto');
       const cr = card.getBoundingClientRect();
       const W = window.innerWidth;
       const H = window.innerHeight;
@@ -1875,7 +1880,7 @@
         placed = { left, top };
         break;
       }
-      if (!placed) placed = { left: 8, top: Math.min(H - cr.height - 8, hudBottom + 8) };
+      if (!placed) placed = { left: Math.max(8, railRight + 8), top: Math.max(hudBottom + 8, Math.min(H - cr.height - 8, hudBottom + 8)) };
       pin('left', Math.round(placed.left) + 'px');
       pin('top', Math.round(placed.top) + 'px');
     }

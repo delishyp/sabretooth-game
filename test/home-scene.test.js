@@ -29,17 +29,25 @@ test('sidebar: home, pride, den, wilderness, and met cats are real; the rest sta
   assert.throws(() => H.selectView('home', 'currency'), /unknown home view/);
 });
 
-test('home landscape is the clean 1280x720 RGB asset, and the game screen does not use the appearance master', () => {
-  const file = path.join(root, 'assets/game/home-landscape.png');
-  const buf = fs.readFileSync(file);
-  assert.strictEqual(buf.length, 1739209);
-  assert.strictEqual(buf.readUInt32BE(16), 1280);
-  assert.strictEqual(buf.readUInt32BE(20), 720);
-  assert.strictEqual(buf[24], 8);
-  assert.strictEqual(buf[25], 2);
+function webpSize(buf) {
+  assert.strictEqual(buf.subarray(0, 4).toString(), 'RIFF');
+  assert.strictEqual(buf.subarray(8, 12).toString(), 'WEBP');
+  assert.strictEqual(buf.subarray(12, 16).toString(), 'VP8 ');
+  const w = buf.readUInt16LE(12 + 8 + 6) & 0x3fff;
+  const h = buf.readUInt16LE(12 + 8 + 8) & 0x3fff;
+  return { w, h };
+}
+
+test('home landscape masters are the 1440 and 3840 WebP files, and the game screen does not use the appearance master', () => {
+  const small = webpSize(fs.readFileSync(path.join(root, 'assets/game/home-landscape-1440.webp')));
+  const large = webpSize(fs.readFileSync(path.join(root, 'assets/game/home-landscape.webp')));
+  assert.deepStrictEqual(small, { w: 2560, h: 1440 });
+  assert.deepStrictEqual(large, { w: 3840, h: 2160 });
+  assert.ok(!fs.existsSync(path.join(root, 'assets/game/home-landscape.png')));
   const html = fs.readFileSync(path.join(root, 'src/renderer/index.html'), 'utf8');
   const screen = fs.readFileSync(path.join(root, 'src/renderer/js/game-screen.js'), 'utf8');
-  assert.ok(html.includes('assets/game/home-landscape.png'));
+  assert.ok(html.includes('assets/game/home-landscape-1440.webp'));
+  assert.ok(html.includes('min-height: 1441px'));
   assert.ok(html.includes('id="home-cat"'));
   assert.ok(html.includes('data-g="den"') && html.includes('data-g="wild"'));
   assert.ok(screen.includes('ctx.portrait'));
