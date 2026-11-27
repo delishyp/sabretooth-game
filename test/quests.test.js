@@ -115,7 +115,7 @@ test('seed 8 offers at least one request in the first 10 days, and an old save s
   const loaded = E.migrate(legacy);
   assert.ok(Array.isArray(loaded.world.quests));
   assert.ok(Array.isArray(loaded.world.requests));
-  assert.strictEqual(loaded.saveVersion, 1);
+  assert.strictEqual(loaded.saveVersion, 2);
 });
 
 test('the join ending stays home without a pride and joins when the pride exists', () => {

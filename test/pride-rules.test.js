@@ -22,7 +22,7 @@ function changedKeys(before, after) {
 
 test('a v1 save gains roles, orders, feeding order, heir, and exiles', () => {
   const s = E.newRun({ mainCat: player, seed: 2, runId: 'pride-rules' });
-  assert.strictEqual(s.saveVersion, 1);
+  assert.strictEqual(s.saveVersion, 2);
   assert.deepStrictEqual(s.pride.roles, {});
   assert.deepStrictEqual(s.pride.orders, {});
   assert.deepStrictEqual(s.pride.feedingOrder, []);
@@ -32,7 +32,7 @@ test('a v1 save gains roles, orders, feeding order, heir, and exiles', () => {
   legacy.pride = { food: 18 };
   legacy.saveVersion = 1;
   const loaded = E.migrate(JSON.parse(JSON.stringify(legacy)));
-  assert.strictEqual(loaded.saveVersion, 1);
+  assert.strictEqual(loaded.saveVersion, 2);
   assert.strictEqual(loaded.pride.food, 18);
   assert.deepStrictEqual(loaded.pride.feedingOrder, []);
   assert.deepStrictEqual(loaded.pride.exiles, []);

@@ -101,7 +101,7 @@ test('the Sleetbark ford reply renders before the result and does not change the
     assert.deepStrictEqual(shown.slice(1), result);
     const voiced = playExplain();
     assert.strictEqual(voiced.saveVersion, plain.saveVersion);
-    assert.strictEqual(voiced.saveVersion, 1);
+    assert.strictEqual(voiced.saveVersion, 2);
     assert.strictEqual(voiced.phase, plain.phase);
     assert.strictEqual(voiced.npcs.ln02.affinity, plain.npcs.ln02.affinity);
     assert.deepStrictEqual(voiced.pending.beats.map((beat) => beat.text), plain.pending.beats.map((beat) => beat.text));

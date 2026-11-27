@@ -1,0 +1,386 @@
+========================================================================================================================
+Overcrowding sim v0.1 | seed base 20261127 | 500 seeds per row | 20 years (y5/y10/y15/y20 = same runs)
+Player cells: median/p10-p90 pride size (cubs count unless marked). reg10/20 = median regions held. over = % of seasons
+over capacity. 1stOver / 1stWarn = median year of the first overcrowded season / first warning sign (among runs
+where it happens). warn<=y10 / dep<=y10 = runs with a warning sign / a departure by year 10. dep/20y = mean cats
+leaving under loners §6.4 in 20 years. wave = runs where >=1/3 of adults (and >=3 cats) leave within 4 seasons.
+<half-cap y20 = runs ending below half of capacity (collapse proxy). Standard, accumulator reading, p_out .5 (C2).
+========================================================================================================================
+O0 Calibration, no capacity: founding pair only (p_out 0) should match Tracker MATH-CHECK (y10 25/31)
+  no cap, p_out 0                    y5 16/12-21  y10 26/20-32  y20 12/5-31    reg10/20 99/99 over    0% 1stOver y- 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20 100%
+  no cap, p_out 0.25                 y5 18/13-26  y10 45/26-69  y20 131/37-660 reg10/20 99/99 over    2% 1stOver y19.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  64%
+  no cap, p_out 0.5                  y5 22/14-29  y10 69/41-94  y20 752/177-1715 reg10/20 99/99 over   12% 1stOver y17.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  11%
+========================================================================================================================
+O1 Player pride, v0.1e rule (no conception gate for the player), capacity 4/region, penalties
+-- start regions 1, no expansion
+  cap 4, flat -3                     y5 22/14-29  y10 69/41-94  y20 752/177-1715 reg10/20 1/1 over   97% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 22/14-29  y10 69/41-94  y20 748/177-1700 reg10/20 1/1 over   97% 1stOver y1.2 1stWarn y15.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 22/14-29  y10 69/41-94  y20 756/181-1708 reg10/20 1/1 over   97% 1stOver y1.2 1stWarn y16.8 warn<=y10   1% dep<=y10   0% dep/20y  0.1 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 20/14-28  y10 35/22-52  y20 247/53-852 reg10/20 1/1 over   97% 1stOver y1.2 1stWarn y5.0 warn<=y10 100% dep<=y10 100% dep/20y 98.3 wave  89% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 20/14-28  y10 35/21-51  y20 236/43-862 reg10/20 1/1 over   97% 1stOver y1.2 1stWarn y4.8 warn<=y10 100% dep<=y10 100% dep/20y 97.4 wave  87% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 20/14-28  y10 34/20-51  y20 235/42-823 reg10/20 1/1 over   97% 1stOver y1.2 1stWarn y4.5 warn<=y10 100% dep<=y10 100% dep/20y 97.2 wave  86% <half-cap y20   0%
+-- start regions 2, no expansion
+  cap 4, flat -3                     y5 22/14-29  y10 69/41-94  y20 752/177-1715 reg10/20 2/2 over   90% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 22/14-29  y10 69/41-94  y20 748/177-1700 reg10/20 2/2 over   90% 1stOver y3.2 1stWarn y15.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 22/14-29  y10 69/41-94  y20 756/181-1708 reg10/20 2/2 over   90% 1stOver y3.2 1stWarn y16.8 warn<=y10   1% dep<=y10   0% dep/20y  0.1 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 21/14-29  y10 37/23-57  y20 250/51-882 reg10/20 2/2 over   90% 1stOver y3.2 1stWarn y6.0 warn<=y10 100% dep<=y10 100% dep/20y 99.4 wave  85% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 21/14-28  y10 36/20-54  y20 231/44-887 reg10/20 2/2 over   90% 1stOver y3.2 1stWarn y5.2 warn<=y10 100% dep<=y10 100% dep/20y 96.7 wave  87% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 20/14-28  y10 35/21-54  y20 216/50-813 reg10/20 2/2 over   90% 1stOver y3.2 1stWarn y5.0 warn<=y10 100% dep<=y10 100% dep/20y 96.0 wave  86% <half-cap y20   0%
+-- start regions 3, no expansion
+  cap 4, flat -3                     y5 22/14-29  y10 69/41-94  y20 752/177-1715 reg10/20 3/3 over   84% 1stOver y4.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 22/14-29  y10 69/41-94  y20 748/177-1700 reg10/20 3/3 over   84% 1stOver y4.2 1stWarn y15.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 22/14-29  y10 69/41-94  y20 756/181-1708 reg10/20 3/3 over   84% 1stOver y4.2 1stWarn y16.8 warn<=y10   1% dep<=y10   0% dep/20y  0.1 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 22/14-29  y10 41/24-60  y20 224/46-848 reg10/20 3/3 over   84% 1stOver y4.2 1stWarn y7.0 warn<=y10 100% dep<=y10 100% dep/20y 101.6 wave  83% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 22/14-29  y10 38/22-58  y20 250/54-961 reg10/20 3/3 over   84% 1stOver y4.2 1stWarn y6.2 warn<=y10 100% dep<=y10 100% dep/20y 101.8 wave  84% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 21/14-28  y10 38/23-57  y20 249/57-930 reg10/20 3/3 over   84% 1stOver y4.2 1stWarn y6.0 warn<=y10 100% dep<=y10 100% dep/20y 102.1 wave  84% <half-cap y20   0%
+-- start regions 1, player expands (C4)
+  cap 4, flat -3                     y5 21/14-28  y10 66/42-93  y20 692/181-1583 reg10/20 7/7 over   89% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 21/14-28  y10 66/42-93  y20 692/181-1583 reg10/20 7/7 over   89% 1stOver y1.2 1stWarn y20.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 21/14-28  y10 66/42-93  y20 695/176-1583 reg10/20 7/7 over   89% 1stOver y1.2 1stWarn y18.8 warn<=y10   0% dep<=y10   0% dep/20y  0.1 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 21/14-28  y10 62/41-89  y20 262/82-970 reg10/20 7/7 over   88% 1stOver y1.2 1stWarn y10.5 warn<=y10  65% dep<=y10  47% dep/20y 124.7 wave  62% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 21/14-28  y10 58/37-84  y20 267/74-924 reg10/20 7/7 over   87% 1stOver y1.2 1stWarn y9.5 warn<=y10  86% dep<=y10  77% dep/20y 120.1 wave  66% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 20/14-28  y10 54/36-78  y20 258/77-981 reg10/20 7/7 over   88% 1stOver y1.2 1stWarn y8.5 warn<=y10  95% dep<=y10  90% dep/20y 117.8 wave  67% <half-cap y20   0%
+-- start regions 2, player expands (C4)
+  cap 4, flat -3                     y5 21/15-30  y10 67/40-97  y20 715/181-1691 reg10/20 7/7 over   86% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 21/15-30  y10 67/40-97  y20 715/181-1691 reg10/20 7/7 over   86% 1stOver y3.2 1stWarn y19.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 21/15-30  y10 67/40-97  y20 715/184-1653 reg10/20 7/7 over   86% 1stOver y3.2 1stWarn y18.5 warn<=y10   0% dep<=y10   0% dep/20y  0.1 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 21/15-30  y10 64/40-91  y20 309/86-1062 reg10/20 7/7 over   85% 1stOver y3.2 1stWarn y10.5 warn<=y10  70% dep<=y10  50% dep/20y 127.4 wave  60% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 21/15-30  y10 59/38-84  y20 292/81-1024 reg10/20 7/7 over   84% 1stOver y3.2 1stWarn y9.5 warn<=y10  87% dep<=y10  78% dep/20y 121.4 wave  67% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 21/15-30  y10 54/35-82  y20 274/84-1012 reg10/20 7/7 over   84% 1stOver y3.2 1stWarn y8.5 warn<=y10  95% dep<=y10  91% dep/20y 116.5 wave  69% <half-cap y20   0%
+-- start regions 3, player expands (C4)
+  cap 4, flat -3                     y5 22/14-29  y10 68/43-95  y20 731/189-1687 reg10/20 7/7 over   81% 1stOver y4.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 22/14-29  y10 68/43-95  y20 731/189-1687 reg10/20 7/7 over   81% 1stOver y4.2 1stWarn y16.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 22/14-29  y10 68/43-95  y20 733/190-1687 reg10/20 7/7 over   81% 1stOver y4.2 1stWarn y17.8 warn<=y10   0% dep<=y10   0% dep/20y  0.1 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 22/14-29  y10 64/42-91  y20 317/90-1185 reg10/20 7/7 over   80% 1stOver y4.2 1stWarn y10.2 warn<=y10  70% dep<=y10  55% dep/20y 130.8 wave  59% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 22/14-29  y10 59/40-84  y20 277/83-980 reg10/20 7/7 over   80% 1stOver y4.2 1stWarn y9.5 warn<=y10  89% dep<=y10  80% dep/20y 124.5 wave  69% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 22/14-29  y10 55/36-77  y20 270/83-956 reg10/20 7/7 over   80% 1stOver y4.2 1stWarn y8.5 warn<=y10  97% dep<=y10  93% dep/20y 120.1 wave  70% <half-cap y20   0%
+========================================================================================================================
+O2 Player pride WITH the §17d.2 spring gate (C9 proposed): capacity 3/4/5 x penalties
+-- start regions 1, no expansion
+  cap 3, flat -3                     y5 6/4-8     y10 7/5-9     y20 3/0-6      reg10/20 1/1 over   81% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  38%
+  cap 3, flat -5                     y5 6/4-8     y10 7/5-9     y20 3/0-6      reg10/20 1/1 over   81% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  38%
+  cap 3, flat -8                     y5 6/4-8     y10 7/5-9     y20 3/0-6      reg10/20 1/1 over   81% 1stOver y1.2 1stWarn y15.2 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  38%
+  cap 3, -3 x seasonsOver, max -30   y5 5/4-7     y10 4/3-7     y20 4/0-7      reg10/20 1/1 over   80% 1stOver y1.2 1stWarn y4.8 warn<=y10 100% dep<=y10  99% dep/20y  6.4 wave  40% <half-cap y20  19%
+  cap 3, -5 x seasonsOver, max -30   y5 5/4-7     y10 4/3-7     y20 4/0-7      reg10/20 1/1 over   79% 1stOver y1.2 1stWarn y4.5 warn<=y10 100% dep<=y10  99% dep/20y  6.5 wave  38% <half-cap y20  19%
+  cap 3, -8 x seasonsOver, max -30   y5 5/4-7     y10 4/3-7     y20 4/0-7      reg10/20 1/1 over   79% 1stOver y1.2 1stWarn y4.5 warn<=y10 100% dep<=y10  99% dep/20y  6.7 wave  35% <half-cap y20  19%
+  cap 4, flat -3                     y5 7/5-9     y10 8/5-10    y20 5/0-8      reg10/20 1/1 over   81% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  25%
+  cap 4, flat -5                     y5 7/5-9     y10 8/5-10    y20 5/0-8      reg10/20 1/1 over   81% 1stOver y1.2 1stWarn y7.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  25%
+  cap 4, flat -8                     y5 7/5-9     y10 8/5-10    y20 5/0-8      reg10/20 1/1 over   81% 1stOver y1.2 1stWarn y18.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  25%
+  cap 4, -3 x seasonsOver, max -30   y5 6/4-8     y10 6/4-10    y20 6/3-10     reg10/20 1/1 over   82% 1stOver y1.2 1stWarn y5.0 warn<=y10 100% dep<=y10  99% dep/20y  8.2 wave  64% <half-cap y20   6%
+  cap 4, -5 x seasonsOver, max -30   y5 6/4-8     y10 6/4-9     y20 6/3-9      reg10/20 1/1 over   82% 1stOver y1.2 1stWarn y4.8 warn<=y10 100% dep<=y10  99% dep/20y  8.8 wave  65% <half-cap y20   6%
+  cap 4, -8 x seasonsOver, max -30   y5 6/4-8     y10 6/4-10    y20 5/3-9      reg10/20 1/1 over   81% 1stOver y1.2 1stWarn y4.8 warn<=y10 100% dep<=y10 100% dep/20y  8.8 wave  60% <half-cap y20   7%
+  cap 5, flat -3                     y5 8/6-10    y10 9/7-12    y20 6/1-10     reg10/20 1/1 over   80% 1stOver y2.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  20%
+  cap 5, flat -5                     y5 8/6-10    y10 9/7-12    y20 6/1-10     reg10/20 1/1 over   80% 1stOver y2.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  20%
+  cap 5, flat -8                     y5 8/6-10    y10 9/7-12    y20 6/1-10     reg10/20 1/1 over   80% 1stOver y2.2 1stWarn y16.5 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  20%
+  cap 5, -3 x seasonsOver, max -30   y5 7/5-10    y10 7/5-12    y20 7/4-10     reg10/20 1/1 over   80% 1stOver y2.2 1stWarn y5.2 warn<=y10 100% dep<=y10  99% dep/20y  9.3 wave  74% <half-cap y20   5%
+  cap 5, -5 x seasonsOver, max -30   y5 7/5-10    y10 7/5-12    y20 7/4-11     reg10/20 1/1 over   80% 1stOver y2.2 1stWarn y4.8 warn<=y10 100% dep<=y10 100% dep/20y  9.9 wave  74% <half-cap y20   4%
+  cap 5, -8 x seasonsOver, max -30   y5 7/5-9     y10 7/5-12    y20 7/4-10     reg10/20 1/1 over   79% 1stOver y2.2 1stWarn y4.8 warn<=y10 100% dep<=y10 100% dep/20y 10.4 wave  76% <half-cap y20   3%
+-- start regions 2, no expansion
+  cap 3, flat -3                     y5 9/7-11    y10 10/8-12   y20 7/1-11     reg10/20 2/2 over   79% 1stOver y2.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  15%
+  cap 3, flat -5                     y5 9/7-11    y10 10/8-12   y20 7/1-11     reg10/20 2/2 over   79% 1stOver y2.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  15%
+  cap 3, flat -8                     y5 9/7-11    y10 10/8-12   y20 7/1-11     reg10/20 2/2 over   79% 1stOver y2.2 1stWarn y15.0 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20  15%
+  cap 3, -3 x seasonsOver, max -30   y5 8/7-11    y10 9/6-14    y20 8/6-12     reg10/20 2/2 over   79% 1stOver y2.2 1stWarn y5.5 warn<=y10 100% dep<=y10  99% dep/20y 10.7 wave  79% <half-cap y20   1%
+  cap 3, -5 x seasonsOver, max -30   y5 8/6-11    y10 9/6-14    y20 8/5-13     reg10/20 2/2 over   78% 1stOver y2.2 1stWarn y5.0 warn<=y10 100% dep<=y10 100% dep/20y 11.3 wave  75% <half-cap y20   2%
+  cap 3, -8 x seasonsOver, max -30   y5 8/6-10    y10 9/6-14    y20 8/5-13     reg10/20 2/2 over   78% 1stOver y2.2 1stWarn y4.8 warn<=y10 100% dep<=y10 100% dep/20y 12.1 wave  80% <half-cap y20   2%
+  cap 4, flat -3                     y5 11/9-13   y10 12/9-15   y20 9/4-14     reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  cap 4, flat -5                     y5 11/9-13   y10 12/9-15   y20 9/4-14     reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  cap 4, flat -8                     y5 11/9-13   y10 12/9-15   y20 9/4-14     reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y14.0 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  cap 4, -3 x seasonsOver, max -30   y5 10/9-13   y10 11/8-18   y20 11/7-16    reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y6.0 warn<=y10 100% dep<=y10  99% dep/20y 11.6 wave  67% <half-cap y20   1%
+  cap 4, -5 x seasonsOver, max -30   y5 10/8-13   y10 12/8-17   y20 10/7-16    reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y5.5 warn<=y10 100% dep<=y10  99% dep/20y 13.1 wave  72% <half-cap y20   1%
+  cap 4, -8 x seasonsOver, max -30   y5 10/8-13   y10 11/8-17   y20 10/7-16    reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y5.0 warn<=y10 100% dep<=y10 100% dep/20y 13.9 wave  70% <half-cap y20   0%
+  cap 5, flat -3                     y5 13/11-15  y10 14/11-17  y20 11/6-17    reg10/20 2/2 over   72% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   6%
+  cap 5, flat -5                     y5 13/11-15  y10 14/11-17  y20 11/6-17    reg10/20 2/2 over   72% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   6%
+  cap 5, flat -8                     y5 13/11-15  y10 14/11-17  y20 11/6-17    reg10/20 2/2 over   72% 1stOver y3.2 1stWarn y19.2 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   6%
+  cap 5, -3 x seasonsOver, max -30   y5 12/11-15  y10 15/10-21  y20 13/9-20    reg10/20 2/2 over   73% 1stOver y3.2 1stWarn y6.5 warn<=y10  98% dep<=y10  96% dep/20y 12.7 wave  58% <half-cap y20   1%
+  cap 5, -5 x seasonsOver, max -30   y5 12/10-15  y10 14/10-20  y20 12/9-21    reg10/20 2/2 over   71% 1stOver y3.2 1stWarn y5.8 warn<=y10 100% dep<=y10  99% dep/20y 14.2 wave  61% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -30   y5 12/10-15  y10 13/10-20  y20 13/9-20    reg10/20 2/2 over   71% 1stOver y3.2 1stWarn y5.5 warn<=y10 100% dep<=y10  99% dep/20y 15.5 wave  62% <half-cap y20   0%
+-- start regions 3, no expansion
+  cap 3, flat -3                     y5 12/10-14  y10 12/10-15  y20 11/5-15    reg10/20 3/3 over   74% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   8%
+  cap 3, flat -5                     y5 12/10-14  y10 12/10-15  y20 11/5-15    reg10/20 3/3 over   74% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   8%
+  cap 3, flat -8                     y5 12/10-14  y10 12/10-15  y20 11/5-15    reg10/20 3/3 over   74% 1stOver y3.2 1stWarn y15.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   8%
+  cap 3, -3 x seasonsOver, max -30   y5 11/10-14  y10 13/9-19   y20 11/8-17    reg10/20 3/3 over   74% 1stOver y3.2 1stWarn y6.2 warn<=y10  99% dep<=y10  97% dep/20y 12.0 wave  60% <half-cap y20   1%
+  cap 3, -5 x seasonsOver, max -30   y5 11/9-14   y10 13/9-18   y20 11/8-17    reg10/20 3/3 over   73% 1stOver y3.2 1stWarn y5.5 warn<=y10 100% dep<=y10  99% dep/20y 13.9 wave  69% <half-cap y20   1%
+  cap 3, -8 x seasonsOver, max -30   y5 11/9-14   y10 12/9-19   y20 12/8-19    reg10/20 3/3 over   72% 1stOver y3.2 1stWarn y5.2 warn<=y10 100% dep<=y10 100% dep/20y 14.8 wave  69% <half-cap y20   0%
+  cap 4, flat -3                     y5 14/13-18  y10 16/13-19  y20 13/6-19    reg10/20 3/3 over   69% 1stOver y4.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  cap 4, flat -5                     y5 14/13-18  y10 16/13-19  y20 13/6-19    reg10/20 3/3 over   69% 1stOver y4.2 1stWarn y10.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  cap 4, flat -8                     y5 14/13-18  y10 16/13-19  y20 13/6-19    reg10/20 3/3 over   69% 1stOver y4.2 1stWarn y15.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  cap 4, -3 x seasonsOver, max -30   y5 14/13-18  y10 17/12-24  y20 15/11-23   reg10/20 3/3 over   70% 1stOver y4.2 1stWarn y7.2 warn<=y10  99% dep<=y10  96% dep/20y 13.2 wave  51% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 14/12-18  y10 16/11-23  y20 15/11-23   reg10/20 3/3 over   69% 1stOver y4.2 1stWarn y6.5 warn<=y10  99% dep<=y10  99% dep/20y 15.2 wave  50% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 14/12-18  y10 16/12-22  y20 15/11-23   reg10/20 3/3 over   68% 1stOver y4.2 1stWarn y6.0 warn<=y10 100% dep<=y10  99% dep/20y 16.9 wave  53% <half-cap y20   0%
+  cap 5, flat -3                     y5 17/14-22  y10 19/16-23  y20 17/10-24   reg10/20 3/3 over   66% 1stOver y4.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   5%
+  cap 5, flat -5                     y5 17/14-22  y10 19/16-23  y20 17/10-24   reg10/20 3/3 over   66% 1stOver y4.2 1stWarn y10.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   5%
+  cap 5, flat -8                     y5 17/14-22  y10 19/16-23  y20 17/10-24   reg10/20 3/3 over   66% 1stOver y4.2 1stWarn y14.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   5%
+  cap 5, -3 x seasonsOver, max -30   y5 17/14-22  y10 20/14-27  y20 20/14-30   reg10/20 3/3 over   66% 1stOver y4.2 1stWarn y7.8 warn<=y10  95% dep<=y10  92% dep/20y 13.5 wave  38% <half-cap y20   0%
+  cap 5, -5 x seasonsOver, max -30   y5 17/14-22  y10 20/14-27  y20 20/14-30   reg10/20 3/3 over   65% 1stOver y4.2 1stWarn y7.0 warn<=y10  98% dep<=y10  97% dep/20y 16.1 wave  36% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -30   y5 17/14-22  y10 19/14-26  y20 19/14-29   reg10/20 3/3 over   65% 1stOver y4.2 1stWarn y6.5 warn<=y10  99% dep<=y10  99% dep/20y 18.3 wave  42% <half-cap y20   0%
+-- start regions 1, player expands (C4)
+  cap 3, flat -3                     y5 14/10-18  y10 25/21-32  y20 23/19-33   reg10/20 7/7 over   76% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   1%
+  cap 3, flat -5                     y5 14/10-18  y10 25/21-32  y20 23/19-33   reg10/20 7/7 over   76% 1stOver y1.2 1stWarn y13.0 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   1%
+  cap 3, flat -8                     y5 14/10-18  y10 25/21-32  y20 23/19-34   reg10/20 7/7 over   75% 1stOver y1.2 1stWarn y13.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   1%
+  cap 3, -3 x seasonsOver, max -30   y5 14/10-18  y10 25/21-31  y20 26/20-39   reg10/20 7/7 over   74% 1stOver y1.2 1stWarn y11.8 warn<=y10  26% dep<=y10  13% dep/20y 10.2 wave  14% <half-cap y20   0%
+  cap 3, -5 x seasonsOver, max -30   y5 14/10-18  y10 24/20-31  y20 28/20-40   reg10/20 7/7 over   74% 1stOver y1.2 1stWarn y11.0 warn<=y10  50% dep<=y10  33% dep/20y 13.8 wave  15% <half-cap y20   0%
+  cap 3, -8 x seasonsOver, max -30   y5 14/10-18  y10 23/19-31  y20 27/20-39   reg10/20 7/7 over   73% 1stOver y1.2 1stWarn y10.0 warn<=y10  72% dep<=y10  53% dep/20y 16.1 wave  15% <half-cap y20   0%
+  cap 4, flat -3                     y5 16/11-21  y10 32/26-39  y20 31/25-43   reg10/20 7/7 over   71% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 16/11-21  y10 32/26-39  y20 31/25-43   reg10/20 7/7 over   71% 1stOver y1.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 16/11-21  y10 32/26-39  y20 31/25-43   reg10/20 7/7 over   71% 1stOver y1.2 1stWarn y18.5 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 16/11-21  y10 32/26-39  y20 34/26-48   reg10/20 7/7 over   69% 1stOver y1.2 1stWarn y12.2 warn<=y10  10% dep<=y10   4% dep/20y 10.2 wave   5% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 16/11-21  y10 31/25-39  y20 36/26-52   reg10/20 7/7 over   69% 1stOver y1.2 1stWarn y11.5 warn<=y10  28% dep<=y10  17% dep/20y 14.5 wave   7% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 15/11-21  y10 30/24-38  y20 37/27-54   reg10/20 7/7 over   68% 1stOver y1.2 1stWarn y10.5 warn<=y10  59% dep<=y10  40% dep/20y 17.6 wave   5% <half-cap y20   0%
+  cap 5, flat -3                     y5 17/11-24  y10 37/29-46  y20 40/32-55   reg10/20 7/7 over   66% 1stOver y2.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, flat -5                     y5 17/11-24  y10 37/29-46  y20 40/32-55   reg10/20 7/7 over   66% 1stOver y2.2 1stWarn y17.5 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, flat -8                     y5 17/11-24  y10 37/29-46  y20 40/32-55   reg10/20 7/7 over   66% 1stOver y2.2 1stWarn y16.0 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, -3 x seasonsOver, max -30   y5 17/11-24  y10 37/29-46  y20 43/32-61   reg10/20 7/7 over   65% 1stOver y2.2 1stWarn y13.2 warn<=y10   5% dep<=y10   1% dep/20y 10.3 wave   2% <half-cap y20   0%
+  cap 5, -5 x seasonsOver, max -30   y5 17/11-24  y10 37/29-46  y20 46/33-64   reg10/20 7/7 over   65% 1stOver y2.2 1stWarn y12.2 warn<=y10  18% dep<=y10   9% dep/20y 15.4 wave   2% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -30   y5 17/11-24  y10 37/29-46  y20 46/33-66   reg10/20 7/7 over   65% 1stOver y2.2 1stWarn y11.2 warn<=y10  45% dep<=y10  26% dep/20y 19.3 wave   1% <half-cap y20   0%
+-- start regions 2, player expands (C4)
+  cap 3, flat -3                     y5 14/10-19  y10 25/21-32  y20 24/18-33   reg10/20 7/7 over   74% 1stOver y2.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 3, flat -5                     y5 14/10-19  y10 25/21-32  y20 24/18-33   reg10/20 7/7 over   74% 1stOver y2.2 1stWarn y18.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 3, flat -8                     y5 14/10-19  y10 25/21-32  y20 24/18-33   reg10/20 7/7 over   74% 1stOver y2.2 1stWarn y17.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 3, -3 x seasonsOver, max -30   y5 14/10-19  y10 25/21-31  y20 27/20-39   reg10/20 7/7 over   72% 1stOver y2.2 1stWarn y11.5 warn<=y10  30% dep<=y10  15% dep/20y 10.7 wave  15% <half-cap y20   0%
+  cap 3, -5 x seasonsOver, max -30   y5 14/10-19  y10 24/19-31  y20 28/20-39   reg10/20 7/7 over   72% 1stOver y2.2 1stWarn y10.8 warn<=y10  54% dep<=y10  37% dep/20y 14.3 wave  16% <half-cap y20   0%
+  cap 3, -8 x seasonsOver, max -30   y5 14/10-19  y10 24/19-31  y20 28/20-40   reg10/20 7/7 over   71% 1stOver y2.2 1stWarn y9.8 warn<=y10  80% dep<=y10  62% dep/20y 16.8 wave  14% <half-cap y20   0%
+  cap 4, flat -3                     y5 16/12-22  y10 32/26-40  y20 31/25-44   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 16/12-22  y10 32/26-40  y20 31/25-44   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y14.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 16/12-22  y10 32/26-40  y20 31/25-44   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y16.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 16/12-22  y10 32/26-40  y20 36/26-50   reg10/20 7/7 over   67% 1stOver y3.2 1stWarn y12.2 warn<=y10  19% dep<=y10   6% dep/20y 10.2 wave   5% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 16/12-22  y10 32/25-39  y20 37/27-54   reg10/20 7/7 over   66% 1stOver y3.2 1stWarn y11.2 warn<=y10  38% dep<=y10  25% dep/20y 14.6 wave   6% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 16/12-22  y10 31/25-39  y20 37/26-54   reg10/20 7/7 over   66% 1stOver y3.2 1stWarn y10.2 warn<=y10  67% dep<=y10  48% dep/20y 18.1 wave   5% <half-cap y20   0%
+  cap 5, flat -3                     y5 18/12-24  y10 38/29-46  y20 39/32-54   reg10/20 7/7 over   63% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, flat -5                     y5 18/12-24  y10 38/29-46  y20 39/32-54   reg10/20 7/7 over   63% 1stOver y3.2 1stWarn y14.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, flat -8                     y5 18/12-24  y10 38/29-46  y20 39/32-54   reg10/20 7/7 over   63% 1stOver y3.2 1stWarn y14.0 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, -3 x seasonsOver, max -30   y5 18/12-24  y10 38/29-46  y20 42/32-61   reg10/20 7/7 over   62% 1stOver y3.2 1stWarn y12.8 warn<=y10   8% dep<=y10   3% dep/20y 10.2 wave   2% <half-cap y20   0%
+  cap 5, -5 x seasonsOver, max -30   y5 18/12-24  y10 37/29-46  y20 46/32-64   reg10/20 7/7 over   62% 1stOver y3.2 1stWarn y12.0 warn<=y10  20% dep<=y10  13% dep/20y 14.3 wave   2% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -30   y5 18/12-24  y10 37/29-46  y20 46/32-66   reg10/20 7/7 over   61% 1stOver y3.2 1stWarn y11.0 warn<=y10  47% dep<=y10  27% dep/20y 18.8 wave   2% <half-cap y20   0%
+-- start regions 3, player expands (C4)
+  cap 3, flat -3                     y5 16/12-21  y10 26/22-32  y20 23/18-33   reg10/20 7/7 over   69% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   1%
+  cap 3, flat -5                     y5 16/12-21  y10 26/22-32  y20 23/18-33   reg10/20 7/7 over   69% 1stOver y3.2 1stWarn y16.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   1%
+  cap 3, flat -8                     y5 16/12-21  y10 26/22-32  y20 23/17-33   reg10/20 7/7 over   69% 1stOver y3.2 1stWarn y16.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   1%
+  cap 3, -3 x seasonsOver, max -30   y5 16/12-21  y10 24/20-32  y20 26/19-37   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y10.8 warn<=y10  51% dep<=y10  33% dep/20y 11.1 wave  17% <half-cap y20   0%
+  cap 3, -5 x seasonsOver, max -30   y5 16/12-21  y10 24/19-32  y20 26/19-40   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y10.0 warn<=y10  71% dep<=y10  59% dep/20y 14.9 wave  16% <half-cap y20   0%
+  cap 3, -8 x seasonsOver, max -30   y5 16/12-21  y10 23/19-31  y20 28/20-40   reg10/20 7/7 over   67% 1stOver y3.2 1stWarn y9.2 warn<=y10  86% dep<=y10  75% dep/20y 17.3 wave  17% <half-cap y20   0%
+  cap 4, flat -3                     y5 18/13-24  y10 32/27-39  y20 32/25-44   reg10/20 7/7 over   64% 1stOver y4.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -5                     y5 18/13-24  y10 32/27-39  y20 32/25-44   reg10/20 7/7 over   64% 1stOver y4.2 1stWarn y15.2 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, flat -8                     y5 18/13-24  y10 32/28-39  y20 32/25-44   reg10/20 7/7 over   64% 1stOver y4.2 1stWarn y9.2 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -30   y5 18/13-24  y10 32/27-39  y20 35/26-50   reg10/20 7/7 over   63% 1stOver y4.2 1stWarn y11.8 warn<=y10  27% dep<=y10  13% dep/20y 10.7 wave   5% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -30   y5 18/13-24  y10 32/26-39  y20 37/27-52   reg10/20 7/7 over   63% 1stOver y4.2 1stWarn y11.0 warn<=y10  49% dep<=y10  35% dep/20y 15.5 wave   7% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -30   y5 18/13-24  y10 31/25-39  y20 37/26-54   reg10/20 7/7 over   63% 1stOver y4.2 1stWarn y10.0 warn<=y10  72% dep<=y10  57% dep/20y 19.3 wave   5% <half-cap y20   0%
+  cap 5, flat -3                     y5 19/14-26  y10 39/32-45  y20 39/32-54   reg10/20 7/7 over   60% 1stOver y4.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, flat -5                     y5 19/14-26  y10 39/32-45  y20 39/32-54   reg10/20 7/7 over   60% 1stOver y4.2 1stWarn y16.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, flat -8                     y5 19/14-26  y10 39/32-45  y20 39/32-54   reg10/20 7/7 over   60% 1stOver y4.2 1stWarn y12.5 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  cap 5, -3 x seasonsOver, max -30   y5 19/14-26  y10 39/32-45  y20 44/33-62   reg10/20 7/7 over   59% 1stOver y4.2 1stWarn y12.2 warn<=y10  13% dep<=y10   5% dep/20y 10.7 wave   2% <half-cap y20   0%
+  cap 5, -5 x seasonsOver, max -30   y5 19/14-26  y10 38/31-45  y20 45/32-64   reg10/20 7/7 over   59% 1stOver y4.2 1stWarn y11.5 warn<=y10  29% dep<=y10  18% dep/20y 15.9 wave   2% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -30   y5 19/14-26  y10 37/30-45  y20 45/32-66   reg10/20 7/7 over   58% 1stOver y4.2 1stWarn y10.8 warn<=y10  55% dep<=y10  37% dep/20y 20.1 wave   2% <half-cap y20   0%
+========================================================================================================================
+O3 Escalation max sensitivity (gate on, cap 4, -5 x seasonsOver), 2 regions
+  max -15, fixed                     y5 11/9-13   y10 11/9-14   y20 9/4-14     reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y9.0 warn<=y10  30% dep<=y10  24% dep/20y  0.4 wave   0% <half-cap y20  10%
+  max -15, expand                    y5 16/12-22  y10 32/26-40  y20 32/25-45   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y13.8 warn<=y10   2% dep<=y10   0% dep/20y  0.7 wave   0% <half-cap y20   0%
+  max -20, fixed                     y5 11/9-13   y10 11/9-14   y20 10/6-15    reg10/20 2/2 over   76% 1stOver y3.2 1stWarn y7.2 warn<=y10  91% dep<=y10  80% dep/20y  2.8 wave   0% <half-cap y20   6%
+  max -20, expand                    y5 16/12-22  y10 32/26-40  y20 33/26-48   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y12.5 warn<=y10  12% dep<=y10   4% dep/20y  3.8 wave   0% <half-cap y20   0%
+  max -30, fixed                     y5 10/8-13   y10 12/8-17   y20 10/7-16    reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y5.5 warn<=y10 100% dep<=y10  99% dep/20y 13.1 wave  72% <half-cap y20   1%
+  max -30, expand                    y5 16/12-22  y10 32/25-39  y20 37/27-54   reg10/20 7/7 over   66% 1stOver y3.2 1stWarn y11.2 warn<=y10  38% dep<=y10  25% dep/20y 14.6 wave   6% <half-cap y20   0%
+  max -50, fixed                     y5 9/7-13    y10 9/6-15    y20 9/6-16     reg10/20 2/2 over   71% 1stOver y3.2 1stWarn y5.2 warn<=y10 100% dep<=y10  99% dep/20y 19.0 wave  99% <half-cap y20   1%
+  max -50, expand                    y5 16/12-22  y10 31/24-39  y20 36/23-51   reg10/20 7/7 over   64% 1stOver y3.2 1stWarn y11.0 warn<=y10  42% dep<=y10  30% dep/20y 24.3 wave  63% <half-cap y20   0%
+========================================================================================================================
+O4 Sensitivity at the recommended set (gate on, cap 4, -5 x seasonsOver max -20), 2 regions
+  recommended, fixed                 y5 11/9-13   y10 11/9-14   y20 10/6-15    reg10/20 2/2 over   76% 1stOver y3.2 1stWarn y7.2 warn<=y10  91% dep<=y10  80% dep/20y  2.8 wave   0% <half-cap y20   6%
+  recommended, expand                y5 16/12-22  y10 32/26-40  y20 33/26-48   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y12.5 warn<=y10  12% dep<=y10   4% dep/20y  3.8 wave   0% <half-cap y20   0%
+  p_out 0 (pair only), fixed         y5 10/9-12   y10 9/7-12    y20 4/0-10     reg10/20 2/2 over   50% 1stOver y3.2 1stWarn y7.2 warn<=y10  87% dep<=y10  78% dep/20y  2.0 wave   2% <half-cap y20  45%
+  p_out 0 (pair only), expand        y5 14/10-17  y10 22/16-28  y20 10/4-23    reg10/20 6/7 over   23% 1stOver y3.2 1stWarn y14.0 warn<=y10   0% dep<=y10   0% dep/20y  0.1 wave   0% <half-cap y20  61%
+  p_out .25, fixed                   y5 10/9-13   y10 10/8-13   y20 10/4-14    reg10/20 2/2 over   71% 1stOver y3.2 1stWarn y7.2 warn<=y10  91% dep<=y10  82% dep/20y  2.7 wave   1% <half-cap y20   9%
+  p_out .25, expand                  y5 15/11-19  y10 29/21-35  y20 29/21-42   reg10/20 7/7 over   53% 1stOver y3.2 1stWarn y13.2 warn<=y10   5% dep<=y10   1% dep/20y  1.8 wave   0% <half-cap y20   3%
+  p_out 1.0, fixed                   y5 11/10-14  y10 13/11-16  y20 10/7-15    reg10/20 2/2 over   80% 1stOver y3.2 1stWarn y7.2 warn<=y10  86% dep<=y10  75% dep/20y  2.5 wave   0% <half-cap y20   4%
+  p_out 1.0, expand                  y5 18/13-24  y10 36/29-45  y20 34/27-49   reg10/20 7/7 over   75% 1stOver y3.2 1stWarn y11.5 warn<=y10  31% dep<=y10  13% dep/20y  5.7 wave   0% <half-cap y20   0%
+  cubs do not count, fixed           y5 14/11-18  y10 12/9-17   y20 11/5-18    reg10/20 2/2 over   68% 1stOver y4.2 1stWarn y7.5 warn<=y10  96% dep<=y10  89% dep/20y  3.9 wave   0% <half-cap y20   6%
+  cubs do not count, expand          y5 17/13-25  y10 34/26-47  y20 35/27-52   reg10/20 7/7 over   60% 1stOver y4.2 1stWarn y13.0 warn<=y10   9% dep<=y10   4% dep/20y  5.4 wave   0% <half-cap y20   0%
+  level reading (C6), fixed          y5 11/9-13   y10 12/9-15   y20 9/4-14     reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y14.8 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  level reading (C6), expand         y5 16/12-22  y10 32/26-40  y20 31/25-44   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y18.2 warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+  player answers 2 warnings/season, fixed y5 11/9-13   y10 11/9-14   y20 10/4-14    reg10/20 2/2 over   74% 1stOver y3.2 1stWarn y7.2 warn<=y10  91% dep<=y10  70% dep/20y  1.9 wave   0% <half-cap y20  10%
+  player answers 2 warnings/season, expand y5 16/12-22  y10 32/26-40  y20 33/26-46   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y12.5 warn<=y10  12% dep<=y10   3% dep/20y  3.2 wave   0% <half-cap y20   0%
+  Sim Style, fixed                   y5 10/8-13   y10 10/8-14   y20 10/6-14    reg10/20 2/2 over   73% 1stOver y3.2 1stWarn y7.5 warn<=y10  85% dep<=y10  98% dep/20y  6.6 wave   9% <half-cap y20   5%
+  Sim Style, expand                  y5 14/10-20  y10 29/22-38  y20 33/26-46   reg10/20 7/7 over   62% 1stOver y3.2 1stWarn y13.5 warn<=y10  11% dep<=y10  99% dep/20y 16.2 wave   8% <half-cap y20   0%
+  room gate (C8) instead, fixed      y5 8/6-9     y10 8/7-10    y20 6/1-8      reg10/20 2/2 over   22% 1stOver y7.0 1stWarn y9.8 warn<=y10  25% dep<=y10  16% dep/20y  0.4 wave   0% <half-cap y20  21%
+  room gate (C8) instead, expand     y5 8/6-9     y10 10/7-14   y20 11/6-15    reg10/20 3/3 over    5% 1stOver y7.0 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   3%
+  soft gate (C10) instead, fixed     y5 15/11-21  y10 21/16-29  y20 20/13-29   reg10/20 2/2 over   90% 1stOver y3.2 1stWarn y7.2 warn<=y10  97% dep<=y10  92% dep/20y  8.4 wave   0% <half-cap y20   0%
+  soft gate (C10) instead, expand    y5 19/14-26  y10 47/36-56  y20 65/44-86   reg10/20 7/7 over   84% 1stOver y3.2 1stWarn y10.8 warn<=y10  51% dep<=y10  31% dep/20y 15.9 wave   0% <half-cap y20   0%
+  flat -5, level reading, fixed      y5 11/9-13   y10 12/9-15   y20 9/4-14     reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   9%
+  flat -5, level reading, expand     y5 16/12-22  y10 32/26-40  y20 31/25-44   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y- warn<=y10   0% dep<=y10   0% dep/20y  0.0 wave   0% <half-cap y20   0%
+========================================================================================================================
+O5 Recommended penalty shape (gate on, max -20): step 3/5/8 x capacity 3/4/5 x regions 1/2/3 x expand
+-- start regions 1, no expansion
+  cap 3, -3 x seasonsOver, max -20   y5 6/4-8     y10 6/4-9     y20 3/0-7      reg10/20 1/1 over   80% 1stOver y1.2 1stWarn y6.8 warn<=y10  62% dep<=y10  45% dep/20y  1.1 wave   1% <half-cap y20  38%
+  cap 3, -5 x seasonsOver, max -20   y5 6/4-8     y10 6/4-9     y20 4/0-6      reg10/20 1/1 over   80% 1stOver y1.2 1stWarn y6.8 warn<=y10  62% dep<=y10  45% dep/20y  1.2 wave   1% <half-cap y20  37%
+  cap 3, -8 x seasonsOver, max -20   y5 6/4-8     y10 6/4-9     y20 3/0-6      reg10/20 1/1 over   80% 1stOver y1.2 1stWarn y6.8 warn<=y10  62% dep<=y10  45% dep/20y  1.2 wave   1% <half-cap y20  38%
+  cap 4, -3 x seasonsOver, max -20   y5 7/5-9     y10 7/5-10    y20 5/0-8      reg10/20 1/1 over   80% 1stOver y1.2 1stWarn y7.2 warn<=y10  72% dep<=y10  57% dep/20y  1.5 wave   1% <half-cap y20  27%
+  cap 4, -5 x seasonsOver, max -20   y5 7/5-9     y10 7/5-10    y20 5/0-8      reg10/20 1/1 over   80% 1stOver y1.2 1stWarn y7.0 warn<=y10  72% dep<=y10  58% dep/20y  1.5 wave   1% <half-cap y20  27%
+  cap 4, -8 x seasonsOver, max -20   y5 7/5-9     y10 7/5-10    y20 5/0-8      reg10/20 1/1 over   80% 1stOver y1.2 1stWarn y7.0 warn<=y10  72% dep<=y10  58% dep/20y  1.5 wave   1% <half-cap y20  27%
+  cap 5, -3 x seasonsOver, max -20   y5 8/6-10    y10 8/6-11    y20 6/0-10     reg10/20 1/1 over   79% 1stOver y2.2 1stWarn y7.2 warn<=y10  81% dep<=y10  64% dep/20y  1.8 wave   1% <half-cap y20  19%
+  cap 5, -5 x seasonsOver, max -20   y5 8/6-10    y10 8/6-11    y20 6/0-10     reg10/20 1/1 over   79% 1stOver y2.2 1stWarn y7.0 warn<=y10  83% dep<=y10  66% dep/20y  1.8 wave   1% <half-cap y20  19%
+  cap 5, -8 x seasonsOver, max -20   y5 8/6-10    y10 8/6-11    y20 6/0-10     reg10/20 1/1 over   79% 1stOver y2.2 1stWarn y7.0 warn<=y10  83% dep<=y10  66% dep/20y  1.9 wave   2% <half-cap y20  19%
+-- start regions 2, no expansion
+  cap 3, -3 x seasonsOver, max -20   y5 9/7-11    y10 9/7-12    y20 8/2-11     reg10/20 2/2 over   78% 1stOver y2.2 1stWarn y7.2 warn<=y10  87% dep<=y10  71% dep/20y  2.1 wave   1% <half-cap y20  13%
+  cap 3, -5 x seasonsOver, max -20   y5 9/7-11    y10 9/7-12    y20 8/2-11     reg10/20 2/2 over   78% 1stOver y2.2 1stWarn y7.0 warn<=y10  89% dep<=y10  73% dep/20y  2.2 wave   1% <half-cap y20  13%
+  cap 3, -8 x seasonsOver, max -20   y5 9/7-11    y10 9/7-12    y20 8/2-11     reg10/20 2/2 over   78% 1stOver y2.2 1stWarn y7.0 warn<=y10  89% dep<=y10  74% dep/20y  2.2 wave   1% <half-cap y20  13%
+  cap 4, -3 x seasonsOver, max -20   y5 11/9-13   y10 11/9-14   y20 10/6-15    reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y7.5 warn<=y10  88% dep<=y10  76% dep/20y  2.5 wave   0% <half-cap y20   6%
+  cap 4, -5 x seasonsOver, max -20   y5 11/9-13   y10 11/9-14   y20 10/6-15    reg10/20 2/2 over   76% 1stOver y3.2 1stWarn y7.2 warn<=y10  91% dep<=y10  80% dep/20y  2.8 wave   0% <half-cap y20   6%
+  cap 4, -8 x seasonsOver, max -20   y5 11/9-13   y10 11/9-14   y20 10/6-15    reg10/20 2/2 over   75% 1stOver y3.2 1stWarn y7.0 warn<=y10  91% dep<=y10  79% dep/20y  2.9 wave   0% <half-cap y20   7%
+  cap 5, -3 x seasonsOver, max -20   y5 13/11-15  y10 13/10-17  y20 12/9-18    reg10/20 2/2 over   74% 1stOver y3.2 1stWarn y7.8 warn<=y10  87% dep<=y10  77% dep/20y  3.2 wave   0% <half-cap y20   4%
+  cap 5, -5 x seasonsOver, max -20   y5 13/11-15  y10 12/10-17  y20 12/9-18    reg10/20 2/2 over   73% 1stOver y3.2 1stWarn y7.5 warn<=y10  90% dep<=y10  81% dep/20y  3.4 wave   0% <half-cap y20   2%
+  cap 5, -8 x seasonsOver, max -20   y5 13/11-15  y10 12/10-17  y20 12/9-18    reg10/20 2/2 over   73% 1stOver y3.2 1stWarn y7.5 warn<=y10  92% dep<=y10  82% dep/20y  3.5 wave   0% <half-cap y20   2%
+-- start regions 3, no expansion
+  cap 3, -3 x seasonsOver, max -20   y5 12/10-14  y10 11/9-15   y20 11/7-16    reg10/20 3/3 over   75% 1stOver y3.2 1stWarn y7.8 warn<=y10  89% dep<=y10  79% dep/20y  2.9 wave   0% <half-cap y20   6%
+  cap 3, -5 x seasonsOver, max -20   y5 11/10-14  y10 11/9-15   y20 11/8-17    reg10/20 3/3 over   75% 1stOver y3.2 1stWarn y7.2 warn<=y10  91% dep<=y10  82% dep/20y  3.1 wave   0% <half-cap y20   3%
+  cap 3, -8 x seasonsOver, max -20   y5 11/10-14  y10 11/9-15   y20 11/8-17    reg10/20 3/3 over   75% 1stOver y3.2 1stWarn y7.2 warn<=y10  91% dep<=y10  82% dep/20y  3.2 wave   0% <half-cap y20   3%
+  cap 4, -3 x seasonsOver, max -20   y5 14/13-18  y10 14/12-19  y20 15/11-22   reg10/20 3/3 over   72% 1stOver y4.2 1stWarn y8.2 warn<=y10  90% dep<=y10  80% dep/20y  3.8 wave   0% <half-cap y20   2%
+  cap 4, -5 x seasonsOver, max -20   y5 14/13-18  y10 14/12-19  y20 15/11-21   reg10/20 3/3 over   72% 1stOver y4.2 1stWarn y8.0 warn<=y10  94% dep<=y10  84% dep/20y  4.0 wave   0% <half-cap y20   1%
+  cap 4, -8 x seasonsOver, max -20   y5 14/13-18  y10 14/12-19  y20 15/11-22   reg10/20 3/3 over   71% 1stOver y4.2 1stWarn y7.8 warn<=y10  95% dep<=y10  86% dep/20y  4.0 wave   0% <half-cap y20   1%
+  cap 5, -3 x seasonsOver, max -20   y5 17/14-22  y10 17/15-23  y20 19/14-27   reg10/20 3/3 over   68% 1stOver y4.2 1stWarn y8.8 warn<=y10  89% dep<=y10  75% dep/20y  4.2 wave   0% <half-cap y20   1%
+  cap 5, -5 x seasonsOver, max -20   y5 17/14-22  y10 17/15-23  y20 18/14-27   reg10/20 3/3 over   68% 1stOver y4.2 1stWarn y8.2 warn<=y10  91% dep<=y10  81% dep/20y  4.5 wave   0% <half-cap y20   1%
+  cap 5, -8 x seasonsOver, max -20   y5 17/14-22  y10 17/15-23  y20 19/14-26   reg10/20 3/3 over   69% 1stOver y4.2 1stWarn y8.0 warn<=y10  92% dep<=y10  84% dep/20y  4.7 wave   0% <half-cap y20   1%
+-- start regions 1, player expands (C4)
+  cap 3, -3 x seasonsOver, max -20   y5 14/10-18  y10 25/21-31  y20 25/19-36   reg10/20 7/7 over   75% 1stOver y1.2 1stWarn y12.8 warn<=y10   9% dep<=y10   3% dep/20y  3.2 wave   0% <half-cap y20   0%
+  cap 3, -5 x seasonsOver, max -20   y5 14/10-18  y10 25/21-31  y20 25/19-36   reg10/20 7/7 over   75% 1stOver y1.2 1stWarn y12.2 warn<=y10  17% dep<=y10   7% dep/20y  3.5 wave   0% <half-cap y20   0%
+  cap 3, -8 x seasonsOver, max -20   y5 14/10-18  y10 25/21-31  y20 25/20-35   reg10/20 7/7 over   75% 1stOver y1.2 1stWarn y11.8 warn<=y10  28% dep<=y10  17% dep/20y  4.0 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -20   y5 16/11-21  y10 32/26-39  y20 32/26-44   reg10/20 7/7 over   70% 1stOver y1.2 1stWarn y13.2 warn<=y10   2% dep<=y10   1% dep/20y  3.0 wave   0% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -20   y5 16/11-21  y10 32/26-39  y20 34/26-47   reg10/20 7/7 over   70% 1stOver y1.2 1stWarn y12.8 warn<=y10   8% dep<=y10   2% dep/20y  3.8 wave   0% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -20   y5 16/11-21  y10 31/26-39  y20 33/26-46   reg10/20 7/7 over   71% 1stOver y1.2 1stWarn y12.0 warn<=y10  17% dep<=y10   8% dep/20y  4.3 wave   0% <half-cap y20   0%
+  cap 5, -3 x seasonsOver, max -20   y5 17/11-24  y10 37/29-46  y20 41/32-57   reg10/20 7/7 over   66% 1stOver y2.2 1stWarn y13.8 warn<=y10   2% dep<=y10   0% dep/20y  3.0 wave   0% <half-cap y20   0%
+  cap 5, -5 x seasonsOver, max -20   y5 17/11-24  y10 37/29-46  y20 42/33-57   reg10/20 7/7 over   66% 1stOver y2.2 1stWarn y13.2 warn<=y10   5% dep<=y10   2% dep/20y  3.9 wave   0% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -20   y5 17/11-24  y10 37/29-46  y20 41/33-59   reg10/20 7/7 over   66% 1stOver y2.2 1stWarn y12.5 warn<=y10  13% dep<=y10   7% dep/20y  4.5 wave   0% <half-cap y20   0%
+-- start regions 2, player expands (C4)
+  cap 3, -3 x seasonsOver, max -20   y5 14/10-19  y10 25/21-32  y20 25/19-36   reg10/20 7/7 over   74% 1stOver y2.2 1stWarn y12.5 warn<=y10  11% dep<=y10   4% dep/20y  3.3 wave   0% <half-cap y20   0%
+  cap 3, -5 x seasonsOver, max -20   y5 14/10-19  y10 25/21-31  y20 25/20-35   reg10/20 7/7 over   74% 1stOver y2.2 1stWarn y12.0 warn<=y10  22% dep<=y10  11% dep/20y  3.9 wave   0% <half-cap y20   0%
+  cap 3, -8 x seasonsOver, max -20   y5 14/10-19  y10 25/21-31  y20 25/19-36   reg10/20 7/7 over   73% 1stOver y2.2 1stWarn y11.5 warn<=y10  33% dep<=y10  21% dep/20y  4.2 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -20   y5 16/12-22  y10 32/26-40  y20 33/26-46   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y13.2 warn<=y10   5% dep<=y10   1% dep/20y  3.2 wave   0% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -20   y5 16/12-22  y10 32/26-40  y20 33/26-48   reg10/20 7/7 over   68% 1stOver y3.2 1stWarn y12.5 warn<=y10  12% dep<=y10   4% dep/20y  3.8 wave   0% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -20   y5 16/12-22  y10 32/27-40  y20 34/26-49   reg10/20 7/7 over   67% 1stOver y3.2 1stWarn y12.0 warn<=y10  23% dep<=y10  13% dep/20y  4.4 wave   0% <half-cap y20   0%
+  cap 5, -3 x seasonsOver, max -20   y5 18/12-24  y10 38/29-46  y20 41/33-57   reg10/20 7/7 over   63% 1stOver y3.2 1stWarn y13.8 warn<=y10   2% dep<=y10   1% dep/20y  3.1 wave   0% <half-cap y20   0%
+  cap 5, -5 x seasonsOver, max -20   y5 18/12-24  y10 38/29-46  y20 42/33-60   reg10/20 7/7 over   63% 1stOver y3.2 1stWarn y13.0 warn<=y10   6% dep<=y10   2% dep/20y  3.8 wave   0% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -20   y5 18/12-24  y10 38/29-46  y20 42/33-58   reg10/20 7/7 over   62% 1stOver y3.2 1stWarn y12.5 warn<=y10  15% dep<=y10   8% dep/20y  4.4 wave   0% <half-cap y20   0%
+-- start regions 3, player expands (C4)
+  cap 3, -3 x seasonsOver, max -20   y5 16/12-21  y10 25/22-32  y20 24/20-35   reg10/20 7/7 over   70% 1stOver y3.2 1stWarn y11.8 warn<=y10  23% dep<=y10  10% dep/20y  3.5 wave   0% <half-cap y20   0%
+  cap 3, -5 x seasonsOver, max -20   y5 16/12-21  y10 25/21-32  y20 24/20-36   reg10/20 7/7 over   69% 1stOver y3.2 1stWarn y11.2 warn<=y10  37% dep<=y10  22% dep/20y  4.0 wave   0% <half-cap y20   1%
+  cap 3, -8 x seasonsOver, max -20   y5 16/12-21  y10 25/21-32  y20 25/19-36   reg10/20 7/7 over   69% 1stOver y3.2 1stWarn y10.8 warn<=y10  51% dep<=y10  34% dep/20y  4.4 wave   0% <half-cap y20   0%
+  cap 4, -3 x seasonsOver, max -20   y5 18/13-24  y10 32/27-39  y20 33/26-45   reg10/20 7/7 over   64% 1stOver y4.2 1stWarn y12.8 warn<=y10   9% dep<=y10   5% dep/20y  3.3 wave   0% <half-cap y20   0%
+  cap 4, -5 x seasonsOver, max -20   y5 18/13-24  y10 32/27-39  y20 32/26-47   reg10/20 7/7 over   64% 1stOver y4.2 1stWarn y12.0 warn<=y10  19% dep<=y10   9% dep/20y  4.2 wave   0% <half-cap y20   0%
+  cap 4, -8 x seasonsOver, max -20   y5 18/13-24  y10 32/27-39  y20 33/26-47   reg10/20 7/7 over   64% 1stOver y4.2 1stWarn y11.5 warn<=y10  32% dep<=y10  18% dep/20y  4.8 wave   0% <half-cap y20   0%
+  cap 5, -3 x seasonsOver, max -20   y5 19/14-26  y10 39/32-45  y20 42/33-59   reg10/20 7/7 over   60% 1stOver y4.2 1stWarn y13.0 warn<=y10   4% dep<=y10   1% dep/20y  3.1 wave   0% <half-cap y20   0%
+  cap 5, -5 x seasonsOver, max -20   y5 19/14-26  y10 39/32-45  y20 41/33-59   reg10/20 7/7 over   60% 1stOver y4.2 1stWarn y12.5 warn<=y10  10% dep<=y10   4% dep/20y  4.1 wave   0% <half-cap y20   0%
+  cap 5, -8 x seasonsOver, max -20   y5 19/14-26  y10 39/32-45  y20 41/33-59   reg10/20 7/7 over   60% 1stOver y4.2 1stWarn y12.0 warn<=y10  20% dep<=y10  11% dep/20y  4.7 wave   0% <half-cap y20   0%
+========================================================================================================================
+A1 AI prides (Q17.14). Rosters world-slots.json HC 11 / BF 10 / MW 9 + 9 loners; capacity = cap/region x regions
+   (regions fixed per run: "4/3/3" = map-v1 §4.2 start claims incl. Highcrag's disputed ford; "4/4/4" = councils
+   10-year median). mode all = every fertile female breeds if a fertile male lives (Tracker stopgap, no incest gate);
+   mode pairs = monogamous mates with r < 0.125 (C3). x = cross-pride pairing chance (C11). Cubs count.
+-- calibration vs Tracker DELTA-v0.1e (all, proposed gate, cap 4, 4/3/3: y10 med 27/19/16, max 61)
+  mode all, gate proposed, cap 4, 4/3/3
+    highcrag  y5 21/17-27   y10 25/16-37   y20 21/3-35    in 8-20: y10  35% y20  34% | <6 at y20  13% | over cap  86% of seasons | max 59
+    bonefield y5 17/14-22   y10 18/12-30   y20 15/0-26    in 8-20: y10  58% y20  54% | <6 at y20  20% | over cap  85% of seasons | max 56
+    mistwood  y5 19/14-23   y10 16/12-27   y20 13/0-25    in 8-20: y10  77% y20  40% | <6 at y20  39% | over cap  78% of seasons | max 51
+  mode all, gate room, cap 4, 4/3/3
+    highcrag  y5 15/13-16   y10 14/12-16   y20 14/12-16   in 8-20: y10 100% y20  98% | <6 at y20   2% | over cap   4% of seasons | max 21
+    bonefield y5 11/10-13   y10 10/8-12    y20 10/6-12    in 8-20: y10  91% y20  86% | <6 at y20   9% | over cap   6% of seasons | max 17
+    mistwood  y5 11/9-13    y10 10/8-12    y20 10/7-12    in 8-20: y10  93% y20  89% | <6 at y20   8% | over cap   5% of seasons | max 16
+  mode all, NO gate, cap 4, 4/3/3 (births stop at 1500)
+    highcrag  y5 120/95-153 y10 1084/821-1425 y20 2958/1465-3271 in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  99% of seasons | max 4179
+    bonefield y5 115/88-145 y10 1031/745-1347 y20 2885/1469-3324 in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  99% of seasons | max 4139
+    mistwood  y5 116/86-149 y10 1039/727-1351 y20 2862/1452-3298 in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  99% of seasons | max 4162
+-- monogamous pairs, no cross-pride pairing
+  pairs x0, gate proposed, cap 4, 4/3/3
+    highcrag  y5 19/16-30   y10 24/17-32   y20 15/3-23    in 8-20: y10  29% y20  60% | <6 at y20  16% | over cap  78% of seasons | max 48
+    bonefield y5 17/14-21   y10 16/12-24   y20 11/1-19    in 8-20: y10  77% y20  59% | <6 at y20  25% | over cap  75% of seasons | max 37
+    mistwood  y5 15/12-23   y10 17/12-23   y20 7/1-15     in 8-20: y10  81% y20  46% | <6 at y20  35% | over cap  71% of seasons | max 39
+  pairs x0, gate room, cap 4, 4/3/3
+    highcrag  y5 15/13-16   y10 14/12-16   y20 9/3-14     in 8-20: y10  99% y20  57% | <6 at y20  27% | over cap   3% of seasons | max 20
+    bonefield y5 11/9-13    y10 9/6-11     y20 5/1-10     in 8-20: y10  80% y20  28% | <6 at y20  55% | over cap   5% of seasons | max 16
+    mistwood  y5 11/9-12    y10 9/7-11     y20 4/1-8      in 8-20: y10  82% y20  15% | <6 at y20  69% | over cap   3% of seasons | max 16
+-- monogamous pairs + cross-pride pairing .5
+  pairs x.5, gate proposed, cap 3, 4/3/3
+    highcrag  y5 19/14-24   y10 16/12-24   y20 14/0-22    in 8-20: y10  76% y20  55% | <6 at y20  28% | over cap  79% of seasons | max 41
+    bonefield y5 16/9-22    y10 13/9-18    y20 9/0-16     in 8-20: y10  96% y20  52% | <6 at y20  42% | over cap  75% of seasons | max 31
+    mistwood  y5 15/9-20    y10 12/9-17    y20 10/0-16    in 8-20: y10  93% y20  61% | <6 at y20  31% | over cap  77% of seasons | max 29
+  pairs x.5, gate proposed, cap 3, 4/4/4
+    highcrag  y5 18/14-23   y10 16/12-24   y20 14/0-23    in 8-20: y10  72% y20  55% | <6 at y20  26% | over cap  80% of seasons | max 41
+    bonefield y5 18/14-23   y10 16/12-25   y20 14/0-24    in 8-20: y10  75% y20  55% | <6 at y20  26% | over cap  80% of seasons | max 39
+    mistwood  y5 17/13-23   y10 17/12-24   y20 14/0-23    in 8-20: y10  72% y20  56% | <6 at y20  22% | over cap  81% of seasons | max 38
+  pairs x.5, gate proposed, cap 4, 4/3/3
+    highcrag  y5 21/17-33   y10 25/17-34   y20 20/2-31    in 8-20: y10  26% y20  35% | <6 at y20  16% | over cap  84% of seasons | max 51
+    bonefield y5 18/14-23   y10 16/12-24   y20 14/0-24    in 8-20: y10  76% y20  52% | <6 at y20  28% | over cap  80% of seasons | max 39
+    mistwood  y5 17/13-23   y10 17/12-24   y20 14/0-23    in 8-20: y10  72% y20  61% | <6 at y20  23% | over cap  81% of seasons | max 40
+  pairs x.5, gate proposed, cap 4, 4/4/4
+    highcrag  y5 21/17-32   y10 26/17-34   y20 19/2-31    in 8-20: y10  25% y20  39% | <6 at y20  17% | over cap  84% of seasons | max 52
+    bonefield y5 21/17-34   y10 25/17-34   y20 18/1-30    in 8-20: y10  29% y20  38% | <6 at y20  20% | over cap  83% of seasons | max 53
+    mistwood  y5 21/16-32   y10 24/17-34   y20 19/1-30    in 8-20: y10  34% y20  37% | <6 at y20  20% | over cap  81% of seasons | max 55
+  pairs x.5, gate proposed, cap 5, 4/3/3
+    highcrag  y5 26/20-40   y10 32/21-43   y20 23/2-37    in 8-20: y10   7% y20  19% | <6 at y20  18% | over cap  82% of seasons | max 64
+    bonefield y5 19/15-28   y10 24/16-32   y20 18/3-28    in 8-20: y10  33% y20  46% | <6 at y20  13% | over cap  84% of seasons | max 53
+    mistwood  y5 20/16-30   y10 23/16-31   y20 17/0-28    in 8-20: y10  40% y20  43% | <6 at y20  22% | over cap  81% of seasons | max 48
+  pairs x.5, gate proposed, cap 5, 4/4/4
+    highcrag  y5 26/20-42   y10 32/21-44   y20 23/2-39    in 8-20: y10  10% y20  19% | <6 at y20  20% | over cap  82% of seasons | max 62
+    bonefield y5 27/21-38   y10 29/21-42   y20 23/1-37    in 8-20: y10   9% y20  16% | <6 at y20  17% | over cap  80% of seasons | max 61
+    mistwood  y5 26/21-37   y10 29/20-42   y20 23/2-37    in 8-20: y10  14% y20  18% | <6 at y20  14% | over cap  81% of seasons | max 64
+  pairs x.5, gate soft, cap 3, 4/3/3
+    highcrag  y5 34/26-43   y10 44/34-54   y20 37/26-49   in 8-20: y10   0% y20   2% | <6 at y20   0% | over cap  99% of seasons | max 81
+    bonefield y5 28/22-34   y10 33/25-43   y20 27/18-37   in 8-20: y10   2% y20  19% | <6 at y20   0% | over cap  99% of seasons | max 70
+    mistwood  y5 26/20-34   y10 32/24-40   y20 26/17-37   in 8-20: y10   5% y20  23% | <6 at y20   0% | over cap  99% of seasons | max 66
+  pairs x.5, gate soft, cap 3, 4/4/4
+    highcrag  y5 34/27-42   y10 43/33-54   y20 38/27-50   in 8-20: y10   0% y20   1% | <6 at y20   0% | over cap  99% of seasons | max 79
+    bonefield y5 34/26-43   y10 44/34-54   y20 37/27-49   in 8-20: y10   0% y20   2% | <6 at y20   0% | over cap  99% of seasons | max 77
+    mistwood  y5 33/26-41   y10 44/34-54   y20 36/25-50   in 8-20: y10   0% y20   3% | <6 at y20   0% | over cap  99% of seasons | max 81
+  pairs x.5, gate soft, cap 4, 4/3/3
+    highcrag  y5 42/34-50   y10 57/46-70   y20 52/39-66   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  98% of seasons | max 97
+    bonefield y5 34/27-42   y10 44/35-57   y20 38/25-50   in 8-20: y10   0% y20   3% | <6 at y20   0% | over cap  99% of seasons | max 86
+    mistwood  y5 33/26-42   y10 44/34-53   y20 37/26-49   in 8-20: y10   0% y20   2% | <6 at y20   0% | over cap  99% of seasons | max 85
+  pairs x.5, gate soft, cap 4, 4/4/4
+    highcrag  y5 41/33-50   y10 58/47-69   y20 51/38-64   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  98% of seasons | max 100
+    bonefield y5 42/34-51   y10 58/48-71   y20 50/37-64   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  98% of seasons | max 103
+    mistwood  y5 40/32-48   y10 56/46-69   y20 51/38-65   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  97% of seasons | max 101
+  pairs x.5, gate soft, cap 5, 4/3/3
+    highcrag  y5 49/40-57   y10 71/59-83   y20 65/51-81   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  97% of seasons | max 121
+    bonefield y5 40/33-49   y10 55/44-67   y20 47/35-61   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  98% of seasons | max 95
+    mistwood  y5 38/32-47   y10 53/43-63   y20 46/34-61   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  98% of seasons | max 103
+  pairs x.5, gate soft, cap 5, 4/4/4
+    highcrag  y5 48/41-59   y10 71/59-85   y20 66/53-81   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  97% of seasons | max 130
+    bonefield y5 50/41-59   y10 73/60-86   y20 65/51-81   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  95% of seasons | max 121
+    mistwood  y5 47/38-57   y10 70/58-84   y20 65/49-80   in 8-20: y10   0% y20   0% | <6 at y20   0% | over cap  95% of seasons | max 121
+  pairs x.5, gate room, cap 3, 4/3/3
+    highcrag  y5 11/9-12    y10 9/6-11     y20 10/2-12    in 8-20: y10  81% y20  71% | <6 at y20  21% | over cap   5% of seasons | max 17
+    bonefield y5 9/7-11     y10 6/4-8      y20 6/0-9      in 8-20: y10  24% y20  28% | <6 at y20  49% | over cap  17% of seasons | max 16
+    mistwood  y5 9/7-11     y10 6/3-8      y20 5/0-9      in 8-20: y10  13% y20  28% | <6 at y20  51% | over cap  14% of seasons | max 16
+  pairs x.5, gate room, cap 3, 4/4/4
+    highcrag  y5 11/9-12    y10 9/6-11     y20 10/4-12    in 8-20: y10  82% y20  80% | <6 at y20  12% | over cap   6% of seasons | max 18
+    bonefield y5 11/10-13   y10 10/7-12    y20 10/3-12    in 8-20: y10  87% y20  79% | <6 at y20  14% | over cap   8% of seasons | max 18
+    mistwood  y5 11/9-13    y10 9/7-11     y20 10/5-12    in 8-20: y10  81% y20  82% | <6 at y20  11% | over cap   7% of seasons | max 18
+  pairs x.5, gate room, cap 4, 4/3/3
+    highcrag  y5 15/13-16   y10 14/12-16   y20 14/12-16   in 8-20: y10 100% y20  97% | <6 at y20   2% | over cap   5% of seasons | max 21
+    bonefield y5 11/9-13    y10 10/7-12    y20 10/5-12    in 8-20: y10  89% y20  83% | <6 at y20  11% | over cap   9% of seasons | max 18
+    mistwood  y5 11/9-13    y10 10/7-12    y20 10/4-12    in 8-20: y10  84% y20  82% | <6 at y20  12% | over cap   7% of seasons | max 18
+  pairs x.5, gate room, cap 4, 4/4/4
+    highcrag  y5 15/13-16   y10 14/12-16   y20 14/12-16   in 8-20: y10 100% y20  97% | <6 at y20   2% | over cap   5% of seasons | max 21
+    bonefield y5 15/13-18   y10 14/12-16   y20 14/12-16   in 8-20: y10 100% y20  95% | <6 at y20   4% | over cap   8% of seasons | max 23
+    mistwood  y5 15/13-17   y10 14/11-16   y20 14/11-16   in 8-20: y10 100% y20  96% | <6 at y20   3% | over cap   6% of seasons | max 23
+  pairs x.5, gate room, cap 5, 4/3/3
+    highcrag  y5 19/17-20   y10 18/16-20   y20 18/15-20   in 8-20: y10  98% y20  97% | <6 at y20   0% | over cap   4% of seasons | max 26
+    bonefield y5 14/12-16   y10 13/11-15   y20 13/10-15   in 8-20: y10  99% y20  94% | <6 at y20   5% | over cap   8% of seasons | max 23
+    mistwood  y5 14/12-16   y10 13/11-15   y20 13/10-15   in 8-20: y10 100% y20  95% | <6 at y20   4% | over cap   6% of seasons | max 21
+  pairs x.5, gate room, cap 5, 4/4/4
+    highcrag  y5 19/16-20   y10 18/16-20   y20 18/16-20   in 8-20: y10  98% y20  96% | <6 at y20   1% | over cap   5% of seasons | max 26
+    bonefield y5 19/17-21   y10 18/16-20   y20 18/15-20   in 8-20: y10  97% y20  95% | <6 at y20   3% | over cap   6% of seasons | max 27
+    mistwood  y5 19/17-21   y10 18/16-20   y20 18/15-20   in 8-20: y10  96% y20  94% | <6 at y20   1% | over cap   5% of seasons | max 27
+-- cross-pride pairing sensitivity (room gate, cap 4, 4/3/3)
+  pairs x0.1, gate room, cap 4
+    highcrag  y5 14/13-16   y10 14/11-15   y20 13/8-16    in 8-20: y10 100% y20  90% | <6 at y20   7% | over cap   4% of seasons | max 21
+    bonefield y5 11/9-13    y10 9/7-11     y20 9/2-12     in 8-20: y10  83% y20  69% | <6 at y20  22% | over cap   6% of seasons | max 16
+    mistwood  y5 11/9-13    y10 9/7-11     y20 9/1-11     in 8-20: y10  82% y20  63% | <6 at y20  27% | over cap   5% of seasons | max 16
+  pairs x0.25, gate room, cap 4
+    highcrag  y5 15/13-16   y10 14/12-16   y20 14/11-16   in 8-20: y10 100% y20  95% | <6 at y20   4% | over cap   4% of seasons | max 21
+    bonefield y5 11/9-13    y10 10/7-12    y20 10/4-12    in 8-20: y10  86% y20  82% | <6 at y20  12% | over cap   7% of seasons | max 18
+    mistwood  y5 11/9-13    y10 10/7-12    y20 10/2-12    in 8-20: y10  85% y20  76% | <6 at y20  17% | over cap   6% of seasons | max 17
+  pairs x1.0, gate room, cap 4
+    highcrag  y5 15/13-16   y10 14/12-16   y20 14/12-16   in 8-20: y10  99% y20  99% | <6 at y20   1% | over cap   5% of seasons | max 21
+    bonefield y5 12/10-14   y10 10/7-12    y20 10/5-12    in 8-20: y10  89% y20  86% | <6 at y20  10% | over cap  11% of seasons | max 18
+    mistwood  y5 11/9-12    y10 10/6-11    y20 10/6-12    in 8-20: y10  82% y20  84% | <6 at y20  10% | over cap   6% of seasons | max 18
+-- outdated "13 each" brief (rosters padded with unmated adults), room gate, cap 4, x.5
+  pairs x.5, room, cap 4, padded to 13
+    highcrag  y5 15/13-16   y10 13/11-15   y20 14/11-16   in 8-20: y10  99% y20  97% | <6 at y20   3% | over cap   5% of seasons | max 21
+    bonefield y5 12/10-15   y10 8/5-11     y20 10/0-12    in 8-20: y10  66% y20  74% | <6 at y20  23% | over cap  21% of seasons | max 19
+    mistwood  y5 12/10-14   y10 7/4-10     y20 10/0-12    in 8-20: y10  49% y20  67% | <6 at y20  27% | over cap  19% of seasons | max 20

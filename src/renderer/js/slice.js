@@ -196,6 +196,8 @@
       if (Unlocks) Unlocks.persist(s);
       const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
       if (Councils && Councils.ensure) Councils.ensure(s);
+      const Breeding = typeof require === 'function' ? require('./breeding') : (typeof self !== 'undefined' ? self.Breeding : null);
+      if (Breeding && Breeding.migrateSave) Breeding.migrateSave(s);
       return s;
     }
     function bondDeps(s, rep) {
@@ -674,6 +676,22 @@
         noteDir(s, 'talk', action.catId, 'talk');
         return { state: s };
       }
+      if (s.pending && s.pending.breeding && (action.type === 'choose' || action.type === 'advanceBeat' || action.type === 'continue')) {
+        const beats = s.pending.beats || [];
+        const i = s.pending.beatIndex || 0;
+        if (s.phase === 'event' && i + 1 < beats.length) { s.pending.beatIndex = i + 1; return { state: s }; }
+        if (s.pending.next) {
+          s.pending = s.pending.next;
+          s.phase = 'event';
+          return { state: s };
+        }
+        s.pending.summary = s.pending.summary || (beats[beats.length - 1] && beats[beats.length - 1].text) || 'The day moves on.';
+        if (s.phase === 'event') { s.phase = 'eventResult'; return { state: s }; }
+        s.phase = s.dead || s.over ? 'over' : 'day';
+        if (s.phase === 'over') s.over = true;
+        s.pending = null;
+        return { state: s };
+      }
       if (s.phase === 'event' && action.type === 'advanceBeat') {
         const beats = sceneBeats(s);
         const i = s.pending && s.pending.beatIndex || 0;
@@ -804,6 +822,7 @@
         }
         if (s.dead && passToHeir(s)) return { state: s };
         s.phase = s.dead || s.over ? 'over' : 'day'; s.pending = null;
+        if (s.phase === 'over') s.over = true;
         if (s.endsAfterEvent) { s.over = true; s.phase = 'over'; delete s.endsAfterEvent; }
         else if (settle) endDay(s, [], { action: 'helpCub', rested: false, slotTaken: true });
         else if (s.phase === 'day' && !WM.considerFord(s) && !WM.considerRelay(s)) offerMeadow(s);
@@ -1053,8 +1072,25 @@
       ev = presentDay(s, rep, ev);
       s.report = { day: s.day, region: s.region, lines: rep, action: ctx.action || null };
       noteUnloggedMeets(s);
+      const Breeding = typeof require === 'function' ? require('./breeding') : (typeof self !== 'undefined' ? self.Breeding : null);
+      if (Breeding && !s.dead && !s.travel) {
+        const bred = Breeding.onDay(s, { slots });
+        if (bred && !ev) ev = bred;
+      }
       if (s.dead) {
-        if (!passToHeir(s)) { s.pending = null; s.phase = 'over'; s.over = true; }
+        const lost = Breeding && Breeding.litterLostEvent(s);
+        if (passToHeir(s)) {
+          if (lost) { lost.next = s.pending; s.pending = lost; s.phase = 'event'; }
+          return;
+        }
+        const ending = Breeding && Breeding.noHeirEvent(s);
+        if (lost || ending) {
+          s.pending = lost || ending;
+          if (lost && ending) lost.next = ending;
+          s.phase = 'event';
+          return;
+        }
+        s.pending = null; s.phase = 'over'; s.over = true;
         return;
       }
       const closing = Pair.enabled && s.day === R.seasonDays && s.records && !s.records.seasonEndShown;
@@ -1581,6 +1617,8 @@
       if (Q) Q.ensure(s);
       const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
       if (Councils && Councils.ensure) Councils.ensure(s);
+      const Breeding = typeof require === 'function' ? require('./breeding') : (typeof self !== 'undefined' ? self.Breeding : null);
+      if (Breeding && Breeding.migrateSave) Breeding.migrateSave(s);
       s.saveVersion = R.saveVersion;
       return s;
     }
@@ -1888,6 +1926,9 @@
     const eventById = (id) => {
       const e = EV.find((row) => row.id === id) || null;
       if (!e) {
+        if (typeof id === 'string' && id.startsWith('breeding.')) {
+          return { id, title: 'Breeding', text: '', choices: [{ id: 'continue', label: 'Continue' }] };
+        }
         if (id === 'lone.scent' || id === 'lone.approach' || id === 'day.quiet' || id === 'action.watch' || id === 'lone.shadow' || id === 'lone.spar' || id === 'lone.scout' || id === 'lone.steal' || id === 'lone.cub' || id === 'lone.share' || id === 'lone.presence.hunt' || id === 'lone.presence.reply' || (typeof id === 'string' && (id.startsWith('voice.hunt') || id.startsWith('travel.arrive.') || id.startsWith('followup.') || id.startsWith('payoff.')))) {
           return { id, title: 'Scene', text: '', choices: [{ id: 'continue', label: 'Continue', summary: 'Continue', affinityIntent: 'unchanged' }] };
         }

@@ -1,0 +1,14 @@
+{
+  "yearLengthDays": 80,
+  "daysPerSeason": 20,
+  "stageStart": { "cub": 0, "adolescent": 4, "adult": 8, "elder": 40 },
+  "fertileUntil": { "female": 44, "male": 48 },
+  "pregnancyDays": 20,
+  "litterWeights": [8, 18, 26, 22, 14, 8, 4],
+  "capacityPerRegion": 4,
+  "contentmentStep": 5,
+  "contentmentMax": 20,
+  "crossPrideChance": 0.5,
+  "personalitySd": 8,
+  "aptitudeSd": 5
+}

@@ -31,7 +31,7 @@ All numbers are starting values to tune. Labels: **Anna** = decided, **Director*
 | hc06 | highcrag | member, nursemaid | F | 20 | off | off | hc02 | 35/65/45/65/45 | grooming 2, hardiness 2; social +5 | — |
 | hc07 | highcrag | member, guard | F | 31 | off | off | — | 60/40/60/60/40 | guard 3, saberStrike 2; fighting +5 | ear_notch_left |
 | hc08 | highcrag | elder, keeper of the recitation | F | 51 | off | off | — | 30/55/40/75/55 | leadership 3, trailReading 3, thickCoat 2; tracking +5 | — |
-| hc09 | highcrag | adolescent | M | 8 | hc03 | hc01 | — | 50/50/55/55/55 | stalk 1; hunting +5 | — |
+| hc09 | highcrag | adolescent | M | 7 | hc03 | hc01 | — | 50/50/55/55/55 | stalk 1; hunting +5 | — |
 | hc10 | highcrag | cub | F | 3 | hc02 | hc06 | — | 45/55/50/55/55 | none; social +5 | — |
 | hc11 | highcrag | cub | M | 0 | hc02 | hc06 | — | 55/50/55/55/50 | none; neutral | — |
 | bf01 | bonefield | leader "Scarjaw" | M | 32 | off | off | bf04 | 80/30/75/55/40 | saberStrike 4, intimidate 4, guard 3; fighting +15 | lip_split |
@@ -51,7 +51,7 @@ All numbers are starting values to tune. Labels: **Anna** = decided, **Director*
 | mw05 | mistwood | member, hunter | F | 20 | off | off | — | 40/50/55/55/55 | stalk 2, trailReading 2; tracking +5 | — |
 | mw06 | mistwood | member | F | 16 | off | off | — | 35/60/40/60/60 | grooming 1, preySense 1; social +5 | — |
 | mw07 | mistwood | elder, wise-cat | F | 55 | off | off | — | 25/60/35/70/60 | hardiness 4, grooming 3, trailReading 3; survival +5 | eye_right |
-| mw08 | mistwood | adolescent (Longshadow's) | M | 8 | off_longshadow | mw01 | — | 35/55/50/65/50 | stalk 1; survival +5 | — |
+| mw08 | mistwood | adolescent (Longshadow's) | M | 7 | off_longshadow | mw01 | — | 35/55/50/65/50 | stalk 1; survival +5 | — |
 | mw09 | mistwood | cub | F | 0 | mw02 | mw04 | — | 40/50/50/65/45 | none; neutral | — |
 | ln01 | loner (origin highcrag, exiled) | "Greymantle", elder | M | 52 | off | off | — | 25/45/45/70/50 | leadership 4, thickCoat 4, trailReading 3 | forelegs |
 | ln02 | loner (highcrag, left) | "Sorrel", young adult | F | 15 | off | hc07 | — | 30/75/50/45/60 | charm 2, stalk 1 | — |

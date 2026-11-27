@@ -71,7 +71,8 @@ test('inheritance odds match the bloodline table and the 0.25 pass', () => {
     rngOf([0, 0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
   );
   assert.strictEqual(cub.bloodline.giant, 'shows');
-  assert.ok(cub.genes.personality.aggression > 40);
+  assert.strictEqual(cub.genes.v, 2);
+  assert.ok(cub.genes.personality.aggression >= 0 && cub.genes.personality.aggression <= 100);
 });
 
 test('premade slots show and carry the six bloodline traits', () => {

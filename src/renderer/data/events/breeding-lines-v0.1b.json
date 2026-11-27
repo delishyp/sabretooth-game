@@ -1,0 +1,1750 @@
+{
+  "id": "breeding-lines-v0.1b",
+  "version": "v0.1b",
+  "_source": {
+    "spec": "docs/design/breeding-cubs-v0.1.md",
+    "specVersion": "v0.1d DRAFT",
+    "commit": "9cf44bc",
+    "laterCommit": "1daf10f",
+    "basedOn": "breeding-lines-v0.1a.json",
+    "copyReview": "Tracker's COPY-REVIEW.md of the v0.1a pack",
+    "copyAnswers": "Tundra's six §15 answers, also logged as §17a.6"
+  },
+  "_personality": {
+    "axes": [
+      "aggression",
+      "sociability",
+      "boldness",
+      "loyalty",
+      "curiosity"
+    ],
+    "bands": {
+      "high": "extreme high of the focus trait",
+      "low": "extreme low",
+      "base": "middle, and the default"
+    },
+    "defaultKey": "base",
+    "resolve": "Speech.resolve. For a mate line, pick the trait with the most extreme band; if none is extreme, use sociability base. byCat is unset."
+  },
+  "litterWords": {
+    "a_cub": "a cub",
+    "few": "a few cubs",
+    "several": "several cubs",
+    "many": "many cubs"
+  },
+  "litterWordBySize": {
+    "1": "a cub",
+    "2": "a few cubs",
+    "3": "a few cubs",
+    "4": "several cubs",
+    "5": "several cubs",
+    "6": "many cubs",
+    "7": "many cubs"
+  },
+  "branchWords": {
+    "hunting": "hunting",
+    "tracking": "tracking",
+    "fighting": "fighting",
+    "survival": "staying alive",
+    "social": "holding a pride together",
+    "courtship": "courtship"
+  },
+  "needsWords": {
+    "worn": "worn",
+    "thirsty": "thirsty",
+    "hungry": "hungry",
+    "tired": "tired",
+    "cold": "cold",
+    "well": "well enough"
+  },
+  "needsWordPriority": [
+    {
+      "need": "Health",
+      "threshold": "critical_or_empty",
+      "needsWord": "worn"
+    },
+    {
+      "need": "Thirst",
+      "threshold": "critical_or_empty",
+      "needsWord": "thirsty"
+    },
+    {
+      "need": "Hunger",
+      "threshold": "critical_or_empty",
+      "needsWord": "hungry"
+    },
+    {
+      "need": "Energy",
+      "threshold": "critical_or_empty",
+      "needsWord": "tired"
+    },
+    {
+      "need": "Warmth",
+      "threshold": "critical_or_empty",
+      "needsWord": "cold"
+    }
+  ],
+  "needsWordFallback": "well enough",
+  "standoutLooks": {
+    "rare_coat": "a rare coat",
+    "odd_eyes": "eyes that don't match"
+  },
+  "sexWords": {
+    "son": "a son",
+    "daughter": "a daughter",
+    "mixed": "sons and daughters"
+  },
+  "idRules": {
+    "litterWord": "Fill from litterWordBySize (1 'a cub', 2-3 'a few cubs', 4-5 'several cubs', 6-7 'many cubs'). Never speak the size as a digit or number word.",
+    "needsWord": "Worst need at critical or empty, checked in needsWordPriority order (Health worn, Thirst thirsty, Hunger hungry, Energy tired, Warmth cold). If none is that low, needsWordFallback ('well enough').",
+    "standoutLook": "Rare looks use 'a rare coat' or 'eyes that don't match'. Do not name a coat.",
+    "regionWord": "Optional. Use the overcrowded optional.regionWord line when the payload provides it; otherwise the general narration.",
+    "suggestedName": "From the world-gen names list. Unique in the run.",
+    "branchWord": "Player-facing branchWords value, not the raw id, for social and survival.",
+    "a_b": "Unused here. Pride ids are not part of these hooks.",
+    "size1": "On litter_born, when the litter size is 1 (litterWord 'a cub'), use the size1 narration, outcome, mateReaction, and offlineFallback so verbs and pronouns agree (the cub is / the cub, not they're / them). For size 2-7, use the main lines. Never print the size as a digit or number word.",
+    "offlineVariants": "Each offlineFallback leaf path stores narration as an array of at least two variants; Flint may pick any. outcome and mateSay may be a shared string or an array. Nested keys select the path: playerDam / playerSire, self / other, went_well / came_to_nothing, default / friendships, cub death causes, and natural_death stages. Exception: litter_lost.playerDam stays the single ruled line 'The cubs you were carrying are lost.'"
+  },
+  "moments": {
+    "pregnancy_known": {
+      "factId": "pregnancy_known",
+      "when": "S2 start, when the pregnancy is known",
+      "narration": {
+        "playerDam": "You're carrying {litterWord}. {sireName} has caught the change in your scent, and the wait begins.",
+        "playerSire": "{damName} is carrying {litterWord}. You've caught the change in her scent, and the wait begins."
+      },
+      "outcome": "The pride knows cubs are coming.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "Cubs are coming. I'll keep watch while we wait.",
+          "high": "Those cubs are ours. Nothing comes near you until they're here.",
+          "low": "Cubs. All right. I'll try to go easy until they arrive."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "We're going to have cubs. I wanted you to hear it from me.",
+          "high": "Cubs? I keep thinking about it. Come sit with me.",
+          "low": "I don't have much to say. I know they're coming, though."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "Cubs are coming, and I think we can handle the wait.",
+          "high": "Cubs are coming, and I'm ready for them. Let the wait start.",
+          "low": "Cubs are coming. I keep worrying about what the wait will ask of us."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "We'll get through the wait together. The cubs will have both of us.",
+          "high": "I'm staying with you through this. Those cubs will know they have a pride.",
+          "low": "Cubs are coming. I'll do my part. I just need a little room to think."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "Cubs are coming. I keep wondering what they'll be like.",
+          "high": "Cubs are coming, and I want to know everything about them already. Do you think about that too?",
+          "low": "Cubs are coming. I don't need to guess at them. We'll see them when they arrive."
+        }
+      },
+      "offlineFallback": {
+        "playerDam": {
+          "narration": [
+            "You're carrying {litterWord}. {sireName} has caught the change in your scent, and the wait begins.",
+            "You're carrying {litterWord}. {sireName} has noticed the change in your scent, and the wait begins.",
+            "You're carrying {litterWord}. The change is in your scent, and {sireName} has caught it. The wait begins."
+          ],
+          "outcome": "The pride knows cubs are coming.",
+          "mateSay": "We're going to have cubs. I wanted you to hear it from me."
+        },
+        "playerSire": {
+          "narration": [
+            "{damName} is carrying {litterWord}. You've caught the change in her scent, and the wait begins.",
+            "{damName} is carrying {litterWord}. You've noticed the change in her scent, and the wait begins.",
+            "{damName} is carrying {litterWord}. Her scent has changed, and you've caught it. The wait begins."
+          ],
+          "outcome": "The pride knows cubs are coming.",
+          "mateSay": "We're going to have cubs. I wanted you to hear it from me."
+        }
+      }
+    },
+    "pregnancy_progress": {
+      "factId": "pregnancy_progress",
+      "when": "once during the wait",
+      "narration": {
+        "playerDam": "The wait goes on. You feel {needsWord}.",
+        "playerSire": "The wait goes on. {damName} seems {needsWord}."
+      },
+      "outcome": "The cubs haven't arrived yet.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "I'm still here. Tell me if you need the den kept clear.",
+          "high": "If anything bothers you while we wait, I'll deal with it.",
+          "low": "I hope the wait isn't too hard. I can stay quieter if that helps."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "How are you holding up? I'm close if you want company.",
+          "high": "I've been thinking about the cubs. Sit with me and talk?",
+          "low": "I'll keep to myself. I'm still paying attention."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "The wait is long, but I think you're doing all right.",
+          "high": "The wait doesn't scare me. We'll be fine.",
+          "low": "I can't help checking on you. The wait makes me uneasy."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "I'm not going anywhere. We wait together.",
+          "high": "Whatever you need, I'm here. That's what I promised.",
+          "low": "I'm still here. I just need a little time to myself as well."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "Any change, do you think? I keep noticing little things.",
+          "high": "Do you feel them move? I want to know every change.",
+          "low": "I won't pester you. We'll know more when they arrive."
+        }
+      },
+      "offlineFallback": {
+        "playerDam": {
+          "narration": [
+            "The wait goes on. You feel {needsWord}.",
+            "You're still waiting. You feel {needsWord}.",
+            "The wait hasn't ended. You feel {needsWord}."
+          ],
+          "outcome": "The cubs haven't arrived yet.",
+          "mateSay": "How are you holding up? I'm close if you want company."
+        },
+        "playerSire": {
+          "narration": [
+            "The wait goes on. {damName} seems {needsWord}.",
+            "You're still waiting. {damName} seems {needsWord}.",
+            "The wait hasn't ended. {damName} seems {needsWord}."
+          ],
+          "outcome": "The cubs haven't arrived yet.",
+          "mateSay": "How are you holding up? I'm close if you want company."
+        }
+      }
+    },
+    "litter_born": {
+      "factId": "litter_born",
+      "when": "when the litter is born",
+      "narration": {
+        "playerDam": "The wait is over. You have {litterWord}, and they're with you in the den.",
+        "playerSire": "The wait is over. {damName} has had {litterWord}, and she's with them in the den."
+      },
+      "optional": {
+        "standoutLook": "{cubName} has {standoutLook}.",
+        "sexWord": "You can tell {sexWord}."
+      },
+      "outcome": "The pride has {litterWord}, and they're alive.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "They're here, and they're ours. I'll watch the den.",
+          "high": "They're here. Nothing gets near this den while I can stand.",
+          "low": "They're here. They're so small. I don't want to startle them."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "They're here. I want to be close to them, and to you.",
+          "high": "They're here! Let me see them. I can't stop talking about this.",
+          "low": "They're here. I'll be quiet so they can rest."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "They're here, and they look strong enough to me.",
+          "high": "They're here, and I already want to show them the ground we hold.",
+          "low": "They're here. I keep checking that they're still breathing."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "They're here. We'll raise them together.",
+          "high": "They're here, and this is our pride's future. I won't leave their side.",
+          "low": "They're here. I'll help. I just need a moment to take it in."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "They're here. I already want to learn their scents.",
+          "high": "They're here. Look at them. I want to know their faces and their scents.",
+          "low": "They're here. That's enough for now. We can look closer later."
+        }
+      },
+      "offlineFallback": {
+        "playerDam": {
+          "narration": [
+            "The wait is over. You have {litterWord}, and they're with you in the den.",
+            "The wait is over. You have {litterWord}, and they're here in the den with you.",
+            "The wait is over. You have {litterWord}. They're with you in the den."
+          ],
+          "outcome": "The pride has {litterWord}, and they're alive.",
+          "mateSay": "They're here. I want to be close to them, and to you."
+        },
+        "playerSire": {
+          "narration": [
+            "The wait is over. {damName} has had {litterWord}, and she's with them in the den.",
+            "The wait is over. {damName} has had {litterWord}. She's with them in the den.",
+            "The wait is over. {damName} has had {litterWord}, and she's in the den with them."
+          ],
+          "outcome": "The pride has {litterWord}, and they're alive.",
+          "mateSay": "They're here. I want to be close to them, and to you."
+        }
+      },
+      "size1": {
+        "when": "Use when litterWordBySize resolves to 'a cub' (litter size 1). Do not print the size.",
+        "narration": {
+          "playerDam": "The wait is over. You have {litterWord}, and the cub is with you in the den.",
+          "playerSire": "The wait is over. {damName} has had {litterWord}, and she's with the cub in the den."
+        },
+        "outcome": "The pride has {litterWord}, and the cub is alive.",
+        "mateReaction": {
+          "aggression": {
+            "focusTrait": "aggression",
+            "base": "The cub is here, and is ours. I'll watch the den.",
+            "high": "The cub is here. Nothing gets near this den while I can stand.",
+            "low": "The cub is here, and so small. I don't want to startle the cub."
+          },
+          "sociability": {
+            "focusTrait": "sociability",
+            "base": "The cub is here. I want to be close to the cub, and to you.",
+            "high": "The cub is here! Let me see the cub. I can't stop talking about this.",
+            "low": "The cub is here. I'll be quiet so the cub can rest."
+          },
+          "boldness": {
+            "focusTrait": "boldness",
+            "base": "The cub is here, and looks strong enough to me.",
+            "high": "The cub is here, and I already want to show the cub the ground we hold.",
+            "low": "The cub is here. I keep checking that the cub is still breathing."
+          },
+          "loyalty": {
+            "focusTrait": "loyalty",
+            "base": "The cub is here. We'll raise the cub together.",
+            "high": "The cub is here, and this is our pride's future. I won't leave the cub's side.",
+            "low": "The cub is here. I'll help. I just need a moment to take it in."
+          },
+          "curiosity": {
+            "focusTrait": "curiosity",
+            "base": "The cub is here. I already want to learn the cub's scent.",
+            "high": "The cub is here. Look. I want to know that face and scent.",
+            "low": "The cub is here. That's enough for now. We can look closer later."
+          }
+        },
+        "offlineFallback": {
+          "playerDam": {
+            "narration": [
+              "The wait is over. You have {litterWord}, and the cub is with you in the den.",
+              "The wait is over. You have {litterWord}, and the cub is here in the den with you.",
+              "The wait is over. You have {litterWord}. The cub is with you in the den."
+            ],
+            "outcome": "The pride has {litterWord}, and the cub is alive.",
+            "mateSay": "The cub is here. I want to be close to the cub, and to you."
+          },
+          "playerSire": {
+            "narration": [
+              "The wait is over. {damName} has had {litterWord}, and she's with the cub in the den.",
+              "The wait is over. {damName} has had {litterWord}. She's with the cub in the den.",
+              "The wait is over. {damName} has had {litterWord}, and she's in the den with the cub."
+            ],
+            "outcome": "The pride has {litterWord}, and the cub is alive.",
+            "mateSay": "The cub is here. I want to be close to the cub, and to you."
+          }
+        }
+      }
+    },
+    "cub_naming": {
+      "factId": "cub_naming",
+      "when": "after litter_born, once per cub",
+      "prompt": "This cub needs a name. {suggestedName} would fit, or you can choose another.",
+      "confirmSuggestion": "This cub will be called {cubName}.",
+      "confirmCustom": "You chose {cubName} for this cub.",
+      "outcome": "This cub is {cubName} now.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "{cubName}. That's a solid name. I'll remember it.",
+          "high": "{cubName}. Good. That name will carry.",
+          "low": "{cubName}. It's a gentle name. I like it."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "{cubName}. I'll say it until it feels like theirs.",
+          "high": "{cubName}! Yes. I want to say it to them already.",
+          "low": "{cubName}. I'll use it. I don't need a long speech about it."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "{cubName}. It suits them, I think.",
+          "high": "{cubName}. That's a name that can go far.",
+          "low": "{cubName}. I hope it sits well with them."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "{cubName}. We'll make sure they know their name in this pride.",
+          "high": "{cubName}. That's our cub, and I'll stand by that name.",
+          "low": "{cubName}. All right. I'll call them that."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "{cubName}. I wonder how they will grow into it.",
+          "high": "Why {cubName}? I like it, I do. I just want to know how you chose.",
+          "low": "{cubName}. The name is fine. We don't need to turn it over."
+        }
+      },
+      "offlineFallback": {
+        "narration": [
+          "This cub needs a name. {suggestedName} would fit, or you can choose another.",
+          "This cub needs a name. You can use {suggestedName}, or choose another name.",
+          "This cub needs a name. {suggestedName} would fit, or you can choose something else."
+        ],
+        "outcome": "This cub is {cubName} now.",
+        "mateSay": "{cubName}. I'll say it until it feels like theirs.",
+        "acceptSuggestion": "This cub will be called {cubName}."
+      }
+    },
+    "litter_lost": {
+      "factId": "litter_lost",
+      "when": "dam dies while pregnant",
+      "playOrder": {
+        "playerSire": "litter_lost only (the player lives)",
+        "playerDam": "litter_lost first, as a single line; then the normal death flow (natural_death.player_heir or player_no_heir, and heir_named when an heir leads). litter_lost never replaces that flow."
+      },
+      "narration": {
+        "playerSire": "{damName} has died, and the cubs she was carrying are gone with her.",
+        "playerDam": "The cubs you were carrying are lost."
+      },
+      "outcome": {
+        "playerSire": "The litter is lost, and {damName} is gone.",
+        "playerDam": "The litter is lost."
+      },
+      "offlineFallback": {
+        "playerSire": {
+          "narration": [
+            "{damName} has died, and the cubs she was carrying are gone with her.",
+            "{damName} has died. The cubs she was carrying are gone too.",
+            "{damName} has died while carrying cubs, and those cubs are gone with her."
+          ],
+          "outcome": "The litter is lost, and {damName} is gone."
+        },
+        "playerDam": {
+          "narration": "The cubs you were carrying are lost.",
+          "outcome": "The litter is lost.",
+          "_then": "Play the normal death flow next (heir or permadeath). Do not skip it.",
+          "_fixedByRuling": "Tundra §17a.6 / §15: one dam-side line, then the normal death flow. Do not add variants."
+        }
+      }
+    },
+    "cub_died": {
+      "factId": "cub_died",
+      "when": "any cub death",
+      "narration": {
+        "starving": "{cubName} wasn't getting enough to eat, and {cubName} has died.",
+        "illness": "{cubName} took ill and didn't get better. {cubName} has died.",
+        "threat": "A threat reached the den, and {cubName} has died.",
+        "natural": "{cubName} has died. There was no fight and no hunger to blame."
+      },
+      "outcome": "{cubName} has died.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "I wanted to keep {cubName} safe, and I couldn't.",
+          "high": "I should have been there for {cubName}. I wasn't.",
+          "low": "I keep thinking I might have done more for {cubName}. I don't know."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "I keep wanting to talk about {cubName}. Is that all right?",
+          "high": "I can't sit with this quiet. {cubName} was here, and now I need to say their name.",
+          "low": "I don't want to talk. I know {cubName} is gone."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "This hurts, and we still have to go on. I'll try.",
+          "high": "We have to go on. I'll carry {cubName} with me and keep moving.",
+          "low": "I don't feel ready to go on. {cubName} is gone, and I feel small."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "We'll remember {cubName}. They're still part of this pride.",
+          "high": "I won't forget {cubName}. As long as I'm in this pride, their name stays.",
+          "low": "I need a little distance to take this in. I haven't left."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I keep replaying the last time I saw {cubName}.",
+          "high": "I keep asking why it was {cubName}. I know there may be no answer.",
+          "low": "I don't want to pick it apart. {cubName} is gone, and that's enough to know."
+        }
+      },
+      "offlineFallback": {
+        "starving": {
+          "narration": [
+            "{cubName} wasn't getting enough to eat, and {cubName} has died.",
+            "{cubName} went hungry, and {cubName} has died.",
+            "{cubName} wasn't getting enough to eat. {cubName} has died."
+          ],
+          "outcome": "{cubName} has died.",
+          "mateSay": "I keep wanting to talk about {cubName}. Is that all right?"
+        },
+        "illness": {
+          "narration": [
+            "{cubName} took ill and didn't get better. {cubName} has died.",
+            "{cubName} was ill and didn't recover. {cubName} has died.",
+            "{cubName} took ill. {cubName} has died."
+          ],
+          "outcome": "{cubName} has died.",
+          "mateSay": "I keep wanting to talk about {cubName}. Is that all right?"
+        },
+        "threat": {
+          "narration": [
+            "A threat reached the den, and {cubName} has died.",
+            "A threat got into the den, and {cubName} has died.",
+            "A threat reached the den. {cubName} has died."
+          ],
+          "outcome": "{cubName} has died.",
+          "mateSay": "I keep wanting to talk about {cubName}. Is that all right?"
+        },
+        "natural": {
+          "narration": [
+            "{cubName} has died. There was no fight and no hunger to blame.",
+            "{cubName} has died. It wasn't a fight or hunger that took them.",
+            "{cubName} has died, with no fight and no hunger to blame."
+          ],
+          "outcome": "{cubName} has died.",
+          "mateSay": "I keep wanting to talk about {cubName}. Is that all right?"
+        }
+      }
+    },
+    "cub_first_play": {
+      "factId": "cub_first_play",
+      "when": "first cub_play scene",
+      "narration": "{cubName} has started to play. The den is livelier for it.",
+      "outcome": "{cubName} is playing now.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "Look at {cubName} go. They're already testing their strength.",
+          "high": "{cubName} already wants a tussle. Good. Let them.",
+          "low": "They're playing. I just hope nobody gets too rough with {cubName}."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "{cubName} is playing. I could watch this for a while.",
+          "high": "{cubName} is playing! Come watch with me.",
+          "low": "They're playing. I'll watch from here."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "{cubName} isn't shy about it. I like seeing that.",
+          "high": "That's it, {cubName}. Get out there and try things.",
+          "low": "They're playing, but I keep wanting to pull them back."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "Our cub is playing. This feels like a good sign for the pride.",
+          "high": "{cubName} is finding their place with us. I'll keep an eye on them.",
+          "low": "They're playing. That's their business for now. I'll be around."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I want to see what {cubName} tries next.",
+          "high": "What's {cubName} after now? I could watch every move.",
+          "low": "They're playing. I don't need to study it."
+        }
+      },
+      "offlineFallback": {
+        "narration": [
+          "{cubName} has started to play. The den is livelier for it.",
+          "{cubName} has begun to play. The den feels livelier.",
+          "{cubName} is playing now, and the den is livelier for it."
+        ],
+        "outcome": "{cubName} is playing now.",
+        "mateSay": "{cubName} is playing. I could watch this for a while."
+      }
+    },
+    "cub_taught": {
+      "factId": "cub_taught",
+      "when": "each teaching tick",
+      "narration": "{teacherName} has been teaching {cubName} about {branchWord}.",
+      "outcome": "{cubName} is a little more sure of that work.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "Good. {cubName} needs to learn this if they're going to last.",
+          "high": "Push them a little. {cubName} can take it, and they need to.",
+          "low": "Go easy. {cubName} is still learning, and I don't want them scared of it."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "{cubName} did well to listen. I'm glad you're teaching them.",
+          "high": "I love seeing {cubName} learn. Tell me how it went?",
+          "low": "They're learning. That's good. I don't need the details."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "{cubName} is trying, and that matters.",
+          "high": "That's the way. {cubName} should get out and try it for real soon.",
+          "low": "I hope it isn't too much too soon for {cubName}."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "{cubName} is learning from us. That's our job.",
+          "high": "I'll teach {cubName} myself whenever I can. They should learn from their own.",
+          "low": "Someone has to teach them. I'm glad it got done."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I wonder how quickly {cubName} will pick this up.",
+          "high": "What did {cubName} take to? I want to know which parts clicked.",
+          "low": "They're learning. I don't need to pick the lesson apart."
+        }
+      },
+      "offlineFallback": {
+        "narration": [
+          "{teacherName} has been teaching {cubName} about {branchWord}.",
+          "{teacherName} has been teaching {cubName}, and the lesson was about {branchWord}.",
+          "{cubName} has been learning about {branchWord} from {teacherName}."
+        ],
+        "outcome": "{cubName} is a little more sure of that work.",
+        "mateSay": "{cubName} did well to listen. I'm glad you're teaching them."
+      }
+    },
+    "stage_up_adolescent": {
+      "factId": "stage_up_adolescent",
+      "when": "cub becomes an adolescent",
+      "narration": "{cubName} isn't a cub anymore. They look almost grown, and they can start to help.",
+      "outcome": "{cubName} is an adolescent now.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "{cubName} is growing into some strength. Good.",
+          "high": "About time {cubName} looked like they could hold a line. Let's use that.",
+          "low": "{cubName} looks more grown, but I still want to keep them close."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "{cubName} is growing up. I want to stay close as they change.",
+          "high": "{cubName} looks so grown! Come see them with me.",
+          "low": "{cubName} is changing. I'll give them a little room."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "{cubName} looks ready to try more. I think they can.",
+          "high": "{cubName} is ready. Let them come out on the trails with us.",
+          "low": "They look more grown, but I'm not sure {cubName} is ready for the trails."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "{cubName} can start to help the pride now. We'll show them how.",
+          "high": "{cubName} belongs with us in a new way now. I'll keep them in the pride's care.",
+          "low": "{cubName} is growing up. They'll find their place, with or without a lot of fuss from me."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I want to see what {cubName} becomes from here.",
+          "high": "Look at {cubName}'s face. Everything is changing, and I want to watch it happen.",
+          "low": "They're growing. I don't need to make a study of it."
+        }
+      },
+      "offlineFallback": {
+        "narration": [
+          "{cubName} isn't a cub anymore. They look almost grown, and they can start to help.",
+          "{cubName} isn't a cub anymore. They look nearly grown, and they can start to help.",
+          "{cubName} isn't a cub anymore. They can start to help, and they look almost grown."
+        ],
+        "outcome": "{cubName} is an adolescent now.",
+        "mateSay": "{cubName} is growing up. I want to stay close as they change."
+      }
+    },
+    "first_hunt": {
+      "factId": "first_hunt",
+      "when": "adolescent's learner hunt",
+      "narration": "{catName} has gone out on a hunt as a learner.",
+      "results": {
+        "went_well": "They kept up, and the hunt went well.",
+        "came_to_nothing": "They struggled, and the hunt came to nothing."
+      },
+      "outcome": {
+        "went_well": "The hunt went well for {catName}.",
+        "came_to_nothing": "The hunt came to nothing for {catName}."
+      },
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "So {catName} went out. They'll get stronger for it.",
+          "high": "Good. {catName} should be out there, learning to take what's ours.",
+          "low": "I know {catName} had to go, but I worried the whole time."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "How did {catName} do? I want to hear it from you.",
+          "high": "Tell me how it went. I want to hear how {catName} did out there.",
+          "low": "They're back. That's what I needed to know."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "I thought {catName} could handle a hunt. I'm glad they went.",
+          "high": "{catName} belongs on the trail. I hope they get to go again.",
+          "low": "I was afraid to let {catName} go. I'm glad they're back."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "Our young went out with the pride. That matters to me.",
+          "high": "I wanted {catName} beside us. This is how they become part of the hunt.",
+          "low": "They went. They came back. I can live with that."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I keep wondering what {catName} noticed out there.",
+          "high": "What did {catName} smell? What did they do? I want the whole trail told.",
+          "low": "They're back. I don't need a full report."
+        }
+      },
+      "offlineFallback": {
+        "went_well": {
+          "narration": [
+            "{catName} has gone out on a hunt as a learner. They kept up, and the hunt went well.",
+            "{catName} went out on a hunt as a learner. They kept up, and it went well.",
+            "{catName} has gone out on a hunt as a learner. The hunt went well, and they kept up."
+          ],
+          "outcome": "The hunt went well for {catName}.",
+          "mateSay": "How did {catName} do? I want to hear it from you."
+        },
+        "came_to_nothing": {
+          "narration": [
+            "{catName} has gone out on a hunt as a learner. They struggled, and the hunt came to nothing.",
+            "{catName} went out on a hunt as a learner. They struggled, and it came to nothing.",
+            "{catName} has gone out on a hunt as a learner. The hunt came to nothing."
+          ],
+          "outcome": "The hunt came to nothing for {catName}.",
+          "mateSay": "How did {catName} do? I want to hear it from you."
+        }
+      }
+    },
+    "stage_up_adult": {
+      "factId": "stage_up_adult",
+      "when": "adolescent becomes an adult",
+      "narration": "{catName} is grown now, and they stand as an adult.",
+      "optional": {
+        "friendships": "Play from the den has settled into friendship."
+      },
+      "outcome": "{catName} is an adult now.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "{catName} is grown. I can treat them like a full hunter now.",
+          "high": "{catName} is grown, and I'd trust them in a fight beside me.",
+          "low": "I know {catName} is grown. I still have to remind myself they're not a cub."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "{catName} is an adult now. I want to keep talking as they find their place.",
+          "high": "{catName} is grown! We should mark this. Come sit with them.",
+          "low": "{catName} is grown. I'll let them have their space."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "{catName} looks ready for adult work. I think they are.",
+          "high": "At last {catName} is grown. Let them take a real share of the work.",
+          "low": "They're grown, but I still get nervous when {catName} goes far."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "{catName} is an adult of this pride now. We'll count on them.",
+          "high": "{catName} is ours, grown. I'll stand with them as long as they stay.",
+          "low": "{catName} is grown. They'll make their own way, and I'll be around."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I want to see the kind of adult {catName} becomes.",
+          "high": "What's {catName} going to try now that they're grown? I can't wait to see.",
+          "low": "They're grown. That's the change, and I don't need to make more of it."
+        }
+      },
+      "offlineFallback": {
+        "default": {
+          "narration": [
+            "{catName} is grown now, and they stand as an adult.",
+            "{catName} is grown, and they stand as an adult now.",
+            "{catName} has grown up, and they stand as an adult."
+          ],
+          "outcome": "{catName} is an adult now.",
+          "mateSay": "{catName} is an adult now. I want to keep talking as they find their place."
+        },
+        "friendships": {
+          "narration": [
+            "{catName} is grown now, and they stand as an adult. Play from the den has settled into friendship.",
+            "{catName} is grown, and they stand as an adult now. Play from the den has settled into friendship.",
+            "{catName} has grown up, and they stand as an adult. Play from the den has settled into friendship."
+          ],
+          "outcome": "{catName} is an adult now.",
+          "mateSay": "{catName} is an adult now. I want to keep talking as they find their place."
+        }
+      }
+    },
+    "stage_up_elder": {
+      "factId": "stage_up_elder",
+      "when": "adult becomes an elder",
+      "narration": {
+        "self": "You are an elder now. The younger cats will look to you.",
+        "other": "{catName} is an elder now. The younger cats will look to them."
+      },
+      "outcome": {
+        "self": "You are an elder now.",
+        "other": "{catName} is an elder now."
+      },
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "{catName} is an elder. I still wouldn't test them lightly.",
+          "high": "Elder or not, {catName} still has fight in them. I respect that.",
+          "low": "{catName} is an elder now. I want the pride to make their days a little easier."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "{catName} is an elder. I want to sit with them more, not less.",
+          "high": "Come sit, {catName}. I want your stories, and I want your company.",
+          "low": "{catName} is an elder. I'll keep them company without filling the air."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "Age is here, but {catName} still looks sure of themselves.",
+          "high": "Elder isn't the end of the trail. {catName} can still lead a hunt if they want.",
+          "low": "I worry the trails are getting hard for {catName}."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "{catName} has given this pride a lot. We should keep them close.",
+          "high": "I'll look after {catName} the way they looked after us. That's my place now.",
+          "low": "{catName} is an elder. I'll help when I'm asked."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I wonder what {catName} notices now that they're an elder.",
+          "high": "What changes do you feel, {catName}? I want to understand it.",
+          "low": "They're an elder. I don't need to poke at what that means."
+        }
+      },
+      "offlineFallback": {
+        "self": {
+          "narration": [
+            "You are an elder now. The younger cats will look to you.",
+            "You're an elder now. Younger cats will start to look to you.",
+            "You have become an elder. The younger cats will look to you."
+          ],
+          "outcome": "You are an elder now.",
+          "mateSay": "{catName} is an elder. I want to sit with them more, not less."
+        },
+        "other": {
+          "narration": [
+            "{catName} is an elder now. The younger cats will look to them.",
+            "{catName} has become an elder. The younger cats will look to them.",
+            "{catName} is an elder now, and the younger cats will look to them."
+          ],
+          "outcome": "{catName} is an elder now.",
+          "mateSay": "{catName} is an elder. I want to sit with them more, not less."
+        }
+      }
+    },
+    "fertility_ended": {
+      "factId": "fertility_ended",
+      "when": "crossing fertileUntil",
+      "narration": {
+        "self": "You won't have cubs again.",
+        "other": "{catName} won't have cubs again."
+      },
+      "outcome": {
+        "self": "You won't have cubs again.",
+        "other": "{catName} won't have cubs again."
+      },
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "So that's over. I'll still keep this pride safe.",
+          "high": "If that's ended, then we protect what we already have. I can do that.",
+          "low": "I didn't think that part would end. I'm a little lost about it."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "Come here. We can still have a life together without new cubs.",
+          "high": "I still want you close. Cubs or not, I want to talk the way we do.",
+          "low": "I understand. I may not say much, but I haven't pulled away."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "That's a change, but we can live with it.",
+          "high": "All right. Then we spend our strength on the pride we have.",
+          "low": "I keep thinking about cubs we won't have. I need time with that."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "I'm still your mate. That doesn't end.",
+          "high": "I'm staying. Cubs or no cubs, I chose you.",
+          "low": "I heard you. I need a little room, and I'm still here."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I keep thinking what this changes for us.",
+          "high": "What does this mean for us now? I want to figure it out with you.",
+          "low": "That's the change. I don't need to turn it over and over."
+        }
+      },
+      "offlineFallback": {
+        "self": {
+          "narration": [
+            "You won't have cubs again.",
+            "You won't bear cubs again.",
+            "Having cubs is over for you."
+          ],
+          "outcome": "You won't have cubs again.",
+          "mateSay": "Come here. We can still have a life together without new cubs."
+        },
+        "other": {
+          "narration": [
+            "{catName} won't have cubs again.",
+            "{catName} won't bear cubs again.",
+            "Having cubs is over for {catName}."
+          ],
+          "outcome": "{catName} won't have cubs again.",
+          "mateSay": "Come here. We can still have a life together without new cubs."
+        }
+      }
+    },
+    "story_retire": {
+      "factId": "story_retire",
+      "when": "Story mode: the player cat retires instead of dying of age",
+      "narration": "You are too old to lead the way you did. You retire, and {heirName} carries the pride forward now.",
+      "outcome": "You have retired, and {heirName} leads the pride now.",
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "You're stepping back. I'll keep this pride safe while {heirName} leads.",
+          "high": "All right. You retire, and I'll stand with {heirName}.",
+          "low": "I didn't think you'd step back. I'll stay close to you, and to {heirName}."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "Come sit with us still. {heirName} leads now, and I want you close.",
+          "high": "You're retiring, not leaving us. I want to keep talking, and I'll sit with {heirName} too.",
+          "low": "You're stepping back. I may not say much, but I'm still here, and so is {heirName}."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "You're retiring, and I think the pride can handle it with {heirName}.",
+          "high": "Step back if you want. {heirName} can lead, and I'll walk the trail with them.",
+          "low": "I worry about you stepping back. I'll try to be steady for {heirName}."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "You're still part of this pride. {heirName} leads now, and I stay with both of you.",
+          "high": "I chose you, and I won't leave because you retired. I'll stand by {heirName} too.",
+          "low": "I heard you. I need a little room, and I haven't left you or {heirName}."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I keep thinking what this changes now that {heirName} leads.",
+          "high": "What do you want from this pride now? I want to figure it out with you and {heirName}.",
+          "low": "That's the change. I don't need to turn it over. {heirName} leads, and you're still here."
+        }
+      },
+      "offlineFallback": {
+        "narration": [
+          "You are too old to lead the way you did. You retire, and {heirName} carries the pride forward now.",
+          "You're too old to lead as you did. You retire, and {heirName} carries the pride forward now.",
+          "You step back from leading. You retire, and {heirName} carries the pride forward now."
+        ],
+        "outcome": "You have retired, and {heirName} leads the pride now.",
+        "mateSay": "Come sit with us still. {heirName} leads now, and I want you close."
+      }
+    },
+    "overcrowded": {
+      "factId": "overcrowded",
+      "when": "pride is over capacity",
+      "narration": "The pride has grown past what this ground can hold. Everyone feels the press of it.",
+      "optional": {
+        "regionWord": "The pride has grown past what {regionWord} can hold. Everyone feels the press of it."
+      },
+      "outcome": "The pride is overcrowded.",
+      "offlineFallback": {
+        "narration": [
+          "The pride has grown past what this ground can hold. Everyone feels the press of it.",
+          "The pride has grown past what this ground can hold, and everyone feels the press of it.",
+          "This ground can't hold a pride this large. Everyone feels the press of it."
+        ],
+        "outcome": "The pride is overcrowded."
+      }
+    },
+    "overcrowding_eased": {
+      "factId": "overcrowding_eased",
+      "when": "pride is no longer over capacity",
+      "narration": "The pride isn't pressed for ground anymore.",
+      "optional": {
+        "regionWord": "The pride isn't pressed for ground on {regionWord} anymore."
+      },
+      "outcome": "The overcrowding has eased.",
+      "offlineFallback": {
+        "narration": [
+          "The pride isn't pressed for ground anymore.",
+          "The pride isn't pressed for ground now.",
+          "The press for ground has eased."
+        ],
+        "outcome": "The overcrowding has eased."
+      }
+    },
+    "heir_named": {
+      "factId": "heir_named",
+      "when": "heir switch",
+      "narration": "{heirName} leads the pride now.",
+      "optional": {
+        "ofYourLine": "They are of your line."
+      },
+      "outcome": "{heirName} is the new leader.",
+      "offlineFallback": {
+        "narration": [
+          "{heirName} leads the pride now.",
+          "{heirName} is leading the pride now.",
+          "The pride follows {heirName} now."
+        ],
+        "outcome": "{heirName} is the new leader."
+      }
+    },
+    "natural_death": {
+      "factId": "natural_death",
+      "when": "lifecycle death",
+      "narration": {
+        "cub": "{catName} has died. They were still a cub.",
+        "adolescent": "{catName} has died. They were still growing.",
+        "adult": "{catName} has died.",
+        "elder": "{catName} has died. They were an elder, and their time has ended.",
+        "mate": "{mateName} has died. You are without a mate.",
+        "player_heir": "You have died. {heirName} carries the pride forward now.",
+        "player_no_heir": "You have died. There is no heir, and the pride's story ends here."
+      },
+      "outcome": {
+        "cub": "{catName} has died.",
+        "adolescent": "{catName} has died.",
+        "adult": "{catName} has died.",
+        "elder": "{catName} has died.",
+        "mate": "{mateName} has died.",
+        "player_heir": "{heirName} leads the pride now.",
+        "player_no_heir": "The pride's story has ended."
+      },
+      "mateReaction": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "I wanted to keep {catName} safe, and I couldn't.",
+          "high": "I should have been there for {catName}. I wasn't.",
+          "low": "I keep thinking I might have done more for {catName}. I don't know."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "I keep wanting to talk about {catName}. Is that all right?",
+          "high": "I can't sit with this quiet. {catName} was here, and now I need to say their name.",
+          "low": "I don't want to talk. I know {catName} is gone."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "This hurts, and we still have to go on. I'll try.",
+          "high": "We have to go on. I'll carry {catName} with me and keep moving.",
+          "low": "I don't feel ready to go on. {catName} is gone, and I feel small."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "We'll remember {catName}. They're still part of this pride.",
+          "high": "I won't forget {catName}. As long as I'm in this pride, their name stays.",
+          "low": "I need a little distance to take this in. I haven't left."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "I keep replaying the last time I saw {catName}.",
+          "high": "I keep asking why it was {catName}. I know there may be no answer.",
+          "low": "I don't want to pick it apart. {catName} is gone, and that's enough to know."
+        }
+      },
+      "mateReactionPlayerDeath": {
+        "aggression": {
+          "focusTrait": "aggression",
+          "base": "{playerName} is gone, and I can't fight that. I'll stand with you, {heirName}.",
+          "high": "{playerName} is gone. I'll keep this pride together, and I'll stand with {heirName}.",
+          "low": "{playerName} is gone. I don't feel ready, but I won't leave {heirName}."
+        },
+        "sociability": {
+          "focusTrait": "sociability",
+          "base": "{playerName} is gone. Stay close, {heirName}. We should talk when you can.",
+          "high": "{playerName} is gone, and I need to say it. I'm here, {heirName}, if you want company.",
+          "low": "{playerName} is gone. I don't have many words. I'm still here, {heirName}."
+        },
+        "boldness": {
+          "focusTrait": "boldness",
+          "base": "{playerName} is gone. The pride still has to go on, {heirName}, and I'll help you do it.",
+          "high": "{playerName} is gone. You can lead, {heirName}. I'll walk the trail with you.",
+          "low": "{playerName} is gone, and I feel the gap. I'll try to be steady for {heirName}."
+        },
+        "loyalty": {
+          "focusTrait": "loyalty",
+          "base": "{playerName} is gone. I stay with this pride, and with you, {heirName}.",
+          "high": "{playerName} is gone, but I won't abandon their pride. I'll stand by {heirName}.",
+          "low": "{playerName} is gone. I need a little room, and I haven't left you, {heirName}."
+        },
+        "curiosity": {
+          "focusTrait": "curiosity",
+          "base": "{playerName} is gone. I keep thinking what they would want from us now.",
+          "high": "{playerName} is gone. What do we do now, {heirName}? I want to figure it out with you.",
+          "low": "{playerName} is gone. I don't want to pick it apart. I'm here, {heirName}."
+        }
+      },
+      "offlineFallback": {
+        "cub": {
+          "narration": [
+            "{catName} has died. They were still a cub.",
+            "{catName} has died, still a cub.",
+            "{catName} has died. This one was still a cub."
+          ],
+          "outcome": "{catName} has died.",
+          "mateSay": "I keep wanting to talk about {catName}. Is that all right?"
+        },
+        "adolescent": {
+          "narration": [
+            "{catName} has died. They were still growing.",
+            "{catName} has died. They weren't fully grown.",
+            "{catName} has died. They hadn't finished growing."
+          ],
+          "outcome": "{catName} has died.",
+          "mateSay": "I keep wanting to talk about {catName}. Is that all right?"
+        },
+        "adult": {
+          "narration": [
+            "{catName} has died.",
+            "{catName} has died. The den is quieter without them.",
+            "{catName} has died. They won't be coming back to the den."
+          ],
+          "outcome": "{catName} has died.",
+          "mateSay": "I keep wanting to talk about {catName}. Is that all right?"
+        },
+        "elder": {
+          "narration": [
+            "{catName} has died. They were an elder, and their time has ended.",
+            "{catName} has died. They were an elder, and that life is over.",
+            "{catName} has died. They lived as an elder, and that time is over."
+          ],
+          "outcome": "{catName} has died.",
+          "mateSay": "I keep wanting to talk about {catName}. Is that all right?"
+        },
+        "mate": {
+          "narration": [
+            "{mateName} has died. You are without a mate.",
+            "{mateName} has died. You no longer have a mate.",
+            "{mateName} has died. There is no mate beside you now."
+          ],
+          "outcome": "{mateName} has died."
+        },
+        "player_heir": {
+          "narration": [
+            "You have died. {heirName} carries the pride forward now.",
+            "You have died. {heirName} will lead the pride now.",
+            "You have died. The pride goes on, and {heirName} leads it now."
+          ],
+          "outcome": "{heirName} leads the pride now.",
+          "mateSay": "{playerName} is gone. Stay close, {heirName}. We should talk when you can."
+        },
+        "player_no_heir": {
+          "narration": [
+            "You have died. There is no heir, and the pride's story ends here.",
+            "You have died, and there's no heir to take your place. The pride's story ends here.",
+            "You have died. With no heir to follow you, the pride's story ends here."
+          ],
+          "outcome": "The pride's story has ended.",
+          "_then": "Hand off to the normal permadeath / game-over flow. Do not play heir_named, and do not use mateReactionPlayerDeath; those lines name an heir. This hook must not imply an heir exists."
+        }
+      }
+    }
+  },
+  "speechLocations": {
+    "breeding.pregnancy_known.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "Cubs are coming. I'll keep watch while we wait.",
+      "high": "Those cubs are ours. Nothing comes near you until they're here.",
+      "low": "Cubs. All right. I'll try to go easy until they arrive.",
+      "moment": "pregnancy_known"
+    },
+    "breeding.pregnancy_known.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "We're going to have cubs. I wanted you to hear it from me.",
+      "high": "Cubs? I keep thinking about it. Come sit with me.",
+      "low": "I don't have much to say. I know they're coming, though.",
+      "moment": "pregnancy_known"
+    },
+    "breeding.pregnancy_known.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "Cubs are coming, and I think we can handle the wait.",
+      "high": "Cubs are coming, and I'm ready for them. Let the wait start.",
+      "low": "Cubs are coming. I keep worrying about what the wait will ask of us.",
+      "moment": "pregnancy_known"
+    },
+    "breeding.pregnancy_known.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "We'll get through the wait together. The cubs will have both of us.",
+      "high": "I'm staying with you through this. Those cubs will know they have a pride.",
+      "low": "Cubs are coming. I'll do my part. I just need a little room to think.",
+      "moment": "pregnancy_known"
+    },
+    "breeding.pregnancy_known.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "Cubs are coming. I keep wondering what they'll be like.",
+      "high": "Cubs are coming, and I want to know everything about them already. Do you think about that too?",
+      "low": "Cubs are coming. I don't need to guess at them. We'll see them when they arrive.",
+      "moment": "pregnancy_known"
+    },
+    "breeding.pregnancy_progress.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "I'm still here. Tell me if you need the den kept clear.",
+      "high": "If anything bothers you while we wait, I'll deal with it.",
+      "low": "I hope the wait isn't too hard. I can stay quieter if that helps.",
+      "moment": "pregnancy_progress"
+    },
+    "breeding.pregnancy_progress.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "How are you holding up? I'm close if you want company.",
+      "high": "I've been thinking about the cubs. Sit with me and talk?",
+      "low": "I'll keep to myself. I'm still paying attention.",
+      "moment": "pregnancy_progress"
+    },
+    "breeding.pregnancy_progress.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "The wait is long, but I think you're doing all right.",
+      "high": "The wait doesn't scare me. We'll be fine.",
+      "low": "I can't help checking on you. The wait makes me uneasy.",
+      "moment": "pregnancy_progress"
+    },
+    "breeding.pregnancy_progress.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "I'm not going anywhere. We wait together.",
+      "high": "Whatever you need, I'm here. That's what I promised.",
+      "low": "I'm still here. I just need a little time to myself as well.",
+      "moment": "pregnancy_progress"
+    },
+    "breeding.pregnancy_progress.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "Any change, do you think? I keep noticing little things.",
+      "high": "Do you feel them move? I want to know every change.",
+      "low": "I won't pester you. We'll know more when they arrive.",
+      "moment": "pregnancy_progress"
+    },
+    "breeding.litter_born.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "They're here, and they're ours. I'll watch the den.",
+      "high": "They're here. Nothing gets near this den while I can stand.",
+      "low": "They're here. They're so small. I don't want to startle them.",
+      "moment": "litter_born"
+    },
+    "breeding.litter_born.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "They're here. I want to be close to them, and to you.",
+      "high": "They're here! Let me see them. I can't stop talking about this.",
+      "low": "They're here. I'll be quiet so they can rest.",
+      "moment": "litter_born"
+    },
+    "breeding.litter_born.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "They're here, and they look strong enough to me.",
+      "high": "They're here, and I already want to show them the ground we hold.",
+      "low": "They're here. I keep checking that they're still breathing.",
+      "moment": "litter_born"
+    },
+    "breeding.litter_born.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "They're here. We'll raise them together.",
+      "high": "They're here, and this is our pride's future. I won't leave their side.",
+      "low": "They're here. I'll help. I just need a moment to take it in.",
+      "moment": "litter_born"
+    },
+    "breeding.litter_born.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "They're here. I already want to learn their scents.",
+      "high": "They're here. Look at them. I want to know their faces and their scents.",
+      "low": "They're here. That's enough for now. We can look closer later.",
+      "moment": "litter_born"
+    },
+    "breeding.litter_born.size1.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "The cub is here, and is ours. I'll watch the den.",
+      "high": "The cub is here. Nothing gets near this den while I can stand.",
+      "low": "The cub is here, and so small. I don't want to startle the cub.",
+      "moment": "litter_born",
+      "when": "litter size 1"
+    },
+    "breeding.litter_born.size1.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "The cub is here. I want to be close to the cub, and to you.",
+      "high": "The cub is here! Let me see the cub. I can't stop talking about this.",
+      "low": "The cub is here. I'll be quiet so the cub can rest.",
+      "moment": "litter_born",
+      "when": "litter size 1"
+    },
+    "breeding.litter_born.size1.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "The cub is here, and looks strong enough to me.",
+      "high": "The cub is here, and I already want to show the cub the ground we hold.",
+      "low": "The cub is here. I keep checking that the cub is still breathing.",
+      "moment": "litter_born",
+      "when": "litter size 1"
+    },
+    "breeding.litter_born.size1.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "The cub is here. We'll raise the cub together.",
+      "high": "The cub is here, and this is our pride's future. I won't leave the cub's side.",
+      "low": "The cub is here. I'll help. I just need a moment to take it in.",
+      "moment": "litter_born",
+      "when": "litter size 1"
+    },
+    "breeding.litter_born.size1.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "The cub is here. I already want to learn the cub's scent.",
+      "high": "The cub is here. Look. I want to know that face and scent.",
+      "low": "The cub is here. That's enough for now. We can look closer later.",
+      "moment": "litter_born",
+      "when": "litter size 1"
+    },
+    "breeding.cub_naming.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "{cubName}. That's a solid name. I'll remember it.",
+      "high": "{cubName}. Good. That name will carry.",
+      "low": "{cubName}. It's a gentle name. I like it.",
+      "moment": "cub_naming"
+    },
+    "breeding.cub_naming.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "{cubName}. I'll say it until it feels like theirs.",
+      "high": "{cubName}! Yes. I want to say it to them already.",
+      "low": "{cubName}. I'll use it. I don't need a long speech about it.",
+      "moment": "cub_naming"
+    },
+    "breeding.cub_naming.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "{cubName}. It suits them, I think.",
+      "high": "{cubName}. That's a name that can go far.",
+      "low": "{cubName}. I hope it sits well with them.",
+      "moment": "cub_naming"
+    },
+    "breeding.cub_naming.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "{cubName}. We'll make sure they know their name in this pride.",
+      "high": "{cubName}. That's our cub, and I'll stand by that name.",
+      "low": "{cubName}. All right. I'll call them that.",
+      "moment": "cub_naming"
+    },
+    "breeding.cub_naming.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "{cubName}. I wonder how they will grow into it.",
+      "high": "Why {cubName}? I like it, I do. I just want to know how you chose.",
+      "low": "{cubName}. The name is fine. We don't need to turn it over.",
+      "moment": "cub_naming"
+    },
+    "breeding.cub_died.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "I wanted to keep {cubName} safe, and I couldn't.",
+      "high": "I should have been there for {cubName}. I wasn't.",
+      "low": "I keep thinking I might have done more for {cubName}. I don't know.",
+      "moment": "cub_died"
+    },
+    "breeding.cub_died.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "I keep wanting to talk about {cubName}. Is that all right?",
+      "high": "I can't sit with this quiet. {cubName} was here, and now I need to say their name.",
+      "low": "I don't want to talk. I know {cubName} is gone.",
+      "moment": "cub_died"
+    },
+    "breeding.cub_died.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "This hurts, and we still have to go on. I'll try.",
+      "high": "We have to go on. I'll carry {cubName} with me and keep moving.",
+      "low": "I don't feel ready to go on. {cubName} is gone, and I feel small.",
+      "moment": "cub_died"
+    },
+    "breeding.cub_died.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "We'll remember {cubName}. They're still part of this pride.",
+      "high": "I won't forget {cubName}. As long as I'm in this pride, their name stays.",
+      "low": "I need a little distance to take this in. I haven't left.",
+      "moment": "cub_died"
+    },
+    "breeding.cub_died.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I keep replaying the last time I saw {cubName}.",
+      "high": "I keep asking why it was {cubName}. I know there may be no answer.",
+      "low": "I don't want to pick it apart. {cubName} is gone, and that's enough to know.",
+      "moment": "cub_died"
+    },
+    "breeding.cub_first_play.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "Look at {cubName} go. They're already testing their strength.",
+      "high": "{cubName} already wants a tussle. Good. Let them.",
+      "low": "They're playing. I just hope nobody gets too rough with {cubName}.",
+      "moment": "cub_first_play"
+    },
+    "breeding.cub_first_play.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "{cubName} is playing. I could watch this for a while.",
+      "high": "{cubName} is playing! Come watch with me.",
+      "low": "They're playing. I'll watch from here.",
+      "moment": "cub_first_play"
+    },
+    "breeding.cub_first_play.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "{cubName} isn't shy about it. I like seeing that.",
+      "high": "That's it, {cubName}. Get out there and try things.",
+      "low": "They're playing, but I keep wanting to pull them back.",
+      "moment": "cub_first_play"
+    },
+    "breeding.cub_first_play.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "Our cub is playing. This feels like a good sign for the pride.",
+      "high": "{cubName} is finding their place with us. I'll keep an eye on them.",
+      "low": "They're playing. That's their business for now. I'll be around.",
+      "moment": "cub_first_play"
+    },
+    "breeding.cub_first_play.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I want to see what {cubName} tries next.",
+      "high": "What's {cubName} after now? I could watch every move.",
+      "low": "They're playing. I don't need to study it.",
+      "moment": "cub_first_play"
+    },
+    "breeding.cub_taught.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "Good. {cubName} needs to learn this if they're going to last.",
+      "high": "Push them a little. {cubName} can take it, and they need to.",
+      "low": "Go easy. {cubName} is still learning, and I don't want them scared of it.",
+      "moment": "cub_taught"
+    },
+    "breeding.cub_taught.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "{cubName} did well to listen. I'm glad you're teaching them.",
+      "high": "I love seeing {cubName} learn. Tell me how it went?",
+      "low": "They're learning. That's good. I don't need the details.",
+      "moment": "cub_taught"
+    },
+    "breeding.cub_taught.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "{cubName} is trying, and that matters.",
+      "high": "That's the way. {cubName} should get out and try it for real soon.",
+      "low": "I hope it isn't too much too soon for {cubName}.",
+      "moment": "cub_taught"
+    },
+    "breeding.cub_taught.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "{cubName} is learning from us. That's our job.",
+      "high": "I'll teach {cubName} myself whenever I can. They should learn from their own.",
+      "low": "Someone has to teach them. I'm glad it got done.",
+      "moment": "cub_taught"
+    },
+    "breeding.cub_taught.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I wonder how quickly {cubName} will pick this up.",
+      "high": "What did {cubName} take to? I want to know which parts clicked.",
+      "low": "They're learning. I don't need to pick the lesson apart.",
+      "moment": "cub_taught"
+    },
+    "breeding.stage_up_adolescent.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "{cubName} is growing into some strength. Good.",
+      "high": "About time {cubName} looked like they could hold a line. Let's use that.",
+      "low": "{cubName} looks more grown, but I still want to keep them close.",
+      "moment": "stage_up_adolescent"
+    },
+    "breeding.stage_up_adolescent.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "{cubName} is growing up. I want to stay close as they change.",
+      "high": "{cubName} looks so grown! Come see them with me.",
+      "low": "{cubName} is changing. I'll give them a little room.",
+      "moment": "stage_up_adolescent"
+    },
+    "breeding.stage_up_adolescent.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "{cubName} looks ready to try more. I think they can.",
+      "high": "{cubName} is ready. Let them come out on the trails with us.",
+      "low": "They look more grown, but I'm not sure {cubName} is ready for the trails.",
+      "moment": "stage_up_adolescent"
+    },
+    "breeding.stage_up_adolescent.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "{cubName} can start to help the pride now. We'll show them how.",
+      "high": "{cubName} belongs with us in a new way now. I'll keep them in the pride's care.",
+      "low": "{cubName} is growing up. They'll find their place, with or without a lot of fuss from me.",
+      "moment": "stage_up_adolescent"
+    },
+    "breeding.stage_up_adolescent.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I want to see what {cubName} becomes from here.",
+      "high": "Look at {cubName}'s face. Everything is changing, and I want to watch it happen.",
+      "low": "They're growing. I don't need to make a study of it.",
+      "moment": "stage_up_adolescent"
+    },
+    "breeding.first_hunt.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "So {catName} went out. They'll get stronger for it.",
+      "high": "Good. {catName} should be out there, learning to take what's ours.",
+      "low": "I know {catName} had to go, but I worried the whole time.",
+      "moment": "first_hunt"
+    },
+    "breeding.first_hunt.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "How did {catName} do? I want to hear it from you.",
+      "high": "Tell me how it went. I want to hear how {catName} did out there.",
+      "low": "They're back. That's what I needed to know.",
+      "moment": "first_hunt"
+    },
+    "breeding.first_hunt.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "I thought {catName} could handle a hunt. I'm glad they went.",
+      "high": "{catName} belongs on the trail. I hope they get to go again.",
+      "low": "I was afraid to let {catName} go. I'm glad they're back.",
+      "moment": "first_hunt"
+    },
+    "breeding.first_hunt.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "Our young went out with the pride. That matters to me.",
+      "high": "I wanted {catName} beside us. This is how they become part of the hunt.",
+      "low": "They went. They came back. I can live with that.",
+      "moment": "first_hunt"
+    },
+    "breeding.first_hunt.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I keep wondering what {catName} noticed out there.",
+      "high": "What did {catName} smell? What did they do? I want the whole trail told.",
+      "low": "They're back. I don't need a full report.",
+      "moment": "first_hunt"
+    },
+    "breeding.stage_up_adult.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "{catName} is grown. I can treat them like a full hunter now.",
+      "high": "{catName} is grown, and I'd trust them in a fight beside me.",
+      "low": "I know {catName} is grown. I still have to remind myself they're not a cub.",
+      "moment": "stage_up_adult"
+    },
+    "breeding.stage_up_adult.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "{catName} is an adult now. I want to keep talking as they find their place.",
+      "high": "{catName} is grown! We should mark this. Come sit with them.",
+      "low": "{catName} is grown. I'll let them have their space.",
+      "moment": "stage_up_adult"
+    },
+    "breeding.stage_up_adult.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "{catName} looks ready for adult work. I think they are.",
+      "high": "At last {catName} is grown. Let them take a real share of the work.",
+      "low": "They're grown, but I still get nervous when {catName} goes far.",
+      "moment": "stage_up_adult"
+    },
+    "breeding.stage_up_adult.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "{catName} is an adult of this pride now. We'll count on them.",
+      "high": "{catName} is ours, grown. I'll stand with them as long as they stay.",
+      "low": "{catName} is grown. They'll make their own way, and I'll be around.",
+      "moment": "stage_up_adult"
+    },
+    "breeding.stage_up_adult.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I want to see the kind of adult {catName} becomes.",
+      "high": "What's {catName} going to try now that they're grown? I can't wait to see.",
+      "low": "They're grown. That's the change, and I don't need to make more of it.",
+      "moment": "stage_up_adult"
+    },
+    "breeding.stage_up_elder.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "{catName} is an elder. I still wouldn't test them lightly.",
+      "high": "Elder or not, {catName} still has fight in them. I respect that.",
+      "low": "{catName} is an elder now. I want the pride to make their days a little easier.",
+      "moment": "stage_up_elder"
+    },
+    "breeding.stage_up_elder.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "{catName} is an elder. I want to sit with them more, not less.",
+      "high": "Come sit, {catName}. I want your stories, and I want your company.",
+      "low": "{catName} is an elder. I'll keep them company without filling the air.",
+      "moment": "stage_up_elder"
+    },
+    "breeding.stage_up_elder.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "Age is here, but {catName} still looks sure of themselves.",
+      "high": "Elder isn't the end of the trail. {catName} can still lead a hunt if they want.",
+      "low": "I worry the trails are getting hard for {catName}.",
+      "moment": "stage_up_elder"
+    },
+    "breeding.stage_up_elder.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "{catName} has given this pride a lot. We should keep them close.",
+      "high": "I'll look after {catName} the way they looked after us. That's my place now.",
+      "low": "{catName} is an elder. I'll help when I'm asked.",
+      "moment": "stage_up_elder"
+    },
+    "breeding.stage_up_elder.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I wonder what {catName} notices now that they're an elder.",
+      "high": "What changes do you feel, {catName}? I want to understand it.",
+      "low": "They're an elder. I don't need to poke at what that means.",
+      "moment": "stage_up_elder"
+    },
+    "breeding.fertility_ended.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "So that's over. I'll still keep this pride safe.",
+      "high": "If that's ended, then we protect what we already have. I can do that.",
+      "low": "I didn't think that part would end. I'm a little lost about it.",
+      "moment": "fertility_ended"
+    },
+    "breeding.fertility_ended.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "Come here. We can still have a life together without new cubs.",
+      "high": "I still want you close. Cubs or not, I want to talk the way we do.",
+      "low": "I understand. I may not say much, but I haven't pulled away.",
+      "moment": "fertility_ended"
+    },
+    "breeding.fertility_ended.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "That's a change, but we can live with it.",
+      "high": "All right. Then we spend our strength on the pride we have.",
+      "low": "I keep thinking about cubs we won't have. I need time with that.",
+      "moment": "fertility_ended"
+    },
+    "breeding.fertility_ended.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "I'm still your mate. That doesn't end.",
+      "high": "I'm staying. Cubs or no cubs, I chose you.",
+      "low": "I heard you. I need a little room, and I'm still here.",
+      "moment": "fertility_ended"
+    },
+    "breeding.fertility_ended.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I keep thinking what this changes for us.",
+      "high": "What does this mean for us now? I want to figure it out with you.",
+      "low": "That's the change. I don't need to turn it over and over.",
+      "moment": "fertility_ended"
+    },
+    "breeding.story_retire.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "You're stepping back. I'll keep this pride safe while {heirName} leads.",
+      "high": "All right. You retire, and I'll stand with {heirName}.",
+      "low": "I didn't think you'd step back. I'll stay close to you, and to {heirName}.",
+      "moment": "story_retire"
+    },
+    "breeding.story_retire.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "Come sit with us still. {heirName} leads now, and I want you close.",
+      "high": "You're retiring, not leaving us. I want to keep talking, and I'll sit with {heirName} too.",
+      "low": "You're stepping back. I may not say much, but I'm still here, and so is {heirName}.",
+      "moment": "story_retire"
+    },
+    "breeding.story_retire.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "You're retiring, and I think the pride can handle it with {heirName}.",
+      "high": "Step back if you want. {heirName} can lead, and I'll walk the trail with them.",
+      "low": "I worry about you stepping back. I'll try to be steady for {heirName}.",
+      "moment": "story_retire"
+    },
+    "breeding.story_retire.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "You're still part of this pride. {heirName} leads now, and I stay with both of you.",
+      "high": "I chose you, and I won't leave because you retired. I'll stand by {heirName} too.",
+      "low": "I heard you. I need a little room, and I haven't left you or {heirName}.",
+      "moment": "story_retire"
+    },
+    "breeding.story_retire.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I keep thinking what this changes now that {heirName} leads.",
+      "high": "What do you want from this pride now? I want to figure it out with you and {heirName}.",
+      "low": "That's the change. I don't need to turn it over. {heirName} leads, and you're still here.",
+      "moment": "story_retire"
+    },
+    "breeding.natural_death.mate.aggression": {
+      "focusTrait": "aggression",
+      "base": "I wanted to keep {catName} safe, and I couldn't.",
+      "high": "I should have been there for {catName}. I wasn't.",
+      "low": "I keep thinking I might have done more for {catName}. I don't know.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mate.sociability": {
+      "focusTrait": "sociability",
+      "base": "I keep wanting to talk about {catName}. Is that all right?",
+      "high": "I can't sit with this quiet. {catName} was here, and now I need to say their name.",
+      "low": "I don't want to talk. I know {catName} is gone.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mate.boldness": {
+      "focusTrait": "boldness",
+      "base": "This hurts, and we still have to go on. I'll try.",
+      "high": "We have to go on. I'll carry {catName} with me and keep moving.",
+      "low": "I don't feel ready to go on. {catName} is gone, and I feel small.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mate.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "We'll remember {catName}. They're still part of this pride.",
+      "high": "I won't forget {catName}. As long as I'm in this pride, their name stays.",
+      "low": "I need a little distance to take this in. I haven't left.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mate.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "I keep replaying the last time I saw {catName}.",
+      "high": "I keep asking why it was {catName}. I know there may be no answer.",
+      "low": "I don't want to pick it apart. {catName} is gone, and that's enough to know.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mateOnPlayerDeath.aggression": {
+      "focusTrait": "aggression",
+      "base": "{playerName} is gone, and I can't fight that. I'll stand with you, {heirName}.",
+      "high": "{playerName} is gone. I'll keep this pride together, and I'll stand with {heirName}.",
+      "low": "{playerName} is gone. I don't feel ready, but I won't leave {heirName}.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mateOnPlayerDeath.sociability": {
+      "focusTrait": "sociability",
+      "base": "{playerName} is gone. Stay close, {heirName}. We should talk when you can.",
+      "high": "{playerName} is gone, and I need to say it. I'm here, {heirName}, if you want company.",
+      "low": "{playerName} is gone. I don't have many words. I'm still here, {heirName}.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mateOnPlayerDeath.boldness": {
+      "focusTrait": "boldness",
+      "base": "{playerName} is gone. The pride still has to go on, {heirName}, and I'll help you do it.",
+      "high": "{playerName} is gone. You can lead, {heirName}. I'll walk the trail with you.",
+      "low": "{playerName} is gone, and I feel the gap. I'll try to be steady for {heirName}.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mateOnPlayerDeath.loyalty": {
+      "focusTrait": "loyalty",
+      "base": "{playerName} is gone. I stay with this pride, and with you, {heirName}.",
+      "high": "{playerName} is gone, but I won't abandon their pride. I'll stand by {heirName}.",
+      "low": "{playerName} is gone. I need a little room, and I haven't left you, {heirName}.",
+      "moment": "natural_death"
+    },
+    "breeding.natural_death.mateOnPlayerDeath.curiosity": {
+      "focusTrait": "curiosity",
+      "base": "{playerName} is gone. I keep thinking what they would want from us now.",
+      "high": "{playerName} is gone. What do we do now, {heirName}? I want to figure it out with you.",
+      "low": "{playerName} is gone. I don't want to pick it apart. I'm here, {heirName}.",
+      "moment": "natural_death"
+    }
+  },
+  "_storyteller": {
+    "use": "Online and local prompt notes only; not spoken text.",
+    "factsToPass": [
+      "dam, sire, and whether the player is dam or sire",
+      "litterWord band, never a count; when the band is 'a cub', use size1 lines",
+      "cub names, suggestedName, sexes as sexWord",
+      "standout looks as standoutLook only (a rare coat, or eyes that don't match); never name a coat",
+      "needsWord from needsWordPriority (worst critical or empty need), or well enough",
+      "death cause and who died (cub, adolescent, adult, elder, mate, player with an heir, or player with no heir)",
+      "heirName and whether they are of the player's line, with no generation number; omit heirName on player_no_heir",
+      "hunt result as went_well or came_to_nothing",
+      "teacher and branchWord",
+      "the mate's five traits, or a flag that the mate is gone",
+      "story_retire vs a death (they are different hooks; retire is not a death)",
+      "optional regionWord from the overcrowded payload",
+      "optional friendships beat on stage_up_adult"
+    ],
+    "tone": "Pass-2: plain meaning, contractions, 1 to 3 sentences, a clear outcome. Gentle and clear on deaths. No digits, number words, durations, season counts, coat names, saber colour, spotted, or rosette. Growth timing is settled, but still do not mention how long a stage lasts or the year length.",
+    "offline": "Every moment has offlineFallback and can play with no storyteller. Pick one narration variant from the array (at least two on every path, except litter_lost.playerDam, which is a single line by Tundra's ruling). Use sociability base for a living mate unless a trait is already resolved. natural_death.player_no_heir hands off to the normal permadeath / game-over flow and must not name or imply an heir."
+  }
+}

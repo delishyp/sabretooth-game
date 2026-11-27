@@ -48,7 +48,7 @@
   </section>
   <!-- Make Your Sabrecat (cat-creator-spec v0.2): step 1 Look, step 2 Personality. Panel rows are built by menu.js from js/creator.js. -->
   <section class="screen" data-screen="creator">
-    <img class="creator-scene" alt="" src="../../assets/menu/background.jpg">
+    <img class="creator-scene" alt="" src="../../assets/menu/background.webp">
     <h2 data-t="creator.title"></h2>
     <p class="sub creator-sub" data-t="creator.subtitle"></p>
     <p class="creator-step" id="creator-step"></p>
@@ -80,7 +80,11 @@
   </section>
   <!-- Slice 1 home: clean landscape, live portrait, and the season's real actions. -->
   <section class="screen" data-screen="game">
-    <img id="home-landscape" class="home-landscape" alt="" src="../../assets/game/home-landscape.png">
+    <picture class="home-scene">
+      <source media="(max-height: 1440px)" srcset="../../assets/game/home-landscape-1440.webp" type="image/webp">
+      <source media="(min-height: 1441px)" srcset="../../assets/game/home-landscape.webp" type="image/webp">
+      <img id="home-landscape" class="home-landscape" alt="" src="../../assets/game/home-landscape-1440.webp">
+    </picture>
     <div id="game-main">
       <canvas id="home-cat" class="home-cat" width="1152" height="864"></canvas>
       <button type="button" id="hotspot-den" class="hotspot hotspot-den" data-g="den" hidden><span data-t="home.den"></span></button>
@@ -221,6 +225,7 @@
 <script src="js/deeds.js"></script>
 <script src="js/reputation.js"></script>
 <script src="js/territory.js"></script>
+<script src="js/breeding.js"></script>
 <script src="js/councils.js"></script>
 <script src="js/unlocks.js"></script>
 <script src="js/encounter-engine.js"></script>

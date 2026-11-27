@@ -51,6 +51,14 @@
     document.documentElement.dataset.choiceStack = (innerHeight <= 760 && u >= 1.5) ? '1' : '2';
     fitActive();
     placeToasts();
+    const land = document.getElementById('home-landscape');
+    if (land) {
+      const next = innerHeight > 1440
+        ? '../../assets/game/home-landscape.webp'
+        : '../../assets/game/home-landscape-1440.webp';
+      const file = next.slice(next.lastIndexOf('/') + 1);
+      if (/home-landscape/.test(land.getAttribute('src') || '') && !String(land.src).endsWith(file)) land.src = next;
+    }
     const focused = document.querySelector('.focused');
     if (focused) revealFocused(focused);
   }
@@ -64,7 +72,7 @@
     const margin = 24 * (box.height / (stage.offsetHeight || box.height));
     let right = 0, bottom = 0;
     for (const el of sc.querySelectorAll('*')) {
-      if (el.classList.contains('creator-scene') || el.classList.contains('home-landscape')) continue;
+      if (el.classList.contains('creator-scene') || el.classList.contains('home-landscape') || el.classList.contains('home-scene')) continue;
       if (el.closest('.home-dock') && !el.classList.contains('home-dock')) continue;
       const r = el.getBoundingClientRect();
       if (!r.width || !r.height) continue;

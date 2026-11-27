@@ -7,7 +7,7 @@ Stack assumption: Electron (Windows), renderer UI + main process for files. No s
 All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference by `id`, don't hardcode.
 
 ## 1. Screen layout
-- **Background:** full-bleed Ice Age art slot `assets/menu/background.png` (.jpg and .webp also accepted). 16:9, minimum 1920x1080, target 3840x2160 for final art, cover-scale, focal point left-of-center. Until delivered: dark blue-grey gradient placeholder. Optional slow parallax/snow layer later; must be toggle-able (Reduced Motion).
+- **Background:** full-bleed Ice Age art `assets/menu/background.webp` (3840×2164). Cover-scale, focal point left-of-center. Home uses `assets/game/home-landscape-1440.webp` up to 1440px tall and `assets/game/home-landscape.webp` above that. If the menu file is missing: dark blue-grey gradient placeholder. Optional slow parallax/snow layer later; must be toggle-able (Reduced Motion).
 - **Menu cat (v1.3, art pending Anna's pick, so Flint plans now and builds after the pick):** the player's own current main cat appears lying on the right side of the background.
   - **Which cat:** the player cat from the save that Continue would load, meaning the newest valid save across both runs. In Heir mode that's the heir currently being played, not the founder, even when the founder has died. If there's no valid save, show the **default cat**, a fixed genome in `data/menuDefaultCat.json`; Ochre sets the look.
   - **How it's drawn:** the same layered pipeline as portraits, with fixed lying-pose lineart plus gene-driven layers (base coat, markings, eyes, sabers, scars, age variant).
@@ -86,7 +86,7 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 9. Sandbox Starting Reputation = one equal baseline offset to all three prides (§7).
 10. Sandbox Free Customization Off = standard creation rules; On = all traits + full sliders; player cat at creation only (§7).
 
-**v1.2 (Director-confirmed, 2026-11-04):** difficulty-screen button label is "Begin" (was Confirm). Menu background path is `assets/menu/background.png` (.jpg/.webp accepted), replacing `bg.png`. Background resolution: minimum 1920x1080, target 3840x2160 for final art. Spec frozen; further changes only when Director confirms.
+**v1.2 (Director-confirmed, 2026-11-04):** difficulty-screen button label is "Begin" (was Confirm). The menu background is `assets/menu/background.webp`, replacing `bg.png`. Home uses `assets/game/home-landscape.webp` and `assets/game/home-landscape-1440.webp`. Spec frozen; further changes only when Director confirms.
 
 **v1.3 (Director-approved, 2026-11-04):** New Game has two independent choices on one setup screen: Style (Story/Standard/Sim, default Standard) and Death rule (Permadeath/Heir/Sandbox, default Heir). Both are locked per run and shown on the run cards. `style` is added to `menu:newGame` and the run record, and `difficulty` stays as the Death rule key. The Sandbox panel now sits beside the Death rule row. Style rules are in `docs/play-styles-spec.md`. Director has approved Heir as the default Death rule and Sandbox with any Style. The menu cat (§1) is added: it shows the Continue save's player cat or a default cat, using layered art, with the build waiting on Anna's art pick. "Style" and "Death rule" are internal names only. On-screen headings and labels come from Saga's copy (§6).
 

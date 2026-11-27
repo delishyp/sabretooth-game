@@ -63,12 +63,26 @@ test('Heir with nobody old enough, and Permadeath, both end the run', () => {
   young.npcs.briar.ageSeasons = 2;
   young.npcs.briar.stage = 'cub';
   const ended = E.act(young, { type: 'rest' });
-  assert.strictEqual(ended.state.over, true);
-  assert.strictEqual(ended.state.cat.name, 'Ravenmark');
+  assert.strictEqual(ended.state.phase, 'event');
+  assert.strictEqual(ended.state.pending.eventId, 'breeding.player_no_heir');
+  assert.match(ended.state.pending.beats[0].text, /no heir/);
+  let cursor = ended;
+  for (let i = 0; i < 6 && cursor.state.phase !== 'over'; i++) {
+    const type = cursor.state.phase === 'eventResult' ? 'continue' : 'advanceBeat';
+    cursor = E.act(cursor.state, { type });
+  }
+  assert.strictEqual(cursor.state.over, true);
+  assert.strictEqual(cursor.state.cat.name, 'Ravenmark');
   const perm = ready('permadeath');
   const dead = E.act(perm, { type: 'rest' });
-  assert.strictEqual(dead.state.over, true);
-  assert.strictEqual(dead.state.phase, 'over');
+  assert.strictEqual(dead.state.pending.eventId, 'breeding.player_no_heir');
+  cursor = dead;
+  for (let i = 0; i < 6 && cursor.state.phase !== 'over'; i++) {
+    const type = cursor.state.phase === 'eventResult' ? 'continue' : 'advanceBeat';
+    cursor = E.act(cursor.state, { type });
+  }
+  assert.strictEqual(cursor.state.over, true);
+  assert.strictEqual(cursor.state.phase, 'over');
 });
 
 test('newly reachable deeds read the facts the game already writes', () => {

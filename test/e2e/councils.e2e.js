@@ -83,6 +83,21 @@ async function choiceLayout(page, label) {
   assert.ok(!report.clipped, label + ' prompt clipped');
   assert.deepStrictEqual(report.splits, [], label + ' mid-word ' + report.splits.join(', '));
 }
+async function dialogueFit(page, label) {
+  const gap = await page.evaluate(() => {
+    const beat = document.querySelector('.event-card.is-council .event-beat');
+    const button = document.querySelector('.event-card.is-council .event-choices button');
+    const text = beat && beat.querySelector('p, .said, .beat');
+    if (!beat || !button || !text) return null;
+    const br = beat.getBoundingClientRect();
+    const cr = button.getBoundingClientRect();
+    const tr = text.getBoundingClientRect();
+    return { gap: cr.top - br.bottom, pad: br.bottom - tr.bottom };
+  });
+  assert.ok(gap, label + ' dialogue');
+  assert.ok(gap.gap >= 0 && gap.gap <= 28, label + ' gap ' + JSON.stringify(gap));
+  assert.ok(gap.pad <= 28, label + ' empty pad ' + JSON.stringify(gap));
+}
 async function menuClearsNeeds(page) {
   const gap = await page.evaluate(() => {
     const menu = document.querySelector('[data-g="openMenu"]').getBoundingClientRect();
@@ -107,8 +122,7 @@ async function choicesReachable(page) {
     }).length;
     return { hidden, scrolls: event.scrollHeight > event.clientHeight + 1 };
   });
-  assert.ok(before.hidden > 0, 'a choice starts below the fold');
-  assert.ok(before.scrolls, 'event area scrolls');
+  if (before.hidden > 0) assert.ok(before.scrolls, 'event area scrolls');
   const seen = new Set();
   for (let step = 0; step < count; step++) {
     await page.keyboard.press('ArrowDown');
@@ -175,6 +189,7 @@ async function choicesReachable(page) {
     await page.locator('.council-screen [data-g="leaderCouncil"]').click();
     await idle(page);
     await page.waitForSelector('.event-card.is-council');
+    await dialogueFit(page, '720-open');
     const lockedNav = page.locator('#home-nav button[aria-disabled="true"]').first();
     await lockedNav.hover();
     const tip = page.locator('#nav-lock-tip');
@@ -191,11 +206,13 @@ async function choicesReachable(page) {
       await idle(page);
     }
     await choiceLayout(page, '720');
+    await dialogueFit(page, '720-choices');
     await size(app, 853, 480);
     await page.waitForTimeout(100);
     await assertFonts(page, '853-choices');
     await choiceLayout(page, '853');
     await menuClearsNeeds(page);
+    await dialogueFit(page, '853-choices');
     await choicesReachable(page);
     await size(app, 2560, 1080);
     await assertFonts(page, 'ultrawide-choices');

@@ -9,7 +9,7 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.HomeScene = factory();
 })(typeof self !== 'undefined' ? self : this, function () {
-  /** Rocky mid-left foreground on home-landscape.png, as a fraction of the image. */
+  /** Rocky mid-left foreground on the home landscape, as a fraction of the image. */
   const LEDGE = { x0: 0.25, x1: 0.55, y0: 0.50, y1: 0.72 };
   /** Standing surface inside the ledge. The cave sits further left than the reference mockup. */
   const PAW_Y = 0.68;
@@ -23,7 +23,7 @@
     { id: 'wilderness', implemented: true },
     { id: 'cats', implemented: true },
     { id: 'map', implemented: true },
-    { id: 'breeding', implemented: false },
+    { id: 'breeding', implemented: true },
     { id: 'market', implemented: false },
     { id: 'inventory', implemented: false },
     { id: 'lore', implemented: true },

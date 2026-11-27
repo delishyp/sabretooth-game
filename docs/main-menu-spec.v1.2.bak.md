@@ -7,7 +7,7 @@ Stack assumption: Electron (Windows), renderer UI + main process for files. No s
 All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference by `id`, don't hardcode.
 
 ## 1. Screen layout
-- **Background:** full-bleed Ice Age art slot `assets/menu/background.png` (.jpg and .webp also accepted). 16:9, minimum 1920x1080, target 3840x2160 for final art, cover-scale, focal point left-of-center. Until delivered: dark blue-grey gradient placeholder. Optional slow parallax/snow layer later; must be toggle-able (Reduced Motion).
+- **Background:** full-bleed Ice Age art `assets/menu/background.webp`. Home uses `assets/game/home-landscape-1440.webp` up to 1440px tall and `assets/game/home-landscape.webp` above that. Cover-scale, focal point left-of-center. If the menu file is missing: dark blue-grey gradient placeholder. Optional slow parallax/snow layer later; must be toggle-able (Reduced Motion).
 - **Title/logo:** top-left third. Logo slot `assets/menu/logo.png` (placeholder: text "SABRETOOTH"). One random tagline below (copy §1, avoid repeating last launch's).
 - **Button column:** left side, vertically centered, under the title: Continue, New Game, Load, Settings, Credits, Quit. Fixed width, large text, ≥48px hit height.
 - **Version string:** bottom-right, small, e.g. `v0.1.0 (build abc123)` from `app.getVersion()`.
@@ -73,7 +73,7 @@ All player-facing strings come from `docs/main-menu-copy.md` (Saga); reference b
 9. Sandbox Starting Reputation = one equal baseline offset to all three prides (§7).
 10. Sandbox Free Customization Off = standard creation rules; On = all traits + full sliders; player cat at creation only (§7).
 
-**v1.2 (Director-confirmed, 2026-11-04):** difficulty-screen button label is "Begin" (was Confirm). Menu background path is `assets/menu/background.png` (.jpg/.webp accepted), replacing `bg.png`. Background resolution: minimum 1920x1080, target 3840x2160 for final art. Spec frozen; further changes only when Director confirms.
+**v1.2 (Director-confirmed, 2026-11-04):** difficulty-screen button label is "Begin" (was Confirm). The menu background is `assets/menu/background.webp`, replacing `bg.png`. Home uses `assets/game/home-landscape.webp` and `assets/game/home-landscape-1440.webp`. Spec frozen; further changes only when Director confirms.
 
 ## 7. Design notes (decided)
 **Heir mode, no eligible heir:** an heir is any living pride member adolescent or older, ranked by blood relation to the player cat, then age. If none qualify, the run ends on a Legacy summary screen (as Permadeath) offering "Begin a new lineage": a fresh lone cat in the same world, where old-pride survivors may remain. Legacy screen is out of menu scope; menu hook only: `game:legacyEnd {runId}` → Legacy screen (future) → `menu:newLineage {runId}` or root.

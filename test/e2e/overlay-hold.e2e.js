@@ -61,8 +61,14 @@ const root = path.join(__dirname, '..', '..');
       assert.strictEqual(held.saveOff, false);
       assert.strictEqual(held.menuOff, false);
       await page.locator('#home-nav [data-view="lore"]').hover();
-      const tip = await page.evaluate(() => getComputedStyle(document.querySelector('#home-nav [data-view="lore"]'), '::after').content);
-      assert.ok(tip.includes('Finish this first'), tip);
+      const tip = await page.evaluate(() => {
+        const el = document.getElementById('nav-lock-tip');
+        if (!el || el.hidden) return '';
+        const style = getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return '';
+        return el.textContent || '';
+      });
+      assert.strictEqual(tip, 'Finish this first');
     }
     await hold('encounter');
     if (await page.locator('.home-tools [data-g="save"]').isHidden()) await page.locator('[data-g="openMenu"]').click();
