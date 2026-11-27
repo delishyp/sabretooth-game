@@ -11,6 +11,7 @@ name: Upgrade check
 # Retry the Windows upgrade check after a runner failed to start PowerShell.
 # Council lock line and the small choice card.
 # Short windows scroll council choices, and Menu stays clear of the need bars.
+# Retry the in-app step after the installed exe was missing on the runner.
 on:
   workflow_dispatch:
   push:
