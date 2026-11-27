@@ -4,12 +4,12 @@ name: Upgrade check
 # Choice rows stay fully on screen at 720.
 # Headshots fill the square. One toast. Larger animals at 720.
 # Per-still head boxes, ears inside, toast clear of the Lore book.
-# Silent in-app step is 0.1.12 to 0.1.12-test.1.
-# Pride councils: stance and walk-out share a lifetime pool.
+# Silent in-app step is 0.1.13 to 0.1.13-test.1.
+# Season-one story depth: region callbacks, mate lines, rival loss.
 on:
   workflow_dispatch:
   push:
-    branches: [cursor/s1-councils-0112]
+    branches: [cursor/s1-content-0113]
     paths:
       - package.json
       - package-lock.json
@@ -46,13 +46,13 @@ jobs:
           }
           & ./scripts/upgrade-check.ps1 -Step seed
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Build 0.1.12 and the unpublished 0.1.12-test.1 feed
+      - name: Build 0.1.13 and the unpublished 0.1.13-test.1 feed
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm ci
           node scripts/build-win-feed.js dist/stable
-          node scripts/build-win-feed.js dist/test 0.1.12-test.1
+          node scripts/build-win-feed.js dist/test 0.1.13-test.1
       - name: Serve both feeds on localhost
         shell: pwsh
         run: |
@@ -80,8 +80,8 @@ jobs:
             Copy-Item -LiteralPath $block.FullName -Destination (Join-Path $Dest ($setupName + '.blockmap')) -Force
             Set-Content -LiteralPath $NameFile -Value $setupName -NoNewline
           }
-          Publish-Feed 'dist/stable' 'dist/feed-stable' '(?m)^version:\s*0\.1\.12\s*$' 'upgrade-evidence/stable-setup-name.txt'
-          Publish-Feed 'dist/test' 'dist/feed-test' '(?m)^version:\s*0\.1\.12-test\.1\s*$' 'upgrade-evidence/test-setup-name.txt'
+          Publish-Feed 'dist/stable' 'dist/feed-stable' '(?m)^version:\s*0\.1\.13\s*$' 'upgrade-evidence/stable-setup-name.txt'
+          Publish-Feed 'dist/test' 'dist/feed-test' '(?m)^version:\s*0\.1\.13-test\.1\s*$' 'upgrade-evidence/test-setup-name.txt'
           $node = (Get-Command node).Source
           $out = (Resolve-Path upgrade-evidence).Path
           Start-Process -FilePath $node -WorkingDirectory $PWD -ArgumentList 'scripts/update-feed-server.js','8765','dist/feed-stable' -WindowStyle Hidden -RedirectStandardOutput (Join-Path $out 'feed-stable.log') -RedirectStandardError (Join-Path $out 'feed-stable.err')
@@ -89,7 +89,7 @@ jobs:
           Start-Sleep -Seconds 1
           Invoke-WebRequest http://127.0.0.1:8765/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-stable.yml
           Invoke-WebRequest http://127.0.0.1:8766/latest.yml -UseBasicParsing -OutFile upgrade-evidence/served-test.yml
-      - name: Point the installed 0.1.8 at the 0.1.12 feed
+      - name: Point the installed 0.1.8 at the 0.1.13 feed
         shell: pwsh
         run: |
           if (Test-Path upgrade-evidence/transitional-skip.txt) { Get-Content upgrade-evidence/transitional-skip.txt; exit 0 }
@@ -97,7 +97,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label transitional -Url http://127.0.0.1:8765
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Let 0.1.8's own updater install 0.1.12
+      - name: Let 0.1.8's own updater install 0.1.13
         shell: pwsh
         run: |
           if (Test-Path upgrade-evidence/transitional-skip.txt) { Get-Content upgrade-evidence/transitional-skip.txt; exit 0 }
@@ -112,20 +112,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & ./scripts/upgrade-check.ps1 -Step inventory -Label transitional -When after
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Point the installed 0.1.12 at the 0.1.12-test.1 feed
+      - name: Point the installed 0.1.13 at the 0.1.13-test.1 feed
         shell: pwsh
         run: |
           if (-not (Test-Path upgrade-evidence/save-sha256-before.txt)) {
             & ./scripts/upgrade-check.ps1 -Step seed
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-          & ./scripts/upgrade-check.ps1 -Step ensure-stable -Installer 'dist/stable/Sabretooth Setup 0.1.12.exe' -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
+          & ./scripts/upgrade-check.ps1 -Step ensure-stable -Installer 'dist/stable/Sabretooth Setup 0.1.13.exe' -ExpectExe 'dist/stable/win-unpacked/Sabretooth.exe'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & ./scripts/upgrade-check.ps1 -Step inventory -Label in-app -When before
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & ./scripts/upgrade-check.ps1 -Step rewrite-feed -Label in-app -Url http://127.0.0.1:8766
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Let 0.1.12 check, download, and quitAndInstall(true, true)
+      - name: Let 0.1.13 check, download, and quitAndInstall(true, true)
         shell: pwsh
         run: |
           $node = (Get-Command node).Source
