@@ -24,6 +24,10 @@ Walking out costs 2 with every seated pride, from the same pool, on top of a sta
 
 Deal-break costs stay the old −15/−10 and do not touch this pool.
 
+## Season
+
+A pride sits at one council a season. `records.lastCouncilSeason` remembers that season, including after save and reload. An older save with no season stored can still sit. After this season's council, Go to the council uses the locked-action wording until the next season. A feud that boils over can still call the early council in that same season.
+
 ## Offline
 
 `offlineFallback.id` is `council.offline.complete`. It can play with no storyteller. Every offered choice (`speak_for_a`, `speak_for_b`, `stay_out`, `leave`) has a branch. Speaking for Bonefield has Bonefield accept and Highcrag refuse, with the standing lines reversed. `{thirdPride}` is the seated pride that is not a party to the item. Leave stays last. A seated but unrecognised leader does not get Leave.

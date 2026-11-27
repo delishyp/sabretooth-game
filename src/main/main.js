@@ -32,7 +32,7 @@ function log(msg) {
 function createWindow() {
   const s = settings.get();
   win = new BrowserWindow({
-    width: 1600, height: 900, minWidth: 1280, minHeight: 720,
+    width: 1600, height: 900, minWidth: 853, minHeight: 480,
     backgroundColor: '#0d1620', show: false, autoHideMenuBar: true,
     fullscreen: !SHOTS && s.display.mode === 'fullscreen',
     title: 'Sabretooth',

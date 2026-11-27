@@ -191,3 +191,91 @@ test('a zero applied change says the pride has made up its mind and writes no re
   assert.strictEqual(capped.line, 'Bonefield has made up its mind about you.');
   assert.ok(!s.worldMemory.ledger.some((entry) => entry.receiptKey === 'run/cap/zero-b'));
 });
+
+test('a repeat stance in the same season applies nothing and does not say warmer or cooler', () => {
+  const s = run();
+  middling(s);
+  Councils.openScene(s);
+  Councils.resolve(s, 'speak_for_a');
+  while (s.pending) Councils.resolve(s, 'continue');
+  const before = s.worldMemory.ledger.filter((row) => row.sourceType === 'council_stance').length;
+  const again = Councils.applyChoice(s, 'speak_for_a', {
+    councilId: s.runId + '/council/' + Councils.seasonOf(s.day),
+    seated, prideA: 'highcrag', prideB: 'bonefield'
+  });
+  for (const id of ['highcrag', 'bonefield']) {
+    assert.strictEqual(again.results[id].applied, 0);
+    assert.strictEqual(again.results[id].receipt, false);
+    assert.match(again.results[id].line, /has made up its mind about you/);
+    assert.doesNotMatch(again.results[id].line, /warmer|cooler/);
+  }
+  assert.strictEqual(s.worldMemory.ledger.filter((row) => row.sourceType === 'council_stance').length, before);
+  assert.ok(s.councils.lore.some((row) => row.body === 'Highcrag has made up its mind about you.'));
+});
+
+test('one council a season stays locked after save and reload, and a feud can still call the early council', () => {
+  const s = run();
+  assert.strictEqual(Councils.councilAvailable(s), true);
+  assert.strictEqual(Councils.councilButton(s).locked, false);
+  Councils.openScene(s);
+  assert.strictEqual(Councils.openScene(s).error, 'already');
+  const loaded = E.migrate(JSON.parse(JSON.stringify(s)));
+  assert.strictEqual(loaded.records.lastCouncilSeason, 0);
+  assert.strictEqual(Councils.councilAvailable(loaded), false);
+  const button = Councils.councilButton(loaded);
+  assert.strictEqual(button.locked, true);
+  assert.match(button.label, /Go to the council · Locked/);
+  assert.match(button.note, /already sat/);
+  loaded.records.councilLatch = { reason: 'hostile', pair: ['highcrag', 'bonefield'], day: loaded.day };
+  const early = Councils.offerEarly(loaded);
+  assert.strictEqual(early.error, undefined);
+  assert.strictEqual(loaded.pending.council, true);
+  loaded.day = 21;
+  loaded.pending = null;
+  assert.strictEqual(Councils.councilAvailable(loaded), true);
+  assert.strictEqual(Councils.councilButton(loaded).locked, false);
+  assert.strictEqual(Councils.openScene(loaded).error, undefined);
+  const old = run();
+  delete old.records.lastCouncilSeason;
+  const aged = E.migrate(JSON.parse(JSON.stringify(old)));
+  assert.strictEqual(Councils.councilAvailable(aged), true);
+  assert.strictEqual(Councils.councilButton(aged).locked, false);
+});
+
+test('every council line, online and offline, has its tokens filled', () => {
+  const book = JSON.parse(fs.readFileSync(path.join(D, 'events/council-scenes-v2.json'), 'utf8'));
+  const TOKEN = /\{[A-Za-z][^}]*\}/;
+  const bands = {
+    high: { aggression: 90, sociability: 90, boldness: 90, loyalty: 90, curiosity: 90 },
+    low: { aggression: 10, sociability: 10, boldness: 10, loyalty: 10, curiosity: 10 },
+    mid: { aggression: 50, sociability: 50, boldness: 50, loyalty: 50, curiosity: 50 }
+  };
+  const seen = [];
+  const s = run();
+  for (const path of Object.keys(book.speechLocations || {})) {
+    const row = book.speechLocations[path];
+    for (const personality of Object.values(bands)) {
+      if (s.npcs[row.slot]) s.npcs[row.slot].personality = Object.assign({}, personality);
+      const line = Councils.spoken(s, path, row.slot);
+      seen.push(line.text, line.beat);
+    }
+  }
+  const vars = Councils.bindings(s);
+  for (const key of ['warmer', 'cooler', 'unchanged', 'capped', 'walkOut']) {
+    const row = book.standingOutcomes[key];
+    seen.push(Councils.spoken ? '' : '');
+    for (const field of ['narration', 'lore', 'outcome']) if (row[field]) seen.push(row[field].replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null && vars[k] !== '' ? String(vars[k]) : m)));
+  }
+  for (const id of ['speak_for_a', 'speak_for_b', 'stay_out', 'leave']) {
+    const fresh = run();
+    middling(fresh);
+    const opened = Councils.openScene(fresh);
+    assert.strictEqual(opened.error, undefined);
+    for (const beat of fresh.pending.beats) seen.push(beat.text);
+    for (const choice of fresh.pending.choices) seen.push(choice.label);
+    Councils.resolve(fresh, id);
+    for (const beat of fresh.pending.beats) seen.push(beat.text);
+  }
+  const raw = seen.filter((text) => TOKEN.test(text || ''));
+  assert.deepStrictEqual(raw, []);
+});

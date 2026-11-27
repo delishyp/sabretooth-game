@@ -1048,8 +1048,11 @@
     renderSettings(); focus(focusables()[0]);
   }
   $$('#tabs button').forEach((b) => b.addEventListener('click', () => { settingsTab = b.dataset.tab; renderSettings(); focus(focusables()[0]); }));
+  let settingsFromGame = false;
+  function openGameSettings() { settingsFromGame = true; show('settings'); }
   async function leaveSettings() {
     if (settingsDirty) { settings = await api.settings.set(settings); settingsDirty = false; }
+    if (settingsFromGame) { settingsFromGame = false; show('game'); return; }
     show('root', $('[data-action="settings"]'));
   }
 
@@ -1240,7 +1243,7 @@
   async function leaveGame() { await refreshSlots(); show('root', $('[data-action="continue"]')); }
   let seedOverride = null;
   const nextSeed = () => { const x = seedOverride; seedOverride = null; return x === null ? Rng.newSeed() : x; };
-  const game = copy.gameData ? GameScreen.create({ api, t, $, show, focus, toast, portrait, leave: leaveGame,
+  const game = copy.gameData ? GameScreen.create({ api, t, $, show, focus, toast, portrait, leave: leaveGame, openSettings: openGameSettings,
     creatorLooks: { coats: Creator.COATS, markings: Creator.MARKINGS, eyes: Creator.EYES } }, copy.gameData, copy.nameData) : null;
 
   // ---------- actions ----------
