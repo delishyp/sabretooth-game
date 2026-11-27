@@ -83,11 +83,25 @@ async function assertFonts(page, label) {
     await assertFonts(page, '1080-choices');
     await page.locator('#game-event [data-choice="stay_out"]').click();
     await idle(page);
-    await page.waitForFunction(() => window.__menuDebug.game().state.phase === 'eventResult');
-    const outcome = await assertFonts(page, '1080-result');
-    assert.ok(outcome.some((row) => /unchang|warmer|cooler|mind/.test(row.text)), JSON.stringify(outcome));
+    await assertFonts(page, '1080-result');
     await size(app, 1280, 720);
     await assertFonts(page, '720-result');
+    let sawStanding = false;
+    for (let i = 0; i < 24; i++) {
+      const card = page.locator('.event-card.is-council');
+      if (!(await card.count())) break;
+      const text = await card.innerText();
+      if (/unchang|warmer|cooler|mind/.test(text)) sawStanding = true;
+      const clicked = await page.evaluate(() => {
+        const button = document.querySelector('#game-event [data-g="advanceBeat"], #game-event [data-g="continue"]');
+        if (!button) return false;
+        button.click();
+        return true;
+      });
+      if (!clicked) break;
+      await idle(page);
+    }
+    assert.ok(sawStanding, 'a standing line played after staying out');
     console.log('council e2e ok');
   } finally {
     await app.close();

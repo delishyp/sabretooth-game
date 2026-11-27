@@ -329,7 +329,7 @@
       leaderB: state.npcs && state.npcs.bf01 && state.npcs.bf01.name || 'Bonefield',
       name: state.cat && state.cat.name || '',
       playerName: state.cat && state.cat.name || '',
-      kindLabel: 'a border deal',
+      kindLabel: 'border deal',
       stanceWord: 'neutral',
       seasonName: state.season || 'spring'
     };
@@ -365,10 +365,56 @@
     state.phase = 'event';
     return { state };
   }
+  function standingPride(text) {
+    for (const id of PRIDES) {
+      const name = PRIDE_NAME[id];
+      if (text.indexOf(name) === 0 && /warmer toward you|cooler toward you|unchanged|made up its mind/.test(text)) return id;
+    }
+    return null;
+  }
+  function standingBeats(outcome) {
+    const lines = [];
+    if (outcome.walked) lines.push(fill((scenes().standingOutcomes.walkOut || {}).narration, {}));
+    for (const id of outcome.seated || []) if (outcome.results[id] && outcome.results[id].line) lines.push(outcome.results[id].line);
+    return lines.map((text) => ({ kind: 'narration', text }));
+  }
+  function branchBeats(state, choiceId, outcome, vars) {
+    const off = scenes().offlineFallback || {};
+    const branch = off.branches && off.branches[choiceId];
+    if (!branch) return standingBeats(outcome);
+    const beats = [];
+    for (const step of branch) {
+      if (!step || step.kind === 'choice') continue;
+      if ((step.kind === 'narration' || step.kind === 'outcome') && step.text) {
+        let text = fill(step.text, vars);
+        const prideId = standingPride(text);
+        const row = prideId && outcome.results[prideId];
+        if (row && row.line) text = row.line;
+        if (text) beats.push({ kind: 'narration', text });
+      } else if (step.speechPath) {
+        const line = spoken(state, step.speechPath, step.slot);
+        if (line.beat) beats.push({ kind: 'narration', text: line.beat });
+        const say = line.text || fill(step.say || '', vars);
+        if (say) beats.push({ kind: 'speech', speakerId: step.slot, speaker: (state.npcs && state.npcs[step.slot] && state.npcs[step.slot].name) || '', text: say });
+      }
+    }
+    return beats.length ? beats : standingBeats(outcome);
+  }
   function finishLeader(state, choiceId) {
     const pending = state.pending;
     if (!pending) return { state };
-    if (pending.resolved || choiceId === 'continue' || choiceId == null) {
+    if (pending.resolved) {
+      const beats = pending.beats || [];
+      const i = pending.beatIndex || 0;
+      if ((choiceId === 'continue' || choiceId == null) && i + 1 < beats.length) {
+        pending.beatIndex = i + 1;
+        return { state, advanced: true };
+      }
+      state.pending = null;
+      state.phase = 'day';
+      return { state, closed: true };
+    }
+    if (choiceId === 'continue' || choiceId == null) {
       state.pending = null;
       state.phase = 'day';
       return { state, closed: true };
@@ -380,16 +426,19 @@
       councilId: (state.runId || 'run') + '/council/' + seasonOf(state.day)
     });
     const vars = bindings(state);
-    const lines = [];
-    if (outcome.walked) lines.push(fill((scenes().standingOutcomes.walkOut || {}).narration, vars));
-    for (const id of outcome.seated) if (outcome.results[id] && outcome.results[id].line) lines.push(outcome.results[id].line);
-    pending.beats = lines.map((text) => ({ kind: 'narration', text }));
+    const prideA = pending.prideA || 'highcrag';
+    const prideB = pending.prideB || 'bonefield';
+    const third = (pending.seated || PRIDES).find((id) => id !== prideA && id !== prideB);
+    vars.prideA = PRIDE_NAME[prideA] || vars.prideA;
+    vars.prideB = PRIDE_NAME[prideB] || vars.prideB;
+    if (third) vars.thirdPride = PRIDE_NAME[third];
+    pending.beats = branchBeats(state, choiceId, outcome, vars);
     pending.beatIndex = 0;
     pending.choices = [];
     pending.summary = '';
     pending.choiceId = choiceId;
     pending.resolved = true;
-    state.phase = 'eventResult';
+    state.phase = 'event';
     return { state, outcome };
   }
   function latch(state, spec) {

@@ -1,15 +1,15 @@
 {
-  "id": "council-scenes-v2",
+  "id": "council-scenes-v2a",
   "format": "council-scene-copy",
-  "version": "v2",
+  "version": "v2a",
   "_source": {
     "spec": "docs/design/councils-v0.1.md",
-    "specVersion": "v0.2c",
-    "specCommit": "e737db3",
+    "specVersion": "v0.2d",
+    "specCommit": "2c12ac3",
     "oddsBands": "qa/redesign-mockups/COPY.md (easy, good, even, bad, hopeless)",
     "voice": "pass-2",
-    "note": "Content only. Role names (Ashmane, Scarjaw, Hollowsong) are authoring labels; player-facing lines use tokens. Display names are rolled per run. v2 adds personality-band variants, standing-in-words, and an offline fallback. The cap line is narration/Lore Book only (no receipt).",
-    "builtOn": "council-scenes-v1 (v0.2a)",
+    "note": "Content only. Role names (Ashmane, Scarjaw, Hollowsong) are authoring labels; player-facing lines use tokens. Display names are rolled per run. v2a adds the offline speak_for_b branch, documents the \u00a713a.x clamp line rule, recasts samey high/low variants, and drops unused tokens.",
+    "builtOn": "council-scenes-v1 (v0.2a); v2a is a Tracker-fix pass on v2, which is left in place",
     "personality": "Speech.resolve in src/renderer/js/speech.js"
   },
   "idRules": {
@@ -39,11 +39,9 @@
     "prideB",
     "seasonName",
     "stanceWord",
-    "subjectName",
     "thirdPride",
     "trespasserName",
     "wrongedPride",
-    "yourPride",
     "zoneName"
   ],
   "factIds": [
@@ -1239,6 +1237,25 @@
       "writesFact": "council_held_{season}"
     }
   },
+  "_tokenSources": {
+    "name": "The speaking leader's rolled display name (world-gen).",
+    "playerName": "The player cat's name.",
+    "pride": "The pride whose standing or fact is being reported.",
+    "prideA": "First party to the agenda item, filled by the engine.",
+    "prideB": "Second party to the agenda item, filled by the engine.",
+    "thirdPride": "The other seated pride, not a party to this item.",
+    "wrongedPride": "The pride that was wronged, from a broke_* fact.",
+    "breakerPride": "The pride that broke the agreement, from a broke_* fact.",
+    "zoneName": "The council site or the contested or shared zone (map).",
+    "kindLabel": "Player-facing agreement kind from kindIds (for example, border deal).",
+    "seasonName": "The season's name, never the season index.",
+    "petitionerName": "Filled by the engine from the agreement's catId.",
+    "trespasserName": "Filled by the engine from the agreement's catId.",
+    "leaderName": "A leader's rolled display name (memory and similar lines).",
+    "leaderA": "Display name of prideA's leader.",
+    "leaderB": "Display name of prideB's leader.",
+    "stanceWord": "Relationship-spec standing band: hostile, cold, neutral, warm, or close."
+  },
   "_personality": {
     "axes": [
       "aggression",
@@ -1276,12 +1293,12 @@
     "council.opening.hc01": {
       "focusTrait": "loyalty",
       "base": "We can speak in order. What's the matter at hand?",
-      "high": "We'll speak in order, as we should. What's the matter at hand?",
-      "low": "Let's get this done. What's the matter at hand?",
+      "high": "We'll keep the order here, as Highcrag always has. What do we need to settle?",
+      "low": "Let's get this done. I don't want to linger.",
       "beat": {
         "base": "{name} arrives without hurry and takes a seat.",
-        "high": "{name} arrives without hurry and takes a seat, as Highcrag has long done at this rock.",
-        "low": "{name} arrives without hurry and takes a seat, with little ceremony."
+        "high": "{name} takes the old Highcrag place at the rock, unhurried, and sits.",
+        "low": "{name} sits down with little ceremony and waits."
       },
       "slot": "hc01",
       "prideId": "highcrag",
@@ -1291,7 +1308,7 @@
       "focusTrait": "aggression",
       "base": "If this is about land, say so. I didn't come here to listen to soft talk.",
       "high": "If this is about land, spit it out. I didn't come here for soft talk.",
-      "low": "If this is about land, say so. Let's hear it.",
+      "low": "Land or not, I'm listening. Get to it.",
       "beat": {
         "base": "{name} doesn't wait to be asked, and takes a place at the front of the rock.",
         "high": "{name} pushes to the front of the rock and looks the others over.",
@@ -1304,8 +1321,8 @@
     "council.opening.mw01": {
       "focusTrait": "sociability",
       "base": "I'm here. Say what you came to say.",
-      "high": "I'm here, and I'm glad you came. Say what you came to say.",
-      "low": "Say what you came to say.",
+      "high": "It's good to see you all here. Tell me why you've come.",
+      "low": "I'm listening. Go on.",
       "beat": {
         "base": "{name} sits a little apart and watches the others for a long moment.",
         "high": "{name} sits near the others, still quiet, and looks at each in turn.",
@@ -1318,7 +1335,7 @@
     "council.accept.hc01": {
       "focusTrait": "loyalty",
       "base": "Very well. Highcrag agrees to this {kindLabel}. Let it be kept.",
-      "high": "Very well. Highcrag agrees to this {kindLabel}. We keep our word.",
+      "high": "Highcrag will keep this {kindLabel}. You have our word.",
       "low": "Fine. Highcrag will take the deal. Let's not linger on it.",
       "slot": "hc01",
       "prideId": "highcrag",
@@ -1327,7 +1344,7 @@
     "council.accept.bf01": {
       "focusTrait": "aggression",
       "base": "Fine. Bonefield agrees. Keep it.",
-      "high": "Fine. Bonefield agrees. Keep it, or you'll hear from me.",
+      "high": "Bonefield's in. Don't make me come back over this.",
       "low": "All right. Bonefield will take it.",
       "slot": "bf01",
       "prideId": "bonefield",
@@ -1336,7 +1353,7 @@
     "council.accept.mw01": {
       "focusTrait": "sociability",
       "base": "All right. Mistwood agrees to this {kindLabel}. I hope it holds.",
-      "high": "All right. Mistwood agrees to this {kindLabel}. I'm glad we could settle it.",
+      "high": "I'm glad we could settle this. Mistwood will keep the {kindLabel}.",
       "low": "Mistwood agrees. Let's leave it there.",
       "slot": "mw01",
       "prideId": "mistwood",
@@ -1345,7 +1362,7 @@
     "council.refuse.hc01": {
       "focusTrait": "loyalty",
       "base": "No. That deal doesn't suit Highcrag. I won't bind my pride to it.",
-      "high": "No. That deal doesn't suit Highcrag, and I won't pretend it does. I won't bind my pride to it.",
+      "high": "I won't dress it up. That deal is no good for Highcrag, and I won't bind us to it.",
       "low": "No. I'm not interested. Find some other pride for that.",
       "slot": "hc01",
       "prideId": "highcrag",
@@ -1354,7 +1371,7 @@
     "council.refuse.bf01": {
       "focusTrait": "aggression",
       "base": "No. I won't bind Bonefield to that.",
-      "high": "No. I won't bind Bonefield to that, and I don't like being asked.",
+      "high": "Don't ask Bonefield to take that. I won't.",
       "low": "No. That's not a deal I want.",
       "slot": "bf01",
       "prideId": "bonefield",
@@ -1363,7 +1380,7 @@
     "council.refuse.mw01": {
       "focusTrait": "sociability",
       "base": "I can't agree to that. I'm sorry, but it's no.",
-      "high": "I can't agree to that. I'm sorry. I hope we'll still talk after this.",
+      "high": "I'm sorry. I still want to talk, but I can't agree to that.",
       "low": "No. I can't.",
       "slot": "mw01",
       "prideId": "mistwood",
@@ -1372,7 +1389,7 @@
     "council.walkOutReaction.hc01": {
       "focusTrait": "loyalty",
       "base": "You're walking out? Then Highcrag won't wait on you. We'll finish what's left without your voice.",
-      "high": "You're walking out? Then you set aside the order of this council. We'll finish what's left without your voice.",
+      "high": "You set aside the order of this council when you walk. Highcrag will finish what's left without you.",
       "low": "Go if you mean to go. We'll finish without you.",
       "slot": "hc01",
       "prideId": "highcrag",
@@ -1381,7 +1398,7 @@
     "council.walkOutReaction.bf01": {
       "focusTrait": "aggression",
       "base": "Go, then. Bonefield doesn't beg anyone to stay. We'll settle this without you.",
-      "high": "Go, then. I don't chase anyone, and I don't forget who walked.",
+      "high": "I don't chase anyone who walks. We'll settle this, and I'll remember who left.",
       "low": "Go on, then. We'll settle this without you.",
       "slot": "bf01",
       "prideId": "bonefield",
@@ -1390,7 +1407,7 @@
     "council.walkOutReaction.mw01": {
       "focusTrait": "sociability",
       "base": "If you go, you go. I wish you'd stayed, but I won't chase you.",
-      "high": "If you go, you go. I wish you'd stayed. Come back if you change your mind.",
+      "high": "I wish you'd stay and finish this. If you change your mind, you know where we are.",
       "low": "Go, then. I won't chase you.",
       "slot": "mw01",
       "prideId": "mistwood",
@@ -1399,8 +1416,8 @@
     "council.proposal.contested_region.hc01": {
       "focusTrait": "loyalty",
       "base": "The claim on {zoneName} has gone on long enough. I want a border deal. {prideB} drops the claim and doesn't mark there.",
-      "high": "The claim on {zoneName} has gone on long enough, and Highcrag keeps what it holds. I want a border deal. {prideB} drops the claim and doesn't mark there.",
-      "low": "I want a border deal over {zoneName}. {prideB} drops the claim and doesn't mark there.",
+      "high": "Highcrag keeps what it holds at {zoneName}. I want a border deal, and I want {prideB} to drop the claim and leave the marks alone.",
+      "low": "Give me a border deal on {zoneName}. {prideB} drops the claim, and there are no marks.",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1408,8 +1425,8 @@
     "council.proposal.contested_region.bf01": {
       "focusTrait": "aggression",
       "base": "{zoneName} is on our grass, and I won't pretend otherwise. I'll take a border deal if {prideA} backs off and stops marking it.",
-      "high": "{zoneName} is on our grass. I'll take a border deal if {prideA} backs off, and I won't ask again.",
-      "low": "{zoneName} is on our grass. I'll take a border deal if {prideA} backs off and stops marking it.",
+      "high": "That's our grass at {zoneName}. Back off, stop marking it, and I'll take a border deal. I won't ask again.",
+      "low": "Back off {zoneName} and stop marking it. Then we can talk about a border deal.",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1417,8 +1434,8 @@
     "council.proposal.contested_region.mw01": {
       "focusTrait": "sociability",
       "base": "We keep running into each other at {zoneName}. A border deal would let my pride hunt in peace. Will you cede the claim and leave the marks alone?",
-      "high": "We keep running into each other at {zoneName}, and I'd rather talk than fight. A border deal would let my pride hunt in peace. Will you cede the claim and leave the marks alone?",
-      "low": "We're running into each other at {zoneName}. Will you cede the claim and leave the marks alone?",
+      "high": "I'd rather settle {zoneName} by talking. A border deal would let my pride hunt in peace, if you'll cede the claim and leave the marks alone.",
+      "low": "Can we end this at {zoneName}? Cede the claim, and leave the marks alone.",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1426,8 +1443,8 @@
     "council.proposal.feud.hc01": {
       "focusTrait": "loyalty",
       "base": "This feud has gone on too long. I'll take a truce, if {prideB} will keep it.",
-      "high": "This feud has gone on too long, and it shames the rock. I'll take a truce, if {prideB} will keep it.",
-      "low": "This feud has gone on too long. I'll take a truce if you will.",
+      "high": "It shames the rock to keep this feud going. I'll take a truce, if {prideB} will keep it.",
+      "low": "I've had enough of this feud. Will you take a truce?",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1435,7 +1452,7 @@
     "council.proposal.feud.bf01": {
       "focusTrait": "aggression",
       "base": "We're tired of watching the border. A truce, then. Keep it, or don't bother offering.",
-      "high": "We're tired of watching the border. A truce, then. Break it, and you'll answer.",
+      "high": "A truce, then. Break it, and you'll answer to Bonefield.",
       "low": "A truce, then. Keep it.",
       "slot": "bf01",
       "prideId": "bonefield",
@@ -1444,8 +1461,8 @@
     "council.proposal.feud.mw01": {
       "focusTrait": "sociability",
       "base": "I don't want this feud. Will you take a truce, and let my pride have some quiet?",
-      "high": "I don't want this feud, and I don't think you do either. Will you take a truce, and let my pride have some quiet?",
-      "low": "I don't want this feud. Will you take a truce?",
+      "high": "You can't want this feud any more than I do. Will you take a truce, and let my pride have some quiet?",
+      "low": "Please. Can we have a truce?",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1453,8 +1470,8 @@
     "council.proposal.shared_ground.hc01": {
       "focusTrait": "loyalty",
       "base": "The high meadows have been thin. If we could share the hunting at {zoneName}, Highcrag would get through this season. Will you allow it?",
-      "high": "The high meadows have been thin, and Highcrag asks with care. If we could share the hunting at {zoneName}, we would get through this season. Will you allow it?",
-      "low": "The high meadows have been thin. May we share the hunting at {zoneName}?",
+      "high": "Highcrag asks with care. The high meadows have been thin, and sharing the hunting at {zoneName} would see us through. Will you allow it?",
+      "low": "May Highcrag share the hunting at {zoneName}? The meadows have been thin.",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1462,8 +1479,8 @@
     "council.proposal.shared_ground.bf01": {
       "focusTrait": "aggression",
       "base": "The herds have been poor, and my pride is hungry. Let us share the hunting at {zoneName}. I'll keep my cats in order if you will.",
-      "high": "The herds have been poor, and my pride is hungry. Let us share the hunting at {zoneName}. I'll keep my cats in order, so don't test them.",
-      "low": "The herds have been poor. Let us share the hunting at {zoneName}.",
+      "high": "My pride is hungry, and the herds have been poor. Share the hunting at {zoneName}, and don't test the cats I send.",
+      "low": "The herds have been poor. Open the hunting at {zoneName} to us.",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1471,8 +1488,8 @@
     "council.proposal.shared_ground.mw01": {
       "focusTrait": "sociability",
       "base": "The hunting has been thin, and my pride is hungry. If we could share the ground at {zoneName}, we would make it through. I'm asking.",
-      "high": "The hunting has been thin, and my pride is hungry. If we could share the ground at {zoneName}, we would make it through. I'm asking, and I won't forget the kindness.",
-      "low": "The hunting has been thin. May we share the ground at {zoneName}? I'm asking.",
+      "high": "I'm asking you for this, and I won't forget it if you say yes. The hunting is thin, and sharing {zoneName} would see us through.",
+      "low": "The hunting has been thin. May we share the ground at {zoneName}?",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1480,8 +1497,8 @@
     "council.proposal.pact.hc01": {
       "focusTrait": "loyalty",
       "base": "{thirdPride} came at us, and they came at you. A truce between our prides would let us breathe. Will you take it?",
-      "high": "{thirdPride} came at us, and they came at you. A truce between our prides would be the proper thing. Will you take it?",
-      "low": "{thirdPride} came at us, and they came at you. Will you take a truce?",
+      "high": "{thirdPride} came at both of us. The proper thing is a truce between our prides. Will you take it?",
+      "low": "{thirdPride} came at both of us. Will you take a truce, so we can breathe?",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1489,8 +1506,8 @@
     "council.proposal.pact.bf01": {
       "focusTrait": "aggression",
       "base": "{thirdPride} fought us and they fought you. I'm willing to hold a truce with {prideB} if it keeps my pride from fighting on every side.",
-      "high": "{thirdPride} fought us and they fought you. I'll hold a truce with {prideB}, but I won't be used as a shield.",
-      "low": "{thirdPride} fought us and they fought you. I'll hold a truce with {prideB}.",
+      "high": "{thirdPride} already fought us both. I'll hold a truce with {prideB}, but I won't be used as a shield.",
+      "low": "{thirdPride} already fought us both. I'll hold a truce with {prideB}.",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1498,8 +1515,8 @@
     "council.proposal.pact.mw01": {
       "focusTrait": "sociability",
       "base": "We've both had to fight {thirdPride}. I would take a truce with {prideB}. I want the fighting to narrow, not spread.",
-      "high": "We've both had to fight {thirdPride}. I would take a truce with {prideB}, and I'd be glad of the rest. I want the fighting to narrow, not spread.",
-      "low": "We've both had to fight {thirdPride}. I would take a truce with {prideB}.",
+      "high": "I'd be glad of the rest. We've both had to fight {thirdPride}, and a truce with {prideB} would keep the fighting from spreading.",
+      "low": "We've both fought {thirdPride}. A truce with {prideB} would be enough for me.",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1507,8 +1524,8 @@
     "council.proposal.fight.hc01": {
       "focusTrait": "loyalty",
       "base": "We have already bled for this. I'll take a truce now, if {prideB} will. I don't want another fight over the same ground.",
-      "high": "We have already bled for this, and enough is enough. I'll take a truce now, if {prideB} will. I don't want another fight over the same ground.",
-      "low": "We have already bled for this. I'll take a truce now, if you will.",
+      "high": "Enough has been spilled over this ground. I'll take a truce now, if {prideB} will.",
+      "low": "We've bled enough. I'll take a truce now, if you will.",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1516,7 +1533,7 @@
     "council.proposal.fight.bf01": {
       "focusTrait": "aggression",
       "base": "We fought. I'm willing to stop, if you are.",
-      "high": "We fought, and I'm still standing. I'm willing to stop, if you are.",
+      "high": "I'm still standing after that fight. We can stop, if you can.",
       "low": "We fought. We can stop, if you can.",
       "slot": "bf01",
       "prideId": "bonefield",
@@ -1525,8 +1542,8 @@
     "council.proposal.fight.mw01": {
       "focusTrait": "sociability",
       "base": "The fight already happened. I don't want to keep it going. Will you take a truce?",
-      "high": "The fight already happened, and I hated watching it. I don't want to keep it going. Will you take a truce?",
-      "low": "The fight already happened. Will you take a truce?",
+      "high": "I hated watching that fight. Can we take a truce, and not keep it going?",
+      "low": "The fight is over. Will you take a truce?",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1534,7 +1551,7 @@
     "council.grudge.truce.hc01": {
       "focusTrait": "loyalty",
       "base": "{breakerPride} gave Highcrag a truce, and then broke it. I haven't forgotten. Do you mean to keep your word this time?",
-      "high": "{breakerPride} gave Highcrag a truce, and then broke it. Highcrag doesn't forget a broken word. Do you mean to keep your word this time?",
+      "high": "Highcrag doesn't forget a broken truce. {breakerPride} gave us their word and then broke it. Do you mean to keep it this time?",
       "low": "{breakerPride} broke a truce with us. I remember. What do you want now?",
       "slot": "hc01",
       "prideId": "highcrag",
@@ -1543,8 +1560,8 @@
     "council.grudge.border_deal.hc01": {
       "focusTrait": "loyalty",
       "base": "{breakerPride} broke a border deal over {zoneName}. Highcrag doesn't shrug that off. Why should I trust a new promise?",
-      "high": "{breakerPride} broke a border deal over {zoneName}. Highcrag doesn't shrug that off, and I won't pretend it was nothing. Why should I trust a new promise?",
-      "low": "{breakerPride} broke a border deal over {zoneName}. Why should I trust a new promise?",
+      "high": "I won't pretend a broken border deal over {zoneName} was nothing. Why should Highcrag trust a new promise from {breakerPride}?",
+      "low": "After what happened at {zoneName}, why should I trust a new promise from {breakerPride}?",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1552,8 +1569,8 @@
     "council.grudge.shared_hunting_ground.hc01": {
       "focusTrait": "loyalty",
       "base": "We let {breakerPride} hunt at {zoneName} with us, and they broke that deal. I haven't forgotten.",
-      "high": "We let {breakerPride} hunt at {zoneName} with us, and they broke that deal. Highcrag remembers a broken word.",
-      "low": "We let {breakerPride} hunt at {zoneName} with us, and they broke that deal. I remember.",
+      "high": "Highcrag remembers a broken word. We let {breakerPride} hunt at {zoneName}, and they didn't keep that deal.",
+      "low": "You hunted with us at {zoneName} and broke that deal. I remember.",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1561,7 +1578,7 @@
     "council.grudge.alliance.hc01": {
       "focusTrait": "loyalty",
       "base": "{breakerPride} stood as an ally, then broke the alliance. I'll hear you, but I won't be quick to trust.",
-      "high": "{breakerPride} stood as an ally, then broke the alliance. I'll hear you, because that is our way, but I won't be quick to trust.",
+      "high": "I'll hear you, because that is Highcrag's way. But {breakerPride} broke an alliance with us, and I won't be quick to trust.",
       "low": "{breakerPride} broke the alliance. I'll hear you. I won't be quick to trust.",
       "slot": "hc01",
       "prideId": "highcrag",
@@ -1570,7 +1587,7 @@
     "council.grudge.admission_courtesy.hc01": {
       "focusTrait": "loyalty",
       "base": "We agreed to hear a cat at {breakerPride}'s asking, and that courtesy was broken. Don't expect me to offer it again lightly.",
-      "high": "We agreed to hear a cat at {breakerPride}'s asking, and that courtesy was broken. Highcrag doesn't offer such a thing again without cause.",
+      "high": "That courtesy was broken at {breakerPride}'s asking. Highcrag won't offer it again without cause.",
       "low": "That courtesy was broken. Don't expect me to offer it again lightly.",
       "slot": "hc01",
       "prideId": "highcrag",
@@ -1579,8 +1596,8 @@
     "council.grudge.return_of_trespasser.hc01": {
       "focusTrait": "loyalty",
       "base": "A trespasser was to be walked back unharmed, and {breakerPride} broke that. I don't take that lightly.",
-      "high": "A trespasser was to be walked back unharmed, and {breakerPride} broke that. Highcrag doesn't take that lightly.",
-      "low": "A trespasser was to be walked back unharmed, and {breakerPride} broke that. I remember.",
+      "high": "Highcrag takes a broken walk-back seriously. A trespasser was to return unharmed, and {breakerPride} didn't keep that.",
+      "low": "A trespasser should have gone back unharmed. {breakerPride} broke that, and I remember.",
       "slot": "hc01",
       "prideId": "highcrag",
       "_storyRole": "Ashmane"
@@ -1588,8 +1605,8 @@
     "council.grudge.truce.bf01": {
       "focusTrait": "aggression",
       "base": "You broke a truce with Bonefield. I don't forget a broken word. If you want to talk again, prove you can keep it.",
-      "high": "You broke a truce with Bonefield. I don't forget a broken word. If you want to talk again, prove it here.",
-      "low": "You broke a truce with Bonefield. I remember. If you want to talk, say so.",
+      "high": "You broke a truce with Bonefield, and I want it proved here if you want to talk again.",
+      "low": "You broke a truce with Bonefield. If you want to talk, say so. I remember.",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1597,8 +1614,8 @@
     "council.grudge.border_deal.bf01": {
       "focusTrait": "aggression",
       "base": "You broke the border deal over {zoneName}. Bonefield doesn't let that go. Why come back to the rock now?",
-      "high": "You broke the border deal over {zoneName}. Bonefield doesn't let that go, and I want a reason you're here.",
-      "low": "You broke the border deal over {zoneName}. Why come back now?",
+      "high": "Bonefield doesn't let a broken border deal go. You broke it over {zoneName}, so give me a reason you're here.",
+      "low": "You broke the deal over {zoneName}. Why come back now?",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1606,8 +1623,8 @@
     "council.grudge.shared_hunting_ground.bf01": {
       "focusTrait": "aggression",
       "base": "We shared the hunting at {zoneName}, and you broke it. Don't ask me to share again as if nothing happened.",
-      "high": "We shared the hunting at {zoneName}, and you broke it. Don't ask me to share again, or you'll wish you hadn't.",
-      "low": "We shared the hunting at {zoneName}, and you broke it. I remember.",
+      "high": "You broke the shared hunting at {zoneName}. Ask to share again, and you'll wish you hadn't.",
+      "low": "The shared hunting at {zoneName} was broken. I remember.",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1615,8 +1632,8 @@
     "council.grudge.alliance.bf01": {
       "focusTrait": "aggression",
       "base": "You broke an alliance with Bonefield. That's a straight insult. I'm here, but I haven't forgiven it.",
-      "high": "You broke an alliance with Bonefield. That's a straight insult, and I haven't forgiven it. I'm here anyway, so talk.",
-      "low": "You broke an alliance with Bonefield. I haven't forgiven it.",
+      "high": "An alliance with Bonefield isn't something you break and walk away from. I'm here anyway, so talk, but I haven't forgiven it.",
+      "low": "You broke an alliance with Bonefield, and I haven't forgiven it. That's all I'll say for now.",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1624,7 +1641,7 @@
     "council.grudge.admission_courtesy.bf01": {
       "focusTrait": "aggression",
       "base": "We agreed to hear someone, and you broke that courtesy. I don't like being used.",
-      "high": "We agreed to hear someone, and you broke that courtesy. I don't like being used, and I won't be again.",
+      "high": "You used a courtesy and broke it. I won't be used like that again.",
       "low": "You broke that courtesy. I don't like being used.",
       "slot": "bf01",
       "prideId": "bonefield",
@@ -1633,8 +1650,8 @@
     "council.grudge.return_of_trespasser.bf01": {
       "focusTrait": "aggression",
       "base": "A trespasser was supposed to go back unharmed, and you broke that. Say what you want, but I remember it.",
-      "high": "A trespasser was supposed to go back unharmed, and you broke that. Say what you want. I remember it, and so will you.",
-      "low": "A trespasser was supposed to go back unharmed, and you broke that. I remember it.",
+      "high": "Say what you want. A trespasser was supposed to go back unharmed, and you'll remember breaking that as well as I do.",
+      "low": "That trespasser should have gone back unharmed. You broke it, and I remember.",
       "slot": "bf01",
       "prideId": "bonefield",
       "_storyRole": "Scarjaw"
@@ -1642,8 +1659,8 @@
     "council.grudge.truce.mw01": {
       "focusTrait": "sociability",
       "base": "You broke a truce with us. I haven't forgotten. What do you want this time?",
-      "high": "You broke a truce with us. I haven't forgotten, and it still hurts to say so. What do you want this time?",
-      "low": "You broke a truce with us. I haven't forgotten. Well?",
+      "high": "It still hurts to say it, but you broke a truce with us. What do you want this time?",
+      "low": "You broke a truce with us. Well? I'm still here, and I haven't forgotten.",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1651,17 +1668,8 @@
     "council.grudge.border_deal.mw01": {
       "focusTrait": "sociability",
       "base": "The border deal over {zoneName} was broken by {breakerPride}. I came anyway. I'm listening, but I'm careful now.",
-      "high": "The border deal over {zoneName} was broken by {breakerPride}. I came anyway, because I'd rather talk. I'm listening, but I'm careful now.",
-      "low": "The border deal over {zoneName} was broken. I'm listening, but I'm careful now.",
-      "slot": "mw01",
-      "prideId": "mistwood",
-      "_storyRole": "Hollowsong"
-    },
-    "council.grudge.shared_hunting_ground.mw01": {
-      "focusTrait": "sociability",
-      "base": "We shared the hunting at {zoneName}, and that promise was broken. My pride felt that. I need a reason to trust you again.",
-      "high": "We shared the hunting at {zoneName}, and that promise was broken. My pride felt that, and so did I. I need a reason to trust you again.",
-      "low": "We shared the hunting at {zoneName}, and that promise was broken. I need a reason to trust you again.",
+      "high": "I'd rather talk than stay away, even after {breakerPride} broke the border deal over {zoneName}. I'm listening, but I'm careful now.",
+      "low": "The border deal over {zoneName} was broken. I'm careful now, but I'm listening.",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1669,8 +1677,17 @@
     "council.grudge.alliance.mw01": {
       "focusTrait": "sociability",
       "base": "The alliance is broken. I had hoped it would hold. Why should Mistwood stand with you after that?",
-      "high": "The alliance is broken. I had hoped it would hold, and I was glad of it while it did. Why should Mistwood stand with you after that?",
-      "low": "The alliance is broken. Why should Mistwood stand with you after that?",
+      "high": "I was glad of the alliance while it held, and I had hoped it would. Why should Mistwood stand with you now?",
+      "low": "The alliance didn't hold. Why should Mistwood stand with you after that?",
+      "slot": "mw01",
+      "prideId": "mistwood",
+      "_storyRole": "Hollowsong"
+    },
+    "council.grudge.shared_hunting_ground.mw01": {
+      "focusTrait": "sociability",
+      "base": "We shared the hunting at {zoneName}, and that promise was broken. My pride felt that. I need a reason to trust you again.",
+      "high": "I felt that broken promise as much as my pride did. We shared the hunting at {zoneName}, and I need a reason to trust you again.",
+      "low": "That hunting promise at {zoneName} was broken. I need a reason to trust you again.",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1678,8 +1695,8 @@
     "council.grudge.admission_courtesy.mw01": {
       "focusTrait": "sociability",
       "base": "The courtesy we promised was broken. I still want to talk, but I won't be hurried into another such promise.",
-      "high": "The courtesy we promised was broken. I still want to talk, because that matters to me, but I won't be hurried into another such promise.",
-      "low": "The courtesy we promised was broken. I won't be hurried into another such promise.",
+      "high": "Talk still matters to me, even after that courtesy was broken. I just won't be hurried into another such promise.",
+      "low": "I won't be hurried into another courtesy after the last was broken.",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1687,8 +1704,8 @@
     "council.grudge.return_of_trespasser.mw01": {
       "focusTrait": "sociability",
       "base": "Someone was to be walked back unharmed, and that didn't happen. I remember who broke that.",
-      "high": "Someone was to be walked back unharmed, and that didn't happen. I remember who broke that, and I wish it had gone otherwise.",
-      "low": "Someone was to be walked back unharmed, and that didn't happen. I remember.",
+      "high": "I wish it had gone otherwise. Someone was to be walked back unharmed, and I remember who broke that.",
+      "low": "Someone should have been walked back unharmed. I remember that it wasn't.",
       "slot": "mw01",
       "prideId": "mistwood",
       "_storyRole": "Hollowsong"
@@ -1745,7 +1762,7 @@
     ]
   },
   "standingOutcomes": {
-    "_note": "v0.2c \u00a710.5, \u00a710.6, \u00a713a, ANNA-APPROVED. Speak for moves a pride warmer, speak against cooler, at most a small shift per council, inside a lifetime pool. Walk-out makes every seated pride think less of you, on top of any stance, from the same pool. Breaking a deal is a separate cost and is not shown in these lines. When the pool is spent there is no further change and no receipt; use capped only as narration or Lore Book history.",
+    "_note": "v0.2d \u00a710.5, \u00a710.6, \u00a713a and \u00a713a.x, ANNA-APPROVED standing rules with Tundra's clamp-line call. Speak for moves a pride warmer, speak against cooler, at most a small shift per council, inside a lifetime pool. Walk-out makes every seated pride think less of you, on top of any stance, from the same pool. Breaking a deal is a separate cost and is not shown in these lines. The line follows the change actually applied after clamping (\u00a713a.x). Any non-zero applied change uses warmer or cooler plus a receipt for the applied amount, even if it lands exactly on the cap. capped applies only when the applied delta is zero (the pride was already at the cap in that direction): narration or Lore Book only, no receipt.",
     "warmer": {
       "narration": "{pride} is warmer toward you.",
       "lore": "{pride} grew warmer toward you after the council at {zoneName}.",
@@ -1764,9 +1781,8 @@
     "capped": {
       "narration": "{pride} has made up its mind about you.",
       "lore": "{pride} has made up its mind about you.",
-      "outcome": "{pride} has made up its mind about you.",
       "receipt": false,
-      "_note": "Lore Book or narration only. No ledger receipt and no further prideToPlayer change once the lifetime pool is spent."
+      "_note": "\u00a713a.x: play this only when the applied delta is zero. If any change is applied after the clamp, even when the new total is at the cap, use warmer or cooler plus a receipt for the applied amount. This line is Lore Book or narration only and must not be wired as a receipt (there is no outcome field)."
     },
     "walkOut": {
       "narration": "Every pride that sat here thinks less of you.",
@@ -1780,7 +1796,7 @@
   },
   "offlineFallback": {
     "id": "council.offline.complete",
-    "_note": "A complete council that plays start to finish with no AI, using each leader's base (default) line. Bindings are an example only; the engine fills tokens from the live council. Every leader (hc01, bf01, mw01) speaks in the opening, and again on the stay-out, speak-for, or walk-out branch.",
+    "_note": "A complete council that plays start to finish with no AI, using each leader's base (default) line. Bindings are an example only; the engine fills tokens from the live council. Every offered choice in start has a defined branch: stay_out, speak_for_a, speak_for_b, and leave. Every leader (hc01, bf01, mw01) speaks in the opening.",
     "exampleBindings": {
       "zoneName": "The Split Rock",
       "prideA": "Highcrag",
@@ -1788,7 +1804,8 @@
       "kindLabel": "border deal",
       "stanceWord": "cold",
       "leaderA": "{name}",
-      "leaderB": "{name}"
+      "leaderB": "{name}",
+      "thirdPride": "Mistwood"
     },
     "start": [
       {
@@ -1922,7 +1939,7 @@
         },
         {
           "kind": "narration",
-          "text": "Mistwood's feeling toward you is unchanged."
+          "text": "{thirdPride}'s feeling toward you is unchanged."
         },
         {
           "kind": "narration",
@@ -1970,7 +1987,55 @@
         },
         {
           "kind": "narration",
-          "text": "Mistwood's feeling toward you is unchanged."
+          "text": "{thirdPride}'s feeling toward you is unchanged."
+        },
+        {
+          "kind": "narration",
+          "text": "The council is over. No new deals were made."
+        },
+        {
+          "kind": "outcome",
+          "text": "The council ends, and the leaders leave {zoneName}."
+        }
+      ],
+      "speak_for_b": [
+        {
+          "kind": "narration",
+          "text": "You spoke for {prideB}. The leaders settle the matter on their own, and your stance is remembered."
+        },
+        {
+          "speaker": "bf01",
+          "slot": "bf01",
+          "speechPath": "council.accept.bf01",
+          "band": "base",
+          "beat": null,
+          "say": "Fine. Bonefield agrees. Keep it.",
+          "kind": "line"
+        },
+        {
+          "speaker": "hc01",
+          "slot": "hc01",
+          "speechPath": "council.refuse.hc01",
+          "band": "base",
+          "beat": null,
+          "say": "No. That deal doesn't suit Highcrag. I won't bind my pride to it.",
+          "kind": "line"
+        },
+        {
+          "kind": "narration",
+          "text": "There is no agreement. {prideA} refused a {kindLabel} with {prideB}, and things between them stay as they were."
+        },
+        {
+          "kind": "narration",
+          "text": "{prideB} is warmer toward you."
+        },
+        {
+          "kind": "narration",
+          "text": "{prideA} is cooler toward you."
+        },
+        {
+          "kind": "narration",
+          "text": "{thirdPride}'s feeling toward you is unchanged."
         },
         {
           "kind": "narration",
@@ -2027,7 +2092,7 @@
         },
         {
           "kind": "narration",
-          "text": "Mistwood is cooler toward you."
+          "text": "{thirdPride} is cooler toward you."
         },
         {
           "kind": "narration",
@@ -2044,7 +2109,7 @@
       "kind": "narration",
       "text": "{pride} has made up its mind about you.",
       "receipt": false,
-      "_note": "Use this instead of warmer/cooler when the lifetime pool is spent. Lore Book or narration only."
+      "_note": "\u00a713a.x: swap this in only when the applied change after clamping is zero. If a change is applied, even when it lands on the cap, keep the warmer or cooler line and its receipt. Lore Book or narration only; no receipt."
     },
     "leaders": [
       "hc01",
@@ -2059,7 +2124,7 @@
       "The council record: season, region, early or scheduled, agenda items, outcomes, playerStance, walkedOut.",
       "Live agreements that touch the cast's prides, and any broke_* fact a sitting leader knows, including the grudge pick (most recent broke_* against the speaker's pride; tie order in grudgeLines.tieOrder).",
       "The last council's one-line summary.",
-      "Direction of any prideToPlayer shift this council (warmer, cooler, unchanged), and whether a pride's lifetime pool is already spent (use the made-up-their-mind line, and do not ask for a receipt).",
+      "Direction of any prideToPlayer shift this council (warmer, cooler, unchanged). Per \u00a713a.x, use warmer or cooler (with a receipt) whenever the applied change after clamping is non-zero, even if it lands on the cap. Use the made-up-their-mind line only when the applied change is zero, as narration or a Lore Book line, with no receipt.",
       "Named cats on admission courtesy or return of a trespasser, filled from the agreement's catId."
     ],
     "tone": [

@@ -6,6 +6,7 @@ name: Upgrade check
 # Per-still head boxes, ears inside, toast clear of the Lore book.
 # Silent in-app step is 0.1.13 to 0.1.13-test.1.
 # Season-one story depth: region callbacks, mate lines, rival loss.
+# Council scenes v2a: the line follows the applied change.
 on:
   workflow_dispatch:
   push:

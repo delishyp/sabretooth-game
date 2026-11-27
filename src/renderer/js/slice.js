@@ -563,8 +563,8 @@
         return { state: s };
       }
       const Councils = typeof require === 'function' ? require('./councils') : (typeof self !== 'undefined' ? self.Councils : null);
-      if (Councils && s.pending && s.pending.council && (action.type === 'choose' || action.type === 'continue')) {
-        Councils.resolve(s, action.choiceId);
+      if (Councils && s.pending && s.pending.council && (action.type === 'choose' || action.type === 'continue' || (action.type === 'advanceBeat' && s.pending.resolved))) {
+        Councils.resolve(s, action.type === 'advanceBeat' ? 'continue' : action.choiceId);
         return { state: s };
       }
       if (s.phase === 'conversation') {
